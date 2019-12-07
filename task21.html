@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+#div1 {
+  width: 350px;
+  height: 70px;
+  padding: 10px;
+  border: 1px solid #aaaaaa;
+}
+</style>
+<script>
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  ev.target.appendChild(document.getElementById(data));
+}
+</script>
+</head>
+<body>
+
+<p>Drag the W3Schools image into the rectangle:</p>
+
+<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+<br>
+<img id="drag1" src="http://pm1.narvii.com/6448/9c33f12332c17a95169ba5adb38ccf52691ca709_00.jpg" draggable="true" ondragstart="drag(event)" height="69">
+
+<a style="background: black; color: white;" href="https://www.w3schools.com/quiztest/quiztest.asp?qtest=HTML" target="blank">Quiz yourself</a>
+
+<br>
+
+<br>
+<a href="task20.html">BACK</a>
+<br>
+<a href="task22.html">NEXT</a>
+
+
+</body>
+</html>

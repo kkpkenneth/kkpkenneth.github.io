@@ -1,0 +1,57 @@
+<html>
+<head>
+    <title>Clicker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            margin:0px;
+           
+        }
+
+        button{
+            height: 100%;
+            width: 100%;
+            font-size: 100px;
+            color: white;
+            border-radius: 0px;
+            border-style: none; 
+            outline: none;
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <script type="text/javascript">
+    var clicks = 0;
+    function onClick() {
+        clicks += 1;
+        document.getElementById("clicks").innerHTML = clicks;
+
+    }
+
+    function random_bg_color() {
+        var x = Math.floor(Math.random() * 256);
+        var y = Math.floor(Math.random() * 256);
+        var z = Math.floor(Math.random() * 256);
+        var bgColor = "rgb(" + x + "," + y + "," + z + ")";
+        console.log(bgColor);
+  
+        document.getElementById("clicks").style.backgroundColor = bgColor;
+    }
+
+    </script>
+    <button id="clicks" type="button" onClick="onClick();random_bg_color();">Click me</button>
+    <audio id="myAudio" autoplay>
+    <source src="Music/bgm.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio>
+
+
+</body>
+</html>

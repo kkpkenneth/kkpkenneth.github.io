@@ -26,8 +26,8 @@
 
 
     }
-    .skin{
-        background-image: url("Images/baby/cowboy-01.svg");
+    #skin{
+        background-image: url("Images/baby/skin-1.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -193,7 +193,7 @@
 </style>
 <body>
 
-    <div class="skin" class="baby"></div>
+    <div id="skin" class="baby"></div>
     <div class="hat" class="baby"></div>
     <div class="hair" class="baby"></div>
     <div class="bangs" class="baby"></div>
@@ -204,7 +204,7 @@
     <div class="shoes" class="baby"></div>
 
     <div class ="buttons">
-    <button class="buttonskin" onclick="changeskin()">Skin</button>
+    <button class="buttonskin" onClick="changeskin();">Skin</button>
     <button class="buttonhat">Hat</button>
     <button class="buttonhair">Hair</button>
     <button class="buttonbangs">Bangs</button>
@@ -217,14 +217,16 @@
     </div> 
 
 <script>
+    var  skinnumber = 1;
+
     function changeskin() {
-    var skinnumber = 0;
-    var y = 'url ("Images/baby/cowboy-" + skinnumber + ".svg")'
-    var x = document.getElementsByClassName("skin");
-    skinnumber += 1;
-    x.style.backgroundImage = y;
-    console.log(y);
-}
+        skinnumber += 1;
+        if (skinnumber > 6) {
+            skinnumber = 1;
+        }
+        document.getElementById("skin").style.backgroundImage = `url('Images/baby/skin-${skinnumber}.svg')`;
+        }
+
 
    function playAudio() { 
         var a = document.getElementById("myAudio");

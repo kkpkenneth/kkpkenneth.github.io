@@ -42,8 +42,8 @@
         z-index: -2;
     }
 
-    .hat{
-        background-image: url("Images/baby/cowboy-02.svg");
+    #hat{
+        background-image: url("Images/baby/hat-1.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -194,7 +194,7 @@
 <body>
 
     <div id="skin" class="baby"></div>
-    <div class="hat" class="baby"></div>
+    <div id="hat" class="baby"></div>
     <div class="hair" class="baby"></div>
     <div class="bangs" class="baby"></div>
     <div class="top" class="baby"></div>
@@ -205,7 +205,7 @@
 
     <div class ="buttons">
     <button class="buttonskin" onClick="changeskin();">Skin</button>
-    <button class="buttonhat">Hat</button>
+    <button class="buttonhat" onClick="changehat();">Hat</button>
     <button class="buttonhair">Hair</button>
     <button class="buttonbangs">Bangs</button>
     <button class="buttonscarf">Scarf</button>
@@ -218,6 +218,7 @@
 
 <script>
     var  skinnumber = 1;
+    var  hatnumber = 1;
 
     function changeskin() {
         skinnumber += 1;
@@ -227,10 +228,18 @@
         document.getElementById("skin").style.backgroundImage = `url('Images/baby/skin-${skinnumber}.svg')`;
         }
 
+   function changehat() {
+        hatnumber += 1;
+        if (hatnumber > 7) {
+            hatnumber = 1;
+        }
+        document.getElementById("hat").style.backgroundImage = `url('Images/baby/hat-${hatnumber}.svg')`;
+        }
+
 
    function playAudio() { 
         var a = document.getElementById("myAudio");
-   
+    
         if (a.paused) {
             a.play();
         }
@@ -238,7 +247,8 @@
             a.pause();
             a.currentTime = 0;
         }
-};
+        };
+
     
 </script>
 

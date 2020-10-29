@@ -140,8 +140,8 @@
         margin-left: -9em;
         z-index: 0;
     }
-    .bottom{
-        background-image: url("Images/baby/cowboy-08.svg");
+    #bottom{
+        background-image: url("Images/baby/bottom-1.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -231,7 +231,7 @@
     .belt{
         top: 320px;
     }
-    .bottom{
+    #bottom{
         top: 320px;
     }
     .shoes{
@@ -252,7 +252,7 @@
     <div id="bangs" class="baby"></div>
     <div id="scarf" class="baby"></div>
     <div id="top" class="baby"></div>
-    <div class="bottom" class="baby"></div>
+    <div id="bottom" class="baby"></div>
     <div class="belt" class="baby"></div>
     <div class="shoes" class="baby"></div>
 
@@ -264,7 +264,7 @@
     <button class="buttonscarf" onClick="changescarf();">Scarf</button>
     <button class="buttontop" onClick="changetop();">Top</button>
     <button class="buttonbelt" onClick="changebelt();">Belt</button>
-    <button class="buttonbottom">Bottom</button>
+    <button class="buttonbottom" onClick="changebottom();">Bottom</button>
     <button class="buttonshoes">Shoes</button>
     <button class="buttonmusic" onClick="playAudio();" ><i class='fas fa-music'></i></button>
     </div> 
@@ -279,6 +279,7 @@
     var bangsnumber = 1;
     var scarfnumber = 1;
     var topnumber = 1;
+    var bottomnumber = 1;
 
     function changeskin() {
         skinnumber += 1;
@@ -322,11 +323,19 @@
           
     function changetop() {
         topnumber += 1;
-        if (topnumber > 6) {
+        if (topnumber > 8) {
             topnumber = 1;
         }
         document.getElementById("top").style.backgroundImage = `url('Images/baby/top-${topnumber}.svg')`;
         }
+
+    function changebottom() {
+        bottomnumber += 1;
+        if (bottomnumber > 8) {
+            bottomnumber = 1;
+        }
+        document.getElementById("bottom").style.backgroundImage = `url('Images/baby/bottom-${bottomnumber}.svg')`;
+        }        
 
    function playAudio() { 
         var a = document.getElementById("myAudio");

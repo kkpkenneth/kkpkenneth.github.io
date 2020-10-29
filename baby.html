@@ -61,8 +61,8 @@
         z-index: 4;
     }
 
-     .hair{
-        background-image: url("Images/baby/cowboy-03.svg");
+     #hair{
+        background-image: url("Images/baby/hair-1.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -77,8 +77,8 @@
         z-index: -3;
     }
 
-     .bangs{
-        background-image: url("Images/baby/cowboy-04.svg");
+     #bangs{
+        background-image: url("Images/baby/bangs-1.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -93,8 +93,8 @@
         z-index: 2;
     }
 
-    .scarf{
-        background-image: url("Images/baby/cowboy-05.svg");
+    #scarf{
+        background-image: url("Images/baby/scarf-1.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -106,11 +106,11 @@
         position: absolute;
         margin-top: -12em;
         margin-left: -9em;
-        z-index: 0;
+        z-index: 5;
     }
 
-    .top{
-        background-image: url("Images/baby/cowboy-06.svg");
+    #top{
+        background-image: url("Images/baby/top-1.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -204,7 +204,7 @@
 
     }
 @media only screen and (max-height: 550px) {
-#skin{
+    #skin{
         top: 320px;
     }
 
@@ -212,19 +212,19 @@
         top: 320px;
     }
 
-     .hair{
+    #hair{
         top: 320px;
     }
 
-     .bangs{
+    #bangs{
         top: 320px;
     }
 
-    .scarf{
+    #scarf{
         top: 320px;
     }
 
-    .top{
+    #top{
         top: 320px;
     }
 
@@ -248,21 +248,21 @@
 
     <div id="skin" class="baby"></div>
     <div id="hat" class="baby"></div>
-    <div class="hair" class="baby"></div>
-    <div class="bangs" class="baby"></div>
-    <div class="top" class="baby"></div>
+    <div id="hair" class="baby"></div>
+    <div id="bangs" class="baby"></div>
+    <div id="scarf" class="baby"></div>
+    <div id="top" class="baby"></div>
     <div class="bottom" class="baby"></div>
     <div class="belt" class="baby"></div>
-    <div class="scarf" class="baby"></div>
     <div class="shoes" class="baby"></div>
 
     <div class ="buttons">
     <button class="buttonskin" onClick="changeskin();">Skin</button>
     <button class="buttonhat" onClick="changehat();">Hat</button>
-    <button class="buttonhair">Hair</button>
-    <button class="buttonbangs">Bangs</button>
-    <button class="buttonscarf">Scarf</button>
-    <button class="buttontop">Top</button>
+    <button class="buttonhair" onClick="changehair();">Hair</button>
+    <button class="buttonbangs" onClick="changebangs();">Bangs</button>
+    <button class="buttonscarf" onClick="changescarf();">Scarf</button>
+    <button class="buttontop" onClick="changetop();">Top</button>
     <button class="buttonbelt">Belt</button>
     <button class="buttonbottom">Bottom</button>
     <button class="buttonshoes">Shoes</button>
@@ -273,8 +273,12 @@
 
 
 <script>
-    var  skinnumber = 1;
-    var  hatnumber = 1;
+    var skinnumber = 1;
+    var hatnumber = 1;
+    var hairnumber = 1;
+    var bangsnumber = 1;
+    var scarfnumber = 1;
+    var topnumber = 1;
 
     function changeskin() {
         skinnumber += 1;
@@ -284,7 +288,7 @@
         document.getElementById("skin").style.backgroundImage = `url('Images/baby/skin-${skinnumber}.svg')`;
         }
 
-   function changehat() {
+    function changehat() {
         hatnumber += 1;
         if (hatnumber > 7) {
             hatnumber = 1;
@@ -292,6 +296,37 @@
         document.getElementById("hat").style.backgroundImage = `url('Images/baby/hat-${hatnumber}.svg')`;
         }
 
+    function changehair() {
+        hairnumber += 1;
+        if (hairnumber > 8) {
+            hairnumber = 1;
+        }
+        document.getElementById("hair").style.backgroundImage = `url('Images/baby/hair-${hairnumber}.svg')`;
+        } 
+
+    function changebangs() {
+        bangsnumber += 1;
+        if (bangsnumber > 7) {
+            bangsnumber = 1;
+        }
+        document.getElementById("bangs").style.backgroundImage = `url('Images/baby/bangs-${bangsnumber}.svg')`;
+        }
+
+    function changescarf() {
+        scarfnumber += 1;
+        if (scarfnumber > 6) {
+            scarfnumber = 1;
+        }
+        document.getElementById("scarf").style.backgroundImage = `url('Images/baby/scarf-${scarfnumber}.svg')`;
+        }
+          
+    function changetop() {
+        topnumber += 1;
+        if (topnumber > 6) {
+            topnumber = 1;
+        }
+        document.getElementById("top").style.backgroundImage = `url('Images/baby/top-${topnumber}.svg')`;
+        }
 
    function playAudio() { 
         var a = document.getElementById("myAudio");

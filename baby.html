@@ -46,7 +46,7 @@
     }
 
     #hat{
-        background-image: url("Images/baby/hat-1.svg");
+        background-image: url("Images/baby/hat-0.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -62,7 +62,7 @@
     }
 
      #hair{
-        background-image: url("Images/baby/hair-1.svg");
+        background-image: url("Images/baby/hair-0.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -78,7 +78,7 @@
     }
 
      #bangs{
-        background-image: url("Images/baby/bangs-1.svg");
+        background-image: url("Images/baby/bangs-0.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -94,7 +94,7 @@
     }
 
     #scarf{
-        background-image: url("Images/baby/scarf-1.svg");
+        background-image: url("Images/baby/scarf-0.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -110,7 +110,7 @@
     }
 
     #top{
-        background-image: url("Images/baby/top-1.svg");
+        background-image: url("Images/baby/top-0.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -125,8 +125,8 @@
         z-index: 0;
     }
 
-    .belt{
-        background-image: url("Images/baby/cowboy-07.svg");
+    #belt{
+        background-image: url("Images/baby/belt-0.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -138,25 +138,10 @@
         position: absolute;
         margin-top: -12em;
         margin-left: -9em;
-        z-index: 0;
+        z-index: 1;
     }
     #bottom{
-        background-image: url("Images/baby/bottom-1.svg");
-        background-position: center;
-        background-size: contain;
-        background-repeat: no-repeat;
-        text-align: center;
-        width:300px;
-        height: 400px;
-        top: 60%;
-        left: 50%;
-        position: absolute;
-        margin-top: -12em;
-        margin-left: -9em;
-        z-index: 0;
-    }
-    .shoes{
-        background-image: url("Images/baby/cowboy-09.svg");
+        background-image: url("Images/baby/bottom-0.svg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;
@@ -169,6 +154,21 @@
         margin-top: -12em;
         margin-left: -9em;
         z-index: -1;
+    }
+    #shoes{
+        background-image: url("Images/baby/shoes-0.svg");
+        background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        text-align: center;
+        width:300px;
+        height: 400px;
+        top: 60%;
+        left: 50%;
+        position: absolute;
+        margin-top: -12em;
+        margin-left: -9em;
+        z-index: -2;
     }
     button{
         text-align: center;
@@ -275,8 +275,8 @@
     <div id="scarf" class="baby"></div>
     <div id="top" class="baby"></div>
     <div id="bottom" class="baby"></div>
-    <div class="belt" class="baby"></div>
-    <div class="shoes" class="baby"></div>
+    <div id="belt" class="baby"></div>
+    <div id="shoes" class="baby"></div>
 
     <div class ="buttons">
     <button class="buttonskin" onClick="changeskin();">Skin</button>
@@ -287,7 +287,7 @@
     <button class="buttontop" onClick="changetop();">Top</button>
     <button class="buttonbelt" onClick="changebelt();">Belt</button>
     <button class="buttonbottom" onClick="changebottom();">Bottom</button>
-    <button class="buttonshoes">Shoes</button>
+    <button class="buttonshoes" onClick="changeshoes();">Shoes</button>
     <button class="buttonmusic" onClick="playAudio();" ><i class='fas fa-music'></i></button>
     </div> 
 
@@ -295,13 +295,26 @@
 
 
 <script>
-    var skinnumber = 1;
-    var hatnumber = 1;
-    var hairnumber = 1;
-    var bangsnumber = 1;
-    var scarfnumber = 1;
-    var topnumber = 1;
-    var bottomnumber = 1;
+    var skinnumber = Math.floor(Math.random() * 6)+1;
+    var hatnumber = Math.floor(Math.random() * 20);
+    var hairnumber = Math.floor(Math.random() * 20);
+    var bangsnumber = Math.floor(Math.random() * 20);
+    var scarfnumber = Math.floor(Math.random() * 20);
+    var topnumber = Math.floor(Math.random() * 20);
+    var bottomnumber = Math.floor(Math.random() * 20);
+    var beltnumber = Math.floor(Math.random() * 20);
+    var shoesnumber = Math.floor(Math.random() * 20);
+
+    document.getElementById("skin").style.backgroundImage = `url('Images/baby/skin-${skinnumber}.svg')`;
+    document.getElementById("hat").style.backgroundImage = `url('Images/baby/hat-${hatnumber}.svg')`;
+    document.getElementById("hair").style.backgroundImage = `url('Images/baby/hair-${hairnumber}.svg')`;
+    document.getElementById("bangs").style.backgroundImage = `url('Images/baby/bangs-${bangsnumber}.svg')`;
+    document.getElementById("scarf").style.backgroundImage = `url('Images/baby/scarf-${scarfnumber}.svg')`;
+    document.getElementById("top").style.backgroundImage = `url('Images/baby/top-${topnumber}.svg')`;
+    document.getElementById("bottom").style.backgroundImage = `url('Images/baby/bottom-${bottomnumber}.svg')`;
+    document.getElementById("belt").style.backgroundImage = `url('Images/baby/belt-${beltnumber}.svg')`;
+    document.getElementById("shoes").style.backgroundImage = `url('Images/baby/shoes-${shoesnumber}.svg')`;
+        
 
     function changeskin() {
         skinnumber += 1;
@@ -314,23 +327,23 @@
     function changehat() {
         hatnumber += 1;
         if (hatnumber > 7) {
-            hatnumber = 1;
+            hatnumber = 0;
         }
         document.getElementById("hat").style.backgroundImage = `url('Images/baby/hat-${hatnumber}.svg')`;
         }
 
     function changehair() {
         hairnumber += 1;
-        if (hairnumber > 8) {
-            hairnumber = 1;
+        if (hairnumber > 30) {
+            hairnumber = 0;
         }
         document.getElementById("hair").style.backgroundImage = `url('Images/baby/hair-${hairnumber}.svg')`;
         } 
 
     function changebangs() {
         bangsnumber += 1;
-        if (bangsnumber > 7) {
-            bangsnumber = 1;
+        if (bangsnumber > 17) {
+            bangsnumber = 0;
         }
         document.getElementById("bangs").style.backgroundImage = `url('Images/baby/bangs-${bangsnumber}.svg')`;
         }
@@ -338,15 +351,15 @@
     function changescarf() {
         scarfnumber += 1;
         if (scarfnumber > 6) {
-            scarfnumber = 1;
+            scarfnumber = 0;
         }
         document.getElementById("scarf").style.backgroundImage = `url('Images/baby/scarf-${scarfnumber}.svg')`;
         }
           
     function changetop() {
         topnumber += 1;
-        if (topnumber > 8) {
-            topnumber = 1;
+        if (topnumber > 13) {
+            topnumber = 0;
         }
         document.getElementById("top").style.backgroundImage = `url('Images/baby/top-${topnumber}.svg')`;
         }
@@ -354,10 +367,27 @@
     function changebottom() {
         bottomnumber += 1;
         if (bottomnumber > 8) {
-            bottomnumber = 1;
+            bottomnumber = 0;
         }
         document.getElementById("bottom").style.backgroundImage = `url('Images/baby/bottom-${bottomnumber}.svg')`;
-        }        
+        } 
+
+    function changebelt() {
+        beltnumber += 1;
+        if (beltnumber > 3) {
+            beltnumber = 0;
+        }
+        document.getElementById("belt").style.backgroundImage = `url('Images/baby/belt-${beltnumber}.svg')`;
+        }  
+
+    function changeshoes() {
+        shoesnumber += 1;
+        if (shoesnumber > 1) {
+            shoesnumber = 0;
+        }
+        document.getElementById("shoes").style.backgroundImage = `url('Images/baby/shoes-${shoesnumber}.svg')`;
+        }          
+
 
    function playAudio() { 
         var a = document.getElementById("myAudio");

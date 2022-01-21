@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<style>
+#myContainer {
+  width: 400px;
+  height: 400px;
+  position: relative;
+  background: #FC0FC0;
+}
+#myAnimation {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  background-color: yellow;
+}
+
+#myAnimation2 {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top:100px;
+  left:100px;
+  background-color: lime;
+}
+</style>
+<body>
+
+<p>
+<button onclick="myMove()">Click Me</button> 
+</p>
+
+<div id ="myContainer">
+<div id ="myAnimation"></div>
+<div id ="myAnimation2"></div>
+</div>
+
+<script>
+var id = null;
+function myMove() {
+  var elem = document.getElementById("myAnimation"); 
+  var elem2 = document.getElementById("myAnimation2");
+  var time = 0;
+  var time2 = 0;
+  var pos = 0;
+  var pos2 = 0;
+  var pos3 = 0;
+  var pos4 = 0;
+  clearInterval(id);
+  id = setInterval(frame, 1);
+  id = setInterval(frame2, 8);
+  function frame() {
+  	  time++;
+    if (time < 351) { 
+      pos++;
+      elem.style.top = pos + 'px'; 
+    } 
+    
+    else if (time < 701) { 
+      pos2++;
+      elem.style.left = pos2 + 'px'; 
+      
+    }
+    
+     else if (time < 1051) {
+      pos--; 
+      elem.style.top = pos + 'px'; 
+      
+    }
+    
+     else if (time < 1401) {
+      pos2--; 
+      elem.style.left = pos2 + 'px'; 
+      
+    }
+    
+    else
+    time = 0;
+  }
+  
+  function frame2() {
+  time2++;
+    if (time2 < 176) { 
+      pos3++;
+      elem2.style.top = 100 + pos3 + 'px'; 
+    } 
+    
+    else if (time2 < 351) { 
+      pos4++;
+      elem2.style.left = 100 + pos4 + 'px'; 
+      
+    }
+    
+     else if (time2 < 526) {
+      pos3--; 
+      elem2.style.top = 100 + pos3 + 'px'; 
+      
+    }
+    
+     else if (time2 < 701) {
+      pos4--; 
+      elem2.style.left = 100 + pos4 + 'px'; 
+      
+    }
+    else
+    time2 = 0;
+  }
+}
+</script>
+
+</body>
+</html>

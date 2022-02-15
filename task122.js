@@ -1,4 +1,6 @@
 let status = "stopped";
+let status2 = "stopped";
+let status3 = "stopped";
 const place=["Bedroom", "Living room", "Kitchen", "Bathroom", "Basement", "Attic", "Garden", "Swimming pool", "Rainforest", "Ocean", "Desert", "Grassland", "Savanna", "Taiga", "Tundra"]
 const game=["Special mission", "Walk the dog", "", "Watch a cowgirl movie", "Eat with a spoon", "Iron the clothes", "Order bento delivery", "Take a car ride", "Plant a lotus", "Do 69 sit ups or push ups", "Tidy up"]
 const time=["5 min", "10 min", "15 min", "20 min", "25 min", "30 min", "35 min", "40 min", "45 min", "50 min", "55 min", "60 min", "70 min", "80 min", "90 min", "100 min", "120 min" ]
@@ -40,35 +42,35 @@ function startStop(){
 
 function startStop2(){
 
-    if(status === "stopped"){
+    if(status2 === "stopped"){
 
         interval2 = window.setInterval(stopWatch2, 0);
         document.getElementById("startStop2").innerHTML = "Stop Touching";
         playAudio();
-        status = "started";
+        status2 = "started";
     }
     else{
 
         window.clearInterval(interval2);
         document.getElementById("startStop2").innerHTML = "Touch Again";
-        status = "stopped";
+        status2 = "stopped";
     }
 } 
 
 function startStop3(){
 
-    if(status === "stopped"){
+    if(status3 === "stopped"){
 
         interval3 = window.setInterval(stopWatch3, 0);
         document.getElementById("startStop3").innerHTML = "Stop Touching";
         playAudio();
-        status = "started";
+        status3 = "started";
     }
     else{
 
         window.clearInterval(interval3);
         document.getElementById("startStop3").innerHTML = "Touch Again";
-        status = "stopped";
+        status3 = "stopped";
     }
 } 
 function playAudio() { 

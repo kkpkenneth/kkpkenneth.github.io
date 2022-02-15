@@ -75,5 +75,5 @@ function startStop3(){
 } 
 function playAudio() { 
         var a = document.getElementById("myAudio");
-           
+           a.play();
         }

@@ -1,0 +1,468 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Albania</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="Images/food.png" type="image/png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f1f1f1;
+  padding: 20px;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* Center website */
+.main {
+  max-width: 1000px;
+  margin: auto;
+}
+.content {
+  animation: fade 1s ;
+  position:relative;
+} 
+
+@keyframes fade {
+  0% {
+    opacity: 10%;
+    bottom:-50px;
+  }
+  100% {
+   opacity: 100%;
+   bottom:-0px;
+  }
+}
+
+h1 {
+  font-size: 50px;
+  word-break: break-all;
+}
+
+.row {
+  margin: 10px -16px;
+
+}
+
+/* Add padding BETWEEN each column */
+.row,
+.row > .column {
+  padding: 8px;
+}
+
+/* Create three equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 33.33%;
+  display: none; /* Hide all elements by default */
+}
+
+@media only screen and (max-width: 800px) {
+  .column {
+    width: 100%;
+  }
+}
+
+/* Clear floats after rows */ 
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Content */
+.content {
+  background-color: white;
+  padding: 10px;
+  
+}
+
+/* The "show" class is added to the filtered elements */
+.show {
+  display: block;
+}
+
+/* Style the buttons */
+.btn {
+  border: none;
+  outline: none;
+  padding: 12px 16px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #ddd;
+}
+
+.btn.active {
+  background-color: #666;
+  color: white;
+}
+
+img{
+  object-fit:cover;
+  width: 100px;
+  height: 200px;
+}
+
+
+          }
+    
+
+         
+#next,#back{
+            padding: 100% 10px 100% 10px;
+            background-color:#AFB4E0 ;
+            transform: translate(0%, -50%);
+            color:#000000 ;
+            text-decoration: none;
+          }
+
+
+
+         
+
+          #next{
+            position: absolute;
+            top: 50%;
+            right: 0px;
+          }
+
+          #back{
+            position: absolute;
+            top: 50%;
+            left: 0px;
+
+          }
+
+        
+
+         
+          a:hover {
+            background-color: #FEFBFC;
+          }
+           #next2{
+            position: absolute;
+            top: 0%;
+            right: 0px;
+            border-bottom-left-radius: 5px ;
+          }
+
+          #back2{
+            position: absolute;
+            top:  0%;
+            left: 0px;
+            border-bottom-right-radius: 5px;
+
+          }
+
+        
+
+  #next2,#back2{
+     padding: 7px 10px 7px 10px;
+            background-color:#AFB4E0 ;
+            transform: translate(0%, 0%);
+            color:#000000 ;
+            text-decoration: none;
+            display: none;
+          }
+
+  @media only screen and (max-width: 600px) {
+#next2,#back2{
+   display: block;
+          }        
+
+#next,#back{
+        display: none;
+      }
+</style>
+</head>
+<body>
+
+<!-- MAIN (Center website) -->
+<div class="main">
+
+<hr>
+
+<div id="myBtnContainer">
+  <button class="btn active" onclick="filterSelection('all')"> All</button>
+  <button class="btn" onclick="filterSelection('JP FOOD')"> Japanses Food</button>
+  <button class="btn" onclick="filterSelection('Italian Food')"> Italian Food</button>
+  <button class="btn" onclick="filterSelection('Chinese Food')"> Chinese Food</button>
+  <button class="btn" onclick="filterSelection('French Food')"> French Food</button>
+  <button class="btn" onclick="filterSelection('American Food')"> American Food</button>
+  <button class="btn" onclick="filterSelection('Belgium Food')"> Belgian Food</button>
+</div>
+
+<!-- Portfolio Gallery Grid -->
+<div class="row">
+  <div class="column JP FOOD">
+    <div class="content">
+      <img src="Images/UDON.jpg" alt="Soup Udon" style="width:100%">
+      <h4>Soup Udon</h4>
+      <p> Noodles with ingredients what you like</p>
+    </div>
+  </div>
+  <div class="column JP FOOD">
+    <div class="content">
+    <img src="Images/Sushi.jpg" alt="Sushi" style="width:100%">
+      <h4>Sushi</h4>
+      <p>Rice and raw seafood with seaweeed</p>
+    </div>
+  </div>
+  <div class="column JP FOOD">
+    <div class="content">
+    <img src="Images/Tempura.jpg" alt="Tempura" style="width:100%">
+      <h4>Tempura</h4>
+      <p>Crispy Shrimp and Vegatables</p>
+    </div>
+  </div>
+  
+  <div class="column JP FOOD">
+    <div class="content">
+      <img src="Images/sashimi.jpg" alt="Sashimi" style="width:100%">
+      <h4>Sashimi</h4>
+      <p>Raw Seafood</p>
+    </div>
+  </div>
+  <div class="column JP FOOD">
+    <div class="content">
+    <img src="Images/miso-soup.jpg" alt="Miso Soup" style="width:100%">
+      <h4>Miso Soup</h4>
+      <p>Great soup with tofu and seaweed</p>
+    </div>
+  </div>
+  <div class="column Italian Food">
+    <div class="content">
+    <img src="Images/Pizza.jpg" alt="Pizza" style="width:100%">
+      <h4>Pizza</h4>
+      <p>Pizza with cheese ,mushroom and ham </p>
+    </div>
+  </div>
+
+  <div class="column Italian Food">
+    <div class="content">
+      <img src="Images/pastaham.png" alt="Pasta" style="width:100%">
+      <h4>White Sauce Spaghetti</h4>
+      <p>Spaghetti with cream and meat </p>
+    </div>
+  </div>
+  <div class="column Italian Food">
+    <div class="content">
+    <img src="Images/Lasagne.png" alt="Lasagne" style="width:100%">
+      <h4>Lasagne</h4>
+      <p>Pasta with meat sauce</p>
+    </div>
+  </div>
+  <div class="column Italian Food">
+    <div class="content">
+    <img src="Images/Tiramisu-Cake-5.jpg" alt="Tiramisu" style="width:100%">
+      <h4>Tiramisu</h4>
+      <p>Sweetless but yummy cake</p>
+    </div>
+  </div>
+  <div class="column Italian Food">
+    <div class="content">
+    <img src="Images/Ravioli.jpg" alt="Ravioli" style="width:100%">
+      <h4>Ravioli</h4>
+      <p>A pasta as a dumpling</p>
+    </div>
+  </div>
+  <div class="column Chinese Food">
+    <div class="content">
+    <img src="Images/Shrimp Dumplings.jpg" alt="Shrimp Dumplings" style="width:100%">
+      <h4>Shrimp Dumplings</h4>
+      <p>Dumplings with shrimp inside</p>
+    </div>
+  </div>
+  <div class="column Chinese Food">
+    <div class="content">
+    <img src="Images/Siu Mai.jpg" alt="Siu Mai" style="width:100%">
+      <h4>Siu Mai</h4>
+      <p>Yellow dumpling skip with shrimp</p>
+    </div>
+  </div>
+  <div class="column Chinese Food">
+    <div class="content">
+    <img src="Images/Char_siu_bao.jpg" alt=" Barbecued Pork Bun" style="width:100%">
+      <h4>Barbecued Pork Bun</h4>
+      <p>Bun with barbecude pork</p>
+    </div>
+  </div>
+  <div class="column Chinese Food">
+    <div class="content">
+    <img src="Images/Spring-Rolls.jpg" alt="Spring-Rolls" style="width:100%">
+      <h4>Spring Rolls</h4>
+      <p>Crispy Skip wraaped in meat.</p>
+    </div>
+  </div>
+  <div class="column Chinese Food">
+    <div class="content">
+    <img src="Images/Chicken feet with rice.jpg" alt="Chicken feet with rice" style="width:100%">
+      <h4>Chicken feet with rice</h4>
+      <p>Chicken feet with rice and meat bones</p>
+    </div>
+  </div>
+  <div class="column Chinese Food">
+    <div class="content">
+    <img src="Images/Congee with preserved egg and lean meat.jpg" alt="Congee with preserved egg and lean meat" style="width:100%">
+      <h4>Congee with preserved egg and meat</h4>
+      <p>A popular congee in Hong Kong</p>
+    </div>
+  </div>
+  <div class="column French Food">
+    <div class="content">
+    <img src="Images/French Onion Soup.jpg" alt="French Onion Soup" style="width:100%">
+      <h4>French Onion Soup</h4>
+      <p>Onion soup with baked bread</p>
+    </div>
+  </div>
+  <div class="column French Food">
+    <div class="content">
+    <img src="Images/Croissants.jpg" alt="Croissants" style="width:100%">
+      <h4>Croissants</h4>
+      <p>Crispy Golden Bread</p>
+    </div>
+  </div>
+  <div class="column French Food">
+    <div class="content">
+    <img src="Images/Bauguette.jpg" alt="Bauguette" style="width:100%">
+      <h4>Bauguette</h4>
+      <p>Long Hard Bread ead but I like it</p>
+    </div>
+  </div>
+  <div class="column French Food">
+    <div class="content">
+    <img src="Images/Macaron.jpg" alt="Macaron" style="width:100%">
+      <h4>Macaron</h4>
+      <p>Sweet Dessert</p>
+    </div>
+  </div>
+  <div class="column French Food">
+    <div class="content">
+    <img src="Images/confit de canard.jpg" alt="confit de canard" style="width:100%">
+      <h4>confit de canard</h4>
+      <p>Oily Duck</p>
+    </div>
+  </div>
+  <div class="column American Food">
+    <div class="content">
+    <img src="Images/Hot Dog.jpg" alt="Hot Dog" style="width:100%">
+      <h4>Hot Dog</h4>
+      <p>Bread with sausages</p>
+    </div>
+  </div>
+  <div class="column American Food">
+    <div class="content">
+    <img src="Images/Burger.jpg" alt="Burger" style="width:100%">
+      <h4>Burger</h4>
+      <p>Bread with meat cheese and vegatable</p>
+    </div>
+  </div>
+   <div class="column American Food">
+    <div class="content">
+    <img src="Images/buffalo wings.jpg" alt="buffalo wings" style="width:100%">
+      <h4>Buffalo wings</h4>
+      <p>Chicken Wings</p>
+    </div>
+  </div>
+   <div class="column American Food">
+    <div class="content">
+    <img src="Images/French Fries.jpg" alt="French Fries" style="width:100%">
+      <h4>French Fries</h4>
+      <p>Deeped Fried Potato</p>
+    </div>
+  </div>
+    <div class="column Belgium Food">
+    <div class="content">
+    <img src="Images/Chocolate.jpg" alt="Chocolate" style="width:100%">
+      <h4>Chocolate</h4>
+      <p>Delicious Chocolate </p>
+    </div>
+  </div>
+    <div class="column Belgium Food">
+    <div class="content">
+    <img src="Images/Waffle.jpg" alt="Waffle" style="width:100%">
+      <h4>Waffle</h4>
+      <p>Sweet Waffles with berrys </p>
+    </div>
+  </div>
+   <div class="column Belgium Food">
+    <div class="content">
+    <img src="Images/Moules frites.jpeg" alt="Moules frites" style="width:100%">
+      <h4>Moules frites</h4>
+      <p>French Fries with Mussels</p>
+    </div>
+  </div>
+   <div class="column Belgium Food">
+    <div class="content">
+    <img src="Images/Steak tartare.jpg" alt="Steak tartare" style="width:100%">
+      <h4>Steak tartare</h4>
+      <p>Meat with an egg</p>
+    </div>
+  </div>
+<!-- END GRID -->
+</div>
+<!-- END MAIN -->
+</div>
+
+<script>
+filterSelection("all")
+function filterSelection(c) {
+  var x, i;
+  x = document.getElementsByClassName("column");
+  if (c == "all") c = "";
+  for (i = 0; i < x.length; i++) {
+    w3RemoveClass(x[i], "show");
+    if (x[i].className.indexOf(c) > -1) w3AddClass(x[i], "show");
+  }
+}
+
+function w3AddClass(element, name) {
+  var i, arr1, arr2;
+  arr1 = element.className.split(" ");
+  arr2 = name.split(" ");
+  for (i = 0; i < arr2.length; i++) {
+    if (arr1.indexOf(arr2[i]) == -1) {element.className += " " + arr2[i];}
+  }
+}
+
+function w3RemoveClass(element, name) {
+  var i, arr1, arr2;
+  arr1 = element.className.split(" ");
+  arr2 = name.split(" ");
+  for (i = 0; i < arr2.length; i++) {
+    while (arr1.indexOf(arr2[i]) > -1) {
+      arr1.splice(arr1.indexOf(arr2[i]), 1);     
+    }
+  }
+  element.className = arr1.join(" ");
+}
+
+
+// Add active class to the current button (highlight it)
+var btnContainer = document.getElementById("myBtnContainer");
+var btns = btnContainer.getElementsByClassName("btn");
+for (var i = 0; i < btns.length; i++) {
+  btns[i].addEventListener("click", function(){
+    var current = document.getElementsByClassName("active");
+    current[0].className = current[0].className.replace(" active", "");
+    this.className += " active";
+  });
+}
+</script>
+
+ <a id="back" href="task58.html">Back</a>  
+ <a id="next" href="task60.html">Next</a>  
+<a id="back2" href="task58.html">◀</a> 
+
+<a id="next2" href="task60.html">▶</a> 
+
+</body>
+</html>

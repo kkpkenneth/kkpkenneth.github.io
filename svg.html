@@ -1,0 +1,126 @@
+<html>
+<head>
+<style type="text/css">
+ Use in SVG files
+.star-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  text-align: center;
+  height: 100%;
+}
+#star-demo {
+  display: block;
+  flex-grow: 1;
+  touch-action: none;
+  max-height: 100vw;
+  max-width: 100vw;
+}
+</style>
+</head>
+<body>
+<div class="star-wrapper">
+  <object id="star-demo" type="image/svg+xml" data="Images/star.svg" alt="embedded svg"></object>
+
+  <p style="padding: 0 5%">
+    The <a href="https://github.com/taye/interact.js/blob/master/examples/star/star.svg?short_path=e1e0fe0">star.svg</a>
+    file references interact.js as well as
+    <a href="https://github.com/taye/interact.js/blob/master/examples/star/index.js"> another script</a>
+    to enable and respond to drag events.
+  </p>
+</div>
+<script type="module">
+import interact from 
+'https://cdn.interactjs.io/v1.10.11/interactjs/index.js'
+
+interact('.item').draggable({
+  listeners: {
+    move (event) {
+      console.log(event.pageX,
+                  event.pageY)
+    }
+  }
+})
+</script>
+<script type="text/javascript">
+  
+document.addEventListener('DOMContentLoaded', () => {
+  const sns = 'http://www.w3.org/2000/svg'
+  const xns = 'http://www.w3.org/1999/xlink'
+  const root = document.getElementById('svg-edit-demo')
+  const star = document.getElementById('edit-star')
+  let rootMatrix
+  const originalPoints = []
+  let transformedPoints = []
+
+  for (let i = 0, len = star.points.numberOfItems; i < len; i++) {
+    const handle = document.createElementNS(sns, 'use')
+    const point = star.points.getItem(i)
+    const newPoint = root.createSVGPoint()
+
+    handle.setAttributeNS(xns, 'href', '#point-handle')
+    handle.setAttribute('class', 'point-handle')
+
+    handle.x.baseVal.value = newPoint.x = point.x
+    handle.y.baseVal.value = newPoint.y = point.y
+
+    handle.setAttribute('data-index', i)
+
+    originalPoints.push(newPoint)
+
+    root.appendChild(handle)
+  }
+
+  function applyTransforms (event) {
+    rootMatrix = root.getScreenCTM()
+
+    transformedPoints = originalPoints.map((point) => {
+      return point.matrixTransform(rootMatrix)
+    })
+
+    interact('.point-handle').draggable({
+      snap: {
+        targets: transformedPoints,
+        range: 20 * Math.max(rootMatrix.a, rootMatrix.d),
+      },
+    })
+  }
+
+  interact(root).on('mousedown', applyTransforms).on('touchstart', applyTransforms)
+
+  interact('.point-handle')
+    .draggable({
+      onstart: function (event) {
+        root.setAttribute('class', 'dragging')
+      },
+      onmove: function (event) {
+        const i = event.target.getAttribute('data-index') | 0
+        const point = star.points.getItem(i)
+
+        point.x += event.dx / rootMatrix.a
+        point.y += event.dy / rootMatrix.d
+
+        event.target.x.baseVal.value = point.x
+        event.target.y.baseVal.value = point.y
+      },
+      onend: function (event) {
+        root.setAttribute('class', '')
+      },
+      snap: {
+        targets: originalPoints,
+        range: 10,
+        relativePoints: [{ x: 0.5, y: 0.5 }],
+      },
+      restrict: { restriction: document.rootElement },
+    })
+    .styleCursor(false)
+
+  document.addEventListener('dragstart', (event) => {
+    event.preventDefault()
+  })
+})
+</script>
+</body>
+
+
+</html>

@@ -1,27 +1,34 @@
 <html>
 <head>
 <style type="text/css">
-  #drag-1, #drag-2 {
-  width: 25%;
-  min-height: 6.5em;
-  margin: 1rem 0 0 1rem;
-  background-color: #29e;
-  color: white;
-  border-radius: 0.75em;
-  padding: 4%;
+ Use in SVG files
+.star-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  text-align: center;
+  height: 100%;
+}
+#star-demo {
+  display: block;
+  flex-grow: 1;
   touch-action: none;
-  user-select: none;
-  transform: translate(0px, 0px);
+  max-height: 100vw;
+  max-width: 100vw;
 }
 </style>
 </head>
 <body>
-	<div id="drag-1" class="draggable">
- 	 <p> You can drag one element </p>
-	</div>
-	<div id="drag-2" class="draggable">
- 	<p> with each pointer </p>
-	</div>
+<div class="star-wrapper">
+  <object id="star-demo" type="image/svg+xml" data="/img/star.svg" alt="embedded svg"></object>
+
+  <p style="padding: 0 5%">
+    The <a href="https://github.com/taye/interact.js/blob/master/examples/star/star.svg?short_path=e1e0fe0">star.svg</a>
+    file references interact.js as well as
+    <a href="https://github.com/taye/interact.js/blob/master/examples/star/index.js"> another script</a>
+    to enable and respond to drag events.
+  </p>
+</div>
 <script type="module">
 import interact from 
 'https://cdn.interactjs.io/v1.10.11/interactjs/index.js'
@@ -35,54 +42,6 @@ interact('.item').draggable({
   }
 })
 
-// target elements with the "draggable" class
-interact('.draggable')
-  .draggable({
-    // enable inertial throwing
-    inertia: true,
-    // keep the element within the area of it's parent
-    modifiers: [
-      interact.modifiers.restrictRect({
-        restriction: 'parent',
-        endOnly: true
-      })
-    ],
-    // enable autoScroll
-    autoScroll: true,
-
-    listeners: {
-      // call this function on every dragmove event
-      move: dragMoveListener,
-
-      // call this function on every dragend event
-      end (event) {
-        var textEl = event.target.querySelector('p')
-
-        textEl && (textEl.textContent =
-          'moved a distance of ' +
-          (Math.sqrt(Math.pow(event.pageX - event.x0, 2) +
-                     Math.pow(event.pageY - event.y0, 2) | 0))
-            .toFixed(2) + 'px')
-      }
-    }
-  })
-
-function dragMoveListener (event) {
-  var target = event.target
-  // keep the dragged position in the data-x/data-y attributes
-  var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
-  var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
-
-  // translate the element
-  target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
-
-  // update the posiion attributes
-  target.setAttribute('data-x', x)
-  target.setAttribute('data-y', y)
-}
-
-// this function is used later in the resizing and gesture demos
-window.dragMoveListener = dragMoveListener
 </script>
 </body>
 

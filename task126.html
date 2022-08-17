@@ -1,0 +1,54 @@
+<html>
+<head>
+<style type="text/css">
+ html{
+  background-color: deepskyblue;
+ }
+
+ @keyframes whalesharkani {
+   0%   { left:200px; top:200px;}
+  50%  { left:400px; top:200px;}
+  100%  { left:200px; top:200px;}
+}
+ #whaleshark{
+  background-image: url("Images/helloanimals/whaleshark.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 100px;
+  width: 240px;
+  animation-name: whalesharkani;
+  animation-duration: 14s;
+  animation-iteration-count: infinite;
+  position: absolute;
+ }
+
+
+
+
+</style>
+</head>
+<body>
+  <button class="buttonmusic" onClick="playAudio();" >Music</button>
+	<div id="whaleshark"></div>
+  <script type="text/javascript">
+     function playAudio() { 
+        var a = document.getElementById("myAudio");
+    
+        if (a.paused) {
+            a.play();
+        }
+        else {
+            a.pause();
+            a.currentTime = 0;
+        }
+        };
+  </script>
+
+  <audio loop id="myAudio">
+    <source id="myAudio" src="Music/bgm3.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio>
+</body>
+
+
+</html>

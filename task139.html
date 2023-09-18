@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - codingnepalweb.com -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title> Toggle Button With Dark/Light Mode</title>
+  <!---Custom CSS File--->
+  <style>
+  /* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+body{
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#aa > label{
+  position: relative;
+  width: 480px;
+  height: 180px;
+  display: block;
+  background: #d9d9d9;
+  border-radius: 100px;
+  cursor: pointer;
+  box-shadow: inset 0px 5px 15px rgba(0,0,0,0.3), inset 0px -5px 15px rgba(255,255,255,0.3);
+}
+#aa > label:after{
+  content: '';
+  position: absolute;
+  height: 160px;
+  width: 160px;
+  background: #f2f2f2;
+  border-radius: 100px;
+  top: 10px;
+  left: 10px;
+  transition: 0.5s;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+#aa > input:checked ~ label:after{
+  left: 470px;
+  transform: translateX(-100%);
+  background: linear-gradient(180deg,#777,#3a3a3a);
+}
+#aa > input:checked ~ label{
+  background: #242424;
+}
+#aa > .background{
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  z-index: -1;
+  transition: 0.5s;
+}
+#aa > input:checked + label + .background{
+  background: #242424;
+}
+#aa > input{
+  display: none;
+}
+--------------------------
+#bb > label{
+  position: relative;
+  width: 480px;
+  height: 180px;
+  display: block;
+  background: #d9d9d9;
+  border-radius: 100px;
+  cursor: pointer;
+  box-shadow: inset 0px 5px 15px rgba(0,0,0,0.3), inset 0px -5px 15px rgba(255,255,255,0.3);
+}
+#bb > label:after{
+  content: '';
+  position: absolute;
+  height: 160px;
+  width: 160px;
+  background: #f2f2f2;
+  border-radius: 100px;
+  top: 10px;
+  left: 10px;
+  transition: 0.5s;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+#bb > input:checked ~ label:after{
+  left: 470px;
+  transform: translateX(-100%);
+  background: linear-gradient(180deg,#777,#3a3a3a);
+}
+#bb > input:checked ~ label{
+  background: #242424;
+}
+#bb > .background{
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  z-index: -1;
+  transition: 0.5s;
+}
+#bb > input:checked + label + .background{
+  background: #242424;
+}
+#bb > input{
+  display: none;
+}
+</style>
+</head>
+<body>
+  <div id="aa">
+  <input type="checkbox" id="dark-mode">
+  <label for="dark-mode"></label>
+  <div class="background"></div>
+  </div>
+<br>
+<br>
+<br>
+ <div id="bb">
+  <input type="checkbox" id="dark-mode">
+  <label for="dark-mode"></label>
+  <div class="background"></div>
+  </div>
+  <style>
+  
+#aa > label{
+  position: relative;
+  width: 480px;
+  height: 180px;
+  display: block;
+  background: #f9e213;
+  border-radius: 100px;
+  cursor: pointer;
+  box-shadow: inset 0px 5px 15px rgba(0,0,0,0.3), inset 0px -5px 15px rgba(255,255,255,0.3);
+}
+#aa > label:after{
+  content: '';
+  position: absolute;
+  height: 160px;
+  width: 160px;
+  background: #fc4538;
+  border-radius: 100px;
+  top: 10px;
+  left: 10px;
+  transition: 0.5s;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+#aa > input:checked ~ label:after{
+  left: 450px;
+  transform: translateX(-100%);
+  body: linear-gradient(180deg,#777,#3a3a3a);
+}
+#aa > input:checked ~ label{
+  background: #242424;
+}
+#aa > .background{
+  position: absolute;
+  width: 100px;
+  height: 50px;
+  background: #fc6f7d;
+  z-index: -10;
+  transition: 0.5s;
+}
+#aa > input:checked + label + .background{
+  background: #FFFFFF;
+}
+#aa > input{
+  display: none;
+}
+
+---------------------------
+
+#bb > label{
+  position: relative;
+  width: 480px;
+  height: 180px;
+  display: block;
+  background: #f9e213;
+  border-radius: 100px;
+  cursor: pointer;
+  box-shadow: inset 0px 5px 15px rgba(0,0,0,0.3), inset 0px -5px 15px rgba(255,255,255,0.3);
+}
+#bb > label:after{
+  content: '';
+  position: absolute;
+  height: 160px;
+  width: 160px;
+  background: #fc4538;
+  border-radius: 100px;
+  top: 10px;
+  left: 10px;
+  transition: 0.5s;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+#bb > input:checked ~ label:after{
+  left: 450px;
+  transform: translateX(-100%);
+  body: linear-gradient(180deg,#777,#3a3a3a);
+}
+#bb > input:checked ~ label{
+  background: #242424;
+}
+#bb > .background{
+  position: absolute;
+  width: 1000px;
+  height: 50px;
+  background: #fc6f7d;
+  z-index: -10;
+  transition: 0.5s;
+}
+#bb > input:checked + label + .background{
+  background: #FFFFFF;
+}
+#bb > input{
+  display: none;
+}
+</style>
+</head>
+
+</html>

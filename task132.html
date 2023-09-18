@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Animal Tycoon Game</title>
+</head>
+<body>
+    <h1>Animal Tycoon Game</h1>
+    
+    <h2>Total Income per Second: <span id="totalIncome">0</span></h2>
+    
+    <h3>Upgrades:</h3>
+    
+    <ul id="upgradeList">
+        <li>
+            <span class="animalName">Animal 1</span>
+            <span class="upgradeLevel">0</span>
+            <span class="incomePerSecond">1</span>
+            <button class="upgradeButton" onclick="upgradeAnimal(0)">Upgrade</button>
+        </li>
+        <li>
+            <span class="animalName">Animal 2</span>
+            <span class="upgradeLevel">0</span>
+            <span class="incomePerSecond">5</span>
+            <button class="upgradeButton" onclick="upgradeAnimal(1)">Upgrade</button>
+        </li>
+        <!-- Add more animal upgrades here -->
+    </ul>
+    
+    <script>
+        var totalIncome = 0;
+        var upgrades = [
+            { level: 0, incomePerSecond: 1 },
+            { level: 0, incomePerSecond: 5 },
+            // Add more upgrades here
+        ];
+        
+        function upgradeAnimal(index) {
+            var upgrade = upgrades[index];
+            upgrade.level++;
+            var incomePerSecond = upgrade.incomePerSecond * upgrade.level;
+            totalIncome += incomePerSecond;
+            
+            document.getElementById('totalIncome').textContent = totalIncome;
+            document.getElementsByClassName('upgradeLevel')[index].textContent = upgrade.level;
+            document.getElementsByClassName('incomePerSecond')[index].textContent = incomePerSecond;
+        }
+    </script>
+</body>
+</html>

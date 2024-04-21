@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!-- Original Code by Coding Nepal-->
+<html lang="en" dir="ltr">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166000335-1"></script>
+<script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-166000335-1');
+    </script>
+<meta charset="utf-8">
+<title>biology buddy</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>const disabledKeys=["u","I"];const showAlert=e=>{e.preventDefault();return alert("Hahaha, I challenge you, valiant soldier, to uproot the source codes yourself!!!");}
+document.addEventListener("contextmenu",e=>{showAlert(e);});document.addEventListener("keydown",e=>{if(e.ctrlKey&&disabledKeys.includes(e.key)||e.key==="F12"){showAlert(e);}});</script>
+<style>
+    /* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+body{
+  display: flex;
+  padding: 10 10px;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: #1BB295;
+}
+.wrapper{
+  width: 430px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.wrapper h1{
+  font-size: 25px;
+  font-weight: 500;
+  padding: 20px 25px;
+  border-bottom: 1px solid #ccc;
+}
+.wrapper .content{
+  margin: 25px 25px 35px;
+}
+.content .inputs{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.inputs input{
+  height: 57px;
+  width: 56px;
+  margin: 4px;
+  font-size: 24px;
+  font-weight: 500;
+  color: #1ba98c;
+  text-align: center;
+  border-radius: 5px;
+  background: none;
+  pointer-events: none;
+  text-transform: uppercase;
+  border: 1px solid #B5B5B5;
+}
+.typing-input {
+  opacity: 0;
+  z-index: -999;
+  position: absolute;
+  pointer-events: none;
+}
+.inputs input:first-child{
+  margin-left: 0px;
+}
+.content .details{
+  margin: 20px 0 25px;
+}
+.details p{
+  font-size: 19px;
+  margin-bottom: 10px;
+}
+.content .reset-btn{
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  outline: none;
+  padding: 15px 0;
+  font-size: 17px;
+  border-radius: 5px;
+  background: #1BB295;
+  transition: all 0.3s ease;
+}
+.content .reset-btn:hover{
+  background: #18a589;
+}
+
+@media screen and (max-width: 460px) {
+  .wrapper {
+    width: 100%;
+  }
+  .wrapper h1{
+    font-size: 22px;
+    padding: 16px 20px;
+  }
+  .wrapper .content{
+    margin: 25px 20px 35px;
+  }
+  .inputs input{
+    height: 51px;
+    width: 50px;
+    margin: 3px;
+    font-size: 22px;
+  }
+  .details p{
+    font-size: 17px;
+  }
+  .content .reset-btn{
+    padding: 14px 0;
+    font-size: 16px;
+  }
+}
+ #next,#back{
+            padding: 170px 10px 170px 10px;
+            background-color: #a7dbef;
+            transform: translate(0%, -50%);
+            color: #000000;
+            text-decoration: none;  
+        }
+        
+#back {
+  position: absolute;
+  top: 380px;
+  left: 0px;
+  font-size: 20px;
+  border-radius: 0px 15px 15px 0px;
+}
+#next {
+  position: absolute;
+  top: 380px;
+  right: 0px;
+  font-size: 20px;
+  border-radius: 15px 0px 0px 15px;
+}
+
+  @media only screen and (max-width: 600px) {
+#next,#back{
+        display: none;
+      }  
+  </style>
+</head>
+<body>
+<div class="download-btn-cn">
+<div class="wrapper">
+<h1>basic biology buddy</h1>
+<div class="content">
+<input type="text" class="typing-input" maxlength="1">
+<div class="inputs"></div>
+<div class="details">
+<p class="hint">Hint: <span></span></p>
+<p class="guess-left">Remaining guesses: <span></span></p>
+<p class="wrong-letter">Wrong letters: <span></span></p>
+</div>
+<button class="reset-btn">Reset Game</button>
+</div>
+</div>
+<script>
+    let wordList = [
+    {
+        word: "chloroplast",
+        hint: "an organelle which is the site of photosynthesis"
+    },
+    {
+        word: "chromosomes",
+        hint: "DNA structures that are found in the nucleus which are made up of genes"
+    },
+    {
+        word: "diffusion",
+        hint: "the spreading out of the particles of any substance in solution, or particles of a gas, resulting in a net movement from an area of higher concentration to an area of lower concentration"
+    },
+    {
+        word: "magnification",
+        hint: "how much bigger an image appears compared to the original object"
+    },
+    {
+        word: "mitochondria",
+        hint: "an organelle which is the site of respiration"
+    },
+    {
+        word: "mitosis",
+        hint: "a type of cell division which produces two genetically identical daughter cells from one parent cell"
+    },
+    {
+        word: "nucleus",
+        hint: "an organelle found in most eukaryotic cells that contains the genetic material of the cell and controls the activities of the cell"
+    },
+    {
+        word: "organelle",
+        hint: "a specialised structure found inside a cell"
+    },
+    {
+        word: "osmosis",
+        hint: "the diffusion of water from a dilute solution to a concentrated solution through a partially permeable membrane"
+    },
+    {
+        word: "plasmid",
+        hint: "loops of DNA found in the cytoplasm of prokaryotic cells"
+    },
+    {
+        word: "resolution",
+        hint: "the ability to distinguish two different points in a specimen"
+    },
+    {
+        word: "vacuole",
+        hint: "an organelle that stores cell sap"
+    },
+]
+const inputs = document.querySelector(".inputs"),
+hintTag = document.querySelector(".hint span"),
+guessLeft = document.querySelector(".guess-left span"),
+wrongLetter = document.querySelector(".wrong-letter span"),
+resetBtn = document.querySelector(".reset-btn"),
+typingInput = document.querySelector(".typing-input");
+
+let word, maxGuesses, incorrectLetters = [], correctLetters = [];
+
+function randomWord() {
+    let ranItem = wordList[Math.floor(Math.random() * wordList.length)];
+    word = ranItem.word;
+    maxGuesses = word.length >= 5 ? 8 : 6;
+    correctLetters = []; incorrectLetters = [];
+    hintTag.innerText = ranItem.hint;
+    guessLeft.innerText = maxGuesses;
+    wrongLetter.innerText = incorrectLetters;
+
+    let html = "";
+    for (let i = 0; i < word.length; i++) {
+        html += `<input type="text" disabled>`;
+        inputs.innerHTML = html;
+    }
+}
+randomWord();
+
+function initGame(e) {
+    let key = e.target.value.toLowerCase();
+    if(key.match(/^[A-Za-z]+$/) && !incorrectLetters.includes(` ${key}`) && !correctLetters.includes(key)) {
+        if(word.includes(key)) {
+            for (let i = 0; i < word.length; i++) {
+                if(word[i] == key) {
+                    correctLetters += key;
+                    inputs.querySelectorAll("input")[i].value = key;
+                }
+            }
+        } else {
+            maxGuesses--;
+            incorrectLetters.push(` ${key}`);
+        }
+        guessLeft.innerText = maxGuesses;
+        wrongLetter.innerText = incorrectLetters;
+    }
+    typingInput.value = "";
+
+    setTimeout(() => {
+        if(correctLetters.length === word.length) {
+            alert(`Congrats! You found the word ${word.toUpperCase()}`);
+            return randomWord();
+        } else if(maxGuesses < 1) {
+            alert("Game over! You don't have remaining guesses");
+            for(let i = 0; i < word.length; i++) {
+                inputs.querySelectorAll("input")[i].value = word[i];
+            }
+        }
+    }, 100);
+}
+
+resetBtn.addEventListener("click", randomWord);
+typingInput.addEventListener("input", initGame);
+inputs.addEventListener("click", () => typingInput.focus());
+document.addEventListener("keydown", () => typingInput.focus());
+</script>
+<a id="back" href="task66.html">Back</a>
+<a id="next" href="task68.html">Next</a>
+</body>
+</html>

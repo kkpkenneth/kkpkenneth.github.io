@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Photo Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .quiz-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        #question-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .choice-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .choice-button:hover {
+            background-color: #0056b3;
+        }
+
+        #next-button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            display: none; /* Hidden until an answer is selected */
+        }
+
+        #next-button:hover {
+            background-color: #218838;
+        }
+
+        #score-container {
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            display: none; /* Hidden until the end of the quiz */
+        }
+
+        .correct {
+            background-color: #28a745; /* Green for correct answer */
+        }
+
+        .incorrect {
+            background-color: #dc3545; /* Red for incorrect answer */
+        }
+    </style>
+</head>
+<body>
+    <audio id="background-music" autoplay loop muted>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="quiz-container">
+        <h1>Food Photo Quiz</h1>
+        <div id="quiz-area">
+            <img id="question-image" src="" alt="Food Photo">
+            <div id="choices-container" class="choices-container">
+                </div>
+            <button id="next-button">Next Question</button>
+        </div>
+        <div id="score-container">
+            Your Score: <span id="final-score">0</span> / <span id="total-questions">0</span>
+        </div>
+    </div>
+
+    <script>
+        const quizQuestions = [
+            {
+                image: 'https://via.placeholder.com/400x300/FF5733/FFFFFF?text=Pizza', // Replace with your actual image URL
+                choices: ['Pizza', 'Burger', 'Pasta', 'Salad'],
+                correct: 'Pizza'
+            },
+            {
+                image: 'https://via.placeholder.com/400x300/33FF57/FFFFFF?text=Sushi', // Replace with your actual image URL
+                choices: ['Taco', 'Sushi', 'Curry', 'Sandwich'],
+                correct: 'Sushi'
+            },
+            {
+                image: 'https://via.placeholder.com/400x300/3357FF/FFFFFF?text=Taco', // Replace with your actual image URL
+                choices: ['Burrito', 'Quesadilla', 'Taco', 'Nachos'],
+                correct: 'Taco'
+            },
+            {
+                image: 'https://via.placeholder.com/400x300/FF33A1/FFFFFF?text=Burger', // Replace with your actual image URL
+                choices: ['Hotdog', 'Steak', 'Burger', 'Fries'],
+                correct: 'Burger'
+            }
+            // Add more questions here
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answerSelected = false;
+
+        const questionImage = document.getElementById('question-image');
+        const choicesContainer = document.getElementById('choices-container');
+        const nextButton = document.getElementById('next-button');
+        const quizArea = document.getElementById('quiz-area');
+        const scoreContainer = document.getElementById('score-container');
+        const finalScoreSpan = document.getElementById('final-score');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const backgroundMusic = document.getElementById('background-music'); // Get music element
+
+        function loadQuestion() {
+            answerSelected = false;
+            nextButton.style.display = 'none'; // Hide next button for new question
+
+            if (currentQuestionIndex < quizQuestions.length) {
+                const currentQuestion = quizQuestions[currentQuestionIndex];
+                questionImage.src = currentQuestion.image;
+                choicesContainer.innerHTML = ''; // Clear previous choices
+
+                currentQuestion.choices.forEach(choice => {
+                    const button = document.createElement('button');
+                    button.classList.add('choice-button');
+                    button.textContent = choice;
+                    button.addEventListener('click', () => selectAnswer(choice, currentQuestion.correct, button));
+                    choicesContainer.appendChild(button);
+                });
+            } else {
+                showScore();
+            }
+        }
+
+        function selectAnswer(selectedChoice, correctAnswer, clickedButton) {
+            if (answerSelected) return; // Prevent multiple selections for the same question
+            answerSelected = true;
+
+            const allChoiceButtons = choicesContainer.querySelectorAll('.choice-button');
+            allChoiceButtons.forEach(button => {
+                button.disabled = true; // Disable all buttons after selection
+                if (button.textContent === correctAnswer) {
+                    button.classList.add('correct'); // Highlight correct answer
+                }
+                if (button.textContent === selectedChoice && selectedChoice !== correctAnswer) {
+                    clickedButton.classList.add('incorrect'); // Highlight incorrect selected answer
+                }
+            });
+
+            if (selectedChoice === correctAnswer) {
+                score++;
+            }
+            nextButton.style.display = 'block'; // Show next button
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showScore() {
+            quizArea.style.display = 'none';
+            scoreContainer.style.display = 'block';
+            finalScoreSpan.textContent = score;
+            totalQuestionsSpan.textContent = quizQuestions.length;
+            
+            // Optionally stop music when quiz ends
+            backgroundMusic.pause(); 
+            backgroundMusic.currentTime = 0; // Rewind to start
+        }
+
+        // Event Listener for the Next button
+        nextButton.addEventListener('click', nextQuestion);
+
+        // --- Music Autoplay Handling ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Attempt to play immediately (might be blocked by browser)
+            // The 'muted' attribute helps with autoplay
+            backgroundMusic.play().catch(error => {
+                console.log("Autoplay was prevented:", error);
+                // If autoplay is prevented, enable it on the first user interaction
+                // This will catch clicks on choice buttons or the next button
+                document.body.addEventListener('click', () => {
+                    backgroundMusic.play().catch(e => console.log("Manual play failed:", e));
+                }, { once: true }); // Only run this listener once
+            });
+        });
+
+        // Initial load
+        loadQuestion();
+    </script>
+</body>
+</html>

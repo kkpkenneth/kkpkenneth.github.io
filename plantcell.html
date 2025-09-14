@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otono Biology - Plant Cell</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Slab', serif;
+            text-align: center;
+        }
+        ol {
+            text-align: left;
+            display: inline-block;
+        }
+        li {
+            padding: 5px;
+            font-size: 20px;
+        }
+        #timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: red;
+        }
+        input {
+            border-radius: 100px;
+            padding: 5px;
+            background-color: yellow;
+        }
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 50%;
+        }
+        td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        /* Purple Start Button */
+        #startButton {
+            background-color: purple;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #resetButton {
+            background-color: red;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Otono Biology - Plant Cell</h1>
+<p>Answer in lower case :)</p>
+<p>Purple is correct and red is wrong</p>
+<p>Some answers on the table can be fake!</p>
+
+<!-- Table -->
+<table>
+    <tr>
+        <td>ribosomes</td>
+        <td>golgi apparatus</td>
+        <td>cytoplasm</td>
+    </tr>
+    <tr>
+        <td>vacuole</td>
+        <td>amyloplast</td>
+        <td>chlroplast</td>
+    </tr>
+    <tr>
+        <td>cell membrane</td>
+        <td>cell wall</td>
+        <td>gastric juice</td>
+    </tr>
+    <tr>
+        <td>smooth er</td>
+        <td>lysosome</td>
+        <td>mitochondria</td>
+    </tr>
+    <tr>
+        <td>gallbladder</td>
+        <td>nucleus</td>
+        <td>round er</td>
+    </tr>
+</table>
+
+<h2>Time Left: <span id="timer">319</span> seconds</h2>
+
+<!-- Start & Reset Buttons -->
+<button id="startButton" onclick="startTimer()">Start</button>
+<button id="resetButton" onclick="resetQuiz()" disabled>Reset</button>
+<br>
+
+<!-- Image -->
+<!-- Use relative path, make sure the images folder is uploaded to the same server -->
+<img src="Images/plantcell.png" width="1000px" alt="Plant Cell Diagram">
+
+<!-- Quiz Form -->
+<form id="quizForm" onsubmit="return false;">
+    <ol>
+        <li><input id="myText" type="text" disabled></li>
+        <li><input id="myText2" type="text" disabled></li>
+        <li><input id="myText3" type="text" disabled></li>
+        <li><input id="myText4" type="text" disabled></li>
+        <li><input id="myText5" type="text" disabled></li>
+        <li><input id="myText6" type="text" disabled></li>
+        <li><input id="myText7" type="text" disabled></li>
+        <li><input id="myText8" type="text" disabled></li>
+        <li><input id="myText9" type="text" disabled></li>
+        <li><input id="myText10" type="text" disabled></li>
+        <li><input id="myText11" type="text" disabled></li>
+        <li><input id="myText12" type="text" disabled></li>
+        <li><input id="myText13" type="text" disabled></li>
+
+        <br>
+        <input type="submit" onclick="myFunction()" value="Submit" disabled id="submitButton">
+    </ol>
+</form>
+
+<script>
+    let timeLeft = 319; // Timer in seconds
+    let timerActive = false;
+    let timerInterval;
+
+    function startTimer() {
+        if (!timerActive) {
+            timerActive = true;
+            document.getElementById('startButton').disabled = true;
+            document.getElementById('resetButton').disabled = false;
+            enableInputs(true);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+    }
+
+    function updateTimer() {
+        document.getElementById('timer').textContent = timeLeft;
+
+        if (timeLeft > 0) {
+            timeLeft--;
+        } else {
+            clearInterval(timerInterval);
+            alert("Time's up! Auto-submitting your answers...");
+            document.getElementById('quizForm').submit();
+        }
+    }
+
+    function resetQuiz() {
+        clearInterval(timerInterval);
+        timeLeft = 319;
+        document.getElementById('timer').textContent = timeLeft;
+        timerActive = false;
+        document.getElementById('startButton').disabled = false;
+        document.getElementById('resetButton').disabled = true;
+        enableInputs(false);
+        document.getElementById('quizForm').reset();
+    }
+
+    function enableInputs(enabled) {
+        let inputs = document.querySelectorAll("input[type='text']");
+        inputs.forEach(input => {
+            input.disabled = !enabled;
+            input.style.backgroundColor = enabled ? "yellow" : "#ddd";
+        });
+        document.getElementById('submitButton').disabled = !enabled;
+    }
+
+    function myFunction() {
+        validateAnswer("myText", "ribosomes");
+        validateAnswer("myText2", "golgi apparatus");
+        validateAnswer("myText3", "cytoplasm");
+        validateAnswer("myText4", "vacuole");
+        validateAnswer("myText5", "amyloplast");
+        validateAnswer("myText6", "chlroplast");
+        validateAnswer("myText7", "cell membrane");
+        validateAnswer("myText8", "cell wall");
+        validateAnswer("myText9", "smooth er");
+        validateAnswer("myText10", "lysosome");
+        validateAnswer("myText11", "mitochondria");
+        validateAnswer("myText12", "nucleus");
+        validateAnswer("myText13", "round er");
+    }
+
+    function validateAnswer(inputId, correctAnswer) {
+        let inputField = document.getElementById(inputId);
+        if (inputField.value.trim() === correctAnswer) {
+            inputField.style.backgroundColor = "purple"; // Correct answer
+        } else {
+            inputField.style.backgroundColor = "red";
+        }
+    }
+</script>
+
+<!-- Anti-Source Code Protection -->
+<script>
+    const disabledKeys = ["u", "I"];
+    const showAlert = e => {
+        e.preventDefault();
+        return alert("Hahaha, I challenge you, valiant soldier, to uproot the source codes yourself!!!");
+    };
+    document.addEventListener("contextmenu", e => { showAlert(e); });
+    document.addEventListener("keydown", e => {
+        if ((e.ctrlKey && disabledKeys.includes(e.key)) || e.key === "F12") {
+            showAlert(e);
+        }
+    });
+</script>
+
+</body>
+</html>

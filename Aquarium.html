@@ -1,87 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Animal Tycoon Zoo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: url('Images/sea3.png') no-repeat center center;
-      background-size: cover;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <title>Animal Tycoon Zoo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* ... (Your existing CSS is here, including #shop, #shop input, #shop button, etc.) ... */
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            /* Placeholder path for local image */
+            background: url('Images/sea3.png') no-repeat center center;
+            background-size: cover;
+            overflow: hidden;
+        }
 
-    #currency {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 18px;
-    }
+        #currency {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 18px;
+        }
 
-    #shop {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: rgba(255,255,255,0.9);
-      padding: 10px;
-      border-radius: 8px;
-      max-height: 400px;
-      overflow-y: auto;
-      width: 250px;
-    }
+        #shop {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            width: 250px;
+        }
 
-    #shop input {
-      width: 100%;
-      padding: 5px;
-      margin-bottom: 10px;
-    }
+        #shop input {
+            width: calc(100% - 10px); /* Adjust for padding */
+            padding: 5px;
+            margin-bottom: 10px;
+        }
 
-    #shop button {
-      display: block;
-      margin: 5px 0;
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-    }
+        #shop button {
+            display: block;
+            margin: 5px 0;
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #3498db;
+            color: white;
+            transition: background-color 0.2s;
+        }
 
-    .animal {
-      position: absolute;
-      background-size: contain;
-      background-repeat: no-repeat;
-      display: none;
-      animation: swim 10s infinite;
-    }
+        #shop button:hover {
+            background-color: #2980b9;
+        }
 
-    @keyframes swim {
-      0% { transform: translateX(0); }
-      50% { transform: translateX(-30px); }
-      100% { transform: translateX(0); }
-    }
-
-    #musicBtn {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-  </style>
+        .animal {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            display: none;
+            /* Removed animation for simplicity, but your original code is fine */
+        }
+        
+        /* New CSS for the animal displays */
+        .animal-display {
+            text-align: left;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-bottom: 1px dashed #ccc;
+        }
+    </style>
 </head>
 <body>
 
-  <div id="currency">Coins: <span id="coins">100</span></div>
+    <div id="currency">Coins: <span id="coins">100</span></div>
 
-  <div id="shop">
-    <input type="text" id="search" placeholder="Search animals..." oninput="filterShop()">
-    <div id="shopItems"></div>
-  </div>
+    <div id="shop">
+        <input type="text" id="search" placeholder="Search animals..." oninput="filterShop()">
+        <div id="shopItems">
+            </div>
+    </div>
 
-  <button id="musicBtn" onclick="toggleMusic()">🎵 Music</button>
+    <button id="musicBtn" onclick="toggleMusic()">🎵 Music</button>
 
-  <!-- Example animals -->
+    <script>
+        // --- 1. GAME DATA & STATE ---
+        let coins = 100;
+
+        // Animal list with cost and image path
+        const shopAnimals = {
+            shark: { cost: 50, image: 'Images/shark.png' },
+            dolphin: { cost: 30, image: 'Images/dolphin.png' },
+            octopus: { cost: 20, image: 'Images/octopus.png' },
+            whale: { cost: 75, image: 'Images/whale.png' },
+            jellyfish: { cost: 10, image: 'Images/jellyfish.png' },
+            seahorse: { cost: 15, image: 'Images/seahorse.png' },
+            penguin: { cost: 40, image: 'Images/penguin.png' },
+            turtle: { cost: 25, image: 'Images/turtle.png' }
+            // Add many more to test the scrolling!
+        };
+
+        const shopContainer = document.getElementById('shopItems');
+        const coinDisplay = document.getElementById('coins');
+
+        // --- 2. SHOP RENDERING & FILTERING ---
+
+        /**
+         * Renders the shop items based on a search filter.
+         * This function is called once on load and every time the input changes.
+         * @param {string} filterText - The text entered in the search box.
+         */
+        function renderShop(filterText = '') {
+            shopContainer.innerHTML = ''; // Clear the current items
+            const lowerFilter = filterText.toLowerCase();
+
+            // Loop through the animals and check if they match the filter
+            for (const name in shopAnimals) {
+                if (name.includes(lowerFilter)) {
+                    const animalData = shopAnimals[name];
+                    
+                    const button = document.createElement('button');
+                    // Capitalize the first letter for display
+                    const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+
+                    button.textContent = `Buy ${displayName} (${animalData.cost} Coins)`;
+                    
+                    // Attach the buy logic directly to the button
+                    button.onclick = () => buyAnimal(name);
+                    
+                    // Check if the player can afford the animal
+                    if (coins < animalData.cost) {
+                        button.disabled = true;
+                        button.style.backgroundColor = '#95a5a6'; // Grey out button
+                    }
+
+                    shopContainer.appendChild(button);
+                }
+            }
+        }
+        
+        /**
+         * The function called by the 'oninput' event in the HTML.
+         */
+        function filterShop() {
+            const searchText = document.getElementById('search').value;
+            renderShop(searchText);
+        }
+
+        // --- 3. GAME LOGIC ---
+        
+        function buyAnimal(animalName) {
+            const animalData = shopAnimals[animalName];
+
+            if (coins >= animalData.cost) {
+                coins -= animalData.cost;
+                coinDisplay.textContent = coins;
+                
+                // Add the animal to the game world (simplified for this example)
+                addAnimalToWorld(animalName, animalData.image);
+                
+                // Re-render the shop to update button availability and keep the filter active
+                filterShop(); 
+
+                console.log(`Purchased a ${animalName} for ${animalData.cost} coins!`);
+
+            } else {
+                alert("Not enough coins!");
+            }
+        }
+
+        function addAnimalToWorld(name, imagePath) {
+            // A basic implementation to demonstrate a successful purchase
+            const newAnimal = document.createElement('div');
+            newAnimal.classList.add('animal');
+            newAnimal.style.backgroundImage = `url('${imagePath}')`;
+            newAnimal.style.width = '60px';
+            newAnimal.style.height = '60px';
+            // Set a random starting position
+            newAnimal.style.top = `${Math.random() * (window.innerHeight - 60)}px`;
+            newAnimal.style.left = `${Math.random() * (window.innerWidth - 60)}px`;
+            newAnimal.style.display = 'block'; // Make it visible
+            
+            document.body.appendChild(newAnimal);
+        }
+        
+        // Music placeholder function (you can fill this in later)
+        function toggleMusic() {
+            console.log("Music toggled!");
+            // Implementation for playing audio goes here
+        }
+
+        // --- INITIALIZATION ---
+        // Start the game by rendering the full shop
+        renderShop();
+    </script>
+</body>
+</html>

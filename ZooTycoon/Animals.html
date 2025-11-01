@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Zoo Tycoon</title>
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            /* Note: Changed background URL to a common placeholder since 'images/background.png' is local */
+            background: url('images/background.png') repeat;
+            background-color: lightgreen;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Control Panel Setup (Shop) */
+        #shop-container {
+            position: fixed;
+            top: 10px;
+            right: 10px; /* Placing the shop/list on the right */
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            width: 200px; /* Define a fixed width for the shop panel */
+        }
+
+        /* Input and Button Styles */
+        #filterInput {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #999;
+            width: 90%;
+            margin-bottom: 10px;
+        }
+        
+        /* New Scrollable List Container */
+        #animal-list {
+            max-height: 400px; /* KEY: Set a height limit */
+            overflow-y: auto; /* KEY: Enable vertical scrolling */
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* List Item Style */
+        .animal-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+            transition: background-color 0.1s;
+        }
+
+        .animal-item:last-child {
+            border-bottom: none;
+        }
+
+        .animal-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .animal-item.hidden {
+            display: none; /* Hide filtered items */
+        }
+        
+        /* Mover and Failed Load Styles */
+        .mover {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background-size: cover;
+            background-position: center;
+            /* Remove transition when dragging to prevent lag */
+            transition: top 0.4s ease-out, left 0.4s ease-out; 
+            cursor: grab; /* Visual feedback for draggability */
+        }
+
+        .mover.dragging {
+            transition: none !important; /* Override transition during drag */
+            cursor: grabbing;
+            z-index: 50; /* Bring to front while dragging */
+        }
+
+        .failed-load {
+            background-color: #e74c3c;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="shop-container">
+        <h3>Animals</h3>
+        <input type="text" id="filterInput" placeholder="Filter by name..." oninput="filterList();playAudio()">
+        
+        <ul id="animal-list">
+            </ul>
+    </div>
+
+
+    <script>
+        function playAudio() { 
+        var a = document.getElementById("myAudio");
+    
+        if (a.paused) {
+            a.play();
+        }
+        };
+        const SCALE_FACTOR = 0.1;
+        const stepDistance = 25;
+        const intervalDuration = 1000;
+
+        const animalImageLinks = {
+            lion: 'images/lion.png',
+            zebra: 'images/zebra.png',
+            giraffe: 'images/giraffe.png',
+            elephant: 'images/elephant.png',
+            cheetah: 'images/cheetah.png',
+            penguin: 'images/penguin.png',
+            rhino: 'images/rhino.png',
+            hippo: 'images/hippo.png',
+            tiger: 'images/tiger.png',
+            panda: 'images/panda.png',
+            leopard: 'images/leopard.png',
+            buffalo: 'images/buffalo.png',
+            gorilla: 'images/gorilla.png',
+            monkey: 'images/monkey.png',
+            crocodile: 'images/crocodile.png',
+            camel: 'images/camel.png',
+            parrot: 'images/parrot.png',
+            wolf: 'images/wolf.png',
+            lion: 'images/lion.png',
+            zebra: 'images/zebra.png',
+            giraffe: 'images/giraffe.png',
+            elephant: 'images/elephant.png',
+            cheetah: 'images/cheetah.png',
+            penguin: 'images/penguin.png',
+            rhino: 'images/rhino.png',
+            hippo: 'images/hippo.png',
+            tiger: 'images/tiger.png',
+            panda: 'images/panda.png',
+            leopard: 'images/leopard.png',
+            buffalo: 'images/buffalo.png',
+            gorilla: 'images/gorilla.png',
+            monkey: 'images/monkey.png',
+            crocodile: 'images/crocodile.png',
+            camel: 'images/camel.png',
+            parrot: 'images/parrot.png',
+            wolf: 'images/wolf.png',
+        };
+        
+        const allAnimals = Object.keys(animalImageLinks);
+
+        // --- GLOBAL DRAG STATE ---
+        let currentDrag = null; // Stores the Mover element being dragged
+        let offsetX, offsetY;    // Stores the offset from the mouse to the element corner
+
+        // --- MOVEMENT/Mover FUNCTIONS ---
+
+        function moveDivRandomDegrees(divElement) {
+            let currentX = divElement.offsetLeft;
+            let currentY = divElement.offsetTop;
+            const randomAngle = Math.random() * 2 * Math.PI;
+            const deltaX = stepDistance * Math.cos(randomAngle);
+            const deltaY = stepDistance * Math.sin(randomAngle);
+            currentX += deltaX;
+            currentY += deltaY;
+            const w = divElement.clientWidth;
+            const h = divElement.clientHeight;
+            const maxW = window.innerWidth - w;
+            const maxH = window.innerHeight - h;
+            currentX = Math.min(Math.max(currentX, 0), maxW);
+            currentY = Math.min(Math.max(currentY, 0), maxH);
+            divElement.style.left = currentX + 'px';
+            divElement.style.top = currentY + 'px';
+        }
+
+        function startMovement(divElement) {
+            // ✅ CHANGE: Store the interval ID on the element itself
+            divElement.movementInterval = setInterval(() => {
+                moveDivRandomDegrees(divElement);
+            }, intervalDuration);
+        }
+
+        // --- DRAGGING HANDLERS ---
+        
+        function dragStart(e) {
+            e.preventDefault(); // Prevent text selection
+            
+            const mover = this; // The element being clicked
+            
+            // 1. Pause movement
+            clearInterval(mover.movementInterval);
+            mover.movementInterval = null;
+
+            // 2. Set drag state
+            currentDrag = mover;
+            currentDrag.classList.add('dragging');
+
+            // 3. Calculate initial offset (distance from mouse to top-left corner)
+            offsetX = e.clientX - mover.offsetLeft;
+            offsetY = e.clientY - mover.offsetTop;
+        }
+
+        function dragMove(e) {
+            if (!currentDrag) return;
+
+            // 1. Calculate new position based on mouse and offset
+            let newX = e.clientX - offsetX;
+            let newY = e.clientY - offsetY;
+
+            // 2. Clamp position to window bounds
+            const w = currentDrag.clientWidth;
+            const h = currentDrag.clientHeight;
+            const maxW = window.innerWidth - w;
+            const maxH = window.innerHeight - h;
+
+            newX = Math.min(Math.max(newX, 0), maxW);
+            newY = Math.min(Math.max(newY, 0), maxH);
+            
+            // 3. Apply position
+            currentDrag.style.left = newX + 'px';
+            currentDrag.style.top = newY + 'px';
+        }
+
+        function dragEnd() {
+            if (!currentDrag) return;
+            
+            // 1. Clean up drag state
+            currentDrag.classList.remove('dragging');
+            
+            // 2. Restart movement
+            startMovement(currentDrag);
+            
+            currentDrag = null;
+        }
+
+        // Attach global listeners for dragging onto the document
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+        
+
+        // --- CREATE MOVER FUNCTION (MODIFIED) ---
+
+        function createMover(animalName) {
+            const imageUrl = animalImageLinks[animalName];
+            if (!imageUrl) {
+                console.error(`No image link found for ${animalName}`);
+                return;
+            }
+
+            const div = document.createElement('div');
+            div.classList.add('mover');
+            
+            // ✅ ADD: Draggability listener
+            div.addEventListener('mousedown', dragStart);
+
+            const img = new Image();
+            
+            img.onload = function() {
+                const naturalW = img.naturalWidth || 100;
+                const naturalH = img.naturalHeight || 100;
+                const scaledW = naturalW * SCALE_FACTOR;
+                const scaledH = naturalH * SCALE_FACTOR;
+                
+                div.style.backgroundImage = `url('${imageUrl}')`;
+                div.style.width = scaledW + 'px';
+                div.style.height = scaledH + 'px';
+                div.style.transform = `translate(-${scaledW / 2}px, -${scaledH / 2}px)`;
+                document.body.appendChild(div);
+                startMovement(div);
+            };
+
+            img.onerror = function() {
+                const FALLBACK_SIZE = 60;
+                div.classList.add('failed-load');
+                div.style.width = FALLBACK_SIZE + 'px';
+                div.style.height = FALLBACK_SIZE + 'px';
+                div.style.transform = `translate(-${FALLBACK_SIZE / 2}px, -${FALLBACK_SIZE / 2}px)`;
+                document.body.appendChild(div);
+                startMovement(div);
+                console.error(`Failed to load image for ${animalName}. Check your 'images' folder!`);
+            };
+
+            img.src = imageUrl;
+        }
+
+        // ==================================================
+        // SHOP/LIST LOGIC (Unchanged)
+        // ==================================================
+        const animalListContainer = document.getElementById('animal-list');
+        const filterInput = document.getElementById('filterInput');
+
+        function initializeAnimalList() {
+            animalListContainer.innerHTML = ''; 
+            
+            for (const animal of allAnimals) {
+                const listItem = document.createElement('li');
+                listItem.classList.add('animal-item');
+                listItem.textContent = animal.charAt(0).toUpperCase() + animal.slice(1); 
+                listItem.setAttribute('data-name', animal);
+
+                listItem.addEventListener('click', function() {
+                    const animalName = this.getAttribute('data-name');
+                    createMover(animalName);
+                });
+
+                animalListContainer.appendChild(listItem);
+            }
+        }
+        
+        function filterList() {
+            const filterValue = filterInput.value.toLowerCase();
+            const items = animalListContainer.getElementsByClassName('animal-item');
+            
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const animalName = item.getAttribute('data-name');
+                
+                if (animalName.includes(filterValue)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            }
+        }
+
+        // --- INITIALIZATION ---
+        initializeAnimalList();
+    </script>
+
+<audio loop id="myAudio">
+    <source id="myAudio" src="images/aquarium_music.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio>
+</body>
+</html>

@@ -10,27 +10,52 @@
             width: 100vw;
             overflow: hidden;
             margin: 0;
-            /* Note: Changed background URL to a common placeholder since 'images/background.png' is local */
             background: url('images/background.png') repeat;
             background-color: lightgreen;
             background-size: cover;
             font-family: Arial, sans-serif;
         }
 
-        /* Control Panel Setup (Shop) */
-        #shop-container {
+        /* The Main Animals Button (The new "shop" anchor) */
+        #toggleShopBtn {
             position: fixed;
             top: 10px;
-            right: 10px; /* Placing the shop/list on the right */
-            background: rgba(255, 255, 255, 0.9);
+            right: 10px;
+            padding: 11px 79px;
+            border: none;
+            background-color: darkslategray;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 11; /* Above the list when both are open */
+        }
+        
+        /* The Actual List Container (Filter and UL) */
+        #shop-content {
+            position: fixed;
+            top: 50px; /* Positioned below the button */
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
             padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             z-index: 10;
-            width: 200px; /* Define a fixed width for the shop panel */
+            width: 200px;
+            /* Start hidden and slide in */
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: visibility 0.3s, opacity 0.3s, transform 0.3s;
         }
 
-        /* Input and Button Styles */
+        /* State when shown */
+        #shop-content.visible {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Input and List Styles */
         #filterInput {
             padding: 8px 12px;
             font-size: 14px;
@@ -40,10 +65,9 @@
             margin-bottom: 10px;
         }
         
-        /* New Scrollable List Container */
         #animal-list {
-            max-height: 400px; /* KEY: Set a height limit */
-            overflow-y: auto; /* KEY: Enable vertical scrolling */
+            max-height: 350px; /* Adjusted height to fit better */
+            overflow-y: auto;
             padding: 0;
             margin: 0;
             list-style: none;
@@ -70,25 +94,24 @@
         }
         
         .animal-item.hidden {
-            display: none; /* Hide filtered items */
+            display: none;
         }
         
-        /* Mover and Failed Load Styles */
+        /* Mover and Dragging Styles (Unchanged) */
         .mover {
             position: absolute;
             top: 50%;
             left: 50%;
             background-size: cover;
             background-position: center;
-            /* Remove transition when dragging to prevent lag */
             transition: top 0.4s ease-out, left 0.4s ease-out; 
-            cursor: grab; /* Visual feedback for draggability */
+            cursor: grab;
         }
 
         .mover.dragging {
-            transition: none !important; /* Override transition during drag */
+            transition: none !important;
             cursor: grabbing;
-            z-index: 50; /* Bring to front while dragging */
+            z-index: 50;
         }
 
         .failed-load {
@@ -100,9 +123,10 @@
 </head>
 <body>
     
-    <div id="shop-container">
-        <h3>Animals</h3>
-        <input type="text" id="filterInput" placeholder="Filter by name..." oninput="filterList();playAudio()">
+    <button id="toggleShopBtn" onclick="toggleShop();playAudio()">Animals</button>
+
+    <div id="shop-content">
+        <input type="text" id="filterInput" placeholder="Filter by name..." oninput="filterList()">
         
         <ul id="animal-list">
             </ul>
@@ -110,13 +134,23 @@
 
 
     <script>
+        // --- AUDIO FUNCTION (Kept as requested) ---
         function playAudio() { 
-        var a = document.getElementById("myAudio");
-    
-        if (a.paused) {
-            a.play();
-        }
+            var a = document.getElementById("myAudio");
+            if (a.paused) {
+                a.play().catch(e => console.log("Audio playback prevented by browser: ", e));
+            }
         };
+
+        // --- NEW TOGGLE FUNCTION ---
+        function toggleShop() {
+            const shopContent = document.getElementById('shop-content');
+            
+            // Toggle the 'visible' class
+            shopContent.classList.toggle('visible');
+        }
+        
+        // --- EXISTING GAME CONSTANTS & LOGIC ---
         const SCALE_FACTOR = 0.1;
         const stepDistance = 25;
         const intervalDuration = 1000;
@@ -140,34 +174,15 @@
             camel: 'images/camel.png',
             parrot: 'images/parrot.png',
             wolf: 'images/wolf.png',
-            lion: 'images/lion.png',
-            zebra: 'images/zebra.png',
-            giraffe: 'images/giraffe.png',
-            elephant: 'images/elephant.png',
-            cheetah: 'images/cheetah.png',
-            penguin: 'images/penguin.png',
-            rhino: 'images/rhino.png',
-            hippo: 'images/hippo.png',
-            tiger: 'images/tiger.png',
-            panda: 'images/panda.png',
-            leopard: 'images/leopard.png',
-            buffalo: 'images/buffalo.png',
-            gorilla: 'images/gorilla.png',
-            monkey: 'images/monkey.png',
-            crocodile: 'images/crocodile.png',
-            camel: 'images/camel.png',
-            parrot: 'images/parrot.png',
-            wolf: 'images/wolf.png',
         };
         
         const allAnimals = Object.keys(animalImageLinks);
 
         // --- GLOBAL DRAG STATE ---
-        let currentDrag = null; // Stores the Mover element being dragged
-        let offsetX, offsetY;    // Stores the offset from the mouse to the element corner
+        let currentDrag = null; 
+        let offsetX, offsetY;    
 
         // --- MOVEMENT/Mover FUNCTIONS ---
-
         function moveDivRandomDegrees(divElement) {
             let currentX = divElement.offsetLeft;
             let currentY = divElement.offsetTop;
@@ -187,28 +202,22 @@
         }
 
         function startMovement(divElement) {
-            // ✅ CHANGE: Store the interval ID on the element itself
             divElement.movementInterval = setInterval(() => {
                 moveDivRandomDegrees(divElement);
             }, intervalDuration);
         }
 
         // --- DRAGGING HANDLERS ---
-        
         function dragStart(e) {
-            e.preventDefault(); // Prevent text selection
+            e.preventDefault();
+            const mover = this;
             
-            const mover = this; // The element being clicked
-            
-            // 1. Pause movement
             clearInterval(mover.movementInterval);
             mover.movementInterval = null;
 
-            // 2. Set drag state
             currentDrag = mover;
             currentDrag.classList.add('dragging');
 
-            // 3. Calculate initial offset (distance from mouse to top-left corner)
             offsetX = e.clientX - mover.offsetLeft;
             offsetY = e.clientY - mover.offsetTop;
         }
@@ -216,11 +225,9 @@
         function dragMove(e) {
             if (!currentDrag) return;
 
-            // 1. Calculate new position based on mouse and offset
             let newX = e.clientX - offsetX;
             let newY = e.clientY - offsetY;
 
-            // 2. Clamp position to window bounds
             const w = currentDrag.clientWidth;
             const h = currentDrag.clientHeight;
             const maxW = window.innerWidth - w;
@@ -229,7 +236,6 @@
             newX = Math.min(Math.max(newX, 0), maxW);
             newY = Math.min(Math.max(newY, 0), maxH);
             
-            // 3. Apply position
             currentDrag.style.left = newX + 'px';
             currentDrag.style.top = newY + 'px';
         }
@@ -237,22 +243,16 @@
         function dragEnd() {
             if (!currentDrag) return;
             
-            // 1. Clean up drag state
             currentDrag.classList.remove('dragging');
-            
-            // 2. Restart movement
             startMovement(currentDrag);
-            
             currentDrag = null;
         }
 
-        // Attach global listeners for dragging onto the document
         document.addEventListener('mousemove', dragMove);
         document.addEventListener('mouseup', dragEnd);
         
 
-        // --- CREATE MOVER FUNCTION (MODIFIED) ---
-
+        // --- CREATE MOVER FUNCTION ---
         function createMover(animalName) {
             const imageUrl = animalImageLinks[animalName];
             if (!imageUrl) {
@@ -263,7 +263,6 @@
             const div = document.createElement('div');
             div.classList.add('mover');
             
-            // ✅ ADD: Draggability listener
             div.addEventListener('mousedown', dragStart);
 
             const img = new Image();
@@ -297,7 +296,7 @@
         }
 
         // ==================================================
-        // SHOP/LIST LOGIC (Unchanged)
+        // SHOP/LIST LOGIC 
         // ==================================================
         const animalListContainer = document.getElementById('animal-list');
         const filterInput = document.getElementById('filterInput');
@@ -314,6 +313,8 @@
                 listItem.addEventListener('click', function() {
                     const animalName = this.getAttribute('data-name');
                     createMover(animalName);
+                    // Close the menu automatically after selecting an animal
+                    toggleShop(); 
                 });
 
                 animalListContainer.appendChild(listItem);
@@ -346,3 +347,4 @@
     </audio>
 </body>
 </html>
+```

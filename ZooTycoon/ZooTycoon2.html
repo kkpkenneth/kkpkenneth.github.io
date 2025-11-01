@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoo Tycoon 🦁</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #b3e6b3;
+    }
+
+    #hud {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.8);
+      padding: 10px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 10;
+      text-align: center;
+    }
+
+    #zoo {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .animal {
+      position: absolute;
+      height: 30px;
+      object-fit: cover;
+      border-radius: 0px;
+      transition: transform 1s linear;
+    }
+
+    #shop {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.8);
+      border-radius: 10px;
+      padding: 10px 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    button {
+      background-color: #34d399;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    💰 Money: <span id="money">500</span> |
+    ⏱️ Income/s: <span id="income">0</span>
+  </div>
+
+  <div id="zoo"></div>
+
+  <div id="shop"></div>
+
+  <script>
+    const animals = [
+      { name: "Lion", cost: 100, income: 5, img: "images/lion.png" },
+      { name: "Elephant", cost: 250, income: 12, img: "images/elephant.png" },
+      { name: "Giraffe", cost: 500, income: 25, img: "images/giraffe.png" },
+      { name: "Zebra", cost: 150, income: 7, img: "images/zebra.png" },
+      { name: "Penguin", cost: 300, income: 15, img: "images/penguin.png" },
+    ];
+
+    let money = 500;
+    const zooData = animals.map(a => ({ ...a, count: 0 }));
+    const zoo = document.getElementById("zoo");
+    const moneyEl = document.getElementById("money");
+    const incomeEl = document.getElementById("income");
+    const shopEl = document.getElementById("shop");
+
+    function updateHUD() {
+      const totalIncome = zooData.reduce((sum, a) => sum + a.count * a.income, 0);
+      incomeEl.textContent = totalIncome;
+      moneyEl.textContent = Math.floor(money);
+    }
+
+    function randomPosition(animalEl) {
+      const w = window.innerWidth - 100;
+      const h = window.innerHeight - 100;
+      const x = Math.random() * w;
+      const y = Math.random() * h;
+      animalEl.style.left = `${x}px`;
+      animalEl.style.top = `${y}px`;
+    }
+
+    function moveAnimal(animalEl) {
+      randomPosition(animalEl);
+      const delay = 1000 + Math.random() * 4000;
+      setTimeout(() => moveAnimal(animalEl), delay);
+    }
+
+    function spawnAnimal(animal) {
+      const el = document.createElement("img");
+      el.src = animal.img;
+      el.className = "animal";
+      randomPosition(el);
+      zoo.appendChild(el);
+      moveAnimal(el);
+    }
+
+    function buyAnimal(index) {
+      const a = zooData[index];
+      if (money >= a.cost) {
+        money -= a.cost;
+        a.count++;
+        spawnAnimal(a);
+        updateHUD();
+        renderShop();
+      }
+    }
+
+    function renderShop() {
+      shopEl.innerHTML = "";
+      zooData.forEach((a, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = `Buy ${a.name} ($${a.cost})`;
+        btn.disabled = money < a.cost;
+        btn.onclick = () => buyAnimal(i);
+        shopEl.appendChild(btn);
+      });
+    }
+
+    // Passive income
+    setInterval(() => {
+      const totalIncome = zooData.reduce((sum, a) => sum + a.count * a.income, 0);
+      money += totalIncome;
+      updateHUD();
+      renderShop();
+    }, 1000);
+
+    updateHUD();
+    renderShop();
+  </script>
+</body>
+</html>

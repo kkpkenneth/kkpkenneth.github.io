@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoo Tycoon 🦁</title>
+  <style>
+    body {
+      background-color: #d1fae5;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    .stats {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      justify-items: center;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      width: 200px;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .animal-img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #34d399;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    button:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>🦁 Zoo Tycoon</h1>
+  <div class="stats">
+    💰 Money: <span id="money">500</span><br />
+    ⏱️ Income per second: <span id="income">0</span>
+  </div>
+
+  <div class="grid" id="zoo"></div>
+
+  <script>
+    const animals = [
+      { name: "Lion", cost: 100, income: 5, img: "images/lion.png" },
+      { name: "Elephant", cost: 250, income: 12, img: "images/elephant.png" },
+      { name: "Giraffe", cost: 500, income: 25, img: "images/giraffe.png" },
+      { name: "Zebra", cost: 150, income: 7, img: "images/zebra.png" },
+      { name: "Penguin", cost: 300, income: 15, img: "images/penguin.png" },
+    ];
+
+    let money = 500;
+    const zoo = animals.map(a => ({ ...a, count: 0 }));
+
+    const moneyEl = document.getElementById("money");
+    const incomeEl = document.getElementById("income");
+    const zooContainer = document.getElementById("zoo");
+
+    function updateDisplay() {
+      zooContainer.innerHTML = "";
+      let totalIncome = 0;
+
+      zoo.forEach((a, index) => {
+        totalIncome += a.count * a.income;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <img src="${a.img}" class="animal-img" alt="${a.name}">
+          <h3>${a.name}</h3>
+          <p>Count: ${a.count}</p>
+          <p>Income: $${a.income}/s each</p>
+          <p>Cost: $${a.cost}</p>
+          <button id="buy-${index}" ${money < a.cost ? "disabled" : ""}>Buy ${a.name}</button>
+        `;
+
+        card.querySelector("button").addEventListener("click", () => buyAnimal(index));
+        zooContainer.appendChild(card);
+      });
+
+      incomeEl.textContent = totalIncome;
+      moneyEl.textContent = money.toFixed(0);
+    }
+
+    function buyAnimal(index) {
+      const a = zoo[index];
+      if (money >= a.cost) {
+        money -= a.cost;
+        a.count++;
+        updateDisplay();
+      }
+    }
+
+    // Passive income system
+    setInterval(() => {
+      let totalIncome = zoo.reduce((sum, a) => sum + a.count * a.income, 0);
+      money += totalIncome;
+      updateDisplay();
+    }, 1000);
+
+    updateDisplay();
+  </script>
+</body>
+</html>

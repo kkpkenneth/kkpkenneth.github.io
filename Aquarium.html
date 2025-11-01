@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animal Tycoon Zoo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: url('Images/sea3.png') no-repeat center center;
+      background-size: cover;
+      overflow: hidden;
+    }
+
+    #currency {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 18px;
+    }
+
+    #shop {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px;
+      border-radius: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+      width: 250px;
+    }
+
+    #shop input {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    #shop button {
+      display: block;
+      margin: 5px 0;
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    .animal {
+      position: absolute;
+      background-size: contain;
+      background-repeat: no-repeat;
+      display: none;
+      animation: swim 10s infinite;
+    }
+
+    @keyframes swim {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(-30px); }
+      100% { transform: translateX(0); }
+    }
+
+    #musicBtn {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="currency">Coins: <span id="coins">100</span></div>
+
+  <div id="shop">
+    <input type="text" id="search" placeholder="Search animals..." oninput="filterShop()">
+    <div id="shopItems"></div>
+  </div>
+
+  <button id="musicBtn" onclick="toggleMusic()">🎵 Music</button>
+
+  <!-- Example animals -->

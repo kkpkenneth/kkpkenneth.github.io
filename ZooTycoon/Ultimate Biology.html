@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Ultimate Biology Quiz - Fill in the Blanks</title>
+    <title>Biology Quiz - Fill in the Blanks</title>
     <!-- Load Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font family -->
@@ -43,8 +43,8 @@
     <div id="quiz-container" class="w-full max-w-4xl bg-white shadow-xl rounded-xl p-6 sm:p-10">
 
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 tracking-tight mb-2">Cell Biology Revision</h1>
-            <p class="text-lg text-gray-500">Fill in the blanks and hit 'Check' to see your score!</p>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 tracking-tight mb-2">Cell Biology Revision (100 Questions)</h1>
+            <p class="text-lg text-gray-500">Test your knowledge on cell structure, function, and molecular biology!</p>
         </header>
 
         <section id="quiz-area" class="space-y-6">
@@ -73,22 +73,106 @@
         // --- QUIZ DATA ---
         // Store the sentences and the correct answers (case-insensitive checking)
         const quizContent = [
-            {
-                text: "The term used to describe bacterial cells is [Prokaryotic] because they lack a membrane-bound nucleus.",
-                id: 1
-            },
-            {
-                text: "Cells that contain a true nucleus, such as those found in animals, plants, and fungi, are known as [Eukaryotic] cells.",
-                id: 2
-            },
-            {
-                text: "Genetic material in a bacterial cell is often found in a single circular chromosome located in the [Nucleoid] region.",
-                id: 3
-            },
-            {
-                text: "The protective outer layer of many plant cells, but also found in bacteria, is called the cell [Wall].",
-                id: 4
-            }
+            { text: "The term used to describe bacterial cells is [Prokaryotic] because they lack a membrane-bound nucleus.", id: 1 },
+            { text: "Cells that contain a true nucleus, such as those found in animals, plants, and fungi, are known as [Eukaryotic] cells.", id: 2 },
+            { text: "Genetic material in a bacterial cell is often found in a single circular chromosome located in the [Nucleoid] region.", id: 3 },
+            { text: "The protective outer layer of many plant cells, but also found in bacteria, is called the cell [Wall].", id: 4 },
+            { text: "Unlike bacterial cells, animal cells possess numerous complex, membrane-bound structures, collectively known as [Organelles].", id: 5 },
+            { text: "The primary site of cellular energy production (cellular [Respiration]) in eukaryotic cells is the mitochondria.", id: 6 },
+            { text: "Plant cells contain large organelles called [Chloroplasts], which are responsible for converting light energy into chemical energy.", id: 7 },
+            { text: "The metabolic process carried out by chloroplasts is known as [Photosynthesis].", id: 8 },
+            { text: "The cell wall of plant cells is primarily composed of the structural carbohydrate [Cellulose].", id: 9 },
+            { text: "The cell walls of fungal cells are chemically unique, being made of [Chitin].", id: 10 },
+            { text: "Protein synthesis, or translation, occurs on small cellular machines called [Ribosomes].", id: 11 },
+            { text: "The endoplasmic reticulum that is studded with ribosomes and is involved in protein modification is the [Rough] ER.", id: 12 },
+            { text: "The [Golgi] apparatus is responsible for modifying, sorting, and packaging proteins and lipids before distribution.", id: 13 },
+            { text: "Small, membrane-bound sacs used to transport substances into, out of, and within the cell are called [Vesicles].", id: 14 },
+            { text: "The large central structure in plant cells that stores water and maintains cell rigidity is the [Vacuole].", id: 15 },
+            { text: "Cell rigidity, especially in plant cells, is maintained by internal water pressure known as [Turgor].", id: 16 },
+            { text: "The [Plasma] membrane is the lipid bilayer that surrounds all cells, regulating the passage of materials.", id: 17 },
+            { text: "The jelly-like fluid that fills the cell and suspends the organelles is known as the [Cytoplasm].", id: 18 },
+            { text: "Whip-like appendages used for cell movement, commonly found on bacteria and some eukaryotic cells, are [Flagella].", id: 19 },
+            { text: "Bacterial cells reproduce quickly and asexually through a process known as [Binary Fission].", id: 20 },
+            { text: "If there is a risk of E. coli contamination, people should [Boil] drinking water for at least one minute or treat it with approved chemical [Disinfectants].", id: 21 },
+            { text: "The structure responsible for detoxifying drugs and synthesizing lipids is the [Smooth] ER.", id: 22 },
+            { text: "Lysosomes contain powerful [Enzymes] used to digest waste materials and worn-out organelles.", id: 23 },
+            { text: "The cytoskeleton is composed of three main fiber types, including microtubules, microfilaments, and intermediate [Filaments].", id: 24 },
+            { text: "The theory stating that mitochondria and chloroplasts originated from engulfed bacteria is the [Endosymbiotic] theory.", id: 25 },
+            { text: "The movement of molecules from an area of high concentration to an area of low concentration is called [Diffusion].", id: 26 },
+            { text: "The diffusion of water across a selectively permeable membrane is known as [Osmosis].", id: 27 },
+            { text: "A solution with a higher solute concentration than the cell's interior is termed [Hypertonic].", id: 28 },
+            { text: "The process requiring energy (ATP) to move substances against their concentration gradient is called [Active] transport.", id: 29 },
+            { text: "Cell eating, where the cell engulfs large particles, is scientifically termed [Phagocytosis].", id: 30 },
+            { text: "The division of the cell nucleus, resulting in two identical daughter nuclei, is called [Mitosis].", id: 31 },
+            { text: "The phase of the cell cycle where DNA replication occurs is the [S] phase.", id: 32 },
+            { text: "Gametes (sex cells) are produced through the process of [Meiosis].", id: 33 },
+            { text: "Chromosomes align at the cell's equatorial plate during the mitotic phase known as [Metaphase].", id: 34 },
+            { text: "The two identical copies of a chromosome held together by a centromere are called sister [Chromatids].", id: 35 },
+            { text: "The molecule that carries genetic instructions and is double-stranded is [DNA].", id: 36 },
+            { text: "The nitrogenous base found in DNA but not RNA is [Thymine].", id: 37 },
+            { text: "RNA uses the nitrogenous base [Uracil] instead of Thymine.", id: 38 },
+            { text: "The process of creating an mRNA strand from a DNA template is called [Transcription].", id: 39 },
+            { text: "The specific sequence of three bases on mRNA that codes for a single amino acid is a [Codon].", id: 40 },
+            { text: "Transfer RNA ([tRNA]) is responsible for bringing amino acids to the ribosome during protein synthesis.", id: 41 },
+            { text: "The basic building block of a protein is an [Amino] acid.", id: 42 },
+            { text: "Enzymes are biological [Catalysts] that speed up chemical reactions without being consumed.", id: 43 },
+            { text: "The region on an enzyme where the substrate binds is called the [Active] site.", id: 44 },
+            { text: "The primary energy currency of the cell is the molecule [ATP].", id: 45 },
+            { text: "The first stage of cellular respiration, which occurs in the cytoplasm, is [Glycolysis].", id: 46 },
+            { text: "The inner folded membrane of the mitochondria is called the [Cristae].", id: 47 },
+            { text: "The final electron acceptor in aerobic respiration is [Oxygen].", id: 48 },
+            { text: "Fermentation that produces lactic acid occurs when [Anaerobic] conditions are present.", id: 49 },
+            { text: "The primary pigment in chloroplasts that absorbs light energy is [Chlorophyll].", id: 50 },
+            { text: "The internal flattened sacs within a chloroplast where light reactions take place are called [Thylakoids].", id: 51 },
+            { text: "The fluid-filled space surrounding the thylakoids in the chloroplast is the [Stroma].", id: 52 },
+            { text: "The Calvin cycle, which fixes carbon dioxide into sugar, is a [Light-independent] reaction.", id: 53 },
+            { text: "The four main classes of organic macromolecules are carbohydrates, lipids, proteins, and [Nucleic] acids.", id: 54 },
+            { text: "Sugars, starches, and fiber are examples of [Carbohydrates].", id: 55 },
+            { text: "The simplest form of carbohydrate, like glucose or fructose, is a [Monosaccharide].", id: 56 },
+            { text: "Fats, oils, and waxes are categorized as [Lipids].", id: 57 },
+            { text: "Lipids are largely [Hydrophobic], meaning they repel water.", id: 58 },
+            { text: "The plasma membrane is described as a fluid [Mosaic] model, reflecting its dynamic composition.", id: 59 },
+            { text: "In eukaryotes, the DNA is wrapped around proteins called [Histones].", id: 60 },
+            { text: "A disease characterized by uncontrolled cell division is [Cancer].", id: 61 },
+            { text: "The programmed cell death process that removes unnecessary or damaged cells is called [Apoptosis].", id: 62 },
+            { text: "The scientific study of heredity and the variation of inherited characteristics is [Genetics].", id: 63 },
+            { text: "A person's observable traits resulting from their genotype is their [Phenotype].", id: 64 },
+            { text: "An individual possessing two identical alleles for a particular gene is [Homozygous].", id: 65 },
+            { text: "The process of a cell becoming specialized in structure and function is [Differentiation].", id: 66 },
+            { text: "Connective tissue is characterized by having cells scattered within an extracellular [Matrix].", id: 67 },
+            { text: "[Epithelial] tissue covers the exterior surfaces of the body and lines internal organs.", id: 68 },
+            { text: "Muscle tissue primarily consists of fibers capable of [Contraction].", id: 69 },
+            { text: "The cells that transmit electrical signals in the nervous system are [Neurons].", id: 70 },
+            { text: "Red blood cells, which transport oxygen, lack a [Nucleus] when mature.", id: 71 },
+            { text: "Bacteria that use chemical energy (not light) to produce food are called [Chemoautotrophs].", id: 72 },
+            { text: "The kingdom that includes organisms like mushrooms, yeasts, and molds is [Fungi].", id: 73 },
+            { text: "Organisms whose cells lack cell walls entirely belong to the kingdom [Animalia].", id: 74 },
+            { text: "The classification level immediately below Kingdom is [Phylum].", id: 75 },
+            { text: "The technique used to separate cell components based on density is [Centrifugation].", id: 76 },
+            { text: "A compound microscope uses two lenses, the objective lens and the [Eyepiece] (or ocular) lens.", id: 77 },
+            { text: "The smallest unit of an element is the [Atom].", id: 78 },
+            { text: "A chemical bond formed by the sharing of electrons between atoms is a [Covalent] bond.", id: 79 },
+            { text: "The weak attraction between a partially positive hydrogen atom and a partially negative atom is a [Hydrogen] bond.", id: 80 },
+            { text: "The property of water molecules sticking to other water molecules is [Cohesion].", id: 81 },
+            { text: "The measure of acidity or basicity of a solution is its [pH].", id: 82 },
+            { text: "Solutions with a pH less than 7 are classified as [Acids].", id: 83 },
+            { text: "A substance that minimizes changes in pH in a solution is a [Buffer].", id: 84 },
+            { text: "Starch is the major [Storage] carbohydrate in plants.", id: 85 },
+            { text: "The protein that makes up hair, nails, and outer skin layers is [Keratin].", id: 86 },
+            { text: "The primary structure of a protein is defined by its sequence of [Amino] acids.", id: 87 },
+            { text: "Prions are infectious protein particles that cause disease by inducing abnormal protein [Folding].", id: 88 },
+            { text: "The sugar component of the DNA backbone is [Deoxyribose].", id: 89 },
+            { text: "The process by which a cell takes in molecules by engulfing them in a vesicle is [Endocytosis].", id: 90 },
+            { text: "The specialized junctions that allow rapid passage of ions and small molecules between adjacent animal cells are [Gap] junctions.", id: 91 },
+            { text: "The primary barrier to movement of water-soluble substances across the cell membrane is the [Lipid] bilayer.", id: 92 },
+            { text: "The term for organisms that require pre-formed organic compounds for energy is [Heterotrophs].", id: 93 },
+            { text: "In multicellular organisms, groups of similar cells working together form a [Tissue].", id: 94 },
+            { text: "The two types of prokaryotes are bacteria and [Archaea].", id: 95 },
+            { text: "An organism that only grows in the presence of oxygen is called an obligate [Aerobe].", id: 96 },
+            { text: "The specialized region of DNA that determines the timing of cell division is the [Telomere].", id: 97 },
+            { text: "The specialized pores in the nuclear envelope that regulate transport are called [Nuclear] pores.", id: 98 },
+            { text: "The term for the complete set of genes or genetic material present in a cell or organism is the [Genome].", id: 99 },
+            { text: "The complex of DNA and protein that makes up eukaryotic chromosomes is [Chromatin].", id: 100 }
         ];
 
         let totalBlanks = 0;
@@ -104,16 +188,30 @@
             correctAnswersMap.clear();
             let inputIdCounter = 0;
 
-            quizContent.forEach(item => {
+            quizContent.forEach((item, index) => {
+                const questionNumber = index + 1;
+
+                // 1. Create a wrapper for the entire question block
+                const questionWrapper = document.createElement('div');
+                // Use a subtle background to make each question distinct
+                questionWrapper.className = 'question-block bg-gray-50 p-4 rounded-xl shadow-inner mb-6'; 
+
+                // 2. Add the question number header
+                const numberHeader = document.createElement('h3');
+                numberHeader.className = 'text-xl font-bold text-indigo-700 mb-3 border-b pb-2 border-indigo-200';
+                numberHeader.textContent = `Question ${questionNumber}:`;
+                questionWrapper.appendChild(numberHeader);
+                
+                // 3. Create the sentence container for the fill-in-the-blanks text
                 const sentenceDiv = document.createElement('p');
                 sentenceDiv.className = 'quiz-sentence text-lg text-gray-700 leading-loose';
                 
                 // Regular expression to find words enclosed in [brackets]
                 const parts = item.text.split(/\[(.*?)\]/g);
                 
-                parts.forEach((part, index) => {
+                parts.forEach((part, partIndex) => {
                     // If the index is odd, it's the text inside the brackets (the answer)
-                    if (index % 2 !== 0) {
+                    if (partIndex % 2 !== 0) {
                         const correctWord = part.trim();
                         
                         // Create the input element
@@ -139,9 +237,20 @@
                         sentenceDiv.appendChild(textNode);
                     }
                 });
-                quizArea.appendChild(sentenceDiv);
+
+                // 4. Append sentence to wrapper, and wrapper to quiz area
+                questionWrapper.appendChild(sentenceDiv);
+                quizArea.appendChild(questionWrapper);
             });
             updateScore(0);
+        }
+
+        /**
+         * Updates the score display in the footer.
+         * @param {number} correctCount - The number of correct answers.
+         */
+        function updateScore(correctCount) {
+            document.getElementById('score-display').textContent = `Score: ${correctCount} / ${totalBlanks}`;
         }
 
         /**
@@ -153,6 +262,7 @@
             
             allInputs.forEach(input => {
                 const userAnswer = input.value.trim().toLowerCase();
+                // Get the case-insensitive correct answer from the map
                 const correctAnswer = correctAnswersMap.get(input.id).toLowerCase();
                 
                 // Remove previous feedback classes
@@ -162,9 +272,9 @@
                     input.classList.add('correct');
                     correctCount++;
                 } else if (userAnswer !== '') {
+                    // Only mark as incorrect if the user actually typed something
                     input.classList.add('incorrect');
                 }
-                // If the field is empty, just remove feedback but don't mark as incorrect
             });
 
             updateScore(correctCount);

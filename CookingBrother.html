@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cooking Encyclopedia 🌍</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #fffbe6, #c3e5e8);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.5em;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+  .ingredients, .drop-zone, .dish-display {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .ingredients h2, .drop-zone h2 {
+    text-align: center;
+  }
+  .ingredient {
+    background: #f7d794;
+    border: none;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 8px 10px;
+    cursor: grab;
+    transition: 0.2s;
+  }
+  .ingredient:hover {
+    background: #f9ca24;
+    transform: scale(1.05);
+  }
+  .ingredient:active {
+    cursor: grabbing;
+  }
+  .drop-zone {
+    border: 3px dashed #f0932b;
+    text-align: center;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .drop-zone.dragover {
+    background: #ffeaa7;
+  }
+  .dish-card {
+    text-align: center;
+    padding: 10px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+  .dish-name {
+    font-size: 1.5em;
+    margin: 8px 0;
+  }
+  .dish-desc {
+    color: #555;
+    font-size: 0.95em;
+  }
+  .dish-ingredients {
+    color: #888;
+    font-size: 0.8em;
+  }
+</style>
+</head>
+<body>
+
+<h1>🍳 Cooking Encyclopedia 🌍</h1>
+<div class="container">
+  <div class="ingredients">
+    <h2>Ingredients</h2>
+    <div id="ingredient-list"></div>
+  </div>
+
+  <div id="dropZone" class="drop-zone">
+    <h2>Drop ingredients here</h2>
+    <p id="selected">No ingredients yet.</p>
+  </div>
+
+  <div class="dish-display">
+    <div id="dishResult">
+      <p style="text-align:center;color:#666;font-style:italic;">Mix ingredients to discover a dish!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const ingredients = [
+  "White Rice", "Ramen (Japan)", "Coconut", "Tomato", "Cheese",
+  "Olive Oil", "Nori", "Garlic", "Curry", "Beef", "Chicken",
+  "Egg", "Pasta", "Potato", "Chili Pepper", "Fish", "Soy Sauce",
+  "Bread", "Lemon", "Onion"
+];
+
+const dishes = [
+  { country: "Japan 🇯🇵", name: "Sushi", ingredients: ["White Rice", "Nori", "Fish"], desc: "Vinegared rice with seafood or vegetables." },
+  { country: "Italy 🇮🇹", name: "Spaghetti Carbonara", ingredients: ["Pasta", "Egg", "Cheese"], desc: "Creamy pasta with egg, cheese, and pancetta." },
+  { country: "China 🇨🇳", name: "Kung Pao Chicken", ingredients: ["Chicken", "Chili Pepper", "Peanut"], desc: "Spicy stir-fry with chicken and peanuts." },
+  { country: "India 🇮🇳", name: "Chicken Curry", ingredients: ["Chicken", "Curry", "Onion"], desc: "Spicy, flavorful chicken simmered in curry sauce." },
+  { country: "Mexico 🇲🇽", name: "Tacos", ingredients: ["Beef", "Tomato", "Onion"], desc: "Corn tortillas filled with spiced meat and vegetables." },
+  { country: "France 🇫🇷", name: "Ratatouille", ingredients: ["Tomato", "Eggplant", "Zucchini"], desc: "Stewed vegetables with herbs and olive oil." },
+  { country: "Thailand 🇹🇭", name: "Pad Thai", ingredients: ["Noodles", "Egg", "Soy Sauce"], desc: "Fried rice noodles with egg, tofu, and peanuts." },
+  { country: "Turkey 🇹🇷", name: "Kebab", ingredients: ["Beef", "Onion", "Tomato"], desc: "Grilled skewered meat, often served with flatbread." },
+  { country: "USA 🇺🇸", name: "Burger", ingredients: ["Beef", "Cheese", "Bread"], desc: "Grilled beef patty served in a bun with toppings." },
+  { country: "Brazil 🇧🇷", name: "Feijoada", ingredients: ["Black Beans", "Pork", "Rice"], desc: "Bean stew with pork, served with rice." },
+  { country: "Spain 🇪🇸", name: "Paella", ingredients: ["Rice", "Seafood", "Saffron"], desc: "Saffron rice cooked with seafood and vegetables." },
+  { country: "Greece 🇬🇷", name: "Moussaka", ingredients: ["Eggplant", "Beef", "Cheese"], desc: "Layered casserole of eggplant, meat, and béchamel." },
+  { country: "Korea 🇰🇷", name: "Bibimbap", ingredients: ["Rice", "Egg", "Vegetables"], desc: "Mixed rice bowl with vegetables, meat, and egg." },
+  { country: "UK 🇬🇧", name: "Fish and Chips", ingredients: ["Fish", "Potato", "Salt"], desc: "Fried battered fish with crispy chips." },
+  { country: "Vietnam 🇻🇳", name: "Pho", ingredients: ["Beef", "Noodles", "Onion"], desc: "Vietnamese noodle soup with herbs and meat." },
+  { country: "Lebanon 🇱🇧", name: "Tabbouleh", ingredients: ["Parsley", "Tomato", "Lemon"], desc: "Salad made with parsley, bulgur, and lemon." },
+  { country: "Russia 🇷🇺", name: "Borscht", ingredients: ["Beetroot", "Onion", "Cabbage"], desc: "Soup made with beetroot and vegetables." },
+  { country: "Switzerland 🇨🇭", name: "Fondue", ingredients: ["Cheese", "Bread", "Wine"], desc: "Melted cheese dip served with bread cubes." },
+  { country: "Philippines 🇵🇭", name: "Adobo", ingredients: ["Chicken", "Soy Sauce", "Vinegar"], desc: "Marinated meat stew in soy sauce and vinegar." },
+  { country: "Pakistan 🇵🇰", name: "Biryani", ingredients: ["Rice", "Chicken", "Curry"], desc: "Fragrant spiced rice with meat or vegetables." }
+];
+
+let selected = [];
+
+function renderIngredients() {
+  const list = document.getElementById("ingredient-list");
+  ingredients.forEach(ing => {
+    const btn = document.createElement("button");
+    btn.className = "ingredient";
+    btn.textContent = ing;
+    btn.draggable = true;
+    btn.ondragstart = () => btn.classList.add("dragging");
+    btn.ondragend = () => {
+      btn.classList.remove("dragging");
+      onDrop(ing);
+    };
+    list.appendChild(btn);
+  });
+}
+
+function onDrop(ingredient) {
+  if (!selected.includes(ingredient)) selected.push(ingredient);
+  document.getElementById("selected").textContent = selected.join(", ");
+
+  const found = dishes.find(d =>
+    d.ingredients.every(i => selected.includes(i))
+  );
+
+  const result = document.getElementById("dishResult");
+  if (found) {
+    result.innerHTML = `
+      <div class="dish-card">
+        <div class="dish-name">${found.name} (${found.country})</div>
+        <div class="dish-desc">${found.desc}</div>
+        <div class="dish-ingredients">Ingredients: ${found.ingredients.join(", ")}</div>
+      </div>
+    `;
+  }
+}
+
+const dropZone = document.getElementById("dropZone");
+dropZone.addEventListener("dragover", e => {
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+dropZone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+});
+
+renderIngredients();
+</script>
+
+</body>
+</html>

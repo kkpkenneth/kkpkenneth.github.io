@@ -34,7 +34,15 @@
             background-color: #fee2e2;
         }
         .quiz-sentence {
-            line-height: 2.5rem; /* Ensure enough space for the input fields */
+            /* Ensure the text and inputs are inline and centered vertically */
+            display: flex; 
+            flex-wrap: wrap; 
+            align-items: center; 
+            line-height: 2.2rem;
+        }
+        .question-block-container {
+            display: flex;
+            align-items: flex-start; /* Align sentence and button at the top */
         }
     </style>
 </head>
@@ -44,7 +52,7 @@
 
         <header class="text-center mb-8">
             <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 tracking-tight mb-2">Cell Biology Revision (100 Questions)</h1>
-            <p class="text-lg text-gray-500">Test your knowledge on cell structure, function, and molecular biology!</p>
+            <p class="text-lg text-gray-500">Fill in the blanks and use the 'Check' button for instant feedback on each question!</p>
         </header>
 
         <section id="quiz-area" class="space-y-6">
@@ -52,17 +60,15 @@
         </section>
 
         <div class="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center">
-            <div id="score-display" class="text-xl font-semibold text-gray-700 mb-4 sm:mb-0">Score: 0 / 0</div>
+            <div id="score-display" class="text-xl font-semibold text-gray-700 mb-4 sm:mb-0">Score: 0 / 100</div>
 
             <div class="space-x-4 flex flex-wrap justify-center sm:justify-start">
-                <button onclick="checkAnswers()" id="checkButton" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out transform hover:scale-105 mb-2 sm:mb-0">
-                    Check Answers
-                </button>
+                <!-- Removed global Check button, relying on individual checks -->
                 <button onclick="showAnswers()" id="showAnswersButton" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-lg shadow-md hover:bg-emerald-700 transition duration-150 ease-in-out transform hover:scale-105 mb-2 sm:mb-0">
-                    Show Answers
+                    Reveal All
                 </button>
                 <button onclick="resetQuiz()" id="resetButton" class="px-6 py-3 bg-gray-300 text-gray-800 font-bold rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
-                    Reset
+                    Reset Quiz
                 </button>
             </div>
         </div>
@@ -70,8 +76,7 @@
     </div>
 
     <script>
-        // --- QUIZ DATA ---
-        // Store the sentences and the correct answers (case-insensitive checking)
+        // --- QUIZ DATA (100 Questions) ---
         const quizContent = [
             { text: "The term used to describe bacterial cells is [Prokaryotic] because they lack a membrane-bound nucleus.", id: 1 },
             { text: "Cells that contain a true nucleus, such as those found in animals, plants, and fungi, are known as [Eukaryotic] cells.", id: 2 },
@@ -93,7 +98,7 @@
             { text: "The jelly-like fluid that fills the cell and suspends the organelles is known as the [Cytoplasm].", id: 18 },
             { text: "Whip-like appendages used for cell movement, commonly found on bacteria and some eukaryotic cells, are [Flagella].", id: 19 },
             { text: "Bacterial cells reproduce quickly and asexually through a process known as [Binary Fission].", id: 20 },
-            { text: "If there is a risk of E. coli contamination, people should [Boil] drinking water for at least one minute or treat it with approved chemical [Disinfectants].", id: 21 },
+            { text: "If there is a risk of E. coli contamination, people should [Boil] drinking water for at least one minute.", id: 21 },
             { text: "The structure responsible for detoxifying drugs and synthesizing lipids is the [Smooth] ER.", id: 22 },
             { text: "Lysosomes contain powerful [Enzymes] used to digest waste materials and worn-out organelles.", id: 23 },
             { text: "The cytoskeleton is composed of three main fiber types, including microtubules, microfilaments, and intermediate [Filaments].", id: 24 },
@@ -179,6 +184,68 @@
         let correctAnswersMap = new Map(); // Maps input ID to the correct answer
 
         /**
+         * Calculates the total correct score across all inputs and updates the display.
+         */
+        function updateGlobalScore() {
+            let correctCount = 0;
+            const allInputs = document.querySelectorAll('.blank-input');
+            
+            allInputs.forEach(input => {
+                // We only count it as correct if it has the 'correct' class, which is added when 
+                // the user's attempt matches the answer. This prevents incorrect answers
+                // that have been revealed from incorrectly counting towards the score.
+                if (input.classList.contains('correct')) {
+                    correctCount++;
+                }
+            });
+
+            document.getElementById('score-display').textContent = `Score: ${correctCount} / ${totalBlanks}`;
+        }
+
+
+        /**
+         * Checks a single input field against its correct answer, and reveals the answer if incorrect.
+         * @param {HTMLElement} inputElement - The input field to check.
+         */
+        function checkSingleInput(inputElement) {
+            const userAnswer = inputElement.value.trim().toLowerCase();
+            // Get the original-cased correct answer for display
+            const correctAnswerDisplay = correctAnswersMap.get(inputElement.id);
+            // Get the lowercased correct answer for case-insensitive comparison
+            const correctAnswerCompare = correctAnswerDisplay.toLowerCase();
+            
+            // Find the corresponding check button
+            const questionBlock = inputElement.closest('.question-block');
+            const checkButton = questionBlock ? questionBlock.querySelector('.question-block-container button') : null;
+
+            // Remove previous feedback classes
+            inputElement.classList.remove('correct', 'incorrect');
+            
+            if (userAnswer === correctAnswerCompare) {
+                // Correct logic: Mark correct and lock
+                inputElement.classList.add('correct');
+                inputElement.disabled = true;
+                if (checkButton) {
+                    checkButton.disabled = true;
+                    checkButton.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            } else if (userAnswer !== '') {
+                // Incorrect logic: Mark incorrect, reveal the correct answer, and lock
+                inputElement.classList.add('incorrect');
+                inputElement.value = correctAnswerDisplay; // REVEAL THE CORRECT ANSWER
+                inputElement.disabled = true;
+                if (checkButton) {
+                    checkButton.disabled = true;
+                    checkButton.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+            // If userAnswer is empty (''), we don't apply feedback or lock.
+
+            // After checking the single input, update the total score
+            updateGlobalScore();
+        }
+
+        /**
          * Parses the quiz content, generates HTML, and initializes the quiz state.
          */
         function initializeQuiz() {
@@ -193,7 +260,6 @@
 
                 // 1. Create a wrapper for the entire question block
                 const questionWrapper = document.createElement('div');
-                // Use a subtle background to make each question distinct
                 questionWrapper.className = 'question-block bg-gray-50 p-4 rounded-xl shadow-inner mb-6'; 
 
                 // 2. Add the question number header
@@ -203,8 +269,8 @@
                 questionWrapper.appendChild(numberHeader);
                 
                 // 3. Create the sentence container for the fill-in-the-blanks text
-                const sentenceDiv = document.createElement('p');
-                sentenceDiv.className = 'quiz-sentence text-lg text-gray-700 leading-loose';
+                const sentenceDiv = document.createElement('div');
+                sentenceDiv.className = 'quiz-sentence text-lg text-gray-700';
                 
                 // Regular expression to find words enclosed in [brackets]
                 const parts = item.text.split(/\[(.*?)\]/g);
@@ -238,54 +304,41 @@
                     }
                 });
 
-                // 4. Append sentence to wrapper, and wrapper to quiz area
-                questionWrapper.appendChild(sentenceDiv);
+                // 4. Create the Check button for this question
+                const checkButton = document.createElement('button');
+                checkButton.textContent = 'Check';
+                checkButton.className = 'px-3 py-1 text-sm bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 transform hover:scale-105 ml-4 flex-shrink-0';
+                checkButton.onclick = function() {
+                    // The input for this question is the first (and only) blank-input inside this questionWrapper
+                    const input = questionWrapper.querySelector('.blank-input');
+                    checkSingleInput(input);
+                };
+
+                // 5. Assemble the question block container (sentence + check button)
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'question-block-container mt-3';
+                
+                // Wrap the sentence div to ensure it takes up maximum available width before the button
+                const sentenceWrapper = document.createElement('div');
+                sentenceWrapper.className = 'flex-grow min-w-0';
+                sentenceWrapper.appendChild(sentenceDiv);
+
+                contentContainer.appendChild(sentenceWrapper);
+                contentContainer.appendChild(checkButton);
+
+
+                questionWrapper.appendChild(contentContainer);
                 quizArea.appendChild(questionWrapper);
             });
-            updateScore(0);
+            updateGlobalScore(); // Initial score display (0/100)
         }
 
         /**
-         * Updates the score display in the footer.
-         * @param {number} correctCount - The number of correct answers.
-         */
-        function updateScore(correctCount) {
-            document.getElementById('score-display').textContent = `Score: ${correctCount} / ${totalBlanks}`;
-        }
-
-        /**
-         * Checks all user inputs against the correct answers and provides feedback.
-         */
-        function checkAnswers() {
-            let correctCount = 0;
-            const allInputs = document.querySelectorAll('.blank-input');
-            
-            allInputs.forEach(input => {
-                const userAnswer = input.value.trim().toLowerCase();
-                // Get the case-insensitive correct answer from the map
-                const correctAnswer = correctAnswersMap.get(input.id).toLowerCase();
-                
-                // Remove previous feedback classes
-                input.classList.remove('correct', 'incorrect');
-                
-                if (userAnswer === correctAnswer) {
-                    input.classList.add('correct');
-                    correctCount++;
-                } else if (userAnswer !== '') {
-                    // Only mark as incorrect if the user actually typed something
-                    input.classList.add('incorrect');
-                }
-            });
-
-            updateScore(correctCount);
-        }
-
-        /**
-         * Reveals all correct answers and disables the inputs and check button.
+         * Reveals all correct answers and disables the inputs and check buttons.
          */
         function showAnswers() {
-            let correctCount = 0;
             const allInputs = document.querySelectorAll('.blank-input');
+            const allCheckButtons = document.querySelectorAll('.question-block-container button');
             
             allInputs.forEach(input => {
                 const correctAnswer = correctAnswersMap.get(input.id);
@@ -299,16 +352,18 @@
                 
                 // Disable the input
                 input.disabled = true;
-                correctCount++;
+            });
+            
+            allCheckButtons.forEach(button => {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
             });
 
-            // Disable the check and show buttons
-            document.getElementById('checkButton').disabled = true;
-            document.getElementById('checkButton').classList.add('opacity-50', 'cursor-not-allowed');
+            // Disable the 'Reveal All' button
             document.getElementById('showAnswersButton').disabled = true;
             document.getElementById('showAnswersButton').classList.add('opacity-50', 'cursor-not-allowed');
 
-            updateScore(correctCount); // Show full score
+            updateGlobalScore(); // Show full score (100/100 displayed if all are now correct)
         }
 
         /**
@@ -316,19 +371,24 @@
          */
         function resetQuiz() {
             const allInputs = document.querySelectorAll('.blank-input');
+            const allCheckButtons = document.querySelectorAll('.question-block-container button');
+
             allInputs.forEach(input => {
                 input.value = '';
                 input.classList.remove('correct', 'incorrect');
                 input.disabled = false; // Re-enable input
             });
 
-            // Re-enable buttons
-            document.getElementById('checkButton').disabled = false;
-            document.getElementById('checkButton').classList.remove('opacity-50', 'cursor-not-allowed');
+            allCheckButtons.forEach(button => {
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+
+            // Re-enable 'Reveal All' button
             document.getElementById('showAnswersButton').disabled = false;
             document.getElementById('showAnswersButton').classList.remove('opacity-50', 'cursor-not-allowed');
             
-            updateScore(0); // Reset score display
+            updateGlobalScore(); // Reset score display (0/100)
         }
 
         // Initialize the quiz when the page loads

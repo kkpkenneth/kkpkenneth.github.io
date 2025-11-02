@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Biology Quiz - Fill in the Blanks</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .blank-input {
+            border: 2px solid #9ca3af;
+            border-radius: 6px;
+            padding: 4px 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #1f2937;
+            transition: all 0.2s;
+            width: auto;
+            min-width: 120px;
+            max-width: 90%;
+            display: inline-block;
+        }
+        .correct {
+            border-color: #10b981; /* Emerald Green */
+            background-color: #d1fae5;
+        }
+        .incorrect {
+            border-color: #ef4444; /* Red */
+            background-color: #fee2e2;
+        }
+        .quiz-sentence {
+            line-height: 2.5rem; /* Ensure enough space for the input fields */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8 flex items-start justify-center">
+
+    <div id="quiz-container" class="w-full max-w-4xl bg-white shadow-xl rounded-xl p-6 sm:p-10">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 tracking-tight mb-2">Cell Biology Revision</h1>
+            <p class="text-lg text-gray-500">Fill in the blanks and hit 'Check' to see your score!</p>
+        </header>
+
+        <section id="quiz-area" class="space-y-6">
+            <!-- Quiz content will be generated here by JavaScript -->
+        </section>
+
+        <div class="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center">
+            <div id="score-display" class="text-xl font-semibold text-gray-700 mb-4 sm:mb-0">Score: 0 / 0</div>
+
+            <div class="space-x-4 flex flex-wrap justify-center sm:justify-start">
+                <button onclick="checkAnswers()" id="checkButton" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out transform hover:scale-105 mb-2 sm:mb-0">
+                    Check Answers
+                </button>
+                <button onclick="showAnswers()" id="showAnswersButton" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-lg shadow-md hover:bg-emerald-700 transition duration-150 ease-in-out transform hover:scale-105 mb-2 sm:mb-0">
+                    Show Answers
+                </button>
+                <button onclick="resetQuiz()" id="resetButton" class="px-6 py-3 bg-gray-300 text-gray-800 font-bold rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- QUIZ DATA ---
+        // Store the sentences and the correct answers (case-insensitive checking)
+        const quizContent = [
+            {
+                text: "The term used to describe bacterial cells is [Prokaryotic] because they lack a membrane-bound nucleus.",
+                id: 1
+            },
+            {
+                text: "Cells that contain a true nucleus, such as those found in animals, plants, and fungi, are known as [Eukaryotic] cells.",
+                id: 2
+            },
+            {
+                text: "Genetic material in a bacterial cell is often found in a single circular chromosome located in the [Nucleoid] region.",
+                id: 3
+            },
+            {
+                text: "The protective outer layer of many plant cells, but also found in bacteria, is called the cell [Wall].",
+                id: 4
+            }
+        ];
+
+        let totalBlanks = 0;
+        let correctAnswersMap = new Map(); // Maps input ID to the correct answer
+
+        /**
+         * Parses the quiz content, generates HTML, and initializes the quiz state.
+         */
+        function initializeQuiz() {
+            const quizArea = document.getElementById('quiz-area');
+            quizArea.innerHTML = '';
+            totalBlanks = 0;
+            correctAnswersMap.clear();
+            let inputIdCounter = 0;
+
+            quizContent.forEach(item => {
+                const sentenceDiv = document.createElement('p');
+                sentenceDiv.className = 'quiz-sentence text-lg text-gray-700 leading-loose';
+                
+                // Regular expression to find words enclosed in [brackets]
+                const parts = item.text.split(/\[(.*?)\]/g);
+                
+                parts.forEach((part, index) => {
+                    // If the index is odd, it's the text inside the brackets (the answer)
+                    if (index % 2 !== 0) {
+                        const correctWord = part.trim();
+                        
+                        // Create the input element
+                        const inputElement = document.createElement('input');
+                        inputElement.type = 'text';
+                        inputElement.className = 'blank-input mx-1';
+                        inputElement.id = `blank-${inputIdCounter}`;
+                        inputElement.setAttribute('data-correct', correctWord.toLowerCase());
+                        
+                        // Set a visual width roughly based on the answer length
+                        inputElement.style.width = `${Math.max(correctWord.length * 10, 100)}px`; 
+                        
+                        // Add to the map for checking and increment total count
+                        correctAnswersMap.set(inputElement.id, correctWord);
+                        totalBlanks++;
+                        
+                        sentenceDiv.appendChild(inputElement);
+                        inputIdCounter++;
+
+                    } else {
+                        // Otherwise, it's regular text
+                        const textNode = document.createTextNode(part.trim() + ' ');
+                        sentenceDiv.appendChild(textNode);
+                    }
+                });
+                quizArea.appendChild(sentenceDiv);
+            });
+            updateScore(0);
+        }
+
+        /**
+         * Checks all user inputs against the correct answers and provides feedback.
+         */
+        function checkAnswers() {
+            let correctCount = 0;
+            const allInputs = document.querySelectorAll('.blank-input');
+            
+            allInputs.forEach(input => {
+                const userAnswer = input.value.trim().toLowerCase();
+                const correctAnswer = correctAnswersMap.get(input.id).toLowerCase();
+                
+                // Remove previous feedback classes
+                input.classList.remove('correct', 'incorrect');
+                
+                if (userAnswer === correctAnswer) {
+                    input.classList.add('correct');
+                    correctCount++;
+                } else if (userAnswer !== '') {
+                    input.classList.add('incorrect');
+                }
+                // If the field is empty, just remove feedback but don't mark as incorrect
+            });
+
+            updateScore(correctCount);
+        }
+
+        /**
+         * Reveals all correct answers and disables the inputs and check button.
+         */
+        function showAnswers() {
+            let correctCount = 0;
+            const allInputs = document.querySelectorAll('.blank-input');
+            
+            allInputs.forEach(input => {
+                const correctAnswer = correctAnswersMap.get(input.id);
+                
+                // Set the value to the correct answer
+                input.value = correctAnswer;
+                
+                // Apply correct styling
+                input.classList.add('correct');
+                input.classList.remove('incorrect');
+                
+                // Disable the input
+                input.disabled = true;
+                correctCount++;
+            });
+
+            // Disable the check and show buttons
+            document.getElementById('checkButton').disabled = true;
+            document.getElementById('checkButton').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('showAnswersButton').disabled = true;
+            document.getElementById('showAnswersButton').classList.add('opacity-50', 'cursor-not-allowed');
+
+            updateScore(correctCount); // Show full score
+        }
+
+        /**
+         * Resets the quiz by clearing inputs and feedback, and re-enabling buttons.
+         */
+        function resetQuiz() {
+            const allInputs = document.querySelectorAll('.blank-input');
+            allInputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('correct', 'incorrect');
+                input.disabled = false; // Re-enable input
+            });
+
+            // Re-enable buttons
+            document.getElementById('checkButton').disabled = false;
+            document.getElementById('checkButton').classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('showAnswersButton').disabled = false;
+            document.getElementById('showAnswersButton').classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            updateScore(0); // Reset score display
+        }
+
+        // Initialize the quiz when the page loads
+        window.onload = initializeQuiz;
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,942 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trump vs. Elon: Two-Player Tank Battle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            text-shadow: 3px 3px 0 #000;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .score-board {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .score {
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .trump-score .score-value {
+            color: #ff6b6b;
+        }
+        
+        .elon-score .score-value {
+            color: #4ecdc4;
+        }
+        
+        .health-bars {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .health-bar {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        
+        .trump-health .health-fill {
+            background: linear-gradient(to right, #ff6b6b, #ff8e8e);
+        }
+        
+        .elon-health .health-fill {
+            background: linear-gradient(to right, #4ecdc4, #88d8d0);
+        }
+        
+        .game-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #ffd166;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 0 #cc9e00;
+        }
+        
+        button:hover {
+            background: #ffdf8e;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #cc9e00;
+        }
+        
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #cc9e00;
+        }
+        
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 3px solid #ffd166;
+        }
+        
+        .player {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        
+        .player.trump {
+            background: radial-gradient(circle, #ff6b6b, #cc0000);
+            border: 3px solid #ff8e8e;
+            top: 50px;
+            left: 100px;
+        }
+        
+        .player.elon {
+            background: radial-gradient(circle, #4ecdc4, #009688);
+            border: 3px solid #88d8d0;
+            top: 50px;
+            right: 100px;
+        }
+        
+        .player-direction {
+    width: 20px;
+    height: 20px;
+    background: #888;
+    position: absolute;
+    left: 75px;  /* Center it horizontally */
+    top: 25px;   /* Position it in front of the body */
+    border-radius: 5px;
+    transform-origin: 0px 0px;
+        }
+        
+        .bullet {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .trump-bullet {
+            background: #ff6b6b;
+            box-shadow: 0 0 10px #ff6b6b;
+        }
+        
+        .elon-bullet {
+            background: #4ecdc4;
+            box-shadow: 0 0 10px #4ecdc4;
+        }
+        
+        .hit-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            animation: hitAnimation 0.5s forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes hitAnimation {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        .controls-info {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .player-controls {
+            width: 45%;
+            text-align: left;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .trump-controls {
+            background: rgba(255, 107, 107, 0.2);
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .elon-controls {
+            background: rgba(78, 205, 196, 0.2);
+            border-left: 4px solid #4ecdc4;
+        }
+        
+        .player-controls h3 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .controls-list {
+            list-style-type: none;
+        }
+        
+        .controls-list li {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .key {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-right: 8px;
+            font-family: monospace;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 100;
+            border: 3px solid #ffd166;
+        }
+        
+        .game-over h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .game-over p {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .power-up {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            animation: float 3s infinite ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .health-power {
+            background: radial-gradient(circle, #ff6b6b, #cc0000);
+        }
+        
+        .speed-power {
+            background: radial-gradient(circle, #4ecdc4, #009688);
+        }
+        
+        .ammo-power {
+            background: radial-gradient(circle, #ffd166, #cc9e00);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .game-area {
+                height: 400px;
+            }
+            
+            .player {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+            
+            .controls-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .player-controls {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Trump vs. Elon: Two-Player Tank Battle</h1>
+            <div class="subtitle">Move, rotate and shoot! First to reduce opponent's health to zero wins!</div>
+        </header>
+        
+        <div class="game-info">
+            <div class="score-board">
+                <div class="score trump-score">
+                    <div>Trump</div>
+                    <div class="score-value" id="trump-score">0</div>
+                </div>
+                <div class="score elon-score">
+                    <div>Elon</div>
+                    <div class="score-value" id="elon-score">0</div>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <button id="start-btn">Start Game</button>
+                <button id="reset-btn">Reset Game</button>
+            </div>
+        </div>
+        
+        <div class="health-bars">
+            <div class="health-bar trump-health">
+                <div class="health-fill" id="trump-health" style="width: 100%;"></div>
+            </div>
+            <div class="health-bar elon-health">
+                <div class="health-fill" id="elon-health" style="width: 100%;"></div>
+            </div>
+        </div>
+        
+        <div class="game-area" id="game-area">
+            <div class="player trump" id="trump">
+                <div class="player-direction" id="trump-direction"></div>
+                🧢
+            </div>
+            <div class="player elon" id="elon">
+                <div class="player-direction" id="elon-direction"></div>
+                🚀
+            </div>
+            
+            <div class="game-over" id="game-over">
+                <h2>Game Over!</h2>
+                <p id="winner-message"></p>
+                <button id="play-again-btn">Play Again</button>
+            </div>
+        </div>
+        
+        <div class="controls-info">
+            <div class="player-controls trump-controls">
+                <h3>Trump Controls</h3>
+                <ul class="controls-list">
+                    <li><span class="key">W</span> Move Forward</li>
+                    <li><span class="key">S</span> Move Backward</li>
+                    <li><span class="key">A</span> Rotate Left</li>
+                    <li><span class="key">D</span> Rotate Right</li>
+                    <li><span class="key">Space</span> Shoot</li>
+                </ul>
+            </div>
+            
+            <div class="player-controls elon-controls">
+                <h3>Elon Controls</h3>
+                <ul class="controls-list">
+                    <li><span class="key">↑</span> Move Forward</li>
+                    <li><span class="key">↓</span> Move Backward</li>
+                    <li><span class="key">←</span> Rotate Left</li>
+                    <li><span class="key">→</span> Rotate Right</li>
+                    <li><span class="key">Enter</span> Shoot</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            gameActive: false,
+            trump: {
+                x: 100,
+                y: 200,
+                health: 100,
+                score: 0,
+                angle: 0, // in degrees
+                lastShot: 0,
+                shootCooldown: 500, // ms
+                speed: 3
+            },
+            elon: {
+                x: 900,
+                y: 200,
+                health: 100,
+                score: 0,
+                angle: 180, // in degrees
+                lastShot: 0,
+                shootCooldown: 500, // ms
+                speed: 3
+            },
+            bullets: [],
+            powerUps: [],
+            keys: {}
+        };
+        
+        // DOM elements
+        const gameArea = document.getElementById('game-area');
+        const trumpEl = document.getElementById('trump');
+        const elonEl = document.getElementById('elon');
+        const trumpDirectionEl = document.getElementById('trump-direction');
+        const elonDirectionEl = document.getElementById('elon-direction');
+        const trumpScoreEl = document.getElementById('trump-score');
+        const elonScoreEl = document.getElementById('elon-score');
+        const trumpHealthEl = document.getElementById('trump-health');
+        const elonHealthEl = document.getElementById('elon-health');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const gameOverEl = document.getElementById('game-over');
+        const winnerMessageEl = document.getElementById('winner-message');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        
+        // Game dimensions
+        const gameWidth = gameArea.offsetWidth;
+        const gameHeight = gameArea.offsetHeight;
+        
+        // Sound effects (using Web Audio API)
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(frequency, duration, type) {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            if (type === 'trump') {
+                oscillator.type = 'sawtooth';
+            } else if (type === 'elon') {
+                oscillator.type = 'sine';
+            } else if (type === 'hit') {
+                oscillator.type = 'square';
+            }
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // Convert degrees to radians
+        function toRadians(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+        
+        // Calculate position at the tip of the grey direction indicator
+        function getBulletStartPosition(playerX, playerY, angle) {
+            const radians = toRadians(angle);
+            
+            // Calculate position at the tip of the grey direction indicator
+            // The grey indicator is 30px long and positioned at top: -15px
+            // So we need to offset by half the player height (40px) plus the indicator length (30px)
+            const offsetX = Math.cos(radians) * 55; // 40 (half player) + 15 (half indicator)
+            const offsetY = Math.sin(radians) * 55;
+            
+            return {
+                x: playerX + 40 + offsetX, // Center of player + offset
+                y: playerY + 40 + offsetY
+            };
+        }
+        
+        // Create a bullet
+        function createBullet(player, x, y, angle) {
+            const bullet = {
+                x: x,
+                y: y,
+                angle: angle,
+                player: player,
+                id: Date.now() + Math.random()
+            };
+            
+            gameState.bullets.push(bullet);
+            
+            // Create bullet element
+            const bulletEl = document.createElement('div');
+            bulletEl.className = `bullet ${player}-bullet`;
+            bulletEl.id = `bullet-${bullet.id}`;
+            bulletEl.style.left = `${x}px`;
+            bulletEl.style.top = `${y}px`;
+            gameArea.appendChild(bulletEl);
+            
+            playSound(player === 'trump' ? 300 : 500, 0.1, player);
+        }
+        
+        // Create power-up
+        function createPowerUp() {
+            if (Math.random() < 0.008 && gameState.powerUps.length < 3) { // 0.8% chance each frame
+                const types = ['health', 'speed', 'ammo'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const x = Math.random() * (gameWidth - 30);
+                const y = Math.random() * (gameHeight - 30);
+                
+                const powerUp = {
+                    x: x,
+                    y: y,
+                    type: type,
+                    id: Date.now() + Math.random()
+                };
+                
+                gameState.powerUps.push(powerUp);
+                
+                // Create power-up element
+                const powerUpEl = document.createElement('div');
+                powerUpEl.className = `power-up ${type}-power`;
+                powerUpEl.id = `power-${powerUp.id}`;
+                powerUpEl.style.left = `${x}px`;
+                powerUpEl.style.top = `${y}px`;
+                
+                // Set appropriate emoji for power-up type
+                if (type === 'health') {
+                    powerUpEl.innerHTML = '❤️';
+                } else if (type === 'speed') {
+                    powerUpEl.innerHTML = '⚡';
+                } else if (type === 'ammo') {
+                    powerUpEl.innerHTML = '🔫';
+                }
+                
+                gameArea.appendChild(powerUpEl);
+                
+                // Remove power-up after 10 seconds
+                setTimeout(() => {
+                    const index = gameState.powerUps.findIndex(p => p.id === powerUp.id);
+                    if (index > -1) {
+                        gameState.powerUps.splice(index, 1);
+                        const powerUpElement = document.getElementById(`power-${powerUp.id}`);
+                        if (powerUpElement) {
+                            powerUpElement.remove();
+                        }
+                    }
+                }, 10000);
+            }
+        }
+        
+        // Check collision
+        function checkCollision(obj1, obj2) {
+            return obj1.x < obj2.x + 30 &&
+                   obj1.x + 30 > obj2.x &&
+                   obj1.y < obj2.y + 30 &&
+                   obj1.y + 30 > obj2.y;
+        }
+        
+        // Create hit effect
+        function createHitEffect(x, y) {
+            const hitEl = document.createElement('div');
+            hitEl.className = 'hit-effect';
+            hitEl.style.left = `${x}px`;
+            hitEl.style.top = `${y}px`;
+            gameArea.appendChild(hitEl);
+            
+            setTimeout(() => {
+                hitEl.remove();
+            }, 500);
+        }
+        
+        // Update game state
+        function update() {
+            if (!gameState.gameActive) return;
+            
+            // Rotate players
+            // Trump rotation (A/D)
+            if (gameState.keys['KeyA']) {
+                gameState.trump.angle -= 3;
+            }
+            if (gameState.keys['KeyD']) {
+                gameState.trump.angle += 3;
+            }
+            
+            // Elon rotation (Arrow keys)
+            if (gameState.keys['ArrowLeft']) {
+                gameState.elon.angle -= 3;
+            }
+            if (gameState.keys['ArrowRight']) {
+                gameState.elon.angle += 3;
+            }
+            
+            // Move players forward/backward
+            // Trump movement (W/S)
+            if (gameState.keys['KeyW']) {
+                const radians = toRadians(gameState.trump.angle);
+                gameState.trump.x += Math.cos(radians) * gameState.trump.speed;
+                gameState.trump.y += Math.sin(radians) * gameState.trump.speed;
+                
+                // Boundary checking
+                gameState.trump.x = Math.max(0, Math.min(gameWidth - 80, gameState.trump.x));
+                gameState.trump.y = Math.max(0, Math.min(gameHeight - 80, gameState.trump.y));
+            }
+            if (gameState.keys['KeyS']) {
+                const radians = toRadians(gameState.trump.angle);
+                gameState.trump.x -= Math.cos(radians) * gameState.trump.speed;
+                gameState.trump.y -= Math.sin(radians) * gameState.trump.speed;
+                
+                // Boundary checking
+                gameState.trump.x = Math.max(0, Math.min(gameWidth - 80, gameState.trump.x));
+                gameState.trump.y = Math.max(0, Math.min(gameHeight - 80, gameState.trump.y));
+            }
+            
+            // Elon movement (Up/Down arrows)
+            if (gameState.keys['ArrowUp']) {
+                const radians = toRadians(gameState.elon.angle);
+                gameState.elon.x += Math.cos(radians) * gameState.elon.speed;
+                gameState.elon.y += Math.sin(radians) * gameState.elon.speed;
+                
+                // Boundary checking
+                gameState.elon.x = Math.max(0, Math.min(gameWidth - 80, gameState.elon.x));
+                gameState.elon.y = Math.max(0, Math.min(gameHeight - 80, gameState.elon.y));
+            }
+            if (gameState.keys['ArrowDown']) {
+                const radians = toRadians(gameState.elon.angle);
+                gameState.elon.x -= Math.cos(radians) * gameState.elon.speed;
+                gameState.elon.y -= Math.sin(radians) * gameState.elon.speed;
+                
+                // Boundary checking
+                gameState.elon.x = Math.max(0, Math.min(gameWidth - 80, gameState.elon.x));
+                gameState.elon.y = Math.max(0, Math.min(gameHeight - 80, gameState.elon.y));
+            }
+            
+            // Update player positions and rotations
+            trumpEl.style.left = `${gameState.trump.x}px`;
+            trumpEl.style.top = `${gameState.trump.y}px`;
+            trumpEl.style.transform = `rotate(${gameState.trump.angle}deg)`;
+            
+            elonEl.style.left = `${gameState.elon.x}px`;
+            elonEl.style.top = `${gameState.elon.y}px`;
+            elonEl.style.transform = `rotate(${gameState.elon.angle}deg)`;
+            
+            // Move bullets
+            for (let i = gameState.bullets.length - 1; i >= 0; i--) {
+                const bullet = gameState.bullets[i];
+                
+                // Calculate bullet movement based on angle
+                const radians = toRadians(bullet.angle);
+                bullet.x += Math.cos(radians) * 8;
+                bullet.y += Math.sin(radians) * 8;
+                
+                // Update bullet position
+                const bulletEl = document.getElementById(`bullet-${bullet.id}`);
+                if (bulletEl) {
+                    bulletEl.style.left = `${bullet.x}px`;
+                    bulletEl.style.top = `${bullet.y}px`;
+                }
+                
+                // Remove bullets that go off screen
+                if (bullet.x < -10 || bullet.x > gameWidth + 10 || 
+                    bullet.y < -10 || bullet.y > gameHeight + 10) {
+                    gameState.bullets.splice(i, 1);
+                    if (bulletEl) {
+                        bulletEl.remove();
+                    }
+                    continue;
+                }
+                
+                // Check for collisions with players
+                const bulletRect = { x: bullet.x, y: bullet.y, width: 10, height: 10 };
+                
+                if (bullet.player === 'trump') {
+                    const elonRect = { x: gameState.elon.x, y: gameState.elon.y, width: 80, height: 80 };
+                    if (checkCollision(bulletRect, elonRect)) {
+                        // Hit Elon
+                        gameState.elon.health -= 10;
+                        elonHealthEl.style.width = `${gameState.elon.health}%`;
+                        gameState.trump.score += 10;
+                        trumpScoreEl.textContent = gameState.trump.score;
+                        
+                        createHitEffect(bullet.x, bullet.y);
+                        playSound(150, 0.3, 'hit');
+                        
+                        // Remove bullet
+                        gameState.bullets.splice(i, 1);
+                        if (bulletEl) {
+                            bulletEl.remove();
+                        }
+                        
+                        // Check if Elon is defeated
+                        if (gameState.elon.health <= 0) {
+                            endGame('trump');
+                        }
+                    }
+                } else if (bullet.player === 'elon') {
+                    const trumpRect = { x: gameState.trump.x, y: gameState.trump.y, width: 80, height: 80 };
+                    if (checkCollision(bulletRect, trumpRect)) {
+                        // Hit Trump
+                        gameState.trump.health -= 10;
+                        trumpHealthEl.style.width = `${gameState.trump.health}%`;
+                        gameState.elon.score += 10;
+                        elonScoreEl.textContent = gameState.elon.score;
+                        
+                        createHitEffect(bullet.x, bullet.y);
+                        playSound(150, 0.3, 'hit');
+                        
+                        // Remove bullet
+                        gameState.bullets.splice(i, 1);
+                        if (bulletEl) {
+                            bulletEl.remove();
+                        }
+                        
+                        // Check if Trump is defeated
+                        if (gameState.trump.health <= 0) {
+                            endGame('elon');
+                        }
+                    }
+                }
+            }
+            
+            // Check for power-up collisions
+            for (let i = gameState.powerUps.length - 1; i >= 0; i--) {
+                const powerUp = gameState.powerUps[i];
+                const powerUpRect = { x: powerUp.x, y: powerUp.y, width: 30, height: 30 };
+                
+                // Check Trump collision
+                const trumpRect = { x: gameState.trump.x, y: gameState.trump.y, width: 80, height: 80 };
+                if (checkCollision(powerUpRect, trumpRect)) {
+                    if (powerUp.type === 'health') {
+                        gameState.trump.health = Math.min(100, gameState.trump.health + 20);
+                        trumpHealthEl.style.width = `${gameState.trump.health}%`;
+                    } else if (powerUp.type === 'speed') {
+                        gameState.trump.speed = 6;
+                        setTimeout(() => {
+                            gameState.trump.speed = 3;
+                        }, 5000);
+                    } else if (powerUp.type === 'ammo') {
+                        gameState.trump.shootCooldown = 250;
+                        setTimeout(() => {
+                            gameState.trump.shootCooldown = 500;
+                        }, 5000);
+                    }
+                    
+                    // Remove power-up
+                    gameState.powerUps.splice(i, 1);
+                    const powerUpEl = document.getElementById(`power-${powerUp.id}`);
+                    if (powerUpEl) {
+                        powerUpEl.remove();
+                    }
+                }
+                
+                // Check Elon collision
+                const elonRect = { x: gameState.elon.x, y: gameState.elon.y, width: 80, height: 80 };
+                if (checkCollision(powerUpRect, elonRect)) {
+                    if (powerUp.type === 'health') {
+                        gameState.elon.health = Math.min(100, gameState.elon.health + 20);
+                        elonHealthEl.style.width = `${gameState.elon.health}%`;
+                    } else if (powerUp.type === 'speed') {
+                        gameState.elon.speed = 6;
+                        setTimeout(() => {
+                            gameState.elon.speed = 3;
+                        }, 5000);
+                    } else if (powerUp.type === 'ammo') {
+                        gameState.elon.shootCooldown = 250;
+                        setTimeout(() => {
+                            gameState.elon.shootCooldown = 500;
+                        }, 5000);
+                    }
+                    
+                    // Remove power-up
+                    gameState.powerUps.splice(i, 1);
+                    const powerUpEl = document.getElementById(`power-${powerUp.id}`);
+                    if (powerUpEl) {
+                        powerUpEl.remove();
+                    }
+                }
+            }
+            
+            // Create power-ups randomly
+            createPowerUp();
+            
+            // Continue game loop
+            requestAnimationFrame(update);
+        }
+        
+        // Start game
+        function startGame() {
+            gameState.gameActive = true;
+            gameState.trump.health = 100;
+            gameState.elon.health = 100;
+            gameState.trump.score = 0;
+            gameState.elon.score = 0;
+            gameState.trump.x = 100;
+            gameState.trump.y = 200;
+            gameState.trump.angle = 0;
+            gameState.trump.speed = 3;
+            gameState.trump.shootCooldown = 500;
+            gameState.elon.x = gameWidth - 180;
+            gameState.elon.y = 200;
+            gameState.elon.angle = 180;
+            gameState.elon.speed = 3;
+            gameState.elon.shootCooldown = 500;
+            gameState.bullets = [];
+            gameState.powerUps = [];
+            
+            // Clear existing bullets and power-ups
+            document.querySelectorAll('.bullet, .power-up, .hit-effect').forEach(el => {
+                el.remove();
+            });
+            
+            // Update UI
+            trumpScoreEl.textContent = '0';
+            elonScoreEl.textContent = '0';
+            trumpHealthEl.style.width = '100%';
+            elonHealthEl.style.width = '100%';
+            
+            // Hide game over screen
+            gameOverEl.style.display = 'none';
+            
+            // Start game loop
+            update();
+        }
+        
+        // End game
+        function endGame(winner) {
+            gameState.gameActive = false;
+            
+            // Show game over screen
+            gameOverEl.style.display = 'block';
+            
+            // Determine winner message
+            let winnerMessage = '';
+            if (winner === 'trump') {
+                winnerMessage = 'Trump wins! Make Gaming Great Again!';
+            } else {
+                winnerMessage = 'Elon wins! To the moon! 🚀';
+            }
+            
+            winnerMessageEl.textContent = winnerMessage;
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        
+        resetBtn.addEventListener('click', startGame);
+        
+        playAgainBtn.addEventListener('click', startGame);
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            gameState.keys[e.code] = true;
+            
+            // Trump shooting (Space)
+            if (e.code === 'Space' && gameState.gameActive) {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - gameState.trump.lastShot > gameState.trump.shootCooldown) {
+                    const startPos = getBulletStartPosition(gameState.trump.x, gameState.trump.y, gameState.trump.angle);
+                    createBullet('trump', startPos.x, startPos.y, gameState.trump.angle);
+                    gameState.trump.lastShot = now;
+                }
+            }
+            
+            // Elon shooting (Enter)
+            if (e.code === 'Enter' && gameState.gameActive) {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - gameState.elon.lastShot > gameState.elon.shootCooldown) {
+                    const startPos = getBulletStartPosition(gameState.elon.x, gameState.elon.y, gameState.elon.angle);
+                    createBullet('elon', startPos.x, startPos.y, gameState.elon.angle);
+                    gameState.elon.lastShot = now;
+                }
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            gameState.keys[e.code] = false;
+        });
+        
+        // Initialize game
+        startGame();
+    </script>
+</body>
+</html>

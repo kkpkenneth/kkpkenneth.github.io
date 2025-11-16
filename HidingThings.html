@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot-Seat Hiding Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        #game-area {
+            width: 80vw;
+            height: 80vh;
+            margin: 5vh auto;
+            border: 5px solid #333;
+            background-color: #fff;
+            position: relative;
+            cursor: crosshair;
+        }
+        #message {
+            padding: 10px;
+            font-size: 1.2em;
+            color: #333;
+        }
+        #hidden-item {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: transparent; /* Invisible during the game */
+            border-radius: 50%;
+            pointer-events: none; /* Allows clicks to go through to the game area */
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hot-Seat Hiding Game</h1>
+    <div id="message">Player 1 (Hider): Click to hide the object, then look away!</div>
+    <div id="game-area">
+        <div id="hidden-item"></div>
+    </div>
+    <button onclick="resetGame()">Start New Game</button>
+
+    <script>
+        const gameArea = document.getElementById('game-area');
+        const hiddenItem = document.getElementById('hidden-item');
+        const message = document.getElementById('message');
+        
+        let hidingPhase = true;
+        let itemX = 0;
+        let itemY = 0;
+
+        gameArea.addEventListener('click', handleGameClick);
+
+        function handleGameClick(event) {
+            const rect = gameArea.getBoundingClientRect();
+            
+            // Calculate coordinates relative to the game area
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+
+            if (hidingPhase) {
+                // --- Hiding Phase (Player 1) ---
+                itemX = clickX;
+                itemY = clickY;
+                
+                // Position the hidden item (keep it transparent)
+                hiddenItem.style.left = `${itemX - 10}px`; // Center the 20px item
+                hiddenItem.style.top = `${itemY - 10}px`;
+
+                hidingPhase = false;
+                
+                message.textContent = "Player 2 (Seeker): Look back and click to guess the location!";
+                // Optional: Alert the hider to look away
+                setTimeout(() => alert("Hiding complete! Player 2, your turn!"), 100);
+
+            } else {
+                // --- Seeking Phase (Player 2) ---
+                
+                // Calculate distance between click and hidden item
+                const distance = Math.sqrt(
+                    Math.pow(clickX - itemX, 2) + Math.pow(clickY - itemY, 2)
+                );
+
+                const threshold = 50; // Max distance for a successful hit (in pixels)
+
+                if (distance < threshold) {
+                    // Reveal the item
+                    hiddenItem.style.backgroundColor = 'red';
+                    message.textContent = `🎉 Found it! The hidden item was at (${Math.round(itemX)}, ${Math.round(itemY)}). Click 'Start New Game' to play again.`;
+                } else {
+                    message.textContent = `❌ Miss! Distance: ${Math.round(distance)}px. Try again!`;
+                }
+            }
+        }
+
+        function resetGame() {
+            hidingPhase = true;
+            hiddenItem.style.backgroundColor = 'transparent';
+            // Move item off screen to ensure P2 doesn't see where it was
+            hiddenItem.style.left = '-100px'; 
+            hiddenItem.style.top = '-100px';
+            message.textContent = "Player 1 (Hider): Click to hide the object, then look away!";
+        }
+    </script>
+</body>
+</html>

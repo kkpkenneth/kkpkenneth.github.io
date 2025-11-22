@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lebanese Vocabulary Quiz</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fff0f0, #f0fff0);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 { text-align: center; margin: 20px 0; color: #2c3e50; }
+  .category-btns { margin: 10px 0; }
+  .category-btns button {
+    margin: 5px; padding: 10px 15px; font-size: 16px;
+    border-radius: 10px; border: none; cursor: pointer;
+    background-color: #3498db; color: white; transition: 0.2s;
+  }
+  .category-btns button:hover { background-color: #2980b9; transform: scale(1.05); }
+  .card {
+    background: white; padding: 20px 30px; margin: 15px 0;
+    border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    width: 90%; max-width: 700px;
+  }
+  #quiz-item { font-size: 50px; margin: 20px 0; color: #e67e22; font-weight: bold; }
+  #choices button {
+    background-color: #1abc9c; color: white; border: none;
+    border-radius: 10px; padding: 12px 18px; margin: 8px;
+    font-size: 16px; cursor: pointer; transition: 0.2s;
+  }
+  #choices button:hover { background-color: #16a085; transform: scale(1.05); }
+  .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 18px; }
+  .row:last-child { border-bottom: none; }
+  .term { font-weight: bold; color: #34495e; }
+  .meaning { color: #2c3e50; }
+  @media (max-width: 500px) {
+    #quiz-item { font-size: 40px; }
+    .row { font-size: 16px; }
+    #choices button { font-size: 14px; padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Lebanese Vocabulary Quiz</h1>
+
+<div class="category-btns">
+  <button onclick="selectCategory('food')">Food</button>
+  <button onclick="selectCategory('shisha')">Shisha Flavors</button>
+  <button onclick="selectCategory('colors')">Colors</button>
+</div>
+
+<div class="card" style="text-align:center;">
+  <h2>Guess the Meaning</h2>
+  <div id="quiz-item">example</div>
+  <div id="choices"></div>
+</div>
+
+<div class="card" id="reference-table">
+  <h2>Reference Table</h2>
+  <div id="table-rows"></div>
+</div>
+
+<script>
+const vocab = {
+  food: [
+    { term:"man2oushé", meaning:"Flatbread with toppings" },
+    { term:"kebbé", meaning:"Meat & bulgur dish" },
+    { term:"tabbouleh", meaning:"Parsley salad" },
+    { term:"hummus", meaning:"Chickpea dip" },
+    { term:"falafel", meaning:"Fried chickpea balls" },
+    { term:"shawarma", meaning:"Meat wrap" },
+    { term:"fattoush", meaning:"Mixed salad" },
+    { term:"labné", meaning:"Strained yogurt cheese" },
+    { term:"mouhammara", meaning:"Red pepper dip" },
+    { term:"kafta", meaning:"Grilled meatballs" },
+    { term:"batata harra", meaning:"Spicy potatoes" },
+    { term:"riz bi haleeb", meaning:"Rice pudding" },
+    { term:"maqlouba", meaning:"Upside-down rice & meat" },
+    { term:"baba ganouj", meaning:"Eggplant dip" },
+    { term:"samkeh", meaning:"Fish dish" },
+    { term:"sfeeha", meaning:"Meat pastry" },
+    { term:"wara2 enab", meaning:"Stuffed grape leaves" },
+    { term:"shawarma djaj", meaning:"Chicken shawarma" },
+    { term:"moujadara", meaning:"Lentil & rice dish" },
+    { term:"kaak", meaning:"Sesame bread rings" }
+  ],
+  shisha: [
+    { term:"tuffa7", meaning:"Apple" },
+    { term:"na3na3", meaning:"Mint" },
+    { term:"3enab", meaning:"Grape" },
+    { term:"batikh", meaning:"Watermelon" },
+    { term:"tuffa7 mdouble", meaning:"Double Apple" },
+    { term:"toot", meaning:"Strawberry" },
+    { term:"barqouq", meaning:"Plum" },
+    { term:"mango", meaning:"Mango" },
+    { term:"ananas", meaning:"Pineapple" },
+    { term:"banadoura", meaning:"Tomato (flavor mix sometimes)" },
+    { term:"qahwe", meaning:"Coffee" },
+    { term:"chocolate", meaning:"Chocolate" },
+    { term:"vanille", meaning:"Vanilla" },
+    { term:"warda", meaning:"Rose" },
+    { term:"limon", meaning:"Lemon" },
+    { term:"burtuqal", meaning:"Orange" },
+    { term:"berry mix", meaning:"Mixed berries" },
+    { term:"melon", meaning:"Melon" },
+    { term:"coconut", meaning:"Coconut" },
+    { term:"cola", meaning:"Cola" }
+  ],
+  colors: [
+    { term:"ahmar", meaning:"Red" },
+    { term:"akhdar", meaning:"Green" },
+    { term:"azraq", meaning:"Blue" },
+    { term:"asfar", meaning:"Yellow" },
+    { term:"abyad", meaning:"White" },
+    { term:"aswad", meaning:"Black" },
+    { term:"bunni", meaning:"Brown" },
+    { term:"banafsaji", meaning:"Purple" },
+    { term:"wardi", meaning:"Pink" },
+    { term:"ramadi", meaning:"Gray" },
+    { term:"turkusi", meaning:"Turquoise" },
+    { term:"beige", meaning:"Beige" },
+    { term:"burtuqali", meaning:"Orange" },
+    { term:"khaki", meaning:"Khaki" },
+    { term:"navy", meaning:"Navy blue" },
+    { term:"lime", meaning:"Lime green" },
+    { term:"zaytuni", meaning:"Olive green" },
+    { term:"dhahabi", meaning:"Gold" },
+    { term:"fidda", meaning:"Silver" }
+  ]
+};
+
+let currentCategory = 'food';
+let correctAnswer = null;
+
+function selectCategory(cat) {
+  currentCategory = cat;
+  newQuestion();
+  renderTable();
+}
+
+function renderTable() {
+  const table = document.getElementById("table-rows");
+  table.innerHTML = "";
+  vocab[currentCategory].forEach(item => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `<span class="term">${item.term}</span> <span class="meaning">${item.meaning}</span>`;
+    table.appendChild(row);
+  });
+}
+
+function newQuestion() {
+  const items = vocab[currentCategory];
+  const qIndex = Math.floor(Math.random() * items.length);
+  correctAnswer = items[qIndex];
+
+  let options = [correctAnswer];
+  while (options.length < 4) {
+    let r = items[Math.floor(Math.random() * items.length)];
+    if (!options.includes(r)) options.push(r);
+  }
+
+  options.sort(() => Math.random() - 0.5);
+
+  document.getElementById("quiz-item").innerText = correctAnswer.term;
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  options.forEach(opt => {
+    let btn = document.createElement("button");
+    btn.innerText = opt.meaning;
+    btn.onclick = () => {
+      if(opt === correctAnswer){
+        alert("✅ Correct!");
+      } else {
+        alert(`❌ Wrong! Correct answer: ${correctAnswer.meaning}`);
+      }
+      newQuestion();
+    };
+    box.appendChild(btn);
+  });
+}
+
+window.onload = () => { selectCategory('food'); };
+</script>
+
+</body>
+</html>

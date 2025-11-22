@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japan Outline Drawing Animation</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #333333; /* Dark background to make white text visible */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 80%; /* Make SVG responsive */
+            max-width: 700px; /* Maximum width */
+            height: auto;
+            text-align: center;
+        }
+
+        .japan-text {
+            /* Now filled with white so it's visible against the dark background */
+            fill: #FFFFFF; 
+            stroke: #d32f2f; /* Deep red for the outline (similar to Japan's flag) */
+            stroke-width: 3px; /* Slightly thicker line */
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            font-family: 'Arial Black', sans-serif; 
+            font-size: 120px; 
+            
+            /* The animation will draw the stroke over the white fill */
+            animation: drawStroke 3s forwards ease-in-out;
+        }
+
+        @keyframes drawStroke {
+            0% {
+                stroke-dashoffset: 1000;
+            }
+            100% {
+                stroke-dashoffset: 0; /* Animate stroke to fully appear */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Use a viewBox that allows the 120px font to fit well -->
+    <svg viewBox="0 0 700 200">
+        <!-- The text is centered both horizontally and vertically -->
+        <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" class="japan-text">JAPAN</text>
+    </svg>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arabic Alphabet Quiz</title>
+  <style>
+    /* General styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f4ff, #e0ffe0);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      color: #2c3e50;
+    }
+
+    .card {
+      background: white;
+      padding: 20px 30px;
+      margin: 15px 0;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 18px;
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .letter {
+      font-size: 42px;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    /* Quiz styles */
+    #quiz-letter {
+      font-size: 80px;
+      margin: 20px 0;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    #choices button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    #choices button:hover {
+      background-color: #2980b9;
+      transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      #quiz-letter {
+        font-size: 60px;
+      }
+
+      .row {
+        font-size: 16px;
+      }
+
+      #choices button {
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Arabic Alphabet Quiz</h1>
+
+  <div class="card" style="text-align:center;">
+    <h2>Guess the Letter</h2>
+    <div id="quiz-letter">ا</div>
+    <div id="choices"></div>
+  </div>
+
+  <div class="card">
+    <h2>Arabic Alphabet + Pronunciation</h2>
+    <div class="row"><span class="letter">ا</span> <span>Alif — a / aa</span></div>
+    <div class="row"><span class="letter">ب</span> <span>Ba — b</span></div>
+    <div class="row"><span class="letter">ت</span> <span>Ta — t</span></div>
+    <div class="row"><span class="letter">ث</span> <span>Tha — th (think)</span></div>
+    <div class="row"><span class="letter">ج</span> <span>Jeem — j</span></div>
+    <div class="row"><span class="letter">ح</span> <span>Haa — ḥ (breathy h)</span></div>
+    <div class="row"><span class="letter">خ</span> <span>Khaa — kh</span></div>
+    <div class="row"><span class="letter">د</span> <span>Dal — d</span></div>
+    <div class="row"><span class="letter">ذ</span> <span>Dhal — dh (this)</span></div>
+    <div class="row"><span class="letter">ر</span> <span>Ra — r (rolled)</span></div>
+    <div class="row"><span class="letter">ز</span> <span>Zay — z</span></div>
+    <div class="row"><span class="letter">س</span> <span>Seen — s</span></div>
+    <div class="row"><span class="letter">ش</span> <span>Sheen — sh</span></div>
+    <div class="row"><span class="letter">ص</span> <span>Sad — s (deep)</span></div>
+    <div class="row"><span class="letter">ض</span> <span>Dad — d (deep)</span></div>
+    <div class="row"><span class="letter">ط</span> <span>Ta — t (deep)</span></div>
+    <div class="row"><span class="letter">ظ</span> <span>Za — z (deep)</span></div>
+    <div class="row"><span class="letter">ع</span> <span>Ayn — ‘a (throat)</span></div>
+    <div class="row"><span class="letter">غ</span> <span>Ghayn — gh</span></div>
+    <div class="row"><span class="letter">ف</span> <span>Fa — f</span></div>
+    <div class="row"><span class="letter">ق</span> <span>Qaf — q (deep k)</span></div>
+    <div class="row"><span class="letter">ك</span> <span>Kaf — k</span></div>
+    <div class="row"><span class="letter">ل</span> <span>Lam — l</span></div>
+    <div class="row"><span class="letter">م</span> <span>Meem — m</span></div>
+    <div class="row"><span class="letter">ن</span> <span>Noon — n</span></div>
+    <div class="row"><span class="letter">ه</span> <span>Ha — h</span></div>
+    <div class="row"><span class="letter">و</span> <span>Waw — w / oo</span></div>
+    <div class="row"><span class="letter">ي</span> <span>Ya — y / ee</span></div>
+  </div>
+
+  <script>
+    const letters = [
+      { l: "ا", p: "Alif" }, { l: "ب", p: "Ba" }, { l: "ت", p: "Ta" }, { l: "ث", p: "Tha" },
+      { l: "ج", p: "Jeem" }, { l: "ح", p: "Haa" }, { l: "خ", p: "Khaa" }, { l: "د", p: "Dal" },
+      { l: "ذ", p: "Dhal" }, { l: "ر", p: "Ra" }, { l: "ز", p: "Zay" }, { l: "س", p: "Seen" },
+      { l: "ش", p: "Sheen" }, { l: "ص", p: "Sad" }, { l: "ض", p: "Dad" }, { l: "ط", p: "Ta" },
+      { l: "ظ", p: "Za" }, { l: "ع", p: "Ayn" }, { l: "غ", p: "Ghayn" }, { l: "ف", p: "Fa" },
+      { l: "ق", p: "Qaf" }, { l: "ك", p: "Kaf" }, { l: "ل", p: "Lam" }, { l: "م", p: "Meem" },
+      { l: "ن", p: "Noon" }, { l: "ه", p: "Ha" }, { l: "و", p: "Waw" }, { l: "ي", p: "Ya" }
+    ];
+
+    let correctAnswer = null;
+
+    function newQuestion() {
+      const qIndex = Math.floor(Math.random() * letters.length);
+      correctAnswer = letters[qIndex];
+
+      let options = [correctAnswer];
+      while (options.length < 4) {
+        let r = letters[Math.floor(Math.random() * letters.length)];
+        if (!options.includes(r)) options.push(r);
+      }
+
+      options.sort(() => Math.random() - 0.5);
+
+      document.getElementById("quiz-letter").innerHTML = correctAnswer.l;
+      const box = document.getElementById("choices");
+      box.innerHTML = "";
+
+      options.forEach(opt => {
+        let btn = document.createElement("button");
+        btn.innerHTML = opt.p;
+        btn.onclick = () => {
+          if(opt === correctAnswer){
+            alert("✅ Correct!");
+          } else {
+            alert("❌ Wrong! Try next.");
+          }
+          newQuestion();
+        };
+        box.appendChild(btn);
+      });
+    }
+
+    window.onload = newQuestion;
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GCSE Trilogy Science Quiz</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e8f0ff, #ffe8e8);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  h1 {
+    margin-top: 20px;
+    color: #2c3e50;
+  }
+
+  .card {
+    background: white;
+    padding: 20px 30px;
+    margin-top: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 750px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+  }
+
+  #question {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  #choices button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 8px;
+    width: 90%;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: block;
+  }
+
+  #choices button:hover {
+    background-color: #2980b9;
+    transform: scale(1.03);
+  }
+</style>
+</head>
+
+<body>
+
+<h1>GCSE Trilogy – Multiple Choice Quiz</h1>
+
+<div class="card">
+  <div id="question"></div>
+  <div id="choices"></div>
+</div>
+
+<script>
+// ----------------------
+// QUESTION BANK
+// ----------------------
+const questions = [
+  // Biology
+  {
+    q: "What is the function of mitochondria?",
+    options: ["Store genetic information", "Control cell division", "Release energy through respiration", "Make proteins"],
+    answer: 2
+  },
+  {
+    q: "Which statement describes osmosis?",
+    options: [
+      "Movement of water from low concentration to high concentration",
+      "Movement of solute through a membrane",
+      "Movement of water from high water concentration to low water concentration",
+      "Movement of any molecule into a cell"
+    ],
+    answer: 2
+  },
+  {
+    q: "Enzymes are:",
+    options: ["Carbohydrates", "Hormones", "Proteins", "Lipids"],
+    answer: 2
+  },
+  {
+    q: "Which blood vessel carries blood away from the heart?",
+    options: ["Veins", "Capillaries", "Arteries", "Bronchi"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is a communicable disease?",
+    options: ["Diabetes", "Cancer", "Influenza", "Asthma"],
+    answer: 2
+  },
+
+  // Chemistry
+  {
+    q: "What is the charge of a proton?",
+    options: ["–1", "0", "+1", "+2"],
+    answer: 2
+  },
+  {
+    q: "What does the atomic number represent?",
+    options: ["Number of neutrons", "Number of protons", "Neutrons + electrons", "Mass number"],
+    answer: 1
+  },
+  {
+    q: "Which describes a compound?",
+    options: [
+      "Mixture of elements",
+      "Substance made of identical atoms",
+      "Two or more elements chemically bonded",
+      "Two or more substances not bonded"
+    ],
+    answer: 2
+  },
+  {
+    q: "Why does sodium react vigorously with water?",
+    options: [
+      "It is a transition metal",
+      "It has three electrons",
+      "It has one electron in its outer shell",
+      "It is unreactive"
+    ],
+    answer: 2
+  },
+
+  // Physics
+  {
+    q: "What is the unit for force?",
+    options: ["Watt", "Newton", "Joule", "Pascal"],
+    answer: 1
+  },
+  {
+    q: "Which equation represents speed?",
+    options: [
+      "Distance × Time",
+      "Distance ÷ Time",
+      "Time ÷ Distance",
+      "Mass × Acceleration"
+    ],
+    answer: 1
+  },
+  {
+    q: "What happens to particles when a solid melts?",
+    options: [
+      "They stop moving",
+      "They vibrate more and break free",
+      "They shrink",
+      "They become heavier"
+    ],
+    answer: 1
+  },
+  {
+    q: "What is the unit for electrical charge?",
+    options: ["Volt", "Coulomb", "Ampere", "Ohm"],
+    answer: 1
+  },
+  {
+    q: "Which wave is longitudinal?",
+    options: ["Light", "Water waves", "Sound", "Microwaves"],
+    answer: 2
+  }
+];
+
+let current;
+
+// ----------------------
+// NEW QUESTION
+// ----------------------
+function newQuestion() {
+  current = questions[Math.floor(Math.random() * questions.length)];
+
+  document.getElementById("question").innerHTML = current.q;
+
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  current.options.forEach((opt, index) => {
+    const btn = document.createElement("button");
+    btn.innerHTML = opt;
+    btn.onclick = () => {
+      if (index === current.answer) {
+        alert("✅ Correct!");
+      } else {
+        alert("❌ Wrong!\nCorrect answer: " + current.options[current.answer]);
+      }
+      newQuestion();
+    };
+    box.appendChild(btn);
+  });
+}
+
+window.onload = newQuestion;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A321 Seating Chart</title>
+    <style>
+        :root {
+            --business-color: #5a2d81;
+            --economy-color: #8e6ea5;
+            --selected-color: #ffd700; /* Gold for selected seat */
+            --label-color: #d62828;
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --seat-text-color: #fff;
+            --border-color: #ccc;
+            --fuselage-color: #e0e0e0;
+            --galley-color: #a0a0a0;
+            --lavatory-color: #b0c4de;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #000;
+            margin-bottom: 30px;
+        }
+
+        .chart-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .fuselage {
+            display: inline-block;
+            background-color: var(--fuselage-color);
+            border-radius: 40px 40px 20px 20px;
+            padding: 20px 15px 30px;
+            position: relative;
+            border: 2px solid var(--border-color);
+        }
+        
+        .fuselage::before { /* Nose cone */
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+            background-color: var(--border-color);
+            border-radius: 50% 50% 0 0;
+            border: 2px solid #999;
+            border-bottom: none;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .row-number {
+            font-weight: bold;
+            margin-right: 10px;
+            width: 20px;
+            text-align: right;
+        }
+
+        .seat-group {
+            display: flex;
+            gap: 3px;
+        }
+
+        .seat {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: var(--seat-text-color);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out;
+            user-select: none; /* Prevent text selection */
+        }
+
+        .seat:hover {
+            transform: scale(1.1);
+        }
+
+        .seat.selected {
+            background-color: var(--selected-color) !important;
+            color: var(--text-color);
+            border: 1px solid #a0a0a0;
+        }
+
+        .business {
+            background-color: var(--business-color);
+        }
+
+        .economy {
+            background-color: var(--economy-color);
+        }
+
+        .aisle {
+            width: 15px;
+        }
+
+        .exit-row {
+            margin: 15px 0;
+            font-weight: bold;
+            color: var(--label-color);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        
+        .exit-row.center {
+            justify-content: center;
+        }
+
+        .class-label {
+            position: absolute;
+            right: -35px;
+            transform: translateY(-50%) rotate(90deg);
+            font-weight: bold;
+            color: var(--label-color);
+            font-size: 14px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        
+        #A321 .business-label { top: 120px; }
+        #A321 .economy-label { top: 400px; }
+
+
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            margin: 2px;
+            color: var(--seat-text-color);
+        }
+
+        .galley { background-color: var(--galley-color); }
+        .lavatory { background-color: var(--lavatory-color); }
+
+        .feature-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>A321 Seating Plan</h1>
+
+    <div id="A321" class="chart-section">
+        <h2>A321 Seating</h2>
+        <div class="fuselage">
+            <div class="feature-row">
+                <div class="feature-icon galley">G</div>
+                <div class="feature-icon lavatory">L</div>
+            </div>
+            <div class="exit-row"><span>&lt;&lt;</span><span>&gt;&gt;</span></div>
+            
+            <div class="class-label business-label">Business</div>
+            <div class="row"><span class="row-number">11</span><div class="seat-group"><div class="seat business" data-seat="11A">A</div><div class="seat business" data-seat="11C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="11H">H</div><div class="seat business" data-seat="11K">K</div></div></div>
+            <div class="row"><span class="row-number">12</span><div class="seat-group"><div class="seat business" data-seat="12A">A</div><div class="seat business" data-seat="12C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="12H">H</div><div class="seat business" data-seat="12K">K</div></div></div>
+            <div class="row"><span class="row-number">13</span><div class="seat-group"><div class="seat business" data-seat="13A">A</div><div class="seat business" data-seat="13C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="13H">H</div><div class="seat business" data-seat="13K">K</div></div></div>
+            <div class="row"><span class="row-number">14</span><div class="seat-group"><div class="seat business" data-seat="14A">A</div><div class="seat business" data-seat="14C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="14H">H</div><div class="seat business" data-seat="14K">K</div></div></div>
+            <div class="row"><span class="row-number">15</span><div class="seat-group"><div class="seat business" data-seat="15A">A</div><div class="seat business" data-seat="15C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="15H">H</div><div class="seat business" data-seat="15K">K</div></div></div>
+            <div class="row"><span class="row-number">16</span><div class="seat-group"><div class="seat business" data-seat="16A">A</div><div class="seat business" data-seat="16C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="16H">H</div><div class="seat business" data-seat="16K">K</div></div></div>
+            <div class="row"><span class="row-number">17</span><div class="seat-group"><div class="seat business" data-seat="17A">A</div><div class="seat business" data-seat="17C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="17H">H</div><div class="seat business" data-seat="17K">K</div></div></div>
+            <div class="row"><span class="row-number">18</span><div class="seat-group"><div class="seat business" data-seat="18A">A</div><div class="seat business" data-seat="18C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat business" data-seat="18H">H</div><div class="seat business" data-seat="18K">K</div></div></div>
+            
+            <div class="class-label economy-label">Economy</div>
+            <div class="row"><span class="row-number">20</span><div class="seat-group"><div class="seat economy" data-seat="20A">A</div><div class="seat economy" data-seat="20B">B</div><div class="seat economy" data-seat="20C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="20H">H</div><div class="seat economy" data-seat="20J">J</div><div class="seat economy" data-seat="20K">K</div></div></div>
+            <div class="row"><span class="row-number">21</span><div class="seat-group"><div class="seat economy" data-seat="21A">A</div><div class="seat economy" data-seat="21B">B</div><div class="seat economy" data-seat="21C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="21H">H</div><div class="seat economy" data-seat="21J">J</div><div class="seat economy" data-seat="21K">K</div></div></div>
+            <div class="row"><span class="row-number">22</span><div class="seat-group"><div class="seat economy" data-seat="22A">A</div><div class="seat economy" data-seat="22B">B</div><div class="seat economy" data-seat="22C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="22H">H</div><div class="seat economy" data-seat="22J">J</div><div class="seat economy" data-seat="22K">K</div></div></div>
+            <div class="row"><span class="row-number">23</span><div class="seat-group"><div class="seat economy" data-seat="23A">A</div><div class="seat economy" data-seat="23B">B</div><div class="seat economy" data-seat="23C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="23H">H</div><div class="seat economy" data-seat="23J">J</div><div class="seat economy" data-seat="23K">K</div></div></div>
+            <div class="row"><span class="row-number">24</span><div class="seat-group"><div class="seat economy" data-seat="24A">A</div><div class="seat economy" data-seat="24B">B</div><div class="seat economy" data-seat="24C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="24H">H</div><div class="seat economy" data-seat="24J">J</div><div class="seat economy" data-seat="24K">K</div></div></div>
+            <div class="row"><span class="row-number">25</span><div class="seat-group"><div class="seat economy" data-seat="25A">A</div><div class="seat economy" data-seat="25B">B</div><div class="seat economy" data-seat="25C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="25H">H</div><div class="seat economy" data-seat="25J">J</div><div class="seat economy" data-seat="25K">K</div></div></div>
+            <div class="row"><span class="row-number">26</span><div class="seat-group"><div class="seat economy" data-seat="26A">A</div><div class="seat economy" data-seat="26B">B</div><div class="seat economy" data-seat="26C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="26H">H</div><div class="seat economy" data-seat="26J">J</div><div class="seat economy" data-seat="26K">K</div></div></div>
+            <div class="row"><span class="row-number">27</span><div class="seat-group"><div class="seat economy" data-seat="27A">A</div><div class="seat economy" data-seat="27B">B</div><div class="seat economy" data-seat="27C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="27H">H</div><div class="seat economy" data-seat="27J">J</div><div class="seat economy" data-seat="27K">K</div></div></div>
+            <div class="row"><span class="row-number">28</span><div class="seat-group"><div class="seat economy" data-seat="28A">A</div><div class="seat economy" data-seat="28B">B</div><div class="seat economy" data-seat="28C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="28H">H</div><div class="seat economy" data-seat="28J">J</div><div class="seat economy" data-seat="28K">K</div></div></div>
+            <div class="exit-row"><span>&lt;&lt;</span><span>&gt;&gt;</span></div>
+            <div class="row"><span class="row-number">33</span><div class="seat-group"><div class="seat economy" data-seat="33A">A</div><div class="seat economy" data-seat="33B">B</div><div class="seat economy" data-seat="33C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="33H">H</div><div class="seat economy" data-seat="33J">J</div><div class="seat economy" data-seat="33K">K</div></div></div>
+            <div class="row"><span class="row-number">34</span><div class="seat-group"><div class="seat economy" data-seat="34A">A</div><div class="seat economy" data-seat="34B">B</div><div class="seat economy" data-seat="34C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="34H">H</div><div class="seat economy" data-seat="34J">J</div><div class="seat economy" data-seat="34K">K</div></div></div>
+            <div class="row"><span class="row-number">35</span><div class="seat-group"><div class="seat economy" data-seat="35A">A</div><div class="seat economy" data-seat="35B">B</div><div class="seat economy" data-seat="35C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="35H">H</div><div class="seat economy" data-seat="35J">J</div><div class="seat economy" data-seat="35K">K</div></div></div>
+            <div class="row"><span class="row-number">36</span><div class="seat-group"><div class="seat economy" data-seat="36A">A</div><div class="seat economy" data-seat="36B">B</div><div class="seat economy" data-seat="36C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="36H">H</div><div class="seat economy" data-seat="36J">J</div><div class="seat economy" data-seat="36K">K</div></div></div>
+            <div class="row"><span class="row-number">37</span><div class="seat-group"><div class="seat economy" data-seat="37A">A</div><div class="seat economy" data-seat="37B">B</div><div class="seat economy" data-seat="37C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="37H">H</div><div class="seat economy" data-seat="37J">J</div><div class="seat economy" data-seat="37K">K</div></div></div>
+            <div class="row"><span class="row-number">38</span><div class="seat-group"><div class="seat economy" data-seat="38A">A</div><div class="seat economy" data-seat="38B">B</div><div class="seat economy" data-seat="38C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="38H">H</div><div class="seat economy" data-seat="38J">J</div><div class="seat economy" data-seat="38K">K</div></div></div>
+            <div class="row"><span class="row-number">39</span><div class="seat-group"><div class="seat economy" data-seat="39A">A</div><div class="seat economy" data-seat="39B">B</div><div class="seat economy" data-seat="39C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="39H">H</div><div class="seat economy" data-seat="39J">J</div><div class="seat economy" data-seat="39K">K</div></div></div>
+            <div class="row"><span class="row-number">40</span><div class="seat-group"><div class="seat economy" data-seat="40A">A</div><div class="seat economy" data-seat="40B">B</div><div class="seat economy" data-seat="40C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="40H">H</div><div class="seat economy" data-seat="40J">J</div><div class="seat economy" data-seat="40K">K</div></div></div>
+            <div class="row"><span class="row-number">41</span><div class="seat-group"><div class="seat economy" data-seat="41A">A</div><div class="seat economy" data-seat="41B">B</div><div class="seat economy" data-seat="41C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="41H">H</div><div class="seat economy" data-seat="41J">J</div><div class="seat economy" data-seat="41K">K</div></div></div>
+            <div class="row"><span class="row-number">42</span><div class="seat-group"><div class="seat economy" data-seat="42A">A</div><div class="seat economy" data-seat="42B">B</div><div class="seat economy" data-seat="42C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="42H">H</div><div class="seat economy" data-seat="42J">J</div><div class="seat economy" data-seat="42K">K</div></div></div>
+            <div class="row"><span class="row-number">43</span><div class="seat-group"><div class="seat economy" data-seat="43A">A</div><div class="seat economy" data-seat="43B">B</div><div class="seat economy" data-seat="43C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="43H">H</div><div class="seat economy" data-seat="43J">J</div><div class="seat economy" data-seat="43K">K</div></div></div>
+            <div class="row"><span class="row-number">44</span><div class="seat-group"><div class="seat economy" data-seat="44A">A</div><div class="seat economy" data-seat="44B">B</div><div class="seat economy" data-seat="44C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="44H">H</div><div class="seat economy" data-seat="44J">J</div><div class="seat economy" data-seat="44K">K</div></div></div>
+            <div class="row"><span class="row-number">45</span><div class="seat-group"><div class="seat economy" data-seat="45A">A</div><div class="seat economy" data-seat="45B">B</div><div class="seat economy" data-seat="45C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="45H">H</div><div class="seat economy" data-seat="45J">J</div><div class="seat economy" data-seat="45K">K</div></div></div>
+            <div class="exit-row"><span>&lt;&lt;</span><span>&gt;&gt;</span></div>
+            <div class="row"><span class="row-number">55</span><div class="seat-group"><div class="seat economy" data-seat="55A">A</div><div class="seat economy" data-seat="55B">B</div><div class="seat economy" data-seat="55C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="55H">H</div><div class="seat economy" data-seat="55J">J</div><div class="seat economy" data-seat="55K">K</div></div></div>
+            <div class="row"><span class="row-number">56</span><div class="seat-group"><div class="seat economy" data-seat="56A">A</div><div class="seat economy" data-seat="56B">B</div><div class="seat economy" data-seat="56C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="56H">H</div><div class="seat economy" data-seat="56J">J</div><div class="seat economy" data-seat="56K">K</div></div></div>
+            <div class="row"><span class="row-number">57</span><div class="seat-group"><div class="seat economy" data-seat="57A">A</div><div class="seat economy" data-seat="57B">B</div><div class="seat economy" data-seat="57C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="57H">H</div><div class="seat economy" data-seat="57J">J</div><div class="seat economy" data-seat="57K">K</div></div></div>
+            <div class="row"><span class="row-number">58</span><div class="seat-group"><div class="seat economy" data-seat="58A">A</div><div class="seat economy" data-seat="58B">B</div><div class="seat economy" data-seat="58C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="58H">H</div><div class="seat economy" data-seat="58J">J</div><div class="seat economy" data-seat="58K">K</div></div></div>
+            <div class="row"><span class="row-number">59</span><div class="seat-group"><div class="seat economy" data-seat="59A">A</div><div class="seat economy" data-seat="59B">B</div><div class="seat economy" data-seat="59C">C</div></div><div class="aisle"></div><div class="seat-group"><div class="seat economy" data-seat="59H">H</div><div class="seat economy" data-seat="59J">J</div><div class="seat economy" data-seat="59K">K</div></div></div>
+            <div class="row"><span class="row-number">60</span><div

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microscopy Quiz</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f8ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .quiz-container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 1px 2px 10px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 600px;
+    text-align: left;
+  }
+  h2 {
+    margin-top: 0;
+  }
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  li {
+    background: #e6f7ff;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  li:hover {
+    background: #b3e0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .incorrect {
+    background-color: #f7c5c5 !important;
+  }
+  #nextBtn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
+  #score {
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div id="score">Score: 0</div>
+  <h2 id="question"></h2>
+  <ul id="options"></ul>
+  <button id="nextBtn">Next</button>
+</div>
+
+<script>
+const questions = [
+  { q: "Who invented the first microscope?", options: ["Antonie van Leeuwenhoek", "Robert Hooke", "Louis Pasteur", "Matthias Schleiden"], answer: "Antonie van Leeuwenhoek" },
+  { q: "Which microscope uses electrons instead of light?", options: ["Light microscope", "Electron microscope", "Phase-contrast microscope", "Dissecting microscope"], answer: "Electron microscope" },
+  { q: "Which microscope is best for viewing living cells?", options: ["Transmission electron microscope", "Scanning electron microscope", "Light microscope", "None of the above"], answer: "Light microscope" },
+  { q: "What is the main lens in a light microscope called?", options: ["Ocular lens", "Objective lens", "Condenser lens", "Prism"], answer: "Objective lens" },
+  { q: "Which part of a microscope focuses light onto the specimen?", options: ["Ocular lens", "Condenser", "Stage", "Diaphragm"], answer: "Condenser" },
+  { q: "Which microscope gives a 3D view of the specimen surface?", options: ["Transmission electron microscope", "Scanning electron microscope", "Compound light microscope", "Fluorescence microscope"], answer: "Scanning electron microscope" },
+  { q: "What does 'magnification' refer to?", options: ["Clarity of image", "Size increase of specimen", "Distance between lenses", "Light intensity"], answer: "Size increase of specimen" },
+  { q: "Which microscope would you use to see viruses?", options: ["Light microscope", "Transmission electron microscope", "Dissecting microscope", "Phase-contrast microscope"], answer: "Transmission electron microscope" },
+  { q: "What is the eyepiece lens also called?", options: ["Ocular lens", "Objective lens", "Condenser", "Diaphragm"], answer: "Ocular lens" },
+  { q: "Which microscope uses special dyes to view specific structures?", options: ["Light microscope", "Electron microscope", "Fluorescence microscope", "Dissecting microscope"], answer: "Fluorescence microscope" },
+  { q: "Which component holds the slide in place?", options: ["Stage", "Stage clips", "Condenser", "Diaphragm"], answer: "Stage clips" },
+  { q: "Which part adjusts the amount of light on the specimen?", options: ["Ocular lens", "Diaphragm", "Objective lens", "Stage"], answer: "Diaphragm" },
+  { q: "What unit is used to measure cells under a microscope?", options: ["Millimeters", "Micrometers", "Nanometers", "Centimeters"], answer: "Micrometers" },
+  { q: "Phase-contrast microscopes are used to:", options: ["View stained cells", "View living cells with contrast", "See virus particles", "View cell surface 3D structures"], answer: "View living cells with contrast" },
+  { q: "Who coined the term 'cell'?", options: ["Robert Hooke", "Antonie van Leeuwenhoek", "Matthias Schleiden", "Theodor Schwann"], answer: "Robert Hooke" },
+  { q: "What limits the resolution of a light microscope?", options: ["Lens quality", "Wavelength of light", "Type of stage", "Slide thickness"], answer: "Wavelength of light" },
+  { q: "Which microscope allows detailed internal structure viewing?", options: ["Transmission electron microscope", "Scanning electron microscope", "Dissecting microscope", "Light microscope"], answer: "Transmission electron microscope" },
+  { q: "Which microscope is commonly used in classrooms?", options: ["Light microscope", "Electron microscope", "Fluorescence microscope", "Confocal microscope"], answer: "Light microscope" },
+  { q: "The total magnification of a microscope is calculated by:", options: ["Objective × ocular", "Objective + ocular", "Ocular ÷ objective", "None of the above"], answer: "Objective × ocular" },
+  { q: "Which microscope would you use to observe the surface of a small insect?", options: ["Compound light microscope", "Dissecting microscope", "Transmission electron microscope", "Fluorescence microscope"], answer: "Dissecting microscope" }
+];
+
+let shuffledQuestions = shuffle([...questions]);
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function showQuestion() {
+  answered = false;
+  const q = shuffledQuestions[currentIndex];
+  document.getElementById('question').innerText = q.q;
+
+  const optionsUl = document.getElementById('options');
+  optionsUl.innerHTML = '';
+  
+  const shuffledOptions = shuffle([...q.options]);
+
+  shuffledOptions.forEach(opt => {
+    const li = document.createElement('li');
+    li.textContent = opt;
+    li.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+
+      optionsUl.querySelectorAll('li').forEach(el => {
+        el.classList.remove('correct', 'incorrect');
+        if(el.textContent === q.answer) el.classList.add('correct'); // show correct answer
+      });
+
+      if(opt === q.answer){
+        li.classList.add('correct');
+        score++;
+        document.getElementById('score').innerText = `Score: ${score}`;
+      } else {
+        li.classList.add('incorrect');
+      }
+    });
+    optionsUl.appendChild(li);
+  });
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  currentIndex++;
+  if(currentIndex >= shuffledQuestions.length){
+    currentIndex = 0;
+    shuffledQuestions = shuffle([...questions]);
+  }
+  showQuestion();
+});
+
+// Initialize first question
+showQuestion();
+</script>
+
+</body>
+</html>

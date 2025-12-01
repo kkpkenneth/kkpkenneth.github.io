@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Word Guess (Hangman Style)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind for Inter font and custom colors if needed -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for the shake animation (for incorrect guesses) */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake {
+            animation: shake 0.4s;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col items-center p-4">
+
+    <!-- Main Game Container -->
+    <div class="w-full max-w-lg bg-white rounded-xl shadow-2xl p-6">
+        <header class="mb-6 border-b pb-4 text-center">
+            <h1 class="text-5xl font-extrabold" style="color: #008000; text-shadow: 2px 2px #c0f0c0;">
+                Guess the Emoji
+            </h1>
+            
+            <!-- Fixed Instruction -->
+            <p class="text-sm text-gray-500 mt-2 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> 
+                Guess the word by selecting one letter at a time.
+            </p>
+
+            <!-- Score and Dynamic Status Badge -->
+            <div class="flex justify-center items-center space-x-4 mt-3">
+                <div id="score-display" class="px-3 py-1 rounded-full text-xs font-bold shadow-md bg-blue-100 text-blue-800">
+                    <!-- Score content injected here -->
+                </div>
+                <div id="game-info" class="inline-block px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                    <!-- Tries Remaining content injected here -->
+                </div>
+            </div>
+        </header>
+
+        <!-- Emoji Clue -->
+        <div class="text-center mb-6">
+            <div id="emoji-clue" class="text-8xl p-4 bg-yellow-50 rounded-lg inline-block border-4 border-yellow-400 shadow-md transition-transform duration-200">
+                <!-- Emoji goes here -->
+            </div>
+        </div>
+
+        <!-- Game Grid (Now a single row display) -->
+        <div id="game-grid" class="space-y-1 sm:space-y-2 mb-6">
+            <!-- Single row of blanks is injected here -->
+        </div>
+        
+        <!-- Keyboard -->
+        <div id="keyboard-container" class="mb-4">
+            <!-- Keyboard is injected here -->
+        </div>
+
+        <!-- Message/Alert Area (MOVED TO BOTTOM) -->
+        <div id="message-area" class="mt-4 p-3 rounded-lg bg-yellow-100 text-yellow-800 font-medium text-center hidden">
+            <!-- Messages go here -->
+        </div>
+    </div>
+
+    <!-- Game Status Modal -->
+    <div id="status-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm text-center">
+            <!-- Centering the icon -->
+            <div id="modal-icon" class="mx-auto mb-4 flex justify-center items-center">
+                <!-- Icon goes here -->
+            </div>
+            <h3 id="modal-title" class="text-3xl font-extrabold mb-2" style="color: #cc0000; text-shadow: 1px 1px #ffde00;"></h3>
+            <p id="modal-message" class="text-gray-700 mb-4"></p>
+            <div id="modal-emoji" class="text-6xl mb-4"></div>
+            <div id="modal-word" class="text-3xl font-mono tracking-widest font-bold mb-6 text-gray-800"></div>
+            <button
+                id="new-game-button"
+                class="w-full py-3 px-4 text-white font-bold rounded-lg transition-transform transform hover:scale-105 shadow-lg bg-blue-600 hover:bg-blue-700"
+            >
+                <!-- Right arrow icon for "Next" -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg> 
+                Next Emoji
+            </button>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // --- Game Configuration (Hangman Style) ---
+        const MAX_INCORRECT_TRIES = 5; // Maximum incorrect guesses allowed (5 tries)
+        let targetWord = '';
+        let targetEmoji = '';
+        let incorrectTries = 0; // The number of incorrect letters guessed
+        let wordDisplay = []; // Array of letters/blanks for the current state (e.g., ['R', '_', 'C', 'K', '_', 'T'])
+        let guessedLetters = new Set(); // Stores all unique letters attempted (correct or incorrect)
+        let gameStatus = 'playing'; // 'playing', 'win', 'lose'
+        let keyboardState = {}; // Key: Letter, Value: 'green' (correct), 'gray' (incorrect)
+        let currentScore = 0; // Global score tracking
+
+        const WORD_EMOJI_PAIRS = [
+            { emoji: '😘', word: 'FACEBLOWINGAKISS' },
+            { emoji: '🤔', word: 'THINKINGFACE' },
+            { emoji: '😭', word: 'LOUDLYCRYINGFACE' },
+            { emoji: '🥺', word: 'PLEADINGFACE' },
+            { emoji: '😏', word: 'SMIRKINGFACE' },
+            { emoji: '😬', word: 'GRIMACINGFACE' },
+            { emoji: '😫', word: 'WEARYFACE' },
+            { emoji: '🥳', word: 'PARTYINGFACE' },
+            { emoji: '🤯', word: 'EXPLODINGHEAD' },
+            { emoji: '🤫', word: 'SHUSHINGFACE' },
+            { emoji: '👍', word: 'THUMBSUP' },
+            { emoji: '👎', word: 'THUMBSDOWN' },
+            { emoji: '🙏', word: 'FOLDEDHANDS' },
+            { emoji: '🙌', word: 'RAISINGHANDS' },
+            { emoji: '👏', word: 'CLAPPINGHANDS' },
+            { emoji: '💪', word: 'FLEXEDBICEPS' },
+            { emoji: '👋', word: 'WAVINGHAND' },
+            { emoji: '👌', word: 'OKHAND' },
+            { emoji: '🤞', word: 'CROSSEDFINGERS' },
+            { emoji: '✌️', word: 'VICTORYHAND' },
+            { emoji: '🧍', word: 'PERSONSTANDING' },
+            { emoji: '🏃', word: 'PERSONRUNNING' },
+            { emoji: '💃', word: 'WOMANDANCING' },
+            { emoji: '👶', word: 'BABY' },
+            { emoji: '👑', word: 'CROWN' },
+            { emoji: '💋', word: 'KISSMARK' },
+            { emoji: '👀', word: 'EYES' },
+            { emoji: '🍕', word: 'PIZZA' },
+            { emoji: '🍔', word: 'HAMBURGER' },
+            { emoji: '🍟', word: 'FRENCHFRIES' },
+            { emoji: '🌮', word: 'TACO' },
+            { emoji: '🍎', word: 'REDAPPLE' },
+            { emoji: '🍇', word: 'GRAPES' },
+            { emoji: '🍉', word: 'WATERMELON' },
+            { emoji: '☕', word: 'HOTBEVERAGE' },
+            { emoji: '🍻', word: 'CLINKINGBEERMUGS' },
+            { emoji: '🍰', word: 'SHORTCAKE' },
+            { emoji: '🍩', word: 'DOUGHNUT' },
+            { emoji: '🍦', word: 'SOFTICECREAM' },
+            { emoji: '🌶️', word: 'HOTPEPPER' },
+            { emoji: '🥦', word: 'BROCCOLI' },
+            { emoji: '🐶', word: 'DOGFACE' },
+            { emoji: '🐱', word: 'CATFACE' },
+            { emoji: '🦁', word: 'LION' },
+            { emoji: '🐘', word: 'ELEPHANT' },
+            { emoji: '🦋', word: 'BUTTERFLY' },
+            { emoji: '🐍', word: 'SNAKE' },
+            { emoji: '🌳', word: 'DECIDUOUSTREE' },
+            { emoji: '🌵', word: 'CACTUS' },
+            { emoji: '☀️', word: 'SUN' },
+            { emoji: '🌧️', word: 'CLOUDWITHRAIN' },
+            { emoji: '🌙', word: 'CRESCENTMOON' },
+            { emoji: '🔥', word: 'FIRE' },
+            { emoji: '🌊', word: 'WATERWAVE' },
+            { emoji: '🌈', word: 'RAINBOW' },
+            { emoji: '🏠', word: 'HOUSE' },
+            { emoji: '🏢', word: 'OFFICEBUILDING' },
+            { emoji: '🚗', word: 'AUTOMOBILE' },
+            { emoji: '✈️', word: 'AIRPLANE' },
+            { emoji: '🚢', word: 'SHIP' },
+            { emoji: '🗺️', word: 'WORLDMAP' },
+            { emoji: '🌃', word: 'NIGHTWITHSTARS' },
+            { emoji: '🏖️', word: 'BEACHWITHUMBRELLA' },
+            { emoji: '💡', word: 'LIGHTBULB' },
+            { emoji: '📱', word: 'MOBILEPHONE' },
+            { emoji: '💻', word: 'LAPTOP' },
+            { emoji: '💰', word: 'MONEYBAG' },
+            { emoji: '💳', word: 'CREDITCARD' },
+            { emoji: '🎁', word: 'WRAPPEDGIFT' },
+            { emoji: '🔑', word: 'KEY' },
+            { emoji: '📚', word: 'BOOKS' },
+            { emoji: '✏️', word: 'PENCIL' },
+            { emoji: '⏰', word: 'ALARMCLOCK' },
+            { emoji: '🔨', word: 'HAMMER' },
+            { emoji: '💉', word: 'SYRINGE' },
+            { emoji: '📸', word: 'CAMERA' },
+            { emoji: '🔭', word: 'TELESCOPE' },
+            { emoji: '🔬', word: 'MICROSCOPE' },
+            { emoji: '🛸', word: 'FLYINGSAUCER' },
+            { emoji: '❤️', word: 'REDHEART' },
+            { emoji: '💔', word: 'BROKENHEART' },
+            { emoji: '✨', word: 'SPARKLES' },
+            { emoji: '💯', word: 'HUNDREDPOINTS' },
+            { emoji: '✅', word: 'CHECKMARKBUTTON' },
+            { emoji: '❓', word: 'QUESTIONMARK' },
+            { emoji: '🛑', word: 'STOPSIGN' },
+            { emoji: '🎶', word: 'MUSICALNOTES' },
+            { emoji: '🏀', word: 'BASKETBALL' },
+            { emoji: '🎮', word: 'VIDEOGAME' },
+            { emoji: '🏆', word: 'TROPHY' },
+            { emoji: '🎉', word: 'PARTYPOPPER' },
+            { emoji: '🏠', word: 'HOUSE' },
+            { emoji: '🏢', word: 'OFFICEBUILDING' },
+            { emoji: '🏥', word: 'HOSPITAL' },
+            { emoji: '🏫', word: 'SCHOOL' },
+            { emoji: '🏦', word: 'BANK' },
+            { emoji: '⛪', word: 'CHURCH' },
+            { emoji: '🕌', word: 'MOSQUE' },
+            { emoji: '⛩️', word: 'SHINTOSHRINE' },
+            { emoji: '🗼', word: 'TOKYOTOWER' },
+            { emoji: '🗽', word: 'STATUEOFLIBERTY' },
+            { emoji: '✈️', word: 'AIRPLANE' },
+            { emoji: '🚀', word: 'ROCKET' },
+            { emoji: '🚢', word: 'SHIP' },
+            { emoji: '⛵', word: 'SAILBOAT' },
+            { emoji: '🚗', word: 'AUTOMOBILE' },
+            { emoji: '🚕', word: 'TAXI' },
+            { emoji: '🚌', word: 'BUS' },
+            { emoji: '🚇', word: 'METRO' },
+            { emoji: '🗺️', word: 'WORLDMAP' },
+            { emoji: '🌃', word: 'NIGHTWITHSTARS' },
+            { emoji: '📱', word: 'MOBILEPHONE' },
+            { emoji: '💻', word: 'LAPTOP' },
+            { emoji: '⌨️', word: 'KEYBOARD' },
+            { emoji: '🖨️', word: 'PRINTER' },
+            { emoji: '🔦', word: 'FLASHLIGHT' },
+            { emoji: '💡', word: 'LIGHTBULB' },
+            { emoji: '🔑', word: 'KEY' },
+            { emoji: '🔒', word: 'LOCK' },
+            { emoji: '⏰', word: 'ALARMCLOCK' },
+            { emoji: '💰', word: 'MONEYBAG' },
+            { emoji: '💎', word: 'GEMSTONE' },
+            { emoji: '💍', word: 'RING' },
+            { emoji: '🛠️', word: 'HAMMERANDWRENCH' },
+            { emoji: '✂️', word: 'SCISSORS' },
+            { emoji: '📌', word: 'PUSHPIN' },
+            { emoji: '📚', word: 'BOOKS' },
+            { emoji: '✏️', word: 'PENCIL' },
+            { emoji: '🩹', word: 'ADHESIVEBANDAGE' },
+            { emoji: '💉', word: 'SYRINGE' },
+            { emoji: '🔭', word: 'TELESCOPE' },
+            { emoji: '❤️', word: 'REDHEART' },
+            { emoji: '💔', word: 'BROKENHEART' },
+            { emoji: '✨', word: 'SPARKLES' },
+            { emoji: '❓', word: 'QUESTIONMARK' },
+            { emoji: '✅', word: 'CHECKMARKBUTTON' },
+            { emoji: '❌', word: 'CROSSMARK' },
+            { emoji: '🚫', word: 'NOENTRY' },
+            { emoji: '🛑', word: 'STOPSIGN' },
+            { emoji: '⚠️', word: 'WARNING' },
+            { emoji: '💯', word: 'HUNDREDPOINTS' },
+            { emoji: '💠', word: 'DIAMONDWITHADOT' },
+            { emoji: '♾️', word: 'INFINITY' },
+            { emoji: '♻️', word: 'RECYCLINGSYMBOL' },
+            { emoji: '➕', word: 'PLUSSIGN' },
+            { emoji: '➖', word: 'MINUSSIGN' },
+            { emoji: '✖️', word: 'MULTIPLYSIGN' },
+            { emoji: '➗', word: 'DIVIDESIGN' },
+            { emoji: '⬆️', word: 'UPARROW' },
+            { emoji: '⬇️', word: 'DOWNARROW' },
+            { emoji: '🏳️', word: 'WHITEFLAG' },
+            { emoji: '🏴', word: 'BLACKFLAG' },
+            { emoji: '🏁', word: 'CHEQUEREDFLAG' },
+            { emoji: '🚩', word: 'TRIANGULARFLAG' },
+            { emoji: '🏳️‍🌈', word: 'RAINBOWFLAG' },
+            { emoji: '🇺🇸', word: 'FLAG:UNITEDSTATES' },
+            { emoji: '🇨🇦', word: 'FLAG:CANADA' },
+            { emoji: '🇲🇽', word: 'FLAG:MEXICO' },
+            { emoji: '🇧🇷', word: 'FLAG:BRAZIL' },
+            { emoji: '🇬🇧', word: 'FLAG:UNITEDKINGDOM' },
+            { emoji: '🇫🇷', word: 'FLAG:FRANCE' },
+            { emoji: '🇩🇪', word: 'FLAG:GERMANY' },
+            { emoji: '🇮🇹', word: 'FLAG:ITALY' },
+            { emoji: '🇪🇸', word: 'FLAG:SPAIN' },
+            { emoji: '🇷🇺', word: 'FLAG:RUSSIA' },
+            { emoji: '🇨🇳', word: 'FLAG:CHINA' },
+            { emoji: '🇯🇵', word: 'FLAG:JAPAN' },
+            { emoji: '🇮🇳', word: 'FLAG:INDIA' },
+            { emoji: '🇦🇺', word: 'FLAG:AUSTRALIA' },
+            { emoji: '🇿🇦', word: 'FLAG:SOUTHAFRICA' },
+            { emoji: '🫠', word: 'MELTINGFACE' },
+            { emoji: '🫡', word: 'SALUTINGFACE' },
+            { emoji: '🫱‍🫲', word: 'HANDSHAKE' },
+            { emoji: '🫎', word: 'MOOSE' },
+            { emoji: '🫏', word: 'DONKEY' },
+            { emoji: '🪼', word: 'JELLYFISH' },
+            { emoji: '🪽', word: 'WING' },
+            { emoji: '🪈', word: 'FLUTE' },
+            { emoji: '🪇', word: 'MARACAS' },
+            { emoji: '🪭', word: 'FOLDINGHANDFAN' },
+            { emoji: '🪮', word: 'HAIRPICK' },
+            { emoji: '🫚', word: 'GINGER' },
+            { emoji: '🧋', word: 'BUBBLETEA' },
+            { emoji: '🪵', word: 'LOG' },
+            { emoji: '🪨', word: 'ROCK' },
+            { emoji: '🛖', word: 'HUT' },
+            { emoji: '🛜', word: 'WIFI' },
+            { emoji: '🚸', word: 'CHILDRENCROSSING' },
+            { emoji: '🪡', word: 'SEWINGNEEDLE' },
+            { emoji: '🧵', word: 'THREAD' },
+            { emoji: '🪜', word: 'LADDER' },
+            { emoji: '🪟', word: 'WINDOW' },
+            { emoji: '🪠', word: 'PLUNGER' },
+            { emoji: '🪤', word: 'MOUSETREP' },
+            { emoji: '🪙', word: 'COIN' },
+            { emoji: '🧭', word: 'COMPASS' },
+            { emoji: '🩺', word: 'STETHOSCOPE' },
+            { emoji: '🩻', word: 'X-RAY' },
+            { emoji: '🩸', word: 'DROPOFBLOOD' },
+            { emoji: '🪆', word: 'NESTINGDOLLS' },
+            { emoji: '🪅', word: 'PIÑATA' },
+            { emoji: '♟️', word: 'CHESSPAWN' },
+            { emoji: '🛼', word: 'ROLLERSKATE' },
+            { emoji: '🛷', word: 'SLED' },
+            { emoji: '🚰', word: 'POTABLEWATER' },
+            { emoji: '🔱', word: 'TRIDENTEMBLEM' },
+            { emoji: '🫣', word: 'PEEKINGFACE' },
+            { emoji: '🫨', word: 'SHAKINGFACE' },
+            { emoji: '🩷', word: 'PINKHEART' },
+            { emoji: '🩵', word: 'LIGHTBLUEHEART' },
+            { emoji: '🩶', word: 'GREYHEART' },
+            { emoji: '🤌', word: 'PINCHEDFINGERS' },
+            { emoji: '🫲', word: 'LEFTWARDSHAND' },
+            { emoji: '🫱', word: 'RIGHTWARDSHAND' },
+            { emoji: '🦬', word: 'BISON' },
+            { emoji: '🦣', word: 'MAMMOTH' },
+            { emoji: '🦫', word: 'BEAVER' },
+            { emoji: '🦛', word: 'HIPPOPOTAMUS' },
+            { emoji: '🦒', word: 'GIRAFFE' },
+            { emoji: '🦢', word: 'SWAN' },
+            { emoji: '🦩', word: 'FLAMINGO' },
+            { emoji: '🦉', word: 'OWL' },
+            { emoji: '🦗', word: 'CRICKET' },
+            { emoji: '🦟', word: 'MOSQUITO' },
+            { emoji: '🦠', word: 'MICROBE' },
+            { emoji: '🪴', word: 'POTTEDPLANT' },
+            { emoji: '🍂', word: 'FALLENLEAF' },
+            { emoji: '🪐', word: 'RINGEDPLANET' },
+            { emoji: '🌪️', word: 'TORNADO' },
+            { emoji: '🌫️', word: 'FOG' },
+            { emoji: '🏘️', word: 'HOUSES' },
+            { emoji: '🛕', word: 'HINDUTEMPLE' },
+            { emoji: '🕋', word: 'KAABA' },
+            { emoji: '🚂', word: 'LOCOMOTIVE' },
+            { emoji: '🚁', word: 'HELICOPTER' },
+            { emoji: '🛶', word: 'CANOE' },
+            { emoji: '🛴', word: 'KICKSCOOTER' },
+            { emoji: '🛞', word: 'WHEEL' },
+            { emoji: '⛽', word: 'FUELPUMP' },
+            { emoji: '🧱', word: 'BRICK' },
+            { emoji: '🪚', word: 'SAW' },
+            { emoji: '🧲', word: 'MAGNET' },
+            { emoji: '🪞', word: 'MIRROR' },
+            { emoji: '🧴', word: 'LOTIONBOTTLE' },
+            { emoji: '🧼', word: 'SOAP' },
+            { emoji: '🪣', word: 'BUCKET' },
+            { emoji: '🪓', word: 'AXE' },
+            { emoji: '⚖️', word: 'BALANCESCALE' },
+            { emoji: '🧿', word: 'NAZARAMULET' },
+            { emoji: '🐶', word: 'DOGFACE' },
+            { emoji: '🐱', word: 'CATFACE' },
+            { emoji: '🐭', word: 'MOUSEFACE' },
+            { emoji: '🐹', word: 'HAMSTERFACE' },
+            { emoji: '🐰', word: 'RABBITFACE' },
+            { emoji: '🦊', word: 'FOX' },
+            { emoji: '🐻', word: 'BEAR' },
+            { emoji: '🐼', word: 'PANDA' },
+            { emoji: '🐨', word: 'KOALA' },
+            { emoji: '🐯', word: 'TIGERFACE' },
+            { emoji: '🦁', word: 'LION' },
+            { emoji: '🐮', word: 'COWFACE' },
+            { emoji: '🐷', word: 'PIGFACE' },
+            { emoji: '🐽', word: 'PIGNOSE' },
+            { emoji: '🐸', word: 'FROG' },
+            { emoji: '🐵', word: 'MONKEYFACE' },
+            { emoji: '🐒', word: 'MONKEY' },
+            { emoji: '🦍', word: 'GORILLA' },
+            { emoji: '🐴', word: 'HORSEFACE' },
+            { emoji: '🦓', word: 'ZEBRA' },
+            { emoji: '🦄', word: 'UNICORN' },
+            { emoji: '🦌', word: 'DEER' },
+            { emoji: '🦏', word: 'RHINOCEROS' },
+            { emoji: '🐘', word: 'ELEPHANT' },
+            { emoji: '🦒', word: 'GIRAFFE' },
+            { emoji: '🐪', word: 'CAMEL' },
+            { emoji: '🐫', word: 'TWOHUMPEDCAMEL' },
+            { emoji: '🦙', word: 'LLAMA' },
+            { emoji: '🐃', word: 'WATERBUFFALO' },
+            { emoji: '🐂', word: 'OX' },
+            { emoji: '🐄', word: 'COW' },
+            { emoji: '🐐', word: 'GOAT' },
+            { emoji: '🐏', word: 'RAM' },
+            { emoji: '🐑', word: 'EWE' },
+            { emoji: '🐎', word: 'HORSE' },
+            { emoji: '🐖', word: 'PIG' },
+            { emoji: '🦇', word: 'BAT' },
+            { emoji: '🐔', word: 'CHICKEN' },
+            { emoji: '🐓', word: 'ROOSTER' },
+            { emoji: '🐣', word: 'HATCHINGCHICK' },
+            { emoji: '🐤', word: 'BABYCHICK' },
+            { emoji: '🐦', word: 'BIRD' },
+            { emoji: '🐧', word: 'PENGUIN' },
+            { emoji: '🦉', word: 'OWL' },
+            { emoji: '🦚', word: 'PEACOCK' },
+            { emoji: '🦅', word: 'EAGLE' },
+            { emoji: '🦆', word: 'DUCK' },
+            { emoji: '🦢', word: 'SWAN' },
+            { emoji: '🐬', word: 'DOLPHIN' },
+
+
+
+        ];
+
+        const KEYBOARD_ROWS = [
+            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+            ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DEL'],
+        ];
+
+        // --- DOM Elements ---
+        const gameGrid = document.getElementById('game-grid');
+        const emojiClue = document.getElementById('emoji-clue');
+        const gameInfo = document.getElementById('game-info');
+        const scoreDisplay = document.getElementById('score-display');
+        const messageArea = document.getElementById('message-area');
+        const keyboardContainer = document.getElementById('keyboard-container');
+        const statusModal = document.getElementById('status-modal');
+        const newGameButton = document.getElementById('new-game-button');
+
+        // --- Utility Functions ---
+
+        /**
+         * Shows a temporary message in the message area.
+         * @param {string} msg 
+         * @param {boolean} isError - Triggers the shake animation if true.
+         */
+        function showMessage(msg, isError = false) {
+            messageArea.textContent = msg;
+            messageArea.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-yellow-100', 'text-yellow-800');
+            
+            if (isError) {
+                messageArea.classList.add('bg-red-100', 'text-red-800');
+                gameGrid.classList.add('shake');
+                setTimeout(() => gameGrid.classList.remove('shake'), 400);
+            } else {
+                messageArea.classList.add('bg-yellow-100', 'text-yellow-800');
+            }
+
+            // Auto-hide message after a few seconds
+            setTimeout(() => {
+                messageArea.classList.add('hidden');
+            }, 3000);
+        }
+
+        /**
+         * Updates the state of a letter on the keyboard.
+         * @param {string} char 
+         * @param {'green' | 'gray'} color 
+         */
+        function updateKeyboardState(char, color) {
+            keyboardState[char] = color;
+            
+            // Find and update the button element
+            const button = document.getElementById(`key-${char}`);
+            if (button) {
+                let colorClass = '';
+                switch (color) {
+                    case 'green': colorClass = 'bg-green-500 text-white'; break;
+                    case 'gray': colorClass = 'bg-gray-700 text-white opacity-80'; break;
+                }
+
+                // Remove existing color classes
+                button.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'bg-green-500', 'bg-gray-700', 'text-gray-800', 'opacity-80');
+                button.classList.add(...colorClass.split(' '));
+                
+                // Disable the key once it has been guessed (correct or incorrect)
+                button.disabled = true;
+            }
+        }
+
+        // --- Render Functions ---
+
+        /** Creates a single tile element for Hangman style */
+        function createTile(char) {
+            const isBlank = char === '_';
+            const tile = document.createElement('div');
+            
+            let colorStyle = isBlank 
+                ? 'bg-white border-dashed border-gray-400 text-gray-400' 
+                : 'bg-green-100 border-green-500 text-green-800 font-bold';
+            
+            tile.className = `w-12 h-12 flex items-center justify-center border-2 text-2xl font-extrabold rounded-lg transition-all duration-300 shadow-sm uppercase ${colorStyle}`;
+            tile.textContent = isBlank ? '_' : char;
+            return tile;
+        }
+
+        /** Renders the single row word display and updates the remaining tries info */
+        function renderGameGrid() {
+            gameGrid.innerHTML = '';
+            
+            // Render the single row (wordDisplay)
+            const row = document.createElement('div');
+            row.className = "flex justify-center space-x-2";
+
+            wordDisplay.forEach(char => {
+                const tile = createTile(char);
+                row.appendChild(tile);
+            });
+            gameGrid.appendChild(row);
+
+            // Update tries remaining display - DYNAMIC BADGE
+            const remaining = MAX_INCORRECT_TRIES - incorrectTries;
+            
+            // Determine badge colors based on remaining tries
+            let color = 'green'; // Default
+            if (remaining <= 1) {
+                color = 'red';
+            } else if (remaining <= 3) {
+                color = 'orange';
+            } else {
+                 color = 'green';
+            }
+
+            const bgColor = `bg-${color}-100`;
+            const textColor = `text-${color}-800`;
+            
+            // Update the badge element's classes and content (TRIES LEFT)
+            gameInfo.className = `inline-block px-3 py-1 rounded-full text-xs font-bold shadow-md ${bgColor} ${textColor}`;
+
+            gameInfo.innerHTML = `
+                ${targetWord.length}-LETTER WORD 
+                <span class="mx-1 text-gray-400 font-normal">|</span> 
+                <span class="uppercase">${remaining} TRIES LEFT</span>
+            `;
+
+            // Update the Score Display
+            scoreDisplay.textContent = `SCORE: ${currentScore}`;
+        }
+
+        /** Renders the QWERTY keyboard buttons */
+        function renderKeyboard() {
+            keyboardContainer.innerHTML = '';
+            const keyboardDiv = document.createElement('div');
+            keyboardDiv.className = 'w-full max-w-lg mx-auto p-2 bg-gray-100 rounded-xl shadow-inner';
+
+            KEYBOARD_ROWS.forEach((row, rowIndex) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "flex justify-center mb-1";
+
+                row.forEach(key => {
+                    if (key === 'ENTER' || key === 'DEL') return; // Hide special keys in this mode
+
+                    const button = document.createElement('button');
+                    button.id = `key-${key}`;
+                    button.textContent = key;
+                    button.value = key;
+
+                    let color = keyboardState[key] || 'default';
+                    let colorClass = 'bg-gray-200 hover:bg-gray-300 text-gray-800';
+                    let className = 'flex-1 p-2 m-[1px] font-bold rounded-lg shadow-sm transition-colors duration-150';
+                    
+                    switch (color) {
+                        case 'green': colorClass = 'bg-green-500 text-white'; button.disabled = true; break;
+                        case 'gray': colorClass = 'bg-gray-700 text-white opacity-80'; button.disabled = true; break;
+                        default: button.disabled = false;
+                    }
+
+                    button.className = `${className} ${colorClass}`;
+                    button.addEventListener('click', () => handleKeyPress(key));
+                    rowDiv.appendChild(button);
+                });
+                keyboardDiv.appendChild(rowDiv);
+            });
+            keyboardContainer.appendChild(keyboardDiv);
+        }
+
+        // --- Game Logic ---
+
+        function handleKeyPress(key) {
+            if (gameStatus !== 'playing') return;
+
+            const upperKey = key.toUpperCase();
+
+            // Only process single letter keys
+            if (upperKey.length === 1 && upperKey >= 'A' && upperKey <= 'Z') {
+                
+                if (guessedLetters.has(upperKey)) {
+                    showMessage(`You already guessed '${upperKey}'.`, true);
+                    return;
+                }
+
+                guessedLetters.add(upperKey);
+
+                if (targetWord.includes(upperKey)) {
+                    // Correct Guess: Input letter into corresponding blanks
+                    let found = false;
+                    for (let i = 0; i < targetWord.length; i++) {
+                        if (targetWord[i] === upperKey) {
+                            wordDisplay[i] = upperKey;
+                            found = true;
+                        }
+                    }
+                    updateKeyboardState(upperKey, 'green');
+                    showMessage(`Correct! The letter '${upperKey}' is in the word.`);
+
+                    // Check for win condition
+                    if (!wordDisplay.includes('_')) {
+                        gameStatus = 'win';
+                        showGameStatusModal();
+                    }
+                } else {
+                    // Incorrect Guess: Do not input, minus one try
+                    incorrectTries++;
+                    updateKeyboardState(upperKey, 'gray');
+                    
+                    const remaining = MAX_INCORRECT_TRIES - incorrectTries;
+                    
+                    showMessage(`Incorrect! '${upperKey}' is not in the word. ${remaining} tries remaining.`, true);
+
+                    // Check for lose condition
+                    if (remaining <= 0) {
+                        gameStatus = 'lose';
+                        showGameStatusModal();
+                    }
+                }
+                
+                renderGameGrid();
+                renderKeyboard();
+            }
+        }
+
+        function showGameStatusModal() {
+            const isWin = gameStatus === 'win';
+            let scoreUpdate = 0;
+            
+            const iconSvg = isWin
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><polyline points="20 6 9 17 4 12"/></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+            
+            const title = isWin ? 'CONGRATULATIONS!' : 'GAME OVER';
+            
+            if (isWin) {
+                const remainingTries = MAX_INCORRECT_TRIES - incorrectTries;
+                scoreUpdate = remainingTries * 1;
+                currentScore += scoreUpdate;
+
+                document.getElementById('modal-title').style.color = '#008000'; // Green for win
+                document.getElementById('modal-title').style.textShadow = '1px 1px #c0f0c0';
+
+            } else {
+                // Keep the default red styling for loss
+                document.getElementById('modal-title').style.color = '#cc0000'; 
+                document.getElementById('modal-title').style.textShadow = '1px 1px #ffde00';
+            }
+
+            // Construct the message
+            let message = isWin 
+                ? `You earned <strong>${scoreUpdate} points</strong>!`
+                : `You ran out of incorrect guesses. Better luck on the next emoji!`;
+            
+            message += ``;
+
+            const bgColor = isWin ? 'bg-green-600' : 'bg-red-600';
+
+            document.getElementById('modal-icon').innerHTML = iconSvg;
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').innerHTML = message; // Use innerHTML since we added strong tags
+            document.getElementById('modal-emoji').textContent = targetEmoji;
+            document.getElementById('modal-word').textContent = targetWord;
+            
+            newGameButton.classList.remove('bg-green-600', 'bg-red-600', 'hover:bg-green-700', 'hover:bg-red-700');
+            newGameButton.classList.add(bgColor, bgColor.replace('600', '700'));
+            
+            statusModal.classList.remove('hidden');
+            renderGameGrid(); // Update the score in the main header
+        }
+
+        // --- Initialization ---
+
+        function initializeGame() {
+            // Pick a random word from the dictionary
+            const pair = WORD_EMOJI_PAIRS[Math.floor(Math.random() * WORD_EMOJI_PAIRS.length)];
+            targetEmoji = pair.emoji;
+            targetWord = pair.word.toUpperCase();
+            
+            // Reset game state for Hangman style
+            incorrectTries = 0;
+            wordDisplay = Array(targetWord.length).fill('_'); 
+            guessedLetters = new Set();
+            keyboardState = {};
+            gameStatus = 'playing';
+            
+            // Hide modal and message
+            statusModal.classList.add('hidden');
+            messageArea.classList.add('hidden');
+
+            // Update UI elements
+            emojiClue.textContent = targetEmoji;
+            
+            // Render initial state
+            renderGameGrid();
+            renderKeyboard();
+            
+            // console.log("Target Word:", targetWord); // Debug
+        }
+
+        // --- Event Listeners ---
+        
+        // Handle physical keyboard input
+        window.addEventListener('keydown', (event) => {
+            const key = event.key.toUpperCase();
+            
+            // 1. Check for ENTER key to start the next game (if modal is open)
+            if (event.key === 'Enter') {
+                // Only allow ENTER if the game has ended and the modal is visible
+                if (!statusModal.classList.contains('hidden')) {
+                    initializeGame();
+                    event.preventDefault(); // Prevent default browser behavior (like submitting a form if one were active)
+                    return;
+                }
+            }
+
+            // 2. Check for letter guesses (if game is playing)
+            // Only capture single letters
+            if (key.length === 1 && key >= 'A' && key <= 'Z') {
+                handleKeyPress(key);
+            }
+        });
+        
+        // Handle new game button click (Next Emoji)
+        newGameButton.addEventListener('click', initializeGame);
+
+        // Start the game when the page loads
+        window.onload = initializeGame;
+    </script>
+
+</body>
+</html>

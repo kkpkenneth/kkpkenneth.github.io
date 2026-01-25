@@ -9,8 +9,11 @@
       background-color: #f4f6f8;
       margin: 20px;
     }
-    h1 {
+    h1, h2 {
       color: #2c3e50;
+    }
+    .section {
+      margin-bottom: 30px;
     }
     .question {
       background: #ffffff;
@@ -19,53 +22,167 @@
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .question p {
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
       font-weight: bold;
+      cursor: pointer;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #1a5276;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 15px;
+      color: #1a5276;
+      font-size: 18px;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 5px;
     }
   </style>
 </head>
 <body>
 
-<h1>🟩 Bonus Theme 4: Resultado Excepcional</h1>
-<p><em>Enfoque: un logro extremo usado para impacto y comparación</em></p>
+<h1>🟩 BONUS THEME 4: Resultado Excepcional</h1>
+<p><em>Enfoque: impacto, contraste y logro académico extremo</em></p>
+
+<!-- SECTION 1: MAIN QUIZ -->
+<div class="section">
+<h2>1️⃣ Comprensión y Comparación</h2>
 
 <div class="question">
-  <p>1. Clayton obtuvo una puntuación de 160/160 en Matemáticas GCSE.  
-  Este resultado se considera:</p>
-  <label><input type="radio" name="q1"> satisfactorio</label><br>
-  <label><input type="radio" name="q1"> promedio</label><br>
-  <label><input type="radio" name="q1"> excepcional</label>
+<p>1. Clayton obtuvo 160/160 en Matemáticas GCSE. Este resultado es:</p>
+<label><input type="radio" name="q1" value="0"> promedio</label><br>
+<label><input type="radio" name="q1" value="1"> excepcional</label><br>
+<label><input type="radio" name="q1" value="0"> aceptable</label>
 </div>
 
 <div class="question">
-  <p>2. Clayton presentó el examen 19 meses antes de lo habitual.  
-  En comparación con otros estudiantes, esto demuestra:</p>
-  <label><input type="radio" name="q2"> una preparación insuficiente</label><br>
-  <label><input type="radio" name="q2"> una ventaja mínima</label><br>
-  <label><input type="radio" name="q2"> una capacidad académica muy superior</label>
+<p>2. Presentarse al examen 19 meses antes demuestra:</p>
+<label><input type="radio" name="q2" value="0"> falta de preparación</label><br>
+<label><input type="radio" name="q2" value="1"> una capacidad muy superior a la media</label><br>
+<label><input type="radio" name="q2" value="0"> resultados normales</label>
 </div>
 
 <div class="question">
-  <p>3. Normalmente, los estudiantes rinden el GCSE de Matemáticas al final de Year 11.  
-  Clayton lo completó en noviembre de Year 10, lo cual es:</p>
-  <label><input type="radio" name="q3"> común</label><br>
-  <label><input type="radio" name="q3"> adelantado</label><br>
-  <label><input type="radio" name="q3"> tardío</label>
+<p>3. Completar el GCSE en noviembre de Year 10 es:</p>
+<label><input type="radio" name="q3" value="1"> muy adelantado</label><br>
+<label><input type="radio" name="q3" value="0"> típico</label><br>
+<label><input type="radio" name="q3" value="0"> tardío</label>
 </div>
 
 <div class="question">
-  <p>4. ¿Cuál de las siguientes frases usa un superlativo correcto?</p>
-  <label><input type="radio" name="q4"> Clayton tuvo un buen resultado.</label><br>
-  <label><input type="radio" name="q4"> Clayton tuvo el resultado más alto posible.</label><br>
-  <label><input type="radio" name="q4"> Clayton tuvo un resultado aceptable.</label>
+<p>4. ¿Qué frase usa un superlativo correctamente?</p>
+<label><input type="radio" name="q4" value="0"> Clayton tuvo un buen resultado.</label><br>
+<label><input type="radio" name="q4" value="1"> Clayton obtuvo el resultado más alto posible.</label><br>
+<label><input type="radio" name="q4" value="0"> Clayton aprobó el examen.</label>
 </div>
 
 <div class="question">
-  <p>5. Desde una evaluación formal, el resultado de Clayton puede describirse como:</p>
-  <label><input type="radio" name="q5"> dentro de lo esperado</label><br>
-  <label><input type="radio" name="q5"> significativamente por encima de la norma</label><br>
-  <label><input type="radio" name="q5"> ligeramente inferior al promedio</label>
+<p>5. Desde una evaluación formal, su resultado fue:</p>
+<label><input type="radio" name="q5" value="0"> dentro de lo esperado</label><br>
+<label><input type="radio" name="q5" value="1"> significativamente por encima de la norma</label><br>
+<label><input type="radio" name="q5" value="0"> inferior al promedio</label>
 </div>
+
+<!-- Visible Submit Button -->
+<button onclick="checkAnswers()">✅ Comprobar respuestas</button>
+<p class="result" id="result"></p>
+</div>
+
+<!-- SECTION 2: LOWER LEVEL SUPPORT -->
+<div class="section">
+<h2>2️⃣ Versión simplificada (A2–B1)</h2>
+
+<div class="question">
+<p>Completa la frase:</p>
+<p>Clayton obtuvo una nota _______ en Matemáticas.</p>
+<p><em>(alta / normal / baja)</em></p>
+</div>
+
+<div class="question">
+<p>Verdadero o falso:</p>
+<p>Clayton hizo el examen antes que la mayoría de los estudiantes.</p>
+</div>
+</div>
+
+<!-- SECTION 3: FILL IN THE BLANK -->
+<div class="section">
+<h2>3️⃣ Completa los espacios</h2>
+
+<div class="question">
+<p>Clayton obtuvo la puntuación _______ posible en el examen.</p>
+</div>
+
+<div class="question">
+<p>En comparación con otros estudiantes, su rendimiento fue _______.</p>
+</div>
+</div>
+
+<!-- SECTION 4: TRANSLATION -->
+<div class="section">
+<h2>4️⃣ Traducción (Inglés → Español)</h2>
+
+<div class="question">
+<p>a) Clayton achieved a perfect score.</p>
+<input type="text" placeholder="Escribe tu traducción aquí">
+</div>
+
+<div class="question">
+<p>b) This result is far above normal expectations.</p>
+<input type="text" placeholder="Escribe tu traducción aquí">
+</div>
+</div>
+
+<!-- SECTION 5: GCSE STYLE SENTENCE FRAMES -->
+<div class="section">
+<h2>5️⃣ Frases evaluativas (estilo GCSE)</h2>
+
+<div class="question">
+<p>• El resultado de Clayton puede considerarse __________ debido a __________.</p>
+</div>
+
+<div class="question">
+<p>• En comparación con la norma nacional, este logro es __________.</p>
+</div>
+
+<div class="question">
+<p>• Haber completado el examen tan temprano demuestra __________.</p>
+</div>
+</div>
+
+<script>
+function checkAnswers() {
+  let score = 0;
+  const total = 5;
+
+  for (let i = 1; i <= total; i++) {
+    const selected = document.querySelector(
+      'input[name="q' + i + '"]:checked'
+    );
+
+    if (!selected) {
+      document.getElementById("result").innerText =
+        "⚠ Por favor, responde a todas las preguntas antes de comprobar.";
+      return;
+    }
+
+    if (selected.value === "1") {
+      score++;
+    }
+  }
+
+  document.getElementById("result").innerText =
+    "🎯 Puntuación: " + score + " / " + total;
+}
+</script>
 
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pokopia: Celebration Edition</title>
+    <title>Pokopia: Mega Collection</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -25,7 +25,6 @@
             background: #5a8f3c; image-rendering: pixelated; 
             max-width: 100%; max-height: 100%; object-fit: contain;
         }
-        /* Celebration Popup */
         #popup {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
             background: #333; border: 5px solid #ffcb05; border-radius: 20px;
@@ -35,7 +34,6 @@
         }
         #popup.show { transform: translate(-50%, -50%) scale(1); visibility: visible; }
         #popup h1 { color: #ffcb05; margin: 0; font-size: 1.5em; text-shadow: 2px 2px #3b4cca; }
-        #popup p { margin: 10px 0; font-weight: bold; font-size: 1.1em; }
         #popup img { width: 120px; height: 120px; }
 
         #build-btn {
@@ -71,14 +69,13 @@
 
     <div id="ui-overlay">
         <span>💎 <span id="res-val">0</span></span>
-        <span>🏠 <span id="lvl-val">0</span>/31</span>
+        <span>🏠 <span id="lvl-val">0</span>/<span id="total-val">51</span></span>
     </div>
 
     <div id="popup">
         <h1>New Discovery!</h1>
         <img id="pop-img" src="" alt="pkmn">
         <p id="pop-text"></p>
-        <div style="font-size: 0.8em; color: #aaa;">Added to your Pokopia!</div>
     </div>
 
     <div id="game-container">
@@ -108,7 +105,7 @@
 
     const resources = [];
     const activeHabitats = [];
-    const resourceEmojis = ["🌱", "🍎", "⚡", "💎", "🪵", "💧", "🐚", "🍄", "🏮", "❄️"];
+    const resourceEmojis = ["🌱", "🍎", "⚡", "💎", "🪵", "💧", "🐚", "🍄", "🏮", "❄️", "☄️", "🌈"];
 
     const dittoImg = new Image();
     dittoImg.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/132.png";
@@ -144,19 +141,35 @@
         { name: "Icy Tundra", color: "#e1f5fe", pk: "Swinub", id: 220 },
         { name: "Dark Forest", color: "#1a237e", pk: "Lucario", id: 448 },
         { name: "Meteor Crater", color: "#37474f", pk: "Rayquaza", id: 384 },
-        { name: "Sacred Shrine", color: "#ff8f00", pk: "Ho-Oh", id: 250 }
+        { name: "Sacred Shrine", color: "#ff8f00", pk: "Ho-Oh", id: 250 },
+        // --- 20 NEW ADDITIONS ---
+        { name: "Laboratory", color: "#90a4ae", pk: "Mewtwo", id: 150 },
+        { name: "Whirl Islands", color: "#4fc3f7", pk: "Lugia", id: 249 },
+        { name: "Forest Shrine", color: "#81c784", pk: "Celebi", id: 251 },
+        { name: "Deep Ocean", color: "#0d47a1", pk: "Kyogre", id: 382 },
+        { name: "Magma Chamber", color: "#b71c1c", pk: "Groudon", id: 383 },
+        { name: "Sky Pillar", color: "#00695c", pk: "Deoxys", id: 386 },
+        { name: "Distortion World", color: "#4a148c", pk: "Giratina", id: 487 },
+        { name: "Flower Paradise", color: "#f48fb1", pk: "Shaymin", id: 492 },
+        { name: "Hall of Origin", color: "#fafafa", pk: "Arceus", id: 493 },
+        { name: "Victory Island", color: "#ff8a65", pk: "Victini", id: 494 },
+        { name: "Castle Ruins", color: "#3e2723", pk: "Reshiram", id: 643 },
+        { name: "Deep Cave", color: "#212121", pk: "Zekrom", id: 644 },
+        { name: "Frosty Peak", color: "#b3e5fc", pk: "Kyurem", id: 646 },
+        { name: "Tree of Life", color: "#dce775", pk: "Xerneas", id: 716 },
+        { name: "Cocoon of Destruction", color: "#c62828", pk: "Yveltal", id: 717 },
+        { name: "Terminus Cave", color: "#1b5e20", pk: "Zygarde", id: 718 },
+        { name: "Altar of Sun", color: "#fff176", pk: "Solgaleo", id: 791 },
+        { name: "Altar of Moon", color: "#5c6bc0", pk: "Lunala", id: 792 },
+        { name: "Ultra Crater", color: "#263238", pk: "Necrozma", id: 800 },
+        { name: "Crown Tundra", color: "#ffffff", pk: "Calyrex", id: 898 }
     ];
 
     function playSfx(type) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
         if(type === 'collect') { osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); }
-        else if(type === 'success') { 
-            // Celebration Chime
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-            osc.frequency.exponentialRampToValueAtTime(1046.5, audioCtx.currentTime + 0.3); // C6
-        }
+        else if(type === 'success') { osc.type = 'triangle'; osc.frequency.setValueAtTime(523, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1046, audioCtx.currentTime + 0.3); }
         else { osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.2); }
         gain.gain.setValueAtTime(0.06, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
         osc.connect(gain); gain.connect(audioCtx.destination);
@@ -201,18 +214,14 @@
             const pUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${d.id}.png`;
             const img = new Image(); img.src = pUrl;
             activeHabitats.push({ x: player.x-60, y: player.y-60, px: 25, py: 25, img, color: d.color, name: d.name, pk: d.pk, idx: tid, last: Date.now() });
-            
-            // Celebration!
-            showPopup(d.pk, pUrl);
-            playSfx('success'); 
-            updateUI();
+            showPopup(d.pk, pUrl); playSfx('success'); updateUI();
         }
     }
 
     function showPopup(name, url) {
         const p = document.getElementById('popup');
         document.getElementById('pop-img').src = url;
-        document.getElementById('pop-text').innerText = name + " has arrived!";
+        document.getElementById('pop-text').innerText = name + " joined your world!";
         p.classList.add('show');
         setTimeout(() => { p.classList.remove('show'); }, 3000);
     }

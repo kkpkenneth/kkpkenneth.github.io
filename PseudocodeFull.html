@@ -1,254 +1,258 @@
-```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pseudocode Commands Quiz</title>
+<title>Pseudocode Quest: 8-Bit Edition</title>
 
 <style>
-body{
-font-family:Arial;
-background:#f3f3f3;
-margin:0;
-padding:20px;
-text-align:center;
-}
+    /* Retro Gaming Palette */
+    :root {
+        --bg: #1a1a1a;
+        --panel: #2d2d2d;
+        --text: #00ff41; /* Matrix/Terminal Green */
+        --border: #555;
+        --accent: #ff00ff; /* Neon Pink */
+        --correct: #00ff41;
+        --wrong: #ff4141;
+    }
 
-#card{
-background:white;
-padding:20px;
-border-radius:12px;
-max-width:520px;
-margin:auto;
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
+    body {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 20px;
+        text-transform: uppercase; /* Classic retro feel */
+    }
 
-button{
-width:100%;
-padding:12px;
-margin-top:8px;
-border:none;
-border-radius:8px;
-font-size:16px;
-}
+    /* Container as a "Screen" */
+    #card {
+        background: var(--panel);
+        padding: 25px;
+        border: 4px solid var(--border);
+        border-radius: 0; /* Sharp corners for 8-bit look */
+        max-width: 520px;
+        margin: auto;
+        box-shadow: 10px 10px 0px #000;
+        position: relative;
+    }
 
-.option{
-background:#eaeaea;
-}
+    #progress {
+        font-size: 12px;
+        text-align: left;
+        margin-bottom: 15px;
+        color: var(--accent);
+    }
 
-.correct{color:green;font-weight:bold;}
-.wrong{color:red;font-weight:bold;}
+    #question {
+        min-height: 80px;
+        font-size: 1.1rem;
+        border-bottom: 2px dashed var(--border);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
 
-#commands{
-margin-top:40px;
-text-align:left;
-background:white;
-padding:20px;
-border-radius:12px;
-max-width:520px;
-margin:auto;
-}
+    /* Button Styling */
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border: 3px solid var(--text);
+        background: transparent;
+        color: var(--text);
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.1s;
+    }
 
+    button:hover {
+        background: var(--text);
+        color: var(--bg);
+    }
+
+    button:active {
+        transform: translate(4px, 4px);
+    }
+
+    .next-btn {
+        margin-top: 30px;
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .next-btn:hover {
+        background: var(--accent);
+        color: #fff;
+    }
+
+    #result {
+        font-size: 1.5rem;
+        margin-top: 20px;
+    }
+
+    .correct { color: var(--correct); }
+    .wrong { color: var(--wrong); }
+
+    #explanation {
+        font-size: 14px;
+        color: #aaa;
+        margin-top: 5px;
+        text-transform: none; /* easier to read info */
+    }
+
+    /* Reference List Styling */
+    #commands {
+        margin-top: 50px;
+        text-align: left;
+        background: #111;
+        border-left: 5px solid var(--accent);
+        padding: 20px;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #commands h3 { color: var(--accent); margin-top: 0; }
+
+    ol {
+        column-count: 2;
+        font-size: 13px;
+        padding-left: 25px;
+    }
+
+    li { margin-bottom: 5px; color: #888; }
 </style>
 </head>
 
 <body>
 
 <div id="card">
-
-<div id="progress"></div>
-
-<h3 id="question"></h3>
-
-<div id="options"></div>
-
-<p id="result"></p>
-<p id="explanation"></p>
-
-<button onclick="nextQuestion()">Next Question</button>
-
+    <div id="progress">STATUS: LOADING...</div>
+    <h3 id="question">SCANNING DATABASE...</h3>
+    <div id="options"></div>
+    <p id="result"></p>
+    <p id="explanation"></p>
+    <button class="next-btn" onclick="nextQuestion()">[ NEXT COMMAND ]</button>
 </div>
 
 <div id="commands">
-
-<h3>Full Pseudocode Command List</h3>
-
-<ol>
-<li>INPUT</li>
-<li>OUTPUT</li>
-<li>DECLARE</li>
-<li>←</li>
-<li>IF</li>
-<li>THEN</li>
-<li>ELSE</li>
-<li>ENDIF</li>
-<li>FOR</li>
-<li>TO</li>
-<li>NEXT</li>
-<li>WHILE</li>
-<li>DO</li>
-<li>ENDWHILE</li>
-<li>REPEAT</li>
-<li>UNTIL</li>
-<li>PROCEDURE</li>
-<li>CALL</li>
-<li>FUNCTION</li>
-<li>RETURN</li>
-<li>ARRAY</li>
-<li>A[X]</li>
-<li>AND</li>
-<li>OR</li>
-<li>NOT</li>
-<li>LENGTH()</li>
-<li>SUBSTRING()</li>
-<li>UCASE()</li>
-<li>LCASE()</li>
-<li>CONCAT()</li>
-<li>CHARAT()</li>
-<li>RANDOM()</li>
-</ol>
-
+    <h3>DATA_LIBRARY.EXE</h3>
+    <ol>
+        <li>INPUT</li><li>OUTPUT</li><li>DECLARE</li><li>←</li>
+        <li>IF</li><li>THEN</li><li>ELSE</li><li>ENDIF</li>
+        <li>FOR</li><li>TO</li><li>NEXT</li><li>WHILE</li>
+        <li>DO</li><li>ENDWHILE</li><li>REPEAT</li><li>UNTIL</li>
+        <li>PROCEDURE</li><li>CALL</li><li>FUNCTION</li><li>RETURN</li>
+        <li>ARRAY</li><li>A[X]</li><li>AND</li><li>OR</li><li>NOT</li>
+        <li>LENGTH()</li><li>SUBSTRING()</li><li>UCASE()</li><li>LCASE()</li>
+        <li>CONCAT()</li><li>CHARAT()</li><li>RANDOM()</li>
+    </ol>
 </div>
 
 <script>
+// --- AUDIO ENGINE ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBlip(freq, type = 'square', duration = 0.1) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
 
+// --- QUIZ LOGIC ---
 const questions = [
-
-{q:"Which command gets data from the user?",a:"INPUT",options:["INPUT","OUTPUT","DECLARE","CALL"],explain:"INPUT receives data from the user."},
-
-{q:"Which command displays information?",a:"OUTPUT",options:["OUTPUT","INPUT","ARRAY","CALL"],explain:"OUTPUT shows data to the user."},
-
-{q:"Which command creates a variable?",a:"DECLARE",options:["DECLARE","OUTPUT","NEXT","CALL"],explain:"DECLARE defines a variable."},
-
-{q:"Which symbol assigns a value?",a:"←",options:["←","=","==","->"],explain:"← assigns a value in pseudocode."},
-
-{q:"Which keyword starts a decision statement?",a:"IF",options:["IF","FOR","WHILE","INPUT"],explain:"IF begins a selection structure."},
-
-{q:"Which keyword separates condition and action?",a:"THEN",options:["THEN","ELSE","DO","NEXT"],explain:"THEN introduces the action."},
-
-{q:"Which keyword runs when IF is false?",a:"ELSE",options:["ELSE","THEN","UNTIL","NEXT"],explain:"ELSE provides an alternative."},
-
-{q:"Which keyword ends an IF block?",a:"ENDIF",options:["ENDIF","NEXT","ENDWHILE","STOP"],explain:"ENDIF closes an IF statement."},
-
-{q:"Which command starts a counted loop?",a:"FOR",options:["FOR","WHILE","REPEAT","CALL"],explain:"FOR repeats a fixed number of times."},
-
-{q:"Which keyword sets the end value of a FOR loop?",a:"TO",options:["TO","NEXT","DO","RETURN"],explain:"TO defines the limit."},
-
-{q:"Which command ends a FOR loop?",a:"NEXT",options:["NEXT","ENDIF","STOP","RETURN"],explain:"NEXT marks the loop end."},
-
-{q:"Which loop runs while condition is true?",a:"WHILE",options:["WHILE","FOR","REPEAT","IF"],explain:"WHILE loops while condition remains true."},
-
-{q:"Which keyword starts WHILE instructions?",a:"DO",options:["DO","TO","THEN","CALL"],explain:"DO begins loop body."},
-
-{q:"Which command ends a WHILE loop?",a:"ENDWHILE",options:["ENDWHILE","NEXT","STOP","RETURN"],explain:"ENDWHILE closes the loop."},
-
-{q:"Which loop runs before checking condition?",a:"REPEAT",options:["REPEAT","FOR","WHILE","IF"],explain:"REPEAT runs once before checking."},
-
-{q:"Which keyword ends a REPEAT loop?",a:"UNTIL",options:["UNTIL","TO","DO","RETURN"],explain:"UNTIL specifies the stop condition."},
-
-{q:"Which keyword defines a procedure?",a:"PROCEDURE",options:["PROCEDURE","FUNCTION","CALL","RETURN"],explain:"PROCEDURE defines reusable code."},
-
-{q:"Which command runs a procedure?",a:"CALL",options:["CALL","PROCEDURE","INPUT","ARRAY"],explain:"CALL executes a procedure."},
-
-{q:"Which keyword defines a function?",a:"FUNCTION",options:["FUNCTION","PROCEDURE","RETURN","CALL"],explain:"FUNCTION returns a value."},
-
-{q:"Which keyword sends a value back?",a:"RETURN",options:["RETURN","NEXT","STOP","ENDIF"],explain:"RETURN outputs a function result."},
-
-{q:"Which structure stores multiple values?",a:"ARRAY",options:["ARRAY","INPUT","OUTPUT","RETURN"],explain:"ARRAY stores lists."},
-
-{q:"What does A[X] represent?",a:"An element in an array",options:["An element in an array","A loop","A variable type","A procedure"],explain:"A[X] accesses a position."},
-
-{q:"Which operator requires both conditions true?",a:"AND",options:["AND","OR","NOT","TO"],explain:"AND requires both conditions."},
-
-{q:"Which operator needs at least one condition true?",a:"OR",options:["OR","AND","NOT","DO"],explain:"OR needs one or both true."},
-
-{q:"Which operator reverses a condition?",a:"NOT",options:["NOT","AND","OR","TO"],explain:"NOT flips true/false."},
-
-{q:"Which function counts characters?",a:"LENGTH()",options:["LENGTH()","SUBSTRING()","CHARAT()","CONCAT()"],explain:"LENGTH counts characters."},
-
-{q:"Which function extracts part of a string?",a:"SUBSTRING()",options:["SUBSTRING()","LENGTH()","UCASE()","CHARAT()"],explain:"SUBSTRING extracts text."},
-
-{q:"Which function converts text to uppercase?",a:"UCASE()",options:["UCASE()","LCASE()","CONCAT()","CHARAT()"],explain:"UCASE makes capitals."},
-
-{q:"Which function converts text to lowercase?",a:"LCASE()",options:["LCASE()","UCASE()","SUBSTRING()","LENGTH()"],explain:"LCASE makes lowercase."},
-
-{q:"Which function joins two strings?",a:"CONCAT()",options:["CONCAT()","SUBSTRING()","CHARAT()","LENGTH()"],explain:"CONCAT joins text."},
-
-{q:"Which function returns one character?",a:"CHARAT()",options:["CHARAT()","SUBSTRING()","CONCAT()","UCASE()"],explain:"CHARAT returns one character."},
-
-{q:"Which function generates a random number?",a:"RANDOM()",options:["RANDOM()","ARRAY","INPUT","RETURN"],explain:"RANDOM produces random values."}
-
+    {q:"Which command gets data from the user?",a:"INPUT",options:["INPUT","OUTPUT","DECLARE","CALL"],explain:"INPUT receives data from the user."},
+    {q:"Which command displays information?",a:"OUTPUT",options:["OUTPUT","INPUT","ARRAY","CALL"],explain:"OUTPUT shows data to the user."},
+    {q:"Which command creates a variable?",a:"DECLARE",options:["DECLARE","OUTPUT","NEXT","CALL"],explain:"DECLARE defines a variable."},
+    {q:"Which symbol assigns a value?",a:"←",options:["←","=","==","->"],explain:"← assigns a value in pseudocode."},
+    {q:"Which keyword starts a decision statement?",a:"IF",options:["IF","FOR","WHILE","INPUT"],explain:"IF begins a selection structure."},
+    {q:"Which keyword separates condition and action?",a:"THEN",options:["THEN","ELSE","DO","NEXT"],explain:"THEN introduces the action."},
+    {q:"Which keyword runs when IF is false?",a:"ELSE",options:["ELSE","THEN","UNTIL","NEXT"],explain:"ELSE provides an alternative."},
+    {q:"Which keyword ends an IF block?",a:"ENDIF",options:["ENDIF","NEXT","ENDWHILE","STOP"],explain:"ENDIF closes an IF statement."},
+    {q:"Which command starts a counted loop?",a:"FOR",options:["FOR","WHILE","REPEAT","CALL"],explain:"FOR repeats a fixed number of times."},
+    {q:"Which keyword sets the end value of a FOR loop?",a:"TO",options:["TO","NEXT","DO","RETURN"],explain:"TO defines the limit."},
+    {q:"Which command ends a FOR loop?",a:"NEXT",options:["NEXT","ENDIF","STOP","RETURN"],explain:"NEXT marks the loop end."},
+    {q:"Which loop runs while condition is true?",a:"WHILE",options:["WHILE","FOR","REPEAT","IF"],explain:"WHILE loops while condition remains true."},
+    {q:"Which keyword starts WHILE instructions?",a:"DO",options:["DO","TO","THEN","CALL"],explain:"DO begins loop body."},
+    {q:"Which command ends a WHILE loop?",a:"ENDWHILE",options:["ENDWHILE","NEXT","STOP","RETURN"],explain:"ENDWHILE closes the loop."},
+    {q:"Which loop runs before checking condition?",a:"REPEAT",options:["REPEAT","FOR","WHILE","IF"],explain:"REPEAT runs once before checking."},
+    {q:"Which keyword ends a REPEAT loop?",a:"UNTIL",options:["UNTIL","TO","DO","RETURN"],explain:"UNTIL specifies the stop condition."},
+    {q:"Which keyword defines a procedure?",a:"PROCEDURE",options:["PROCEDURE","FUNCTION","CALL","RETURN"],explain:"PROCEDURE defines reusable code."},
+    {q:"Which command runs a procedure?",a:"CALL",options:["CALL","PROCEDURE","INPUT","ARRAY"],explain:"CALL executes a procedure."},
+    {q:"Which keyword defines a function?",a:"FUNCTION",options:["FUNCTION","PROCEDURE","RETURN","CALL"],explain:"FUNCTION returns a value."},
+    {q:"Which keyword sends a value back?",a:"RETURN",options:["RETURN","NEXT","STOP","ENDIF"],explain:"RETURN outputs a function result."},
+    {q:"Which structure stores multiple values?",a:"ARRAY",options:["ARRAY","INPUT","OUTPUT","RETURN"],explain:"ARRAY stores lists."},
+    {q:"What does A[X] represent?",a:"An element in an array",options:["An element in an array","A loop","A variable type","A procedure"],explain:"A[X] accesses a position."},
+    {q:"Which operator requires both conditions true?",a:"AND",options:["AND","OR","NOT","TO"],explain:"AND requires both conditions."},
+    {q:"Which operator needs at least one condition true?",a:"OR",options:["OR","AND","NOT","DO"],explain:"OR needs one or both true."},
+    {q:"Which operator reverses a condition?",a:"NOT",options:["NOT","AND","OR","TO"],explain:"NOT flips true/false."},
+    {q:"Which function counts characters?",a:"LENGTH()",options:["LENGTH()","SUBSTRING()","CHARAT()","CONCAT()"],explain:"LENGTH counts characters."},
+    {q:"Which function extracts part of a string?",a:"SUBSTRING()",options:["SUBSTRING()","LENGTH()","UCASE()","CHARAT()"],explain:"SUBSTRING extracts text."},
+    {q:"Which function converts text to uppercase?",a:"UCASE()",options:["UCASE()","LCASE()","CONCAT()","CHARAT()"],explain:"UCASE makes capitals."},
+    {q:"Which function converts text to lowercase?",a:"LCASE()",options:["LCASE()","UCASE()","SUBSTRING()","LENGTH()"],explain:"LCASE makes lowercase."},
+    {q:"Which function joins two strings?",a:"CONCAT()",options:["CONCAT()","SUBSTRING()","CHARAT()","LENGTH()"],explain:"CONCAT joins text."},
+    {q:"Which function returns one character?",a:"CHARAT()",options:["CHARAT()","SUBSTRING()","CONCAT()","UCASE()"],explain:"CHARAT returns one character."},
+    {q:"Which function generates a random number?",a:"RANDOM()",options:["RANDOM()","ARRAY","INPUT","RETURN"],explain:"RANDOM produces random values."}
 ];
 
-let current=0;
+let current = 0;
 
 function shuffle(array){
-for(let i=array.length-1;i>0;i--){
-let j=Math.floor(Math.random()*(i+1));
-[array[i],array[j]]=[array[j],array[i]];
-}
-return array;
+    for(let i=array.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [array[i],array[j]]=[array[j],array[i]];
+    }
+    return array;
 }
 
 function loadQuestion(){
+    let q = questions[current];
+    document.getElementById("progress").innerText = "RECORD: " + (current+1) + " / " + questions.length;
+    document.getElementById("question").innerText = q.q;
 
-let q=questions[current];
+    let shuffled = [...q.options];
+    shuffle(shuffled);
 
-document.getElementById("progress").innerText=
-"Question "+(current+1)+" / "+questions.length;
+    let html = "";
+    shuffled.forEach(opt => {
+        html += `<button class="option" onclick="checkAnswer('${opt}','${q.a}')">${opt}</button>`;
+    });
 
-document.getElementById("question").innerText=q.q;
-
-let shuffled=[...q.options];
-shuffle(shuffled);
-
-let html="";
-
-shuffled.forEach(opt=>{
-html+=`<button class="option" onclick="checkAnswer('${opt}','${q.a}')">${opt}</button>`;
-});
-
-document.getElementById("options").innerHTML=html;
-
-document.getElementById("result").innerHTML="";
-document.getElementById("explanation").innerHTML="";
+    document.getElementById("options").innerHTML = html;
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("explanation").innerHTML = "";
 }
 
-function checkAnswer(selected,correct){
-
-if(selected===correct){
-
-document.getElementById("result").innerHTML="✓ Correct";
-document.getElementById("result").className="correct";
-
-}else{
-
-document.getElementById("result").innerHTML="✗ Incorrect";
-document.getElementById("result").className="wrong";
-
-}
-
-document.getElementById("explanation").innerHTML=
-questions[current].explain;
-
+function checkAnswer(selected, correct){
+    if(selected === correct){
+        playBlip(880, 'square', 0.1); // High beep for correct
+        document.getElementById("result").innerHTML = ">> SUCCESS";
+        document.getElementById("result").className = "correct";
+    } else {
+        playBlip(110, 'sawtooth', 0.2); // Low buzz for wrong
+        document.getElementById("result").innerHTML = ">> ERROR";
+        document.getElementById("result").className = "wrong";
+    }
+    document.getElementById("explanation").innerHTML = questions[current].explain;
 }
 
 function nextQuestion(){
-
-current++;
-
-if(current>=questions.length){
-current=0;
+    playBlip(440, 'triangle', 0.05); // Neutral blip for navigation
+    current++;
+    if(current >= questions.length) current = 0;
+    loadQuestion();
 }
 
 loadQuestion();
-
-}
-
-loadQuestion();
-
 </script>
 
 </body>
 </html>
-```

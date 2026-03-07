@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>8-Bit Mega Soundboard (70 Sounds)</title>
+    <style>
+        body { background: #1a1a1a; color: #ff00ff; font-family: 'Courier New', monospace; padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section { margin-bottom: 40px; padding: 15px; border: 1px solid #333; border-radius: 8px; background: #222; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        h2 { color: #00ffff; text-transform: uppercase; font-size: 1.2rem; border-bottom: 2px solid #00ffff; display: inline-block; padding: 0 10px; }
+        button { 
+            background: #333; border: 2px solid #ff00ff; color: #ff00ff; padding: 10px 5px; cursor: pointer;
+            font-size: 0.8rem; font-weight: bold; transition: 0.1s;
+        }
+        button:hover { background: #ff00ff; color: #000; box-shadow: 0 0 10px #ff00ff; }
+        button:active { transform: translateY(2px); }
+        .bit-info { color: #888; margin-bottom: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ULTRA 8-BIT SYNTH (70 SOUNDS)</h1>
+    <p class="bit-info">All sounds are synthesized in real-time using the Web Audio API.</p>
+
+    <div id="board"></div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const categories = {
+        "Movement (10)": ["Jump", "Double-Jump", "Land", "Swim", "Dash", "Crouch", "Skid", "Climb", "Teleport", "Fall"],
+        "Combat (15)": ["Laser", "Heavy-Laser", "Pulse-Rifle", "Sword-Swing", "Sword-Clash", "Shield-Block", "Arrow-Shot", "Explosion", "Small-Boom", "Grenade", "Hit-High", "Hit-Mid", "Hit-Low", "Electric-Shock", "Fireball"],
+        "Items & Powerups (15)": ["Coin", "Ring", "Gem", "Key", "Powerup-A", "Powerup-B", "Heart-Up", "Mana-Refill", "Mushroom", "Star-Mode", "Equip", "Trash-Item", "Open-Chest", "Close-Chest", "Level-Up"],
+        "Magic & Effects (10)": ["Heal", "Buff", "Debuff", "Poison", "Freeze", "Burn", "Warp-In", "Warp-Out", "Sparkle", "Ghost-Echo"],
+        "UI & Systems (10)": ["Blip", "Select", "Back", "Confirm", "Error", "Pause", "Unpause", "Typing", "Save-Game", "Load-Game"],
+        "Environment (10)": ["Door-Open", "Door-Close", "Switch-On", "Switch-Off", "Water-Drop", "Glass-Break", "Wood-Thud", "Metal-Ding", "Engine-Hum", "Fan-Whir"]
+    };
+
+    const board = document.getElementById('board');
+
+    // Build the UI
+    for (const [catName, sounds] of Object.entries(categories)) {
+        const section = document.createElement('div');
+        section.className = 'section';
+        section.innerHTML = `<h2>${catName}</h2>`;
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        
+        sounds.forEach(sound => {
+            const btn = document.createElement('button');
+            btn.innerText = sound;
+            btn.onclick = () => playSynth(sound.toLowerCase().replace(/-/g, ''));
+            grid.appendChild(btn);
+        });
+        
+        section.appendChild(grid);
+        board.appendChild(section);
+    }
+
+    // THE ENGINE
+    function playSynth(type) {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        // Logic routing for 70 sounds based on "Types"
+        if (type.includes('jump')) {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(type === 'doublejump' ? 300 : 150, now);
+            osc.frequency.exponentialRampToValueAtTime(type === 'doublejump' ? 900 : 600, now + 0.15);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.15);
+            osc.start(); osc.stop(now + 0.15);
+        } 
+        else if (type.includes('laser') || type.includes('rifle')) {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(type.includes('heavy') ? 400 : 1200, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.2);
+            osc.start(); osc.stop(now + 0.2);
+        }
+        else if (type === 'coin' || type === 'ring' || type === 'gem') {
+            osc.type = 'square';
+            let f = type === 'coin' ? 987 : (type === 'ring' ? 1200 : 1500);
+            osc.frequency.setValueAtTime(f, now);
+            osc.frequency.setValueAtTime(f * 1.3, now + 0.08);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            osc.start(); osc.stop(now + 0.4);
+        }
+        else if (type.includes('explosion') || type.includes('boom') || type.includes('grenade')) {
+            playNoise(0.5, 'low', 0.3);
+        }
+        else if (type.includes('hit') || type.includes('thud')) {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(100, now);
+            osc.frequency.linearRampToValueAtTime(10, now + 0.1);
+            gain.gain.setValueAtTime(0.3, now);
+            osc.start(); osc.stop(now + 0.1);
+            playNoise(0.1, 'low', 0.1);
+        }
+        else if (type === 'levelup' || type === 'starmode') {
+            const notes = [261, 329, 392, 523, 659, 783, 1046];
+            osc.type = 'square';
+            notes.forEach((f, i) => osc.frequency.setValueAtTime(f, now + (i * 0.08)));
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+            osc.start(); osc.stop(now + 0.8);
+        }
+        else if (type === 'teleport' || type.includes('warp')) {
+            osc.type = 'sawtooth';
+            for(let i=0; i<20; i++) {
+                osc.frequency.setValueAtTime(100 + (i*100), now + (i*0.01));
+            }
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(); osc.stop(now + 0.3);
+        }
+        else if (type.includes('door') || type.includes('switch')) {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(type.includes('open') ? 100 : 50, now);
+            osc.frequency.setValueAtTime(type.includes('open') ? 150 : 40, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            osc.start(); osc.stop(now + 0.2);
+        }
+        else if (type === 'heal' || type === 'sparkle') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(1000, now);
+            for(let i=0; i<10; i++) {
+                osc.frequency.exponentialRampToValueAtTime(1000 + (Math.random()*1000), now + (i*0.05));
+            }
+            gain.gain.setValueAtTime(0.1, now);
+            osc.start(); osc.stop(now + 0.5);
+        }
+        else {
+            // Default "Blip" logic for any remaining buttons
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(type.length * 100, now);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(); osc.stop(now + 0.1);
+        }
+    }
+
+    function playNoise(duration, filterType, vol) {
+        const now = audioCtx.currentTime;
+        const bufferSize = audioCtx.sampleRate * duration;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = filterType === 'low' ? 'lowpass' : 'highpass';
+        filter.frequency.setValueAtTime(filterType === 'low' ? 500 : 2000, now);
+
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(vol, now);
+        g.gain.linearRampToValueAtTime(0, now + duration);
+
+        noise.connect(filter); filter.connect(g); g.connect(audioCtx.destination);
+        noise.start();
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pseudocode Commands Quiz</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f3f3f3;
+margin:0;
+padding:20px;
+text-align:center;
+}
+
+#card{
+background:white;
+padding:20px;
+border-radius:12px;
+max-width:520px;
+margin:auto;
+box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:8px;
+border:none;
+border-radius:8px;
+font-size:16px;
+background:#4CAF50;
+color:white;
+}
+
+.option{
+background:#eaeaea;
+color:black;
+}
+
+.correct{color:green;font-weight:bold;}
+.wrong{color:red;font-weight:bold;}
+
+#progress{
+margin-bottom:10px;
+color:#666;
+}
+
+#commands{
+margin-top:40px;
+text-align:left;
+background:white;
+padding:20px;
+border-radius:12px;
+max-width:520px;
+margin-left:auto;
+margin-right:auto;
+}
+</style>
+</head>
+
+<body>
+
+<div id="card">
+
+<div id="progress"></div>
+
+<h3 id="question"></h3>
+
+<div id="options"></div>
+
+<p id="result"></p>
+<p id="explanation"></p>
+
+<button onclick="nextQuestion()">Next Question</button>
+
+</div>
+
+
+<div id="commands">
+
+<h3>Full Pseudocode Command List</h3>
+
+<ol>
+<li>INPUT</li>
+<li>OUTPUT</li>
+<li>DECLARE</li>
+<li>←</li>
+<li>IF</li>
+<li>THEN</li>
+<li>ELSE</li>
+<li>ENDIF</li>
+<li>FOR</li>
+<li>TO</li>
+<li>NEXT</li>
+<li>WHILE</li>
+<li>DO</li>
+<li>ENDWHILE</li>
+<li>REPEAT</li>
+<li>UNTIL</li>
+<li>PROCEDURE</li>
+<li>CALL</li>
+<li>FUNCTION</li>
+<li>RETURN</li>
+<li>ARRAY</li>
+<li>A[X]</li>
+<li>AND</li>
+<li>OR</li>
+<li>NOT</li>
+<li>LENGTH()</li>
+<li>SUBSTRING()</li>
+<li>UCASE()</li>
+<li>LCASE()</li>
+<li>CONCAT()</li>
+<li>CHARAT()</li>
+<li>RANDOM()</li>
+</ol>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+{q:"Which command gets data from the user?",options:["INPUT","OUTPUT","DECLARE","CALL"],answer:0,explain:"INPUT is used to receive data from the user."},
+
+{q:"Which command displays information?",options:["OUTPUT","INPUT","ARRAY","CALL"],answer:0,explain:"OUTPUT prints information to the screen."},
+
+{q:"Which command creates a variable?",options:["DECLARE","OUTPUT","NEXT","CALL"],answer:0,explain:"DECLARE defines a variable and its type."},
+
+{q:"Which symbol assigns a value?",options:["←","=","==","->"],answer:0,explain:"← assigns values in pseudocode."},
+
+{q:"Which keyword starts a decision statement?",options:["IF","FOR","WHILE","INPUT"],answer:0,explain:"IF begins a selection structure."},
+
+{q:"Which keyword separates the condition from the action?",options:["THEN","ELSE","DO","NEXT"],answer:0,explain:"THEN indicates the action after IF."},
+
+{q:"Which keyword runs if the IF condition is false?",options:["ELSE","THEN","UNTIL","NEXT"],answer:0,explain:"ELSE provides an alternative path."},
+
+{q:"Which keyword ends an IF statement?",options:["ENDIF","ENDWHILE","NEXT","STOP"],answer:0,explain:"ENDIF closes an IF block."},
+
+{q:"Which command starts a counted loop?",options:["FOR","WHILE","REPEAT","CALL"],answer:0,explain:"FOR loops repeat a fixed number of times."},
+
+{q:"Which keyword specifies the end value of a FOR loop?",options:["TO","NEXT","DO","RETURN"],answer:0,explain:"TO defines the loop limit."},
+
+{q:"Which command ends a FOR loop?",options:["NEXT","ENDIF","STOP","RETURN"],answer:0,explain:"NEXT marks the end of the FOR loop."},
+
+{q:"Which loop runs while a condition is true?",options:["WHILE","FOR","REPEAT","IF"],answer:0,explain:"WHILE loops continue while the condition remains true."},
+
+{q:"Which keyword begins the body of a WHILE loop?",options:["DO","TO","THEN","CALL"],answer:0,explain:"DO starts the instructions inside WHILE."},
+
+{q:"Which command ends a WHILE loop?",options:["ENDWHILE","NEXT","STOP","RETURN"],answer:0,explain:"ENDWHILE closes the WHILE loop."},
+
+{q:"Which loop executes first and checks later?",options:["REPEAT","FOR","WHILE","IF"],answer:0,explain:"REPEAT loops always run at least once."},
+
+{q:"Which keyword stops a REPEAT loop?",options:["UNTIL","TO","DO","RETURN"],answer:0,explain:"UNTIL checks when the loop ends."},
+
+{q:"Which keyword defines a procedure?",options:["PROCEDURE","FUNCTION","CALL","RETURN"],answer:0,explain:"PROCEDURE defines a reusable block of code."},
+
+{q:"Which command runs a procedure?",options:["CALL","PROCEDURE","INPUT","ARRAY"],answer:0,explain:"CALL executes a procedure."},
+
+{q:"Which keyword defines a function?",options:["FUNCTION","PROCEDURE","RETURN","CALL"],answer:0,explain:"FUNCTION defines a block that returns a value."},
+
+{q:"Which keyword sends a value back?",options:["RETURN","NEXT","STOP","ENDIF"],answer:0,explain:"RETURN outputs a value from a function."},
+
+{q:"Which structure stores multiple values?",options:["ARRAY","INPUT","OUTPUT","RETURN"],answer:0,explain:"ARRAY stores a list of values."},
+
+{q:"What does A[X] represent?",options:["An element in an array","A variable type","A loop","A procedure"],answer:0,explain:"A[X] accesses an array position."},
+
+{q:"Which logical operator requires both conditions true?",options:["AND","OR","NOT","TO"],answer:0,explain:"AND requires both conditions to be true."},
+
+{q:"Which logical operator requires at least one condition true?",options:["OR","AND","NOT","DO"],answer:0,explain:"OR requires one or both conditions to be true."},
+
+{q:"Which operator reverses a condition?",options:["NOT","AND","OR","TO"],answer:0,explain:"NOT flips true to false."},
+
+{q:"Which function counts characters?",options:["LENGTH()","SUBSTRING()","CHARAT()","CONCAT()"],answer:0,explain:"LENGTH() returns the number of characters."},
+
+{q:"Which function extracts part of a string?",options:["SUBSTRING()","LENGTH()","UCASE()","CHARAT()"],answer:0,explain:"SUBSTRING() extracts characters."},
+
+{q:"Which function converts text to uppercase?",options:["UCASE()","LCASE()","CONCAT()","CHARAT()"],answer:0,explain:"UCASE() converts letters to uppercase."},
+
+{q:"Which function converts text to lowercase?",options:["LCASE()","UCASE()","SUBSTRING()","LENGTH()"],answer:0,explain:"LCASE() converts text to lowercase."},
+
+{q:"Which function joins two strings?",options:["CONCAT()","SUBSTRING()","CHARAT()","LENGTH()"],answer:0,explain:"CONCAT() combines text."},
+
+{q:"Which function returns one character?",options:["CHARAT()","SUBSTRING()","CONCAT()","UCASE()"],answer:0,explain:"CHARAT() retrieves one character."},
+
+{q:"Which function generates a random number?",options:["RANDOM()","ARRAY","INPUT","RETURN"],answer:0,explain:"RANDOM() produces a random value."}
+
+];
+
+let current=0;
+
+function loadQuestion(){
+
+document.getElementById("progress").innerText =
+"Question "+(current+1)+" / "+questions.length;
+
+document.getElementById("question").innerText =
+questions[current].q;
+
+let optionsHTML="";
+
+questions[current].options.forEach((opt,i)=>{
+
+optionsHTML+=`<button class="option" onclick="checkAnswer(${i})">${opt}</button>`;
+
+});
+
+document.getElementById("options").innerHTML=optionsHTML;
+
+document.getElementById("result").innerHTML="";
+document.getElementById("explanation").innerHTML="";
+}
+
+function checkAnswer(i){
+
+if(i===questions[current].answer){
+
+document.getElementById("result").innerHTML="✓ Correct";
+document.getElementById("result").className="correct";
+
+}else{
+
+document.getElementById("result").innerHTML="✗ Incorrect";
+document.getElementById("result").className="wrong";
+}
+
+document.getElementById("explanation").innerHTML=
+questions[current].explain;
+}
+
+function nextQuestion(){
+
+current++;
+
+if(current>=questions.length){
+current=0;
+}
+
+loadQuestion();
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>

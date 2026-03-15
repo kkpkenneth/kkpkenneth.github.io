@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ultra Pseudocode Terminal</title>
+
+<style>
+    :root {
+        --bg: #0a0a0a;
+        --panel: #1a1a1a;
+        --text: #00ff41;
+        --border: #333;
+        --accent: #ff00ff;
+        --correct: #00ff41;
+        --wrong: #ff4141;
+    }
+
+    body {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 20px;
+        text-transform: uppercase;
+    }
+
+    .container { max-width: 800px; margin: auto; }
+
+    #card {
+        background: var(--panel);
+        padding: 25px;
+        border: 4px solid var(--border);
+        box-shadow: 8px 8px 0px #000;
+        margin-bottom: 30px;
+    }
+
+    #progress { font-size: 12px; margin-bottom: 10px; color: var(--accent); font-weight: bold; }
+
+    #question {
+        min-height: 50px;
+        font-size: 1rem;
+        border-bottom: 2px dashed var(--border);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+
+    #options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    @media (max-width: 600px) { #options { grid-template-columns: 1fr; } }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid var(--text);
+        background: rgba(0, 255, 65, 0.05);
+        color: var(--text);
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    button:hover { background: var(--text); color: var(--bg); }
+
+    .syntax-ex {
+        display: block;
+        font-size: 10px;
+        opacity: 0.7;
+        margin-top: 3px;
+        text-transform: none;
+    }
+
+    .next-btn {
+        margin-top: 25px;
+        border-color: var(--accent);
+        color: var(--accent);
+        text-align: center;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    #result { font-size: 1.2rem; margin-top: 15px; text-align: center; height: 1.5rem; }
+
+    #explanation {
+        font-size: 12px;
+        color: #888;
+        text-transform: none;
+        text-align: center;
+        margin-top: 5px;
+        min-height: 30px;
+    }
+
+    /* Command Library Section */
+    #commands {
+        background: #111;
+        border: 1px solid var(--accent);
+        padding: 15px;
+        box-shadow: 4px 4px 0px #000;
+    }
+
+    #commands h3 { color: var(--accent); margin-top: 0; font-size: 14px; }
+
+    #commandList {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        font-size: 10px;
+        gap: 5px;
+        padding: 0;
+        list-style: none;
+    }
+
+    @media (max-width: 600px) { #commandList { grid-template-columns: 1fr 1fr; } }
+
+    li { color: #555; border-bottom: 1px solid #222; padding: 2px; overflow: hidden; white-space: nowrap; }
+    li b { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div id="card">
+        <div id="progress">CORE_MEMORY: LOADED</div>
+        <h3 id="question">WAITING_FOR_QUERY...</h3>
+        <div id="options"></div>
+        <p id="result"></p>
+        <p id="explanation"></p>
+        <button class="next-btn" onclick="nextQuestion()">[ NEXT_CHALLENGE ]</button>
+    </div>
+
+    <div id="commands">
+        <h3>EXTENDED_SYNTAX_DB (80+ COMMANDS)</h3>
+        <ul id="commandList"></ul>
+    </div>
+</div>
+
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBlip(freq, type = 'square', duration = 0.1) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+
+// THE MEGA DICTIONARY (82 Commands)
+const exampleMap = {
+    // Basic
+    "INPUT": "INPUT Age", "OUTPUT": "OUTPUT 'Hi'", "DECLARE": "DECLARE X : INT", "←": "X ← 5",
+    "IF": "IF X > 5", "THEN": "THEN X ← 0", "ELSE": "ELSE X ← 1", "ENDIF": "ENDIF",
+    // Loops
+    "FOR": "FOR i←1 TO 10", "TO": "1 TO 10", "NEXT": "NEXT i", "WHILE": "WHILE X < 5",
+    "DO": "DO X ← X+1", "ENDWHILE": "ENDWHILE", "REPEAT": "REPEAT...UNTIL", "UNTIL": "UNTIL X=5",
+    // Subroutines
+    "PROCEDURE": "PROCEDURE Move()", "CALL": "CALL Move()", "FUNCTION": "FUNCTION Add()", "RETURN": "RETURN Z",
+    "BYREF": "PROCEDURE(BYREF X)", "BYVAL": "PROCEDURE(BYVAL X)",
+    // Data Structures
+    "ARRAY": "Names : ARRAY[1:5]", "TYPE": "TYPE RecordName", "ENDTYPE": "ENDTYPE", "ENUM": "ENUM {Red, Blue}",
+    "STACK": "S : STACK", "PUSH": "PUSH(S, Item)", "POP": "POP(S)", "PEEK": "PEEK(S)",
+    "QUEUE": "Q : QUEUE", "ENQUEUE": "ENQUEUE(Q, Item)", "DEQUEUE": "DEQUEUE(Q)",
+    "LIST": "L : LIST", "APPEND": "APPEND(L, Item)", "INSERT": "INSERT(L, pos, Item)",
+    // File Handling
+    "OPENFILE": "OPENFILE 'data.txt'", "READFILE": "READFILE 'data.txt', Var", "WRITEFILE": "WRITEFILE 'f.txt', Var",
+    "CLOSEFILE": "CLOSEFILE 'data.txt'", "EOF": "WHILE NOT EOF('f.txt')", "GETRECORD": "GETRECORD 'f.txt', R",
+    // Math
+    "MOD": "10 MOD 3", "DIV": "10 DIV 3", "ROUND": "ROUND(4.6)", "RANDOM": "X ← RANDOM()",
+    "ABS": "ABS(-5)", "SQRT": "SQRT(16)", "POW": "POW(2, 8)", "INT": "INT(4.9)",
+    // Strings
+    "LENGTH": "LENGTH(S)", "LCASE": "LCASE(S)", "UCASE": "UCASE(S)", "SUBSTRING": "SUBSTRING(S,1,2)",
+    "CONCAT": "CONCAT(A,B)", "CHARAT": "CHARAT(S, 1)", "STRINGTOINT": "STRINGTOINT('123')", "INTTOSTRING": "INTTOSTRING(123)",
+    // Logic
+    "AND": "A AND B", "OR": "A OR B", "NOT": "NOT Found", "XOR": "A XOR B",
+    // OOP
+    "CLASS": "CLASS Enemy", "PRIVATE": "PRIVATE Health", "PUBLIC": "PUBLIC Name", "NEW": "E1 ← NEW Enemy",
+    "INHERITS": "CLASS Boss INHERITS Enemy", "CONSTRUCTOR": "PUBLIC CONSTRUCTOR New()", "SELF": "SELF.Health ← 10",
+    // System/Misc
+    "OPEN": "OPEN 'port'", "CLOSE": "CLOSE 'port'", "TRUE": "Found ← TRUE", "FALSE": "Found ← FALSE",
+    "NULL": "IF X = NULL", "BREAK": "BREAK", "CONTINUE": "CONTINUE", "CASE": "CASE OF X",
+    "OTHERWISE": "OTHERWISE: OUTPUT", "ENDCASE": "ENDCASE", "STEP": "FOR i←1 TO 10 STEP 2"
+};
+
+const questions = [
+    {q:"How do you pass a variable to a procedure to modify the original?", a:"BYREF", options:["BYREF","BYVAL","GLOBAL","LOCAL"], explain:"BYREF (By Reference) links the parameter to the original variable."},
+    {q:"Which command adds an item to the back of a Queue?", a:"ENQUEUE", options:["ENQUEUE","DEQUEUE","PUSH","POP"], explain:"ENQUEUE puts an item at the end of a Queue."},
+    {q:"Which file command checks if the end of the document is reached?", a:"EOF", options:["EOF","CLOSEFILE","READFILE","OPENFILE"], explain:"EOF stands for End Of File."},
+    {q:"Which operator returns the remainder of a division?", a:"MOD", options:["MOD","DIV","INT","ROUND"], explain:"MOD (Modulo) calculates the remainder (e.g., 10 MOD 3 = 1)."},
+    {q:"In OOP, which keyword refers to the current object instance?", a:"SELF", options:["SELF","THIS","ME","CLASS"], explain:"SELF is used in pseudocode to access the object's own properties."},
+    {q:"Which command removes an item from the top of a Stack?", a:"POP", options:["POP","PUSH","PEEK","ENQUEUE"], explain:"POP removes the top item; PUSH adds it."},
+    {q:"Which keyword allows a Class to take properties from another Class?", a:"INHERITS", options:["INHERITS","NEW","PUBLIC","CLASS"], explain:"INHERITS establishes a parent-child relationship in OOP."},
+    {q:"Which command opens a text file for processing?", a:"OPENFILE", options:["OPENFILE","READFILE","GETRECORD","TYPE"], explain:"OPENFILE must be called before any reading or writing happens."},
+    {q:"Which operator performs integer division (no remainder)?", a:"DIV", options:["DIV","MOD","INT","ROUND"], explain:"DIV returns the whole number part of a division (e.g., 10 DIV 3 = 3)."},
+    {q:"Which string function changes 'HELLO' to 'hello'?", a:"LCASE", options:["LCASE","UCASE","SUBSTRING","LENGTH"], explain:"LCASE (Lower Case) converts text to small letters."}
+];
+
+let current = 0;
+
+function shuffle(array) {
+    for(let i=array.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [array[i],array[j]]=[array[j],array[i]];
+    }
+    return array;
+}
+
+function loadQuestion(){
+    let q = questions[current];
+    document.getElementById("progress").innerText = "QUERY_INDEX: " + (current+1) + " / " + questions.length;
+    document.getElementById("question").innerText = q.q;
+
+    let shuffled = [...q.options];
+    shuffle(shuffled);
+
+    let html = "";
+    shuffled.forEach(opt => {
+        let exampleText = exampleMap[opt] || opt + "()";
+        html += `<button onclick="checkAnswer('${opt}','${q.a}')">
+                    ${opt}
+                    <span class="syntax-ex">EX: ${exampleText}</span>
+                 </button>`;
+    });
+
+    document.getElementById("options").innerHTML = html;
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("explanation").innerHTML = "";
+}
+
+function checkAnswer(selected, correct){
+    if(selected === correct){
+        playBlip(900, 'square', 0.1);
+        document.getElementById("result").innerHTML = ">> STATUS: VALID";
+        document.getElementById("result").className = "correct";
+    } else {
+        playBlip(120, 'sawtooth', 0.2);
+        document.getElementById("result").innerHTML = ">> STATUS: ERROR";
+        document.getElementById("result").className = "wrong";
+    }
+    document.getElementById("explanation").innerHTML = questions[current].explain;
+}
+
+function nextQuestion(){
+    playBlip(400, 'triangle', 0.05);
+    current = (current + 1) % questions.length;
+    loadQuestion();
+}
+
+function initLibrary() {
+    const list = document.getElementById('commandList');
+    Object.keys(exampleMap).sort().forEach(cmd => {
+        let li = document.createElement('li');
+        li.innerHTML = `<b>${cmd}</b>`;
+        li.title = exampleMap[cmd]; // Hover to see example
+        list.appendChild(li);
+    });
+}
+
+initLibrary();
+loadQuestion();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WORLDLE</title>
+    <style>
+        :root {
+            --bg: #121213;
+            --panel: #1a1a1b;
+            --text: #ffffff;
+            --primary: #538d4e;
+            --wrong: #3a3a3c;
+            --hint: #b59f3b;
+            --error: #e74c3c;
+        }
+
+        body {
+            font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .container { width: 100%; max-width: 500px; text-align: center; padding: 20px; }
+        h1 { font-size: 2.8rem; letter-spacing: 0.4rem; margin: 10px 0; border-bottom: 2px solid var(--wrong); padding-bottom: 10px; }
+
+        #hint-display {
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            border-left: 6px solid var(--hint);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #word-display {
+            font-size: 2.2rem;
+            font-weight: bold;
+            letter-spacing: 0.4rem;
+            margin: 30px 0;
+            text-transform: uppercase;
+        }
+
+        .keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; padding: 10px; }
+
+        .key {
+            background: var(--wrong);
+            color: white;
+            border: none;
+            padding: 15px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .key:disabled { opacity: 0.3; }
+        .key.correct { background: var(--primary) !important; }
+        .key.incorrect { background: #000 !important; color: #555; }
+
+        .btn-main {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-main:hover { transform: scale(1.05); }
+        #next-btn { display: none; margin: 20px auto; }
+        .stats { margin-top: 20px; color: #818384; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="start-overlay">
+    <h1 style="border:none">WORLDLE</h1>
+    <p>Prepare for takeoff ✈️</p>
+    <button class="btn-main" onclick="startGame()">START GAME</button>
+</div>
+
+<div class="container">
+    <h1>WORLDLE</h1>
+    <div class="stats">LIVES: <span id="lives-count">6</span> | STREAK: <span id="streak-count">0</span></div>
+    
+    <div id="hint-display">Loading world data...</div>
+    <div id="word-display">_ _ _ _ _</div>
+    <div id="status" style="height: 30px; margin: 10px 0; font-weight: bold;"></div>
+
+    <div class="keyboard" id="keyboard"></div>
+    <button class="btn-main" id="next-btn" onclick="initRound()">NEXT COUNTRY</button>
+</div>
+
+<script>
+    // --- AUDIO SYSTEM ---
+    const bgMusic = new Audio('bgm.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0;
+
+    function startGame() {
+        // Hide overlay
+        document.getElementById('start-overlay').style.display = 'none';
+        
+        // Play music and fade in
+        bgMusic.play().catch(e => console.log("Music play blocked: ", e));
+        
+        let fadeIn = setInterval(() => {
+            if (bgMusic.volume < 0.5) {
+                bgMusic.volume += 0.05;
+            } else {
+                clearInterval(fadeIn);
+            }
+        }, 200);
+
+        initRound();
+    }
+
+    // --- GAME ENGINE ---
+    const countries = [
+        {n:"MEXICO", h:"The birthplace of chocolate and the Mayan civilization."},
+        {n:"NORWAY", h:"Known for its stunning fjords and the Northern Lights."},
+        {n:"JAPAN", h:"A country consisting of 6,852 islands."},
+        {n:"EGYPT", h:"Home to the only remaining ancient wonder of the world."},
+        {n:"BRAZIL", h:"Produces more coffee than any other country."},
+        {n:"ICELAND", h:"Known as the Land of Fire and Ice."},
+        {n:"THAILAND", h:"The only Southeast Asian country never colonized by Europeans."},
+        {n:"ITALY", h:"Has the most UNESCO World Heritage sites in the world."},
+        {n:"CANADA", h:"Has more coastline than any other nation."},
+        {n:"PERU", h:"Home to the 'Lost City' of Machu Picchu."}
+    ];
+
+    let current = {}, guessed = [], lives = 6, streak = 0, pool = [...countries];
+
+    function initRound() {
+        if (pool.length === 0) pool = [...countries];
+        current = pool.splice(Math.floor(Math.random()*pool.length), 1)[0];
+        guessed = []; 
+        lives = 6;
+        
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('status').innerText = "";
+        document.getElementById('lives-count').innerText = lives;
+        document.getElementById('hint-display').innerText = "HINT: " + current.h;
+        render();
+        renderKeys();
+    }
+
+    function render() {
+        const display = current.n.split('').map(c => {
+            if (c === " ") return "&nbsp;";
+            return guessed.includes(c) ? c : "_";
+        }).join(" ");
+        
+        document.getElementById('word-display').innerHTML = display;
+        
+        if (!display.includes("_")) {
+            streak++;
+            document.getElementById('streak-count').innerText = streak;
+            document.getElementById('status').innerText = "VICTORY!";
+            document.getElementById('status').style.color = "var(--primary)";
+            endRound();
+        }
+    }
+
+    function renderKeys() {
+        const kb = document.getElementById('keyboard'); 
+        kb.innerHTML = "";
+        "QWERTYUIOPASDFGHJKLZXCVBNM".split('').forEach(k => {
+            const b = document.createElement('button');
+            b.innerText = k; 
+            b.className = 'key';
+            b.onclick = () => {
+                b.disabled = true;
+                if (current.n.includes(k)) {
+                    guessed.push(k); 
+                    b.classList.add('correct'); 
+                    render();
+                } else {
+                    lives--; 
+                    b.classList.add('incorrect');
+                    document.getElementById('lives-count').innerText = lives;
+                    if (lives <= 0) {
+                        streak = 0; 
+                        document.getElementById('streak-count').innerText = streak;
+                        document.getElementById('status').innerText = "LOST: " + current.n;
+                        document.getElementById('status').style.color = "var(--error)";
+                        endRound();
+                    }
+                }
+            };
+            kb.appendChild(b);
+        });
+    }
+
+    function endRound() {
+        document.querySelectorAll('.key').forEach(k => k.disabled = true);
+        document.getElementById('next-btn').style.display = 'block';
+    }
+</script>
+</body>
+</html>

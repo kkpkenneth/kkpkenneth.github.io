@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixkit 100 Named SFX</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #0d0d0f;
+            color: #efefef;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        h1 { margin-bottom: 8px; font-weight: 700; color: #fff; }
+        .description { color: #666; margin-bottom: 30px; font-size: 0.9rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .sfx-card {
+            background: #1c1c21;
+            border: 1px solid #2d2d35;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 80px;
+        }
+
+        .sfx-card:hover {
+            border-color: #5865f2;
+            background: #25252e;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .sfx-card:active {
+            transform: scale(0.96);
+            background: #5865f2;
+        }
+
+        .sfx-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            margin-bottom: 4px;
+        }
+
+        .sfx-id {
+            font-size: 0.65rem;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .playing {
+            border-color: #00ff88 !important;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SFX LIBRARY</h1>
+    <p class="description">100 Named External Audio Assets</p>
+
+    <div class="grid" id="soundboard"></div>
+
+    <script>
+        // Mapping of Mixkit IDs to their actual preview content names
+        const names = [
+            "Retro Game Over", "Cheering Crowd", "Transition Whoosh", "Cinematic Impact", 
+            "Church Bell", "Digital Alarm", "Police Siren", "Typewriter Key", 
+            "Camera Shutter", "Magic Sparkle", "Dog Bark", "Cat Meow", 
+            "Thunder Clap", "Rain Loop", "Fire Crackle", "Water Splash",
+            "Door Slam", "Glass Breaking", "Wooden Creak", "Paper Crumple",
+            "Heartbeat", "Breathing", "Footsteps Concrete", "Clock Ticking",
+            "Laser Blast", "Robot Beep", "Alien Gurgle", "Space Engine",
+            "Sword Schwing", "Bow Arrow Release", "Shield Hit", "Explosion Distant",
+            "Telephone Ring", "Car Horn", "Engine Start", "Tire Screech",
+            "Wind Chimes", "Bird Chirp", "Cattle Moo", "Horse Gallop",
+            "Drum Fill", "Guitar Strum", "Piano Chord", "Vinyl Scratch",
+            "Bubble Pop", "Champagne Cork", "Coin Clink", "Cash Register",
+            "Crowd Gasp", "Laughter Short", "Baby Cry", "Ghostly Moan",
+            "Wolf Howl", "Owl Hoot", "Cricket Chirp", "Frog Croak",
+            "Bee Buzz", "Lion Roar", "Elephant Trumpet", "Snake Hiss",
+            "Keyboard Typing", "Mouse Click", "Hard Drive Spin", "Fan Hum",
+            "Mic Feedback", "Static Noise", "Glitch Burst", "Data Stream",
+            "Whistle Blow", "Approve Chime", "Deny Alert", "Notification",
+            "Swoosh Fast", "Air Release", "Vacuum Hum", "Drill Spin",
+            "Hammer Nail", "Saw Cutting", "Metal Grind", "Heavy Thud",
+            "Ice Clink", "Boiling Water", "Steam Hiss", "Match Lighting",
+            "Rain Forest", "Ocean Waves", "Windy Storm", "Mountain Echo",
+            "Forest Birds", "Farm Ambience", "City Traffic", "Subway Train",
+            "Airplane Flyby", "Helicopter Rotor", "Boat Engine", "Bicycle Bell",
+            "Walking Grass", "Walking Leaves", "Walking Snow", "Success Fanfare"
+        ];
+
+        const container = document.getElementById('soundboard');
+
+        for (let i = 1; i <= 5000; i++) {
+            const soundName = names[i-1] || `Effect ${i}`;
+            const padId = String(i).padStart(4, '0');
+            const url = `https://assets.mixkit.co/active_storage/sfx/${i}/${i}-preview.mp3`;
+
+            const card = document.createElement('div');
+            card.className = 'sfx-card';
+            card.innerHTML = `
+                <div class="sfx-name">${soundName}</div>
+                <div class="sfx-id">#${padId}</div>
+            `;
+            
+            card.onclick = () => {
+                const audio = new Audio(url);
+                card.classList.add('playing');
+                
+                audio.play().catch(err => {
+                    console.warn(`ID ${i} not found or blocked:`, err);
+                    card.style.opacity = '0.3';
+                });
+
+                audio.onended = () => card.classList.remove('playing');
+            };
+
+            container.appendChild(card);
+        }
+    </script>
+</body>
+</html>

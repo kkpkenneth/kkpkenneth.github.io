@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Showdown: 20 Questions (Audio Edition)</title>
+    <style>
+        :root { --primary: #2563eb; --secondary: #db2777; --bg: #0a0c10; }
+        
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: radial-gradient(circle at center, #1e293b 0%, #0a0c10 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; color: #f1f5f9; 
+            overflow: hidden;
+        }
+
+        /* Start Screen Overlay */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.6s ease;
+        }
+
+        #start-btn {
+            padding: 18px 48px; font-size: 1.25rem; font-weight: 800;
+            background: var(--primary); color: white; border: none;
+            border-radius: 50px; cursor: pointer; letter-spacing: 1px;
+            box-shadow: 0 0 40px rgba(37, 99, 235, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #start-btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(37, 99, 235, 0.6); }
+
+        /* Game Card */
+        .card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 95%; max-width: 550px; padding: 2.5rem; 
+            border-radius: 28px; text-align: center; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative; 
+        }
+        
+        .sound-toggle { 
+            position: absolute; top: 20px; right: 20px; 
+            background: rgba(255, 255, 255, 0.1); border: none; 
+            border-radius: 50%; width: 44px; height: 44px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            transition: 0.2s; color: white;
+        }
+        .sound-toggle:hover { background: var(--primary); }
+
+        .progress { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; display: block; }
+        h1 { font-size: 1.8rem; margin-bottom: 2rem; color: #fff; line-height: 1.3; font-weight: 800; }
+        
+        .options-container { display: flex; flex-direction: column; gap: 1.25rem; }
+        
+        .choice-btn { 
+            position: relative; overflow: hidden; padding: 1.5rem; 
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; 
+            background: rgba(255, 255, 255, 0.05); cursor: pointer; 
+            font-size: 1.15rem; font-weight: 600; color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .choice-btn:hover:not(:disabled) { 
+            border-color: var(--primary); transform: translateY(-3px); 
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stats-bar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--primary); opacity: 0.3; width: 0%; transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1); z-index: 0; }
+        .btn-text { position: relative; z-index: 1; display: flex; justify-content: space-between; width: 100%; }
+        .percent-tag { font-weight: 800; color: var(--primary); opacity: 0; transition: opacity 0.5s; }
+        .show-percent { opacity: 1; }
+
+        .loader { border: 4px solid #334155; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none; visibility: hidden; }
+        
+        #next-btn { margin-top: 30px; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.2s; width: 100%; }
+        #next-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+<div id="start-overlay">
+    <h1 style="margin-bottom: 2rem;">Would you rather visit...</h1>
+    <button id="start-btn" onclick="startGame(); playSfx('vote');">START GAME</button>
+</div>
+
+<div class="card">
+    <button class="sound-toggle" onclick="toggleMute()" id="muteBtn">
+        <svg id="speakerIcon" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </button>
+    
+    <div id="loading" class="loader hidden"></div>
+    
+    <div id="game-content">
+        <span class="progress" id="progress-text">Matchup 1 of 20</span>
+        <h1 id="question-text">Loading...</h1>
+        <div class="options-container">
+            <button class="choice-btn" id="btnA" onclick="handleVote('a')" onmouseenter="playSfx('hover')">
+                <div id="barA" class="stats-bar"></div>
+                <div class="btn-text">
+                    <span id="textA">Loading...</span>
+                    <span id="percentA" class="percent-tag">0%</span>
+                </div>
+            </button>
+            <button class="choice-btn" id="btnB" onclick="handleVote('b')" onmouseenter="playSfx('hover')">
+                <div id="barB" class="stats-bar"></div>
+                <div class="btn-text">
+                    <span id="textB">Loading...</span>
+                    <span id="percentB" class="percent-tag">0%</span>
+                </div>
+            </button>
+        </div>
+        <p id="total-votes" style="margin-top: 25px; font-size: 0.85rem; color: #94a3b8;"></p>
+        <button id="next-btn" onclick="nextQuestion()" class="hidden">Next Matchup →</button>
+    </div>
+</div>
+
+<script>
+    const PANTRY_ID = "c91611d3-d56e-45ee-bd65-d2fb7fbc4a54"; 
+    const BASKET_NAME = "country_comparison_v2";
+    const API_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
+
+    const sfx = {
+        hover: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
+        vote: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+        next: new Audio('https://assets.mixkit.co/active_storage/sfx/2579/2579-preview.mp3')
+    };
+    
+    // Background Music
+    const bgMusic = new Audio('https://www.newgrounds.com/audio/download/1018951');
+    bgMusic.loop = true;
+    bgMusic.volume = 0; // Starts at 0 for fade-in
+
+    let isMuted = false;
+    let musicStarted = false;
+
+    // Triggered by the Start Button
+    async function startGame() {
+        const overlay = document.getElementById('start-overlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 600);
+
+        // Start background music with a fade-in
+        bgMusic.play().catch(e => console.log("Audio failed:", e));
+        musicStarted = true;
+        
+        let vol = 0;
+        const fade = setInterval(() => {
+            if (vol < 0.25) {
+                vol += 0.09;
+                bgMusic.volume = vol;
+            } else {
+                clearInterval(fade);
+            }
+        }, 100);
+
+        init(); // Fetch data and show first question
+    }
+
+    function playSfx(type) {
+        if (!isMuted) {
+            sfx[type].currentTime = 0;
+            sfx[type].play().catch(() => {});
+        }
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        const icon = document.getElementById('speakerIcon');
+        if (isMuted) {
+            bgMusic.pause();
+            icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.37.28-.78.52-1.25.68v2.06c1.02-.22 1.94-.66 2.74-1.25L19.73 21 21 19.73 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+        } else {
+            bgMusic.play();
+            icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+        }
+    }
+
+    const questions = [
+        { id: "q1", q: "Live in...", a: "Switzerland", b: "Vietnam" },
+        { id: "q2", q: "Career in...", a: "Japan", b: "Germany" },
+        { id: "q3", q: "Daily Food...", a: "Italy", b: "Mexico" },
+        { id: "q4", q: "Education...", a: "Finland", b: "Singapore" },
+        { id: "q5", q: "Geography...", a: "Canada", b: "Australia" },
+        { id: "q6", q: "Social Life...", a: "Brazil", b: "Iceland" },
+        { id: "q7", q: "History...", a: "Greece", b: "Egypt" },
+        { id: "q8", q: "City Vibes...", a: "New York", b: "Paris" },
+        { id: "q9", q: "Nature...", a: "New Zealand", b: "South Africa" },
+        { id: "q10", q: "Work Balance...", a: "Norway", b: "USA" },
+        { id: "q11", q: "Innovation...", a: "South Korea", b: "Israel" },
+        { id: "q12", q: "Environment...", a: "Costa Rica", b: "Netherlands" },
+        { id: "q13", q: "Culture...", a: "India", b: "United Kingdom" },
+        { id: "q14", q: "Architecture...", a: "UAE", b: "Spain" },
+        { id: "q15", q: "Island Life...", a: "Maldives", b: "Philippines" },
+        { id: "q16", q: "Winter...", a: "Sweden", b: "Austria" },
+        { id: "q17", q: "Growth...", a: "China", b: "Thailand" },
+        { id: "q18", q: "Happiness...", a: "Bhutan", b: "Denmark" },
+        { id: "q19", q: "Adventure...", a: "Peru", b: "Kenya" },
+        { id: "q20", q: "Retirement...", a: "Portugal", b: "Turkey" }
+    ];
+
+    let currentIdx = 0;
+    let globalData = {};
+
+    async function init() {
+        try {
+            const response = await fetch(API_URL);
+            globalData = response.ok ? await response.json() : {};
+            showQuestion();
+        } catch (e) { showQuestion(); }
+    }
+
+    function showQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('next-btn').classList.add('hidden');
+        document.getElementById('progress-text').innerText = `Matchup ${currentIdx + 1} of 20`;
+        document.getElementById('question-text').innerText = "Would you rather visit...";
+        document.getElementById('textA').innerText = q.a;
+        document.getElementById('textB').innerText = q.b;
+        document.getElementById('barA').style.width = '0%';
+        document.getElementById('barB').style.width = '0%';
+        document.getElementById('percentA').classList.remove('show-percent');
+        document.getElementById('percentB').classList.remove('show-percent');
+        document.getElementById('total-votes').innerText = "";
+        document.querySelectorAll('.choice-btn').forEach(b => b.disabled = false);
+    }
+
+    async function handleVote(choice) {
+        playSfx('vote');
+        const qId = questions[currentIdx].id;
+        document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+        if (!globalData[qId]) globalData[qId] = { a: 0, b: 0 };
+        globalData[qId][choice]++;
+
+        const total = globalData[qId].a + globalData[qId].b;
+        const pA = Math.round((globalData[qId].a / total) * 100);
+        const pB = 100 - pA;
+
+        document.getElementById('barA').style.width = pA + '%';
+        document.getElementById('barB').style.width = pB + '%';
+        document.getElementById('percentA').innerText = pA + '%';
+        document.getElementById('percentB').innerText = pB + '%';
+        document.getElementById('percentA').classList.add('show-percent');
+        document.getElementById('percentB').classList.add('show-percent');
+        
+        document.getElementById('total-votes').innerText = `Worldwide: ${total.toLocaleString()} votes`;
+        document.getElementById('next-btn').classList.remove('hidden');
+
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(globalData)
+        }).catch(() => {});
+    }
+
+    function nextQuestion() {
+        playSfx('next');
+        currentIdx = (currentIdx + 1) % questions.length;
+        showQuestion();
+    }
+</script>
+</body>
+</html>

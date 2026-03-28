@@ -15,9 +15,10 @@
             overflow: hidden;
         }
 
+        /* --- START OVERLAY --- */
         #start-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 1000;
+            background: var(--bg); z-index: 2000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.6s ease;
         }
@@ -28,25 +29,27 @@
             border-radius: 50px; cursor: pointer; letter-spacing: 1px;
             box-shadow: 0 0 40px rgba(37, 99, 235, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
         }
-
         #start-btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(37, 99, 235, 0.6); }
 
+        /* --- MAIN CARD --- */
         .card { 
             background: rgba(255, 255, 255, 0.03); 
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 95%; max-width: 550px; padding: 2.5rem; 
+            width: 90%; max-width: 500px; padding: 2.5rem; 
             border-radius: 28px; text-align: center; 
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative; 
+            z-index: 10;
         }
         
         .sound-toggle { 
-            position: absolute; top: 20px; right: 20px; 
+            position: absolute; top: 20px; left: 20px; 
             background: rgba(255, 255, 255, 0.1); border: none; 
-            border-radius: 50%; width: 44px; height: 44px; 
+            border-radius: 50%; width: 40px; height: 40px; 
             cursor: pointer; display: flex; align-items: center; justify-content: center; 
-            transition: 0.2s; color: white; z-index: 10;
+            transition: 0.2s; color: white;
         }
 
         .options-container { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 2rem; }
@@ -72,7 +75,37 @@
         #next-btn { margin-top: 30px; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.2s; width: 100%; }
         #next-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
 
-        #tie-alert { color: #10b981; font-weight: 800; font-size: 0.8rem; margin-top: 5px; height: 1rem; }
+        /* --- LEADERBOARD & MOBILE MENU --- */
+        #leaderboard {
+            position: fixed; top: 20px; right: 20px; width: 240px;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+            padding: 20px; z-index: 100; max-height: 85vh; overflow-y: auto;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #leaderboard h3 { margin: 0 0 15px 0; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; }
+        .leader-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; color: #cbd5e1; padding: 4px 0; }
+        .leader-item span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+
+        #menu-toggle {
+            display: none; position: fixed; top: 20px; right: 20px; z-index: 150;
+            background: var(--primary); border: none; color: white; 
+            padding: 10px 18px; border-radius: 50px; cursor: pointer; font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 900px) {
+            #menu-toggle { display: block; }
+            #leaderboard {
+                transform: translateX(300px); 
+                top: 75px; right: 15px; width: 200px;
+            }
+            #leaderboard.open { transform: translateX(0); }
+        }
+
+        #leaderboard::-webkit-scrollbar { width: 4px; }
+        #leaderboard::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -80,21 +113,31 @@
 <div id="start-overlay">
     <h1 style="margin-bottom: 0.5rem;">Would you rather visit...</h1>
     <div id="top-three-container" style="margin-bottom: 2.5rem; color: #94a3b8; font-size: 0.9rem;">
-        <p id="top-three-text">Press start to begin</p>
+        <p id="top-three-text">Establishing world rankings...</p>
     </div>
     <button id="start-btn" onclick="startGame()">START</button>
 </div>
 
+<button id="menu-toggle" onclick="toggleMenu()">🏆 Rankings</button>
+
+<div id="leaderboard">
+    <h3>World Favorites</h3>
+    <div id="leader-list">
+        <p style="font-size: 0.7rem; color: #64748b;">Loading...</p>
+    </div>
+</div>
+
 <div class="card">
     <button class="sound-toggle" onclick="toggleMute()" id="muteBtn">
-        <svg id="speakerIcon" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+        <svg id="speakerIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
             <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
         </svg>
     </button>
     
     <div id="game-content">
-        <h2 id="category-text" style="color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">Would you rather visit...</h2>
-        <h1 id="question-text">Loading...</h1>
+        <h2 id="category-text" style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;">Would you rather visit...</h2>
+        <h1 id="question-text" style="margin: 0.5rem 0 1.5rem 0; font-size: 1.75rem;">...</h1>
+        
         <div class="options-container">
             <button class="choice-btn" id="btnA" onclick="handleVote('a')">
                 <div id="barA" class="stats-bar"></div>
@@ -111,8 +154,7 @@
                 </div>
             </button>
         </div>
-        <div id="tie-alert"></div>
-        <p id="total-votes" style="margin-top: 15px; font-size: 0.85rem; color: #64748b;"></p>
+        <p id="total-votes" style="margin-top: 20px; font-size: 0.85rem; color: #64748b; min-height: 1.2rem;"></p>
         <button id="next-btn" onclick="nextQuestion()" class="hidden">Next Matchup →</button>
     </div>
 </div>
@@ -135,157 +177,7 @@
     let globalData = {}; 
 
     const questions = [
-        { q: "Live in...", a: "Switzerland", b: "Vietnam" },
-        { q: "Career in...", a: "Japan", b: "Germany" },
-        { q: "Daily Food...", a: "Italy", b: "Mexico" },
-        { q: "Education...", a: "Finland", b: "Singapore" },
-        { q: "Geography...", a: "Canada", b: "Australia" },
-        { q: "Social Life...", a: "Brazil", b: "Iceland" },
-        { q: "History...", a: "Greece", b: "Egypt" },
-        { q: "Vibes...", a: "USA", b: "France" },
-        { q: "Nature...", a: "New Zealand", b: "South Africa" },
-        { q: "Innovation...", a: "South Korea", b: "Israel" },
-        { q: "Environment...", a: "Costa Rica", b: "Netherlands" },
-        { q: "Culture...", a: "India", b: "United Kingdom" },
-        { q: "Architecture...", a: "UAE", b: "Spain" },
-        { q: "Island Life...", a: "Maldives", b: "Philippines" },
-        { q: "Winter...", a: "Sweden", b: "Austria" },
-        { q: "Growth...", a: "China", b: "Thailand" },
-        { q: "Street Food...", a: "Taiwan", b: "Thailand" },
-        { q: "Modernity...", a: "Singapore", b: "Estonia" },
-        { q: "Ancient Ruins...", a: "Jordan", b: "Cambodia" },
-        { q: "Skyscrapers...", a: "Hong Kong", b: "USA" },
-        { q: "Coffee...", a: "Colombia", b: "Ethiopia" },
-        { q: "Fashion...", a: "Italy", b: "Japan" },
-        { q: "Nightlife...", a: "Germany", b: "USA" },
-        { q: "Safari...", a: "Tanzania", b: "Kenya" },
-        { q: "Wine Country...", a: "France", b: "Chile" },
-        { q: "Rainforests...", a: "Brazil", b: "Indonesia" },
-        { q: "Cyberpunk...", a: "Hong Kong", b: "South Korea" },
-        { q: "Castle Tours...", a: "United Kingdom", b: "Germany" },
-        { q: "Modern Design...", a: "Denmark", b: "Singapore" },
-        { q: "Ancient Gods...", a: "Greece", b: "Mexico" },
-        { q: "Adventure...", a: "Peru", b: "Kenya" },
-        { q: "Volcanoes...", a: "Indonesia", b: "Guatemala" },
-        { q: "High Altitudes...", a: "Bolivia", b: "Nepal" },
-        { q: "Steppe Life...", a: "Mongolia", b: "Kazakhstan" },
-        { q: "Islands...", a: "Seychelles", b: "Fiji" },
-        { q: "Northern Lights...", a: "Iceland", b: "Norway" },
-        { q: "Canyons...", a: "USA", b: "Argentina" },
-        { q: "Traditional Crafts...", a: "Uzbekistan", b: "Peru" },
-        { q: "Tech Cities...", a: "Taiwan", b: "South Korea" },
-        { q: "Wellness...", a: "Indonesia", b: "Iceland" },
-        { q: "Gastronomy...", a: "Spain", b: "Japan" },
-        { q: "Desert Magic...", a: "Oman", b: "Namibia" },
-        { q: "Viking Heritage...", a: "Denmark", b: "Sweden" },
-        { q: "Folklore...", a: "Ireland", b: "Romania" },
-        { q: "Modern Luxury...", a: "Qatar", b: "Monaco" },
-        { q: "Rainforest Hikes...", a: "Costa Rica", b: "Malaysia" },
-        { q: "Deep Diving...", a: "Egypt", b: "Philippines" },
-        { q: "Canals...", a: "Netherlands", b: "Italy" },
-        { q: "Opera & Arts...", a: "Austria", b: "Russia" },
-        { q: "Surf Culture...", a: "Australia", b: "Portugal" },
-        { q: "Wildlife...", a: "Australia", b: "Ecuador" },
-        { q: "Train Journeys...", a: "Switzerland", b: "India" },
-        { q: "Megacities...", a: "China", b: "Japan" },
-        { q: "Lush Tea Hills...", a: "Sri Lanka", b: "Malaysia" },
-        { q: "Sauna Culture...", a: "Finland", b: "Lithuania" },
-        { q: "Ancient Statues...", a: "Chile", b: "Egypt" },
-        { q: "Street Performances...", a: "USA", b: "Spain" },
-        { q: "Medieval Walls...", a: "Croatia", b: "Estonia" },
-        { q: "Lush Valleys...", a: "Bhutan", b: "Switzerland" },
-        { q: "Floating Markets...", a: "Thailand", b: "Vietnam" },
-        { q: "Art Deco...", a: "USA", b: "New Zealand" },
-        { q: "Neon Streets...", a: "Hong Kong", b: "Japan" },
-        { q: "Ancient Scripts...", a: "Egypt", b: "China" },
-        { q: "Coastal Cliffs...", a: "Portugal", b: "Ireland" },
-        { q: "Bustling Ports...", a: "Singapore", b: "Netherlands" },
-        { q: "High Plateaus...", a: "Bolivia", b: "Ethiopia" },
-        { q: "Traditional Opera...", a: "China", b: "Italy" },
-        { q: "Polar Wildlife...", a: "Canada", b: "Norway" },
-        { q: "Skyline Views...", a: "Hong Kong", b: "UAE" },
-        { q: "Peacefulness...", a: "Laos", b: "Uruguay" },
-        { q: "Spices...", a: "India", b: "Morocco" },
-        { q: "Sailing...", a: "Greece", b: "Croatia" },
-        { q: "Winter Sports...", a: "Canada", b: "Switzerland" },
-        { q: "Wine Country...", a: "France", b: "Argentina" },
-        { q: "Countryside...", a: "United Kingdom", b: "Czechia" },
-        { q: "Desert Safari...", a: "UAE", b: "Namibia" },
-        { q: "Festival Vibes...", a: "Brazil", b: "Spain" },
-        { q: "Rugged Isles...", a: "Denmark", b: "Ecuador" },
-        { q: "Deep History...", a: "Iraq", b: "Armenia" },
-        { q: "Seafood...", a: "Portugal", b: "Japan" },
-        { q: "Caving...", a: "Vietnam", b: "Slovenia" },
-        { q: "Safari Jeeps...", a: "Tanzania", b: "Botswana" },
-        { q: "Tech Hubs...", a: "USA", b: "Taiwan" },
-        { q: "Art Museums...", a: "France", b: "Netherlands" },
-        { q: "Tropical Fruits...", a: "Costa Rica", b: "Philippines" },
-        { q: "Medieval Towns...", a: "Germany", b: "Poland" },
-        { q: "Jazz & Blues...", a: "USA", b: "Cuba" },
-        { q: "Quiet Temples...", a: "Myanmar", b: "Cambodia" },
-        { q: "Precision...", a: "Japan", b: "Germany" },
-        { q: "Tea Heritage...", a: "China", b: "United Kingdom" },
-        { q: "Volcanic Mud...", a: "Colombia", b: "Iceland" },
-        { q: "Philosophy...", a: "Greece", b: "Germany" },
-        { q: "Old Libraries...", a: "Ireland", b: "Czechia" },
-        { q: "Dune Boarding...", a: "Peru", b: "UAE" },
-        { q: "Alpine Lakes...", a: "Slovenia", b: "Canada" },
-        { q: "Robotics...", a: "Japan", b: "South Korea" },
-        { q: "Chocolate...", a: "Belgium", b: "Switzerland" },
-        { q: "Harbor Views...", a: "Australia", b: "South Africa" },
-        { q: "Renaissance Art...", a: "Italy", b: "France" },
-        { q: "Colonial Gems...", a: "Mexico", b: "Vietnam" },
-        { q: "Underground Cities...", a: "Turkey", b: "Canada" },
-        { q: "Whale Watching...", a: "Norway", b: "New Zealand" },
-        { q: "Tapas & Night...", a: "Spain", b: "Mexico" },
-        { q: "Jungle Temples...", a: "Cambodia", b: "Guatemala" },
-        { q: "Bullet Trains...", a: "Japan", b: "China" },
-        { q: "Outback Living...", a: "Australia", b: "Namibia" },
-        { q: "Orchids & Gardens...", a: "Singapore", b: "Costa Rica" },
-        { q: "Vibrant Markets...", a: "Nigeria", b: "Turkey" },
-        { q: "Zen Gardens...", a: "Japan", b: "South Korea" },
-        { q: "Vast Steppes...", a: "Kazakhstan", b: "Mongolia" },
-        { q: "Old Medinas...", a: "Morocco", b: "Tunisia" },
-        { q: "Rainforest Spices...", a: "Grenada", b: "Indonesia" },
-        { q: "Silent Fjords...", a: "New Zealand", b: "Norway" },
-        { q: "Island Volcanoes...", a: "Philippines", b: "Italy" },
-        { q: "Ancient Myths...", a: "Greece", b: "Norway" },
-        { q: "Future Cities...", a: "China", b: "Singapore" },
-        { q: "Fossil Hunting...", a: "Morocco", b: "USA" },
-        { q: "Starlit Dunes...", a: "Namibia", b: "Oman" },
-        { q: "Street Music...", a: "Cuba", b: "USA" },
-        { q: "Tech Progress...", a: "Estonia", b: "Israel" },
-        { q: "Lava Fields...", a: "Iceland", b: "USA" },
-        { q: "Red Cities...", a: "Morocco", b: "India" },
-        { q: "Rugged Steppes...", a: "Kyrgyzstan", b: "Mongolia" },
-        { q: "Medieval Spires...", a: "Czechia", b: "Poland" },
-        { q: "Pearl Diving...", a: "Bahrain", b: "Japan" },
-        { q: "Deep Forests...", a: "Guyana", b: "Suriname" },
-        { q: "Modern Art...", a: "USA", b: "Germany" },
-        { q: "Pastries...", a: "France", b: "Denmark" },
-        { q: "Budget Travel...", a: "Vietnam", b: "Albania" },
-        { q: "Imperial History...", a: "Russia", b: "China" },
-        { q: "Castle Ruins...", a: "United Kingdom", b: "Romania" },
-        { q: "High Tech...", a: "Taiwan", b: "Japan" },
-        { q: "Silk Road...", a: "Uzbekistan", b: "China" },
-        { q: "Coral Atolls...", a: "Maldives", b: "Bahamas" },
-        { q: "Bakery Smells...", a: "France", b: "Belgium" },
-        { q: "Dune Buggies...", a: "UAE", b: "Peru" },
-        { q: "Ancient Gods...", a: "Greece", b: "Egypt" },
-        { q: "Waterfalls...", a: "Iceland", b: "Zambia" },
-        { q: "Street Art...", a: "Colombia", b: "Australia" },
-        { q: "Nomadic Life...", a: "Mongolia", b: "Morocco" },
-        { q: "Volcano Hikes...", a: "Guatemala", b: "Italy" },
-        { q: "Luxury Shopping...", a: "UAE", b: "France" },
-        { q: "Train Travel...", a: "Switzerland", b: "Japan" },
-        { q: "Modernity...", a: "Singapore", b: "South Korea" },
-        { q: "Happiness...", a: "Finland", b: "Bhutan" },
-        { q: "History...", a: "Italy", b: "China" },
-        { q: "Nature Walks...", a: "Canada", b: "New Zealand" },
-        { q: "Urban Vibes...", a: "Hong Kong", b: "USA" },
-        { q: "Beaches...", a: "Australia", b: "Philippines" },
-        { q: "Forestry...", a: "Finland", b: "Canada" },
-        { q: "Night Markets...", a: "Taiwan", b: "Thailand" }
+        { q: "Live in...", a: "Switzerland", b: "Vietnam" }, { q: "Career in...", a: "Japan", b: "Germany" }, { q: "Daily Food...", a: "Italy", b: "Mexico" }, { q: "Education...", a: "Finland", b: "Singapore" }, { q: "Geography...", a: "Canada", b: "Australia" }, { q: "Social Life...", a: "Brazil", b: "Iceland" }, { q: "History...", a: "Greece", b: "Egypt" }, { q: "Vibes...", a: "USA", b: "France" }, { q: "Nature...", a: "New Zealand", b: "South Africa" }, { q: "Innovation...", a: "South Korea", b: "Israel" }, { q: "Environment...", a: "Costa Rica", b: "Netherlands" }, { q: "Culture...", a: "India", b: "United Kingdom" }, { q: "Architecture...", a: "UAE", b: "Spain" }, { q: "Island Life...", a: "Maldives", b: "Philippines" }, { q: "Winter...", a: "Sweden", b: "Austria" }, { q: "Growth...", a: "China", b: "Thailand" }, { q: "Street Food...", a: "Taiwan", b: "Thailand" }, { q: "Modernity...", a: "Singapore", b: "Estonia" }, { q: "Ancient Ruins...", a: "Jordan", b: "Cambodia" }, { q: "Skyscrapers...", a: "Hong Kong", b: "USA" }, { q: "Coffee...", a: "Colombia", b: "Ethiopia" }, { q: "Fashion...", a: "Italy", b: "Japan" }, { q: "Nightlife...", a: "Germany", b: "USA" }, { q: "Safari...", a: "Tanzania", b: "Kenya" }, { q: "Wine Country...", a: "France", b: "Chile" }, { q: "Rainforests...", a: "Brazil", b: "Indonesia" }, { q: "Cyberpunk...", a: "Hong Kong", b: "South Korea" }, { q: "Castle Tours...", a: "United Kingdom", b: "Germany" }, { q: "Modern Design...", a: "Denmark", b: "Singapore" }, { q: "Ancient Gods...", a: "Greece", b: "Mexico" }, { q: "Adventure...", a: "Peru", b: "Kenya" }, { q: "Volcanoes...", a: "Indonesia", b: "Guatemala" }, { q: "High Altitudes...", a: "Bolivia", b: "Nepal" }, { q: "Steppe Life...", a: "Mongolia", b: "Kazakhstan" }, { q: "Islands...", a: "Seychelles", b: "Fiji" }, { q: "Northern Lights...", a: "Iceland", b: "Norway" }, { q: "Canyons...", a: "USA", b: "Argentina" }, { q: "Traditional Crafts...", a: "Uzbekistan", b: "Peru" }, { q: "Tech Cities...", a: "Taiwan", b: "South Korea" }, { q: "Wellness...", a: "Indonesia", b: "Iceland" }, { q: "Gastronomy...", a: "Spain", b: "Japan" }, { q: "Desert Magic...", a: "Oman", b: "Namibia" }, { q: "Viking Heritage...", a: "Denmark", b: "Sweden" }, { q: "Folklore...", a: "Ireland", b: "Romania" }, { q: "Modern Luxury...", a: "Qatar", b: "Monaco" }, { q: "Rainforest Hikes...", a: "Costa Rica", b: "Malaysia" }, { q: "Deep Diving...", a: "Egypt", b: "Philippines" }, { q: "Canals...", a: "Netherlands", b: "Italy" }, { q: "Opera & Arts...", a: "Austria", b: "Russia" }, { q: "Surf Culture...", a: "Australia", b: "Portugal" }, { q: "Wildlife...", a: "Australia", b: "Ecuador" }, { q: "Train Journeys...", a: "Switzerland", b: "India" }, { q: "Megacities...", a: "China", b: "Japan" }, { q: "Lush Tea Hills...", a: "Sri Lanka", b: "Malaysia" }, { q: "Sauna Culture...", a: "Finland", b: "Lithuania" }, { q: "Ancient Statues...", a: "Chile", b: "Egypt" }, { q: "Street Performances...", a: "USA", b: "Spain" }, { q: "Medieval Walls...", a: "Croatia", b: "Estonia" }, { q: "Lush Valleys...", a: "Bhutan", b: "Switzerland" }, { q: "Floating Markets...", a: "Thailand", b: "Vietnam" }, { q: "Art Deco...", a: "USA", b: "New Zealand" }, { q: "Neon Streets...", a: "Hong Kong", b: "Japan" }, { q: "Ancient Scripts...", a: "Egypt", b: "China" }, { q: "Coastal Cliffs...", a: "Portugal", b: "Ireland" }, { q: "Bustling Ports...", a: "Singapore", b: "Netherlands" }, { q: "High Plateaus...", a: "Bolivia", b: "Ethiopia" }, { q: "Traditional Opera...", a: "China", b: "Italy" }, { q: "Polar Wildlife...", a: "Canada", b: "Norway" }, { q: "Skyline Views...", a: "Hong Kong", b: "UAE" }, { q: "Peacefulness...", a: "Laos", b: "Uruguay" }, { q: "Spices...", a: "India", b: "Morocco" }, { q: "Sailing...", a: "Greece", b: "Croatia" }, { q: "Winter Sports...", a: "Canada", b: "Switzerland" }, { q: "Wine Country...", a: "France", b: "Argentina" }, { q: "Countryside...", a: "United Kingdom", b: "Czechia" }, { q: "Desert Safari...", a: "UAE", b: "Namibia" }, { q: "Festival Vibes...", a: "Brazil", b: "Spain" }, { q: "Rugged Isles...", a: "Denmark", b: "Ecuador" }, { q: "Deep History...", a: "Iraq", b: "Armenia" }, { q: "Seafood...", a: "Portugal", b: "Japan" }, { q: "Caving...", a: "Vietnam", b: "Slovenia" }, { q: "Safari Jeeps...", a: "Tanzania", b: "Botswana" }, { q: "Tech Hubs...", a: "USA", b: "Taiwan" }, { q: "Art Museums...", a: "France", b: "Netherlands" }, { q: "Tropical Fruits...", a: "Costa Rica", b: "Philippines" }, { q: "Medieval Towns...", a: "Germany", b: "Poland" }, { q: "Jazz & Blues...", a: "USA", b: "Cuba" }, { q: "Quiet Temples...", a: "Myanmar", b: "Cambodia" }, { q: "Precision...", a: "Japan", b: "Germany" }, { q: "Tea Heritage...", a: "China", b: "United Kingdom" }, { q: "Volcanic Mud...", a: "Colombia", b: "Iceland" }, { q: "Philosophy...", a: "Greece", b: "Germany" }, { q: "Old Libraries...", a: "Ireland", b: "Czechia" }, { q: "Dune Boarding...", a: "Peru", b: "UAE" }, { q: "Alpine Lakes...", a: "Slovenia", b: "Canada" }, { q: "Robotics...", a: "Japan", b: "South Korea" }, { q: "Chocolate...", a: "Belgium", b: "Switzerland" }, { q: "Harbor Views...", a: "Australia", b: "South Africa" }, { q: "Renaissance Art...", a: "Italy", b: "France" }, { q: "Colonial Gems...", a: "Mexico", b: "Vietnam" }, { q: "Underground Cities...", a: "Turkey", b: "Canada" }, { q: "Whale Watching...", a: "Norway", b: "New Zealand" }, { q: "Tapas & Night...", a: "Spain", b: "Mexico" }, { q: "Jungle Temples...", a: "Cambodia", b: "Guatemala" }, { q: "Bullet Trains...", a: "Japan", b: "China" }, { q: "Outback Living...", a: "Australia", b: "Namibia" }, { q: "Orchids & Gardens...", a: "Singapore", b: "Costa Rica" }, { q: "Vibrant Markets...", a: "Nigeria", b: "Turkey" }, { q: "Zen Gardens...", a: "Japan", b: "South Korea" }, { q: "Vast Steppes...", a: "Kazakhstan", b: "Mongolia" }, { q: "Old Medinas...", a: "Morocco", b: "Tunisia" }, { q: "Rainforest Spices...", a: "Grenada", b: "Indonesia" }, { q: "Silent Fjords...", a: "New Zealand", b: "Norway" }, { q: "Island Volcanoes...", a: "Philippines", b: "Italy" }, { q: "Ancient Myths...", a: "Greece", b: "Norway" }, { q: "Future Cities...", a: "China", b: "Singapore" }, { q: "Fossil Hunting...", a: "Morocco", b: "USA" }, { q: "Starlit Dunes...", a: "Namibia", b: "Oman" }, { q: "Street Music...", a: "Cuba", b: "USA" }, { q: "Tech Progress...", a: "Estonia", b: "Israel" }, { q: "Lava Fields...", a: "Iceland", b: "USA" }, { q: "Red Cities...", a: "Morocco", b: "India" }, { q: "Rugged Steppes...", a: "Kyrgyzstan", b: "Mongolia" }, { q: "Medieval Spires...", a: "Czechia", b: "Poland" }, { q: "Pearl Diving...", a: "Bahrain", b: "Japan" }, { q: "Deep Forests...", a: "Guyana", b: "Suriname" }, { q: "Modern Art...", a: "USA", b: "Germany" }, { q: "Pastries...", a: "France", b: "Denmark" }, { q: "Budget Travel...", a: "Vietnam", b: "Albania" }, { q: "Imperial History...", a: "Russia", b: "China" }, { q: "Castle Ruins...", a: "United Kingdom", b: "Romania" }, { q: "High Tech...", a: "Taiwan", b: "Japan" }, { q: "Silk Road...", a: "Uzbekistan", b: "China" }, { q: "Coral Atolls...", a: "Maldives", b: "Bahamas" }, { q: "Bakery Smells...", a: "France", b: "Belgium" }, { q: "Dune Buggies...", a: "UAE", b: "Peru" }, { q: "Ancient Gods...", a: "Greece", b: "Egypt" }, { q: "Waterfalls...", a: "Iceland", b: "Zambia" }, { q: "Street Art...", a: "Colombia", b: "Australia" }, { q: "Nomadic Life...", a: "Mongolia", b: "Morocco" }, { q: "Volcano Hikes...", a: "Guatemala", b: "Italy" }, { q: "Luxury Shopping...", a: "UAE", b: "France" }, { q: "Train Travel...", a: "Switzerland", b: "Japan" }, { q: "Modernity...", a: "Singapore", b: "South Korea" }, { q: "Happiness...", a: "Finland", b: "Bhutan" }, { q: "History...", a: "Italy", b: "China" }, { q: "Nature Walks...", a: "Canada", b: "New Zealand" }, { q: "Urban Vibes...", a: "Hong Kong", b: "USA" }, { q: "Beaches...", a: "Australia", b: "Philippines" }, { q: "Forestry...", a: "Finland", b: "Canada" }, { q: "Night Markets...", a: "Taiwan", b: "Thailand" }
     ];
 
     async function startGame() {
@@ -299,29 +191,54 @@
         currentIdx = Math.floor(Math.random() * questions.length);
         try {
             const response = await fetch(API_URL);
-            globalData = response.ok ? await response.json() : {};
-            updateTopThree();
+            let rawData = response.ok ? await response.json() : {};
+            // SANITIZER: Remove metadata or malformed keys
+            globalData = Object.fromEntries(
+                Object.entries(rawData).filter(([key]) => 
+                    !key.includes('object') && 
+                    !key.includes('metadata') && 
+                    typeof key === 'string' && 
+                    key.length > 1
+                )
+            );
+            updateLeaderboard();
             showQuestion();
         } catch (e) { showQuestion(); }
     }
 
-    function updateTopThree() {
-        const sorted = Object.keys(globalData).sort((a, b) => globalData[b] - globalData[a]);
+    function toggleMenu() {
+        document.getElementById('leaderboard').classList.toggle('open');
+    }
+
+    function updateLeaderboard() {
+        // Double check filtering during update
+        const sorted = Object.entries(globalData)
+            .filter(([name]) => !name.includes('object'))
+            .sort((a, b) => b[1] - a[1]);
+            
+        const listContainer = document.getElementById('leader-list');
+        
         if (sorted.length >= 3) {
             document.getElementById('top-three-text').innerHTML = `
-                <span style="color: #ffd700">🥇 ${sorted[0]}</span> &nbsp; 
-                <span style="color: #c0c0c0">🥈 ${sorted[1]}</span> &nbsp; 
-                <span style="color: #cd7f32">🥉 ${sorted[2]}</span>
+                <span style="color: #ffd700">🥇 ${sorted[0][0]}</span> &nbsp; 
+                <span style="color: #c0c0c0">🥈 ${sorted[1][0]}</span> &nbsp; 
+                <span style="color: #cd7f32">🥉 ${sorted[2][0]}</span>
             `;
-        } else {
-            document.getElementById('top-three-text').innerText = "Establishing world rankings...";
         }
+
+        listContainer.innerHTML = '';
+        sorted.forEach(([name, score], index) => {
+            const item = document.createElement('div');
+            item.className = 'leader-item';
+            let prefix = index < 3 ? ['🥇', '🥈', '🥉'][index] : `${index + 1}.`;
+            item.innerHTML = `<span>${prefix} ${name}</span> <span>${score}</span>`;
+            listContainer.appendChild(item);
+        });
     }
 
     function showQuestion() {
         const q = questions[currentIdx];
         document.getElementById('next-btn').classList.add('hidden');
-        document.getElementById('tie-alert').innerText = "";
         document.getElementById('question-text').innerText = q.q;
         document.getElementById('textA').innerText = q.a;
         document.getElementById('textB').innerText = q.b;
@@ -342,23 +259,11 @@
         document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
 
         globalData[winnerName] = (globalData[winnerName] || 0) + 1;
+        updateLeaderboard();
 
-        const scoreEntries = Object.entries(globalData).sort((a, b) => b[1] - a[1]);
-        const getRank = (name) => {
-            let rank = 1;
-            for (let entry of scoreEntries) {
-                if (entry[1] > (globalData[name] || 0)) rank++;
-                else break;
-            }
-            return rank;
-        };
-
-        const rankA = getRank(q.a);
-        const rankB = getRank(q.b);
         const scoreA = globalData[q.a] || 0;
         const scoreB = globalData[q.b] || 0;
         const total = scoreA + scoreB;
-
 
         let pA = 50, pB = 50;
         if (total > 0) {
@@ -381,6 +286,7 @@
         
         document.getElementById('next-btn').classList.remove('hidden');
 
+        // Only sync the cleaned data back to Pantry
         fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

@@ -86,26 +86,18 @@
 
         #leaderboard h3 { margin: 0 0 15px 0; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; }
         .leader-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; color: #cbd5e1; padding: 4px 0; }
-        .leader-item span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
-
+        
         #menu-toggle {
             display: none; position: fixed; top: 20px; right: 20px; z-index: 150;
             background: var(--primary); border: none; color: white; 
             padding: 10px 18px; border-radius: 50px; cursor: pointer; font-weight: 700;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         @media (max-width: 900px) {
             #menu-toggle { display: block; }
-            #leaderboard {
-                transform: translateX(300px); 
-                top: 75px; right: 15px; width: 200px;
-            }
+            #leaderboard { transform: translateX(300px); top: 75px; right: 15px; width: 200px; }
             #leaderboard.open { transform: translateX(0); }
         }
-
-        #leaderboard::-webkit-scrollbar { width: 4px; }
-        #leaderboard::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -113,18 +105,16 @@
 <div id="start-overlay">
     <h1 style="margin-bottom: 0.5rem;">Would you rather visit...</h1>
     <div id="top-three-container" style="margin-bottom: 2.5rem; color: #94a3b8; font-size: 0.9rem;">
-        <p id="top-three-text">Establishing world rankings...</p>
+        <p id="top-three-text">Discovering your world favorites...</p>
     </div>
     <button id="start-btn" onclick="startGame()">START</button>
 </div>
 
-<button id="menu-toggle" onclick="toggleMenu()">🏆 Rankings</button>
+<button id="menu-toggle" onclick="toggleMenu()">🌏</button>
 
 <div id="leaderboard">
     <h3>World Favorites</h3>
-    <div id="leader-list">
-        <p style="font-size: 0.7rem; color: #64748b;">Loading...</p>
-    </div>
+    <div id="leader-list"></div>
 </div>
 
 <div class="card">
@@ -135,8 +125,8 @@
     </button>
     
     <div id="game-content">
-        <h2 id="category-text" style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;">Would you rather visit...</h2>
-        <h1 id="question-text" style="margin: 0.5rem 0 1.5rem 0; font-size: 1.75rem;">...</h1>
+        <h2 style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;">Would you rather...</h2>
+        <h1 id="scenario-text" style="margin: 0.5rem 0 1.5rem 0; font-size: 1.75rem;">Loading...</h1>
         
         <div class="options-container">
             <button class="choice-btn" id="btnA" onclick="handleVote('a')">
@@ -155,7 +145,7 @@
             </button>
         </div>
         <p id="total-votes" style="margin-top: 20px; font-size: 0.85rem; color: #64748b; min-height: 1.2rem;"></p>
-        <button id="next-btn" onclick="nextQuestion()" class="hidden">Next Matchup →</button>
+        <button id="next-btn" onclick="nextQuestion()" class="hidden">Next →</button>
     </div>
 </div>
 
@@ -164,21 +154,69 @@
     const BASKET_NAME = "global_country_rankings_final";
     const API_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
 
+    const countryPool = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Brazzaville)", "Congo (Kinshasa)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Vatican City", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+        ];
+
+    const scenarioPool = [
+        "Live forever in...",
+        "Start a career in...",
+        "Eat the food of...",
+        "Attend school in...",
+        "Explore the nature of...",
+        "Spend a holiday in...",
+        "Retire peacefully in...",
+        "Discover the history of...",
+        "Experience the nightlife in...",
+        "Buy a house in...",
+        "Go on a road trip across...",
+        "Master the language of...",
+        "Study the architecture in...",
+        "Hike through...",
+        "Live your dream life in...",
+        "Take a spontaneous 24-hour trip to...",
+        "Go on an extreme backpacking adventure in...",
+        "Experience the local street food of...",
+        "Go on a luxury honeymoon in...",
+        "Move your remote work office to...",
+        "Spend a snowy winter in...",
+        "Celebrate New Year's Eve in...",
+        "Hike the highest mountain in...",
+        "Learn the national language of...",
+        "Attend a massive music festival in...",
+        "Film a travel documentary in...",
+        "Win a free one-way ticket to...",
+        "Become a famous influencer in...",
+        "Search for hidden treasure in...",
+        "Host a global sports event in...",
+        "Volunteer for a year in...",
+        "Open a small beach cafe in...",
+        "Spend an entire summer in...",
+        "Explore the deepest jungles of...",
+        "Join a traditional local festival in...",
+        "Go on a high-speed train tour of...",
+        "Escape a zombie apocalypse in...",
+        "Learn ancient secrets in...",
+        "Open a boutique hotel in...",
+        "Survive a week in the wild in...",
+        "Compete in a reality TV show in...",
+        "Build a secret mountain base in...",
+        "Go on a world-class shopping spree in...",
+        "Take your family on a cruise to...",
+        "Write a best-selling novel in...",
+        "Go scuba diving in the waters of..."
+    ];
+
     const sfx = {
         vote: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
         next: new Audio('https://assets.mixkit.co/active_storage/sfx/2579/2579-preview.mp3')
     };
-    
     const bgMusic = new Audio('bgm.mp3');
     bgMusic.loop = true;
 
     let isMuted = false;
-    let currentIdx = 0;
     let globalData = {}; 
-
-    const questions = [
-        { q: "Live in...", a: "Switzerland", b: "Vietnam" }, { q: "Career in...", a: "Japan", b: "Germany" }, { q: "Daily Food...", a: "Italy", b: "Mexico" }, { q: "Education...", a: "Finland", b: "Singapore" }, { q: "Geography...", a: "Canada", b: "Australia" }, { q: "Social Life...", a: "Brazil", b: "Iceland" }, { q: "History...", a: "Greece", b: "Egypt" }, { q: "Vibes...", a: "USA", b: "France" }, { q: "Nature...", a: "New Zealand", b: "South Africa" }, { q: "Innovation...", a: "South Korea", b: "Israel" }, { q: "Environment...", a: "Costa Rica", b: "Netherlands" }, { q: "Culture...", a: "India", b: "United Kingdom" }, { q: "Architecture...", a: "UAE", b: "Spain" }, { q: "Island Life...", a: "Maldives", b: "Philippines" }, { q: "Winter...", a: "Sweden", b: "Austria" }, { q: "Growth...", a: "China", b: "Thailand" }, { q: "Street Food...", a: "Taiwan", b: "Thailand" }, { q: "Modernity...", a: "Singapore", b: "Estonia" }, { q: "Ancient Ruins...", a: "Jordan", b: "Cambodia" }, { q: "Skyscrapers...", a: "Hong Kong", b: "USA" }, { q: "Coffee...", a: "Colombia", b: "Ethiopia" }, { q: "Fashion...", a: "Italy", b: "Japan" }, { q: "Nightlife...", a: "Germany", b: "USA" }, { q: "Safari...", a: "Tanzania", b: "Kenya" }, { q: "Wine Country...", a: "France", b: "Chile" }, { q: "Rainforests...", a: "Brazil", b: "Indonesia" }, { q: "Cyberpunk...", a: "Hong Kong", b: "South Korea" }, { q: "Castle Tours...", a: "United Kingdom", b: "Germany" }, { q: "Modern Design...", a: "Denmark", b: "Singapore" }, { q: "Ancient Gods...", a: "Greece", b: "Mexico" }, { q: "Adventure...", a: "Peru", b: "Kenya" }, { q: "Volcanoes...", a: "Indonesia", b: "Guatemala" }, { q: "High Altitudes...", a: "Bolivia", b: "Nepal" }, { q: "Steppe Life...", a: "Mongolia", b: "Kazakhstan" }, { q: "Islands...", a: "Seychelles", b: "Fiji" }, { q: "Northern Lights...", a: "Iceland", b: "Norway" }, { q: "Canyons...", a: "USA", b: "Argentina" }, { q: "Traditional Crafts...", a: "Uzbekistan", b: "Peru" }, { q: "Tech Cities...", a: "Taiwan", b: "South Korea" }, { q: "Wellness...", a: "Indonesia", b: "Iceland" }, { q: "Gastronomy...", a: "Spain", b: "Japan" }, { q: "Desert Magic...", a: "Oman", b: "Namibia" }, { q: "Viking Heritage...", a: "Denmark", b: "Sweden" }, { q: "Folklore...", a: "Ireland", b: "Romania" }, { q: "Modern Luxury...", a: "Qatar", b: "Monaco" }, { q: "Rainforest Hikes...", a: "Costa Rica", b: "Malaysia" }, { q: "Deep Diving...", a: "Egypt", b: "Philippines" }, { q: "Canals...", a: "Netherlands", b: "Italy" }, { q: "Opera & Arts...", a: "Austria", b: "Russia" }, { q: "Surf Culture...", a: "Australia", b: "Portugal" }, { q: "Wildlife...", a: "Australia", b: "Ecuador" }, { q: "Train Journeys...", a: "Switzerland", b: "India" }, { q: "Megacities...", a: "China", b: "Japan" }, { q: "Lush Tea Hills...", a: "Sri Lanka", b: "Malaysia" }, { q: "Sauna Culture...", a: "Finland", b: "Lithuania" }, { q: "Ancient Statues...", a: "Chile", b: "Egypt" }, { q: "Street Performances...", a: "USA", b: "Spain" }, { q: "Medieval Walls...", a: "Croatia", b: "Estonia" }, { q: "Lush Valleys...", a: "Bhutan", b: "Switzerland" }, { q: "Floating Markets...", a: "Thailand", b: "Vietnam" }, { q: "Art Deco...", a: "USA", b: "New Zealand" }, { q: "Neon Streets...", a: "Hong Kong", b: "Japan" }, { q: "Ancient Scripts...", a: "Egypt", b: "China" }, { q: "Coastal Cliffs...", a: "Portugal", b: "Ireland" }, { q: "Bustling Ports...", a: "Singapore", b: "Netherlands" }, { q: "High Plateaus...", a: "Bolivia", b: "Ethiopia" }, { q: "Traditional Opera...", a: "China", b: "Italy" }, { q: "Polar Wildlife...", a: "Canada", b: "Norway" }, { q: "Skyline Views...", a: "Hong Kong", b: "UAE" }, { q: "Peacefulness...", a: "Laos", b: "Uruguay" }, { q: "Spices...", a: "India", b: "Morocco" }, { q: "Sailing...", a: "Greece", b: "Croatia" }, { q: "Winter Sports...", a: "Canada", b: "Switzerland" }, { q: "Wine Country...", a: "France", b: "Argentina" }, { q: "Countryside...", a: "United Kingdom", b: "Czechia" }, { q: "Desert Safari...", a: "UAE", b: "Namibia" }, { q: "Festival Vibes...", a: "Brazil", b: "Spain" }, { q: "Rugged Isles...", a: "Denmark", b: "Ecuador" }, { q: "Deep History...", a: "Iraq", b: "Armenia" }, { q: "Seafood...", a: "Portugal", b: "Japan" }, { q: "Caving...", a: "Vietnam", b: "Slovenia" }, { q: "Safari Jeeps...", a: "Tanzania", b: "Botswana" }, { q: "Tech Hubs...", a: "USA", b: "Taiwan" }, { q: "Art Museums...", a: "France", b: "Netherlands" }, { q: "Tropical Fruits...", a: "Costa Rica", b: "Philippines" }, { q: "Medieval Towns...", a: "Germany", b: "Poland" }, { q: "Jazz & Blues...", a: "USA", b: "Cuba" }, { q: "Quiet Temples...", a: "Myanmar", b: "Cambodia" }, { q: "Precision...", a: "Japan", b: "Germany" }, { q: "Tea Heritage...", a: "China", b: "United Kingdom" }, { q: "Volcanic Mud...", a: "Colombia", b: "Iceland" }, { q: "Philosophy...", a: "Greece", b: "Germany" }, { q: "Old Libraries...", a: "Ireland", b: "Czechia" }, { q: "Dune Boarding...", a: "Peru", b: "UAE" }, { q: "Alpine Lakes...", a: "Slovenia", b: "Canada" }, { q: "Robotics...", a: "Japan", b: "South Korea" }, { q: "Chocolate...", a: "Belgium", b: "Switzerland" }, { q: "Harbor Views...", a: "Australia", b: "South Africa" }, { q: "Renaissance Art...", a: "Italy", b: "France" }, { q: "Colonial Gems...", a: "Mexico", b: "Vietnam" }, { q: "Underground Cities...", a: "Turkey", b: "Canada" }, { q: "Whale Watching...", a: "Norway", b: "New Zealand" }, { q: "Tapas & Night...", a: "Spain", b: "Mexico" }, { q: "Jungle Temples...", a: "Cambodia", b: "Guatemala" }, { q: "Bullet Trains...", a: "Japan", b: "China" }, { q: "Outback Living...", a: "Australia", b: "Namibia" }, { q: "Orchids & Gardens...", a: "Singapore", b: "Costa Rica" }, { q: "Vibrant Markets...", a: "Nigeria", b: "Turkey" }, { q: "Zen Gardens...", a: "Japan", b: "South Korea" }, { q: "Vast Steppes...", a: "Kazakhstan", b: "Mongolia" }, { q: "Old Medinas...", a: "Morocco", b: "Tunisia" }, { q: "Rainforest Spices...", a: "Grenada", b: "Indonesia" }, { q: "Silent Fjords...", a: "New Zealand", b: "Norway" }, { q: "Island Volcanoes...", a: "Philippines", b: "Italy" }, { q: "Ancient Myths...", a: "Greece", b: "Norway" }, { q: "Future Cities...", a: "China", b: "Singapore" }, { q: "Fossil Hunting...", a: "Morocco", b: "USA" }, { q: "Starlit Dunes...", a: "Namibia", b: "Oman" }, { q: "Street Music...", a: "Cuba", b: "USA" }, { q: "Tech Progress...", a: "Estonia", b: "Israel" }, { q: "Lava Fields...", a: "Iceland", b: "USA" }, { q: "Red Cities...", a: "Morocco", b: "India" }, { q: "Rugged Steppes...", a: "Kyrgyzstan", b: "Mongolia" }, { q: "Medieval Spires...", a: "Czechia", b: "Poland" }, { q: "Pearl Diving...", a: "Bahrain", b: "Japan" }, { q: "Deep Forests...", a: "Guyana", b: "Suriname" }, { q: "Modern Art...", a: "USA", b: "Germany" }, { q: "Pastries...", a: "France", b: "Denmark" }, { q: "Budget Travel...", a: "Vietnam", b: "Albania" }, { q: "Imperial History...", a: "Russia", b: "China" }, { q: "Castle Ruins...", a: "United Kingdom", b: "Romania" }, { q: "High Tech...", a: "Taiwan", b: "Japan" }, { q: "Silk Road...", a: "Uzbekistan", b: "China" }, { q: "Coral Atolls...", a: "Maldives", b: "Bahamas" }, { q: "Bakery Smells...", a: "France", b: "Belgium" }, { q: "Dune Buggies...", a: "UAE", b: "Peru" }, { q: "Ancient Gods...", a: "Greece", b: "Egypt" }, { q: "Waterfalls...", a: "Iceland", b: "Zambia" }, { q: "Street Art...", a: "Colombia", b: "Australia" }, { q: "Nomadic Life...", a: "Mongolia", b: "Morocco" }, { q: "Volcano Hikes...", a: "Guatemala", b: "Italy" }, { q: "Luxury Shopping...", a: "UAE", b: "France" }, { q: "Train Travel...", a: "Switzerland", b: "Japan" }, { q: "Modernity...", a: "Singapore", b: "South Korea" }, { q: "Happiness...", a: "Finland", b: "Bhutan" }, { q: "History...", a: "Italy", b: "China" }, { q: "Nature Walks...", a: "Canada", b: "New Zealand" }, { q: "Urban Vibes...", a: "Hong Kong", b: "USA" }, { q: "Beaches...", a: "Australia", b: "Philippines" }, { q: "Forestry...", a: "Finland", b: "Canada" }, { q: "Night Markets...", a: "Taiwan", b: "Thailand" }
-    ];
+    let currentMatch = { scenario: "", a: "", b: "" };
 
     async function startGame() {
         document.getElementById('start-overlay').style.opacity = '0';
@@ -188,60 +226,33 @@
     }
 
     async function init() {
-        currentIdx = Math.floor(Math.random() * questions.length);
         try {
             const response = await fetch(API_URL);
             let rawData = response.ok ? await response.json() : {};
-            // SANITIZER: Remove metadata or malformed keys
+            // Filter out junk metadata
             globalData = Object.fromEntries(
-                Object.entries(rawData).filter(([key]) => 
-                    !key.includes('object') && 
-                    !key.includes('metadata') && 
-                    typeof key === 'string' && 
-                    key.length > 1
-                )
+                Object.entries(rawData).filter(([key]) => !key.includes('object') && !key.includes('metadata'))
             );
             updateLeaderboard();
-            showQuestion();
-        } catch (e) { showQuestion(); }
+            generateNewMatch();
+        } catch (e) { generateNewMatch(); }
     }
 
-    function toggleMenu() {
-        document.getElementById('leaderboard').classList.toggle('open');
-    }
+    function generateNewMatch() {
+        const scenario = scenarioPool[Math.floor(Math.random() * scenarioPool.length)];
+        let a = countryPool[Math.floor(Math.random() * countryPool.length)];
+        let b;
+        do { b = countryPool[Math.floor(Math.random() * countryPool.length)]; } while (a === b);
 
-    function updateLeaderboard() {
-        // Double check filtering during update
-        const sorted = Object.entries(globalData)
-            .filter(([name]) => !name.includes('object'))
-            .sort((a, b) => b[1] - a[1]);
-            
-        const listContainer = document.getElementById('leader-list');
-        
-        if (sorted.length >= 3) {
-            document.getElementById('top-three-text').innerHTML = `
-                <span style="color: #ffd700">🥇 ${sorted[0][0]}</span> &nbsp; 
-                <span style="color: #c0c0c0">🥈 ${sorted[1][0]}</span> &nbsp; 
-                <span style="color: #cd7f32">🥉 ${sorted[2][0]}</span>
-            `;
-        }
-
-        listContainer.innerHTML = '';
-        sorted.forEach(([name, score], index) => {
-            const item = document.createElement('div');
-            item.className = 'leader-item';
-            let prefix = index < 3 ? ['🥇', '🥈', '🥉'][index] : `${index + 1}.`;
-            item.innerHTML = `<span>${prefix} ${name}</span> <span>${score}</span>`;
-            listContainer.appendChild(item);
-        });
+        currentMatch = { scenario, a, b };
+        showQuestion();
     }
 
     function showQuestion() {
-        const q = questions[currentIdx];
         document.getElementById('next-btn').classList.add('hidden');
-        document.getElementById('question-text').innerText = q.q;
-        document.getElementById('textA').innerText = q.a;
-        document.getElementById('textB').innerText = q.b;
+        document.getElementById('scenario-text').innerText = currentMatch.scenario;
+        document.getElementById('textA').innerText = currentMatch.a;
+        document.getElementById('textB').innerText = currentMatch.b;
         
         document.getElementById('barA').style.width = '0%';
         document.getElementById('barB').style.width = '0%';
@@ -253,23 +264,17 @@
 
     async function handleVote(choice) {
         if (!isMuted) sfx.vote.play();
-        const q = questions[currentIdx];
-        const winnerName = (choice === 'a') ? q.a : q.b;
-
+        const winner = choice === 'a' ? currentMatch.a : currentMatch.b;
         document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
 
-        globalData[winnerName] = (globalData[winnerName] || 0) + 1;
+        globalData[winner] = (globalData[winner] || 0) + 1;
         updateLeaderboard();
 
-        const scoreA = globalData[q.a] || 0;
-        const scoreB = globalData[q.b] || 0;
+        const scoreA = globalData[currentMatch.a] || 0;
+        const scoreB = globalData[currentMatch.b] || 0;
         const total = scoreA + scoreB;
-
-        let pA = 50, pB = 50;
-        if (total > 0) {
-            pA = Math.round((scoreA / total) * 100);
-            pB = 100 - pA;
-        }
+        let pA = total > 0 ? Math.round((scoreA/total)*100) : 50;
+        let pB = 100 - pA;
 
         document.getElementById('barA').style.width = pA + '%';
         document.getElementById('barB').style.width = pB + '%';
@@ -278,40 +283,44 @@
         document.getElementById('percentA').classList.add('show-percent');
         document.getElementById('percentB').classList.add('show-percent');
         
-        document.getElementById('total-votes').innerHTML = `
-            <span style="color: #60a5fa; font-weight:700">${q.a}</span> ${scoreA} pts 
-            &nbsp; | &nbsp; 
-            <span style="color: #f472b6; font-weight:700">${q.b}</span> ${scoreB} pts
-        `;
-        
+        document.getElementById('total-votes').innerHTML = `${currentMatch.a}: ${scoreA} | ${currentMatch.b}: ${scoreB}`;
         document.getElementById('next-btn').classList.remove('hidden');
 
-        // Only sync the cleaned data back to Pantry
-        fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(globalData)
-        }).catch(() => {});
+        fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(globalData) });
     }
 
     function nextQuestion() {
         if (!isMuted) sfx.next.play();
-        let nextIdx;
-        do { nextIdx = Math.floor(Math.random() * questions.length); } while (nextIdx === currentIdx);
-        currentIdx = nextIdx;
-        showQuestion();
+        generateNewMatch();
     }
 
+    function updateLeaderboard() {
+        const sorted = Object.entries(globalData)
+            .filter(([n]) => !n.includes('object'))
+            .sort((a, b) => b[1] - a[1]);
+            
+        if (sorted.length >= 3) {
+            document.getElementById('top-three-text').innerHTML = `
+                <span style="color: #ffd700">🥇 ${sorted[0][0]}</span> &nbsp; 
+                <span style="color: #c0c0c0">🥈 ${sorted[1][0]}</span> &nbsp; 
+                <span style="color: #cd7f32">🥉 ${sorted[2][0]}</span>
+            `;
+        }
+
+        const list = document.getElementById('leader-list');
+        list.innerHTML = '';
+        sorted.forEach(([name, score], idx) => {
+            const div = document.createElement('div');
+            div.className = 'leader-item';
+            div.innerHTML = `<span>${idx < 3 ? ['🥇','🥈','🥉'][idx] : idx+1+'.'} ${name}</span><span>${score}</span>`;
+            list.appendChild(div);
+        });
+    }
+
+    function toggleMenu() { document.getElementById('leaderboard').classList.toggle('open'); }
     function toggleMute() {
         isMuted = !isMuted;
-        const icon = document.getElementById('speakerIcon');
-        if (isMuted) {
-            bgMusic.pause();
-            icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.37.28-.78.52-1.25.68v2.06c1.02-.22 1.94-.66 2.74-1.25L19.73 21 21 19.73 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
-        } else {
-            bgMusic.play();
-            icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
-        }
+        isMuted ? bgMusic.pause() : bgMusic.play();
     }
 </script>
 </body>

@@ -80,9 +80,9 @@
 <div id="start-overlay">
     <h1 style="margin-bottom: 0.5rem;">Would you rather visit...</h1>
     <div id="top-three-container" style="margin-bottom: 2.5rem; color: #94a3b8; font-size: 0.9rem;">
-        <p id="top-three-text">Syncing with global rankings...</p>
+        <p id="top-three-text">Press start to begin</p>
     </div>
-    <button id="start-btn" onclick="startGame()">START GAME</button>
+    <button id="start-btn" onclick="startGame()">START</button>
 </div>
 
 <div class="card">
@@ -94,7 +94,7 @@
     
     <div id="game-content">
         <h2 id="category-text" style="color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">Would you rather visit...</h2>
-        <h1 id="question-text">Would you rather visit...</h1>
+        <h1 id="question-text">Loading...</h1>
         <div class="options-container">
             <button class="choice-btn" id="btnA" onclick="handleVote('a')">
                 <div id="barA" class="stats-bar"></div>
@@ -359,9 +359,6 @@
         const scoreB = globalData[q.b] || 0;
         const total = scoreA + scoreB;
 
-        if (rankA === rankB && total > 2) {
-            document.getElementById('tie-alert').innerText = "BATTLE TIED! BOTH NATIONS SHARING RANK #" + rankA;
-        }
 
         let pA = 50, pB = 50;
         if (total > 0) {

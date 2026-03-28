@@ -110,7 +110,7 @@
     <div id="status" style="height: 30px; margin: 10px 0; font-weight: bold;"></div>
 
     <div class="keyboard" id="keyboard"></div>
-    <button class="btn-main" id="next-btn" onclick="initRound()">NEXT COUNTRY</button>
+    <button class="btn-main" id="next-btn" onclick="initRound()">NEXT</button>
 </div>
 
 <script>
@@ -139,16 +139,203 @@
 
     // --- GAME ENGINE ---
     const countries = [
-        {n:"MEXICO", h:"The birthplace of chocolate and the Mayan civilization."},
-        {n:"NORWAY", h:"Known for its stunning fjords and the Northern Lights."},
-        {n:"JAPAN", h:"A country consisting of 6,852 islands."},
-        {n:"EGYPT", h:"Home to the only remaining ancient wonder of the world."},
-        {n:"BRAZIL", h:"Produces more coffee than any other country."},
-        {n:"ICELAND", h:"Known as the Land of Fire and Ice."},
-        {n:"THAILAND", h:"The only Southeast Asian country never colonized by Europeans."},
-        {n:"ITALY", h:"Has the most UNESCO World Heritage sites in the world."},
-        {n:"CANADA", h:"Has more coastline than any other nation."},
-        {n:"PERU", h:"Home to the 'Lost City' of Machu Picchu."}
+        {n:"Afghanistan", h:"Home to the world's oldest oil paintings."},
+        {n:"Albania", h:"Has more than 170,000 bunkers scattered across the country."},
+        {n:"Algeria", h:"The largest country in Africa by land area."},
+        {n:"Andorra", h:"The only country in the world with two foreign heads of state."},
+        {n:"Angola", h:"The birthplace of the Kizomba dance."},
+        {n:"Antigua and Barbuda", h:"Boasts 365 distinct beaches—one for every day of the year."},
+        {n:"Argentina", h:"The birthplace of the Tango and home to the world's widest avenue."},
+        {n:"Armenia", h:"The first country in the world to adopt Christianity as a state religion."},
+        {n:"Australia", h:"Home to the Great Barrier Reef and more kangaroos than people."},
+        {n:"Austria", h:"The birthplace of the Waltz and the world's oldest zoo."},
+        {n:"Azerbaijan", h:"Known as the 'Land of Fire' due to its natural gas fires."},
+        {n:"Bahamas", h:"Home to the world's deepest blue hole."},
+        {n:"Bahrain", h:"Known for the 'Tree of Life' which grows in the middle of a desert."},
+        {n:"Bangladesh", h:"Home to the world’s longest natural sea beach, Cox's Bazar."},
+        {n:"Barbados", h:"The birthplace of Rum and home to Rihanna."},
+        {n:"Belarus", h:"Known as the 'Lungs of Europe' due to its massive forests."},
+        {n:"Belgium", h:"Famous for producing over 800 types of beer and world-class chocolate."},
+        {n:"Belize", h:"The only Central American country where English is the official language."},
+        {n:"Benin", h:"The historical cradle of the Voodoo religion."},
+        {n:"Bhutan", h:"The only country in the world that is carbon negative."},
+        {n:"Bolivia", h:"Home to the Salar de Uyuni, the world's largest salt flat."},
+        {n:"Bosnia and Herzegovina", h:"Nicknamed the 'Heart-Shaped Land'."},
+        {n:"Botswana", h:"Has the world's largest concentration of African elephants."},
+        {n:"Brazil", h:"Produces more coffee than any other country in the world."},
+        {n:"Brunei", h:"A country where the Sultan provides free healthcare and education."},
+        {n:"Bulgaria", h:"The oldest country in Europe that hasn't changed its name since 681 AD."},
+        {n:"Burkina Faso", "h": "Known as the 'Land of Honest People'."},
+        {n:"Burundi", h:"Famous for its world-class traditional drummers."},
+        {n:"Cabo Verde", h:"An archipelago known for its 'Morna' soulful music."},
+        {n:"Cambodia", h:"Home to Angkor Wat, the largest religious monument in the world."},
+        {n:"Cameroon", h:"Known as 'Africa in Miniature' for its geographical diversity."},
+        {n:"Canada", h:"Has more coastline and more lakes than any other nation on Earth."},
+        {n:"Central African Republic", h:"One of the best places on Earth for stargazing due to low light pollution."},
+        {n:"Chad", h:"Home to the 'Stalking Mountains' of the Sahara."},
+        {n:"Chile", h:"The longest country in the world from north to south."},
+        {n:"China", h:"The inventor of paper, the compass, gunpowder, and printing."},
+        {n:"Colombia", h:"The world's leading producer of emeralds."},
+        {n:"Comoros", h:"Known as the 'Perfume Islands' for its ylang-ylang production."},
+        {n:"Congo (Brazzaville)", h:"Home to the second-largest rainforest in the world."},
+        {n:"Congo (Kinshasa)", h:"The richest country in the world regarding natural mineral resources."},
+        {n:"Costa Rica", h:"Has no standing army and runs almost entirely on renewable energy."},
+        {n:"Croatia", h:"The birthplace of the necktie (the cravat)."},
+        {n:"Cuba", h:"Famous for its vintage cars and world-class cigars."},
+        {n:"Cyprus", h:"The legendary birthplace of the goddess Aphrodite."},
+        {n:"Czechia", h:"Has the highest beer consumption per capita in the world."},
+        {n:"Denmark", h:"The birthplace of LEGO and consistently one of the world's happiest nations."},
+        {n:"Djibouti", h:"Home to Lake Assal, the lowest point in Africa."},
+        {n:"Dominica", h:"Known as the 'Nature Isle of the Caribbean'."},
+        {n:"Dominican Republic", h:"The only national flag that features a Bible."},
+        {n:"East Timor", h:"Known for its rugged mountains and world-class coffee."},
+        {n:"Ecuador", h:"The first country to give nature its own constitutional rights."},
+        {n:"Egypt", h:"Home to the only remaining ancient wonder of the world."},
+        {n:"El Salvador", h:"Known as the 'Land of Volcanoes'."},
+        {n:"Equatorial Guinea", h:"The only Spanish-speaking country in Africa."},
+        {n:"Eritrea", h:"Known for its beautifully preserved Art Deco architecture."},
+        {n:"Estonia", h:"The first country in the world to implement online voting."},
+        {n:"Eswatini", h:"One of the few remaining absolute monarchies in Africa."},
+        {n:"Ethiopia", h:"The only African nation never to be colonized."},
+        {n:"Fiji", h:"An archipelago of 333 islands known for soft coral diving."},
+        {n:"Finland", h:"The 'Land of a Thousand Lakes' and the world's happiest country."},
+        {n:"France", h:"The most visited country in the world."},
+        {n:"Gabon", h:"Where elephants are known to walk on the beaches."},
+        {n:"Gambia", h:"The smallest country on mainland Africa."},
+        {n:"Georgia", h:"The world's oldest wine-producing region."},
+        {n:"Germany", h:"The land of poets, thinkers, and over 1,000 types of sausage."},
+        {n:"Ghana", h:"Known as the 'Gold Coast' and famous for Kente cloth."},
+        {n:"Greece", h:"The birthplace of democracy and the Olympic Games."},
+        {n:"Grenada", h:"Known as the 'Spice Isle' for its massive nutmeg production."},
+        {n:"Guatemala", h:"The heart of the ancient Maya world."},
+        {n:"Guinea", h:"Home to the sources of the Niger, Senegal, and Gambia rivers."},
+        {n:"Guinea-Bissau", h:"Famous for its Bijagós Islands, where hippos live in saltwater."},
+        {n:"Guyana", h:"Home to Kaieteur Falls, the world's largest single-drop waterfall."},
+        {n:"Haiti", h:"The first independent nation in Latin America and the Caribbean."},
+        {n:"Vatican City", h:"The smallest independent state in the world."},
+        {n:"Honduras", h:"Famous for the Mayan ruins of Copán."},
+        {n:"Hong Kong", h:"Has the most skyscrapers of any city in the world."},
+        {n:"Hungary", h:"The inventor of the Rubik's Cube and the ballpoint pen."},
+        {n:"Iceland", h:"Known as the 'Land of Fire and Ice'."},
+        {n:"India", h:"The world's largest democracy and the birthplace of Yoga."},
+        {n:"Indonesia", h:"The largest archipelago in the world with over 17,000 islands."},
+        {n:"Iran", h:"Home to one of the world's oldest continuous major civilizations."},
+        {n:"Iraq", h:"The cradle of civilization, formerly known as Mesopotamia."},
+        {n:"Ireland", h:"Known as the 'Emerald Isle' and the land of saints and scholars."},
+        {n:"Israel", h:"The only country in the world that has more trees today than it did 100 years ago."},
+        {n:"Italy", h:"Has the most UNESCO World Heritage sites in the world."},
+        {n:"Ivory Coast", h:"The world's largest producer of cocoa beans."},
+        {n:"Jamaica", h:"The birthplace of Reggae music and the fastest sprinters on Earth."},
+        {n:"Japan", h:"An island nation blending ancient traditions with futuristic technology."},
+        {n:"Jordan", h:"Home to the ancient rose-red city of Petra."},
+        {n:"Kazakhstan", h:"The world's largest landlocked country."},
+        {n:"Kenya", h:"Famous for the Great Migration and world-class safari parks."},
+        {n:"Kiribati", h:"The only country in the world situated in all four hemispheres."},
+        {n:"Kuwait", h:"Home to the Kuwaiti Dinar, the highest-valued currency in the world."},
+        {n:"Kyrgyzstan", h:"Known for its stunning alpine scenery and nomadic culture."},
+        {n:"Laos", h:"The only landlocked country in Southeast Asia."},
+        {n:"Latvia", h:"One of Europe's greenest countries, with over 50% forest cover."},
+        {n:"Lebanon", h:"Famous for its ancient cedar trees and world-renowned cuisine."},
+        {n:"Lesotho", h:"The only country in the world that lies entirely above 1,000 meters."},
+        {n:"Liberia", h:"Africa's oldest republic, founded by free people of color from the US."},
+        {n:"Libya", h:"Home to the Sahara's best-preserved Roman ruins."},
+        {n:"Liechtenstein", h:"The world's leading producer of false teeth."},
+        {n:"Lithuania", h:"The last country in Europe to adopt Christianity."},
+        {n:"Luxembourg", h:"The only remaining Grand Duchy in the world."},
+        {n:"Madagascar", h:"Home to unique wildlife, including 100+ species of Lemurs."},
+        {n:"Malawi", h:"Known as the 'Warm Heart of Africa'."},
+        {n:"Malaysia", h:"Home to the world's oldest tropical rainforest."},
+        {n:"Maldives", h:"The world's lowest-lying nation, consisting of 1,192 coral islands."},
+        {n:"Mali", h:"Home to the ancient legendary city of Timbuktu."},
+        {n:"Malta", h:"Has structures older than the Egyptian Pyramids."},
+        {n:"Marshall Islands", h:"Home to the world's largest shark sanctuary."},
+        {n:"Mauritania", h:"Home to the 'Eye of the Sahara', a giant geological formation."},
+        {n:"Mauritius", h:"The only known home of the now-extinct Dodo bird."},
+        {n:"Mexico", h:"The birthplace of chocolate and the Mayan civilization."},
+        {n:"Micronesia", h:"Known for ancient stone money on the island of Yap."},
+        {n:"Moldova", h:"Home to Mileștii Mici, the world's largest wine cellar."},
+        {n:"Monaco", h:"The world's most densely populated country."},
+        {n:"Mongolia", h:"The least densely populated sovereign nation on Earth."},
+        {n:"Montenegro", h:"Home to the only fjord in Southern Europe."},
+        {n:"Morocco", h:"Famous for its vibrant medinas and the Sahara desert."},
+        {n:"Mozambique", h:"The only national flag featuring a modern assault rifle."},
+        {n:"Myanmar", h:"Home to over 2,000 ancient temples in Bagan."},
+        {n:"Namibia", h:"Where the world's oldest desert meets the Atlantic Ocean."},
+        {n:"Nauru", h:"The smallest island nation in the world."},
+        {n:"Nepal", h:"Home to Mount Everest, the highest point on Earth."},
+        {n:"Netherlands", h:"The land of windmills, tulips, and land reclaimed from the sea."},
+        {n:"New Zealand", h:"The first country to give women the right to vote."},
+        {n:"Nicaragua", h:"Home to the only freshwater lake with oceanic life like sharks."},
+        {n:"Niger", h:"Known as the 'Gateway to the Sahara'."},
+        {n:"Nigeria", h:"The most populous country in Africa and home to Nollywood."},
+        {n:"North Korea", h:"Known for its policy of self-reliance called 'Juche'."},
+        {n:"North Macedonia", h:"The birthplace of Mother Teresa."},
+        {n:"Norway", h:"Known for its stunning fjords and the Northern Lights."},
+        {n:"Oman", h:"The oldest independent state in the Arab world."},
+        {n:"Pakistan", h:"Home to K2, the world's second-highest mountain."},
+        {n:"Palau", h:"Known for its Jellyfish Lake where you can swim with millions of stingless jellyfish."},
+        {n:"Palestine", h:"Home to Jericho, one of the oldest inhabited cities in the world."},
+        {n:"Panama", h:"The only place in the world where you can see the sun rise on the Pacific and set on the Atlantic."},
+        {n:"Papua New Guinea", h:"The most linguistically diverse country, with over 800 languages spoken."},
+        {n:"Paraguay", h:"A country where 90% of the population speaks the indigenous language, Guaraní."},
+        {n:"Peru", h:"Home to the 'Lost City' of Machu Picchu."},
+        {n:"Philippines", h:"An archipelago of over 7,000 islands with world-class beaches."},
+        {n:"Poland", h:"Home to the world's largest castle by land area, Malbork."},
+        {n:"Portugal", h:"Produces over 50% of the world's cork."},
+        {n:"Qatar", h:"Has the highest GDP per capita in the world."},
+        {n:"Romania", h:"The home of the legendary Count Dracula."},
+        {n:"Russia", h:"The largest country in the world, spanning 11 time zones."},
+        {n:"Rwanda", h:"Known as the 'Land of a Thousand Hills'."},
+        {n:"Saint Kitts and Nevis", h:"The smallest sovereign state in the Western Hemisphere."},
+        {n:"Saint Lucia", h:"The only country named after a woman."},
+        {n:"Saint Vincent and the Grenadines", h:"A top filming location for 'Pirates of the Caribbean'."},
+        {n:"Samoa", h:"Famous for its ancient 'Tata'u' tattooing tradition."},
+        {n:"San Marino", h:"The world's oldest republic."},
+        {n:"Sao Tome and Principe", h:"Known as the 'Chocolate Islands'."},
+        {n:"Saudi Arabia", h:"Home to the world's largest continuous sand desert."},
+        {n:"Senegal", h:"Home to Lake Retba, a naturally bright pink lake."},
+        {n:"Serbia", h:"The world's largest exporter of raspberries."},
+        {n:"Seychelles", h:"An archipelago known for the unique Coco de Mer nut."},
+        {n:"Sierra Leone", h:"Known for its beautiful white-sand beaches like River Number Two."},
+        {n:"Singapore", h:"A global hub known as the 'Garden City'."},
+        {n:"Slovakia", h:"Has the world's highest number of castles per capita."},
+        {n:"Slovenia", h:"One of the most biologically diverse countries in Europe."},
+        {n:"Solomon Islands", h:"Home to incredible WWII shipwrecks for diving."},
+        {n:"Somalia", h:"Has the longest coastline on mainland Africa."},
+        {n:"South Africa", h:"The only country with three capital cities."},
+        {n:"South Korea", h:"The world leader in internet connectivity and skin care."},
+        {n:"South Sudan", h:"The world's youngest internationally recognized country."},
+        {n:"Spain", h:"The second most visited country in the world."},
+        {n:"Sri Lanka", h:"Known as the 'Teardrop of India' and famous for tea."},
+        {n:"Sudan", h:"Has more pyramids than Egypt."},
+        {n:"Suriname", h:"The most forested country in the world (90%+ coverage)."},
+        {n:"Sweden", h:"Famous for IKEA, ABBA, and the Nobel Prize."},
+        {n:"Switzerland", h:"The birthplace of the Red Cross and home to the Swiss Alps."},
+        {n:"Syria", h:"Home to Damascus, one of the oldest continuously inhabited cities."},
+        {n:"Taiwan", h:"The birthplace of Bubble Tea and a leader in technology."},
+        {n:"Tajikistan", h:"Where over 90% of the territory is covered by mountains."},
+        {n:"Tanzania", h:"Home to Mount Kilimanjaro and the Serengeti."},
+        {n:"Thailand", h:"The only Southeast Asian country never colonized by Europeans."},
+        {n:"Togo", h:"Famous for its colorful traditional batiks."},
+        {n:"Tonga", h:"Known as the 'Friendly Islands'."},
+        {n:"Trinidad and Tobago", h:"The birthplace of the Steelpan and Limbo dance."},
+        {n:"Tunisia", h:"Where many iconic Star Wars scenes were filmed."},
+        {n:"Turkey", h:"The only country in the world situated on two continents."},
+        {n:"Turkmenistan", h:"Home to the 'Door to Hell' burning gas crater."},
+        {n:"Tuvalu", h:"One of the smallest and most remote countries in the world."},
+        {n:"Uganda", h:"Known as the 'Pearl of Africa'."},
+        {n:"Ukraine", h:"The largest country located entirely within Europe."},
+        {n:"United Arab Emirates", h:"Home to the Burj Khalifa, the world's tallest building."},
+        {n:"United Kingdom", h:"A nation made of four countries with a rich global history."},
+        {n:"United States", h:"The world's largest economy and home to the Grand Canyon."},
+        {n:"Uruguay", h:"The most progressive country in South America."},
+        {n:"Uzbekistan", h:"One of only two doubly-landlocked countries in the world."},
+        {n:"Vanuatu", h:"The birthplace of land diving, the original bungee jumping."},
+        {n:"Venezuela", h:"Home to Angel Falls, the world's highest uninterrupted waterfall."},
+        {n:"Vietnam", h:"The world's largest exporter of cashews and black pepper."},
+        {n:"Yemen", h:"Home to the 'Manhattan of the Desert', the city of Shibam."},
+        {n:"Zambia", h:"Shares the Victoria Falls, one of the seven natural wonders."},
+        {n:"Zimbabwe", h:"The final country in our alphabetical collection of nations."}
     ];
 
     let current = {}, guessed = [], lives = 6, streak = 0, pool = [...countries];
@@ -168,17 +355,22 @@
     }
 
     function render() {
-        const display = current.n.split('').map(c => {
+        // Convert the name to uppercase for comparison
+        const upperName = current.n.toUpperCase();
+        
+        const display = upperName.split('').map((c, index) => {
             if (c === " ") return "&nbsp;";
-            return guessed.includes(c) ? c : "_";
+            // Check if the character has been guessed
+            return guessed.includes(c) ? current.n[index] : "_";
         }).join(" ");
         
         document.getElementById('word-display').innerHTML = display;
         
+        // Check for victory by looking for remaining underscores
         if (!display.includes("_")) {
             streak++;
             document.getElementById('streak-count').innerText = streak;
-            document.getElementById('status').innerText = "VICTORY!";
+            document.getElementById('status').innerText = "BINGO!";
             document.getElementById('status').style.color = "var(--primary)";
             endRound();
         }
@@ -187,13 +379,16 @@
     function renderKeys() {
         const kb = document.getElementById('keyboard'); 
         kb.innerHTML = "";
+        const upperName = current.n.toUpperCase(); // Pre-convert for the click check
+
         "QWERTYUIOPASDFGHJKLZXCVBNM".split('').forEach(k => {
             const b = document.createElement('button');
             b.innerText = k; 
             b.className = 'key';
             b.onclick = () => {
                 b.disabled = true;
-                if (current.n.includes(k)) {
+                // Check against the uppercase version of the name
+                if (upperName.includes(k)) {
                     guessed.push(k); 
                     b.classList.add('correct'); 
                     render();

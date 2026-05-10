@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About | Travel Turtle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Images/icon.png" type="image/png" sizes="16x16">
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-175443844-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-175443844-1');
+    </script>
+
+    <style>
+        /* THIS CREATES THE SMOOTH SLIDE DOWN EFFECT */
+        html { scroll-behavior: smooth; }
+
+        body { margin: 0; padding: 0; font-family: helvetica; background-color: white; overflow-x: hidden; color: #333; }
+
+        /* MENU STYLES */
+        .menuspace { height: 50px; background-color: rgb(50,50,50); }
+        .menu { 
+            background-color: rgba(50, 50, 50, 0.95); 
+            backdrop-filter: blur(10px);              
+            width: 100%; position: fixed; top: 0; z-index: 2000; 
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.3s ease;
+        }
+        .menu-list { margin: 0; padding: 0; display: flex; list-style: none; }
+        .menu-list li { position: relative; }
+        .menu-list a { 
+            color: rgb(194, 194, 194); text-decoration: none; display: block;
+            padding: 15px 25px; font-size: 13px; text-transform: uppercase;
+            letter-spacing: 1.5px; transition: color 0.3s ease;
+        }
+        .menu-toggle { display: none; color: white; font-size: 20px; padding: 15px; cursor: pointer; }
+
+        @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
+        /* NOTICE BARS */
+        .notice { overflow: hidden; background-color: rgb(43,115,220); width: 100%; text-align: center; height: 45px; position: relative; }
+        .notice p { color: white; font-size: 13px; word-spacing: 5px; margin-top: 15px; }
+        .notice a { color: white; text-decoration: none; padding: 10px; }
+        
+        .notice2 { overflow: hidden; background-color: white; width: 100%; text-align: center; height: 45px; position: relative; border-bottom: 1px solid #eee; }
+        .notice2 p { color: gray; font-size: 13px; word-spacing: 3px; margin-top: 15px; }
+        .notice2 a { color: gray; text-decoration: none; padding: 10px; }
+        .notice2 p:hover a { text-decoration: underline; }
+
+        .closebtn { color: gray; font-weight: bold; font-size: 16px; cursor: pointer; position: absolute; right: 20px; top: 12px; transition: 0.3s; }
+        .notice .closebtn { color: white; }
+        .closebtn:hover { color: black; }
+
+        /* ABOUT HERO */
+        .about-hero {
+            width: 100vw; height: 500px;
+            background-image: url('Images/Australia.jpg'); 
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+        }
+
+        .text-box {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px 40px; border-radius: 2px;
+            backdrop-filter: blur(5px); max-width: 80%;
+        }
+
+        .text-box h1 { color: white; font-size: 50px; margin: 5px; }
+        .text-box p { color: white; font-size: 20px; margin: 5px; font-weight: 300; }
+
+        @media only screen and (max-width: 900px) {
+            .text-box h1 { font-size: 35px; }
+            .text-box p { font-size: 16px; }
+        }
+
+        /* ARTICLE CONTENT AREA */
+        .content-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        
+        .content-container h2 {
+            font-size: 28px;
+            color: #222;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+
+        .content-container p { margin-bottom: 20px; color: #555; }
+        
+        /* Highlight Stats for AdSense Authority */
+        .stats-grid {
+            display: flex; justify-content: space-between; flex-wrap: wrap;
+            background: #f9f9f9; padding: 30px; margin: 40px 0; border-radius: 4px;
+        }
+        .stat-box { text-align: center; flex: 1 1 30%; min-width: 150px; margin: 10px 0; }
+        .stat-box h3 { font-size: 35px; color: rgb(43,115,220); margin: 0; }
+        .stat-box p { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin: 5px 0 0 0; color: #888;}
+
+        /* FOOTER */
+        footer {
+            background-color: gray; text-align: center;
+            padding: 60px 20px; width: 100%; color: white;
+            box-sizing: border-box; margin-top: 40px;
+        }
+        .legal { margin-top: 30px; }
+        .legal a { color: white; text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; padding: 0 15px; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+<nav class="menu">
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul class="menu-list" id="menuList">
+        <li><a href="index.html">🌎</a></li>
+        <li><a href="index.html#asia">Asia</a></li>
+        <li><a href="index.html#europe">Europe</a></li>
+        <li><a href="index.html#africa">Africa</a></li>
+        <li><a href="index.html#americas">Americas</a></li>
+        <li><a href="index.html#oceania">Oceania</a></li>
+        <li><a href="about.html" style="color: white; border-bottom: 1px solid white;">About</a></li>
+    </ul>
+</nav>
+<div class="menuspace"></div>
+
+<!-- NOTICE BARS -->
+<div class="notice">
+    <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
+</div>
+<div class="notice2">
+    <p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
+</div>
+
+<header class="about-hero">
+    <div class="text-box">
+        <h1>Meet the Turtle 🐢</h1>
+        <p>Decoding the world through history, culture, and travel.</p>
+    </div>
+</header>
+
+<main class="content-container">
+    <h2>The Journey So Far</h2>
+    <p>I am Kenneth, a global nomad originally from Hong Kong. What started as a standard pursuit of travel has evolved into a lifelong mission to document the intersections of history, endemic botany, and regional cultures across the globe.</p>
+    
+    <p>Currently writing from the ancient Silk Road routes of Baku, Azerbaijan, I use this space to dive deep into traditional discovery. Whether I'm trekking through remote plateaus or studying the architectural nuances of UNESCO sites, my goal is to provide a deeper, educational perspective on global exploration.</p>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <h3>150</h3>
+            <p>UN Countries Visited</p>
+        </div>
+        <div class="stat-box">
+            <h3>7</h3>
+            <p>Continents Explored</p>
+        </div>
+        <div class="stat-box">
+            <h3>1</h3>
+            <p>Nomadic Mission</p>
+        </div>
+    </div>
+
+    <h2>Areas of Research</h2>
+    <p>This platform serves as a public archive for my specialized interests, focusing on areas that go beyond standard tourism:</p>
+    <ul>
+        <li style="margin-bottom: 10px; color: #555;"><strong>Endemic Botany:</strong> Documenting rare flora, from the Frankincense elongata on the Homhil plateau to the iconic Dragon blood trees of the Socotra Archipelago.</li>
+        <li style="margin-bottom: 10px; color: #555;"><strong>Heritage & Architecture:</strong> Analyzing the historical engineering of monuments like Mahabalipuram, the Taj Mahal, and the ruins of Nalanda University.</li>
+        <li style="margin-bottom: 10px; color: #555;"><strong>Culinary Anthropology:</strong> Tracing the roots of regional street food and the distillation processes of traditional spirits like Goan Urrak and Lebanese Arak.</li>
+    </ul>
+
+    <h2>Get in Touch</h2>
+    <p>If you're a fellow member of NomadMania, an enthusiast of global history, or simply want to share a great local spot, feel free to reach out. The journey is always better when shared.</p>
+</main>
+
+<footer id="support">
+    <p>Support the journey</p>
+    <a href="https://payme.hsbc/yourmoneymymoney"><img src="Images/qr.jpg" height="120" alt="Support"></a>
+    <a><img src="Images/paypal.png" height="120px"></a>
+    <div class="legal">
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+    </div>
+    <p style="margin-top:20px; font-size:10px;">Copyright © 2026 Travel Turtle. All rights reserved.</p>
+</footer>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('menuList').classList.toggle('active');
+    }
+</script>
+
+</body>
+</html>

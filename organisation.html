@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCSE Biology: Organisation Speed Quiz</title>
+<style>
+    :root {
+        --primary: #f59e0b;
+        --primary-hover: #d97706;
+        --bg: #fffbeb;
+        --card-bg: #ffffff;
+        --correct: #10b981;
+        --wrong: #ef4444;
+        --text-main: #1e293b;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    #quiz-app {
+        background-color: var(--card-bg);
+        max-width: 650px;
+        width: 100%;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    h1, h2 { margin-top: 0; }
+    h1 { color: var(--primary); text-align: center; }
+    .hidden { display: none !important; }
+    
+    .btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    .btn:hover { background-color: var(--primary-hover); }
+    
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    #timer { color: var(--wrong); font-size: 1.2rem; }
+    
+    #question-text { font-size: 1.3rem; margin-bottom: 20px; line-height: 1.4; }
+    
+    .option-btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 10px;
+        background-color: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 16px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-main);
+    }
+    .option-btn:hover:not(:disabled) {
+        background-color: #e2e8f0;
+        border-color: #cbd5e1;
+    }
+    .option-btn:disabled { cursor: not-allowed; }
+    
+    .correct-ans { background-color: #d1fae5 !important; border-color: var(--correct) !important; color: #065f46; }
+    .wrong-ans { background-color: #fee2e2 !important; border-color: var(--wrong) !important; color: #991b1b; }
+    
+    #explanation {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #fef3c7;
+        border-left: 5px solid var(--primary);
+        border-radius: 0 8px 8px 0;
+        line-height: 1.5;
+    }
+    #score-text { font-size: 1.5rem; text-align: center; margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div id="quiz-app">
+    <div id="start-screen">
+        <h1>GCSE Biology: Organisation</h1>
+        <p style="text-align: center; font-size: 1.1rem; margin-bottom: 30px;">
+            50 questions covering the Digestion System, Heart & Blood, Non-Communicable Diseases, and Plant Transport.<br><br>
+            <strong>Time Limit:</strong> 15 seconds per question.
+        </p>
+        <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="header-bar">
+            <span id="question-count">Question: 1/50</span>
+            <span id="timer">15s</span>
+        </div>
+        <h2 id="question-text"></h2>
+        <div id="options-container"></div>
+        <div id="explanation" class="hidden"></div>
+        <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="end-screen" class="hidden">
+        <h1>Quiz Complete!</h1>
+        <div id="score-text">You scored <strong id="final-score"></strong> out of 50.</div>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // Principles of Organisation
+        {q: "What is a tissue?", o: ["A group of organs working together", "A group of similar cells working together to perform a specific function", "A single specialised cell", "A part of a cell"], a: 1, e: "Cells build tissues, tissues build organs."},
+        {q: "Which of the following is an organ?", o: ["Epithelium", "Muscle", "Stomach", "Digestive System"], a: 2, e: "The stomach is an organ made of muscular, glandular, and epithelial tissues."},
+        {q: "What defines an organ system?", o: ["A group of cells working together", "A group of organs working together to perform a specific function", "A collection of identical tissues", "The entire organism"], a: 1, e: "Organ systems (like the digestive system) contain multiple organs working in coordination."},
+        
+        // Enzymes & Digestion
+        {q: "What are enzymes?", o: ["Living organisms", "Biological catalysts made of protein", "Carbohydrates", "Lipids that break down food"], a: 1, e: "Enzymes speed up chemical reactions without being used up."},
+        {q: "What model explains how enzymes work?", o: ["Key and hole model", "Induced fit theory", "Lock and key theory", "Enzyme-substrate complex"], a: 2, e: "The lock and key theory explains how the substrate fits perfectly into the active site."},
+        {q: "What happens to an enzyme if the temperature gets too high?", o: ["It works faster", "It becomes a substrate", "It dies", "It denatures"], a: 3, e: "High temperatures change the shape of the active site, meaning the substrate no longer fits."},
+        {q: "What does amylase break down?", o: ["Proteins into amino acids", "Lipids into fatty acids", "Starch into sugars", "Cellulose into glucose"], a: 2, e: "Amylase (a carbohydrase) breaks down starch into simple sugars like maltose."},
+        {q: "Where is amylase produced?", o: ["Stomach and liver", "Salivary glands, pancreas, and small intestine", "Pancreas and gall bladder", "Stomach and small intestine"], a: 1, e: "It begins digestion in the mouth and continues it in the small intestine."},
+        {q: "Which enzyme breaks down proteins?", o: ["Amylase", "Lipase", "Protease", "Bile"], a: 2, e: "Protease breaks proteins down into amino acids."},
+        {q: "Where is protease produced?", o: ["Salivary glands and liver", "Stomach, pancreas, and small intestine", "Pancreas and large intestine", "Liver and gall bladder"], a: 1, e: "In the stomach, protease is specifically called pepsin."},
+        {q: "What do lipases break down?", o: ["Starch into sugar", "Lipids into fatty acids and glycerol", "Proteins into amino acids", "Glucose into energy"], a: 1, e: "Lipase breaks down fats and oils (lipids)."},
+        {q: "Where is bile produced?", o: ["Gall bladder", "Pancreas", "Liver", "Small intestine"], a: 2, e: "Bile is made in the liver and stored in the gall bladder."},
+        {q: "What are the two main functions of bile?", o: ["Digest protein and absorb water", "Neutralise stomach acid and emulsify fats", "Produce enzymes and store glucose", "Break down starch and kill bacteria"], a: 1, e: "It is alkaline to neutralise acid, and emulsifies fats to give a larger surface area for lipase."},
+        {q: "Which chemical tests for the presence of starch?", o: ["Benedict's solution", "Biuret solution", "Iodine solution", "Ethanol"], a: 2, e: "Iodine turns from orange/brown to blue/black in the presence of starch."},
+        {q: "What is the positive result for Benedict's test for sugars?", o: ["Turns blue/black", "Turns from blue to green/yellow/brick-red", "Turns cloudy white", "Turns purple"], a: 1, e: "Benedict's must be heated, and turns green, yellow, or brick-red depending on sugar concentration."},
+        {q: "Which chemical tests for the presence of proteins?", o: ["Iodine", "Benedict's", "Sudan III / Ethanol", "Biuret reagent"], a: 3, e: "Biuret solution changes from blue to purple/lilac if protein is present."},
+        {q: "Which of the following is an organ of the digestive system where water is absorbed into the blood?", o: ["Stomach", "Pancreas", "Small intestine", "Large intestine"], a: 3, e: "The large intestine absorbs excess water from undigested food."},
+        
+        // Heart, Blood & Circulation
+        {q: "What type of circulatory system do humans have?", o: ["Single circulatory system", "Open circulatory system", "Double circulatory system", "Triple circulatory system"], a: 2, e: "Blood passes through the heart twice for every complete circuit of the body."},
+        {q: "Which chamber of the heart pumps blood to the lungs?", o: ["Right atrium", "Right ventricle", "Left atrium", "Left ventricle"], a: 1, e: "The right ventricle pumps deoxygenated blood to the lungs via the pulmonary artery."},
+        {q: "Why is the left ventricle wall thicker than the right ventricle wall?", o: ["It pumps blood to the whole body", "It contains more valves", "It holds more blood", "It pumps blood only to the lungs"], a: 0, e: "It needs more muscle to generate higher pressure to pump blood to the entire body."},
+        {q: "Which blood vessel carries oxygenated blood from the lungs back to the heart?", o: ["Pulmonary artery", "Aorta", "Vena cava", "Pulmonary vein"], a: 3, e: "The pulmonary vein enters the left atrium. It is the only vein carrying oxygenated blood."},
+        {q: "What is the function of the heart valves?", o: ["To pump blood faster", "To oxygenate the blood", "To prevent the backflow of blood", "To produce red blood cells"], a: 2, e: "Valves ensure blood only flows in one direction through the heart."},
+        {q: "What controls the natural resting heart rate?", o: ["The brain stem", "A group of cells in the right atrium acting as a pacemaker", "The pulmonary vein", "Adrenaline"], a: 1, e: "These cells produce small electrical impulses that cause heart muscles to contract."},
+        {q: "Which blood vessels carry blood away from the heart?", o: ["Veins", "Capillaries", "Arteries", "Venules"], a: 2, e: "Arteries carry blood away under high pressure, so they have thick, elastic walls."},
+        {q: "Which blood vessels are only one cell thick?", o: ["Arteries", "Veins", "Capillaries", "Aorta"], a: 2, e: "Capillaries have thin walls to allow rapid diffusion of substances in and out of the blood."},
+        {q: "Which blood vessels contain valves?", o: ["Arteries", "Capillaries", "Veins", "All of them"], a: 2, e: "Veins carry blood at lower pressure against gravity, so they need valves to prevent backflow."},
+        {q: "What is the main function of red blood cells?", o: ["Fight infection", "Clot the blood", "Transport oxygen", "Transport carbon dioxide"], a: 2, e: "They contain haemoglobin which binds to oxygen."},
+        {q: "How are red blood cells adapted for their function?", o: ["They have a large nucleus", "They are biconcave and lack a nucleus", "They can change shape to engulf pathogens", "They have cilia"], a: 1, e: "The biconcave shape increases surface area, and lacking a nucleus leaves more room for haemoglobin."},
+        {q: "What is the function of white blood cells?", o: ["Transport oxygen", "Help blood to clot", "Defend against pathogens", "Transport dissolved nutrients"], a: 2, e: "They fight infection by producing antibodies, antitoxins, or engulfing pathogens (phagocytosis)."},
+        {q: "What are platelets?", o: ["Whole cells that fight disease", "Small fragments of cells that help blood clot", "Proteins that carry oxygen", "The liquid part of the blood"], a: 1, e: "Platelets gather at wounds to form clots and stop bleeding."},
+        {q: "What is blood plasma?", o: ["The cell carrying oxygen", "The pale yellow liquid that carries everything in the blood", "A type of white blood cell", "The protein in red blood cells"], a: 1, e: "Plasma carries red/white cells, platelets, glucose, amino acids, CO2, urea, and hormones."},
+        
+        // Health and Disease
+        {q: "What is coronary heart disease?", o: ["A hole in the heart", "When the heart stops beating completely", "Layers of fatty material building up in coronary arteries", "An infection of the heart valves"], a: 2, e: "This narrows the arteries, restricting blood flow and leading to a lack of oxygen for the heart muscle."},
+        {q: "What is a stent?", o: ["A drug that lowers cholesterol", "An artificial heart", "A wire mesh tube inserted into an artery to keep it open", "A replacement valve"], a: 2, e: "Stents hold narrowed arteries open, restoring normal blood flow."},
+        {q: "What do statins do?", o: ["Keep arteries open physically", "Reduce blood cholesterol levels to slow down fatty deposits", "Act as an artificial pacemaker", "Replace blood lost in surgery"], a: 1, e: "Statins are drugs taken daily to lower 'bad' cholesterol."},
+        {q: "What can be done if a heart valve becomes faulty or leaky?", o: ["Replace it with a biological or mechanical valve", "Use a stent", "Prescribe statins", "Install an artificial pacemaker"], a: 0, e: "Faulty valves can be replaced by valves from humans/animals or mechanical ones."},
+        {q: "What is 'health' defined as?", o: ["Having a fast metabolism", "The state of physical and mental well-being", "Being physically fit", "Never catching a cold"], a: 1, e: "Health encompasses both physical and mental well-being, not just the absence of disease."},
+        {q: "What is a communicable disease?", o: ["A disease caused by genetics", "A disease that can be spread from person to person", "A disease caused by lifestyle factors", "A disease that cannot be cured"], a: 1, e: "Communicable diseases are infectious and caused by pathogens (e.g., flu, malaria)."},
+        {q: "What defines a benign tumour?", o: ["It invades neighbouring tissues", "It spreads to other parts of the body in the blood", "It is a growth of abnormal cells contained in one area", "It is always a form of cancer"], a: 2, e: "Benign tumours do not spread to other tissues. Malignant tumours do (they are cancers)."},
+        {q: "Which lifestyle factor is the main risk factor for Type 2 diabetes?", o: ["Smoking", "Ionising radiation", "Obesity", "Excessive alcohol"], a: 2, e: "Obesity is heavily linked to the body becoming resistant to insulin (Type 2 diabetes)."},
+        {q: "What is a known risk factor for liver disease?", o: ["Smoking", "Excessive alcohol consumption", "Eating too much sugar", "Lack of exercise"], a: 1, e: "Prolonged high alcohol consumption can lead to liver cirrhosis and liver cancer."},
+        
+        // Plant Organisation and Transport
+        {q: "Which plant tissue covers the outer surfaces of the plant?", o: ["Xylem", "Phloem", "Epidermal tissue", "Mesophyll"], a: 2, e: "The epidermal tissue is like the 'skin' of the plant, often covered in a waxy cuticle."},
+        {q: "Where does most photosynthesis occur in a leaf?", o: ["Spongy mesophyll", "Palisade mesophyll", "Lower epidermis", "Guard cells"], a: 1, e: "Palisade cells are packed with chloroplasts and sit near the top of the leaf to get the most light."},
+        {q: "What is the main function of the spongy mesophyll layer?", o: ["To protect the leaf", "To transport water", "To contain big air spaces for gas exchange", "To absorb sunlight"], a: 2, e: "The air spaces allow carbon dioxide to diffuse easily to the palisade cells."},
+        {q: "What do xylem tubes transport?", o: ["Dissolved sugars", "Water and mineral ions", "Oxygen", "Carbon dioxide"], a: 1, e: "Xylem transports water from the roots to the stem and leaves."},
+        {q: "What do phloem tubes transport?", o: ["Water only", "Dissolved food (sugars)", "Mineral ions", "Starch"], a: 1, e: "Phloem transports sugars made in the leaves to the rest of the plant for immediate use or storage."},
+        {q: "What is the process of transporting food in plants called?", o: ["Transpiration", "Translocation", "Evaporation", "Active transport"], a: 1, e: "Translocation moves dissolved sugars in both directions through the phloem."},
+        {q: "What is transpiration?", o: ["The absorption of water by roots", "The loss of water from the plant by evaporation", "The creation of glucose", "The transport of sugars"], a: 1, e: "Water evaporates from the leaves, causing more water to be pulled up through the xylem (transpiration stream)."},
+        {q: "Which cells control the opening and closing of stomata?", o: ["Epidermal cells", "Palisade cells", "Guard cells", "Phloem cells"], a: 2, e: "Two guard cells surround each stoma, opening to let CO2 in and closing to prevent water loss."},
+        {q: "How does an increase in temperature affect the rate of transpiration?", o: ["Decreases it", "Increases it", "Has no effect", "Stops it completely"], a: 1, e: "Warmer particles have more energy to evaporate and diffuse out of the stomata faster."},
+        {q: "How does high humidity affect the rate of transpiration?", o: ["Increases it", "Decreases it", "Stops it", "Causes the stomata to open wider"], a: 1, e: "If the air is humid, there is already lots of water in it, so the concentration gradient for diffusion is lower."}
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 15;
+    let isAnswered = false;
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const endScreen = document.getElementById('end-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationDiv = document.getElementById('explanation');
+    const nextBtn = document.getElementById('next-btn');
+    const timerDisplay = document.getElementById('timer');
+    const qCountDisplay = document.getElementById('question-count');
+
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        clearInterval(timerInterval);
+        isAnswered = false;
+        timeLeft = 15;
+        timerDisplay.textContent = timeLeft + "s";
+        timerDisplay.style.color = "var(--text-main)";
+        
+        explanationDiv.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        optionsContainer.innerHTML = '';
+        
+        const qData = quizData[currentQuestionIndex];
+        qCountDisplay.textContent = `Question: ${currentQuestionIndex + 1}/50`;
+        questionText.textContent = qData.q;
+        
+        qData.o.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = option;
+            btn.onclick = () => selectAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft + "s";
+            if (timeLeft <= 5) timerDisplay.style.color = "var(--wrong)";
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeOut();
+            }
+        }, 1000);
+    }
+
+    function selectAnswer(selectedIndex, btn) {
+        if (isAnswered) return;
+        isAnswered = true;
+        clearInterval(timerInterval);
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        
+        allBtns.forEach(b => b.disabled = true); 
+        
+        if (selectedIndex === qData.a) {
+            btn.classList.add('correct-ans');
+            score++;
+            explanationDiv.innerHTML = `<strong>Correct!</strong> ${qData.e}`;
+        } else {
+            btn.classList.add('wrong-ans');
+            allBtns[qData.a].classList.add('correct-ans');
+            explanationDiv.innerHTML = `<strong>Incorrect.</strong> ${qData.e}`;
+        }
+        
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function handleTimeOut() {
+        if (isAnswered) return;
+        isAnswered = true;
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+        
+        allBtns[qData.a].classList.add('correct-ans');
+        explanationDiv.innerHTML = `<strong>Time's up!</strong> ${qData.e}`;
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        quizScreen.classList.add('hidden');
+        endScreen.classList.remove('hidden');
+        document.getElementById('final-score').textContent = score;
+    }
+</script>
+
+</body>
+</html>

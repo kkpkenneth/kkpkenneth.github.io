@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCSE Biology: Infection & Response Speed Quiz</title>
+<style>
+    :root {
+        --primary: #0d9488; /* Teal */
+        --primary-hover: #0f766e;
+        --bg: #f0fdfa;
+        --card-bg: #ffffff;
+        --correct: #10b981;
+        --wrong: #ef4444;
+        --text-main: #1e293b;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    #quiz-app {
+        background-color: var(--card-bg);
+        max-width: 650px;
+        width: 100%;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    h1, h2 { margin-top: 0; }
+    h1 { color: var(--primary); text-align: center; }
+    .hidden { display: none !important; }
+    
+    .btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    .btn:hover { background-color: var(--primary-hover); }
+    
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    #timer { color: var(--wrong); font-size: 1.2rem; }
+    
+    #question-text { font-size: 1.3rem; margin-bottom: 20px; line-height: 1.4; }
+    
+    .option-btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 10px;
+        background-color: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 16px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-main);
+    }
+    .option-btn:hover:not(:disabled) {
+        background-color: #e2e8f0;
+        border-color: #cbd5e1;
+    }
+    .option-btn:disabled { cursor: not-allowed; }
+    
+    .correct-ans { background-color: #d1fae5 !important; border-color: var(--correct) !important; color: #065f46; }
+    .wrong-ans { background-color: #fee2e2 !important; border-color: var(--wrong) !important; color: #991b1b; }
+    
+    #explanation {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #ccfbf1;
+        border-left: 5px solid var(--primary);
+        border-radius: 0 8px 8px 0;
+        line-height: 1.5;
+    }
+    #score-text { font-size: 1.5rem; text-align: center; margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div id="quiz-app">
+    <div id="start-screen">
+        <h1>GCSE Biology: Infection & Response</h1>
+        <p style="text-align: center; font-size: 1.1rem; margin-bottom: 30px;">
+            50 questions covering Pathogens, the Immune System, Vaccination, and Drug Development.<br><br>
+            <strong>Time Limit:</strong> 15 seconds per question.
+        </p>
+        <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="header-bar">
+            <span id="question-count">Question: 1/50</span>
+            <span id="timer">15s</span>
+        </div>
+        <h2 id="question-text"></h2>
+        <div id="options-container"></div>
+        <div id="explanation" class="hidden"></div>
+        <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="end-screen" class="hidden">
+        <h1>Quiz Complete!</h1>
+        <div id="score-text">You scored <strong id="final-score"></strong> out of 50.</div>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // Pathogens & Basics
+        {q: "What is a pathogen?", o: ["A type of white blood cell", "A microorganism that causes disease", "A harmless bacterium", "An antibody"], a: 1, e: "Pathogens are microorganisms, such as viruses and bacteria, that cause infectious diseases."},
+        {q: "How do bacteria make us feel ill?", o: ["By reproducing inside our cells", "By producing toxins that damage tissues", "By engulfing red blood cells", "By reducing blood pressure"], a: 1, e: "Bacteria multiply rapidly and release toxins (poisons) that damage cells and tissues."},
+        {q: "How do viruses cause cell damage?", o: ["They secrete acidic toxins", "They live and reproduce inside host cells, eventually bursting them", "They consume the cell's glucose", "They block the cell membrane"], a: 1, e: "Viruses must invade a host cell to reproduce, which ultimately destroys the cell."},
+        
+        // Viral Diseases
+        {q: "Which of the following is a viral disease?", o: ["Salmonella", "Gonorrhoea", "Measles", "Malaria"], a: 2, e: "Measles is a viral disease, while Salmonella and Gonorrhoea are bacterial, and Malaria is a protist."},
+        {q: "What are the main symptoms of measles?", o: ["Fever and a red skin rash", "Vomiting and diarrhoea", "Yellow discharge and pain urinating", "Coughing up blood"], a: 0, e: "Measles is characterised by a fever and a distinctive red skin rash."},
+        {q: "How is the measles virus spread?", o: ["Sexual contact", "Inhalation of droplets from sneezes and coughs", "Contaminated food", "Mosquito bites"], a: 1, e: "It is an airborne virus transmitted through infected droplets."},
+        {q: "What part of the body does HIV attack?", o: ["Red blood cells", "The body's immune cells", "The liver", "The nervous system"], a: 1, e: "HIV attacks and destroys white blood cells, severely weakening the immune system."},
+        {q: "How is HIV primarily transmitted?", o: ["Coughing and sneezing", "Drinking unclean water", "Exchange of bodily fluids (e.g., blood, sexual contact)", "Touching infected surfaces"], a: 2, e: "HIV is spread through sexual contact or by sharing needles with an infected person."},
+        {q: "What is the late stage of an HIV infection called?", o: ["Ebola", "Sepsis", "AIDS", "Malaria"], a: 2, e: "AIDS occurs when the immune system becomes so damaged it can't fight off other infections or cancers."},
+        {q: "Which pathogen causes Tobacco Mosaic Virus (TMV)?", o: ["Fungus", "Virus", "Bacterium", "Protist"], a: 1, e: "As the name suggests, TMV is caused by a virus that infects plants."},
+        {q: "What is the main symptom of TMV in plants?", o: ["Black spots on leaves", "Rotting of the stem", "A distinctive 'mosaic' pattern of discolouration on leaves", "Leaves falling off immediately"], a: 2, e: "The virus causes a mosaic pattern of discoloured patches on the leaf."},
+        {q: "Why does TMV stunt plant growth?", o: ["It stops water transport", "The discolouration reduces the amount of chlorophyll for photosynthesis", "It makes the plant poisonous", "It prevents the roots from absorbing nutrients"], a: 1, e: "Less chlorophyll means less photosynthesis, resulting in less glucose for growth."},
+        
+        // Bacterial Diseases
+        {q: "Which of these is a bacterial disease?", o: ["HIV", "Measles", "Salmonella", "Malaria"], a: 2, e: "Salmonella is a type of bacteria that causes food poisoning."},
+        {q: "How is Salmonella usually contracted?", o: ["Inhaling droplets", "Eating contaminated food, especially raw meat or poultry", "Through a mosquito bite", "Sexual contact"], a: 1, e: "Salmonella bacteria are typically ingested through unhygienic food preparation or undercooked meat."},
+        {q: "How is the spread of Salmonella controlled in the UK?", o: ["Pesticides", "Quarantining all farms", "Vaccinating poultry", "Giving antibiotics to chickens daily"], a: 2, e: "Poultry (like chickens) are vaccinated against Salmonella to prevent the bacteria spreading to humans."},
+        {q: "What kind of disease is Gonorrhoea?", o: ["A sexually transmitted disease (STD)", "An airborne viral disease", "A waterborne disease", "A fungal skin infection"], a: 0, e: "Gonorrhoea is a bacterial STD."},
+        {q: "What are common symptoms of Gonorrhoea?", o: ["A rash and fever", "Pain when urinating and a thick yellow/green discharge", "Vomiting and a headache", "Loss of taste and smell"], a: 1, e: "It affects the genitals, causing painful urination and unusual discharge."},
+        {q: "Why has Gonorrhoea become more difficult to treat in recent years?", o: ["The virus mutated", "Many strains have become resistant to antibiotics (like penicillin)", "There is no vaccine for it", "It has become airborne"], a: 1, e: "Antibiotic resistance means standard treatments like penicillin are often no longer effective."},
+        {q: "How can the spread of Gonorrhoea be prevented?", o: ["Using a mosquito net", "Cooking food thoroughly", "Using barrier methods of contraception like condoms", "Washing hands regularly"], a: 2, e: "Condoms prevent the physical exchange of bodily fluids that spread the bacteria."},
+        
+        // Fungal & Protist Diseases
+        {q: "What type of pathogen causes Rose Black Spot?", o: ["Virus", "Fungus", "Bacterium", "Protist"], a: 1, e: "Rose black spot is a fungal disease affecting plant leaves."},
+        {q: "How is Rose Black Spot spread?", o: ["By insects", "Through the soil only", "By water and wind", "By humans touching the plants"], a: 2, e: "The fungal spores are carried by wind or splashed by rain from leaf to leaf."},
+        {q: "How can a gardener treat Rose Black Spot?", o: ["Give the plant antibiotics", "Use fungicides and destroy infected leaves", "Keep the plant in the dark", "Water the plant more frequently"], a: 1, e: "Fungicides kill the fungus, and removing infected leaves stops the spores from spreading further."},
+        {q: "Which type of pathogen causes Malaria?", o: ["Bacterium", "Protist", "Virus", "Fungus"], a: 1, e: "Malaria is caused by a protist (Plasmodium)."},
+        {q: "What acts as the vector for Malaria?", o: ["Ticks", "Fleas", "Mosquitoes", "Houseflies"], a: 2, e: "Female Anopheles mosquitoes carry the protist and pass it to humans when they bite."},
+        {q: "Which method is used to control the spread of Malaria?", o: ["Antibiotics", "Vaccination", "Using mosquito nets and preventing mosquitoes from breeding", "Drinking sterile water"], a: 2, e: "Preventing the vector (mosquito) from biting humans is the most effective control method."},
+        
+        // Human Defences
+        {q: "Which of the following is a non-specific physical defence against pathogens?", o: ["Antibodies", "White blood cells", "The Skin", "Antitoxins"], a: 2, e: "The skin acts as a physical barrier to stop pathogens entering the body."},
+        {q: "How do the trachea and bronchi defend against pathogens?", o: ["They produce acid", "They secrete mucus to trap pathogens and use cilia to waft it up", "They contain powerful enzymes", "They heat up the air to kill bacteria"], a: 1, e: "Mucus traps the dirt and pathogens, and cilia sweep it to the throat to be swallowed."},
+        {q: "How does the stomach help defend against infection?", o: ["It produces hydrochloric acid", "It produces antibodies", "It absorbs pathogens into the blood", "It undergoes phagocytosis"], a: 0, e: "Hydrochloric acid in the stomach is strong enough to kill most pathogens swallowed in food or mucus."},
+        {q: "What is the primary role of the immune system?", o: ["To digest food", "To transport oxygen", "To locate and destroy pathogens that enter the body", "To regulate body temperature"], a: 2, e: "White blood cells are the key components of the immune system that hunt down pathogens."},
+        {q: "What is the process called where white blood cells engulf and digest pathogens?", o: ["Phagocytosis", "Osmosis", "Mitosis", "Respiration"], a: 0, e: "Phagocytes surround the pathogen, take it in, and use enzymes to destroy it."},
+        {q: "What do white blood cells produce to target and lock onto specific pathogens?", o: ["Antigens", "Antibodies", "Antibiotics", "Amino acids"], a: 1, e: "Lymphocytes produce antibodies that bind to the specific antigens on the surface of a pathogen."},
+        {q: "What is an antigen?", o: ["A white blood cell", "A medicine", "A unique protein on the surface of a cell or pathogen", "A type of toxin"], a: 2, e: "Antigens act like identification tags. Antibodies are made to match these specific tags."},
+        {q: "What do antitoxins do?", o: ["Kill viruses", "Engulf bacteria", "Counteract (neutralise) the toxins produced by bacteria", "Stop pathogens reproducing"], a: 2, e: "White blood cells produce antitoxins to cancel out the damaging poisons released by bacteria."},
+        
+        // Vaccination
+        {q: "What does a vaccine typically contain?", o: ["Large amounts of live, active pathogens", "Small quantities of dead or inactive forms of a pathogen", "A high dose of antibiotics", "Pure antibodies"], a: 1, e: "Vaccines introduce harmless forms of the pathogen to safely train the immune system."},
+        {q: "How does a vaccine protect you?", o: ["It creates a physical barrier around cells", "It kills any bacteria immediately", "It stimulates white blood cells to produce antibodies rapidly upon future infection", "It changes your DNA"], a: 2, e: "If you are infected later, memory cells rapidly produce the correct antibodies to destroy the pathogen before you feel ill."},
+        {q: "What is 'herd immunity'?", o: ["When animals cannot catch human diseases", "When a large proportion of a population is immune, reducing the spread of the pathogen", "When a disease is completely wiped off the Earth", "When you catch a disease from a herd of animals"], a: 1, e: "If most people are vaccinated, the disease cannot easily spread, protecting those who aren't vaccinated."},
+        
+        // Antibiotics and Painkillers
+        {q: "What type of pathogen do antibiotics destroy?", o: ["Viruses", "Bacteria", "Fungi", "Protists"], a: 1, e: "Antibiotics (like penicillin) specifically kill bacteria inside the body."},
+        {q: "Why can't antibiotics be used to treat viral infections?", o: ["Viruses are too small", "Viruses have hard shells", "Viruses reproduce inside host cells, making them hard to reach without damaging the host", "Viruses mutate too quickly"], a: 2, e: "Because viruses hide inside human cells, a drug that destroys the virus would likely destroy the human cell too."},
+        {q: "What is a major problem with the widespread use of antibiotics?", o: ["They become addictive", "They kill human cells", "Some bacteria mutate and develop antibiotic resistance", "They turn into viruses"], a: 2, e: "Overuse causes resistant strains of bacteria (like MRSA) to survive and multiply."},
+        {q: "How should a patient take antibiotics to prevent resistance?", o: ["Only take them when they feel really sick", "Stop taking them as soon as they feel better", "Complete the full course prescribed by a doctor", "Take double the dose"], a: 2, e: "Finishing the course ensures all bacteria are killed, leaving none to mutate and become resistant."},
+        {q: "What is the function of painkillers (like aspirin or paracetamol)?", o: ["To kill bacteria", "To kill viruses", "To treat the symptoms of disease and relieve pain", "To boost the immune system"], a: 2, e: "Painkillers make you feel better but do absolutely nothing to kill the pathogens causing the illness."},
+        
+        // Drug Discovery
+        {q: "Who discovered the first antibiotic, Penicillin?", o: ["Louis Pasteur", "Alexander Fleming", "Edward Jenner", "Charles Darwin"], a: 1, e: "Fleming discovered penicillin in 1928 after noticing a mould killing bacteria in a petri dish."},
+        {q: "Where was the heart drug digitalis originally extracted from?", o: ["Willow bark", "Foxglove plants", "Mould", "Seaweed"], a: 1, e: "Digitalis has been used for dropsy and heart conditions and was found in foxgloves."},
+        {q: "Which common painkiller originates from willow bark?", o: ["Paracetamol", "Ibuprofen", "Aspirin", "Morphine"], a: 2, e: "Aspirin was historically made from a chemical found in the bark of willow trees."},
+        {q: "Before a new drug is given to humans, what must it be tested for?", o: ["Toxicity, efficacy, and dose", "Colour, taste, and smell", "Price, packaging, and weight", "Solubility, density, and volume"], a: 0, e: "We must know if it's safe (toxicity), if it actually works (efficacy), and how much to give (dose)."},
+        {q: "What happens during preclinical testing?", o: ["The drug is given to healthy human volunteers", "The drug is tested on computer models, cells, tissues, and live animals", "The drug is sold in pharmacies", "The drug is tested on sick patients"], a: 1, e: "Preclinical testing must occur in a lab before any humans are involved."},
+        {q: "What happens in Phase 1 of a human clinical trial?", o: ["The drug is given to thousands of sick patients", "The drug is given to a small number of healthy volunteers at a low dose", "The drug is tested on animals", "The drug is approved for public use"], a: 1, e: "This ensures the drug is safe in humans before testing if it cures the disease."},
+        {q: "What is a placebo?", o: ["A highly toxic drug", "A stronger version of the drug", "A 'dummy' pill containing no active ingredient", "An antibiotic"], a: 2, e: "Placebos are used as a control to see if the drug actually works or if patients just feel better because they expect to."},
+        {q: "What is a double-blind trial?", o: ["Where the patient is blindfolded", "Where only the doctor knows who got the real drug", "Where neither the patient nor the doctor knows who received the real drug or the placebo", "Where the drug is tested twice"], a: 2, e: "This removes psychological bias from both the patient reporting symptoms and the doctor evaluating them."},
+        {q: "Where do most new drugs come from today?", o: ["They are exclusively found in the rainforest", "They are synthesised by chemists in the pharmaceutical industry", "They are ground up from plants by doctors", "They are extracted from animal blood"], a: 1, e: "While the starting point might be a natural substance, drugs are now synthesized and manufactured in labs."}
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 15;
+    let isAnswered = false;
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const endScreen = document.getElementById('end-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationDiv = document.getElementById('explanation');
+    const nextBtn = document.getElementById('next-btn');
+    const timerDisplay = document.getElementById('timer');
+    const qCountDisplay = document.getElementById('question-count');
+
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        clearInterval(timerInterval);
+        isAnswered = false;
+        timeLeft = 15;
+        timerDisplay.textContent = timeLeft + "s";
+        timerDisplay.style.color = "var(--text-main)";
+        
+        explanationDiv.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        optionsContainer.innerHTML = '';
+        
+        const qData = quizData[currentQuestionIndex];
+        qCountDisplay.textContent = `Question: ${currentQuestionIndex + 1}/50`;
+        questionText.textContent = qData.q;
+        
+        qData.o.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = option;
+            btn.onclick = () => selectAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft + "s";
+            if (timeLeft <= 5) timerDisplay.style.color = "var(--wrong)";
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeOut();
+            }
+        }, 1000);
+    }
+
+    function selectAnswer(selectedIndex, btn) {
+        if (isAnswered) return;
+        isAnswered = true;
+        clearInterval(timerInterval);
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        
+        allBtns.forEach(b => b.disabled = true); 
+        
+        if (selectedIndex === qData.a) {
+            btn.classList.add('correct-ans');
+            score++;
+            explanationDiv.innerHTML = `<strong>Correct!</strong> ${qData.e}`;
+        } else {
+            btn.classList.add('wrong-ans');
+            allBtns[qData.a].classList.add('correct-ans');
+            explanationDiv.innerHTML = `<strong>Incorrect.</strong> ${qData.e}`;
+        }
+        
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function handleTimeOut() {
+        if (isAnswered) return;
+        isAnswered = true;
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+        
+        allBtns[qData.a].classList.add('correct-ans');
+        explanationDiv.innerHTML = `<strong>Time's up!</strong> ${qData.e}`;
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        quizScreen.classList.add('hidden');
+        endScreen.classList.remove('hidden');
+        document.getElementById('final-score').textContent = score;
+    }
+</script>
+
+</body>
+</html>

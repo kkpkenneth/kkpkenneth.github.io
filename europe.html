@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Travel Turtle | Discovery</title>
+    <title>Travel Turtle | Europe</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="Images/icon.png" type="image/png" sizes="16x16">
     
@@ -67,7 +67,7 @@
         .notice .closebtn { color: white; }
         .closebtn:hover { color: black; }
 
-        /* LAYOUT (FIXED GAP HERE) */
+        /* LAYOUT */
         .full-container, .split-grid { display: grid; width: 100vw; gap: 20px; margin-bottom: 20px; }
         .full-container { grid-template-columns: 1fr; }
         .split-grid { grid-template-columns: 1fr 1fr; }
@@ -107,6 +107,7 @@
             background-color: #f4f4f4;
             padding: 60px 20px;
             text-align: center;
+            margin-top: 20px;
         }
         .places-wrap h2 {
             font-size: 24px;
@@ -123,8 +124,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 12px;
-            height: 200px;
-            overflow-y: auto;
+            height: auto; 
             padding: 10px;
         }
         .place-tag {
@@ -139,12 +139,6 @@
             white-space: nowrap;
         }
 
-        /* Custom scrollbar for the places grid to keep it neat */
-        .places-grid::-webkit-scrollbar { width: 6px; }
-        .places-grid::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
-        .places-grid::-webkit-scrollbar-thumb { background: #aaa; border-radius: 10px; }
-        .places-grid::-webkit-scrollbar-thumb:hover { background: #888; }
-
         /* FOOTER */
         footer {
             background-color: gray; text-align: center;
@@ -157,15 +151,16 @@
 </head>
 <body>
 
+<!-- Adjusted Menu Links to highlight Europe -->
 <nav class="menu">
     <div class="menu-toggle" onclick="toggleMenu()">☰</div>
     <ul class="menu-list" id="menuList">
-        <li><a href="/">🌎</a></li>
+        <li><a href="index.html">🌎</a></li>
         <li><a href="asia.html">Asia</a></li>
-        <li><a href="europe.html">Europe</a></li>
-        <li><a href="#africa">Africa</a></li>
-        <li><a href="#americas">Americas</a></li>
-        <li><a href="#oceania">Oceania</a></li>
+        <li><a href="#" style="color: white; border-bottom: 1px solid white;">Europe</a></li>
+        <li><a href="index.html#africa">Africa</a></li>
+        <li><a href="index.html#americas">Americas</a></li>
+        <li><a href="index.html#oceania">Oceania</a></li>
         <li><a href="about.html">About</a></li>
     </ul>
 </nav>
@@ -183,37 +178,26 @@
 <div id="full-section" class="full-container"></div>
 <div id="split-section" class="split-grid"></div>
 
-<!-- PLACES VISITED -->
+<!-- EUROPEAN PLACES VISITED -->
 <section class="places-wrap">
-    <h2>150 Countries Documented</h2>
+    <h2>European Archive</h2>
     <div class="places-grid">
-        <span class="place-tag">Azerbaijan 🇦🇿</span>
-        <span class="place-tag">Nepal 🇳🇵</span>
-        <span class="place-tag">India 🇮🇳</span>
-        <span class="place-tag">Yemen 🇾🇪</span>
-        <span class="place-tag">Sri Lanka 🇱🇰</span>
-        <span class="place-tag">Japan 🇯🇵</span>
-        <span class="place-tag">Myanmar 🇲🇲</span>
-        <span class="place-tag">Lebanon 🇱🇧</span>
-        <span class="place-tag">Peru 🇵🇪</span>
+        <span class="place-tag">Portugal 🇵🇹</span>
         <span class="place-tag">Albania 🇦🇱</span>
-        <span class="place-tag">Turkey 🇹🇷</span>
         <span class="place-tag">Poland 🇵🇱</span>
-        <span class="place-tag">Vietnam 🇻🇳</span>
         <span class="place-tag">Germany 🇩🇪</span>
         <span class="place-tag">France 🇫🇷</span>
-        <span class="place-tag">Canada 🇨🇦</span>
-        <span class="place-tag">Australia 🇦🇺</span>
-        <span class="place-tag">Maldives 🇲🇻</span>
-        <span class="place-tag">Cuba 🇨🇺</span>
-        <span class="place-tag">Portugal 🇵🇹</span>
-        <span class="place-tag">Indonesia 🇮🇩</span>
-        <span class="place-tag">Tunisia 🇹🇳</span>
-        <span class="place-tag">Fiji 🇫🇯</span>
+        <span class="place-tag">Turkey 🇹🇷</span>
+        <span class="place-tag">Italy 🇮🇹</span>
+        <span class="place-tag">Spain 🇪🇸</span>
+        <span class="place-tag">Greece 🇬🇷</span>
+        <span class="place-tag">United Kingdom 🇬🇧</span>
+        <span class="place-tag">Iceland 🇮🇸</span>
+        <span class="place-tag">Croatia 🇭🇷</span>
     </div>
 </section>
 
-<!-- FOOTER WITH ID FOR SMOOTH SCROLL -->
+<!-- FOOTER -->
 <footer id="support">
     <p>Support the journey</p>
     <a href="https://payme.hsbc/yourmoneymymoney"><img src="Images/qr.jpg" height="120" alt="Support"></a>
@@ -232,21 +216,23 @@
         document.getElementById('menuList').classList.toggle('active');
     }
 
+    // This array is exclusively populated with your European destinations
     const destinations = [
-        { title: "Myanmar", caption: "Where sunrise lights up your soul", image: "Images/Myanmar.jpg", link: "myanmar.html", color: "white" },
-        { title: "Canada", caption: "Living in Ice Age", image: "Images/Canada.jpg", link: "canada.html", color: "white" },
-        { title: "Australia", caption: "Peering into the Wild", image: "Images/Australia.jpg", link: "australia.html", color: "white" },
-        { title: "Maldives", caption: "Chill Like a Boss", image: "Images/Maldives.jpg", link: "maldives.html", color: "white" },
-        { title: "Cuba", caption: "Travel Back in Time", image: "Images/Cuba.jpg", link: "cuba.html", color: "white" },
         { title: "Portugal", caption: "Into the Unknown", image: "Images/Portugal.jpg", link: "portugal.html", color: "white" },
-        { title: "Indonesia", caption: "The Jungle Rook", image: "Images/Indonesia.jpg", link: "indonesia.html", color: "white" },
-        { title: "Tunisia", caption: "The Gem of Africa", image: "Images/Tunisia.jpg", link: "tunisia.html", color: "white" },
-        { title: "Fiji", caption: "Garden of the Sea", image: "Images/Fiji.jpg", link: "fiji.html", color: "white" },
-        { title: "Nepal", caption: "Roof of the World", image: "Images/Nepal.jpg", link: "nepal.html", color: "white" },
-        { title: "Azerbaijan", caption: "Fire and Silk", image: "Images/Azerbaijan.jpg", link: "azerbaijan.html", color: "white" }
+        { title: "Albania", caption: "The Castle of Kruja", image: "Images/Albania.jpg", link: "albania.html", color: "white" },
+        { title: "Poland", caption: "Pierogi and Heritage", image: "Images/Poland.jpg", link: "poland.html", color: "white" },
+        { title: "Germany", caption: "Cathedrals and History", image: "Images/Germany.jpg", link: "germany.html", color: "white" },
+        { title: "France", caption: "Echoes of the Empire", image: "Images/France.jpg", link: "france.html", color: "white" },
+        { title: "Turkey", caption: "Crossroads of Continents", image: "Images/Turkey.jpg", link: "turkey.html", color: "white" },
+        { title: "Italy", caption: "Ruins and Renaissance", image: "Images/Italy.jpg", link: "italy.html", color: "white" },
+        { title: "Spain", caption: "Sun and Stone", image: "Images/Spain.jpg", link: "spain.html", color: "white" },
+        { title: "Greece", caption: "Aegean Blues", image: "Images/Greece.jpg", link: "greece.html", color: "white" },
+        { title: "Iceland", caption: "Fire and Ice", image: "Images/Iceland.jpg", link: "iceland.html", color: "white" },
+        { title: "United Kingdom", caption: "Isles of Mist", image: "Images/UK.jpg", link: "uk.html", color: "white" }
     ];
 
     function buildLayout() {
+        // Shuffle the list so the page looks fresh every time
         const shuffled = [...destinations].sort(() => 0.5 - Math.random());
         const fullSection = document.getElementById('full-section');
         const splitSection = document.getElementById('split-section');
@@ -267,7 +253,7 @@
             fullSection.appendChild(block);
         });
 
-        // Build 6 Split Covers
+        // Build up to 6 Split Covers
         shuffled.slice(3, 9).forEach(item => {
             const block = document.createElement('a');
             block.className = 'cover-block split-height';

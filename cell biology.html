@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCSE Biology: Cell Biology Speed Quiz</title>
+<style>
+    :root {
+        --primary: #8b5cf6;
+        --primary-hover: #7c3aed;
+        --bg: #f8fafc;
+        --card-bg: #ffffff;
+        --correct: #10b981;
+        --wrong: #ef4444;
+        --text-main: #1e293b;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    #quiz-app {
+        background-color: var(--card-bg);
+        max-width: 650px;
+        width: 100%;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    h1, h2 { margin-top: 0; }
+    h1 { color: var(--primary); text-align: center; }
+    .hidden { display: none !important; }
+    
+    .btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+    }
+    .btn:hover { background-color: var(--primary-hover); }
+    
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    #timer { color: var(--wrong); font-size: 1.2rem; }
+    
+    #question-text { font-size: 1.3rem; margin-bottom: 20px; line-height: 1.4; }
+    
+    .option-btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 10px;
+        background-color: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 16px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-main);
+    }
+    .option-btn:hover:not(:disabled) {
+        background-color: #e2e8f0;
+        border-color: #cbd5e1;
+    }
+    .option-btn:disabled { cursor: not-allowed; }
+    
+    .correct-ans { background-color: #d1fae5 !important; border-color: var(--correct) !important; color: #065f46; }
+    .wrong-ans { background-color: #fee2e2 !important; border-color: var(--wrong) !important; color: #991b1b; }
+    
+    #explanation {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #ede9fe;
+        border-left: 5px solid #8b5cf6;
+        border-radius: 0 8px 8px 0;
+        line-height: 1.5;
+    }
+    #score-text { font-size: 1.5rem; text-align: center; margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div id="quiz-app">
+    <div id="start-screen">
+        <h1>GCSE Cell Biology Quiz</h1>
+        <p style="text-align: center; font-size: 1.1rem; margin-bottom: 30px;">
+            50 questions strictly based on the GCSE Biology specification.<br> Includes Microscopy, Transport, Mitosis, Stem Cells, and Cell Structure.<br><br>
+            <strong>Time Limit:</strong> 15 seconds per question.
+        </p>
+        <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="header-bar">
+            <span id="question-count">Question: 1/50</span>
+            <span id="timer">15s</span>
+        </div>
+        <h2 id="question-text"></h2>
+        <div id="options-container"></div>
+        <div id="explanation" class="hidden"></div>
+        <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="end-screen" class="hidden">
+        <h1>Quiz Complete!</h1>
+        <div id="score-text">You scored <strong id="final-score"></strong> out of 50.</div>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // Eukaryotes & Prokaryotes
+        {q: "Which type of cell is a bacterial cell?", o: ["Eukaryotic", "Prokaryotic", "Plant", "Animal"], a: 1, e: "Bacteria are prokaryotes, meaning they lack a true nucleus."},
+        {q: "What defines a eukaryotic cell?", o: ["It has a cell wall", "It has plasmids", "Its genetic material is enclosed in a nucleus", "It lacks a cell membrane"], a: 2, e: "Eukaryotic cells (plant and animal) enclose their DNA in a nucleus."},
+        {q: "Where is the genetic material found in a prokaryotic cell?", o: ["Inside the nucleus", "In a single DNA loop and plasmids", "Inside mitochondria", "Attached to chloroplasts"], a: 1, e: "Prokaryotes do not have a nucleus; they have a main DNA loop and small rings called plasmids."},
+        {q: "Which of these is generally smaller?", o: ["A plant cell", "An animal cell", "A prokaryotic cell", "A yeast cell"], a: 2, e: "Prokaryotic cells are orders of magnitude smaller than eukaryotic cells."},
+        {q: "What is a plasmid?", o: ["A type of white blood cell", "A small ring of extra DNA", "A sugar found in plants", "An organelle for respiration"], a: 1, e: "Plasmids are small, circular loops of DNA found naturally in bacteria."},
+        
+        // Animal and Plant Cells
+        {q: "What is the function of the cell membrane?", o: ["Controls what enters and leaves the cell", "Provides structural support", "Site of protein synthesis", "Site of photosynthesis"], a: 0, e: "The cell membrane is partially permeable and controls substance transport."},
+        {q: "Where do most chemical reactions take place in a cell?", o: ["Nucleus", "Cytoplasm", "Mitochondria", "Ribosomes"], a: 1, e: "The cytoplasm is a gel-like substance where most of the cell's chemical reactions occur."},
+        {q: "Which organelle is the site of aerobic respiration?", o: ["Chloroplast", "Ribosome", "Mitochondria", "Vacuole"], a: 2, e: "Mitochondria transfer energy for the cell to use through aerobic respiration."},
+        {q: "Where are proteins synthesized in the cell?", o: ["Nucleus", "Ribosomes", "Vacuole", "Cell membrane"], a: 1, e: "Ribosomes are responsible for making proteins from amino acids."},
+        {q: "Which of these structures is found in plant cells but NOT animal cells?", o: ["Mitochondria", "Ribosomes", "Permanent vacuole", "Cell membrane"], a: 2, e: "Plant cells typically have a permanent vacuole filled with cell sap."},
+        {q: "What is the plant cell wall made of?", o: ["Starch", "Glycogen", "Cellulose", "Lipids"], a: 2, e: "Cellulose strengthens the plant cell wall."},
+        {q: "What is the function of chloroplasts?", o: ["To store water", "To release energy via respiration", "To absorb light for photosynthesis", "To produce proteins"], a: 2, e: "Chloroplasts contain chlorophyll, which absorbs light for photosynthesis."},
+        {q: "What does the permanent vacuole contain?", o: ["DNA", "Cell sap", "Chlorophyll", "Enzymes"], a: 1, e: "It contains cell sap, a weak solution of sugar and salts, keeping the cell turgid."},
+        {q: "Why do root hair cells not contain chloroplasts?", o: ["They are too small", "They are underground and receive no light", "They only respire anaerobically", "They are dead cells"], a: 1, e: "Chloroplasts are for photosynthesis, which requires light. Root hair cells are underground."},
+        {q: "Algal cells are most similar to which type of cell?", o: ["Bacterial cells", "Animal cells", "Plant cells", "Fungal cells"], a: 2, e: "Algal cells are eukaryotic and, like plant cells, have a cell wall and chloroplasts."},
+        
+        // Microscopy
+        {q: "What is the formula for calculating magnification?", o: ["Size of image / Size of real object", "Size of real object / Size of image", "Size of image × Size of real object", "Resolution × Size of image"], a: 0, e: "Magnification = Image size ÷ Actual size (I = A x M)."},
+        {q: "Which microscope has a higher resolving power?", o: ["Light microscope", "Electron microscope", "Optical microscope", "Dissecting microscope"], a: 1, e: "Electron microscopes have a much higher resolution and magnification than light microscopes."},
+        {q: "What is 'resolution' in microscopy?", o: ["How big the image is", "The ability to distinguish between two separate points", "The color depth of the image", "The brightness of the light source"], a: 1, e: "Resolution is the measure of the level of detail that can be seen."},
+        {q: "How many micrometres (µm) are in a millimetre (mm)?", o: ["10", "100", "1000", "10000"], a: 2, e: "There are 1000 micrometres in 1 millimetre."},
+        {q: "If an image measures 10mm and the real object is 0.1mm, what is the magnification?", o: ["x10", "x100", "x1", "x1000"], a: 1, e: "10mm / 0.1mm = 100x magnification."},
+        
+        // Specialised Cells
+        {q: "How is a sperm cell specialised for its function?", o: ["It has a large surface area", "It has a long tail and many mitochondria", "It contains no nucleus", "It has a thick cell wall"], a: 1, e: "The tail helps it swim, and mitochondria provide the energy needed for movement."},
+        {q: "What is the function of the acrosome in a sperm cell?", o: ["It stores energy", "It contains enzymes to penetrate the egg", "It controls the tail movement", "It holds the DNA"], a: 1, e: "The acrosome contains digestive enzymes to break through the egg cell membrane."},
+        {q: "How are nerve cells specialised?", o: ["They have cilia to move mucus", "They are long with branched connections", "They lack a nucleus", "They contain lots of chloroplasts"], a: 1, e: "They are long to cover distance and have branched ends (dendrites) to connect to other nerves."},
+        {q: "What feature of muscle cells allows them to contract?", o: ["They contain protein fibres that slide over each other", "They have a thick cell wall", "They contain haemoglobin", "They have lots of vacuoles"], a: 0, e: "Muscle cells contain protein filaments that slide past one another to cause contraction."},
+        {q: "How is a root hair cell adapted for absorption?", o: ["It has a large surface area", "It has a long tail", "It contains many chloroplasts", "It is hollow"], a: 0, e: "The 'hair' shape creates a large surface area for absorbing water and minerals from the soil."},
+        {q: "Which specialised cells form tubes to transport water in plants?", o: ["Phloem", "Xylem", "Guard cells", "Palisade cells"], a: 1, e: "Xylem cells form hollow tubes strengthened by lignin to transport water and minerals."},
+        {q: "Which cells transport dissolved sugars around a plant?", o: ["Xylem", "Epidermal cells", "Phloem", "Root hair cells"], a: 2, e: "Phloem cells form tubes with pores in their end walls to transport dissolved food."},
+        
+        // Transport in Cells (Diffusion, Osmosis, Active Transport)
+        {q: "What is diffusion?", o: ["Movement of water against a gradient", "Net movement of particles from high to low concentration", "Movement of particles requiring energy", "Division of a cell"], a: 1, e: "Diffusion is a passive process resulting in the net movement of particles down a concentration gradient."},
+        {q: "Which of the following increases the rate of diffusion?", o: ["A lower temperature", "A smaller surface area", "A steeper concentration gradient", "A thicker membrane"], a: 2, e: "The greater the difference in concentration, the faster the rate of diffusion."},
+        {q: "Which gas diffuses into the blood from the lungs?", o: ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"], a: 1, e: "Oxygen diffuses from the alveoli (high concentration) into the blood (low concentration)."},
+        {q: "What is osmosis?", o: ["Diffusion of sugar", "Diffusion of water across a partially permeable membrane", "Active transport of water", "Movement of ions across a cell wall"], a: 1, e: "Osmosis specifically refers to the diffusion of water from a dilute to a concentrated solution."},
+        {q: "If a piece of potato is placed in pure water, what will happen to its mass?", o: ["It will increase", "It will decrease", "It will stay the same", "It will melt"], a: 0, e: "Water moves into the potato cells by osmosis because the pure water is a more dilute solution than the potato's cytoplasm."},
+        {q: "What does active transport require that diffusion does not?", o: ["A concentration gradient", "Energy from respiration", "Water", "A partially permeable membrane"], a: 1, e: "Active transport moves substances against the concentration gradient, which requires energy (ATP)."},
+        {q: "Where does active transport occur in humans?", o: ["Alveoli in the lungs", "Absorbing glucose in the small intestine", "Sweating from skin", "Tear production in eyes"], a: 1, e: "It allows sugar molecules to be absorbed from lower concentrations in the gut into the blood."},
+        {q: "How do root hair cells take in mineral ions from the soil?", o: ["Osmosis", "Diffusion", "Active transport", "Evaporation"], a: 2, e: "Mineral ions are often in lower concentrations in the soil than in the plant, requiring active transport."},
+        {q: "Why do single-celled organisms not need complex exchange surfaces?", o: ["They don't respire", "They have a very large surface area to volume ratio", "They have thick cell walls", "They don't produce waste"], a: 1, e: "Their large SA:V ratio allows enough substances to diffuse directly across their membrane."},
+        {q: "How are the alveoli adapted for gas exchange?", o: ["Small surface area and thick walls", "Large surface area and thin walls", "Dry surface and no blood supply", "Few blood capillaries"], a: 1, e: "Large SA and one-cell-thick walls maximize the rate of diffusion."},
+        
+        // Cell Division
+        {q: "Where are chromosomes found in a eukaryotic cell?", o: ["Cytoplasm", "Nucleus", "Ribosomes", "Vacuole"], a: 1, e: "Chromosomes are coiled strands of DNA located inside the nucleus."},
+        {q: "How many chromosomes are in a normal human body cell?", o: ["23", "46", "23 pairs", "Both 46 and 23 pairs"], a: 3, e: "Human body cells contain 23 pairs of chromosomes, making 46 in total."},
+        {q: "What is a gene?", o: ["A whole chromosome", "A protein", "A short section of DNA that codes for a protein", "An organelle"], a: 2, e: "Genes are small sections of DNA on a chromosome that control specific characteristics."},
+        {q: "What must a cell do before it divides by mitosis?", o: ["Replicate its DNA", "Lose its nucleus", "Shrink in size", "Destroy its mitochondria"], a: 0, e: "The cell must grow and copy its genetic material so both new cells get a full set of DNA."},
+        {q: "What is the purpose of mitosis in humans?", o: ["To produce gametes", "Growth and repair of cells", "To create genetic variation", "To produce energy"], a: 1, e: "Mitosis produces identical somatic (body) cells for growth or replacing damaged cells."},
+        {q: "How many daughter cells are produced in mitosis?", o: ["Two genetically identical cells", "Four genetically identical cells", "Two genetically different cells", "Four genetically different cells"], a: 0, e: "Mitosis results in two daughter cells that are exact clones of the parent cell."},
+        
+        // Stem Cells
+        {q: "What is a stem cell?", o: ["A fully differentiated cell", "An undifferentiated cell that can give rise to other cell types", "A cell found only in the stem of a plant", "A dead cell"], a: 1, e: "Stem cells are unspecialised cells that can divide to produce different types of specialised cells."},
+        {q: "Where can stem cells be found in adult humans?", o: ["Brain and heart", "Bone marrow", "Only in the blood", "Liver and kidneys"], a: 1, e: "Adult stem cells are found in certain places, like bone marrow, though they can only turn into certain cell types (like blood cells)."},
+        {q: "Why are embryonic stem cells considered more useful than adult stem cells?", o: ["They are easier to extract", "They can differentiate into ANY type of human cell", "They are cheaper", "They don't divide"], a: 1, e: "Unlike bone marrow stem cells, embryonic stem cells are pluripotent and can form any cell type."},
+        {q: "Where are stem cells found in plants?", o: ["The xylem", "The phloem", "The meristems", "The chloroplasts"], a: 2, e: "Meristem tissue in the tips of roots and shoots contains plant stem cells."},
+        {q: "What is a major advantage of using plant meristems?", o: ["They can cure human diseases", "They can be used to quickly and cheaply clone plants", "They produce more oxygen", "They prevent photosynthesis"], a: 1, e: "Meristems allow us to clone rare plants or plants with special features (like disease resistance) quickly."},
+        {q: "What is 'therapeutic cloning'?", o: ["Cloning plants for agriculture", "Creating an embryo with the same genes as the patient", "Making identical twins", "Cloning bacteria for medicine"], a: 1, e: "Therapeutic cloning creates an embryo with the patient's DNA, so the stem cells won't be rejected by their body."},
+        {q: "What is a potential risk of using stem cells in medicine?", o: ["They might start photosynthesising", "They may transfer viral infections", "They cure all known diseases immediately", "They turn into plant cells"], a: 1, e: "Stem cells grown in a lab may become infected with a virus, which could be passed to the patient."}
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 15;
+    let isAnswered = false;
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const endScreen = document.getElementById('end-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationDiv = document.getElementById('explanation');
+    const nextBtn = document.getElementById('next-btn');
+    const timerDisplay = document.getElementById('timer');
+    const qCountDisplay = document.getElementById('question-count');
+
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        clearInterval(timerInterval);
+        isAnswered = false;
+        timeLeft = 15;
+        timerDisplay.textContent = timeLeft + "s";
+        timerDisplay.style.color = "var(--text-main)";
+        
+        explanationDiv.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        optionsContainer.innerHTML = '';
+        
+        const qData = quizData[currentQuestionIndex];
+        qCountDisplay.textContent = `Question: ${currentQuestionIndex + 1}/50`;
+        questionText.textContent = qData.q;
+        
+        qData.o.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = option;
+            btn.onclick = () => selectAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft + "s";
+            if (timeLeft <= 5) timerDisplay.style.color = "var(--wrong)";
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeOut();
+            }
+        }, 1000);
+    }
+
+    function selectAnswer(selectedIndex, btn) {
+        if (isAnswered) return;
+        isAnswered = true;
+        clearInterval(timerInterval);
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        
+        allBtns.forEach(b => b.disabled = true); 
+        
+        if (selectedIndex === qData.a) {
+            btn.classList.add('correct-ans');
+            score++;
+            explanationDiv.innerHTML = `<strong>Correct!</strong> ${qData.e}`;
+        } else {
+            btn.classList.add('wrong-ans');
+            allBtns[qData.a].classList.add('correct-ans');
+            explanationDiv.innerHTML = `<strong>Incorrect.</strong> ${qData.e}`;
+        }
+        
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function handleTimeOut() {
+        if (isAnswered) return;
+        isAnswered = true;
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+        
+        allBtns[qData.a].classList.add('correct-ans');
+        explanationDiv.innerHTML = `<strong>Time's up!</strong> ${qData.e}`;
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        quizScreen.classList.add('hidden');
+        endScreen.classList.remove('hidden');
+        document.getElementById('final-score').textContent = score;
+    }
+</script>
+
+</body>
+</html>

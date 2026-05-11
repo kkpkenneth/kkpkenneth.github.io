@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="Images/icon.png" type="image/png" sizes="16x16">
     
-    <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-175443844-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -15,7 +14,6 @@
       gtag('config', 'UA-175443844-1');
     </script>
 
-    <!-- AdSense & Analytics -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 
     <style>
@@ -124,7 +122,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 12px;
-            height: auto; /* Adjusted from 200px so it fits smaller category lists beautifully */
+            height: auto; 
             padding: 10px;
         }
         .place-tag {
@@ -132,11 +130,21 @@
             color: #555;
             padding: 10px 20px;
             font-size: 13px;
-            border-radius: 2px;
+            border-radius: 4px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             text-transform: uppercase;
             letter-spacing: 1px;
             white-space: nowrap;
+            text-decoration: none; 
+            transition: all 0.3s ease; 
+            cursor: pointer;
+        }
+        
+        .place-tag:hover {
+            background-color: rgb(43,115,220);
+            color: white;
+            box-shadow: 0 4px 10px rgba(43,115,220,0.3);
+            transform: translateY(-2px);
         }
 
         /* FOOTER */
@@ -151,22 +159,21 @@
 </head>
 <body>
 
-<!-- Adjusted Menu Links to point back to index for other continents -->
 <nav class="menu">
     <div class="menu-toggle" onclick="toggleMenu()">☰</div>
     <ul class="menu-list" id="menuList">
         <li><a href="index.html">🌎</a></li>
-        <li><a href="#" style="color: white; border-bottom: 1px solid white;">Asia</a></li>
-        <li><a href="index.html#europe">Europe</a></li>
-        <li><a href="index.html#africa">Africa</a></li>
-        <li><a href="index.html#americas">Americas</a></li>
-        <li><a href="index.html#oceania">Oceania</a></li>
+        <li><a href="asia.html" style="color: white; border-bottom: 1px solid white;">Asia</a></li>
+        <li><a href="europe.html">Europe</a></li>
+        <li><a href="africa.html">Africa</a></li>
+        <li><a href="americas.html">Americas</a></li>
+        <li><a href="oceania.html">Oceania</a></li>
         <li><a href="about.html">About</a></li>
+        <li><a href="games.html">Games</a></li>
     </ul>
 </nav>
 <div class="menuspace"></div>
 
-<!-- NOTICE BARS -->
 <div class="notice">
     <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
 </div>
@@ -174,30 +181,14 @@
     <p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
 </div>
 
-<!-- RANDOMIZED COVERS -->
 <div id="full-section" class="full-container"></div>
 <div id="split-section" class="split-grid"></div>
 
-<!-- ASIAN PLACES VISITED -->
 <section class="places-wrap">
     <h2>Asian Archive</h2>
-    <div class="places-grid">
-        <span class="place-tag">Azerbaijan 🇦🇿</span>
-        <span class="place-tag">Japan 🇯🇵</span>
-        <span class="place-tag">India 🇮🇳</span>
-        <span class="place-tag">Vietnam 🇻🇳</span>
-        <span class="place-tag">Nepal 🇳🇵</span>
-        <span class="place-tag">Yemen 🇾🇪</span>
-        <span class="place-tag">Sri Lanka 🇱🇰</span>
-        <span class="place-tag">Myanmar 🇲🇲</span>
-        <span class="place-tag">Lebanon 🇱🇧</span>
-        <span class="place-tag">Turkey 🇹🇷</span>
-        <span class="place-tag">Maldives 🇲🇻</span>
-        <span class="place-tag">Indonesia 🇮🇩</span>
-    </div>
+    <div class="places-grid" id="placesGrid"></div>
 </section>
 
-<!-- FOOTER -->
 <footer id="support">
     <p>Support the journey</p>
     <a href="https://payme.hsbc/yourmoneymymoney"><img src="Images/qr.jpg" height="120" alt="Support"></a>
@@ -215,63 +206,75 @@
     function toggleMenu() {
         document.getElementById('menuList').classList.toggle('active');
     }
+    
+    const destinationsAsia = [
+        { title: "Hong Kong", caption: "Pearl of the Orient", image: "Images/Countries/Hong Kong.jpg", link: "Countries/hongkong.html", color: "white" },
+        { title: "Taiwan", caption: "Heart of Asia", image: "Images/Countries/Taiwan.jpg", link: "Countries/taiwan.html", color: "white" },
+        { title: "Japan", caption: "Neon and Tradition", image: "Images/Countries/Japan.jpg", link: "Countries/japan.html", color: "white" },
+        { title: "South Korea", caption: "Dynamic and Timeless", image: "Images/Countries/South Korea.jpg", link: "Countries/southkorea.html", color: "white" },
+        { title: "Mongolia", caption: "Empire of the Steppe", image: "Images/Countries/Mongolia.jpg", link: "Countries/mongolia.html", color: "white" },
+        { title: "China", caption: "The Middle Kingdom", image: "Images/Countries/China.jpg", link: "Countries/china.html", color: "white" },
+        { title: "Macau", caption: "Heritage and High Stakes", image: "Images/Countries/Macau.jpg", link: "Countries/macau.html", color: "white" },
+        { title: "Jordan", caption: "Rose City Sands", image: "Images/Countries/Jordan.jpg", link: "Countries/jordan.html", color: "white" },
+        { title: "United Arab Emirates", caption: "Oasis of Glass", image: "Images/Countries/United Arab Emirates.jpg", link: "Countries/unitedarabemirates.html", color: "white" },
+        { title: "Qatar", caption: "Pearls and Peninsula", image: "Images/Countries/Qatar.jpg", link: "Countries/qatar.html", color: "white" },
+        { title: "Kuwait", caption: "Towers of the Gulf", image: "Images/Countries/Kuwait.jpg", link: "Countries/kuwait.html", color: "white" },
+        { title: "Bahrain", caption: "Tree of Life", image: "Images/Countries/Bahrain.jpg", link: "Countries/bahrain.html", color: "white" },
+        { title: "Saudi Arabia", caption: "Kingdom of Sand", image: "Images/Countries/Saudi Arabia.jpg", link: "Countries/saudiarabia.html", color: "white" },
+        { title: "Yemen", caption: "The Alien Flora of Socotra", image: "Images/Countries/Yemen.jpg", link: "Countries/yemen.html", color: "white" },
+        { title: "Oman", caption: "Frankincense and Fjords", image: "Images/Countries/Oman.jpg", link: "Countries/oman.html", color: "white" },
+        { title: "Philippines", caption: "Islands of Emerald", image: "Images/Countries/Philippines.jpg", link: "Countries/philippines.html", color: "white" },
+        { title: "India", caption: "Colors of the Subcontinent", image: "Images/Countries/India.jpg", link: "Countries/india.html", color: "white" },
+        { title: "Pakistan", caption: "Peaks of the Karakoram", image: "Images/Countries/Pakistan.jpg", link: "Countries/pakistan.html", color: "white" },
+        { title: "Sri Lanka", caption: "Tears of the Indian Ocean", image: "Images/Countries/Sri Lanka.jpg", link: "Countries/srilanka.html", color: "white" },
+        { title: "Maldives", caption: "Chill Like a Boss", image: "Images/Countries/Maldives.jpg", link: "Countries/maldives.html", color: "white" },
+        { title: "Bangladesh", caption: "Rivers and Mangroves", image: "Images/Countries/Bangladesh.jpg", link: "Countries/bangladesh.html", color: "white" },
+        { title: "Nepal", caption: "Roof of the World", image: "Images/Countries/Nepal.jpg", link: "Countries/nepal.html", color: "white" },
+        { title: "Bhutan", caption: "The Thunder Dragon", image: "Images/Countries/Bhutan.jpg", link: "Countries/bhutan.html", color: "white" },
+        { title: "Myanmar", caption: "Where sunrise lights up your soul", image: "Images/Countries/Myanmar.jpg", link: "Countries/myanmar.html", color: "white" },
+        { title: "Thailand", caption: "Temples and Tropics", image: "Images/Countries/Thailand.jpg", link: "Countries/thailand.html", color: "white" },
+        { title: "Vietnam", caption: "The Dragon's Ascent", image: "Images/Countries/Vietnam.jpg", link: "Countries/vietnam.html", color: "white" },
+        { title: "Laos", caption: "Land of a Million Elephants", image: "Images/Countries/Laos.jpg", link: "Countries/laos.html", color: "white" },
+        { title: "Cambodia", caption: "Ruins of the Khmer", image: "Images/Countries/Cambodia.jpg", link: "Countries/cambodia.html", color: "white" },
+        { title: "Malaysia", caption: "Rainforests and Skyscrapers", image: "Images/Countries/Malaysia.jpg", link: "Countries/malaysia.html", color: "white" },
+        { title: "Singapore", caption: "The Lion City", image: "Images/Countries/Singapore.jpg", link: "Countries/singapore.html", color: "white" },
+        { title: "Brunei", caption: "Abode of Peace", image: "Images/Countries/Brunei.jpg", link: "Countries/brunei.html", color: "white" },
+        { title: "Indonesia", caption: "The Jungle Rook", image: "Images/Countries/Indonesia.jpg", link: "Countries/indonesia.html", color: "white" },
+        { title: "Kazakhstan", caption: "Nomads of the Steppe", image: "Images/Countries/Kazakhstan.jpg", link: "Countries/kazakhstan.html", color: "white" },
+        { title: "Kyrgyzstan", caption: "Celestial Mountains", image: "Images/Countries/Kyrgyzstan.jpg", link: "Countries/kyrgyzstan.html", color: "white" },
+        { title: "Tajikistan", caption: "Roof of the World", image: "Images/Countries/Tajikistan.jpg", link: "Countries/tajikistan.html", color: "white" },
+        { title: "Uzbekistan", caption: "Jewels of the Silk Road", image: "Images/Countries/Uzbekistan.jpg", link: "Countries/uzbekistan.html", color: "white" },
+        { title: "Turkmenistan", caption: "Gates of Hell", image: "Images/Countries/Turkmenistan.jpg", link: "Countries/turkmenistan.html", color: "white" },
+        { title: "Azerbaijan", caption: "Fire and Silk", image: "Images/Countries/Azerbaijan.jpg", link: "Countries/azerbaijan.html", color: "white" },
+        { title: "Georgia", caption: "Wine and Watchtowers", image: "Images/Countries/Georgia.jpg", link: "Countries/georgia.html", color: "white" },
+        { title: "Armenia", caption: "Stones of Antiquity", image: "Images/Countries/Armenia.jpg", link: "Countries/armenia.html", color: "white" },
+        { title: "Turkey", caption: "Crossroads of Continents", image: "Images/Countries/Turkey.jpg", link: "Countries/turkey.html", color: "white" },
+        { title: "Timor-Leste", caption: "Sunrise of Asia", image: "Images/Countries/Timor-Leste.jpg", link: "Countries/timorleste.html", color: "white" },
+        { title: "Afghanistan", caption: "Crossroads of Empires", image: "Images/Countries/Afghanistan.jpg", link: "Countries/afghanistan.html", color: "white" },
+        { title: "Iran", caption: "Persian Splendor", image: "Images/Countries/Iran.jpg", link: "Countries/iran.html", color: "white" },
+        { title: "Iraq", caption: "Cradle of Civilization", image: "Images/Countries/Iraq.jpg", link: "Countries/iraq.html", color: "white" },
+        { title: "Syria", caption: "Ancient Citadels", image: "Images/Countries/Syria.jpg", link: "Countries/syria.html", color: "white" },
+        { title: "Lebanon", caption: "Pearl of the Middle East", image: "Images/Countries/Lebanon.jpg", link: "Countries/lebanon.html", color: "white" },
+        { title: "Israel", caption: "Sacred Stones", image: "Images/Countries/Israel.jpg", link: "Countries/israel.html", color: "white" },
+        { title: "Palestine", caption: "Olive Groves and History", image: "Images/Countries/Palestine.jpg", link: "Countries/palestine.html", color: "white" }
+    ];
 
-    // This array is now exclusively populated with your Asian destinations
-    const asianDestinations = [
-    { title: "Hong Kong", caption: "Pearl of the Orient", image: "Images/Countries/HongKong.jpg", link: "hongkong.html", color: "white" },
-    { title: "Taiwan", caption: "Heart of Asia", image: "Images/Countries/Taiwan.jpg", link: "taiwan.html", color: "white" },
-    { title: "Japan", caption: "Neon and Tradition", image: "Images/Countries/Japan.jpg", link: "japan.html", color: "white" },
-    { title: "South Korea", caption: "Dynamic and Timeless", image: "Images/Countries/SouthKorea.jpg", link: "southkorea.html", color: "white" },
-    { title: "Mongolia", caption: "Empire of the Steppe", image: "Images/Countries/Mongolia.jpg", link: "mongolia.html", color: "white" },
-    { title: "China", caption: "The Middle Kingdom", image: "Images/Countries/China.jpg", link: "china.html", color: "white" },
-    { title: "Macau", caption: "Heritage and High Stakes", image: "Images/Countries/Macau.jpg", link: "macau.html", color: "white" },
-    { title: "Philippines", caption: "Islands of Emerald", image: "Images/Countries/Philippines.jpg", link: "philippines.html", color: "white" },
-    { title: "India", caption: "Colors of the Subcontinent", image: "Images/Countries/India.jpg", link: "india.html", color: "white" },
-    { title: "Pakistan", caption: "Peaks of the Karakoram", image: "Images/Countries/Pakistan.jpg", link: "pakistan.html", color: "white" },
-    { title: "Sri Lanka", caption: "Tears of the Indian Ocean", image: "Images/Countries/SriLanka.jpg", link: "srilanka.html", color: "white" },
-    { title: "Maldives", caption: "Chill Like a Boss", image: "Images/Countries/Maldives.jpg", link: "maldives.html", color: "white" },
-    { title: "Bangladesh", caption: "Rivers and Mangroves", image: "Images/Countries/Bangladesh.jpg", link: "bangladesh.html", color: "white" },
-    { title: "Nepal", caption: "Roof of the World", image: "Images/Countries/Nepal.jpg", link: "nepal.html", color: "white" },
-    { title: "Bhutan", caption: "The Thunder Dragon", image: "Images/Countries/Bhutan.jpg", link: "bhutan.html", color: "white" },
-    { title: "Myanmar", caption: "Where sunrise lights up your soul", image: "Images/Countries/Myanmar.jpg", link: "myanmar.html", color: "white" },
-    { title: "Thailand", caption: "Temples and Tropics", image: "Images/Countries/Thailand.jpg", link: "thailand.html", color: "white" },
-    { title: "Vietnam", caption: "The Dragon's Ascent", image: "Images/Countries/Vietnam.jpg", link: "vietnam.html", color: "white" },
-    { title: "Laos", caption: "Land of a Million Elephants", image: "Images/Countries/Laos.jpg", link: "laos.html", color: "white" },
-    { title: "Cambodia", caption: "Ruins of the Khmer", image: "Images/Countries/Cambodia.jpg", link: "cambodia.html", color: "white" },
-    { title: "Malaysia", caption: "Rainforests and Skyscrapers", image: "Images/Countries/Malaysia.jpg", link: "malaysia.html", color: "white" },
-    { title: "Singapore", caption: "The Lion City", image: "Images/Countries/Singapore.jpg", link: "singapore.html", color: "white" },
-    { title: "Brunei", caption: "Abode of Peace", image: "Images/Countries/Brunei.jpg", link: "brunei.html", color: "white" },
-    { title: "Indonesia", caption: "The Jungle Rook", image: "Images/Countries/Indonesia.jpg", link: "indonesia.html", color: "white" },
-    { title: "Kazakhstan", caption: "Nomads of the Steppe", image: "Images/Countries/Kazakhstan.jpg", link: "kazakhstan.html", color: "white" },
-    { title: "Kyrgyzstan", caption: "Celestial Mountains", image: "Images/Countries/Kyrgyzstan.jpg", link: "kyrgyzstan.html", color: "white" },
-    { title: "Tajikistan", caption: "Roof of the World", image: "Images/Countries/Tajikistan.jpg", link: "tajikistan.html", color: "white" },
-    { title: "Uzbekistan", caption: "Jewels of the Silk Road", image: "Images/Countries/Uzbekistan.jpg", link: "uzbekistan.html", color: "white" },
-    { title: "Turkmenistan", caption: "Gates of Hell", image: "Images/Countries/Turkmenistan.jpg", link: "turkmenistan.html", color: "white" },
-    { title: "Azerbaijan", caption: "Fire and Silk", image: "Images/Countries/Azerbaijan.jpg", link: "azerbaijan.html", color: "white" },
-    { title: "Georgia", caption: "Wine and Watchtowers", image: "Images/Countries/Georgia.jpg", link: "georgia.html", color: "white" },
-    { title: "Armenia", caption: "Stones of Antiquity", image: "Images/Countries/Armenia.jpg", link: "armenia.html", color: "white" },
-    { title: "Turkey", caption: "Crossroads of Continents", image: "Images/Countries/Turkey.jpg", link: "turkey.html", color: "white" },
-    { title: "Timor-Leste", caption: "Sunrise of Asia", image: "Images/Countries/TimorLeste.jpg", link: "timorleste.html", color: "white" },
-    { title: "Afghanistan", caption: "Crossroads of Empires", image: "Images/Countries/Afghanistan.jpg", link: "afghanistan.html", color: "white" },
-    { title: "Iran", caption: "Persian Splendor", image: "Images/Countries/Iran.jpg", link: "iran.html", color: "white" },
-    { title: "Iraq", caption: "Cradle of Civilization", image: "Images/Countries/Iraq.jpg", link: "iraq.html", color: "white" },
-    { title: "Syria", caption: "Ancient Citadels", image: "Images/Countries/Syria.jpg", link: "syria.html", color: "white" },
-    { title: "Lebanon", caption: "Pearl of the Middle East", image: "Images/Countries/Lebanon.jpg", link: "lebanon.html", color: "white" },
-    { title: "Israel", caption: "Sacred Stones", image: "Images/Countries/Israel.jpg", link: "israel.html", color: "white" },
-    { title: "Palestine", caption: "Olive Groves and History", image: "Images/Countries/Palestine.jpg", link: "palestine.html", color: "white" },
-    { title: "Jordan", caption: "Rose City Sands", image: "Images/Countries/Jordan.jpg", link: "jordan.html", color: "white" },
-    { title: "United Arab Emirates", caption: "Oasis of Glass", image: "Images/Countries/UnitedArabEmirates.jpg", link: "unitedarabemirates.html", color: "white" },
-    { title: "Qatar", caption: "Pearls and Peninsula", image: "Images/Countries/Qatar.jpg", link: "qatar.html", color: "white" },
-    { title: "Kuwait", caption: "Towers of the Gulf", image: "Images/Countries/Kuwait.jpg", link: "kuwait.html", color: "white" },
-    { title: "Bahrain", caption: "Tree of Life", image: "Images/Countries/Bahrain.jpg", link: "bahrain.html", color: "white" },
-    { title: "Saudi Arabia", caption: "Kingdom of Sand", image: "Images/Countries/SaudiArabia.jpg", link: "saudiarabia.html", color: "white" },
-    { title: "Yemen", caption: "The Alien Flora of Socotra", image: "Images/Countries/Yemen.jpg", link: "yemen.html", color: "white" },
-    { title: "Oman", caption: "Frankincense and Fjords", image: "Images/Countries/Oman.jpg", link: "oman.html", color: "white" }
-];
+    const visitedPlacesAsia = [
+        "🇭🇰 Hong Kong", "🇹🇼 Taiwan", "🇯🇵 Japan", "🇰🇷 South Korea", "🇲🇳 Mongolia", 
+        "🇨🇳 China", "🇲🇴 Macau", "🇯🇴 Jordan", "🇦🇪 United Arab Emirates", "🇶🇦 Qatar", 
+        "🇰🇼 Kuwait", "🇧🇭 Bahrain", "🇸🇦 Saudi Arabia", "🇾🇪 Yemen", "🇴🇲 Oman", 
+        "🇵🇭 Philippines", "🇮🇳 India", "🇵🇰 Pakistan", "🇱🇰 Sri Lanka", "🇲🇻 Maldives", 
+        "🇧🇩 Bangladesh", "🇳🇵 Nepal", "🇧🇹 Bhutan", "🇲🇲 Myanmar", "🇹🇭 Thailand", 
+        "🇻🇳 Vietnam", "🇱🇦 Laos", "🇰🇭 Cambodia", "🇲🇾 Malaysia", "🇸🇬 Singapore", 
+        "🇧🇳 Brunei", "🇮🇩 Indonesia", "🇰🇿 Kazakhstan", "🇰🇬 Kyrgyzstan", "🇹🇯 Tajikistan", 
+        "🇺🇿 Uzbekistan", "🇹🇲 Turkmenistan", "🇦🇿 Azerbaijan", "🇬🇪 Georgia", "🇦🇲 Armenia", 
+        "🇹🇷 Turkey", "🇹🇱 Timor-Leste", "🇦🇫 Afghanistan", "🇮🇷 Iran", "🇮🇶 Iraq", 
+        "🇸🇾 Syria", "🇱🇧 Lebanon", "🇮🇱 Israel", "🇵🇸 Palestine"
+    ];
 
     function buildLayout() {
-        // We still shuffle the list so the page looks fresh every time
-        const shuffled = [...destinations].sort(() => 0.5 - Math.random());
+        // Changed to shuffle destinationsAsia
+        const shuffled = [...destinationsAsia].sort(() => 0.5 - Math.random());
         const fullSection = document.getElementById('full-section');
         const splitSection = document.getElementById('split-section');
 
@@ -291,7 +294,7 @@
             fullSection.appendChild(block);
         });
 
-        // Build up to 6 Split Covers (or however many are left in the Asian array)
+        // Build 6 Split Covers 
         shuffled.slice(3, 9).forEach(item => {
             const block = document.createElement('a');
             block.className = 'cover-block split-height';
@@ -305,6 +308,19 @@
                 </div>
             `;
             splitSection.appendChild(block);
+        });
+
+        // Generate the Asian Archive Buttons dynamically 
+        const placesGrid = document.getElementById('placesGrid');
+        
+        visitedPlacesAsia.forEach(place => {
+            // Regex automatically strips out the emoji and spaces to form clean links
+            const fileBase = place.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const link = document.createElement('a');
+            link.href = "Countries/" + fileBase + ".html";
+            link.className = 'place-tag';
+            link.innerText = place;
+            placesGrid.appendChild(link);
         });
     }
 

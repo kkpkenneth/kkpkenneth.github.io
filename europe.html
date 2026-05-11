@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="Images/icon.png" type="image/png" sizes="16x16">
     
-    <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-175443844-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -14,159 +13,73 @@
       gtag('js', new Date());
       gtag('config', 'UA-175443844-1');
     </script>
-
-    <!-- AdSense & Analytics -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 
     <style>
-        /* SMOOTH SCROLLING FOR DONATION LINK */
         html { scroll-behavior: smooth; }
-
         body { margin: 0; padding: 0; font-family: helvetica; background-color: white; overflow-x: hidden; }
-
-        /* MENU STYLES */
         .menuspace { height: 50px; background-color: rgb(50,50,50); }
-        .menu { 
-            background-color: rgba(50, 50, 50, 0.95); 
-            backdrop-filter: blur(10px);              
-            width: 100%; position: fixed; top: 0; z-index: 2000; 
-            display: flex; justify-content: center; align-items: center;
-            transition: all 0.3s ease;
-        }
+        .menu { background-color: rgba(50, 50, 50, 0.95); backdrop-filter: blur(10px); width: 100%; position: fixed; top: 0; z-index: 2000; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
         .menu-list { margin: 0; padding: 0; display: flex; list-style: none; }
         .menu-list li { position: relative; }
-        .menu-list a { 
-            color: rgb(194, 194, 194); text-decoration: none; display: block;
-            padding: 15px 25px; font-size: 13px; text-transform: uppercase;
-            letter-spacing: 1.5px; transition: color 0.3s ease;
-        }
+        .menu-list a { color: rgb(194, 194, 194); text-decoration: none; display: block; padding: 15px 25px; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; }
         .menu-toggle { display: none; color: white; font-size: 20px; padding: 15px; cursor: pointer; }
-
-        @media only screen and (max-width: 900px) {
-            .menu { justify-content: space-between; }
-            .menu-toggle { display: block; }
-            .menu-list {
-                display: none; flex-direction: column; position: absolute;
-                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
-                border-top: 1px solid #444;
-            }
-            .menu-list.active { display: flex; }
-        }
-
-        /* NOTICE BARS */
+        @media only screen and (max-width: 900px) { .menu { justify-content: space-between; } .menu-toggle { display: block; } .menu-list { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50); border-top: 1px solid #444; } .menu-list.active { display: flex; } }
+        
         .notice { overflow: hidden; background-color: rgb(43,115,220); width: 100%; text-align: center; height: 45px; position: relative; }
         .notice p { color: white; font-size: 13px; word-spacing: 5px; margin-top: 15px; margin-bottom: 0; }
         .notice a { color: white; text-decoration: none; padding: 10px; }
-        
         .notice2 { overflow: hidden; background-color: white; width: 100%; text-align: center; height: 45px; position: relative; border-bottom: 1px solid #eee; }
         .notice2 p { color: gray; font-size: 13px; word-spacing: 3px; margin-top: 15px; margin-bottom: 0; }
         .notice2 a { color: gray; text-decoration: none; padding: 10px; }
         .notice2 p:hover a { text-decoration: underline; }
-
         .closebtn { color: gray; font-weight: bold; font-size: 16px; cursor: pointer; position: absolute; right: 20px; top: 12px; transition: 0.3s; }
         .notice .closebtn { color: white; }
         .closebtn:hover { color: black; }
 
-        /* LAYOUT */
         .full-container, .split-grid { display: grid; width: 100vw; gap: 20px; margin-bottom: 20px; }
         .full-container { grid-template-columns: 1fr; }
         .split-grid { grid-template-columns: 1fr 1fr; }
 
-        /* COVER BLOCKS */
-        .cover-block {
-            overflow: hidden; background-position: center; background-size: cover;
-            text-align: center; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            text-decoration: none; transition: opacity 0.3s;
-        }
+        .cover-block { overflow: hidden; background-position: center; background-size: cover; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; transition: opacity 0.3s; }
         .full-height { height: 600px; }
         .split-height { height: 450px; }
 
-        /* Text Background Box */
-        .text-box {
-            background-color: rgba(0, 0, 0, 0.5); 
-            padding: 20px 40px;
-            border-radius: 2px;
-            backdrop-filter: blur(5px); 
-            max-width: 80%;
-        }
-
+        .text-box { background-color: rgba(0, 0, 0, 0.5); padding: 20px 40px; border-radius: 2px; backdrop-filter: blur(5px); max-width: 80%; }
         .cover-block h1 { font-size: 55px; margin: 5px; }
         .cover-block h2 { font-size: 35px; margin: 5px; }
         .cover-block h3 { font-size: 25px; font-weight: 1; margin: 5px; }
         .cover-block p { font-size: 15px; margin: 5px; }
+        @media only screen and (max-width: 900px) { .split-grid { grid-template-columns: 1fr; gap: 10px; } .cover-block h1 { font-size: 35px; } .text-box { padding: 15px 20px; } }
 
-        @media only screen and (max-width: 900px) {
-            .split-grid { grid-template-columns: 1fr; gap: 10px; }
-            .cover-block h1 { font-size: 35px; }
-            .text-box { padding: 15px 20px; }
-        }
+        .places-wrap { background-color: #f4f4f4; padding: 60px 20px; text-align: center; margin-top: 20px; }
+        .places-wrap h2 { font-size: 24px; letter-spacing: 2px; text-transform: uppercase; color: #333; margin-top: 0; margin-bottom: 30px; }
+        .places-grid { max-width: 900px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; height: auto; padding: 10px; }
+        .place-tag { background-color: white; color: #555; padding: 10px 20px; font-size: 13px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; text-decoration: none; transition: all 0.3s ease; cursor: pointer; }
+        .place-tag:hover { background-color: rgb(43,115,220); color: white; box-shadow: 0 4px 10px rgba(43,115,220,0.3); transform: translateY(-2px); }
 
-        /* PLACES VISITED SCROLLER */
-        .places-wrap {
-            background-color: #f4f4f4;
-            padding: 60px 20px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .places-wrap h2 {
-            font-size: 24px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #333;
-            margin-top: 0;
-            margin-bottom: 30px;
-        }
-        .places-grid {
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            height: auto; 
-            padding: 10px;
-        }
-        .place-tag {
-            background-color: white;
-            color: #555;
-            padding: 10px 20px;
-            font-size: 13px;
-            border-radius: 2px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            white-space: nowrap;
-        }
-
-        /* FOOTER */
-        footer {
-            background-color: gray; text-align: center;
-            padding: 60px 20px; width: 100%; color: white;
-            box-sizing: border-box;
-        }
+        footer { background-color: gray; text-align: center; padding: 60px 20px; width: 100%; color: white; box-sizing: border-box; }
         .legal { margin-top: 30px; }
         .legal a { color: white; text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; padding: 0 15px; opacity: 0.7; }
     </style>
 </head>
 <body>
 
-<!-- Adjusted Menu Links to highlight Europe -->
 <nav class="menu">
     <div class="menu-toggle" onclick="toggleMenu()">☰</div>
     <ul class="menu-list" id="menuList">
         <li><a href="index.html">🌎</a></li>
         <li><a href="asia.html">Asia</a></li>
-        <li><a href="#" style="color: white; border-bottom: 1px solid white;">Europe</a></li>
-        <li><a href="index.html#africa">Africa</a></li>
-        <li><a href="index.html#americas">Americas</a></li>
-        <li><a href="index.html#oceania">Oceania</a></li>
+        <li><a href="europe.html" style="color: white; border-bottom: 1px solid white;">Europe</a></li>
+        <li><a href="africa.html">Africa</a></li>
+        <li><a href="americas.html">Americas</a></li>
+        <li><a href="oceania.html">Oceania</a></li>
         <li><a href="about.html">About</a></li>
+        <li><a href="games.html">Games</a></li>
     </ul>
 </nav>
 <div class="menuspace"></div>
 
-<!-- NOTICE BARS -->
 <div class="notice">
     <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
 </div>
@@ -174,30 +87,14 @@
     <p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
 </div>
 
-<!-- RANDOMIZED COVERS -->
 <div id="full-section" class="full-container"></div>
 <div id="split-section" class="split-grid"></div>
 
-<!-- EUROPEAN PLACES VISITED -->
 <section class="places-wrap">
-    <h2>European Archive</h2>
-    <div class="places-grid">
-        <span class="place-tag">Portugal 🇵🇹</span>
-        <span class="place-tag">Albania 🇦🇱</span>
-        <span class="place-tag">Poland 🇵🇱</span>
-        <span class="place-tag">Germany 🇩🇪</span>
-        <span class="place-tag">France 🇫🇷</span>
-        <span class="place-tag">Turkey 🇹🇷</span>
-        <span class="place-tag">Italy 🇮🇹</span>
-        <span class="place-tag">Spain 🇪🇸</span>
-        <span class="place-tag">Greece 🇬🇷</span>
-        <span class="place-tag">United Kingdom 🇬🇧</span>
-        <span class="place-tag">Iceland 🇮🇸</span>
-        <span class="place-tag">Croatia 🇭🇷</span>
-    </div>
+    <h2>Europe Archive</h2>
+    <div class="places-grid" id="placesGrid"></div>
 </section>
 
-<!-- FOOTER -->
 <footer id="support">
     <p>Support the journey</p>
     <a href="https://payme.hsbc/yourmoneymymoney"><img src="Images/qr.jpg" height="120" alt="Support"></a>
@@ -212,68 +109,76 @@
 </footer>
 
 <script>
-    function toggleMenu() {
-        document.getElementById('menuList').classList.toggle('active');
-    }
+    function toggleMenu() { document.getElementById('menuList').classList.toggle('active'); }
 
-    // This array is exclusively populated with your European destinations
-    const europeanDestinations = [
-    { title: "United Kingdom", caption: "Isles of Mist", image: "Images/Countries/UnitedKingdom.jpg", link: "unitedkingdom.html", color: "white" },
-    { title: "France", caption: "Echoes of the Empire", image: "Images/Countries/France.jpg", link: "france.html", color: "white" },
-    { title: "Spain", caption: "Sun and Stone", image: "Images/Countries/Spain.jpg", link: "spain.html", color: "white" },
-    { title: "Portugal", caption: "Into the Unknown", image: "Images/Countries/Portugal.jpg", link: "portugal.html", color: "white" },
-    { title: "Netherlands", caption: "Canals and Canvas", image: "Images/Countries/Netherlands.jpg", link: "netherlands.html", color: "white" },
-    { title: "Belgium", caption: "Crossroads of Europe", image: "Images/Countries/Belgium.jpg", link: "belgium.html", color: "white" },
-    { title: "Germany", caption: "Cathedrals and History", image: "Images/Countries/Germany.jpg", link: "germany.html", color: "white" },
-    { title: "Ireland", caption: "The Emerald Isle", image: "Images/Countries/Ireland.jpg", link: "ireland.html", color: "white" },
-    { title: "Iceland", caption: "Fire and Ice", image: "Images/Countries/Iceland.jpg", link: "iceland.html", color: "white" },
-    { title: "Denmark", caption: "Nordic Design", image: "Images/Countries/Denmark.jpg", link: "denmark.html", color: "white" },
-    { title: "Norway", caption: "Fjords and Northern Lights", image: "Images/Countries/Norway.jpg", link: "norway.html", color: "white" },
-    { title: "Sweden", caption: "Archipelago Wilderness", image: "Images/Countries/Sweden.jpg", link: "sweden.html", color: "white" },
-    { title: "Finland", caption: "Lakes and Taiga", image: "Images/Countries/Finland.jpg", link: "finland.html", color: "white" },
-    { title: "Estonia", caption: "Baltic Charm", image: "Images/Countries/Estonia.jpg", link: "estonia.html", color: "white" },
-    { title: "Latvia", caption: "Forests and Art Nouveau", image: "Images/Countries/Latvia.jpg", link: "latvia.html", color: "white" },
-    { title: "Lithuania", caption: "Hill of Crosses", image: "Images/Countries/Lithuania.jpg", link: "lithuania.html", color: "white" },
-    { title: "Russia", caption: "The Vast Expanse", image: "Images/Countries/Russia.jpg", link: "russia.html", color: "white" },
-    { title: "Ukraine", caption: "Heart of Eastern Europe", image: "Images/Countries/Ukraine.jpg", link: "ukraine.html", color: "white" },
-    { title: "Belarus", caption: "Forests and Fortresses", image: "Images/Countries/Belarus.jpg", link: "belarus.html", color: "white" },
-    { title: "Poland", caption: "Pierogi and Heritage", image: "Images/Countries/Poland.jpg", link: "poland.html", color: "white" },
-    { title: "Czech Republic", caption: "Bohemian Rhapsody", image: "Images/Countries/CzechRepublic.jpg", link: "czechrepublic.html", color: "white" },
-    { title: "Slovenia", caption: "Alpine Lakes and Caves", image: "Images/Countries/Slovenia.jpg", link: "slovenia.html", color: "white" },
-    { title: "Slovakia", caption: "Castles of the Tatras", image: "Images/Countries/Slovakia.jpg", link: "slovakia.html", color: "white" },
-    { title: "Hungary", caption: "Thermal Baths and Bridges", image: "Images/Countries/Hungary.jpg", link: "hungary.html", color: "white" },
-    { title: "Greece", caption: "Aegean Blues", image: "Images/Countries/Greece.jpg", link: "greece.html", color: "white" },
-    { title: "Albania", caption: "The Castle of Kruja", image: "Images/Countries/Albania.jpg", link: "albania.html", color: "white" },
-    { title: "Montenegro", caption: "Black Mountains", image: "Images/Countries/Montenegro.jpg", link: "montenegro.html", color: "white" },
-    { title: "Serbia", caption: "Balkan Crossroads", image: "Images/Countries/Serbia.jpg", link: "serbia.html", color: "white" },
-    { title: "Romania", caption: "Carpathian Legends", image: "Images/Countries/Romania.jpg", link: "romania.html", color: "white" },
-    { title: "Bulgaria", caption: "Roses and Thracians", image: "Images/Countries/Bulgaria.jpg", link: "bulgaria.html", color: "white" },
-    { title: "North Macedonia", caption: "Land of Lakes", image: "Images/Countries/NorthMacedonia.jpg", link: "northmacedonia.html", color: "white" },
-    { title: "Bosnia and Herzegovina", caption: "Bridges of Stone", image: "Images/Countries/BosniaandHerzegovina.jpg", link: "bosniaandherzegovina.html", color: "white" },
-    { title: "Italy", caption: "Ruins and Renaissance", image: "Images/Countries/Italy.jpg", link: "italy.html", color: "white" },
-    { title: "Vatican City", caption: "Holy See", image: "Images/Countries/VaticanCity.jpg", link: "vaticancity.html", color: "white" },
-    { title: "San Marino", caption: "The Serene Republic", image: "Images/Countries/SanMarino.jpg", link: "sanmarino.html", color: "white" },
-    { title: "Malta", caption: "Knights of the Mediterranean", image: "Images/Countries/Malta.jpg", link: "malta.html", color: "white" },
-    { title: "Cyprus", caption: "Island of Aphrodite", image: "Images/Countries/Cyprus.jpg", link: "cyprus.html", color: "white" },
-    { title: "Austria", caption: "Alpine Elegance", image: "Images/Countries/Austria.jpg", link: "austria.html", color: "white" },
-    { title: "Switzerland", caption: "Peaks of Perfection", image: "Images/Countries/Switzerland.jpg", link: "switzerland.html", color: "white" },
-    { title: "Croatia", caption: "Pearls of the Adriatic", image: "Images/Countries/Croatia.jpg", link: "croatia.html", color: "white" },
-    { title: "Andorra", caption: "Pyrenees Hideaway", image: "Images/Countries/Andorra.jpg", link: "andorra.html", color: "white" },
-    { title: "Moldova", caption: "Cellars and Monasteries", image: "Images/Countries/Moldova.jpg", link: "moldova.html", color: "white" },
-    { title: "Monaco", caption: "Harbor of the Riviera", image: "Images/Countries/Monaco.jpg", link: "monaco.html", color: "white" },
-    { title: "Liechtenstein", caption: "Principality of the Alps", image: "Images/Countries/Liechtenstein.jpg", link: "liechtenstein.html", color: "white" },
-    { title: "Luxembourg", caption: "The Grand Duchy", image: "Images/Countries/Luxembourg.jpg", link: "luxembourg.html", color: "white" },
-    { title: "Kosovo", caption: "Heart of the Balkans", image: "Images/Countries/Kosovo.jpg", link: "kosovo.html", color: "white" },
-    { title: "Faroe Islands", caption: "Islands of Sheep", image: "Images/Countries/FaroeIslands.jpg", link: "faroeislands.html", color: "white" }
-];
+    const destinationsEurope = [
+        { title: "United Kingdom", caption: "Isles of Mist", image: "Images/Countries/United Kingdom.jpg", link: "Countries/unitedkingdom.html", color: "white" },
+        { title: "France", caption: "Echoes of the Empire", image: "Images/Countries/France.jpg", link: "Countries/france.html", color: "white" },
+        { title: "Spain", caption: "Sun and Stone", image: "Images/Countries/Spain.jpg", link: "Countries/spain.html", color: "white" },
+        { title: "Portugal", caption: "Into the Unknown", image: "Images/Countries/Portugal.jpg", link: "Countries/portugal.html", color: "white" },
+        { title: "Netherlands", caption: "Canals and Canvas", image: "Images/Countries/Netherlands.jpg", link: "Countries/netherlands.html", color: "white" },
+        { title: "Belgium", caption: "Crossroads of Europe", image: "Images/Countries/Belgium.jpg", link: "Countries/belgium.html", color: "white" },
+        { title: "Germany", caption: "Cathedrals and History", image: "Images/Countries/Germany.jpg", link: "Countries/germany.html", color: "white" },
+        { title: "Ireland", caption: "The Emerald Isle", image: "Images/Countries/Ireland.jpg", link: "Countries/ireland.html", color: "white" },
+        { title: "Iceland", caption: "Fire and Ice", image: "Images/Countries/Iceland.jpg", link: "Countries/iceland.html", color: "white" },
+        { title: "Denmark", caption: "Nordic Design", image: "Images/Countries/Denmark.jpg", link: "Countries/denmark.html", color: "white" },
+        { title: "Norway", caption: "Fjords and Northern Lights", image: "Images/Countries/Norway.jpg", link: "Countries/norway.html", color: "white" },
+        { title: "Sweden", caption: "Archipelago Wilderness", image: "Images/Countries/Sweden.jpg", link: "Countries/sweden.html", color: "white" },
+        { title: "Finland", caption: "Lakes and Taiga", image: "Images/Countries/Finland.jpg", link: "Countries/finland.html", color: "white" },
+        { title: "Estonia", caption: "Baltic Charm", image: "Images/Countries/Estonia.jpg", link: "Countries/estonia.html", color: "white" },
+        { title: "Latvia", caption: "Forests and Art Nouveau", image: "Images/Countries/Latvia.jpg", link: "Countries/latvia.html", color: "white" },
+        { title: "Lithuania", caption: "Hill of Crosses", image: "Images/Countries/Lithuania.jpg", link: "Countries/lithuania.html", color: "white" },
+        { title: "Russia", caption: "The Vast Expanse", image: "Images/Countries/Russia.jpg", link: "Countries/russia.html", color: "white" },
+        { title: "Ukraine", caption: "Heart of Eastern Europe", image: "Images/Countries/Ukraine.jpg", link: "Countries/ukraine.html", color: "white" },
+        { title: "Belarus", caption: "Forests and Fortresses", image: "Images/Countries/Belarus.jpg", link: "Countries/belarus.html", color: "white" },
+        { title: "Poland", caption: "Pierogi and Heritage", image: "Images/Countries/Poland.jpg", link: "Countries/poland.html", color: "white" },
+        { title: "Czech Republic", caption: "Bohemian Rhapsody", image: "Images/Countries/Czech Republic.jpg", link: "Countries/czechrepublic.html", color: "white" },
+        { title: "Slovenia", caption: "Alpine Lakes and Caves", image: "Images/Countries/Slovenia.jpg", link: "Countries/slovenia.html", color: "white" },
+        { title: "Slovakia", caption: "Castles of the Tatras", image: "Images/Countries/Slovakia.jpg", link: "Countries/slovakia.html", color: "white" },
+        { title: "Hungary", caption: "Thermal Baths and Bridges", image: "Images/Countries/Hungary.jpg", link: "Countries/hungary.html", color: "white" },
+        { title: "Greece", caption: "Aegean Blues", image: "Images/Countries/Greece.jpg", link: "Countries/greece.html", color: "white" },
+        { title: "Albania", caption: "The Castle of Kruja", image: "Images/Countries/Albania.jpg", link: "Countries/albania.html", color: "white" },
+        { title: "Montenegro", caption: "Black Mountains", image: "Images/Countries/Montenegro.jpg", link: "Countries/montenegro.html", color: "white" },
+        { title: "Serbia", caption: "Balkan Crossroads", image: "Images/Countries/Serbia.jpg", link: "Countries/serbia.html", color: "white" },
+        { title: "Romania", caption: "Carpathian Legends", image: "Images/Countries/Romania.jpg", link: "Countries/romania.html", color: "white" },
+        { title: "Bulgaria", caption: "Roses and Thracians", image: "Images/Countries/Bulgaria.jpg", link: "Countries/bulgaria.html", color: "white" },
+        { title: "North Macedonia", caption: "Land of Lakes", image: "Images/Countries/North Macedonia.jpg", link: "Countries/northmacedonia.html", color: "white" },
+        { title: "Bosnia and Herzegovina", caption: "Bridges of Stone", image: "Images/Countries/Bosnia and Herzegovina.jpg", link: "Countries/bosniaandherzegovina.html", color: "white" },
+        { title: "Italy", caption: "Ruins and Renaissance", image: "Images/Countries/Italy.jpg", link: "Countries/italy.html", color: "white" },
+        { title: "Vatican City", caption: "Holy See", image: "Images/Countries/Vatican City.jpg", link: "Countries/vaticancity.html", color: "white" },
+        { title: "San Marino", caption: "The Serene Republic", image: "Images/Countries/San Marino.jpg", link: "Countries/sanmarino.html", color: "white" },
+        { title: "Malta", caption: "Knights of the Mediterranean", image: "Images/Countries/Malta.jpg", link: "Countries/malta.html", color: "white" },
+        { title: "Cyprus", caption: "Island of Aphrodite", image: "Images/Countries/Cyprus.jpg", link: "Countries/cyprus.html", color: "white" },
+        { title: "Austria", caption: "Alpine Elegance", image: "Images/Countries/Austria.jpg", link: "Countries/austria.html", color: "white" },
+        { title: "Switzerland", caption: "Peaks of Perfection", image: "Images/Countries/Switzerland.jpg", link: "Countries/switzerland.html", color: "white" },
+        { title: "Croatia", caption: "Pearls of the Adriatic", image: "Images/Countries/Croatia.jpg", link: "Countries/croatia.html", color: "white" },
+        { title: "Andorra", caption: "Pyrenees Hideaway", image: "Images/Countries/Andorra.jpg", link: "Countries/andorra.html", color: "white" },
+        { title: "Moldova", caption: "Cellars and Monasteries", image: "Images/Countries/Moldova.jpg", link: "Countries/moldova.html", color: "white" },
+        { title: "Monaco", caption: "Harbor of the Riviera", image: "Images/Countries/Monaco.jpg", link: "Countries/monaco.html", color: "white" },
+        { title: "Liechtenstein", caption: "Principality of the Alps", image: "Images/Countries/Liechtenstein.jpg", link: "Countries/liechtenstein.html", color: "white" },
+        { title: "Luxembourg", caption: "The Grand Duchy", image: "Images/Countries/Luxembourg.jpg", link: "Countries/luxembourg.html", color: "white" },
+        { title: "Kosovo", caption: "Heart of the Balkans", image: "Images/Countries/Kosovo.jpg", link: "Countries/kosovo.html", color: "white" },
+        { title: "Faroe Islands", caption: "Islands of Sheep", image: "Images/Countries/Faroe Islands.jpg", link: "Countries/faroeislands.html", color: "white" }
+    ];
+
+    const visitedPlacesEurope = [
+        "🇬🇧 United Kingdom", "🇫🇷 France", "🇪🇸 Spain", "🇵🇹 Portugal", "🇳🇱 Netherlands", 
+        "🇧🇪 Belgium", "🇩🇪 Germany", "🇮🇪 Ireland", "🇮🇸 Iceland", "🇩🇰 Denmark", 
+        "🇳🇴 Norway", "🇸🇪 Sweden", "🇫🇮 Finland", "🇪🇪 Estonia", "🇱🇻 Latvia", 
+        "🇱🇹 Lithuania", "🇷🇺 Russia", "🇺🇦 Ukraine", "🇧🇾 Belarus", "🇵🇱 Poland", 
+        "🇨🇿 Czech Republic", "🇸🇮 Slovenia", "🇸🇰 Slovakia", "🇭🇺 Hungary", "🇬🇷 Greece", 
+        "🇦🇱 Albania", "🇲🇪 Montenegro", "🇷🇸 Serbia", "🇷🇴 Romania", "🇧🇬 Bulgaria", 
+        "🇲🇰 North Macedonia", "🇧🇦 Bosnia and Herzegovina", "🇮🇹 Italy", "🇻🇦 Vatican City", 
+        "🇸🇲 San Marino", "🇲🇹 Malta", "🇨🇾 Cyprus", "🇦🇹 Austria", "🇨🇭 Switzerland", 
+        "🇭🇷 Croatia", "🇦🇩 Andorra", "🇲🇩 Moldova", "🇲🇨 Monaco", "🇱🇮 Liechtenstein", 
+        "🇱🇺 Luxembourg", "🇽🇰 Kosovo", "🇫🇴 Faroe Islands"
+    ];
 
     function buildLayout() {
-        // Shuffle the list so the page looks fresh every time
-        const shuffled = [...destinations].sort(() => 0.5 - Math.random());
+        const shuffled = [...destinationsEurope].sort(() => 0.5 - Math.random());
         const fullSection = document.getElementById('full-section');
         const splitSection = document.getElementById('split-section');
 
-        // Build 3 Full Covers
         shuffled.slice(0, 3).forEach(item => {
             const block = document.createElement('a');
             block.className = 'cover-block full-height';
@@ -289,7 +194,6 @@
             fullSection.appendChild(block);
         });
 
-        // Build up to 6 Split Covers
         shuffled.slice(3, 9).forEach(item => {
             const block = document.createElement('a');
             block.className = 'cover-block split-height';
@@ -304,10 +208,20 @@
             `;
             splitSection.appendChild(block);
         });
+
+        const placesGrid = document.getElementById('placesGrid');
+        
+        visitedPlacesEurope.forEach(place => {
+            const fileBase = place.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const link = document.createElement('a');
+            link.href = "Countries/" + fileBase + ".html";
+            link.className = 'place-tag';
+            link.innerText = place;
+            placesGrid.appendChild(link);
+        });
     }
 
     window.onload = buildLayout;
 </script>
-
 </body>
 </html>

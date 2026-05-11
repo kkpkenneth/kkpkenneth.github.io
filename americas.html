@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="Images/icon.png" type="image/png" sizes="16x16">
     
-    <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-175443844-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -15,7 +14,6 @@
       gtag('config', 'UA-175443844-1');
     </script>
 
-    <!-- AdSense & Analytics -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 
     <style>
@@ -132,11 +130,21 @@
             color: #555;
             padding: 10px 20px;
             font-size: 13px;
-            border-radius: 2px;
+            border-radius: 4px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             text-transform: uppercase;
             letter-spacing: 1px;
             white-space: nowrap;
+            text-decoration: none; 
+            transition: all 0.3s ease; 
+            cursor: pointer;
+        }
+        
+        .place-tag:hover {
+            background-color: rgb(43,115,220);
+            color: white;
+            box-shadow: 0 4px 10px rgba(43,115,220,0.3);
+            transform: translateY(-2px);
         }
 
         /* FOOTER */
@@ -151,22 +159,21 @@
 </head>
 <body>
 
-<!-- Adjusted Menu Links to highlight Americas -->
 <nav class="menu">
     <div class="menu-toggle" onclick="toggleMenu()">☰</div>
     <ul class="menu-list" id="menuList">
         <li><a href="index.html">🌎</a></li>
         <li><a href="asia.html">Asia</a></li>
         <li><a href="europe.html">Europe</a></li>
-        <li><a href="index.html#africa">Africa</a></li>
-        <li><a href="#" style="color: white; border-bottom: 1px solid white;">Americas</a></li>
-        <li><a href="index.html#oceania">Oceania</a></li>
+        <li><a href="africa.html">Africa</a></li>
+        <li><a href="americas.html" style="color: white; border-bottom: 1px solid white;">Americas</a></li>
+        <li><a href="oceania.html">Oceania</a></li>
         <li><a href="about.html">About</a></li>
+        <li><a href="games.html">Games</a></li>
     </ul>
 </nav>
 <div class="menuspace"></div>
 
-<!-- NOTICE BARS -->
 <div class="notice">
     <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
 </div>
@@ -174,31 +181,14 @@
     <p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
 </div>
 
-<!-- RANDOMIZED COVERS -->
 <div id="full-section" class="full-container"></div>
 <div id="split-section" class="split-grid"></div>
 
-<!-- AMERICAS PLACES VISITED -->
 <section class="places-wrap">
     <h2>Americas Archive</h2>
-    <div class="places-grid">
-        <span class="place-tag">Peru 🇵🇪</span>
-        <span class="place-tag">Canada 🇨🇦</span>
-        <span class="place-tag">Cuba 🇨🇺</span>
-        <span class="place-tag">Mexico 🇲🇽</span>
-        <span class="place-tag">Brazil 🇧🇷</span>
-        <span class="place-tag">Argentina 🇦🇷</span>
-        <span class="place-tag">Colombia 🇨🇴</span>
-        <span class="place-tag">Chile 🇨🇱</span>
-        <span class="place-tag">United States 🇺🇸</span>
-        <span class="place-tag">Costa Rica 🇨🇷</span>
-        <span class="place-tag">Guatemala 🇬🇹</span>
-        <span class="place-tag">Ecuador 🇪🇨</span>
-        <span class="place-tag">Bolivia 🇧🇴</span>
-    </div>
+    <div class="places-grid" id="placesGrid"></div>
 </section>
 
-<!-- FOOTER -->
 <footer id="support">
     <p>Support the journey</p>
     <a href="https://payme.hsbc/yourmoneymymoney"><img src="Images/qr.jpg" height="120" alt="Support"></a>
@@ -217,50 +207,59 @@
         document.getElementById('menuList').classList.toggle('active');
     }
 
-    // This array is exclusively populated with your Americas destinations
-    const americasDestinations = [
-    { title: "Canada", caption: "Living in Ice Age", image: "Images/Countries/Canada.jpg", link: "canada.html", color: "white" },
-    { title: "United States", caption: "Canyons and Concrete", image: "Images/Countries/UnitedStates.jpg", link: "unitedstates.html", color: "white" },
-    { title: "Mexico", caption: "Pyramids and Cenotes", image: "Images/Countries/Mexico.jpg", link: "mexico.html", color: "white" },
-    { title: "Cuba", caption: "Travel Back in Time", image: "Images/Countries/Cuba.jpg", link: "cuba.html", color: "white" },
-    { title: "Bahamas", caption: "Shallows of Sapphire", image: "Images/Countries/Bahamas.jpg", link: "bahamas.html", color: "white" },
-    { title: "Jamaica", caption: "Rhythm of the Caribbean", image: "Images/Countries/Jamaica.jpg", link: "jamaica.html", color: "white" },
-    { title: "Haiti", caption: "Resilience and Roots", image: "Images/Countries/Haiti.jpg", link: "haiti.html", color: "white" },
-    { title: "Dominican Republic", caption: "Heart of Hispaniola", image: "Images/Countries/DominicanRepublic.jpg", link: "dominicanrepublic.html", color: "white" },
-    { title: "Ecuador", caption: "Center of the Earth", image: "Images/Countries/Ecuador.jpg", link: "ecuador.html", color: "white" },
-    { title: "Peru", caption: "Echoes of the Inca", image: "Images/Countries/Peru.jpg", link: "peru.html", color: "white" },
-    { title: "Bolivia", caption: "Mirrors of the Sky", image: "Images/Countries/Bolivia.jpg", link: "bolivia.html", color: "white" },
-    { title: "Paraguay", caption: "The Forgotten Heart", image: "Images/Countries/Paraguay.jpg", link: "paraguay.html", color: "white" },
-    { title: "Chile", caption: "Atacama Stars", image: "Images/Countries/Chile.jpg", link: "chile.html", color: "white" },
-    { title: "Argentina", caption: "Glaciers and Tango", image: "Images/Countries/Argentina.jpg", link: "argentina.html", color: "white" },
-    { title: "Uruguay", caption: "Serenity on the Plate", image: "Images/Countries/Uruguay.jpg", link: "uruguay.html", color: "white" },
-    { title: "Brazil", caption: "The Amazon Heart", image: "Images/Countries/Brazil.jpg", link: "brazil.html", color: "white" },
-    { title: "Colombia", caption: "Gold and Coffee", image: "Images/Countries/Colombia.jpg", link: "colombia.html", color: "white" },
-    { title: "Venezuela", caption: "Tepuis and Waterfalls", image: "Images/Countries/Venezuela.jpg", link: "venezuela.html", color: "white" },
-    { title: "Suriname", caption: "Jungle and Diversity", image: "Images/Countries/Suriname.jpg", link: "suriname.html", color: "white" },
-    { title: "Guyana", caption: "Land of Many Waters", image: "Images/Countries/Guyana.jpg", link: "guyana.html", color: "white" },
-    { title: "Grenada", caption: "The Spice Isle", image: "Images/Countries/Grenada.jpg", link: "grenada.html", color: "white" },
-    { title: "Trinidad and Tobago", caption: "Carnival and Calypso", image: "Images/Countries/TrinidadandTobago.jpg", link: "trinidadandtobago.html", color: "white" },
-    { title: "Barbados", caption: "Coral Reefs and Rum", image: "Images/Countries/Barbados.jpg", link: "barbados.html", color: "white" },
-    { title: "Belize", caption: "Barrier Reefs", image: "Images/Countries/Belize.jpg", link: "belize.html", color: "white" },
-    { title: "Guatemala", caption: "Maya Mysteries", image: "Images/Countries/Guatemala.jpg", link: "guatemala.html", color: "white" },
-    { title: "El Salvador", caption: "Land of Volcanoes", image: "Images/Countries/ElSalvador.jpg", link: "elsalvador.html", color: "white" },
-    { title: "Honduras", caption: "Deep in the Copan", image: "Images/Countries/Honduras.jpg", link: "honduras.html", color: "white" },
-    { title: "Nicaragua", caption: "Lakes and Legends", image: "Images/Countries/Nicaragua.jpg", link: "nicaragua.html", color: "white" },
-    { title: "Costa Rica", caption: "Pura Vida Jungles", image: "Images/Countries/CostaRica.jpg", link: "costarica.html", color: "white" },
-    { title: "Panama", caption: "Bridging the Americas", image: "Images/Countries/Panama.jpg", link: "panama.html", color: "white" },
-    { title: "Saint Vincent and Grenadines", caption: "Islands of the Clouds", image: "Images/Countries/SaintVincentandGrenadines.jpg", link: "saintvincentandgrenadines.html", color: "white" },
-    { title: "Saint Lucia", caption: "The Twin Pitons", image: "Images/Countries/SaintLucia.jpg", link: "saintlucia.html", color: "white" },
-    { title: "Antigua and Barbuda", caption: "Land of 365 Beaches", image: "Images/Countries/AntiguaandBarbuda.jpg", link: "antiguaandbarbuda.html", color: "white" },
-    { title: "Dominica", caption: "The Nature Island", image: "Images/Countries/Dominica.jpg", link: "dominica.html", color: "white" },
-    { title: "Saint Kitts and Nevis", caption: "Sugar and Volcanoes", image: "Images/Countries/SaintKittsandNevis.jpg", link: "saintkittsandnevis.html", color: "white" },
-    { title: "Guadeloupe", caption: "Butterfly of the Caribbean", image: "Images/Countries/Guadeloupe.jpg", link: "guadeloupe.html", color: "white" },
-    { title: "Martinique", caption: "Isle of Flowers", image: "Images/Countries/Martinique.jpg", link: "martinique.html", color: "white" }
-];
+    const destinationsAmericas = [
+        { title: "Canada", caption: "Living in Ice Age", image: "Images/Countries/Canada.jpg", link: "Countries/canada.html", color: "white" },
+        { title: "United States", caption: "Canyons and Concrete", image: "Images/Countries/United States.jpg", link: "Countries/unitedstates.html", color: "white" },
+        { title: "Mexico", caption: "Pyramids and Cenotes", image: "Images/Countries/Mexico.jpg", link: "Countries/mexico.html", color: "white" },
+        { title: "Cuba", caption: "Travel Back in Time", image: "Images/Countries/Cuba.jpg", link: "Countries/cuba.html", color: "white" },
+        { title: "Bahamas", caption: "Shallows of Sapphire", image: "Images/Countries/Bahamas.jpg", link: "Countries/bahamas.html", color: "white" },
+        { title: "Jamaica", caption: "Rhythm of the Caribbean", image: "Images/Countries/Jamaica.jpg", link: "Countries/jamaica.html", color: "white" },
+        { title: "Haiti", caption: "Resilience and Roots", image: "Images/Countries/Haiti.jpg", link: "Countries/haiti.html", color: "white" },
+        { title: "Dominican Republic", caption: "Heart of Hispaniola", image: "Images/Countries/Dominican Republic.jpg", link: "Countries/dominicanrepublic.html", color: "white" },
+        { title: "Ecuador", caption: "Center of the Earth", image: "Images/Countries/Ecuador.jpg", link: "Countries/ecuador.html", color: "white" },
+        { title: "Peru", caption: "Echoes of the Inca", image: "Images/Countries/Peru.jpg", link: "Countries/peru.html", color: "white" },
+        { title: "Bolivia", caption: "Mirrors of the Sky", image: "Images/Countries/Bolivia.jpg", link: "Countries/bolivia.html", color: "white" },
+        { title: "Paraguay", caption: "The Forgotten Heart", image: "Images/Countries/Paraguay.jpg", link: "Countries/paraguay.html", color: "white" },
+        { title: "Chile", caption: "Atacama Stars", image: "Images/Countries/Chile.jpg", link: "Countries/chile.html", color: "white" },
+        { title: "Argentina", caption: "Glaciers and Tango", image: "Images/Countries/Argentina.jpg", link: "Countries/argentina.html", color: "white" },
+        { title: "Uruguay", caption: "Serenity on the Plate", image: "Images/Countries/Uruguay.jpg", link: "Countries/uruguay.html", color: "white" },
+        { title: "Brazil", caption: "The Amazon Heart", image: "Images/Countries/Brazil.jpg", link: "Countries/brazil.html", color: "white" },
+        { title: "Colombia", caption: "Gold and Coffee", image: "Images/Countries/Colombia.jpg", link: "Countries/colombia.html", color: "white" },
+        { title: "Venezuela", caption: "Tepuis and Waterfalls", image: "Images/Countries/Venezuela.jpg", link: "Countries/venezuela.html", color: "white" },
+        { title: "Suriname", caption: "Jungle and Diversity", image: "Images/Countries/Suriname.jpg", link: "Countries/suriname.html", color: "white" },
+        { title: "Guyana", caption: "Land of Many Waters", image: "Images/Countries/Guyana.jpg", link: "Countries/guyana.html", color: "white" },
+        { title: "Grenada", caption: "The Spice Isle", image: "Images/Countries/Grenada.jpg", link: "Countries/grenada.html", color: "white" },
+        { title: "Trinidad and Tobago", caption: "Carnival and Calypso", image: "Images/Countries/Trinidad and Tobago.jpg", link: "Countries/trinidadandtobago.html", color: "white" },
+        { title: "Barbados", caption: "Coral Reefs and Rum", image: "Images/Countries/Barbados.jpg", link: "Countries/barbados.html", color: "white" },
+        { title: "Belize", caption: "Barrier Reefs", image: "Images/Countries/Belize.jpg", link: "Countries/belize.html", color: "white" },
+        { title: "Guatemala", caption: "Maya Mysteries", image: "Images/Countries/Guatemala.jpg", link: "Countries/guatemala.html", color: "white" },
+        { title: "El Salvador", caption: "Land of Volcanoes", image: "Images/Countries/El Salvador.jpg", link: "Countries/elsalvador.html", color: "white" },
+        { title: "Honduras", caption: "Deep in the Copan", image: "Images/Countries/Honduras.jpg", link: "Countries/honduras.html", color: "white" },
+        { title: "Nicaragua", caption: "Lakes and Legends", image: "Images/Countries/Nicaragua.jpg", link: "Countries/nicaragua.html", color: "white" },
+        { title: "Costa Rica", caption: "Pura Vida Jungles", image: "Images/Countries/Costa Rica.jpg", link: "Countries/costarica.html", color: "white" },
+        { title: "Panama", caption: "Bridging the Americas", image: "Images/Countries/Panama.jpg", link: "Countries/panama.html", color: "white" },
+        { title: "Saint Vincent and Grenadines", caption: "Islands of the Clouds", image: "Images/Countries/Saint Vincent and Grenadines.jpg", link: "Countries/saintvincentandgrenadines.html", color: "white" },
+        { title: "Saint Lucia", caption: "The Twin Pitons", image: "Images/Countries/Saint Lucia.jpg", link: "Countries/saintlucia.html", color: "white" },
+        { title: "Antigua and Barbuda", caption: "Land of 365 Beaches", image: "Images/Countries/Antigua and Barbuda.jpg", link: "Countries/antiguaandbarbuda.html", color: "white" },
+        { title: "Dominica", caption: "The Nature Island", image: "Images/Countries/Dominica.jpg", link: "Countries/dominica.html", color: "white" },
+        { title: "Saint Kitts and Nevis", caption: "Sugar and Volcanoes", image: "Images/Countries/Saint Kitts and Nevis.jpg", link: "Countries/saintkittsandnevis.html", color: "white" },
+        { title: "Guadeloupe", caption: "Butterfly of the Caribbean", image: "Images/Countries/Guadeloupe.jpg", link: "Countries/guadeloupe.html", color: "white" },
+        { title: "Martinique", caption: "Isle of Flowers", image: "Images/Countries/Martinique.jpg", link: "Countries/martinique.html", color: "white" }
+    ];
+
+    const visitedPlacesAmericas = [
+        "🇨🇦 Canada", "🇺🇸 United States", "🇲🇽 Mexico", "🇨🇺 Cuba", "🇧🇸 Bahamas", 
+        "🇯🇲 Jamaica", "🇭🇹 Haiti", "🇩🇴 Dominican Republic", "🇪🇨 Ecuador", "🇵🇪 Peru", 
+        "🇧🇴 Bolivia", "🇵🇾 Paraguay", "🇨🇱 Chile", "🇦🇷 Argentina", "🇺🇾 Uruguay", 
+        "🇧🇷 Brazil", "🇨🇴 Colombia", "🇻🇪 Venezuela", "🇸🇷 Suriname", "🇬🇾 Guyana", 
+        "🇬🇩 Grenada", "🇹🇹 Trinidad and Tobago", "🇧🇧 Barbados", "🇧🇿 Belize", "🇬🇹 Guatemala", 
+        "🇸🇻 El Salvador", "🇭🇳 Honduras", "🇳🇮 Nicaragua", "🇨🇷 Costa Rica", "🇵🇦 Panama", 
+        "🇻🇨 Saint Vincent and Grenadines", "🇱🇨 Saint Lucia", "🇦🇬 Antigua and Barbuda", 
+        "🇩🇲 Dominica", "🇰🇳 Saint Kitts and Nevis", "🇬🇵 Guadeloupe", "🇲🇶 Martinique"
+    ];
 
     function buildLayout() {
-        // Shuffle the list so the page looks fresh every time
-        const shuffled = [...destinations].sort(() => 0.5 - Math.random());
+        const shuffled = [...destinationsAmericas].sort(() => 0.5 - Math.random());
         const fullSection = document.getElementById('full-section');
         const splitSection = document.getElementById('split-section');
 
@@ -294,6 +293,19 @@
                 </div>
             `;
             splitSection.appendChild(block);
+        });
+
+        // Generate the American Archive Buttons dynamically 
+        const placesGrid = document.getElementById('placesGrid');
+        
+        visitedPlacesAmericas.forEach(place => {
+            // Regex automatically strips out the emoji and spaces to form clean links
+            const fileBase = place.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const link = document.createElement('a');
+            link.href = "Countries/" + fileBase + ".html";
+            link.className = 'place-tag';
+            link.innerText = place;
+            placesGrid.appendChild(link);
         });
     }
 

@@ -1,40 +1,56 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pixel Drawing</title>
   <style type="text/css">
-    .rainbow-pixel-canvas {
-  width: 100%;
-  height: 535px;
-  box-sizing: border-box;
-  background: white;
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: monospace;
+      /* Prevent pull-to-refresh on mobile browsers */
+      overscroll-behavior-y: contain; 
+    }
 
-  user-select: none;
-  touch-action: none;
-}
-p {
-  text-align: center;
-  font-family: monospace;
-  font-size: 1.25rem;
-}
+    .rainbow-pixel-canvas {
+      width: 100%;
+      /* Use Viewport Height (vh) so it fits any phone screen */
+      height: 75vh; 
+      box-sizing: border-box;
+      background: white;
+      border-bottom: 2px solid #eee;
+
+      /* Prevents the browser from hijacking touches for scrolling */
+      user-select: none;
+      touch-action: none;
+    }
+
+    .instructions {
+      padding: 10px;
+    }
+
+    p {
+      text-align: center;
+      font-size: 1rem;
+      margin: 10px 0;
+      color: #333;
+    }
   </style>
 </head>
 <body>
+
   <canvas class="rainbow-pixel-canvas"></canvas>
-  <p>Drag to draw. Double tap to clear.</p>
-  <p>Draw about a country and ask your friends to guess</p>
+  
+  <div class="instructions">
+    <p><strong>Drag</strong> to draw. <strong>Double tap</strong> to clear.</p>
+    <p>Draw about a country and ask your friends to guess!</p>
+  </div>
 
 <script type="module">
-import interact from 
-'https://cdn.interactjs.io/v1.10.11/interactjs/index.js'
+import interact from 'https://cdn.interactjs.io/v1.10.11/interactjs/index.js'
 
-interact('.item').draggable({
-  listeners: {
-    move (event) {
-      console.log(event.pageX,
-                  event.pageY)
-    }
-  }
-})
-    var pixelSize = 16
+var pixelSize = 16
 
 interact('.rainbow-pixel-canvas')
   .draggable({
@@ -96,11 +112,12 @@ function resizeCanvases () {
   })
 }
 
+// Initialize canvas size
 resizeCanvases()
 
-// interact.js can also add DOM event listeners
+// Update canvas size if the user rotates their phone
 interact(window).on('resize', resizeCanvases)
-  </script>
+</script>
   
 </body>
 </html>

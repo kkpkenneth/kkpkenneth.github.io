@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Games & Projects | Travel Turtle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Images/icon.png" type="image/png" sizes="16x16">
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-175443844-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-175443844-1');
+    </script>
+
+    <!-- AdSense & Analytics -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+    <style>
+        /* SMOOTH SCROLLING FOR DONATION LINK */
+        html { scroll-behavior: smooth; }
+
+        body { margin: 0; padding: 0; font-family: helvetica; background-color: white; overflow-x: hidden; color: #333; }
+
+        /* MENU STYLES */
+        .menuspace { height: 50px; background-color: rgb(50,50,50); }
+        .menu { 
+            background-color: rgba(50, 50, 50, 0.95); 
+            backdrop-filter: blur(10px);              
+            width: 100%; position: fixed; top: 0; z-index: 2000; 
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.3s ease;
+        }
+        .menu-list { margin: 0; padding: 0; display: flex; list-style: none; }
+        .menu-list li { position: relative; }
+        .menu-list a { 
+            color: rgb(194, 194, 194); text-decoration: none; display: block;
+            padding: 15px 25px; font-size: 13px; text-transform: uppercase;
+            letter-spacing: 1.5px; transition: color 0.3s ease;
+        }
+        .menu-toggle { display: none; color: white; font-size: 20px; padding: 15px; cursor: pointer; }
+
+        @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
+        /* NOTICE BARS */
+        .notice { overflow: hidden; background-color: rgb(43,115,220); width: 100%; text-align: center; height: 45px; position: relative; }
+        .notice p { color: white; font-size: 13px; word-spacing: 5px; margin-top: 15px; margin-bottom: 0; }
+        .notice a { color: white; text-decoration: none; padding: 10px; }
+        
+        .notice2 { overflow: hidden; background-color: white; width: 100%; text-align: center; height: 45px; position: relative; border-bottom: 1px solid #eee; }
+        .notice2 p { color: gray; font-size: 13px; word-spacing: 3px; margin-top: 15px; margin-bottom: 0; }
+        .notice2 a { color: gray; text-decoration: none; padding: 10px; }
+        .notice2 p:hover a { text-decoration: underline; }
+
+        .closebtn { color: gray; font-weight: bold; font-size: 16px; cursor: pointer; position: absolute; right: 20px; top: 12px; transition: 0.3s; }
+        .notice .closebtn { color: white; }
+        .closebtn:hover { color: black; }
+
+        /* HERO SECTION */
+        .games-hero {
+            width: 100vw; height: 350px;
+            background-color: #222; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; margin-bottom: 40px;
+        }
+
+        .text-box {
+            padding: 20px 40px;
+            max-width: 80%;
+        }
+
+        .text-box h1 { color: white; font-size: 45px; margin: 5px; }
+        .text-box p { color: #ccc; font-size: 18px; margin: 5px; font-weight: 300; }
+
+        @media only screen and (max-width: 900px) {
+            .games-hero { height: 250px; }
+            .text-box h1 { font-size: 30px; }
+        }
+
+        /* MAIN CONTENT AREA */
+        .content-container {
+            max-width: 1000px;
+            margin: 0 auto 80px auto;
+            padding: 0 20px;
+        }
+
+        .intro-text {
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 50px;
+        }
+
+        /* GAME GRID */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .game-card {
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        /* THUMBNAIL PLACEHOLDERS */
+        .game-thumb {
+            height: 200px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            color: white;
+            background-size: cover;
+            background-position: center;
+
+        }
+
+        .thumb-wyr { background-color: #34495e; background-image: url("Images/Countries/Nepal.jpg");}
+        .thumb-worldle { background-color: #27ae60; background-image: url("Images/Countries/Belize.jpg");}
+        .thumb-pd { background-color: #e74c3c; background-image: url("Images/Countries/France.jpg");}
+
+        .game-info {
+            padding: 20px;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .game-info h3 {
+            margin: 0 0 10px 0;
+            font-size: 22px;
+            color: #222;
+        }
+
+        .game-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: gray; text-align: center;
+            padding: 60px 20px; width: 100%; color: white;
+            box-sizing: border-box;
+        }
+        .legal { margin-top: 30px; }
+        .legal a { color: white; text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; padding: 0 15px; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+<nav class="menu">
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul class="menu-list" id="menuList">
+        <li><a href="index.html">🌎</a></li>
+        <li><a href="asia.html">Asia</a></li>
+        <li><a href="europe.html">Europe</a></li>
+        <li><a href="africa.html">Africa</a></li>
+        <li><a href="americas.html">Americas</a></li>
+        <li><a href="oceania.html">Oceania</a></li>
+        <li><a href="games.html" style="color: white; border-bottom: 1px solid white;">Games</a></li>
+        <li><a href="about.html">About</a></li>
+    </ul>
+</nav>
+<div class="menuspace"></div>
+
+<!-- NOTICE BARS -->
+<div class="notice">
+    <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
+</div>
+<div class="notice2">
+    <p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none';">&times;</span></p>
+</div>
+
+<!-- HERO -->
+<header class="games-hero">
+    <div class="text-box">
+        <h1>Travel Games</h1>
+        <p>Interactive web experiments and travel games</p>
+    </div>
+</header>
+
+<!-- CONTENT -->
+<main class="content-container">
+    <p class="intro-text">When I'm not documenting the road, I build interactive web projects. Here is a collection of games and experiments for you to enjoy.</p>
+
+    <div class="game-grid">
+        
+        <!-- WORLDLE CLONE -->
+        <a href="Worldle/Worldle.html" class="game-card">
+            <div class="game-thumb thumb-worldle">
+                <!-- Replace with an actual image later: <div class="game-thumb" style="background-image: url('Images/worldle-thumb.jpg');"></div> -->
+                
+            </div>
+            <div class="game-info">
+                <h3>Worldle</h3>
+                <p>Test your geographical knowledge. Can you identify the country by its borders?</p>
+            </div>
+        </a>
+
+        <!-- WOULD YOU RATHER -->
+        <a href="Would%20you%20rather/Would%20you%20rather.html" class="game-card">
+            <div class="game-thumb thumb-wyr">
+                
+            </div>
+            <div class="game-info">
+                <h3>Would You Rather</h3>
+                <p>The classic dilemma generator. Make your choice and see how others voted.</p>
+            </div>
+        </a>
+
+        <!-- PIXEL DRAWING -->
+        <a href="pixeldrawing.html" class="game-card">
+            <div class="game-thumb thumb-pd">
+                
+            </div>
+            <div class="game-info">
+                <h3>Tic Tac Toe</h3>
+                <p>A sleek, interactive take on the classic grid game.</p>
+            </div>
+        </a>
+
+
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer id="support">
+    <p>Support the journey</p>
+    <a href="https://payme.hsbc/yourmoneymymoney"><img src="Images/qr.jpg" height="120" alt="Support"></a>
+    <a><img src="Images/paypal.png" height="120px"></a>
+    <div class="legal">
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+    </div>
+    <p style="margin-top:20px; font-size:10px;">Copyright © 2026 Travel Turtle. All rights reserved.</p>
+</footer>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('menuList').classList.toggle('active');
+    }
+</script>
+
+</body>
+</html>

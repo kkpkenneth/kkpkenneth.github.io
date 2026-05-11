@@ -15,6 +15,17 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
         .notice p { color:white; font-size:13px; margin-top:12px; }

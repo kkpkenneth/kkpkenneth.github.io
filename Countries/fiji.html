@@ -28,16 +28,27 @@
 
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Fiji.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/037-fiji.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
@@ -52,12 +63,13 @@
         .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
         .archive-btn:hover { background: #333; color: #fff; }
 
-        /* ANIMATED GALLERY SLIDER */
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slider-wrapper { display: flex; height: 100%; transition: transform 0.5s ease-in-out; }
-        .slide { min-width: 100%; height: 100%; object-fit: contain; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; }
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -69,8 +81,14 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
 
     <header class="hero"><div class="txt-box"><h1>Fiji</h1><p>Travel Guide & Archive</p></div></header>
     
@@ -137,7 +155,6 @@
     <section class="gallery-sec" id="gWrap">
         <h2>Fiji Archive</h2>
         <div class="slider" id="sld">
-            <div class="slider-wrapper" id="slideWrap"></div>
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
@@ -162,9 +179,9 @@
         let slideInterval;
 
         async function load() {
-            const c = 'Fiji';
-            const sldWrap = document.getElementById('slideWrap');
-            const gWrap = document.getElementById('gWrap');
+            // Note: Update this prefix if your images are named '037-fiji-1.jpg' etc.
+            const c = 'Fiji'; 
+            const sld = document.getElementById('sld');
             
             for(let i=1; i<=50; i++) {
                 const p = '../Images/Countries/' + c + i + '.jpg';
@@ -179,23 +196,25 @@
             }
 
             if(imgList.length > 0) {
-                imgList.forEach((src) => {
+                imgList.forEach((src, i) => {
                     let im = document.createElement('img');
                     im.src = src;
-                    im.className = 'slide';
-                    sldWrap.appendChild(im);
+                    im.className = 'slide' + (i === 0 ? ' active' : '');
+                    sld.appendChild(im);
                 });
                 startTimer();
             } else { 
-                gWrap.style.display = 'none'; 
+                document.getElementById('gWrap').style.display = 'none'; 
             }
         }
 
         function move(n) {
-            if(imgList.length < 2) return;
+            let s = document.querySelectorAll('.slide');
+            if(s.length < 2) return;
             
-            idx = (idx + n + imgList.length) % imgList.length;
-            document.getElementById('slideWrap').style.transform = 'translateX(-' + (idx * 100) + '%)';
+            s[idx].classList.remove('active');
+            idx = (idx + n + s.length) % s.length;
+            s[idx].classList.add('active');
             
             resetTimer();
         }

@@ -15,27 +15,62 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Antarctica.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/048-antarctica.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,23 +82,88 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
+    
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
 
     <header class="hero"><div class="txt-box"><h1>Antarctica</h1><p>Travel Guide & Archive</p></div></header>
     
     <div class="main-content">
-        <h2>Exploring Antarctica</h2>
-        <p>Visual notes and cultural documentation from the journey through Antarctica.</p>
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The White Silence of the Final Frontier</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">A photographic journey to the absolute end of the Earth.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="introduction">
+                <p>The journey of the traveling turtle is an ongoing process of adding textures to the shell. After traversing scorching deserts, dense rainforests, and chaotic urban jungles, the compass inevitably points to the ultimate extreme: the absolute end of the Earth. The concept of the traveler's shell is built on the accumulation of sensory experiences. A bustling night market in Asia adds a layer of spice and neon; a towering European cathedral adds the echo of a choir and the coolness of stone; a South American mountain range adds the thin, crisp air of altitude. But what does a landscape devoid of trees, markets, and indigenous human populations add to a traveler’s soul? It adds the profound texture of infinity.</p>
+                <p>Antarctica is not merely a destination; it is a profound threshold. It is the final frontier, a vast, indifferent expanse of ice, rock, and ocean that dictates its own terms. To travel here is to leave behind the familiar rhythms of human civilization and enter a realm where nature reigns with absolute, unquestioned authority.</p>
+            </section>
+
+            <section id="the-crossing">
+                <h3>The Drake Passage and the Great Shift</h3>
+                <p>The passage to this frozen continent is a demanding rite of passage in itself. Navigating the treacherous waters that separate the known world from the ice requires surrendering to the raw, violent power of the Southern Ocean. As the ship pushes further south, the color palette of the world begins to dramatically shift. The vibrant greens, warm earth tones, and artificial lights of the northern latitudes are entirely stripped away. In their place emerges an endless, mesmerizing gradient of deep indigo, slate grey, and blinding, pure white. The air grows sharp and biting, carrying the unmistakable, sterile scent of ancient ice and churning salt. This crossing is both a physical and psychological transition, forcing the traveler to shed their worldly preoccupations and preparing the mind for the staggering scale of what lies ahead.</p>
+                <p>Upon arrival at the peninsula, the violence of the ocean crossing is replaced by an overwhelming, heavy tranquility, and the true magnitude of the landscape reveals itself. The architecture here is not built by human hands; it is carved relentlessly by wind, water, and deep time. Colossal glaciers spill down from jagged, dark mountain peaks, calving into the sea with a thunderous roar that echoes across the glassy bays. Navigating through the labyrinthine fields of floating icebergs feels like moving silently through a gallery of monolithic, abstract sculptures. Some are brilliantly white, catching the low-hanging polar sun, while others glow from within with an ethereal, luminous sapphire blue, betraying the immense pressure under which they were formed over millennia. In this frozen wilderness, human presence is entirely secondary. The profound silence of the ice is only broken by the cracking of glaciers or the rush of the wind, constantly reminding the traveler of their own fleeting insignificance in the face of deep geological time.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="wildlife-and-plunge">
+                <h3>Tenacity of Life and the Polar Plunge</h3>
+                <p>Yet, against all odds, this hostile environment is surprisingly alive. The ice and stark rock formations serve as dramatic backdrops for thriving, noisy colonies of wildlife. Penguins, the undisputed sentinels of the extreme south, bustle along the rocky shorelines. Their chaotic, energetic activity—waddling, diving, building nests of pebbles, and calling out to one another—provides a stark, beautiful contrast to the frozen stillness that surrounds them. To observe these creatures is to witness the sheer tenacity of life. They do not merely survive; they flourish in the margins of the habitable world, perfectly adapted to the unforgiving cold. They are a living testament to resilience, a trait every traveler must cultivate on a long, global odyssey.</p>
+                <p>But to truly understand a place, observing it from the heated deck of a ship or from behind a camera lens is never enough. The environment must be felt in the bone. Immersing entirely into the freezing, dark waters for a polar plunge is a necessary, albeit shocking, communion with the continent. It is a literal shock to the system, an agonizingly cold baptism in the world's most unforgiving ocean. For those fleeting seconds submerged in the ice-choked water, the mind goes entirely blank, focused only on the primal, burning sensation of the cold. It strips away all pretense, all comfort, and leaves only the raw, exhilarating reality of the present moment. It is the ultimate sensory anchor.</p>
+            </section>
+
+            <section id="human-footprint">
+                <h3>The Flag and the Fragile Footprint</h3>
+                <p>Emerging from the water, standing on the snow-covered shoreline, the sense of achievement is deeply palpable. Unfurling a flag that boldly proclaims the arrival at the bottom of the world marks the triumph of the journey. It is a moment of shared victory among fellow travelers, a quiet acknowledgment of the distance crossed and the physical boundaries pushed. It is one thing to trace the outline of this white continent on a map from the comfort of a warm living room, and entirely another to stand firmly upon its ice, leaving a temporary footprint in the virgin snow.</p>
+                <p>Even in the most remote place on Earth, there is a fascinating, fragile footprint of human exploration. Scattered along the coastlines are research bases and small museums, lonely outposts of science and history clinging desperately to the edge of the world. Visiting these sites provides a sobering look at the history of those who first braved these extremes with canvas tents, wooden ships, and unparalleled courage. Inside these wooden huts, which serve as frozen time capsules, the scent of old leather and preserved provisions lingers. There is a deeply surreal comfort in finding a working post office in such an alien landscape, engaging in the distinctly human act of writing and mailing out postcards. Writing a postcard from the ice becomes an exercise in trying to articulate the ineffable. How does one describe the sound of a glacier calving in a few lines of ink? Yet, sending a fragile piece of paper from the isolated bottom of the world, trusting it to cross oceans and continents to reach civilization, beautifully bridges the immense gap between the frozen unknown and the warmth of home.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="conclusion">
+                <h3>An Anchor in the Soul</h3>
+                <p>For the traveling turtle, this expedition adds the most stark, profound layer to the shell of the world. It is a layer of pure white and deep blue, forged in absolute isolation and pristine beauty. Antarctica strips away the noise, the clutter, and the ego of the modern world, offering a rare, humbling perspective on our place within the natural order. We leave this frozen frontier changed, carrying the heavy, beautiful silence of the ice with us as we turn our compass north, back toward the bustling, colorful mosaic of the rest of the world. The global odyssey continues, pulling the traveler toward new cities and undiscovered jungles, but the memory of the extreme south remains a permanent, chillingly beautiful anchor in the soul.</p>
+            </section>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+        </article>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <section class="archive-nav">
+        <h3>Explore the 150 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Antarctica Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
@@ -81,9 +181,13 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Antarctica';
+            // Note: Update this prefix if your images are named differently
+            const c = 'Antarctica'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
                 const p = '../Images/Countries/' + c + i + '.jpg';
                 const ok = await new Promise(r => { 
@@ -95,6 +199,7 @@
                 if(ok) imgList.push(p);
                 else if(i > 3) break;
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +207,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000);
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

@@ -15,27 +15,62 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Azerbaijan.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/150-azerbaijan.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,23 +82,88 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
+    
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
 
     <header class="hero"><div class="txt-box"><h1>Azerbaijan</h1><p>Travel Guide & Archive</p></div></header>
     
     <div class="main-content">
-        <h2>Exploring Azerbaijan</h2>
-        <p>Visual notes and cultural documentation from the journey through Azerbaijan.</p>
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Land of Fire: A Caspian Journey</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">A comprehensive exploration of ancient rock carvings, dynamic cityscapes, unique wildlife, and vibrant pub culture in Baku.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="introduction">
+                <p>Positioned at the dynamic crossroads of Eastern Europe and Western Asia, Azerbaijan is a nation defined by striking, almost cinematic contrasts. Arriving in the spring of 2026, the first sensation is the wind—Baku is historically known as the "City of Winds," a metropolis where the ancient shores of the Caspian Sea meet the hyper-modern, illuminated curves of the Flame Towers. This chapter of the odyssey dives deep into the heart of the region, exploring a landscape where profound geological history runs parallel to a fast-paced, highly social contemporary lifestyle.</p>
+            </section>
+
+            <section id="landscape-heritage">
+                <h3>Echoes of the Ancients: Gobustan and the Old City</h3>
+                <p>To truly understand Azerbaijan, one must step out of the gleaming capital and into the raw, prehistoric terrain of the Absheron Peninsula. A journey to the Gobustan Rock Art Cultural Landscape reveals thousands of petroglyphs carved into the boulders. These ancient illustrations, dating back up to 40,000 years, depict early human settlements, ritual dances, and prehistoric fauna, serving as an open-air archive of our earliest ancestors. Not far from these carvings, the earth itself seems alive at the mud volcanoes. These bizarre, dome-like structures violently burp and bubble with thick, cold grey mud, creating an otherworldly, lunar landscape that feels entirely disconnected from the modern world.</p>
+                <p>Back within the capital, the historical narrative continues inside Icherisheher, Baku's walled Old City. Walking through these narrow, limestone-paved streets is a journey through medieval Islamic architecture. At its heart stands the Maiden Tower, a massive, cylindrical stone structure shrouded in centuries of local myth and legend, and the opulent Palace of the Shirvanshahs. These ancient stone monuments stand in direct architectural defiance of the futuristic skyscrapers just outside the fortress walls.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="wildlife">
+                <h3>The Residents of the Coast</h3>
+                <p>While Azerbaijan is heavily urbanized, the pulse of nature is ever-present. Walking along the expansive Baku Boulevard, the sky is frequently punctuated by the sharp calls of Caspian gulls. These large, resilient seabirds dive and ride the heavy coastal winds, inextricably linked to the maritime culture of the city. Deeper within the winding alleyways of the Old City, another type of resident commands the streets: the Baku street cats. Much like the felines of Istanbul, these animals are an accepted, beloved part of the local ecosystem, lounging in the sun-baked stone archways and watching the steady flow of travelers pass through their ancient territory.</p>
+            </section>
+
+            <section id="culinary">
+                <h3>Culinary Crossroads: From Cinar to the Caspian</h3>
+                <p>The culinary landscape in Baku is an incredibly rich tapestry, woven from centuries of Silk Road trade, Persian influence, and post-Soviet traditions. Immersing in the local gastronomy is a daily adventure. A cornerstone of the experience is sitting down in the shade of an Azerbaijan cinar (the majestic oriental plane tree), which has historically provided shelter for tea drinkers and diners across the region.</p>
+                <p>The core of Azerbaijani comfort food revolves around beautifully spiced meat and rice dishes, specifically the national pride: plov. Fragrant basmati rice is paired with tender cuts of lamb and beef, slow-cooked to perfection. But the true highlights of this journey are my absolute favorite dishes: <strong>khingel</strong>, with its wide, comforting pasta sheets layered with savory minced meat and rich yogurt, and <strong>dushbara</strong>, delicate little dumplings served in an incredibly flavorful, warming broth. Because Baku hugs the coast, fresh seafood is equally vital; meals frequently feature locally sourced, freshly grilled fish caught straight from the Caspian. The dining experience also extends to the casual and eclectic. Embracing the robust local bar culture means adopting local drinking snacks. Tables are frequently littered with bowls of salty peanuts and chips, alongside a very specific post-Soviet staple: chewy, intensely savory dried squid, which pairs perfectly with a cold pint of local draft beer.</p>
+            </section>
+
+            <section id="pub-culture">
+                <h3>Nights at the Pub: Strategy, Bluffing, and Camaraderie</h3>
+                <p>The true, modern heartbeat of Baku is often found after the sun goes down, hidden inside its lively pubs. The social culture here is not just about drinking; it thrives on community, friendly, intense competition, and shared laughter. Evenings at local haunts like the Beer Station Pub are distinctly defined by spirited rounds of tabletop games. These nights are an anchor to the travel experience.</p>
+                <p>The atmosphere shifts rapidly depending on the game at hand. One hour is filled with the tension of carefully balancing wooden blocks in a towering game of Jenga, followed by the sudden, crashing climax. The next hour might be dedicated to the quiet, tactical silence of maneuvering pieces across a chessboard. Later, the table devolves into laughter and heated debate over a deck of playing cards, or the intense, deductive bluffing required to decode secret agent clues in Codenames. These games transcend language barriers, transforming a simple pub in the Caucasus into a universal living room, proving that the most profound travel memories are often made across a table with good company and a handful of peanuts.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive represents the Spring 2026 expedition to Baku and the surrounding Caspian coast.</p>
+        </article>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <section class="archive-nav">
+        <h3>Explore the 150 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Azerbaijan Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
@@ -81,9 +181,13 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Azerbaijan';
+            // Note: Update this prefix if your images are named differently
+            const c = 'Azerbaijan'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
                 const p = '../Images/Countries/' + c + i + '.jpg';
                 const ok = await new Promise(r => { 
@@ -95,6 +199,7 @@
                 if(ok) imgList.push(p);
                 else if(i > 3) break;
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +207,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

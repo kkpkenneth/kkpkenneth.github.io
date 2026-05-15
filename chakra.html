@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查克拉屬性全組合圖鑑</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #f39c12;
+        }
+        h1 { margin-bottom: 30px; }
+        h2 { margin-top: 60px; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; width: 100%; max-width: 1000px; }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* 雙屬性表格樣式 */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            position: relative;
+        }
+        th { background-color: #2c3e50; color: #fff; font-size: 18px; }
+        td:first-child { background-color: #2c3e50; color: #fff; font-weight: bold; font-size: 18px; }
+        .diagonal { background-color: #272727; color: #888; }
+        
+        .tooltip { cursor: pointer; color: #f1c40f; font-weight: bold; transition: color 0.2s; }
+        .tooltip.theoretical { color: #e74c3c; font-style: italic; }
+        .tooltip:hover { color: #fff; z-index: 100; }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #f39c12;
+            color: #121212;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: normal;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+            pointer-events: none;
+            line-height: 1.4;
+            z-index: 999;
+        }
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #f39c12 transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+        /* 三屬性卡片陣列樣式 */
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            width: calc(33.333% - 20px); /* 一排三個卡片 */
+            box-sizing: border-box;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            border-color: #666;
+        }
+        .card.canon { border-top: 4px solid #f1c40f; }
+        .card.theory { border-top: 4px solid #e74c3c; }
+        
+        .card-emojis {
+            font-size: 24px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .card.canon .card-title { color: #f1c40f; }
+        .card.theory .card-title { color: #e74c3c; }
+        
+        .card-tag {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .card.canon .card-tag { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
+        .card.theory .card-tag { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+        
+        .card-desc {
+            font-size: 14px;
+            color: #bbb;
+            line-height: 1.5;
+            text-align: justify;
+        }
+
+        /* 響應式設定：手機螢幕變為一排一個 */
+        @media (max-width: 768px) {
+            .card { width: calc(50% - 20px); }
+        }
+        @media (max-width: 500px) {
+            .card { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>7x7 查克拉屬性交集網格圖 (雙屬性)</h1>
+    <table>
+        <tr>
+            <th>╳</th><th>🔥 火</th><th>💧 水</th><th>🪨 土</th><th>💨 風</th><th>🌩️ 雷</th><th>👁️ 陰</th><th>💪 陽</th>
+        </tr>
+        <tr>
+            <td>🔥 火</td>
+            <td class="diagonal tooltip">炎遁<span class="tooltiptext">火遁的極致形態，具備絕對的形態變化控制。</span></td>
+            <td class="tooltip">沸遁<span class="tooltiptext">正史。製造高溫且具強烈腐蝕性的酸性蒸氣。</span></td>
+            <td class="tooltip">熔遁<span class="tooltiptext">正史。產生高溫岩漿、火山灰或具備黏性的橡膠。</span></td>
+            <td class="tooltip">灼遁<span class="tooltiptext">正史。能瞬間蒸發目標體內所有水分的高熱火球。</span></td>
+            <td class="tooltip theoretical">電漿遁<span class="tooltiptext">理論推測。超高溫等離子體閃焰，兼具絕對高溫與貫穿力。</span></td>
+            <td class="tooltip theoretical">魂遁<span class="tooltiptext">理論推測。專門燃燒精神、記憶或查克拉的冷火。</span></td>
+            <td class="tooltip theoretical">命火遁<span class="tooltiptext">理論推測。賦予生命力的溫暖之火，加速細胞代謝與驅除劇毒。</span></td>
+        </tr>
+        <tr>
+            <td>💧 水</td>
+            <td class="tooltip">沸遁<span class="tooltiptext">正史。製造高溫且具強烈腐蝕性的酸性蒸氣。</span></td>
+            <td class="diagonal tooltip">水遁 (極致)<span class="tooltiptext">水遁的極致形態。</span></td>
+            <td class="tooltip">木遁<span class="tooltiptext">正史。將查克拉轉化為生命力生成樹木。</span></td>
+            <td class="tooltip">冰遁<span class="tooltiptext">正史。將周遭水分凍結成堅硬的冰。</span></td>
+            <td class="tooltip">嵐遁<span class="tooltiptext">正史。像水流般可自由控制方向的雷電光束。</span></td>
+            <td class="tooltip theoretical">鏡遁<span class="tooltiptext">理論推測。利用水面反射製造完美的物理鏡像或空間轉移。</span></td>
+            <td class="tooltip theoretical">泉遁<span class="tooltiptext">理論推測。極致的醫療再生之水，能瞬間修復致命傷。</span></td>
+        </tr>
+        <tr>
+            <td>🪨 土</td>
+            <td class="tooltip">熔遁<span class="tooltiptext">正史。產生高溫岩漿、火山灰或具備黏性的橡膠。</span></td>
+            <td class="tooltip">木遁<span class="tooltiptext">正史。將查克拉轉化為生命力生成樹木。</span></td>
+            <td class="diagonal tooltip">土遁 (極致)<span class="tooltiptext">土遁的極致形態，例如硬度超越鋼鐵。</span></td>
+            <td class="tooltip">磁遁<span class="tooltiptext">正史。產生磁力來控制砂鐵、砂金等金屬物質。</span></td>
+            <td class="tooltip">爆遁<span class="tooltiptext">正史。讓查克拉或接觸到的物體充滿爆炸性質。</span></td>
+            <td class="tooltip theoretical">影土遁<span class="tooltiptext">理論推測。賦予無機岩石幻覺特性，如在幻境與現實中切換質量的地刺。</span></td>
+            <td class="tooltip theoretical">創生遁<span class="tooltiptext">理論推測。賦予無機物生命，創造擁有自主意識的岩石生命體。</span></td>
+        </tr>
+        <tr>
+            <td>💨 風</td>
+            <td class="tooltip">灼遁<span class="tooltiptext">正史。能瞬間蒸發目標體內所有水分的高熱火球。</span></td>
+            <td class="tooltip">冰遁<span class="tooltiptext">正史。將周遭水分凍結成堅硬的冰。</span></td>
+            <td class="tooltip">磁遁<span class="tooltiptext">正史。產生磁力來控制砂鐵、砂金等金屬物質。</span></td>
+            <td class="diagonal tooltip">風遁 (極致)<span class="tooltiptext">風遁的極致形態，絕對的鋒利度。</span></td>
+            <td class="tooltip">迅遁<span class="tooltiptext">動畫原創。獲得超越常理、連寫輪眼都難以捕捉的極限移動速度。</span></td>
+            <td class="tooltip theoretical">虛遁<span class="tooltiptext">理論推測。將「切斷」概念極致化，產生無形的次元空間斬擊。</span></td>
+            <td class="tooltip theoretical">息遁<span class="tooltiptext">理論推測。注入生命之氣，能讓周遭環境瞬間充滿生機。</span></td>
+        </tr>
+        <tr>
+            <td>🌩️ 雷</td>
+            <td class="tooltip theoretical">電漿遁<span class="tooltiptext">理論推測。超高溫等離子體閃焰，兼具絕對高溫與貫穿力。</span></td>
+            <td class="tooltip">嵐遁<span class="tooltiptext">正史。像水流般可自由控制方向的雷電光束。</span></td>
+            <td class="tooltip">爆遁<span class="tooltiptext">正史。讓查克拉或接觸到的物體充滿爆炸性質。</span></td>
+            <td class="tooltip">迅遁<span class="tooltiptext">動畫原創。獲得超越常理、連寫輪眼都難以捕捉的極限移動速度。</span></td>
+            <td class="diagonal tooltip">雷遁 (極致)<span class="tooltiptext">雷遁的極致形態，絕對的速度與破壞力。</span></td>
+            <td class="tooltip theoretical">幻雷遁<span class="tooltiptext">理論推測。透過電流神經訊號直接駭入大腦植入幻術。</span></td>
+            <td class="tooltip theoretical">體遁<span class="tooltiptext">理論推測。活化細胞的極致，帶來絕對的肉體極限突破與無限再生。</span></td>
+        </tr>
+        <tr>
+            <td>👁️ 陰</td>
+            <td class="tooltip theoretical">魂遁<span class="tooltiptext">理論推測。專門燃燒精神、記憶或查克拉的冷火。</span></td>
+            <td class="tooltip theoretical">鏡遁<span class="tooltiptext">理論推測。利用水面反射製造完美的物理鏡像或空間轉移。</span></td>
+            <td class="tooltip theoretical">影土遁<span class="tooltiptext">理論推測。賦予無機岩石幻覺特性，如在幻境與現實中切換質量的地刺。</span></td>
+            <td class="tooltip theoretical">虛遁<span class="tooltiptext">理論推測。將「切斷」概念極致化，產生無形的次元空間斬擊。</span></td>
+            <td class="tooltip theoretical">幻雷遁<span class="tooltiptext">理論推測。透過電流神經訊號直接駭入大腦植入幻術。</span></td>
+            <td class="diagonal tooltip">陰遁 (極致)<span class="tooltiptext">從無中生有創造形態的極致力量。</span></td>
+            <td class="tooltip">陰陽遁<span class="tooltiptext">正史。從無中生有並賦予生命，能使一切常規忍術無效化的造物主之力。</span></td>
+        </tr>
+        <tr>
+            <td>💪 陽</td>
+            <td class="tooltip theoretical">命火遁<span class="tooltiptext">理論推測。賦予生命力的溫暖之火，加速細胞代謝與驅除劇毒。</span></td>
+            <td class="tooltip theoretical">泉遁<span class="tooltiptext">理論推測。極致的醫療再生之水，能瞬間修復致命傷。</span></td>
+            <td class="tooltip theoretical">創生遁<span class="tooltiptext">理論推測。賦予無機物生命，創造擁有自主意識的岩石生命體。</span></td>
+            <td class="tooltip theoretical">息遁<span class="tooltiptext">理論推測。注入生命之氣，能讓周遭環境瞬間充滿生機。</span></td>
+            <td class="tooltip theoretical">體遁<span class="tooltiptext">理論推測。活化細胞的極致，帶來絕對的肉體極限突破與無限再生。</span></td>
+            <td class="tooltip">陰陽遁<span class="tooltiptext">正史。從無中生有並賦予生命，能使一切常規忍術無效化的造物主之力。</span></td>
+            <td class="diagonal tooltip">陽遁 (極致)<span class="tooltiptext">賦予生命的極致力量。</span></td>
+        </tr>
+    </table>
+</div>
+
+<h2>血繼淘汰：三屬性組合 (全 10 種)</h2>
+<div class="cards-grid">
+    
+    <div class="card canon">
+        <div class="card-emojis">🔥 + 🪨 + 💨</div>
+        <div class="card-title">塵遁</div>
+        <div class="card-tag">正史</div>
+        <div class="card-desc">發射出三維空間的幾何體，能將困在其中的一切物質在分子層面上剝離化為塵埃。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">💧 + 💨 + 🌩️</div>
+        <div class="card-title">災遁 / 天候遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">水氣、氣流對流與閃電的結合。能直接操縱氣象級別的天災，瞬間製造出毀滅性的超級颶風或雷暴。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">🔥 + 🪨 + 💧</div>
+        <div class="card-title">晶遁 / 琉璃遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">用高溫將岩石砂土熔化，再瞬間注入水遁急速冷卻，產生能將周遭物質瞬間結晶化封印的礦物晶體。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">🪨 + 💧 + 💨</div>
+        <div class="card-title">蝕遁 / 沼遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">泥土質量、水的溶解力與風的侵蝕力結合。產生帶有強烈腐蝕性的流沙，能讓陷入其中的物體從結構上被風化瓦解。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">🔥 + 🌩️ + 💨</div>
+        <div class="card-title">光遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">完全捨棄實體質量，三種純粹能量的結合。轉化為光速的射線武器，具有致盲的強光與瞬間蒸發一切的熱能。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">💧 + 🪨 + 🌩️</div>
+        <div class="card-title">引力遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">礦物、流體與電磁場的結合。能製造巨大電磁場或重力場，隨意操控周遭重力，或將區域內的質量極度壓縮。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">🔥 + 💧 + 💨</div>
+        <div class="card-title">汽遁 / 嵐霧遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">極致的高溫水蒸氣在狂風帶動下形成大範圍的超高溫氣流，不僅能剝奪視野，還能從呼吸道內部灼傷敵人。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">🔥 + 💧 + 🌩️</div>
+        <div class="card-title">煌遁 / 閃遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">利用水的導電性結合極限高溫與雷電，形成無法防禦的「液態閃電爆發」，接觸瞬間產生電解與高溫爆炸。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">🔥 + 🪨 + 🌩️</div>
+        <div class="card-title">隕遁 / 耀土遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">賦予巨岩極致的高溫，並利用電磁推進進行超高速打擊，如同天降隕石般產生具備核爆級衝擊力的物理破壞。</div>
+    </div>
+
+    <div class="card theory">
+        <div class="card-emojis">🪨 + 💨 + 🌩️</div>
+        <div class="card-title">磁暴遁 / 砂雷遁</div>
+        <div class="card-tag">理論推測</div>
+        <div class="card-desc">狂風帶動岩砂進行極限摩擦產生靜電，形成帶有強烈電磁脈衝的毀滅性沙塵暴，能癱瘓敵人的神經與感知。</div>
+    </div>
+
+</div>
+
+</body>
+</html>

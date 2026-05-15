@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查克拉煉金術 Chakra Alchemy</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+        h1 {
+            color: #f39c12;
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            color: #888;
+            margin-bottom: 40px;
+        }
+        
+        /* 合成台區域 */
+        .crafting-table {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-bottom: 40px;
+            border: 2px dashed #444;
+            min-height: 120px;
+        }
+        .slot {
+            width: 80px;
+            height: 80px;
+            background-color: #2c3e50;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .slot:hover {
+            transform: scale(1.05);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.2);
+        }
+        .slot .element-name {
+            font-size: 12px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        .plus-sign {
+            font-size: 32px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        /* 元素庫區域 */
+        .inventory-container {
+            width: 100%;
+            max-width: 800px;
+        }
+        .inventory-title {
+            font-size: 18px;
+            color: #f39c12;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        .inventory {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .element-btn {
+            background-color: #272727;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 70px;
+        }
+        .element-btn:hover {
+            background-color: #333;
+            border-color: #f39c12;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+        .element-btn .emoji {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .element-btn .name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ddd;
+        }
+        .element-btn .combo-desc {
+            font-size: 10px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        /* 特效動畫 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.3s ease-in-out; border-color: #e74c3c !important; }
+        
+        @keyframes flash {
+            0% { box-shadow: 0 0 0px #f39c12; background-color: #f39c12; }
+            100% { box-shadow: 0 0 30px rgba(243, 156, 18, 0); background-color: #1e1e1e; }
+        }
+        .success-flash { animation: flash 0.8s ease-out; }
+
+        /* 重置按鈕 */
+        .reset-btn {
+            margin-top: 40px;
+            padding: 10px 20px;
+            background-color: transparent;
+            color: #888;
+            border: 1px solid #555;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .reset-btn:hover {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+        
+        #notification {
+            position: fixed;
+            top: 20px;
+            background-color: #2ecc71;
+            color: #121212;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transform: translateY(-100px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        #notification.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="notification">解鎖新元素！</div>
+
+    <h1>查克拉煉金術</h1>
+    <p class="subtitle">點擊下方元素放入合成台，尋找隱藏的血繼限界組合</p>
+
+    <div class="crafting-table" id="crafting-table">
+        <div class="slot" id="slot1" onclick="clearSlot(1)"></div>
+        <div class="plus-sign">+</div>
+        <div class="slot" id="slot2" onclick="clearSlot(2)"></div>
+    </div>
+
+    <div class="inventory-container">
+        <div class="inventory-title">已解鎖元素 (<span id="count">7</span>/21)</div>
+        <div class="inventory" id="inventory">
+            </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetGame()">重置遊戲進度</button>
+
+    <script>
+        // 遊戲資料庫
+        const elementsDB = {
+            // 基礎屬性
+            fire: { id: 'fire', emoji: '🔥', name: '火遁' },
+            water: { id: 'water', emoji: '💧', name: '水遁' },
+            earth: { id: 'earth', emoji: '🪨', name: '土遁' },
+            wind: { id: 'wind', emoji: '💨', name: '風遁' },
+            lightning: { id: 'lightning', emoji: '🌩️', name: '雷遁' },
+            yin: { id: 'yin', emoji: '👁️', name: '陰遁' },
+            yang: { id: 'yang', emoji: '💪', name: '陽遁' },
+            
+            // 血繼限界 (雙屬性)
+            ice: { id: 'ice', emoji: '🧊', name: '冰遁', desc: '水 + 風' },
+            wood: { id: 'wood', emoji: '🌳', name: '木遁', desc: '土 + 水' },
+            lava: { id: 'lava', emoji: '🌋', name: '熔遁', desc: '火 + 土' },
+            storm: { id: 'storm', emoji: '🌩️', name: '嵐遁', desc: '雷 + 水' },
+            boil: { id: 'boil', emoji: '♨️', name: '沸遁', desc: '水 + 火' },
+            scorch: { id: '☀️', name: 'scorch', emoji: '☀️', name: '灼遁', desc: '火 + 風' },
+            magnet: { id: 'magnet', emoji: '🧲', name: '磁遁', desc: '風 + 土' },
+            explosion: { id: 'explosion', emoji: '💥', name: '爆遁', desc: '土 + 雷' },
+            swift: { id: 'swift', emoji: '💨', name: '迅遁', desc: '風 + 雷' },
+            plasma: { id: 'plasma', emoji: '✨', name: '電漿遁', desc: '火 + 雷' },
+            
+            // 特殊組合
+            soul: { id: 'soul', emoji: '👻', name: '魂遁', desc: '陰 + 火' },
+            spring: { id: 'spring', emoji: '⛲', name: '泉遁', desc: '陽 + 水' },
+            creation: { id: 'creation', emoji: '🗿', name: '創生遁', desc: '陽 + 土' },
+            yinyang: { id: 'yinyang', emoji: '☯️', name: '陰陽遁', desc: '陰 + 陽' }
+        };
+
+        // 合成配方 (Key 必須依照字母順序排列，例如 earth,fire 不能寫成 fire,earth)
+        const recipes = {
+            'water,wind': 'ice',
+            'earth,water': 'wood',
+            'earth,fire': 'lava',
+            'lightning,water': 'storm',
+            'fire,water': 'boil',
+            'fire,wind': 'scorch',
+            'earth,wind': 'magnet',
+            'earth,lightning': 'explosion',
+            'lightning,wind': 'swift',
+            'fire,lightning': 'plasma',
+            'fire,yin': 'soul',
+            'water,yang': 'spring',
+            'earth,yang': 'creation',
+            'yang,yin': 'yinyang'
+        };
+
+        // 遊戲狀態
+        let unlockedElements = new Set(['fire', 'water', 'earth', 'wind', 'lightning', 'yin', 'yang']);
+        let slot1Item = null;
+        let slot2Item = null;
+        let isProcessing = false;
+
+        // 初始化
+        function init() {
+            renderInventory();
+        }
+
+        // 渲染元素庫
+        function renderInventory() {
+            const inventoryDiv = document.getElementById('inventory');
+            inventoryDiv.innerHTML = '';
+            
+            unlockedElements.forEach(id => {
+                const el = elementsDB[id];
+                const btn = document.createElement('div');
+                btn.className = 'element-btn';
+                btn.onclick = () => selectElement(id);
+                
+                let html = `<div class="emoji">${el.emoji}</div><div class="name">${el.name}</div>`;
+                if(el.desc) html += `<div class="combo-desc">${el.desc}</div>`;
+                
+                btn.innerHTML = html;
+                inventoryDiv.appendChild(btn);
+            });
+            
+            document.getElementById('count').innerText = unlockedElements.size;
+        }
+
+        // 點擊選擇元素放上合成台
+        function selectElement(id) {
+            if (isProcessing) return;
+
+            if (!slot1Item) {
+                slot1Item = id;
+                updateSlots();
+            } else if (!slot2Item) {
+                slot2Item = id;
+                updateSlots();
+                processCombination();
+            }
+        }
+
+        // 點擊合成台取消元素
+        function clearSlot(slotNum) {
+            if (isProcessing) return;
+            if (slotNum === 1) slot1Item = null;
+            if (slotNum === 2) slot2Item = null;
+            updateSlots();
+        }
+
+        // 更新合成台畫面
+        function updateSlots() {
+            const s1 = document.getElementById('slot1');
+            const s2 = document.getElementById('slot2');
+            
+            s1.innerHTML = slot1Item ? `<div class="emoji">${elementsDB[slot1Item].emoji}</div><div class="element-name">${elementsDB[slot1Item].name}</div>` : '';
+            s2.innerHTML = slot2Item ? `<div class="emoji">${elementsDB[slot2Item].emoji}</div><div class="element-name">${elementsDB[slot2Item].name}</div>` : '';
+        }
+
+        // 處理合成邏輯
+        function processCombination() {
+            isProcessing = true;
+            
+            // 將兩個 ID 按字母排序組合，確保無關點擊順序
+            const attemptKey = [slot1Item, slot2Item].sort().join(',');
+            
+            setTimeout(() => {
+                if (recipes[attemptKey]) {
+                    const newElementId = recipes[attemptKey];
+                    const table = document.getElementById('crafting-table');
+                    
+                    table.classList.add('success-flash');
+                    setTimeout(() => table.classList.remove('success-flash'), 800);
+
+                    if (!unlockedElements.has(newElementId)) {
+                        unlockedElements.add(newElementId);
+                        showNotification(`成功合成：${elementsDB[newElementId].name} ${elementsDB[newElementId].emoji}！`);
+                        renderInventory();
+                    }
+                } else {
+                    // 失敗動畫
+                    document.getElementById('crafting-table').classList.add('shake');
+                    setTimeout(() => document.getElementById('crafting-table').classList.remove('shake'), 300);
+                }
+                
+                // 清空合成台
+                slot1Item = null;
+                slot2Item = null;
+                updateSlots();
+                isProcessing = false;
+                
+            }, 500); // 延遲半秒讓玩家看清楚組合
+        }
+
+        // 顯示解鎖通知
+        function showNotification(text) {
+            const notif = document.getElementById('notification');
+            notif.innerText = text;
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
+        }
+
+        // 重置遊戲
+        function resetGame() {
+            unlockedElements = new Set(['fire', 'water', 'earth', 'wind', 'lightning', 'yin', 'yang']);
+            slot1Item = null;
+            slot2Item = null;
+            updateSlots();
+            renderInventory();
+        }
+
+        // 啟動
+        init();
+    </script>
+</body>
+</html>

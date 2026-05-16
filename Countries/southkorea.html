@@ -15,27 +15,62 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/South%20Korea.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/004-south-korea.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,23 +82,95 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
+    
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
 
     <header class="hero"><div class="txt-box"><h1>South Korea</h1><p>Travel Guide & Archive</p></div></header>
     
     <div class="main-content">
-        <h2>Exploring South Korea</h2>
-        <p>Visual notes and cultural documentation from the journey through South Korea.</p>
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Land of the Morning Calm: High-Tech and Dynastic Harmony</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">Navigating the historic architecture, urban wildlife, and culinary depths of the Korean Peninsula.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="introduction">
+                <p>Located on the eastern edge of Asia, South Korea is a nation defined by striking juxtapositions. Exploring this vibrant peninsula means moving effortlessly between hyper-modern metropolitan hubs, dramatic coastal lines, volcanic islands, and quiet, beautifully preserved historical pockets. This comprehensive archive chronicles a multi-regional journey tracing the unique pulse of the country from the capital down to its southern shores.</p>
+            </section>
+
+            <section id="seoul-heritage">
+                <h3>Echoes of the Joseon Dynasty in <strong>Seoul</strong></h3>
+                <p>To truly grasp the cultural baseline of South Korea, one must explore Gyeongbokgung Palace in <strong>Seoul</strong>. Established in 1395 as the main royal palace of the Joseon Dynasty, its name translates to "Palace Greatly Blessed by Heaven." Walking beneath the massive timber frame of Gwanghwamun Gate and strolling past the majestic Geunjeongjeon Hall highlights the classic symmetry of traditional Korean architecture. Though heavily damaged during historical conflicts like the Imjin War, meticulous preservation has restored landmarks like the Gyeonghoeru and Hyangwonjeong pavilions, which sit elegantly over peaceful, reflective ponds.</p>
+                <p>Just a short distance away lies Bukchon Hanok Village, an ancient neighborhood tucked between the city's grand palaces. This area has preserved hundreds of traditional wooden houses, known as hanok, which date back to the aristocratic era of the Joseon Dynasty. Wandering through these narrow, climbing stone alleys reveals an architectural sanctuary where dark tiled roofs and clay brick walls stand in sharp, beautiful contrast to the glass skyscrapers of downtown <strong>Seoul</strong> in the distance.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="coastal-destinations">
+                <h3>Maritime Gateways: <strong>Busan</strong>, <strong>Gangneung</strong>, and <strong>Mokpo</strong></h3>
+                <p>Leaving the capital behind, the journey shifts toward the dynamic maritime regions of the peninsula. Heading southeast leads to <strong>Busan</strong>, the country's bustling primary port city. Here, steep green mountains spill down directly into the deep blue ocean. The historical weight of the city is felt in places like the Gamcheon Culture Village—a brightly colored hillside neighborhood built by refugees during the Korean War, now preserved as a sprawling public art installation. The local maritime culture thrives down at Jagalchi Fish Market, where centuries of seafaring traditions carry into the modern era.</p>
+                <p>In contrast, traveling to the northeast coast brings you to <strong>Gangneung</strong>, a coastal retreat nested along the East Sea. Known for its pine forests and pristine white sand beaches, <strong>Gangneung</strong> serves as a cultural repository for regional history. It holds Ojukheon, one of the oldest preserved residential wooden complexes in South Korea, famous as the birthplace of the prominent Joseon scholar Yulgok Yi I. The city perfectly balances this historic stillness with a vibrant contemporary coastal scene.</p>
+                <p>Venturing to the southwestern tip of the peninsula brings the compass to <strong>Mokpo</strong>, a historic port city steeped in seafaring legends and 20th-century history. Guarded by the craggy peaks of Yudalsan Mountain, <strong>Mokpo</strong> served as a crucial trading gateway and carries a unique layout reflecting early modern architecture alongside traditional harbors. Walking along the coast reveals spectacular geological formations like Gatbawi Rock, a pair of natural stone statues carved out over centuries by waves and saltwater breeze, functioning as a silent archive of the changing tides.</p>
+            </section>
+
+            <section id="jeju-island">
+                <h3>Volcanic Isolations of <strong>Jeju</strong></h3>
+                <p>Flying off the southern coast leads to <strong>Jeju</strong> Island, a dramatic volcanic landscape shaped by ancient eruptions and distinct island traditions. The island’s history is structurally written in its basalt stone walls and the famous *Dol Hareubang* (grandfather statues) carved out of porous volcanic rock to protect villages from ancient spirits. Towering over the eastern coast is Seongsan Ilchulbong, a magnificent tuff cone created by hydrovolcanic eruptions thousands of years ago, offering a look into the raw geological formation of the land.</p>
+            </section>
+
+            <section id="wildlife">
+                <h3>The Residents of the Fields and Alleys</h3>
+                <p>Animals carve out unique niches across these diverse environments. Resting on the warm stone steps or sun-baked wooden beams of Bukchon Hanok Village in <strong>Seoul</strong>, independent street cats are a common fixture, watching the steady stream of global travelers with quiet curiosity. Meanwhile, in the city's public parks and residential walkways, well-behaved local dogs navigate the urban landscape alongside their owners.</p>
+                <p>On <strong>Jeju</strong> Island, the fauna takes on a deeply regional role. The island is historically linked to the domestic <strong>Jeju</strong> black pig, a small, dark breed adapted perfectly to the rugged terrain over centuries. Along the coastal margins of <strong>Jeju</strong>, <strong>Busan</strong>, <strong>Gangneung</strong>, and the tidal inlets of <strong>Mokpo</strong>, flocks of black-tailed gulls and various migratory shorebirds dominate the maritime skies, riding the heavy coastal winds and nesting along the rocky cliffs.</p>
+            </section>
+
+            <section id="culinary">
+                <h3>The Gastronomic Mosaic: Balance, Fermentation, and Warmth</h3>
+                <p>The culinary philosophy across these regions highly values the harmony of flavors and seasonal ingredients. A perfect example is <strong>bibimbap</strong>, a classic bowl of mixed rice topped with a colorful arrangement of sautéed vegetables, seasoned meat, and a fried egg, tied together by a rich dollop of spicy gochujang chili paste. Alongside every dish sits a side of <strong>kimchi</strong>, the iconic, deeply flavorful fermented cabbage that serves as the bedrock of the country's daily diet.</p>
+                <p>To ward off fatigue from long exploration, a hot bowl of <strong>samgyetang</strong> (ginseng chicken soup) offers the ultimate nourishment. A whole young chicken is stuffed with aromatic ginseng, glutinous rice, jujubes, and garlic, then slow-simmered until the meat is incredibly tender and the broth turns rich and milky. The sticky rice absorbs the earthy, sweet notes of the ginseng, providing a deeply comforting meal that re-energizes the body and mind after a long day on the road.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive covers historical preservation and cultural exploration across Seoul, Busan, Jeju, Gangneung, and Mokpo.</p>
+        </article>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <section class="archive-nav">
+        <h3>Explore the 150 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>South Korea Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
@@ -81,9 +188,12 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'South Korea';
+            const c = 'South Korea'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
                 const p = '../Images/Countries/' + c + i + '.jpg';
                 const ok = await new Promise(r => { 
@@ -95,6 +205,7 @@
                 if(ok) imgList.push(p);
                 else if(i > 3) break;
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +213,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

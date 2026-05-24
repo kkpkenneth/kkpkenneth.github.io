@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRUITDLE</title>
+    <style>
+        :root {
+            --bg: #121213;
+            --panel: #1a1a1b;
+            --text: #ffffff;
+            --primary: #538d4e;
+            --wrong: #3a3a3c;
+            --hint: #b59f3b;
+            --error: #e74c3c;
+        }
+
+        body {
+            font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .container { width: 100%; max-width: 500px; text-align: center; padding: 20px; }
+        h1 { font-size: 2.8rem; letter-spacing: 0.4rem; margin: 10px 0; border-bottom: 2px solid var(--wrong); padding-bottom: 10px; }
+
+        #hint-display {
+            background: var(--panel);
+            padding: 25px 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 4rem;
+            border-left: 6px solid var(--hint);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        #word-display {
+            font-size: 2.2rem;
+            font-weight: bold;
+            letter-spacing: 0.4rem;
+            margin: 30px 0;
+            text-transform: uppercase;
+        }
+
+        .keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; padding: 10px; }
+
+        .key {
+            background: var(--wrong);
+            color: white;
+            border: none;
+            padding: 15px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            touch-action: manipulation;
+        }
+
+        .key:disabled { opacity: 0.3; cursor: default; }
+        .key.correct { background: var(--primary) !important; }
+        .key.incorrect { background: #000 !important; color: #555; }
+
+        .btn-main {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-main:hover { transform: scale(1.05); }
+        #next-btn { display: none; margin: 20px auto; }
+        .stats { margin-top: 20px; color: #818384; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="start-overlay">
+    <h1 style="border:none">FRUITDLE</h1>
+    <p>Guess the fruit 🍉</p>
+    <button class="btn-main" onclick="startGame()">START GAME</button>
+</div>
+
+<div class="container">
+    <h1>FRUITDLE</h1>
+    <div class="stats">LIVES: <span id="lives-count">6</span> | STREAK: <span id="streak-count">0</span></div>
+    
+    <div id="hint-display">❓</div>
+    <div id="word-display">_ _ _ _ _</div>
+    <div id="status" style="height: 30px; margin: 10px 0; font-weight: bold; font-size: 1.2rem;"></div>
+
+    <div class="keyboard" id="keyboard"></div>
+    <button class="btn-main" id="next-btn" onclick="initRound()">NEXT</button>
+</div>
+
+<script>
+    // --- 8-BIT AUDIO SYNTHESIZER ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        const now = audioCtx.currentTime;
+        osc.type = 'square'; 
+
+        if (type === 'correct') {
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+        } else if (type === 'wrong') {
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } else if (type === 'win') {
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.setValueAtTime(600, now + 0.1);
+            osc.frequency.setValueAtTime(800, now + 0.2);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        } else if (type === 'lose') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.5);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+    }
+
+    function startGame() {
+        document.getElementById('start-overlay').style.display = 'none';
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        initRound();
+    }
+
+    // --- GAME ENGINE ---
+    const fruits = [
+        {n:"APPLE", h:"🍎"},
+        {n:"PEAR", h:"🍐"},
+        {n:"HAWTHORN", h:"🔴🌳"},
+        {n:"QUINCE", h:"🟡🍏"},
+        {n:"ASIAN PEAR", h:"🍈🍐"},
+        {n:"WAX APPLE", h:"🕯️🍎"},
+        {n:"BANANA", h:"🍌"},
+        {n:"PINEAPPLE", h:"🍍"},
+        {n:"BLACK PINEAPPLE", h:"⬛🍍"},
+        {n:"POMEGRANATE", h:"👑🔴"},
+        {n:"MANGOSTEEN", h:"🟣🧄"}, // Purple outside, looks like garlic inside
+        {n:"BREADFRUIT", h:"🍞🍈"},
+        {n:"SOURSOP", h:"😖🦔"}, // Sour + Spiky
+        {n:"STAR FRUIT", h:"⭐🍎"},
+        {n:"ACKEE", h:"🍳🌳"}, // Cooked, it looks like scrambled eggs
+        {n:"CASHEW APPLE", h:"🥜🍎"},
+        {n:"DURIAN", h:"🦔🦨"}, // Spiky + Smelly (Skunk)
+        {n:"FIG", h:"🐝🌺"}, // Wasps pollinate them inside out
+        {n:"GUAVA", h:"🟢🩷"}, // Green outside, pink inside
+        {n:"JACKFRUIT", h:"🐘🍈"}, // Giant fruit
+        {n:"PAPAYA", h:"🟠⚫"}, // Orange flesh, black seeds
+        {n:"PASSIONFRUIT", h:"🟣🥄"}, // Eaten with a spoon
+        {n:"PERSIMMON", h:"🍅🍂"}, // Looks like a tomato, harvested in Autumn
+        {n:"TAMARIND", h:"🤎🫘"},
+        {n:"PLANTAIN", h:"🍳🍌"}, // Cooking banana
+        {n:"CUSTARD APPLE", h:"🍮🍎"},
+        {n:"SNAKE FRUIT", h:"🐍🍎"},
+        {n:"TUNA FRUIT", h:"🌵🔴"}, // Prickly pear / cactus fruit
+        {n:"CHAPOPOTE FRUIT", h:"⚫🍎"}, // Black sapote (chocolate pudding fruit)
+        {n:"PEACH", h:"🍑"},
+        {n:"CHERRY", h:"🍒"},
+        {n:"PLUM", h:"🟣🍑"},
+        {n:"APRICOT", h:"🟠🍑"},
+        {n:"MANGO", h:"🥭"},
+        {n:"NECTARINE", h:"🔴🍑"}, // Smooth peach
+        {n:"WHITE PEACH", h:"⚪🍑"},
+        {n:"PASSION FRUIT", h:"🟣🟡"}, // Purple outside, yellow inside
+        {n:"OLIVE", h:"🫒"},
+        {n:"ACAI BERRY", h:"🟣🥣"}, // Famous as a bowl
+        {n:"COCONUT", h:"🥥"},
+        {n:"DATE", h:"🌴🤎"},
+        {n:"LYCHEE", h:"🔴⚪"},
+        {n:"LONGAN", h:"🐉👁️"}, // Literally "Dragon Eye"
+        {n:"MIRACLE FRUIT", h:"🪄🍒"},
+        {n:"NUTMEG", h:"🌰🧂"},
+        {n:"PEANUT BUTTER FRUIT", h:"🥜🧈🔴"},
+        {n:"RAMBUTAN", h:"🧶🔴"}, // Hairy/yarn red fruit
+        {n:"SEA COCONUT", h:"🌊🥥"},
+        {n:"ORANGE", h:"🍊"},
+        {n:"LEMON", h:"🍋"},
+        {n:"LIME", h:"🟢🍋"},
+        {n:"CITRON", h:"🍋🏔️"}, // Bumpy, ancient lemon
+        {n:"POMELO", h:"🍈🍊"}, // Giant citrus
+        {n:"MANDARIN", h:"👶🍊"}, // Small orange
+        {n:"TANGERINE", h:"🍊🍃"},
+        {n:"FINGER LIME", h:"👆🍋"},
+        {n:"GRAPEFRUIT", h:"🍇🍊"},
+        {n:"UGLI FRUIT", h:"👹🍊"}, // Ugly orange
+        {n:"BUDDHAS HAND", h:"🖐️🍋"},
+        {n:"KUMQUAT", h:"🤏🍊"}, // Tiny orange
+        {n:"PINK LEMON", h:"🩷🍋"},
+        {n:"BERGAMOT", h:"☕🍋"}, // Flavors Earl Grey tea
+        {n:"CLEMENTINE", h:"📦🍊"}, // Often sold in small wooden boxes
+        {n:"YUZU", h:"♨️🍋"}, // Put in hot baths
+        {n:"DRAGON FRUIT", h:"🐲🍎"},
+        {n:"KIRIN FRUIT", h:"🐲🟡"}, // Yellow dragon fruit
+        {n:"PRICKLY PEAR", h:"🌵🍐"},
+        {n:"STRAWBERRY", h:"🍓"},
+        {n:"BLUEBERRY", h:"🫐"},
+        {n:"RASPBERRY", h:"🐻🔴"}, // Bears love them
+        {n:"BLACKBERRY", h:"⬛🍓"},
+        {n:"BLACK CURRANT", h:"⚫🍇"},
+        {n:"WHITE CURRANT", h:"⚪🍇"},
+        {n:"RED CURRANT", h:"🔴🍇"},
+        {n:"BOYSENBERRY", h:"🟣🍓"},
+        {n:"CLOUDBERRY", h:"☁️🍓"},
+        {n:"CRANBERRY", h:"🦃🍒"}, // Thanksgiving fruit!
+        {n:"CROWBERRY", h:"🐦‍⬛🍓"},
+        {n:"DEWBERRY", h:"💧🍓"},
+        {n:"GRAPE", h:"🍇"},
+        {n:"KIWIFRUIT", h:"🥝"},
+        {n:"LINGONBERRY", h:"🧆🔴"}, // Eaten with meatballs
+        {n:"GOOSEBERRY", h:"🪿🍒"},
+        {n:"KIWIBERRY", h:"🥝🤏"}, // Tiny kiwi
+        {n:"SALMON BERRY", h:"🐟🍓"},
+        {n:"WAMPI", h:"🟡🍇"},
+        {n:"WHITE GRAPES", h:"⚪🍇"},
+        {n:"RED GRAPES", h:"🔴🍇"},
+        {n:"BLACK GRAPES", h:"⚫🍇"},
+        {n:"KYOHO GRAPES", h:"🟣🍇"},
+        {n:"CHAMPAGNE GRAPES", h:"🥂🍇"}
+    ];
+
+    let current = {}, guessed = [], lives = 6, streak = 0, pool = [...fruits];
+    let isRoundActive = false;
+
+    function initRound() {
+        if (pool.length === 0) pool = [...fruits];
+        current = pool.splice(Math.floor(Math.random()*pool.length), 1)[0];
+        guessed = []; 
+        lives = 6;
+        isRoundActive = true;
+        
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('status').innerText = "";
+        document.getElementById('word-display').style.color = "var(--text)";
+        document.getElementById('lives-count').innerText = lives;
+        document.getElementById('hint-display').innerText = current.h;
+        render();
+        renderKeys();
+    }
+
+    function render() {
+        const upperName = current.n.toUpperCase();
+        
+        const display = upperName.split('').map((c, index) => {
+            if (c === " ") return "&nbsp;";
+            return guessed.includes(c) ? current.n[index] : "_";
+        }).join(" ");
+        
+        document.getElementById('word-display').innerHTML = display;
+        
+        if (!display.includes("_") && isRoundActive) {
+            streak++;
+            document.getElementById('streak-count').innerText = streak;
+            document.getElementById('status').innerText = "BINGO!";
+            document.getElementById('status').style.color = "var(--primary)";
+            playSound('win');
+            endRound();
+        }
+    }
+
+    function renderKeys() {
+        const kb = document.getElementById('keyboard'); 
+        kb.innerHTML = "";
+        const upperName = current.n.toUpperCase(); 
+
+        "QWERTYUIOPASDFGHJKLZXCVBNM".split('').forEach(k => {
+            const b = document.createElement('button');
+            b.innerText = k; 
+            b.className = 'key';
+            b.setAttribute('data-key', k); // Important for physical keyboard matching
+            b.onclick = () => {
+                if (b.disabled || !isRoundActive) return;
+                
+                b.disabled = true;
+                if (upperName.includes(k)) {
+                    guessed.push(k); 
+                    b.classList.add('correct'); 
+                    playSound('correct');
+                    render();
+                } else {
+                    lives--; 
+                    b.classList.add('incorrect');
+                    playSound('wrong');
+                    document.getElementById('lives-count').innerText = lives;
+                    
+                    if (lives <= 0) {
+                        streak = 0; 
+                        document.getElementById('streak-count').innerText = streak;
+                        document.getElementById('status').innerText = "LOST: " + current.n;
+                        document.getElementById('status').style.color = "var(--error)";
+                        
+                        // Reveal the word
+                        const fullWord = upperName.split('').map(c => c === " " ? "&nbsp;" : c).join(" ");
+                        document.getElementById('word-display').innerHTML = fullWord;
+                        document.getElementById('word-display').style.color = "var(--error)";
+                        
+                        playSound('lose');
+                        endRound();
+                    }
+                }
+            };
+            kb.appendChild(b);
+        });
+    }
+
+    function endRound() {
+        isRoundActive = false;
+        document.querySelectorAll('.key').forEach(k => k.disabled = true);
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    // --- PHYSICAL KEYBOARD SUPPORT ---
+    document.addEventListener('keydown', (e) => {
+        // Only accept input if the game is actively running (no overlay, next button hidden)
+        if (!isRoundActive) {
+            // Allow pressing "Enter" to go to the next round if the Next button is visible
+            if (e.key === 'Enter' && document.getElementById('next-btn').style.display === 'block') {
+                initRound();
+            }
+            return; 
+        }
+        
+        // Prevent repeating triggers if a key is held down
+        if (e.repeat) return; 
+
+        const key = e.key.toUpperCase();
+        
+        // Validate if it's an A-Z letter
+        if (/^[A-Z]$/.test(key)) {
+            const virtualBtn = document.querySelector(`.key[data-key="${key}"]`);
+            if (virtualBtn && !virtualBtn.disabled) {
+                virtualBtn.click();
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -15,7 +15,7 @@
             --overlay-bg: rgba(107, 91, 149, 0.9);
         }
 
-        /* 1. Added Smooth Scrolling for the whole page */
+        /* Smooth Scrolling */
         html {
             scroll-behavior: smooth;
         }
@@ -30,7 +30,7 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-dark);
-            overflow-x: hidden; /* Prevents horizontal scroll on mobile */
+            overflow-x: hidden;
         }
 
         /* --- NAVIGATION --- */
@@ -96,8 +96,8 @@
 
             nav {
                 position: fixed;
-                top: 60px; /* Height of the header */
-                right: -100%; /* Hidden off-screen by default */
+                top: 60px;
+                right: -100%;
                 width: 250px;
                 height: calc(100vh - 60px);
                 background-color: #fff;
@@ -105,11 +105,11 @@
                 align-items: flex-start;
                 padding: 30px;
                 box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-                transition: right 0.4s ease-in-out; /* The Sliding Animation */
+                transition: right 0.4s ease-in-out;
             }
 
             nav.nav-active {
-                right: 0; /* Slides into view */
+                right: 0;
             }
 
             nav a {
@@ -215,6 +215,7 @@
             padding: 60px 20px;
             max-width: 1200px;
             margin: 0 auto;
+            scroll-margin-top: 100px; /* Space adjustment for sticky nav */
         }
 
         .section-title {
@@ -303,7 +304,7 @@
             background: var(--secondary);
             padding: 60px 20px;
             text-align: center;
-            scroll-margin-top: 35px;
+            scroll-margin-top: 100px; /* Space adjustment for sticky nav */
         }
 
         .contact-container {
@@ -492,7 +493,7 @@
             <h2>Contact to Purchase</h2>
             <p>See a crystal that calls to you? Fill out the form below to initiate your purchase or ask any questions.</p>
             
-            <form action="mailto:kkp.kenneth@gmail.com" method="POST">
+            <form id="crystal-form" action="https://script.google.com/macros/s/AKfycby0OlKmcwPzFGGsTwFhPRSt45Iant_h-cdNJFD2d-LV5VsYv_HbbCu8S_WEjtKuf5Tl/exec" method="POST">
                 <div class="form-group">
                     <label for="name">Full Name</label>
                     <input type="text" id="name" name="name" required>
@@ -516,7 +517,7 @@
                 </div>
                 <div class="form-group">
                     <label for="message">Message</label>
-                    <textarea id="message" name="message" placeholder="Please include shipping country or any questions..." required></textarea>
+                    <textarea id="message" name="message" placeholder="Please include your country or any questions..." required></textarea>
                 </div>
                 <button type="submit" class="btn" style="width: 100%;">Send Inquiry</button>
             </form>
@@ -535,7 +536,6 @@
             navMenu.classList.toggle('nav-active');
         }
 
-        // Close menu when a link is clicked on mobile
         function closeMenu() {
             if (navMenu.classList.contains('nav-active')) {
                 navMenu.classList.remove('nav-active');
@@ -567,12 +567,47 @@
 
         function resetInterval() {
             clearInterval(slideInterval);
-            slideInterval = setInterval(autoSlide, 5000); // Changes slide every 5 seconds
+            slideInterval = setInterval(autoSlide, 5000);
         }
 
-        // Initialize slider
+        // Initialize slider rotation (5 seconds per slide)
         showSlide(currentSlide);
         slideInterval = setInterval(autoSlide, 5000);
+
+        // --- ASYNC FORM INTERCEPTION (ANTI-REDIRECT) ---
+        document.getElementById('crystal-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // Blocks the JSON success redirection screen
+            
+            const form = this;
+            const button = form.querySelector('button[type="submit"]');
+            const container = form.parentElement;
+            
+            button.innerText = "Sending...";
+            button.disabled = true;
+            
+            // Submits data directly to Google Sheet in the background
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form)
+            })
+            .then(response => {
+                // Replaces form inner structure with clean visual UI feedback
+                container.innerHTML = `
+                    <div style="padding: 40px 20px;">
+                        <h2 style="color: var(--primary); margin-bottom: 15px;">Thank You! ✨</h2>
+                        <p style="color: #666; font-size: 1.1rem; line-height: 1.6;">
+                            Your inquiry has been safely received. We will check our crystal vault and reach out to you via email shortly.
+                        </p>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Submission processing failure:', error);
+                button.innerText = "Send Inquiry";
+                button.disabled = false;
+                alert("Something went wrong. Please try again!");
+            });
+        });
     </script>
 </body>
 </html>

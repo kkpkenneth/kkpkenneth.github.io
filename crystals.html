@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Crystals</title>
+    <style>
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary: #6b5b95;
+            --secondary: #d6cbd3;
+            --text-dark: #333;
+            --text-light: #f4f4f9;
+            --bg-color: #fafafa;
+            --overlay-bg: rgba(107, 91, 149, 0.9);
+        }
+
+        /* 1. Added Smooth Scrolling for the whole page */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            overflow-x: hidden; /* Prevents horizontal scroll on mobile */
+        }
+
+        /* --- NAVIGATION --- */
+        header {
+            background: #fff;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-dark);
+            margin-left: 30px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        /* Mobile Hamburger Menu Icon */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-dark);
+            transition: 0.3s;
+        }
+
+        /* Mobile Nav Styles (The Slide-in Menu) */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            nav {
+                position: fixed;
+                top: 60px; /* Height of the header */
+                right: -100%; /* Hidden off-screen by default */
+                width: 250px;
+                height: calc(100vh - 60px);
+                background-color: #fff;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 30px;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+                transition: right 0.4s ease-in-out; /* The Sliding Animation */
+            }
+
+            nav.nav-active {
+                right: 0; /* Slides into view */
+            }
+
+            nav a {
+                margin: 0 0 25px 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* --- SLIDER BANNER --- */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .slide h2 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .slide p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #55487a;
+        }
+
+        /* Slider Controls */
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            font-size: 2rem;
+            padding: 10px 15px;
+            cursor: pointer;
+            z-index: 10;
+            transition: 0.3s;
+        }
+        .prev:hover, .next:hover { background: rgba(255,255,255,0.5); }
+        .prev { left: 20px; }
+        .next { right: 20px; }
+
+        /* --- CATALOGUE GRID --- */
+        .catalogue-section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .crystal-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .crystal-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .crystal-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .crystal-info h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #666;
+        }
+
+        /* Hover Overlay for Meaning & Effects */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 2;
+        }
+
+        .crystal-card:hover .overlay {
+            opacity: 1;
+        }
+
+        .overlay h4 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            border-bottom: 1px solid white;
+            padding-bottom: 5px;
+        }
+
+        .overlay p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* --- CONTACT SECTION --- */
+        .contact-section {
+            background: var(--secondary);
+            padding: 60px 20px;
+            text-align: center;
+            scroll-margin-top: 35px;
+        }
+
+        .contact-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .contact-container h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .contact-container p {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        footer {
+            background: #222;
+            color: #aaa;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Lumina Crystals</h1>
+        
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <nav id="nav-menu">
+            <a href="#" onclick="closeMenu()">Home</a>
+            <a href="#catalogue" onclick="closeMenu()">Shop</a>
+            <a href="#contact" onclick="closeMenu()">Contact to Buy</a>
+        </nav>
+    </header>
+
+    <section class="slider-container">
+        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&q=80&w=1600');">
+            <div class="slide-content">
+                <h2>Harness the Earth's Energy</h2>
+                <p>Discover ethically sourced crystals to elevate your spirit and space.</p>
+                <a href="#catalogue" class="btn">Explore Catalogue</a>
+            </div>
+        </div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1567360425618-1594206637d2?auto=format&fit=crop&q=80&w=1600');">
+            <div class="slide-content">
+                <h2>Find Your Balance</h2>
+                <p>Curated stones for healing, protection, and manifestation.</p>
+                <a href="#catalogue" class="btn">Shop Now</a>
+            </div>
+        </div>
+        <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+        <button class="next" onclick="changeSlide(1)">&#10095;</button>
+    </section>
+
+    <section class="catalogue-section" id="catalogue">
+        <h2 class="section-title">Crystal Catalogue</h2>
+        <div class="grid">
+            
+            <div class="crystal-card">
+                <img src="https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&q=80&w=600" alt="Amethyst" class="crystal-img">
+                <div class="crystal-info">
+                    <h3>Amethyst Cluster</h3>
+                    <p class="price">$45.00</p>
+                </div>
+                <div class="overlay">
+                    <h4>Amethyst</h4>
+                    <p><strong>Meaning:</strong> Spiritual awareness and inner peace.</p>
+                    <br>
+                    <p><strong>Effects:</strong> Relieves stress, soothes irritability, dispels anger, and helps alleviate insomnia. A highly protective stone.</p>
+                </div>
+            </div>
+
+            <div class="crystal-card">
+                <img src="https://images.unsplash.com/photo-1554124976-12ff28d70a1a?auto=format&fit=crop&q=80&w=600" alt="Rose Quartz" class="crystal-img">
+                <div class="crystal-info">
+                    <h3>Rose Quartz Sphere</h3>
+                    <p class="price">$30.00</p>
+                </div>
+                <div class="overlay">
+                    <h4>Rose Quartz</h4>
+                    <p><strong>Meaning:</strong> Unconditional love and infinite peace.</p>
+                    <br>
+                    <p><strong>Effects:</strong> Purifies and opens the heart, promotes self-love, deep inner healing, and feelings of comfort and harmony.</p>
+                </div>
+            </div>
+
+            <div class="crystal-card">
+                <img src="https://images.unsplash.com/photo-1606596180352-78d2b2c89280?auto=format&fit=crop&q=80&w=600" alt="Clear Quartz" class="crystal-img">
+                <div class="crystal-info">
+                    <h3>Clear Quartz Point</h3>
+                    <p class="price">$25.00</p>
+                </div>
+                <div class="overlay">
+                    <h4>Clear Quartz</h4>
+                    <p><strong>Meaning:</strong> Clarity, power, and manifestation.</p>
+                    <br>
+                    <p><strong>Effects:</strong> Known as the "Master Healer". It amplifies energy and thought, neutralizes background radiation, and balances the physical body.</p>
+                </div>
+            </div>
+
+            <div class="crystal-card">
+                <img src="https://images.unsplash.com/photo-1615560181519-21b9206ea5a7?auto=format&fit=crop&q=80&w=600" alt="Citrine" class="crystal-img">
+                <div class="crystal-info">
+                    <h3>Raw Citrine</h3>
+                    <p class="price">$35.00</p>
+                </div>
+                <div class="overlay">
+                    <h4>Citrine</h4>
+                    <p><strong>Meaning:</strong> Joy, abundance, and transmutation.</p>
+                    <br>
+                    <p><strong>Effects:</strong> Attracts wealth and prosperity. Imparts joy, wonder, and enthusiasm. Raises self-esteem and self-confidence.</p>
+                </div>
+            </div>
+
+            <div class="crystal-card">
+                <img src="https://images.unsplash.com/photo-1615555132517-5eeb5c42502c?auto=format&fit=crop&q=80&w=600" alt="Black Tourmaline" class="crystal-img">
+                <div class="crystal-info">
+                    <h3>Black Tourmaline</h3>
+                    <p class="price">$20.00</p>
+                </div>
+                <div class="overlay">
+                    <h4>Black Tourmaline</h4>
+                    <p><strong>Meaning:</strong> Grounding and intense protection.</p>
+                    <br>
+                    <p><strong>Effects:</strong> Cleanses, purifies, and transforms dense energy into a lighter vibration. Protects against electromagnetic smog and negative energies.</p>
+                </div>
+            </div>
+
+            <div class="crystal-card">
+                <img src="https://images.unsplash.com/photo-1596401057530-9b37a5035e47?auto=format&fit=crop&q=80&w=600" alt="Lapis Lazuli" class="crystal-img">
+                <div class="crystal-info">
+                    <h3>Lapis Lazuli Tumble</h3>
+                    <p class="price">$15.00</p>
+                </div>
+                <div class="overlay">
+                    <h4>Lapis Lazuli</h4>
+                    <p><strong>Meaning:</strong> Truth, wisdom, and inner vision.</p>
+                    <br>
+                    <p><strong>Effects:</strong> Stimulates objectivity, clarity, and encourages creativity. Bonds relationships in love and friendship.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <div class="contact-container">
+            <h2>Contact to Purchase</h2>
+            <p>See a crystal that calls to you? Fill out the form below to initiate your purchase or ask any questions.</p>
+            
+            <form action="mailto:kkp.kenneth@gmail.com" method="POST">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="crystal">Which crystal are you interested in?</label>
+                    <select id="crystal" name="crystal">
+                        <option value="none">Select a crystal...</option>
+                        <option value="amethyst">Amethyst Cluster</option>
+                        <option value="rose-quartz">Rose Quartz Sphere</option>
+                        <option value="clear-quartz">Clear Quartz Point</option>
+                        <option value="citrine">Raw Citrine</option>
+                        <option value="black-tourmaline">Black Tourmaline</option>
+                        <option value="lapis">Lapis Lazuli Tumble</option>
+                        <option value="multiple">Multiple / Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Please include shipping country or any questions..." required></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Send Inquiry</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Lumina Crystals. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // --- MOBILE MENU SLIDER LOGIC ---
+        const navMenu = document.getElementById('nav-menu');
+
+        function toggleMenu() {
+            navMenu.classList.toggle('nav-active');
+        }
+
+        // Close menu when a link is clicked on mobile
+        function closeMenu() {
+            if (navMenu.classList.contains('nav-active')) {
+                navMenu.classList.remove('nav-active');
+            }
+        }
+
+        // --- IMAGE SLIDER LOGIC ---
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        let slideInterval;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            if (index >= slides.length) currentSlide = 0;
+            if (index < 0) currentSlide = slides.length - 1;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function changeSlide(step) {
+            currentSlide += step;
+            showSlide(currentSlide);
+            resetInterval();
+        }
+
+        function autoSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(autoSlide, 5000); // Changes slide every 5 seconds
+        }
+
+        // Initialize slider
+        showSlide(currentSlide);
+        slideInterval = setInterval(autoSlide, 5000);
+    </script>
+</body>
+</html>

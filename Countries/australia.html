@@ -15,7 +15,7 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
-         @media only screen and (max-width: 900px) {
+        @media only screen and (max-width: 900px) {
             .menu { justify-content: space-between; }
             .menu-toggle { display: block; }
             .menu-list {
@@ -48,8 +48,10 @@
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/033-australia.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/033-australia.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
         /* ADSENSE PLACEHOLDER */
@@ -62,6 +64,9 @@
         .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
         .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; }
         .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
 
         /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
@@ -80,7 +85,18 @@
     </style>
 </head>
 <body>
-    <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
+    <nav class="menu">
+        <ul class="menu-list">
+            <li><a href="../index.html">🌎</a></li>
+            <li><a href="../asia.html">Asia</a></li>
+            <li><a href="../europe.html">Europe</a></li>
+            <li><a href="../africa.html">Africa</a></li>
+            <li><a href="../americas.html">Americas</a></li>
+            <li><a href="../oceania.html">Oceania</a></li>
+            <li><a href="../games.html">Games</a></li>
+            <li><a href="../about.html">About</a></li>
+        </ul>
+    </nav>
     <div class="menuspace"></div>
 
     <div class="notice">
@@ -93,7 +109,13 @@
         <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <header class="hero"><div class="txt-box"><h1>Australia</h1><p>Travel Guide & Archive</p></div></header>
+    <header class="hero">
+        <div class="txt-box">
+            <h1>Australia</h1>
+            <p>Travel Guide & Archive</p>
+        </div>
+        <span class="hero-copyright">&copy; Kenneth Kwok</span>
+    </header>
     
     <div class="main-content">
         <article>
@@ -104,14 +126,14 @@
 
             <div class="adsense-space">
                 <p class="adsense-label">Advertisement</p>
-                </div>
+            </div>
 
             <section id="introduction">
                 <p>Australia is more than a country; it is a collection of diverse ecosystems, ancient landscapes, and vibrant urban hubs. Over the course of three expeditions in 2016, 2023, and 2025, I spent a total of 146 days on Australian soil documenting the unique character of the continent. This journey follows a geographic trajectory starting from the cultural laneways of Melbourne, moving through the tropical corridor of Queensland, and concluding in the rugged wilderness of Tasmania and the Top End.</p>
             </section>
 
             <section id="victoria-heritage">
-                <h3>The Victorian Soul: From Urban Architecture to Historic Rails</h3>
+                <h3 class="region-heading">The Victorian Soul: From Urban Architecture to Historic Rails</h3>
                 <p>The journey begins in <strong>Melbourne</strong>, a city renowned for its geometric nightscapes. The <strong>Webb Bridge</strong> at DFO South Wharf serves as a primary architectural anchor, its illuminated ribbing reflecting the city's modern design. Moving toward the coast, <strong>St Kilda Pier</strong> offers an urban sanctuary for the <strong>Rakali</strong> (native water rats), while the 82 multicolored <strong>Bathing Boxes at Brighton Beach</strong> provide a rhythmic explosion of color against the sand.</p>
                 
                 <p>Venturing into the hinterland, the heritage of Victoria is preserved through the steam and iron of <strong>Puffing Billy in Emerald</strong>. This narrow-gauge railway winds through the Dandenong Ranges, offering a sensory link to the region’s colonial past. Further north, the town of <strong>Echuca</strong> on the Murray River provides a glimpse into regional social culture through country horse racing at the <strong>Echuca Racing Club</strong>, where I held an Owner Guest Pass in October 2023.</p>
@@ -119,33 +141,33 @@
 
             <div class="adsense-space" style="min-height:250px;">
                 <p class="adsense-label">Advertisement</p>
-                </div>
+            </div>
 
             <section id="east-coast-ascent">
-                <h3>The East Coast Ascent: Sydney, Surf, and the Sunshine State</h3>
+                <h3 class="region-heading">The East Coast Ascent: Sydney, Surf, and the Sunshine State</h3>
                 <p>Heading north, the symmetry of <strong>Canberra’s Parliament House</strong> marks the administrative heart of the nation. In <strong>Sydney</strong>, the architectural sails of the <strong>Opera House</strong> dominate the harbor, though the true character of the city is often found in the <strong>Sulphur-crested Cockatoos</strong> navigating the urban sprawl. At <strong>Manly Beach</strong>, coastal sculptures line the path toward the Pacific, leading to <strong>Byron Bay</strong>, where the iconic white lighthouse stands as the easternmost sentinel of the mainland.</p>
                 
                 <p>Crossing into Queensland, <strong>Kybong</strong> marks a scenic transit point before the <strong>Gold Coast</strong> skyline rises from the Surfers Paradise shoreline. In <strong>Brisbane</strong>, biodiversity takes center stage at the <strong>Lone Pine Koala Sanctuary</strong>, home to Tasmanian Devils and Koalas. For those seeking authentic local culture, <strong>Sunnybank’s Market Square</strong> serves as a vibrant culinary hub for Asian cuisine, while <strong>Beerwah’s Australia Zoo</strong> continues the legacy of wildlife conservation.</p>
             </section>
 
             <section id="tropical-queensland">
-                <h3>Tropical North Queensland: Reefs, Rainforests, and Road Trips</h3>
+                <h3 class="region-heading">Tropical North Queensland: Reefs, Rainforests, and Road Trips</h3>
                 <p>The road trip energy intensifies as one moves toward the <strong>Sunshine Coast</strong>. <strong>Noosa</strong> offers a blend of surf culture and National Park trails, staying at <strong>Flashpackers Noosa</strong> in October 2023. <strong>Airlie Beach</strong> serves as the gateway to the <strong>Whitsundays</strong>, where the turquoise waters and silica sands of <strong>Whitehaven Beach</strong> provide a stunning maritime experience. A nostalgic pitstop in <strong>Mackay</strong> featured a Pikachu-themed Happy Meal at a waterfront McDonald’s in September 2023.</p>
 
                 <p>Off the coast of Townsville lies <strong>Nelly Bay</strong> on Magnetic Island, documented through the beachfront atmosphere at <strong>Nomads Magnetic Island</strong> in September 2023. Continuing north, transit through <strong>Cardwell</strong> and <strong>Mission Beach</strong> leads to <strong>Cairns</strong>, the gateway to the <strong>Great Barrier Reef</strong>, where the <strong>Napoleon Wrasse</strong> rules the underwater coral architecture.</p>
             </section>
 
             <section id="northern-territory">
-                <h3>The Northern Frontier: Darwin and the Wild Top End</h3>
+                <h3 class="region-heading">The Northern Frontier: Darwin and the Wild Top End</h3>
                 <p>In <strong>Darwin</strong>, visitors can handle hatchlings or watch saltwater crocodiles feed at <strong>Crocodylus Park</strong>. The journey culminated in <strong>Kakadu and Jabiru</strong> during my 2025 expedition, a study in self-sufficiency. Navigating these floodplains in a <strong>4x4 pickup truck camping setup</strong> allowed for an immersive experience in the Top End wilderness.</p>
             </section>
 
             <div class="adsense-space">
                 <p class="adsense-label">Advertisement</p>
-                </div>
+            </div>
 
             <section id="southern-wilderness">
-                <h3>The Southern Wilderness: Kangaroo Island and Tasmania</h3>
+                <h3 class="region-heading">The Southern Wilderness: Kangaroo Island and Tasmania</h3>
                 <p><strong>Adelaide’s Cleland Wildlife Park</strong> provides close encounters with kangaroos and emus, while <strong>Kangaroo Island</strong> reveals the <strong>Remarkable Rocks</strong>. In Tasmania, <strong>Launceston’s Queen Victoria Museum</strong> and the silhouette of <strong>Cradle Mountain</strong> over Dove Lake define the island's beauty. The archive ends in <strong>Hobart</strong>, with the history of the <strong>Thylacine</strong> and the haunting stone ruins of <strong>Port Arthur</strong>.</p>
             </section>
 

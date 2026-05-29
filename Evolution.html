@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parchment Sketchbook Evolution</title>
+    <style>
+        :root {
+            --bg-color: #f4efe2;
+            --panel-bg: #fdfbf7;
+            --text-color: #2b261f;
+            --border-color: #3d3526;
+            --accent-color: #d96a43;
+            --gauge-bg: #e6dfcf;
+            --grid-color: rgba(61, 53, 38, 0.06);
+            --sketch-border: 255px 15px 225px 15px/15px 225px 15px 255px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1c1e;
+            --panel-bg: #25282a;
+            --text-color: #e2e2e4;
+            --border-color: #ffffff;
+            --accent-color: #6da2ff;
+            --gauge-bg: #33373b;
+            --grid-color: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 950px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #game-container { grid-template-columns: 1fr; }
+        }
+
+        /* Sketchbook Main Area */
+        .sketchbook-panel {
+            background-color: var(--panel-bg);
+            border: 3px solid var(--border-color);
+            border-radius: var(--sketch-border);
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 5px 0px var(--border-color);
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .epoch-badge {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+        }
+
+        .stats-display {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            border-radius: var(--sketch-border);
+            overflow: hidden;
+            background: transparent;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Wavy Gauge Component */
+        .gauge-container {
+            margin-top: 15px;
+        }
+        .gauge-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+        .wavy-gauge {
+            width: 100%;
+            height: 20px;
+            background: var(--gauge-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .wavy-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.2s ease;
+            position: relative;
+        }
+
+        /* Sidebar / Upgrades Panel */
+        .sidebar-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--sketch-border);
+            padding: 15px;
+            box-shadow: 4px 4px 0px var(--border-color);
+        }
+
+        .card-title {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            background: transparent;
+            border: 2px solid var(--border-color);
+            border-radius: var(--sketch-border);
+            padding: 10px;
+            color: var(--text-color);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.1s, background-color 0.2s;
+            margin-bottom: 8px;
+        }
+        .btn:hover:not(:disabled) {
+            background-color: var(--gauge-bg);
+            transform: scale(1.02);
+        }
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Sticker Book Overlay */
+        #sticker-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+        .modal-content {
+            background: var(--bg-color);
+            border: 4px solid var(--border-color);
+            border-radius: var(--sketch-border);
+            max-width: 650px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: var(--sketch-border);
+            cursor: pointer;
+            color: var(--text-color);
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+        .sticker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            padding: 10px;
+            flex-grow: 1;
+        }
+        .sticker-item {
+            border: 2px dashed var(--border-color);
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            background: var(--panel-bg);
+            cursor: pointer;
+            text-align: center;
+            padding: 5px;
+            font-size: 0.8rem;
+        }
+        .sticker-item.locked {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+        .sticker-icon {
+            font-size: 2rem;
+            margin-bottom: 4px;
+        }
+
+        /* Metamorphosis Sunburst FX Overlay */
+        #sunburst-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 5;
+            background: radial-gradient(circle, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
+            background: none;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- Main Panel -->
+        <div class="sketchbook-panel">
+            <div class="header-bar">
+                <div class="epoch-badge" id="epoch-display">Epoch: Prehistoric</div>
+                <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+                <div class="stats-display">🌾 <span id="food-reserve">0</span></div>
+            </div>
+            
+            <div id="canvas-container">
+                <div id="sunburst-overlay"></div>
+                <canvas id="gameCanvas"></canvas>
+            </div>
+
+            <div class="gauge-container">
+                <div class="gauge-label">
+                    <span id="creature-name">Amoeba</span>
+                    <span id="gauge-text">0 / 10</span>
+                </div>
+                <div class="wavy-gauge">
+                    <div class="wavy-fill" id="growth-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Panel -->
+        <div class="sidebar-panel">
+            <div class="card">
+                <h3 class="card-title">Tools & Upgrades</h3>
+                <button class="btn" id="btn-spatula" onclick="buyUpgrade('spatula')">
+                    <span>🥄 Starch Spatula (+1 Click)</span>
+                    <span id="cost-spatula">10 🌾</span>
+                </button>
+                <button class="btn" id="btn-spoon" onclick="buyUpgrade('spoon')">
+                    <span>⏳ Scribble Spoon (Auto)</span>
+                    <span id="cost-spoon">50 🌾</span>
+                </button>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Evolution Stage</h3>
+                <button class="btn" id="btn-era" onclick="advanceEra()">
+                    <span>🌍 Advance Era</span>
+                    <span id="cost-era">500 🌾</span>
+                </button>
+            </div>
+
+            <button class="btn" style="height: 50px; font-size: 1.1rem;" onclick="toggleStickerModal(true)">
+                📖 Sticker Catalog (<span id="unlocked-count">1</span>/12)
+            </button>
+        </div>
+    </div>
+
+    <!-- Sticker Modal -->
+    <div id="sticker-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sticker Collection Catalog</h2>
+                <button class="tab-btn" onclick="toggleStickerModal(false)">X</button>
+            </div>
+            <div class="tabs" id="modal-tabs">
+                <button class="tab-btn active" onclick="filterStickers('all')">All Eras</button>
+                <button class="tab-btn" onclick="filterStickers('Prehistoric')">Prehistoric</button>
+                <button class="tab-btn" onclick="filterStickers('Carboniferous')">Carboniferous</button>
+                <button class="tab-btn" onclick="filterStickers('Cenozoic')">Cenozoic</button>
+            </div>
+            <div class="sticker-grid" id="sticker-grid">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GAME SYSTEM DATA ---
+        const ERAS = ['Prehistoric', 'Carboniferous', 'Cenozoic'];
+        
+        const CREATURES = [
+            { id: 0, name: 'Amoeba', era: 'Prehistoric', icon: '🧬', baseCost: 10, color: '#7bc96f', drawType: 'blob' },
+            { id: 1, name: 'Trilobite', era: 'Prehistoric', icon: '🪲', baseCost: 25, color: '#a1785c', drawType: 'segmented' },
+            { id: 2, name: 'Primitive Fish', era: 'Prehistoric', icon: '🐟', baseCost: 60, color: '#4fa3a5', drawType: 'fish' },
+            { id: 3, name: 'Giant Fern', era: 'Carboniferous', icon: '🌿', baseCost: 150, color: '#2e7d32', drawType: 'plant' },
+            { id: 4, name: 'Meganeura (Dragonfly)', era: 'Carboniferous', icon: '🪰', baseCost: 300, color: '#b452cd', drawType: 'insect' },
+            { id: 5, name: 'Arthropleura', era: 'Carboniferous', icon: '🐛', baseCost: 600, color: '#cd853f', drawType: 'segmented' },
+            { id: 6, name: 'Woolly Mammoth', era: 'Cenozoic', icon: '🦣', baseCost: 1500, color: '#8b7355', drawType: 'mammal' },
+            { id: 7, name: 'Saber-toothed Cat', era: 'Cenozoic', icon: '🐅', baseCost: 3500, color: '#e6a15c', drawType: 'quadruped' },
+            { id: 8, name: 'Early Hominid', era: 'Cenozoic', icon: '🦧', baseCost: 8000, color: '#a0522d', drawType: 'biped' }
+        ];
+
+        const CRUMB_TYPES = [
+            { emoji: '🍎', color: '#ff4d4d' },
+            { emoji: '🍓', color: '#ff3366' },
+            { emoji: '🌾', color: '#f4c430' },
+            { emoji: '🌿', color: '#4caf50' },
+            { emoji: '❤️', color: '#ff1493' }
+        ];
+
+        // --- GAME STATE VARIABLES ---
+        let state = {
+            foodReserve: 0,
+            currentCreatureId: 0,
+            currentAppetite: 0,
+            currentEraIndex: 0,
+            upgrades: { spatula: 0, spoon: 0 },
+            unlockedStickers: [0]
+        };
+
+        // Local Storage State Persistence Loading
+        if (localStorage.getItem('sketchbook_save')) {
+            try {
+                const savedState = JSON.parse(localStorage.getItem('sketchbook_save'));
+                state = { ...state, ...savedState };
+            } catch (e) { console.error("Corrupted save profile detected.", e); }
+        }
+
+        // --- CORE PHYSICS ENGINE ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let crumbs = [];
+        const gravity = 0.3;
+        const friction = 0.75;
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Click-To-Spawn Engine Connection
+        canvas.parentElement.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const clickPower = 1 + state.upgrades.spatula;
+            state.foodReserve += clickPower;
+
+            // Spawn visual physical bouncing items
+            for(let i=0; i < clickPower; i++) {
+                spawnCrumb(x + (Math.random()*20 - 10), y + (Math.random()*10 - 5));
+            }
+            updateUI();
+            saveGame();
+        });
+
+        function spawnCrumb(x, y) {
+            const type = CRUMB_TYPES[Math.floor(Math.random() * CRUMB_TYPES.length)];
+            crumbs.push({
+                x: x, y: y,
+                vx: (Math.random() * 4) - 2,
+                vy: (Math.random() * -3) - 2,
+                rotation: Math.random() * Math.PI * 2,
+                vRot: (Math.random() * 0.1) - 0.05,
+                emoji: type.emoji,
+                color: type.color,
+                radius: 10,
+                bounceCount: 0
+            });
+        }
+
+        // --- MAIN PROCEDURAL DOODLE RENDER LOOP ---
+        function updatePhysicsAndRender(timestamp) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            
+            // Draw Target Feed Creature Context
+            const activeCreature = CREATURES[state.currentCreatureId];
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2 + 30;
+            const baseRadius = 60 + (state.currentAppetite * 1.5);
+            
+            // Math Oscillation breathing and wiggling properties
+            const breathe = Math.sin(timestamp / 350) * 5;
+            const wiggle = Math.cos(timestamp / 200) * 0.05;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(wiggle);
+            
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = isDark ? '#ffffff' : '#3d3526';
+            ctx.fillStyle = activeCreature.color;
+
+            // Render Creature Profile Type
+            ctx.beginPath();
+            if (activeCreature.drawType === 'blob' || activeCreature.drawType === 'mammal') {
+                for (let i = 0; i < 360; i += 10) {
+                    let angle = (i * Math.PI) / 180;
+                    let r = baseRadius + breathe + Math.sin(angle * 6 + timestamp/100) * 4;
+                    let x = Math.cos(angle) * r;
+                    let y = Math.sin(angle) * r * 0.8;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+            } else if (activeCreature.drawType === 'segmented' || activeCreature.drawType === 'insect') {
+                let segments = 4;
+                for(let j=0; j < segments; j++) {
+                    let segX = Math.sin(timestamp/200 + j)*8;
+                    let segY = (j * 20) - 30;
+                    ctx.arc(segX, segY, (baseRadius * 0.6) - (j*6) + breathe, 0, Math.PI * 2);
+                }
+            } else { // Fallback standard iconic design loop frame
+                ctx.arc(0, 0, baseRadius + breathe, 0, Math.PI*2);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Doodle face elements
+            ctx.fillStyle = isDark ? '#000000' : '#ffffff';
+            ctx.beginPath();
+            ctx.arc(-20, -10, 8, 0, Math.PI*2);
+            ctx.arc(20, -10, 8, 0, Math.PI*2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+            ctx.beginPath();
+            ctx.arc(-20, -10, 3, 0, Math.PI*2);
+            ctx.arc(20, -10, 3, 0, Math.PI*2);
+            ctx.fill();
+
+            // Iconic central sign text display overlay
+            ctx.font = "34px Georgia";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(activeCreature.icon, 0, 15);
+            ctx.restore();
+
+            // Crumbs Processing System Array execution
+            for (let i = crumbs.length - 1; i >= 0; i--) {
+                let c = crumbs[i];
+                c.vy += gravity;
+                c.x += c.vx;
+                c.y += c.vy;
+                c.rotation += c.vRot;
+
+                // Ground Collision
+                if (c.y + c.radius > canvas.height - 10) {
+                    c.y = canvas.height - 10 - c.radius;
+                    c.vy = -c.vy * friction;
+                    c.vx *= friction;
+                    c.bounceCount++;
+                }
+
+                // Check Creature feeding boundary intersection rules
+                let dx = c.x - centerX;
+                let dy = c.y - centerY;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < baseRadius + 15) {
+                    // Creature consumes particle object
+                    state.currentAppetite++;
+                    crumbs.splice(i, 1);
+                    checkMetamorphosis();
+                    updateUI();
+                    continue;
+                }
+
+                // Render crumb instance
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation);
+                ctx.font = "16px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(c.emoji, 0, 0);
+                ctx.restore();
+
+                // Clean up dead item counts safely
+                if (c.bounceCount > 5 || c.x < 0 || c.x > canvas.width) {
+                    crumbs.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(updatePhysicsAndRender);
+        }
+
+        // --- EVOLUTION & METAMORPHOSIS CYCLE ---
+        function checkMetamorphosis() {
+            const activeCreature = CREATURES[state.currentCreatureId];
+            if (state.currentAppetite >= activeCreature.baseCost) {
+                state.currentAppetite = 0;
+                
+                // Track next chain creature path target item reference
+                let currentEraCreatures = CREATURES.filter(c => c.era === ERAS[state.currentEraIndex]);
+                let relativeIdx = currentEraCreatures.findIndex(c => c.id === state.currentCreatureId);
+                
+                if (relativeIdx !== -1 && relativeIdx < currentEraCreatures.length - 1) {
+                    // Trigger forward evolution shift step path inside era bounds
+                    state.currentCreatureId = currentEraCreatures[relativeIdx + 1].id;
+                } else {
+                    // Capped within this epoch tier structure
+                    state.currentAppetite = activeCreature.baseCost; 
+                    return;
+                }
+
+                if (!state.unlockedStickers.includes(state.currentCreatureId)) {
+                    state.unlockedStickers.push(state.currentCreatureId);
+                }
+                
+                triggerSunburstEffect();
+                saveGame();
+            }
+        }
+
+        function advanceEra() {
+            const cost = getEraAdvancementCost();
+            if (state.foodReserve >= cost && state.currentEraIndex < ERAS.length - 1) {
+                state.foodReserve -= cost;
+                state.currentEraIndex++;
+                
+                // Force switch into new evolutionary stage character profile
+                let nextEraCreatures = CREATURES.filter(c => c.era === ERAS[state.currentEraIndex]);
+                state.currentCreatureId = nextEraCreatures[0].id;
+                state.currentAppetite = 0;
+
+                if (!state.unlockedStickers.includes(state.currentCreatureId)) {
+                    state.unlockedStickers.push(state.currentCreatureId);
+                }
+
+                triggerSunburstEffect();
+                updateUI();
+                saveGame();
+            }
+        }
+
+        function triggerSunburstEffect() {
+            const fx = document.getElementById('sunburst-overlay');
+            fx.style.display = 'block';
+            fx.style.background = 'radial-gradient(circle, rgba(217,106,67,0.4) 0%, rgba(255,255,255,0) 70%)';
+            setTimeout(() => {
+                fx.style.background = 'none';
+                fx.style.display = 'none';
+            }, 600);
+        }
+
+        function getEraAdvancementCost() {
+            return (state.currentEraIndex + 1) * 500;
+        }
+
+        // --- UPGRADE SYSTEMS ---
+        function buyUpgrade(type) {
+            const cost = getUpgradeCost(type);
+            if (state.foodReserve >= cost) {
+                state.foodReserve -= cost;
+                state.upgrades[type]++;
+                updateUI();
+                saveGame();
+            }
+        }
+
+        function getUpgradeCost(type) {
+            if (type === 'spatula') return Math.floor(10 * Math.pow(1.5, state.upgrades.spatula));
+            if (type === 'spoon') return Math.floor(50 * Math.pow(1.6, state.upgrades.spoon));
+            return 99999;
+        }
+
+        // Scribble Spoon automated loop processing interval
+        setInterval(() => {
+            if (state.upgrades.spoon > 0) {
+                state.foodReserve += state.upgrades.spoon;
+                // Spawn a crumb randomly dropped automatically over creature body
+                spawnCrumb(canvas.width / 2 + (Math.random() * 80 - 40), 60);
+                updateUI();
+            }
+        }, 1000);
+
+        // --- STICKER INTERFACE CATALOG DISPLAY ---
+        function toggleStickerModal(show) {
+            const modal = document.getElementById('sticker-modal');
+            modal.style.display = show ? 'flex' : 'none';
+            if(show) filterStickers('all');
+        }
+
+        function filterStickers(filter) {
+            const grid = document.getElementById('sticker-grid');
+            grid.innerHTML = '';
+
+            // Render tabs updates dynamically inline toggles
+            const tabs = document.querySelectorAll('#modal-tabs .tab-btn');
+            tabs.forEach(t => {
+                if(t.textContent === filter || (filter === 'all' && t.textContent.includes('All'))) {
+                    t.classList.add('active');
+                } else { t.classList.remove('active'); }
+            });
+
+            CREATURES.forEach(c => {
+                if (filter !== 'all' && c.era !== filter) return;
+                
+                const isUnlocked = state.unlockedStickers.includes(c.id);
+                const item = document.createElement('div');
+                item.className = `sticker-item ${isUnlocked ? '' : 'locked'}`;
+                item.innerHTML = `
+                    <div class="sticker-icon">${isUnlocked ? c.icon : '❓'}</div>
+                    <div style="font-weight:bold;">${isUnlocked ? c.name : 'Unknown'}</div>
+                    <div style="font-size:0.7rem; color:gray;">${c.era}</div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        // --- UI & THEME MANAGEMENT ---
+        function updateUI() {
+            document.getElementById('food-reserve').innerText = Math.floor(state.foodReserve);
+            document.getElementById('epoch-display').innerText = `Epoch: ${ERAS[state.currentEraIndex]}`;
+            
+            const activeCreature = CREATURES[state.currentCreatureId];
+            document.getElementById('creature-name').innerText = activeCreature.name;
+            document.getElementById('gauge-text').innerText = `${state.currentAppetite} / ${activeCreature.baseCost}`;
+            
+            const pct = Math.min(100, (state.currentAppetite / activeCreature.baseCost) * 100);
+            document.getElementById('growth-fill').style.width = `${pct}%`;
+
+            // Setup buttons details text and operational validations state updates
+            document.getElementById('cost-spatula').innerText = `${getUpgradeCost('spatula')} 🌾`;
+            document.getElementById('btn-spatula').disabled = state.foodReserve < getUpgradeCost('spatula');
+
+            document.getElementById('cost-spoon').innerText = `${getUpgradeCost('spoon')} 🌾`;
+            document.getElementById('btn-spoon').disabled = state.foodReserve < getUpgradeCost('spoon');
+
+            const eraCost = getEraAdvancementCost();
+            document.getElementById('cost-era').innerText = `${eraCost} 🌾`;
+            
+            // Check if user maxed out their current epoch layer levels chain loop path values
+            let currentEraCreatures = CREATURES.filter(c => c.era === ERAS[state.currentEraIndex]);
+            let isMaxedOutInEra = state.currentCreatureId === currentEraCreatures[currentEraCreatures.length - 1].id;
+            
+            document.getElementById('btn-era').disabled = (state.foodReserve < eraCost) || !isMaxedOutInEra || (state.currentEraIndex >= ERAS.length - 1);
+            if(state.currentEraIndex >= ERAS.length - 1) {
+                document.getElementById('cost-era').innerText = 'MAX ERA';
+            }
+
+            document.getElementById('unlocked-count').innerText = state.unlockedStickers.length;
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', targetTheme);
+            document.getElementById('theme-toggle-btn').innerText = targetTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function saveGame() {
+            localStorage.setItem('sketchbook_save', JSON.stringify(state));
+        }
+
+        // Boot and Initialize engine runtime state context indicators
+        updateUI();
+        requestAnimationFrame(updatePhysicsAndRender);
+    </script>
+</body>
+</html>

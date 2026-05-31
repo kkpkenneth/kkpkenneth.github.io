@@ -15,27 +15,68 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Czech%20Republic.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        /* Cover photo uses the numbered format (Czech Republic is 93) */
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/093-czech-republic.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,23 +88,86 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Czech Republic</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Czech Republic</h2>
-        <p>Visual notes and cultural documentation from the journey through Czech Republic.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero"><div class="txt-box"><h1>Czech Republic</h1><p>Travel Guide & Archive</p></div><span class="hero-copyright">&copy; Kenneth Kwok</span></header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">Gothic Spires and the Green Fairy</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">Wandering the medieval streets of <strong>Prague</strong>, admiring the architectural contrast of the <strong>Dancing House</strong>, bearing witness to the heavy history of <strong>Terezín</strong>, and diving into the local culture at a traditional <strong>beer factory</strong> and a dimly lit <strong>absinthe bar</strong>.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="introduction">
+                <p>The Czech Republic is a visually striking blend of dark, gothic romance and vibrant, unapologetic modern nightlife. Photographing it required a dynamic setup: the Canon with a wide lens was essential for capturing the towering spires and sweeping bridges of the capital by day, while the Sony's low-light capabilities became completely indispensable when descending into the city's cavernous, subterranean bars after dark.</p>
+            </section>
+
+            <section id="prague-dancing-house">
+                <h3 class="region-heading">The City of a Hundred Spires: <strong>Prague</strong> and the <strong>Dancing House</strong></h3>
+                <p><strong>Prague</strong> feels like walking through an intact fairy tale. Navigating the crowds across the Charles Bridge at dawn or standing beneath the intricate Astronomical Clock in the Old Town Square offers a deep dive into Central Europe's medieval golden age. Yet, the city isn't entirely trapped in the past. Walking along the Vltava River brings you face-to-face with the <strong>Dancing House</strong>. Designed by Frank Gehry and Vlado Milunić, its sweeping, warped, deconstructivist glass towers—nicknamed Fred and Ginger—provide a stunning, wildly controversial contrast to the rigid baroque and gothic buildings that surround it.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="terezin">
+                <h3 class="region-heading">The Weight of History: <strong>Terezín</strong></h3>
+                <p>A short bus ride outside the capital leads to a profoundly somber chapter of the region's past at <strong>Terezín</strong> (Theresienstadt). Originally built as a massive star fortress, it was converted into a Jewish ghetto and concentration camp during World War II. Walking through the stark, chilling corridors of the Small Fortress and standing in the quiet, reflective spaces where thousands suffered is a heavy, emotionally draining, but absolutely vital experience to truly understand the history of 20th-century Europe.</p>
+            </section>
+            
+            <section id="drinks">
+                <h3 class="region-heading">Liquid Culture: The <strong>Beer Factory</strong> and the <strong>Absinthe Bar</strong></h3>
+                <p>The Czechs consume more beer per capita than any other nation on earth, and they take its production incredibly seriously. Taking a tour through a local <strong>beer factory</strong> to witness the massive copper brewing kettles and taste unfiltered, unpasteurized pilsner poured directly from the icy lagering tanks is a cultural rite of passage. </p>
+                <p>When the sun sets, the energy shifts to something more bohemian. Navigating into one of Prague's dedicated <strong>absinthe bars</strong> feels like stepping into a 19th-century parlor. Experiencing the traditional ritual—watching the ice-cold water slowly drip over a sugar cube to louche the vibrant green spirit into a cloudy, botanical elixir—is a captivating way to chase the "Green Fairy" deep into the Czech night.</p>
+            </section>
+
+            <section id="culinary">
+                <h3 class="region-heading"><strong>Goulash</strong>, <strong>Svíčková</strong>, and <strong>Trdelník</strong></h3>
+                <p>Czech food is unapologetically heavy, meat-centric, and designed to pair perfectly with a cold pint. A steaming bowl of rich, dark <strong>Goulash</strong> (Gulaš) served with dense, spongy bread dumplings (knedlíky) is the ultimate comfort food on a chilly evening. For a more unique local flavor, <strong>Svíčková</strong> features braised beef sirloin absolutely smothered in a sweet and sour root vegetable cream sauce, topped with cranberry jam. While wandering the cobblestone streets, the sugary scent of <strong>Trdelník</strong> (chimney cake) roasting over open coals is impossible to ignore—a warm, cinnamon-dusted spiral of dough that serves as the perfect street snack.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive represents the historical and cultural expedition through the <strong>Czech Republic</strong>.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 150 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Czech Republic Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
@@ -81,20 +185,30 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Czech Republic';
+            // Photo archive uses the capitalized country name format
+            const prefix = 'Czech Republic-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    // Break immediately on the FIRST missing image to prevent 404 console errors
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +216,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

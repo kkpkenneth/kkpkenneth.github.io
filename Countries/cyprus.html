@@ -15,27 +15,68 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Cyprus.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        /* Cover photo uses the numbered format (Cyprus is 157) */
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/157-cyprus.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,23 +88,85 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Cyprus</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Cyprus</h2>
-        <p>Visual notes and cultural documentation from the journey through Cyprus.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero"><div class="txt-box"><h1>Cyprus</h1><p>Travel Guide & Archive</p></div><span class="hero-copyright">&copy; Kenneth Kwok</span></header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">Divided Capitals and Sun-Drenched Coasts</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">Exploring the divided streets of <strong>Nicosia</strong>, the ancient ruins of <strong>Paphos</strong>, the lively beaches of <strong>Ayia Napa</strong>, the coastal charm of <strong>Larnaca</strong>, and crossing the line to the historic, haunting city of <strong>Famagusta</strong>.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="introduction">
+                <p>Cyprus is a complex, sun-baked island located at the historic crossroads of Europe and the Middle East. It offers a jarring but fascinating mix of sprawling ancient ruins, pristine party beaches, and modern geopolitical tension. Documenting this contrast required keeping the gear versatile: the wide-angle Canon was perfect for capturing the scale of the coastal amphitheaters, the Sony excelled in the dimly lit, vibrant tavernas at night, and the Xiaomi was kept easily accessible for quick, discreet photos when navigating near the heavily patrolled UN buffer zones.</p>
+            </section>
+
+            <section id="nicosia-famagusta">
+                <h3 class="region-heading">The Divide: <strong>Nicosia</strong> and <strong>Famagusta</strong></h3>
+                <p>The journey must include <strong>Nicosia</strong>, the last divided capital in the world. Walking down Ledra Street, the bustling pedestrian thoroughfare abruptly ends at the "Green Line," a UN-patrolled buffer zone separating the Republic of Cyprus from Northern Cyprus. Crossing the checkpoint feels like stepping into a different country altogether. Further east along the coast lies <strong>Famagusta</strong>. Beyond its incredible walled city and Gothic architecture, it is most famous for Varosha—a former luxury resort district that was completely abandoned during the 1974 conflict, leaving a haunting, crumbling ghost town frozen in time right on the edge of the Mediterranean.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="larnaca-ayia-napa">
+                <h3 class="region-heading">The Eastern Shores: <strong>Larnaca</strong> and <strong>Ayia Napa</strong></h3>
+                <p>Back in the south, the coastal vibe takes over completely. <strong>Larnaca</strong> offers a wonderful, relaxed introduction to the island with its palm-lined Finikoudes promenade and historic salt lakes. Just a short drive away is <strong>Ayia Napa</strong>, globally famous for its relentless, high-energy nightlife. But beyond the clubs, it genuinely boasts some of the most spectacular, crystalline waters and white-sand beaches on the entire island, with spots like Nissi Beach drawing crowds looking to soak up the Mediterranean sun.</p>
+            </section>
+            
+            <section id="paphos">
+                <h3 class="region-heading">Myth and Mosaics: <strong>Paphos</strong></h3>
+                <p>Heading to the far western edge of the island brings you to <strong>Paphos</strong>, a city so rich in history that the entire town is listed as a UNESCO World Heritage site. It is steeped in mythology as the legendary birthplace of Aphrodite. Spending a day wandering through the sprawling Kato Paphos Archaeological Park reveals some of the most intricate, well-preserved Roman floor mosaics in the world, while exploring the subterranean, solid-rock Tombs of the Kings offers a stark, monumental look into the island's ancient past.</p>
+            </section>
+
+            <section id="culinary">
+                <h3 class="region-heading"><strong>Halloumi</strong>, <strong>Souvlaki</strong>, and <strong>Commandaria</strong></h3>
+                <p>Cypriot cuisine is a brilliant, heavy-hitting fusion of Greek and Middle Eastern flavors. You cannot spend a day here without eating <strong>Halloumi</strong>; this dense, salty, squeaky cheese is indigenous to the island and is usually served thick-cut and perfectly grilled over charcoal. For a quick meal, grabbing a warm pita absolutely stuffed with charcoal-grilled pork or chicken <strong>Souvlaki</strong>, fresh tomatoes, and tzatziki is mandatory. To wash it all down, finishing a long, rich meze dinner with a glass of <strong>Commandaria</strong>—an incredibly sweet, amber-colored dessert wine that holds the title of the world's oldest named wine still in production—is the perfect nod to the island's deep history.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive represents the Mediterranean expedition through <strong>Cyprus</strong>.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 150 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Cyprus Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
@@ -81,20 +184,30 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Cyprus';
+            // Photo archive uses the capitalized country name format
+            const prefix = 'Cyprus-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    // Break immediately on the FIRST missing image to prevent 404 console errors
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +215,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

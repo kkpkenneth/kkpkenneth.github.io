@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Madagascar.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/197-madagascar.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,23 +87,81 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Madagascar</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Madagascar</h2>
-        <p>Visual notes and cultural documentation from the journey through Madagascar.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero"><div class="txt-box"><h1>Madagascar</h1><p>Travel Guide & Archive</p></div><span class="hero-copyright">&copy; Kenneth Kwok</span></header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Red Island</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">An exploration of the cosmopolitan heights of <strong>Antananarivo</strong>, the surreal majesty of the <strong>Avenue of the Baobabs</strong>, the rare nocturnal wildlife of <strong>Aye-aye Island</strong>, the lush rainforests of <strong>Andasibe</strong>, and the coastal gateways of <strong>Toamasina</strong> and <strong>Morondava</strong>—a land defined by its profound biodiversity, ancient traditions, and a deeply singular evolutionary history.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="antananarivo">
+                <h3 class="region-heading">The Capital: <strong>Antananarivo</strong></h3>
+                <p>Perched on a ridge, <strong>Antananarivo</strong> is a cosmopolitan hub showcasing a blend of architectural influences. The city is crowned by the <strong>Rova</strong> palace complex, while the <strong>Tsimbazaza Zoological Park</strong> and the flower-lined streets of the <strong>Andohalo</strong> neighborhood offer deep dives into the country's unique history and wildlife.</p>
+            </section>
+
+            <section id="baobabs">
+                <h3 class="region-heading">Iconic Landscapes: <strong>Avenue of the Baobabs</strong></h3>
+                <p>Located in the Menabe region, the <strong>Avenue of the Baobabs</strong> features majestic Grandidier's baobabs—the "mothers of the forest"—lining the road between <strong>Morondava</strong> and Belon'i Tsiribihina. Nearby, the <strong>Baobab Amoureux</strong> showcases two trees twisted together over centuries, a must-see landmark for travelers exploring western Madagascar.</p>
+            </section>
+            
+            <section id="wildlife">
+                <h3 class="region-heading">Biodiversity: <strong>Andasibe & Aye-aye Island</strong></h3>
+                <p>The lush rainforests of <strong>Andasibe-Mantadia National Park</strong> are home to the vocal <strong>indri</strong> lemurs. Further east, remote <strong>Aye-aye Island</strong> offers rare opportunities to observe the mysterious nocturnal aye-aye lemurs. Nearby, the small village of <strong>Andranokoditra</strong> serves as a tranquil base for exploring the unique flora and fauna of the Pangalanes Canal system.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="coastal">
+                <h3 class="region-heading">Coastal Gateways: <strong>Toamasina & Morondava</strong></h3>
+                <p><strong>Toamasina</strong> (Tamatave) on the east coast is a major maritime hub characterized by old town Creole houses built on stilts and a scenic seaside boulevard. On the west coast, <strong>Morondava</strong> acts as a traditional port city and the essential starting point for excursions into the iconic western landscapes and the towering forests of the interior.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive chronicles a journey through the unique forests, coastal ports, and surreal landscapes of <strong>Madagascar</strong>.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 150 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Madagascar Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
@@ -81,20 +179,23 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Madagascar';
+            const prefix = '166-madagascar-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                if(ok) imgList.push(p); else break;
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +203,33 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => move(1), 5000);
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000);
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

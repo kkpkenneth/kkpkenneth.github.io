@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Macau.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/008-macau.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,23 +87,81 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Macau</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Macau</h2>
-        <p>Visual notes and cultural documentation from the journey through Macau.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero"><div class="txt-box"><h1>Macau</h1><p>Travel Guide & Archive</p></div><span class="hero-copyright">&copy; Kenneth Kwok</span></header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">East Meets West</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">An exploration of the historic legacy of <strong>Macau Peninsula</strong>, the glitz and grandiosity of the <strong>Cotai Strip</strong>, the traditional charm of <strong>Taipa Village</strong>, and the unique fusion of cultures—a territory defined by its colonial past, world-class entertainment, and a highly distinctive, vibrant East-meets-West identity.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="peninsula">
+                <h3 class="region-heading">Historic Roots: <strong>Macau Peninsula</strong></h3>
+                <p>The <strong>Macau Peninsula</strong> serves as the soul of the territory, where centuries of Portuguese influence collide with vibrant Chinese tradition. Walking through the UNESCO-listed Historic Centre reveals ornate churches, traditional temples, and the iconic Ruins of St. Paul's. It is a place where narrow alleyways, hidden shrines, and tiled colonial architecture tell the story of a merchant city that stood at the crossroads of maritime trade for generations.</p>
+            </section>
+
+            <section id="cotai">
+                <h3 class="region-heading">Modern Grandeur: <strong>Cotai Strip</strong></h3>
+                <p>The <strong>Cotai Strip</strong> represents the bold, modern ambition of the territory, connecting Taipa and Coloane through a reclaimed landscape of neon and steel. This world-famous stretch is a collection of grand resorts, extravagant shopping complexes, and massive gaming venues that hum with relentless energy. From the soaring heights of iconic towers to the dazzling nightly light displays, it stands as a testament to Macau's rise as a global hub of leisure and luxury.</p>
+            </section>
+            
+            <section id="taipa">
+                <h3 class="region-heading">Traditional Charm: <strong>Taipa Village</strong></h3>
+                <p>Just a short distance from the modern flash of the Strip, <strong>Taipa Village</strong> offers a serene, nostalgic escape. Its narrow streets, brightly colored colonial homes, and bustling local markets feel a world away from the surrounding high-rises. It is the perfect place to explore authentic neighborhood life, visit small museums of traditional residences, and appreciate the quieter, more intimate side of the territory’s cultural evolution.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="culinary">
+                <h3 class="region-heading">Macanese Gastronomy</h3>
+                <p>Macau’s food is arguably the world’s original fusion cuisine, blending Portuguese maritime techniques with Chinese ingredients. Famous for dishes like the <strong>African Chicken</strong> and the legendary <strong>Portuguese Egg Tart</strong>, the culinary scene is a delicate balance of spices like coconut, turmeric, and cinnamon. Dining here is an essential cultural experience, reflecting the unique shared heritage that defines every meal in this small, intense territory.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive chronicles a journey through the colonial historic center, modern resort landscapes, and the storied fusion cuisine of <strong>Macau</strong>.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 150 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Macau Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
@@ -81,20 +179,30 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Macau';
+            // Photo archive uses the capitalized country name format
+            const prefix = '008-macau-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    // Break immediately on the FIRST missing image to prevent 404 console errors
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +210,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

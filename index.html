@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <title>Travel Turtle | Discovery</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="Images/icon.png" type="image/png" sizes="16x16">
+    <link rel="icon" href="Images/icon.png">
+
+    <meta property="og:title" content="Travel Turtle | Discovery">
+    <meta property="og:description" content="Explore my 150-country travel archive and guides.">
+    <meta property="og:image" content="https://kkpkenneth.github.io/Images/Countries/Antarctica7.jpg">
+    <meta property="og:url" content="https://kkpkenneth.github.io/">
+    <meta property="og:type" content="website">
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-175443844-1"></script>
     <script>
@@ -20,13 +26,15 @@
         /* SMOOTH SCROLLING FOR DONATION LINK */
         html { scroll-behavior: smooth; }
 
-        body { margin: 0; padding: 0; font-family: helvetica; background-color: white; overflow-x: hidden; }
+        body { margin: 0; padding: 0; font-family: helvetica, sans-serif; background-color: white; overflow-x: hidden; }
 
         /* MENU STYLES */
         .menuspace { height: 50px; background-color: rgb(50,50,50); }
         .menu { 
             background-color: rgba(50, 50, 50, 0.95); 
             backdrop-filter: blur(10px);              
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
+            transform: translateZ(0); /* Hardware acceleration for blur lag */
             width: 100%; position: fixed; top: 0; z-index: 2000; 
             display: flex; justify-content: center; align-items: center;
             transition: all 0.3s ease;
@@ -73,6 +81,7 @@
         /* COVER BLOCKS */
         .cover-block {
             overflow: hidden; background-position: center; background-size: cover;
+            background-color: #333; /* Fallback while image loads */
             text-align: center; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             text-decoration: none; transition: opacity 0.3s;
@@ -86,12 +95,14 @@
             padding: 20px 40px;
             border-radius: 2px;
             backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
+            transform: translateZ(0); /* Hardware acceleration */
             max-width: 80%;
         }
 
         .cover-block h1 { font-size: 55px; margin: 5px; }
         .cover-block h2 { font-size: 35px; margin: 5px; }
-        .cover-block h3 { font-size: 25px; font-weight: 1; margin: 5px; }
+        .cover-block h3 { font-size: 25px; font-weight: normal; margin: 5px; }
         .cover-block p { font-size: 15px; margin: 5px; }
 
         @media only screen and (max-width: 900px) {
@@ -124,6 +135,7 @@
             height: 300px; 
             overflow-y: auto;
             padding: 15px;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
         }
         .place-tag {
             background-color: white;
@@ -197,7 +209,7 @@
 <footer id="support">
     <p>Support the journey</p>
     <a href="https://payme.hsbc/yourmoneymymoney"><img src="Images/qr.jpg" height="120" alt="Support"></a>
-    <a><img src="Images/paypal.png" height="120px"></a>
+    <a><img src="Images/paypal.png" height="120" alt="PayPal"></a>
     <div class="legal">
         <a href="about.html">About</a>
         <a href="privacy.html">Privacy Policy</a>
@@ -208,187 +220,234 @@
 </footer>
 
 <script>
+    // Moved data arrays outside the function to prevent memory reallocation lag
+    const destinations = [
+        { title: "Hong Kong", caption: "Pearl of the Orient", image: "Images/Countries/001-hong-kong.jpg", link: "Countries/hongkong.html", color: "white" },
+        { title: "Taiwan", caption: "Heart of Asia", image: "Images/Countries/002-taiwan.jpg", link: "Countries/taiwan.html", color: "white" },
+        { title: "Japan", caption: "Synthwave Sunrises", image: "Images/Countries/003-japan.jpg", link: "Countries/japan.html", color: "white" },
+        { title: "South Korea", caption: "Dynamic and Timeless", image: "Images/Countries/004-south-korea.jpg", link: "Countries/southkorea.html", color: "white" },
+        { title: "North Korea", caption: "The Hermit Kingdom", image: "Images/Countries/005-north-korea.jpg", link: "Countries/northkorea.html", color: "white" },
+        { title: "Mongolia", caption: "Empire of the Steppe", image: "Images/Countries/006-mongolia.jpg", link: "Countries/mongolia.html", color: "white" },
+        { title: "China", caption: "The Middle Kingdom", image: "Images/Countries/007-china.jpg", link: "Countries/china.html", color: "white" },
+        { title: "Macau", caption: "Heritage and High Stakes", image: "Images/Countries/008-macau.jpg", link: "Countries/macau.html", color: "white" },
+        { title: "United Kingdom", caption: "Isles of Mist", image: "Images/Countries/009-united-kingdom.jpg", link: "Countries/unitedkingdom.html", color: "white" },
+        { title: "France", caption: "Echoes of the Empire", image: "Images/Countries/010-france.jpg", link: "Countries/france.html", color: "white" },
+        { title: "Spain", caption: "Sun and Stone", image: "Images/Countries/011-spain.jpg", link: "Countries/spain.html", color: "white" },
+        { title: "Portugal", caption: "Into the Unknown", image: "Images/Countries/012-portugal.jpg", link: "Countries/portugal.html", color: "white" },
+        { title: "Netherlands", caption: "Canals and Canvas", image: "Images/Countries/013-netherlands.jpg", link: "Countries/netherlands.html", color: "white" },
+        { title: "Belgium", caption: "Crossroads of Europe", image: "Images/Countries/014-belgium.jpg", link: "Countries/belgium.html", color: "white" },
+        { title: "Germany", caption: "Cathedrals and History", image: "Images/Countries/015-germany.jpg", link: "Countries/germany.html", color: "white" },
+        { title: "Ireland", caption: "The Emerald Isle", image: "Images/Countries/016-ireland.jpg", link: "Countries/ireland.html", color: "white" },
+        { title: "Canada", caption: "Living in Ice Age", image: "Images/Countries/017-canada.jpg", link: "Countries/canada.html", color: "white" },
+        { title: "United States", caption: "Canyons and Concrete", image: "Images/Countries/018-united-states.jpg", link: "Countries/unitedstates.html", color: "white" },
+        { title: "Mexico", caption: "Pyramids and Cenotes", image: "Images/Countries/019-mexico.jpg", link: "Countries/mexico.html", color: "white" },
+        { title: "Cuba", caption: "Travel Back in Time", image: "Images/Countries/020-cuba.jpg", link: "Countries/cuba.html", color: "white" },
+        { title: "Bahamas", caption: "Shallows of Sapphire", image: "Images/Countries/021-bahamas.jpg", link: "Countries/bahamas.html", color: "white" },
+        { title: "Jamaica", caption: "Rhythm of the Caribbean", image: "Images/Countries/022-jamaica.jpg", link: "Countries/jamaica.html", color: "white" },
+        { title: "Haiti", caption: "Resilience and Roots", image: "Images/Countries/023-haiti.jpg", link: "Countries/haiti.html", color: "white" },
+        { title: "Dominican Republic", caption: "Heart of Hispaniola", image: "Images/Countries/024-dominican-republic.jpg", link: "Countries/dominicanrepublic.html", color: "white" },
+        { title: "South Africa", caption: "The Cape of Good Hope", image: "Images/Countries/025-south-africa.jpg", link: "Countries/southafrica.html", color: "white" },
+        { title: "Lesotho", caption: "The Kingdom in the Sky", image: "Images/Countries/026-lesotho.jpg", link: "Countries/lesotho.html", color: "white" },
+        { title: "Eswatini", caption: "Traditions of the Valley", image: "Images/Countries/027-eswatini.jpg", link: "Countries/eswatini.html", color: "white" },
+        { title: "Mozambique", caption: "Indian Ocean Untamed", image: "Images/Countries/028-mozambique.jpg", link: "Countries/mozambique.html", color: "white" },
+        { title: "Zimbabwe", caption: "Smoke That Thunders", image: "Images/Countries/029-zimbabwe.jpg", link: "Countries/zimbabwe.html", color: "white" },
+        { title: "Zambia", caption: "Heart of the Zambezi", image: "Images/Countries/030-zambia.jpg", link: "Countries/zambia.html", color: "white" },
+        { title: "Botswana", caption: "Okavango Delta", image: "Images/Countries/031-botswana.jpg", link: "Countries/botswana.html", color: "white" },
+        { title: "Namibia", caption: "Dunes of Sossusvlei", image: "Images/Countries/032-namibia.jpg", link: "Countries/namibia.html", color: "white" },
+        { title: "Australia", caption: "Peering into the Wild", image: "Images/Countries/033-australia.jpg", link: "Countries/australia.html", color: "white" },
+        { title: "New Zealand", caption: "Land of the Long White Cloud", image: "Images/Countries/034-new-zealand.jpg", link: "Countries/newzealand.html", color: "white" },
+        { title: "Tuvalu", caption: "Sinking Paradise", image: "Images/Countries/035-tuvalu.jpg", link: "Countries/tuvalu.html", color: "white" },
+        { title: "Samoa", caption: "The Heart of Polynesia", image: "Images/Countries/036-samoa.jpg", link: "Countries/samoa.html", color: "white" },
+        { title: "Fiji", caption: "Garden of the Sea", image: "Images/Countries/037-fiji.jpg", link: "Countries/fiji.html", color: "white" },
+        { title: "Tonga", caption: "Swimming with Giants", image: "Images/Countries/038-tonga.jpg", link: "Countries/tonga.html", color: "white" },
+        { title: "Vanuatu", caption: "Volcanoes and Reefs", image: "Images/Countries/039-vanuatu.jpg", link: "Countries/vanuatu.html", color: "white" },
+        { title: "Solomon Islands", caption: "Wrecks and Rainforests", image: "Images/Countries/040-solomon-islands.jpg", link: "Countries/solomonislands.html", color: "white" },
+        { title: "Ecuador", caption: "Center of the Earth", image: "Images/Countries/041-ecuador.jpg", link: "Countries/ecuador.html", color: "white" },
+        { title: "Peru", caption: "Echoes of the Inca", image: "Images/Countries/042-peru.jpg", link: "Countries/peru.html", color: "white" },
+        { title: "Bolivia", caption: "Mirrors of the Sky", image: "Images/Countries/043-bolivia.jpg", link: "Countries/bolivia.html", color: "white" },
+        { title: "Paraguay", caption: "The Forgotten Heart", image: "Images/Countries/044-paraguay.jpg", link: "Countries/paraguay.html", color: "white" },
+        { title: "Chile", caption: "Atacama Stars", image: "Images/Countries/045-chile.jpg", link: "Countries/chile.html", color: "white" },
+        { title: "Argentina", caption: "Glaciers and Tango", image: "Images/Countries/046-argentina.jpg", link: "Countries/argentina.html", color: "white" },
+        { title: "Uruguay", caption: "Serenity on the Plate", image: "Images/Countries/047-uruguay.jpg", link: "Countries/uruguay.html", color: "white" },
+        { title: "Antarctica", caption: "The Frozen Frontier", image: "Images/Countries/048-antarctica.jpg", link: "Countries/antarctica.html", color: "white" },
+        { title: "Jordan", caption: "Rose City Sands", image: "Images/Countries/049-jordan.jpg", link: "Countries/jordan.html", color: "white" },
+        { title: "United Arab Emirates", caption: "Oasis of Glass", image: "Images/Countries/050-united-arab-emirates.jpg", link: "Countries/unitedarabemirates.html", color: "white" },
+        { title: "Qatar", caption: "Pearls and Peninsula", image: "Images/Countries/051-qatar.jpg", link: "Countries/qatar.html", color: "white" },
+        { title: "Kuwait", caption: "Towers of the Gulf", image: "Images/Countries/052-kuwait.jpg", link: "Countries/kuwait.html", color: "white" },
+        { title: "Bahrain", caption: "Tree of Life", image: "Images/Countries/053-bahrain.jpg", link: "Countries/bahrain.html", color: "white" },
+        { title: "Saudi Arabia", caption: "Kingdom of Sand", image: "Images/Countries/054-saudi-arabia.jpg", link: "Countries/saudiarabia.html", color: "white" },
+        { title: "Yemen", caption: "The Alien Flora of Socotra", image: "Images/Countries/055-yemen.jpg", link: "Countries/yemen.html", color: "white" },
+        { title: "Oman", caption: "Frankincense and Fjords", image: "Images/Countries/056-oman.jpg", link: "Countries/oman.html", color: "white" },
+        { title: "Iceland", caption: "Fire and Ice", image: "Images/Countries/057-iceland.jpg", link: "Countries/iceland.html", color: "white" },
+        { title: "Denmark", caption: "Nordic Design", image: "Images/Countries/058-denmark.jpg", link: "Countries/denmark.html", color: "white" },
+        { title: "Norway", caption: "Fjords and Northern Lights", image: "Images/Countries/059-norway.jpg", link: "Countries/norway.html", color: "white" },
+        { title: "Sweden", caption: "Archipelago Wilderness", image: "Images/Countries/060-sweden.jpg", link: "Countries/sweden.html", color: "white" },
+        { title: "Finland", caption: "Lakes and Taiga", image: "Images/Countries/061-finland.jpg", link: "Countries/finland.html", color: "white" },
+        { title: "Estonia", caption: "Baltic Charm", image: "Images/Countries/062-estonia.jpg", link: "Countries/estonia.html", color: "white" },
+        { title: "Latvia", caption: "Forests and Art Nouveau", image: "Images/Countries/063-latvia.jpg", link: "Countries/latvia.html", color: "white" },
+        { title: "Lithuania", caption: "Hill of Crosses", image: "Images/Countries/064-lithuania.jpg", link: "Countries/lithuania.html", color: "white" },
+        { title: "Morocco", caption: "Medinas and Magic", image: "Images/Countries/065-morocco.jpg", link: "Countries/morocco.html", color: "white" },
+        { title: "Tunisia", caption: "The Gem of Africa", image: "Images/Countries/067-tunisia.jpg", link: "Countries/tunisia.html", color: "white" },
+        { title: "Egypt", caption: "Pyramids and Pharaohs", image: "Images/Countries/069-egypt.jpg", link: "Countries/egypt.html", color: "white" },
+        { title: "South Sudan", caption: "The Youngest Nation", image: "Images/Countries/071-south-sudan.jpg", link: "Countries/southsudan.html", color: "white" },
+        { title: "Philippines", caption: "Islands of Emerald", image: "Images/Countries/073-philippines.jpg", link: "Countries/philippines.html", color: "white" },
+        { title: "Papua New Guinea", caption: "Tribes and Highlands", image: "Images/Countries/074-papua-new-guinea.jpg", link: "Countries/papuanewguinea.html", color: "white" },
+        { title: "Palau", caption: "The Rock Islands", image: "Images/Countries/075-palau.jpg", link: "Countries/palau.html", color: "white" },
+        { title: "Micronesia", caption: "Ancient Ruins of Nan Madol", image: "Images/Countries/076-micronesia.jpg", link: "Countries/micronesia.html", color: "white" },
+        { title: "Marshall Islands", caption: "Atolls of the Pacific", image: "Images/Countries/077-marshall-islands.jpg", link: "Countries/marshallislands.html", color: "white" },
+        { title: "Kiribati", caption: "Atolls on the Equator", image: "Images/Countries/078-kiribati.jpg", link: "Countries/kiribati.html", color: "white" },
+        { title: "Nauru", caption: "The Phosphate Island", image: "Images/Countries/079-nauru.jpg", link: "Countries/nauru.html", color: "white" },
+        { title: "India", caption: "Colors of the Subcontinent", image: "Images/Countries/081-india.jpg", link: "Countries/india.html", color: "white" },
+        { title: "Pakistan", caption: "Peaks of the Karakoram", image: "Images/Countries/082-pakistan.jpg", link: "Countries/pakistan.html", color: "white" },
+        { title: "Sri Lanka", caption: "Tears of the Indian Ocean", image: "Images/Countries/083-sri-lanka.jpg", link: "Countries/srilanka.html", color: "white" },
+        { title: "Maldives", caption: "Chill Like a Boss", image: "Images/Countries/084-maldives.jpg", link: "Countries/maldives.html", color: "white" },
+        { title: "Bangladesh", caption: "Rivers and Mangroves", image: "Images/Countries/085-bangladesh.jpg", link: "Countries/bangladesh.html", color: "white" },
+        { title: "Nepal", caption: "Roof of the World", image: "Images/Countries/086-nepal.jpg", link: "Countries/nepal.html", color: "white" },
+        { title: "Bhutan", caption: "The Thunder Dragon", image: "Images/Countries/087-bhutan.jpg", link: "Countries/bhutan.html", color: "white" },
+        { title: "Myanmar", caption: "Where sunrise lights up your soul", image: "Images/Countries/088-myanmar.jpg", link: "Countries/myanmar.html", color: "white" },
+        { title: "Russia", caption: "The Vast Expanse", image: "Images/Countries/089-russia.jpg", link: "Countries/russia.html", color: "white" },
+        { title: "Ukraine", caption: "Heart of Eastern Europe", image: "Images/Countries/090-ukraine.jpg", link: "Countries/ukraine.html", color: "white" },
+        { title: "Belarus", caption: "Forests and Fortresses", image: "Images/Countries/091-belarus.jpg", link: "Countries/belarus.html", color: "white" },
+        { title: "Poland", caption: "Pierogi and Heritage", image: "Images/Countries/092-poland.jpg", link: "Countries/poland.html", color: "white" },
+        { title: "Czech Republic", caption: "Bohemian Rhapsody", image: "Images/Countries/093-czech-republic.jpg", link: "Countries/czechrepublic.html", color: "white" },
+        { title: "Slovenia", caption: "Alpine Lakes and Caves", image: "Images/Countries/094-slovenia.jpg", link: "Countries/slovenia.html", color: "white" },
+        { title: "Slovakia", caption: "Castles of the Tatras", image: "Images/Countries/095-slovakia.jpg", link: "Countries/slovakia.html", color: "white" },
+        { title: "Hungary", caption: "Thermal Baths and Bridges", image: "Images/Countries/096-hungary.jpg", link: "Countries/hungary.html", color: "white" },
+        { title: "Brazil", caption: "The Amazon Heart", image: "Images/Countries/097-brazil.jpg", link: "Countries/brazil.html", color: "white" },
+        { title: "Colombia", caption: "Gold and Coffee", image: "Images/Countries/098-colombia.jpg", link: "Countries/colombia.html", color: "white" },
+        { title: "Venezuela", caption: "Tepuis and Waterfalls", image: "Images/Countries/099-venezuela.jpg", link: "Countries/venezuela.html", color: "white" },
+        { title: "Suriname", caption: "Jungle and Diversity", image: "Images/Countries/100-suriname.jpg", link: "Countries/suriname.html", color: "white" },
+        { title: "Guyana", caption: "Land of Many Waters", image: "Images/Countries/101-guyana.jpg", link: "Countries/guyana.html", color: "white" },
+        { title: "Grenada", caption: "The Spice Isle", image: "Images/Countries/102-grenada.jpg", link: "Countries/grenada.html", color: "white" },
+        { title: "Trinidad and Tobago", caption: "Carnival and Calypso", image: "Images/Countries/103-trinidad-and-tobago.jpg", link: "Countries/trinidadandtobago.html", color: "white" },
+        { title: "Barbados", caption: "Coral Reefs and Rum", image: "Images/Countries/104-barbados.jpg", link: "Countries/barbados.html", color: "white" },
+        { title: "Ethiopia", caption: "Cradle of Humanity", image: "Images/Countries/105-ethiopia.jpg", link: "Countries/ethiopia.html", color: "white" },
+        { title: "Kenya", caption: "The Great Migration", image: "Images/Countries/109-kenya.jpg", link: "Countries/kenya.html", color: "white" },
+        { title: "Uganda", caption: "Pearl of Africa", image: "Images/Countries/110-uganda.jpg", link: "Countries/uganda.html", color: "white" },
+        { title: "Rwanda", caption: "Land of a Thousand Hills", image: "Images/Countries/111-rwanda.jpg", link: "Countries/rwanda.html", color: "white" },
+        { title: "Burundi", caption: "Heart of Africa", image: "Images/Countries/112-burundi.jpg", link: "Countries/burundi.html", color: "white" },
+        { title: "Thailand", caption: "Temples and Tropics", image: "Images/Countries/113-thailand.jpg", link: "Countries/thailand.html", color: "white" },
+        { title: "Vietnam", caption: "The Dragon's Ascent", image: "Images/Countries/114-vietnam.jpg", link: "Countries/vietnam.html", color: "white" },
+        { title: "Laos", caption: "Land of a Million Elephants", image: "Images/Countries/115-laos.jpg", link: "Countries/laos.html", color: "white" },
+        { title: "Cambodia", caption: "Ruins of the Khmer", image: "Images/Countries/116-cambodia.jpg", link: "Countries/cambodia.html", color: "white" },
+        { title: "Malaysia", caption: "Rainforests and Skyscrapers", image: "Images/Countries/117-malaysia.jpg", link: "Countries/malaysia.html", color: "white" },
+        { title: "Singapore", caption: "The Lion City", image: "Images/Countries/118-singapore.jpg", link: "Countries/singapore.html", color: "white" },
+        { title: "Brunei", caption: "Abode of Peace", image: "Images/Countries/119-brunei.jpg", link: "Countries/brunei.html", color: "white" },
+        { title: "Indonesia", caption: "The Jungle Rook", image: "Images/Countries/120-indonesia.jpg", link: "Countries/indonesia.html", color: "white" },
+        { title: "Greece", caption: "Aegean Blues", image: "Images/Countries/121-greece.jpg", link: "Countries/greece.html", color: "white" },
+        { title: "Albania", caption: "The Castle of Kruja", image: "Images/Countries/122-albania.jpg", link: "Countries/albania.html", color: "white" },
+        { title: "Montenegro", caption: "Black Mountains", image: "Images/Countries/123-montenegro.jpg", link: "Countries/montenegro.html", color: "white" },
+        { title: "Serbia", caption: "Balkan Crossroads", image: "Images/Countries/124-serbia.jpg", link: "Countries/serbia.html", color: "white" },
+        { title: "Romania", caption: "Carpathian Legends", image: "Images/Countries/125-romania.jpg", link: "Countries/romania.html", color: "white" },
+        { title: "Bulgaria", caption: "Roses and Thracians", image: "Images/Countries/126-bulgaria.jpg", link: "Countries/bulgaria.html", color: "white" },
+        { title: "North Macedonia", caption: "Land of Lakes", image: "Images/Countries/127-north-macedonia.jpg", link: "Countries/northmacedonia.html", color: "white" },
+        { title: "Bosnia and Herzegovina", caption: "Bridges of Stone", image: "Images/Countries/128-bosnia-and-herzegovina.jpg", link: "Countries/bosniaandherzegovina.html", color: "white" },
+        { title: "Belize", caption: "Barrier Reefs", image: "Images/Countries/129-belize.jpg", link: "Countries/belize.html", color: "white" },
+        { title: "Guatemala", caption: "Maya Mysteries", image: "Images/Countries/130-guatemala.jpg", link: "Countries/guatemala.html", color: "white" },
+        { title: "El Salvador", caption: "Land of Volcanoes", image: "Images/Countries/131-el-salvador.jpg", link: "Countries/elsalvador.html", color: "white" },
+        { title: "Honduras", caption: "Deep in the Copan", image: "Images/Countries/132-honduras.jpg", link: "Countries/honduras.html", color: "white" },
+        { title: "Nicaragua", caption: "Lakes and Legends", image: "Images/Countries/133-nicaragua.jpg", link: "Countries/nicaragua.html", color: "white" },
+        { title: "Costa Rica", caption: "Pura Vida Jungles", image: "Images/Countries/134-costa-rica.jpg", link: "Countries/costarica.html", color: "white" },
+        { title: "Panama", caption: "Bridging the Americas", image: "Images/Countries/135-panama.jpg", link: "Countries/panama.html", color: "white" },
+        { title: "Democratic Republic of Congo", caption: "Heart of Darkness", image: "Images/Countries/138-democratic-republic-of-congo.jpg", link: "Countries/democraticrepublicofcongo.html", color: "white" },
+        { title: "Kazakhstan", caption: "Nomads of the Steppe", image: "Images/Countries/145-kazakhstan.jpg", link: "Countries/kazakhstan.html", color: "white" },
+        { title: "Kyrgyzstan", caption: "Celestial Mountains", image: "Images/Countries/146-kyrgyzstan.jpg", link: "Countries/kyrgyzstan.html", color: "white" },
+        { title: "Tajikistan", caption: "Roof of the World", image: "Images/Countries/147-tajikistan.jpg", link: "Countries/tajikistan.html", color: "white" },
+        { title: "Uzbekistan", caption: "Jewels of the Silk Road", image: "Images/Countries/148-uzbekistan.jpg", link: "Countries/uzbekistan.html", color: "white" },
+        { title: "Turkmenistan", caption: "Gates of Hell", image: "Images/Countries/149-turkmenistan.jpg", link: "Countries/turkmenistan.html", color: "white" },
+        { title: "Azerbaijan", caption: "Fire and Silk", image: "Images/Countries/150-azerbaijan.jpg", link: "Countries/azerbaijan.html", color: "white" },
+        { title: "Georgia", caption: "Wine and Watchtowers", image: "Images/Countries/151-georgia.jpg", link: "Countries/georgia.html", color: "white" },
+        { title: "Armenia", caption: "Stones of Antiquity", image: "Images/Countries/152-armenia.jpg", link: "Countries/armenia.html", color: "white" },
+        { title: "Italy", caption: "Ruins and Renaissance", image: "Images/Countries/153-italy.jpg", link: "Countries/italy.html", color: "white" },
+        { title: "Vatican City", caption: "Holy See", image: "Images/Countries/154-vatican-city.jpg", link: "Countries/vaticancity.html", color: "white" },
+        { title: "San Marino", caption: "The Serene Republic", image: "Images/Countries/155-san-marino.jpg", link: "Countries/sanmarino.html", color: "white" },
+        { title: "Malta", caption: "Knights of the Mediterranean", image: "Images/Countries/156-malta.jpg", link: "Countries/malta.html", color: "white" },
+        { title: "Cyprus", caption: "Island of Aphrodite", image: "Images/Countries/157-cyprus.jpg", link: "Countries/cyprus.html", color: "white" },
+        { title: "Austria", caption: "Alpine Elegance", image: "Images/Countries/158-austria.jpg", link: "Countries/austria.html", color: "white" },
+        { title: "Switzerland", caption: "Peaks of Perfection", image: "Images/Countries/159-switzerland.jpg", link: "Countries/switzerland.html", color: "white" },
+        { title: "Croatia", caption: "Pearls of the Adriatic", image: "Images/Countries/160-croatia.jpg", link: "Countries/croatia.html", color: "white" },
+        { title: "Saint Vincent and Grenadines", caption: "Islands of the Clouds", image: "Images/Countries/161-saint-vincent-and-grenadines.jpg", link: "Countries/saintvincentandgrenadines.html", color: "white" },
+        { title: "Saint Lucia", caption: "The Twin Pitons", image: "Images/Countries/162-saint-lucia.jpg", link: "Countries/saintlucia.html", color: "white" },
+        { title: "Antigua and Barbuda", caption: "Land of 365 Beaches", image: "Images/Countries/163-antigua-and-barbuda.jpg", link: "Countries/antiguaandbarbuda.html", color: "white" },
+        { title: "Dominica", caption: "The Nature Island", image: "Images/Countries/164-dominica.jpg", link: "Countries/dominica.html", color: "white" },
+        { title: "Saint Kitts and Nevis", caption: "Sugar and Volcanoes", image: "Images/Countries/165-saint-kitts-and-nevis.jpg", link: "Countries/saintkittsandnevis.html", color: "white" },
+        { title: "Turkey", caption: "Crossroads of Continents", image: "Images/Countries/177-turkey.jpg", link: "Countries/turkey.html", color: "white" },
+        { title: "Andorra", caption: "Pyrenees Hideaway", image: "Images/Countries/178-andorra.jpg", link: "Countries/andorra.html", color: "white" },
+        { title: "Moldova", caption: "Cellars and Monasteries", image: "Images/Countries/179-moldova.jpg", link: "Countries/moldova.html", color: "white" },
+        { title: "Monaco", caption: "Harbor of the Riviera", image: "Images/Countries/180-monaco.jpg", link: "Countries/monaco.html", color: "white" },
+        { title: "Liechtenstein", caption: "Principality of the Alps", image: "Images/Countries/181-liechtenstein.jpg", link: "Countries/liechtenstein.html", color: "white" },
+        { title: "Luxembourg", caption: "The Grand Duchy", image: "Images/Countries/182-luxembourg.jpg", link: "Countries/luxembourg.html", color: "white" },
+        { title: "Kosovo", caption: "Heart of the Balkans", image: "Images/Countries/183-kosovo.jpg", link: "Countries/kosovo.html", color: "white" },
+        { title: "Timor-Leste", caption: "Sunrise of Asia", image: "Images/Countries/184-timor-leste.jpg", link: "Countries/timorleste.html", color: "white" },
+        { title: "Seychelles", caption: "Granite and Turquoise", image: "Images/Countries/193-seychelles.jpg", link: "Countries/seychelles.html", color: "white" },
+        { title: "Tanzania", caption: "Serengeti Stars", image: "Images/Countries/194-tanzania.jpg", link: "Countries/tanzania.html", color: "white" },
+        { title: "Malawi", caption: "The Warm Heart of Africa", image: "Images/Countries/195-malawi.jpg", link: "Countries/malawi.html", color: "white" },
+        { title: "Comoros", caption: "Perfume Isles", image: "Images/Countries/196-comoros.jpg", link: "Countries/comoros.html", color: "white" },
+        { title: "Madagascar", caption: "Baobabs and Lemurs", image: "Images/Countries/197-madagascar.jpg", link: "Countries/madagascar.html", color: "white" },
+        { title: "Mauritius", caption: "Island of Sugar", image: "Images/Countries/198-mauritius.jpg", link: "Countries/mauritius.html", color: "white" },
+        { title: "Afghanistan", caption: "Crossroads of Empires", image: "Images/Countries/201-afghanistan.jpg", link: "Countries/afghanistan.html", color: "white" },
+        { title: "Iran", caption: "Persian Splendor", image: "Images/Countries/202-iran.jpg", link: "Countries/iran.html", color: "white" },
+        { title: "Iraq", caption: "Cradle of Civilization", image: "Images/Countries/203-iraq.jpg", link: "Countries/iraq.html", color: "white" },
+        { title: "Syria", caption: "Ancient Citadels", image: "Images/Countries/204-syria.jpg", link: "Countries/syria.html", color: "white" },
+        { title: "Lebanon", caption: "Pearl of the Middle East", image: "Images/Countries/205-lebanon.jpg", link: "Countries/lebanon.html", color: "white" },
+        { title: "Israel", caption: "Sacred Stones", image: "Images/Countries/206-israel.jpg", link: "Countries/israel.html", color: "white" },
+        { title: "Palestine", caption: "Olive Groves and History", image: "Images/Countries/207-palestine.jpg", link: "Countries/palestine.html", color: "white" }
+    ];
+
+    const visitedPlaces = [
+        "🇭🇰 Hong Kong", "🇹🇼 Taiwan", "🇯🇵 Japan", "🇰🇷 South Korea", "🇲🇳 Mongolia", 
+        "🇨🇳 China", "🇲🇴 Macau", "🇬🇧 United Kingdom", "🇫🇷 France", "🇪🇸 Spain", 
+        "🇵🇹 Portugal", "🇳🇱 Netherlands", "🇧🇪 Belgium", "🇩🇪 Germany", "🇮🇪 Ireland", 
+        "🇨🇦 Canada", "🇺🇸 United States", "🇲🇽 Mexico", "🇨🇺 Cuba", "🇧🇸 Bahamas", 
+        "🇯🇲 Jamaica", "🇭🇹 Haiti", "🇩🇴 Dominican Republic", "🇿🇦 South Africa", "🇱🇸 Lesotho", 
+        "🇸🇿 Eswatini", "🇲🇿 Mozambique", "🇿🇼 Zimbabwe", "🇿🇲 Zambia", "🇧🇼 Botswana", 
+        "🇳🇦 Namibia", "🇦🇺 Australia", "🇳🇿 New Zealand", "🇹🇻 Tuvalu", "🇼🇸 Samoa", 
+        "🇫🇯 Fiji", "🇹🇴 Tonga", "🇻🇺 Vanuatu", "🇸🇧 Solomon Islands", "🇪🇨 Ecuador", 
+        "🇵🇪 Peru", "🇧🇴 Bolivia", "🇵🇾 Paraguay", "🇨🇱 Chile", "🇦🇷 Argentina", 
+        "🇺🇾 Uruguay", "🇦🇶 Antarctica", "🇯🇴 Jordan", "🇦🇪 United Arab Emirates", "🇶🇦 Qatar", 
+        "🇰🇼 Kuwait", "🇧🇭 Bahrain", "🇸🇦 Saudi Arabia", "🇾🇪 Yemen", "🇴🇲 Oman", 
+        "🇮🇸 Iceland", "🇩🇰 Denmark", "🇳🇴 Norway", "🇸🇪 Sweden", "🇫🇮 Finland", 
+        "🇪🇪 Estonia", "🇱🇻 Latvia", "🇱🇹 Lithuania", "🇲🇦 Morocco", "🇹🇳 Tunisia", 
+        "🇪🇬 Egypt", "🇸🇸 South Sudan", "🇵🇭 Philippines", "🇵🇬 Papua New Guinea", "🇵🇼 Palau", 
+        "🇫🇲 Micronesia", "🇲🇭 Marshall Islands", "🇰🇮 Kiribati", "🇳🇷 Nauru", "🇮🇳 India", 
+        "🇵🇰 Pakistan", "🇱🇰 Sri Lanka", "🇲🇻 Maldives", "🇧🇩 Bangladesh", "🇳🇵 Nepal", 
+        "🇧🇹 Bhutan", "🇲🇲 Myanmar", "🇷🇺 Russia", "🇺🇦 Ukraine", "🇧🇾 Belarus", 
+        "🇵🇱 Poland", "🇨🇿 Czech Republic", "🇸🇮 Slovenia", "🇸🇰 Slovakia", "🇭🇺 Hungary", 
+        "🇧🇷 Brazil", "🇨🇴 Colombia", "🇻🇪 Venezuela", "🇸🇷 Suriname", "🇬🇾 Guyana", 
+        "🇬🇩 Grenada", "🇹🇹 Trinidad and Tobago", "🇧🇧 Barbados", "🇪🇹 Ethiopia", "🇰🇪 Kenya", 
+        "🇺🇬 Uganda", "🇷🇼 Rwanda", "🇧🇮 Burundi", "🇹🇭 Thailand", "🇻🇳 Vietnam", 
+        "🇱🇦 Laos", "🇰🇭 Cambodia", "🇲🇾 Malaysia", "🇸🇬 Singapore", "🇧🇳 Brunei", 
+        "🇮🇩 Indonesia", "🇬🇷 Greece", "🇦🇱 Albania", "🇲🇪 Montenegro", "🇷🇸 Serbia", 
+        "🇷🇴 Romania", "🇧🇬 Bulgaria", "🇲🇰 North Macedonia", "🇧🇦 Bosnia and Herzegovina", "🇧🇿 Belize", 
+        "🇬🇹 Guatemala", "🇸🇻 El Salvador", "🇭🇳 Honduras", "🇳🇮 Nicaragua", "🇨🇷 Costa Rica", 
+        "🇵🇦 Panama", "🇨🇩 Democratic Republic of Congo", "🇰🇿 Kazakhstan", "🇰🇬 Kyrgyzstan", "🇹🇯 Tajikistan", 
+        "🇺🇿 Uzbekistan", "🇹🇲 Turkmenistan", "🇦🇿 Azerbaijan", "🇬🇪 Georgia", "🇦🇲 Armenia", 
+        "🇮🇹 Italy", "🇻🇦 Vatican City", "🇸🇲 San Marino", "🇲🇹 Malta", "🇨🇾 Cyprus", 
+        "🇦🇹 Austria", "🇨🇭 Switzerland", "🇭🇷 Croatia", "🇻🇨 Saint Vincent and Grenadines", "🇱🇨 Saint Lucia", 
+        "🇦🇬 Antigua and Barbuda", "🇩🇲 Dominica", "🇰🇳 Saint Kitts and Nevis", "🇹🇷 Turkey", "🇦🇩 Andorra", 
+        "🇲🇩 Moldova", "🇲🇨 Monaco", "🇱🇮 Liechtenstein", "🇱🇺 Luxembourg", "🇽🇰 Kosovo", 
+        "🇹🇱 Timor-Leste", "🇸🇨 Seychelles", "🇹🇿 Tanzania", "🇲🇼 Malawi", "🇰🇲 Comoros", 
+        "🇲🇬 Madagascar", "🇲🇺 Mauritius", "🇦🇫 Afghanistan", "🇮🇷 Iran", "🇮🇶 Iraq", 
+        "🇸🇾 Syria", "🇱🇧 Lebanon", "🇮🇱 Israel", "🇵🇸 Palestine"
+    ];
+
     function toggleMenu() {
         document.getElementById('menuList').classList.toggle('active');
     }
 
-    const destinations = [
-    { title: "Hong Kong", caption: "Pearl of the Orient", image: "Images/Countries/001-hong-kong.jpg", link: "Countries/hongkong.html", color: "white" },
-    { title: "Taiwan", caption: "Heart of Asia", image: "Images/Countries/002-taiwan.jpg", link: "Countries/taiwan.html", color: "white" },
-    { title: "Japan", caption: "Synthwave Sunrises", image: "Images/Countries/003-japan.jpg", link: "Countries/japan.html", color: "white" },
-    { title: "South Korea", caption: "Dynamic and Timeless", image: "Images/Countries/004-south-korea.jpg", link: "Countries/southkorea.html", color: "white" },
-    { title: "North Korea", caption: "The Hermit Kingdom", image: "Images/Countries/005-north-korea.jpg", link: "Countries/northkorea.html", color: "white" },
-    { title: "Mongolia", caption: "Empire of the Steppe", image: "Images/Countries/006-mongolia.jpg", link: "Countries/mongolia.html", color: "white" },
-    { title: "China", caption: "The Middle Kingdom", image: "Images/Countries/007-china.jpg", link: "Countries/china.html", color: "white" },
-    { title: "Macau", caption: "Heritage and High Stakes", image: "Images/Countries/008-macau.jpg", link: "Countries/macau.html", color: "white" },
-    { title: "United Kingdom", caption: "Isles of Mist", image: "Images/Countries/009-united-kingdom.jpg", link: "Countries/unitedkingdom.html", color: "white" },
-    { title: "France", caption: "Echoes of the Empire", image: "Images/Countries/010-france.jpg", link: "Countries/france.html", color: "white" },
-    { title: "Spain", caption: "Sun and Stone", image: "Images/Countries/011-spain.jpg", link: "Countries/spain.html", color: "white" },
-    { title: "Portugal", caption: "Into the Unknown", image: "Images/Countries/012-portugal.jpg", link: "Countries/portugal.html", color: "white" },
-    { title: "Netherlands", caption: "Canals and Canvas", image: "Images/Countries/013-netherlands.jpg", link: "Countries/netherlands.html", color: "white" },
-    { title: "Belgium", caption: "Crossroads of Europe", image: "Images/Countries/014-belgium.jpg", link: "Countries/belgium.html", color: "white" },
-    { title: "Germany", caption: "Cathedrals and History", image: "Images/Countries/015-germany.jpg", link: "Countries/germany.html", color: "white" },
-    { title: "Ireland", caption: "The Emerald Isle", image: "Images/Countries/016-ireland.jpg", link: "Countries/ireland.html", color: "white" },
-    { title: "Canada", caption: "Living in Ice Age", image: "Images/Countries/017-canada.jpg", link: "Countries/canada.html", color: "white" },
-    { title: "United States", caption: "Canyons and Concrete", image: "Images/Countries/018-united-states.jpg", link: "Countries/unitedstates.html", color: "white" },
-    { title: "Mexico", caption: "Pyramids and Cenotes", image: "Images/Countries/019-mexico.jpg", link: "Countries/mexico.html", color: "white" },
-    { title: "Cuba", caption: "Travel Back in Time", image: "Images/Countries/020-cuba.jpg", link: "Countries/cuba.html", color: "white" },
-    { title: "Bahamas", caption: "Shallows of Sapphire", image: "Images/Countries/021-bahamas.jpg", link: "Countries/bahamas.html", color: "white" },
-    { title: "Jamaica", caption: "Rhythm of the Caribbean", image: "Images/Countries/022-jamaica.jpg", link: "Countries/jamaica.html", color: "white" },
-    { title: "Haiti", caption: "Resilience and Roots", image: "Images/Countries/023-haiti.jpg", link: "Countries/haiti.html", color: "white" },
-    { title: "Dominican Republic", caption: "Heart of Hispaniola", image: "Images/Countries/024-dominican-republic.jpg", link: "Countries/dominicanrepublic.html", color: "white" },
-    { title: "South Africa", caption: "The Cape of Good Hope", image: "Images/Countries/025-south-africa.jpg", link: "Countries/southafrica.html", color: "white" },
-    { title: "Lesotho", caption: "The Kingdom in the Sky", image: "Images/Countries/026-lesotho.jpg", link: "Countries/lesotho.html", color: "white" },
-    { title: "Eswatini", caption: "Traditions of the Valley", image: "Images/Countries/027-eswatini.jpg", link: "Countries/eswatini.html", color: "white" },
-    { title: "Mozambique", caption: "Indian Ocean Untamed", image: "Images/Countries/028-mozambique.jpg", link: "Countries/mozambique.html", color: "white" },
-    { title: "Zimbabwe", caption: "Smoke That Thunders", image: "Images/Countries/029-zimbabwe.jpg", link: "Countries/zimbabwe.html", color: "white" },
-    { title: "Zambia", caption: "Heart of the Zambezi", image: "Images/Countries/030-zambia.jpg", link: "Countries/zambia.html", color: "white" },
-    { title: "Botswana", caption: "Okavango Delta", image: "Images/Countries/031-botswana.jpg", link: "Countries/botswana.html", color: "white" },
-    { title: "Namibia", caption: "Dunes of Sossusvlei", image: "Images/Countries/032-namibia.jpg", link: "Countries/namibia.html", color: "white" },
-    { title: "Australia", caption: "Peering into the Wild", image: "Images/Countries/033-australia.jpg", link: "Countries/australia.html", color: "white" },
-    { title: "New Zealand", caption: "Land of the Long White Cloud", image: "Images/Countries/034-new-zealand.jpg", link: "Countries/newzealand.html", color: "white" },
-    { title: "Tuvalu", caption: "Sinking Paradise", image: "Images/Countries/035-tuvalu.jpg", link: "Countries/tuvalu.html", color: "white" },
-    { title: "Samoa", caption: "The Heart of Polynesia", image: "Images/Countries/036-samoa.jpg", link: "Countries/samoa.html", color: "white" },
-    { title: "Fiji", caption: "Garden of the Sea", image: "Images/Countries/037-fiji.jpg", link: "Countries/fiji.html", color: "white" },
-    { title: "Tonga", caption: "Swimming with Giants", image: "Images/Countries/038-tonga.jpg", link: "Countries/tonga.html", color: "white" },
-    { title: "Vanuatu", caption: "Volcanoes and Reefs", image: "Images/Countries/039-vanuatu.jpg", link: "Countries/vanuatu.html", color: "white" },
-    { title: "Solomon Islands", caption: "Wrecks and Rainforests", image: "Images/Countries/040-solomon-islands.jpg", link: "Countries/solomonislands.html", color: "white" },
-    { title: "Ecuador", caption: "Center of the Earth", image: "Images/Countries/041-ecuador.jpg", link: "Countries/ecuador.html", color: "white" },
-    { title: "Peru", caption: "Echoes of the Inca", image: "Images/Countries/042-peru.jpg", link: "Countries/peru.html", color: "white" },
-    { title: "Bolivia", caption: "Mirrors of the Sky", image: "Images/Countries/043-bolivia.jpg", link: "Countries/bolivia.html", color: "white" },
-    { title: "Paraguay", caption: "The Forgotten Heart", image: "Images/Countries/044-paraguay.jpg", link: "Countries/paraguay.html", color: "white" },
-    { title: "Chile", caption: "Atacama Stars", image: "Images/Countries/045-chile.jpg", link: "Countries/chile.html", color: "white" },
-    { title: "Argentina", caption: "Glaciers and Tango", image: "Images/Countries/046-argentina.jpg", link: "Countries/argentina.html", color: "white" },
-    { title: "Uruguay", caption: "Serenity on the Plate", image: "Images/Countries/047-uruguay.jpg", link: "Countries/uruguay.html", color: "white" },
-    { title: "Antarctica", caption: "The Frozen Frontier", image: "Images/Countries/048-antarctica.jpg", link: "Countries/antarctica.html", color: "white" },
-    { title: "Jordan", caption: "Rose City Sands", image: "Images/Countries/049-jordan.jpg", link: "Countries/jordan.html", color: "white" },
-    { title: "United Arab Emirates", caption: "Oasis of Glass", image: "Images/Countries/050-united-arab-emirates.jpg", link: "Countries/unitedarabemirates.html", color: "white" },
-    { title: "Qatar", caption: "Pearls and Peninsula", image: "Images/Countries/051-qatar.jpg", link: "Countries/qatar.html", color: "white" },
-    { title: "Kuwait", caption: "Towers of the Gulf", image: "Images/Countries/052-kuwait.jpg", link: "Countries/kuwait.html", color: "white" },
-    { title: "Bahrain", caption: "Tree of Life", image: "Images/Countries/053-bahrain.jpg", link: "Countries/bahrain.html", color: "white" },
-    { title: "Saudi Arabia", caption: "Kingdom of Sand", image: "Images/Countries/054-saudi-arabia.jpg", link: "Countries/saudiarabia.html", color: "white" },
-    { title: "Yemen", caption: "The Alien Flora of Socotra", image: "Images/Countries/055-yemen.jpg", link: "Countries/yemen.html", color: "white" },
-    { title: "Oman", caption: "Frankincense and Fjords", image: "Images/Countries/056-oman.jpg", link: "Countries/oman.html", color: "white" },
-    { title: "Iceland", caption: "Fire and Ice", image: "Images/Countries/057-iceland.jpg", link: "Countries/iceland.html", color: "white" },
-    { title: "Denmark", caption: "Nordic Design", image: "Images/Countries/058-denmark.jpg", link: "Countries/denmark.html", color: "white" },
-    { title: "Norway", caption: "Fjords and Northern Lights", image: "Images/Countries/059-norway.jpg", link: "Countries/norway.html", color: "white" },
-    { title: "Sweden", caption: "Archipelago Wilderness", image: "Images/Countries/060-sweden.jpg", link: "Countries/sweden.html", color: "white" },
-    { title: "Finland", caption: "Lakes and Taiga", image: "Images/Countries/061-finland.jpg", link: "Countries/finland.html", color: "white" },
-    { title: "Estonia", caption: "Baltic Charm", image: "Images/Countries/062-estonia.jpg", link: "Countries/estonia.html", color: "white" },
-    { title: "Latvia", caption: "Forests and Art Nouveau", image: "Images/Countries/063-latvia.jpg", link: "Countries/latvia.html", color: "white" },
-    { title: "Lithuania", caption: "Hill of Crosses", image: "Images/Countries/064-lithuania.jpg", link: "Countries/lithuania.html", color: "white" },
-    { title: "Morocco", caption: "Medinas and Magic", image: "Images/Countries/065-morocco.jpg", link: "Countries/morocco.html", color: "white" },
-    { title: "Tunisia", caption: "The Gem of Africa", image: "Images/Countries/067-tunisia.jpg", link: "Countries/tunisia.html", color: "white" },
-    { title: "Egypt", caption: "Pyramids and Pharaohs", image: "Images/Countries/069-egypt.jpg", link: "Countries/egypt.html", color: "white" },
-    { title: "South Sudan", caption: "The Youngest Nation", image: "Images/Countries/071-south-sudan.jpg", link: "Countries/southsudan.html", color: "white" },
-    { title: "Philippines", caption: "Islands of Emerald", image: "Images/Countries/073-philippines.jpg", link: "Countries/philippines.html", color: "white" },
-    { title: "Papua New Guinea", caption: "Tribes and Highlands", image: "Images/Countries/074-papua-new-guinea.jpg", link: "Countries/papuanewguinea.html", color: "white" },
-    { title: "Palau", caption: "The Rock Islands", image: "Images/Countries/075-palau.jpg", link: "Countries/palau.html", color: "white" },
-    { title: "Micronesia", caption: "Ancient Ruins of Nan Madol", image: "Images/Countries/076-micronesia.jpg", link: "Countries/micronesia.html", color: "white" },
-    { title: "Marshall Islands", caption: "Atolls of the Pacific", image: "Images/Countries/077-marshall-islands.jpg", link: "Countries/marshallislands.html", color: "white" },
-    { title: "Kiribati", caption: "Atolls on the Equator", image: "Images/Countries/078-kiribati.jpg", link: "Countries/kiribati.html", color: "white" },
-    { title: "Nauru", caption: "The Phosphate Island", image: "Images/Countries/079-nauru.jpg", link: "Countries/nauru.html", color: "white" },
-    { title: "India", caption: "Colors of the Subcontinent", image: "Images/Countries/081-india.jpg", link: "Countries/india.html", color: "white" },
-    { title: "Pakistan", caption: "Peaks of the Karakoram", image: "Images/Countries/082-pakistan.jpg", link: "Countries/pakistan.html", color: "white" },
-    { title: "Sri Lanka", caption: "Tears of the Indian Ocean", image: "Images/Countries/083-sri-lanka.jpg", link: "Countries/srilanka.html", color: "white" },
-    { title: "Maldives", caption: "Chill Like a Boss", image: "Images/Countries/084-maldives.jpg", link: "Countries/maldives.html", color: "white" },
-    { title: "Bangladesh", caption: "Rivers and Mangroves", image: "Images/Countries/085-bangladesh.jpg", link: "Countries/bangladesh.html", color: "white" },
-    { title: "Nepal", caption: "Roof of the World", image: "Images/Countries/086-nepal.jpg", link: "Countries/nepal.html", color: "white" },
-    { title: "Bhutan", caption: "The Thunder Dragon", image: "Images/Countries/087-bhutan.jpg", link: "Countries/bhutan.html", color: "white" },
-    { title: "Myanmar", caption: "Where sunrise lights up your soul", image: "Images/Countries/088-myanmar.jpg", link: "Countries/myanmar.html", color: "white" },
-    { title: "Russia", caption: "The Vast Expanse", image: "Images/Countries/089-russia.jpg", link: "Countries/russia.html", color: "white" },
-    { title: "Ukraine", caption: "Heart of Eastern Europe", image: "Images/Countries/090-ukraine.jpg", link: "Countries/ukraine.html", color: "white" },
-    { title: "Belarus", caption: "Forests and Fortresses", image: "Images/Countries/091-belarus.jpg", link: "Countries/belarus.html", color: "white" },
-    { title: "Poland", caption: "Pierogi and Heritage", image: "Images/Countries/092-poland.jpg", link: "Countries/poland.html", color: "white" },
-    { title: "Czech Republic", caption: "Bohemian Rhapsody", image: "Images/Countries/093-czech-republic.jpg", link: "Countries/czechrepublic.html", color: "white" },
-    { title: "Slovenia", caption: "Alpine Lakes and Caves", image: "Images/Countries/094-slovenia.jpg", link: "Countries/slovenia.html", color: "white" },
-    { title: "Slovakia", caption: "Castles of the Tatras", image: "Images/Countries/095-slovakia.jpg", link: "Countries/slovakia.html", color: "white" },
-    { title: "Hungary", caption: "Thermal Baths and Bridges", image: "Images/Countries/096-hungary.jpg", link: "Countries/hungary.html", color: "white" },
-    { title: "Brazil", caption: "The Amazon Heart", image: "Images/Countries/097-brazil.jpg", link: "Countries/brazil.html", color: "white" },
-    { title: "Colombia", caption: "Gold and Coffee", image: "Images/Countries/098-colombia.jpg", link: "Countries/colombia.html", color: "white" },
-    { title: "Venezuela", caption: "Tepuis and Waterfalls", image: "Images/Countries/099-venezuela.jpg", link: "Countries/venezuela.html", color: "white" },
-    { title: "Suriname", caption: "Jungle and Diversity", image: "Images/Countries/100-suriname.jpg", link: "Countries/suriname.html", color: "white" },
-    { title: "Guyana", caption: "Land of Many Waters", image: "Images/Countries/101-guyana.jpg", link: "Countries/guyana.html", color: "white" },
-    { title: "Grenada", caption: "The Spice Isle", image: "Images/Countries/102-grenada.jpg", link: "Countries/grenada.html", color: "white" },
-    { title: "Trinidad and Tobago", caption: "Carnival and Calypso", image: "Images/Countries/103-trinidad-and-tobago.jpg", link: "Countries/trinidadandtobago.html", color: "white" },
-    { title: "Barbados", caption: "Coral Reefs and Rum", image: "Images/Countries/104-barbados.jpg", link: "Countries/barbados.html", color: "white" },
-    { title: "Ethiopia", caption: "Cradle of Humanity", image: "Images/Countries/105-ethiopia.jpg", link: "Countries/ethiopia.html", color: "white" },
-    { title: "Kenya", caption: "The Great Migration", image: "Images/Countries/109-kenya.jpg", link: "Countries/kenya.html", color: "white" },
-    { title: "Uganda", caption: "Pearl of Africa", image: "Images/Countries/110-uganda.jpg", link: "Countries/uganda.html", color: "white" },
-    { title: "Rwanda", caption: "Land of a Thousand Hills", image: "Images/Countries/111-rwanda.jpg", link: "Countries/rwanda.html", color: "white" },
-    { title: "Burundi", caption: "Heart of Africa", image: "Images/Countries/112-burundi.jpg", link: "Countries/burundi.html", color: "white" },
-    { title: "Thailand", caption: "Temples and Tropics", image: "Images/Countries/113-thailand.jpg", link: "Countries/thailand.html", color: "white" },
-    { title: "Vietnam", caption: "The Dragon's Ascent", image: "Images/Countries/114-vietnam.jpg", link: "Countries/vietnam.html", color: "white" },
-    { title: "Laos", caption: "Land of a Million Elephants", image: "Images/Countries/115-laos.jpg", link: "Countries/laos.html", color: "white" },
-    { title: "Cambodia", caption: "Ruins of the Khmer", image: "Images/Countries/116-cambodia.jpg", link: "Countries/cambodia.html", color: "white" },
-    { title: "Malaysia", caption: "Rainforests and Skyscrapers", image: "Images/Countries/117-malaysia.jpg", link: "Countries/malaysia.html", color: "white" },
-    { title: "Singapore", caption: "The Lion City", image: "Images/Countries/118-singapore.jpg", link: "Countries/singapore.html", color: "white" },
-    { title: "Brunei", caption: "Abode of Peace", image: "Images/Countries/119-brunei.jpg", link: "Countries/brunei.html", color: "white" },
-    { title: "Indonesia", caption: "The Jungle Rook", image: "Images/Countries/120-indonesia.jpg", link: "Countries/indonesia.html", color: "white" },
-    { title: "Greece", caption: "Aegean Blues", image: "Images/Countries/121-greece.jpg", link: "Countries/greece.html", color: "white" },
-    { title: "Albania", caption: "The Castle of Kruja", image: "Images/Countries/122-albania.jpg", link: "Countries/albania.html", color: "white" },
-    { title: "Montenegro", caption: "Black Mountains", image: "Images/Countries/123-montenegro.jpg", link: "Countries/montenegro.html", color: "white" },
-    { title: "Serbia", caption: "Balkan Crossroads", image: "Images/Countries/124-serbia.jpg", link: "Countries/serbia.html", color: "white" },
-    { title: "Romania", caption: "Carpathian Legends", image: "Images/Countries/125-romania.jpg", link: "Countries/romania.html", color: "white" },
-    { title: "Bulgaria", caption: "Roses and Thracians", image: "Images/Countries/126-bulgaria.jpg", link: "Countries/bulgaria.html", color: "white" },
-    { title: "North Macedonia", caption: "Land of Lakes", image: "Images/Countries/127-north-macedonia.jpg", link: "Countries/northmacedonia.html", color: "white" },
-    { title: "Bosnia and Herzegovina", caption: "Bridges of Stone", image: "Images/Countries/128-bosnia-and-herzegovina.jpg", link: "Countries/bosniaandherzegovina.html", color: "white" },
-    { title: "Belize", caption: "Barrier Reefs", image: "Images/Countries/129-belize.jpg", link: "Countries/belize.html", color: "white" },
-    { title: "Guatemala", caption: "Maya Mysteries", image: "Images/Countries/130-guatemala.jpg", link: "Countries/guatemala.html", color: "white" },
-    { title: "El Salvador", caption: "Land of Volcanoes", image: "Images/Countries/131-el-salvador.jpg", link: "Countries/elsalvador.html", color: "white" },
-    { title: "Honduras", caption: "Deep in the Copan", image: "Images/Countries/132-honduras.jpg", link: "Countries/honduras.html", color: "white" },
-    { title: "Nicaragua", caption: "Lakes and Legends", image: "Images/Countries/133-nicaragua.jpg", link: "Countries/nicaragua.html", color: "white" },
-    { title: "Costa Rica", caption: "Pura Vida Jungles", image: "Images/Countries/134-costa-rica.jpg", link: "Countries/costarica.html", color: "white" },
-    { title: "Panama", caption: "Bridging the Americas", image: "Images/Countries/135-panama.jpg", link: "Countries/panama.html", color: "white" },
-    { title: "Democratic Republic of Congo", caption: "Heart of Darkness", image: "Images/Countries/138-democratic-republic-of-congo.jpg", link: "Countries/democraticrepublicofcongo.html", color: "white" },
-    { title: "Kazakhstan", caption: "Nomads of the Steppe", image: "Images/Countries/145-kazakhstan.jpg", link: "Countries/kazakhstan.html", color: "white" },
-    { title: "Kyrgyzstan", caption: "Celestial Mountains", image: "Images/Countries/146-kyrgyzstan.jpg", link: "Countries/kyrgyzstan.html", color: "white" },
-    { title: "Tajikistan", caption: "Roof of the World", image: "Images/Countries/147-tajikistan.jpg", link: "Countries/tajikistan.html", color: "white" },
-    { title: "Uzbekistan", caption: "Jewels of the Silk Road", image: "Images/Countries/148-uzbekistan.jpg", link: "Countries/uzbekistan.html", color: "white" },
-    { title: "Turkmenistan", caption: "Gates of Hell", image: "Images/Countries/149-turkmenistan.jpg", link: "Countries/turkmenistan.html", color: "white" },
-    { title: "Azerbaijan", caption: "Fire and Silk", image: "Images/Countries/150-azerbaijan.jpg", link: "Countries/azerbaijan.html", color: "white" },
-    { title: "Georgia", caption: "Wine and Watchtowers", image: "Images/Countries/151-georgia.jpg", link: "Countries/georgia.html", color: "white" },
-    { title: "Armenia", caption: "Stones of Antiquity", image: "Images/Countries/152-armenia.jpg", link: "Countries/armenia.html", color: "white" },
-    { title: "Italy", caption: "Ruins and Renaissance", image: "Images/Countries/153-italy.jpg", link: "Countries/italy.html", color: "white" },
-    { title: "Vatican City", caption: "Holy See", image: "Images/Countries/154-vatican-city.jpg", link: "Countries/vaticancity.html", color: "white" },
-    { title: "San Marino", caption: "The Serene Republic", image: "Images/Countries/155-san-marino.jpg", link: "Countries/sanmarino.html", color: "white" },
-    { title: "Malta", caption: "Knights of the Mediterranean", image: "Images/Countries/156-malta.jpg", link: "Countries/malta.html", color: "white" },
-    { title: "Cyprus", caption: "Island of Aphrodite", image: "Images/Countries/157-cyprus.jpg", link: "Countries/cyprus.html", color: "white" },
-    { title: "Austria", caption: "Alpine Elegance", image: "Images/Countries/158-austria.jpg", link: "Countries/austria.html", color: "white" },
-    { title: "Switzerland", caption: "Peaks of Perfection", image: "Images/Countries/159-switzerland.jpg", link: "Countries/switzerland.html", color: "white" },
-    { title: "Croatia", caption: "Pearls of the Adriatic", image: "Images/Countries/160-croatia.jpg", link: "Countries/croatia.html", color: "white" },
-    { title: "Saint Vincent and Grenadines", caption: "Islands of the Clouds", image: "Images/Countries/161-saint-vincent-and-grenadines.jpg", link: "Countries/saintvincentandgrenadines.html", color: "white" },
-    { title: "Saint Lucia", caption: "The Twin Pitons", image: "Images/Countries/162-saint-lucia.jpg", link: "Countries/saintlucia.html", color: "white" },
-    { title: "Antigua and Barbuda", caption: "Land of 365 Beaches", image: "Images/Countries/163-antigua-and-barbuda.jpg", link: "Countries/antiguaandbarbuda.html", color: "white" },
-    { title: "Dominica", caption: "The Nature Island", image: "Images/Countries/164-dominica.jpg", link: "Countries/dominica.html", color: "white" },
-    { title: "Saint Kitts and Nevis", caption: "Sugar and Volcanoes", image: "Images/Countries/165-saint-kitts-and-nevis.jpg", link: "Countries/saintkittsandnevis.html", color: "white" },
-    { title: "Turkey", caption: "Crossroads of Continents", image: "Images/Countries/177-turkey.jpg", link: "Countries/turkey.html", color: "white" },
-    { title: "Andorra", caption: "Pyrenees Hideaway", image: "Images/Countries/178-andorra.jpg", link: "Countries/andorra.html", color: "white" },
-    { title: "Moldova", caption: "Cellars and Monasteries", image: "Images/Countries/179-moldova.jpg", link: "Countries/moldova.html", color: "white" },
-    { title: "Monaco", caption: "Harbor of the Riviera", image: "Images/Countries/180-monaco.jpg", link: "Countries/monaco.html", color: "white" },
-    { title: "Liechtenstein", caption: "Principality of the Alps", image: "Images/Countries/181-liechtenstein.jpg", link: "Countries/liechtenstein.html", color: "white" },
-    { title: "Luxembourg", caption: "The Grand Duchy", image: "Images/Countries/182-luxembourg.jpg", link: "Countries/luxembourg.html", color: "white" },
-    { title: "Kosovo", caption: "Heart of the Balkans", image: "Images/Countries/183-kosovo.jpg", link: "Countries/kosovo.html", color: "white" },
-    { title: "Timor-Leste", caption: "Sunrise of Asia", image: "Images/Countries/184-timor-leste.jpg", link: "Countries/timorleste.html", color: "white" },
-    { title: "Seychelles", caption: "Granite and Turquoise", image: "Images/Countries/193-seychelles.jpg", link: "Countries/seychelles.html", color: "white" },
-    { title: "Tanzania", caption: "Serengeti Stars", image: "Images/Countries/194-tanzania.jpg", link: "Countries/tanzania.html", color: "white" },
-    { title: "Malawi", caption: "The Warm Heart of Africa", image: "Images/Countries/195-malawi.jpg", link: "Countries/malawi.html", color: "white" },
-    { title: "Comoros", caption: "Perfume Isles", image: "Images/Countries/196-comoros.jpg", link: "Countries/comoros.html", color: "white" },
-    { title: "Madagascar", caption: "Baobabs and Lemurs", image: "Images/Countries/197-madagascar.jpg", link: "Countries/madagascar.html", color: "white" },
-    { title: "Mauritius", caption: "Island of Sugar", image: "Images/Countries/198-mauritius.jpg", link: "Countries/mauritius.html", color: "white" },
-    { title: "Afghanistan", caption: "Crossroads of Empires", image: "Images/Countries/201-afghanistan.jpg", link: "Countries/afghanistan.html", color: "white" },
-    { title: "Iran", caption: "Persian Splendor", image: "Images/Countries/202-iran.jpg", link: "Countries/iran.html", color: "white" },
-    { title: "Iraq", caption: "Cradle of Civilization", image: "Images/Countries/203-iraq.jpg", link: "Countries/iraq.html", color: "white" },
-    { title: "Syria", caption: "Ancient Citadels", image: "Images/Countries/204-syria.jpg", link: "Countries/syria.html", color: "white" },
-    { title: "Lebanon", caption: "Pearl of the Middle East", image: "Images/Countries/205-lebanon.jpg", link: "Countries/lebanon.html", color: "white" },
-    { title: "Israel", caption: "Sacred Stones", image: "Images/Countries/206-israel.jpg", link: "Countries/israel.html", color: "white" },
-    { title: "Palestine", caption: "Olive Groves and History", image: "Images/Countries/207-palestine.jpg", link: "Countries/palestine.html", color: "white" },
-];
-
     function buildLayout() {
-        const shuffled = [...destinations].sort(() => 0.5 - Math.random());
+        // High-performance Fisher-Yates shuffle algorithm
+        const shuffled = [...destinations];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        // Use DocumentFragments to batch DOM updates (massively reduces lag)
         const fullSection = document.getElementById('full-section');
         const splitSection = document.getElementById('split-section');
+        const fullFrag = document.createDocumentFragment();
+        const splitFrag = document.createDocumentFragment();
 
         // Build 3 Full Covers
         shuffled.slice(0, 3).forEach(item => {
@@ -403,8 +462,9 @@
                     <p style="color: ${item.color}">Read more ></p>
                 </div>
             `;
-            fullSection.appendChild(block);
+            fullFrag.appendChild(block);
         });
+        fullSection.appendChild(fullFrag); // Inject all 3 at once
 
         // Build 6 Split Covers
         shuffled.slice(3, 9).forEach(item => {
@@ -419,60 +479,25 @@
                     <p style="color: ${item.color}; font-size: 12px;">Read more ></p>
                 </div>
             `;
-            splitSection.appendChild(block);
+            splitFrag.appendChild(block);
         });
+        splitSection.appendChild(splitFrag); // Inject all 6 at once
         
-        // Generate the Archive Buttons dynamically 
-    const visitedPlaces = [
-    "🇭🇰 Hong Kong", "🇹🇼 Taiwan", "🇯🇵 Japan", "🇰🇷 South Korea", "🇲🇳 Mongolia", 
-    "🇨🇳 China", "🇲🇴 Macau", "🇬🇧 United Kingdom", "🇫🇷 France", "🇪🇸 Spain", 
-    "🇵🇹 Portugal", "🇳🇱 Netherlands", "🇧🇪 Belgium", "🇩🇪 Germany", "🇮🇪 Ireland", 
-    "🇨🇦 Canada", "🇺🇸 United States", "🇲🇽 Mexico", "🇨🇺 Cuba", "🇧🇸 Bahamas", 
-    "🇯🇲 Jamaica", "🇭🇹 Haiti", "🇩🇴 Dominican Republic", "🇿🇦 South Africa", "🇱🇸 Lesotho", 
-    "🇸🇿 Eswatini", "🇲🇿 Mozambique", "🇿🇼 Zimbabwe", "🇿🇲 Zambia", "🇧🇼 Botswana", 
-    "🇳🇦 Namibia", "🇦🇺 Australia", "🇳🇿 New Zealand", "🇹🇻 Tuvalu", "🇼🇸 Samoa", 
-    "🇫🇯 Fiji", "🇹🇴 Tonga", "🇻🇺 Vanuatu", "🇸🇧 Solomon Islands", "🇪🇨 Ecuador", 
-    "🇵🇪 Peru", "🇧🇴 Bolivia", "🇵🇾 Paraguay", "🇨🇱 Chile", "🇦🇷 Argentina", 
-    "🇺🇾 Uruguay", "🇦🇶 Antarctica", "🇯🇴 Jordan", "🇦🇪 United Arab Emirates", "🇶🇦 Qatar", 
-    "🇰🇼 Kuwait", "🇧🇭 Bahrain", "🇸🇦 Saudi Arabia", "🇾🇪 Yemen", "🇴🇲 Oman", 
-    "🇮🇸 Iceland", "🇩🇰 Denmark", "🇳🇴 Norway", "🇸🇪 Sweden", "🇫🇮 Finland", 
-    "🇪🇪 Estonia", "🇱🇻 Latvia", "🇱🇹 Lithuania", "🇲🇦 Morocco", "🇹🇳 Tunisia", 
-    "🇪🇬 Egypt", "🇸🇸 South Sudan", "🇵🇭 Philippines", "🇵🇬 Papua New Guinea", "🇵🇼 Palau", 
-    "🇫🇲 Micronesia", "🇲🇭 Marshall Islands", "🇰🇮 Kiribati", "🇳🇷 Nauru", "🇮🇳 India", 
-    "🇵🇰 Pakistan", "🇱🇰 Sri Lanka", "🇲🇻 Maldives", "🇧🇩 Bangladesh", "🇳🇵 Nepal", 
-    "🇧🇹 Bhutan", "🇲🇲 Myanmar", "🇷🇺 Russia", "🇺🇦 Ukraine", "🇧🇾 Belarus", 
-    "🇵🇱 Poland", "🇨🇿 Czech Republic", "🇸🇮 Slovenia", "🇸🇰 Slovakia", "🇭🇺 Hungary", 
-    "🇧🇷 Brazil", "🇨🇴 Colombia", "🇻🇪 Venezuela", "🇸🇷 Suriname", "🇬🇾 Guyana", 
-    "🇬🇩 Grenada", "🇹🇹 Trinidad and Tobago", "🇧🇧 Barbados", "🇪🇹 Ethiopia", "🇰🇪 Kenya", 
-    "🇺🇬 Uganda", "🇷🇼 Rwanda", "🇧🇮 Burundi", "🇹🇭 Thailand", "🇻🇳 Vietnam", 
-    "🇱🇦 Laos", "🇰🇭 Cambodia", "🇲🇾 Malaysia", "🇸🇬 Singapore", "🇧🇳 Brunei", 
-    "🇮🇩 Indonesia", "🇬🇷 Greece", "🇦🇱 Albania", "🇲🇪 Montenegro", "🇷🇸 Serbia", 
-    "🇷🇴 Romania", "🇧🇬 Bulgaria", "🇲🇰 North Macedonia", "🇧🇦 Bosnia and Herzegovina", "🇧🇿 Belize", 
-    "🇬🇹 Guatemala", "🇸🇻 El Salvador", "🇭🇳 Honduras", "🇳🇮 Nicaragua", "🇨🇷 Costa Rica", 
-    "🇵🇦 Panama", "🇨🇩 Democratic Republic of Congo", "🇰🇿 Kazakhstan", "🇰🇬 Kyrgyzstan", "🇹🇯 Tajikistan", 
-    "🇺🇿 Uzbekistan", "🇹🇲 Turkmenistan", "🇦🇿 Azerbaijan", "🇬🇪 Georgia", "🇦🇲 Armenia", 
-    "🇮🇹 Italy", "🇻🇦 Vatican City", "🇸🇲 San Marino", "🇲🇹 Malta", "🇨🇾 Cyprus", 
-    "🇦🇹 Austria", "🇨🇭 Switzerland", "🇭🇷 Croatia", "🇻🇨 Saint Vincent and Grenadines", "🇱🇨 Saint Lucia", 
-    "🇦🇬 Antigua and Barbuda", "🇩🇲 Dominica", "🇰🇳 Saint Kitts and Nevis", "🇹🇷 Turkey", "🇦🇩 Andorra", 
-    "🇲🇩 Moldova", "🇲🇨 Monaco", "🇱🇮 Liechtenstein", "🇱🇺 Luxembourg", "🇽🇰 Kosovo", 
-    "🇹🇱 Timor-Leste", "🇸🇨 Seychelles", "🇹🇿 Tanzania", "🇲🇼 Malawi", "🇰🇲 Comoros", 
-    "🇲🇬 Madagascar", "🇲🇺 Mauritius", "🇦🇫 Afghanistan", "🇮🇷 Iran", "🇮🇶 Iraq", 
-    "🇸🇾 Syria", "🇱🇧 Lebanon", "🇮🇱 Israel", "🇵🇸 Palestine"
-];
-        
+        // Generate the Archive Buttons dynamically
         document.getElementById('destinationCount').innerText = `${visitedPlaces.length} Destinations Documented`;
-        
+
         const placesGrid = document.getElementById('placesGrid');
+        const placesFrag = document.createDocumentFragment(); // Batch 150 tags
         
         visitedPlaces.forEach(place => {
             const fileBase = place.toLowerCase().replace(/[^a-z0-9]/g, '');
             const link = document.createElement('a');
-            // UPDATED: Now dynamically points into the "Countries" folder
             link.href = "Countries/" + fileBase + ".html";
             link.className = 'place-tag';
             link.innerText = place;
-            placesGrid.appendChild(link);
+            placesFrag.appendChild(link);
         });
+        placesGrid.appendChild(placesFrag); // Inject all 150 at once
     }
 
     window.onload = buildLayout;

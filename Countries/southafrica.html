@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/South%20Africa.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/025-south-africa.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,28 +87,92 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>South Africa</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring South Africa</h2>
-        <p>Visual notes and cultural documentation from the journey through South Africa.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero"><div class="txt-box"><h1>South Africa</h1><p>Travel Guide & Archive</p></div><span class="hero-copyright">&copy; Kenneth Kwok</span></header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Rainbow Nation: A Journey Through South Africa</h2>
+                <p>South Africa stands as a testament to the sheer scale of beauty and history found at the southern tip of the African continent. It is a land defined by its profound natural diversity, blending rugged mountain ranges, vast coastal vistas, and expansive plateaus with a vibrant urban culture that is constantly evolving. From the dramatic cliffs that hug the ocean to the bustling streets of world-class metropolises, the "Rainbow Nation" offers an experience that is at once deeply reflective and incredibly energetic. Here, history is not merely observed in museums but felt in the atmosphere of neighborhoods and the stories shared by its people, representing a legacy of resilience, complex transformation, and an enduring hope for the future.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="cape-town">
+                <h3 class="region-heading"><strong>Cape Town</strong>: The Coastal Jewel</h3>
+                <p>Perched dramatically beneath the iconic silhouette of Table Mountain, <strong>Cape Town</strong> is a city that captures the imagination instantly. Known as the "Mother City," it is a place where the mountain meets the sea in a breathtaking spectacle of natural beauty. Visitors often spend days exploring the Kirstenbosch Botanical Gardens, riding the aerial cableway to the summit for unparalleled views of the Atlantic coastline, or wandering through the historic streets of the Bo-Kaap district with its vibrant, rainbow-colored houses. The city also serves as a poignant reminder of history, with ferry trips to Robben Island offering a somber and necessary look at the nation's journey through the era of apartheid. <strong>Cape Town</strong>’s culinary scene, ranging from high-end waterfront dining to local flavors at the Old Biscuit Mill, complements its outdoor beauty, making it a multifaceted gem of the southern hemisphere.</p>
+            </section>
+
+            <section id="johannesburg">
+                <h3 class="region-heading"><strong>Johannesburg</strong>: The Economic Heart</h3>
+                <p><strong>Johannesburg</strong>, or "Joburg" as it is affectionately known, is the pulsating engine of South Africa. As the nation’s largest metropolis, it is a city of immense contrasts and relentless energy. It is a place where skyscrapers tower over historic neighborhoods and where the spirit of innovation is palpable. For anyone seeking to understand the soul of modern South Africa, <strong>Johannesburg</strong> is essential. The Apartheid Museum offers an unflinching look at the country's past, providing deep context that transforms a visit to neighborhoods like Soweto into a more meaningful and educational experience. Beyond its history, <strong>Johannesburg</strong> boasts a thriving arts scene in districts like Maboneng, where street art, galleries, and unique cafes breathe new life into the urban landscape. It is a city of grit and grandeur, where the narrative of progress is written every day by the diverse communities that call it home.</p>
+            </section>
+            
+            <section id="pretoria">
+                <h3 class="region-heading"><strong>Pretoria</strong>: The Administrative Capital</h3>
+                <p>Serving as one of South Africa’s three capital cities, <strong>Pretoria</strong> provides a more stately and tranquil experience compared to its larger neighbors. Known colloquially as "Jacaranda City" due to the thousands of purple-flowered trees that transform its avenues into a sea of violet during the spring months, <strong>Pretoria</strong> is steeped in history and administrative significance. It is home to the majestic Union Buildings, which serve as the official seat of the South African government and offer commanding views over the city. Visitors can explore a wealth of historical sites, including the Voortrekker Monument and various national museums, which provide a window into the complex political and social evolution of the nation. <strong>Pretoria</strong> is a place that rewards the patient traveler with its quiet dignity, beautiful public spaces, and a deep sense of historical continuity.</p>
+            </section>
+            
+            <section id="durban">
+                <h3 class="region-heading"><strong>Durban</strong>: The Coastal Fusion</h3>
+                <p>Located on the eastern coast, <strong>Durban</strong> is a vibrant, humid, and energetic city that serves as the gateway to the warm waters of the Indian Ocean. Its identity is uniquely defined by a harmonious, albeit complex, fusion of Zulu, Indian, and colonial cultural influences, which is most clearly reflected in its incredible culinary scene—don't miss the chance to try a famous "Bunny Chow." The city's Golden Mile, a stretch of pristine beach lined with high-rise hotels and entertainment venues, is the epicenter of leisure. Whether you are swimming in the year-round warm waters, exploring the massive uShaka Marine World, or visiting the bustling Victoria Street Market to experience the scent of spices and local crafts, <strong>Durban</strong> offers an infectious sense of hospitality and a relaxed coastal lifestyle that is distinctly different from the other major cities in the country.</p>
+            </section>
+            
+            <section id="kimberley">
+                <h3 class="region-heading"><strong>Kimberley</strong>: The Diamond Legacy</h3>
+                <p><strong>Kimberley</strong> holds a unique, pivotal place in the industrial history of South Africa as the site of the original diamond rush. The city is defined by "The Big Hole," a colossal open-pit mine that serves as a visceral monument to the frenzy and wealth that characterized the late 19th century. Walking around the edge of this massive excavation, you can feel the magnitude of the human effort and environmental alteration that occurred here. The surrounding museum complex, featuring recreations of old mining streets and historic buildings, provides a fascinating, immersive look at how diamond mining catalyzed the development of the region and irrevocably changed the course of South African history. It is a destination that offers a singular, deep dive into an era of massive economic boom and the societal transformations that followed in <strong>Kimberley</strong>.</p>
+            </section>
+            
+            <section id="bloemfontein">
+                <h3 class="region-heading"><strong>Bloemfontein</strong>: The City of Roses</h3>
+                <p>As the judicial capital of South Africa, <strong>Bloemfontein</strong> offers a softer, more reflective pace of life. Often referred to as the "City of Roses" due to the abundance of these flowers in its parks and private gardens, it is a city characterized by its sprawling green spaces and a sense of architectural nostalgia. The National Botanical Garden is a highlight, offering a tranquil environment to enjoy the indigenous flora of the Free State province. <strong>Bloemfontein</strong> also carries deep historical weight as a center of political and judicial administration, reflected in the dignified architecture of its city center and various heritage sites. For those looking to escape the rapid pace of the larger coastal and industrial hubs, <strong>Bloemfontein</strong> offers a serene atmosphere, a welcoming local culture, and a chance to experience a different side of the nation’s multifaceted character.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive chronicles a comprehensive journey through the multifaceted landscapes, urban energy, and deep, resonant histories of South Africa, reflecting the enduring spirit of the Rainbow Nation.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 208 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>South Africa Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
         <a href="https://payme.hsbc/yourmoneymymoney"><img src="../Images/qr.jpg" height="120" alt="PayMe"></a>
-        <img src="../Images/paypal.png" height="120" style="margin-left:10px;">
+        <img src="../paypal.png" height="120" style="margin-left:10px;">
         <div class="legal-links">
             <a href="../about.html">About</a>
             <a href="../privacy.html">Privacy Policy</a>
@@ -81,20 +185,30 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'South Africa';
+            // Photo archive uses the specific country number prefix
+            const prefix = '025-south-africa-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    // Break immediately on the FIRST missing image to prevent 404 console errors
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +216,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

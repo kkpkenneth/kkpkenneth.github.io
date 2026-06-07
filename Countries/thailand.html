@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Thailand.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/133-thailand.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,28 +87,82 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Thailand</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Thailand</h2>
-        <p>Visual notes and cultural documentation from the journey through Thailand.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero"><div class="txt-box"><h1>Thailand</h1><p>Travel Guide & Archive</p></div><span class="hero-copyright">&copy; Kenneth Kwok</span></header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Land of Smiles: A Journey Through Tropical Wonders</h2>
+                <p>Thailand offers a profound journey through Southeast Asia, balancing the frenetic, neon-soaked energy of its massive metropolises with the serene, mountain-shrouded traditions of its northern highlands and the tranquil, river-bound charm of the border provinces.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="bangkok">
+                <h3 class="region-heading"><strong>Bangkok</strong>: The Neon-Soaked Metropolis</h3>
+                <p>The journey into the heart of the country inevitably begins in the massive, high-energy capital of <strong>Bangkok</strong>. <strong>Bangkok</strong> is a city defined by its radical contrasts, where ancient, gold-leafed temples sit in the shadows of towering glass skyscrapers and high-speed transit systems. Wandering the streets of <strong>Bangkok</strong> is a sensory overload of spicy street food, vibrant markets, and an endless hum of activity that persists long after dark. From the historic majesty of the Grand Palace to the relentless, neon-soaked nightlife, <strong>Bangkok</strong> offers a dynamic, ever-changing portrait of modern Southeast Asian life. Every visit to <strong>Bangkok</strong> reveals a new layer of this sprawling, fascinating, and deeply energetic urban landscape.</p>
+            </section>
+
+            <section id="chiang-mai">
+                <h3 class="region-heading"><strong>Chiang Mai</strong>: Mountain Traditions</h3>
+                <p>Heading north into the cool, mountain-shrouded highlands brings travelers to the serene and culturally profound city of <strong>Chiang Mai</strong>. <strong>Chiang Mai</strong> is widely regarded as the cultural soul of the nation, characterized by its deep-rooted Buddhist traditions, hundreds of historic temples, and a slower, much more deliberate pace of life compared to the south. Exploring the winding alleys and quiet courtyards of <strong>Chiang Mai</strong> allows visitors to connect with the enduring heritage of the Lanna Kingdom. The city is a gateway to lush rainforests and rugged northern trails, making <strong>Chiang Mai</strong> an ideal base for those seeking a more contemplative, nature-focused experience. The warmth and hospitality found in <strong>Chiang Mai</strong> leave a lasting impression on every traveler who wanders through its gates.</p>
+            </section>
+
+            <section id="pattaya">
+                <h3 class="region-heading"><strong>Pattaya</strong>: The Coastal Escape</h3>
+                <p>Located on the eastern coast, <strong>Pattaya</strong> offers a completely different, sun-drenched experience defined by its bustling beach culture and vibrant marine leisure. While <strong>Pattaya</strong> is famous for its lively waterfront nightlife and extensive array of seaside entertainment, the city also provides easy access to pristine offshore islands and hidden aquatic coves. Spending time in <strong>Pattaya</strong> is all about embracing the coastal energy, from enjoying fresh seafood along the shore to participating in a variety of water sports that utilize the city's unique maritime position. As a major destination for sun-seekers, <strong>Pattaya</strong> presents an infectious, ever-active coastal lifestyle that perfectly complements the diverse urban and mountain experiences found elsewhere across Thailand.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="nong-khai">
+                <h3 class="region-heading"><strong>Nong Khai</strong>: The Mekong Gateway</h3>
+                <p>Situated on the banks of the mighty Mekong River, <strong>Nong Khai</strong> serves as a tranquil, river-bound gateway to the northern border provinces. <strong>Nong Khai</strong> offers a far more laid-back experience, defined by its stunning riverfront sunsets and a unique cross-border atmosphere that links the local community to its neighbors across the water. The town is famous for the Sala Keoku park, a sprawling, surreal sculpture garden that showcases impressive, larger-than-life religious figures and architectural art. A stroll along the riverbanks in <strong>Nong Khai</strong> provides a quiet, introspective contrast to the dense energy of the capital. For those looking to explore the hidden, peaceful side of the nation, <strong>Nong Khai</strong> is a truly essential and memorable destination.</p>
+            </section>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive chronicles a spectacular journey through Thailand, tracing a path from the vibrant, neon-filled streets of Bangkok and the coastal energy of Pattaya to the mountain-bound heritage of Chiang Mai and the serene river-front life in Nong Khai.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 208 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Thailand Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
         <a href="https://payme.hsbc/yourmoneymymoney"><img src="../Images/qr.jpg" height="120" alt="PayMe"></a>
-        <img src="../Images/paypal.png" height="120" style="margin-left:10px;">
+        <a href="https://www.paypal.com/paypalme/kkpkenneth" target="_blank"><img src="https://kkpkenneth.github.io/Images/paypal.png" height="120" style="margin-left:10px;" alt="PayPal"></a>
         <div class="legal-links">
             <a href="../about.html">About</a>
             <a href="../privacy.html">Privacy Policy</a>
@@ -81,20 +175,29 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Thailand';
+            // Photo archive uses the specific country number prefix
+            const prefix = '133-thailand-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +205,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/United%20States.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/018-united-states.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,28 +87,87 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>United States</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring United States</h2>
-        <p>Visual notes and cultural documentation from the journey through United States.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero"><div class="txt-box"><h1>United States</h1><p>Travel Guide & Archive</p></div><span class="hero-copyright">&copy; Kenneth Kwok</span></header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">Coast-to-Coast Chronicles</h2>
+                <p>The **United States** is a sprawling, multifaceted landscape that offers an endless array of travel experiences. From the misty, evergreen coasts of the Pacific Northwest to the historic, vibrant metropolises of the Atlantic seaboard, the sheer diversity of this country is staggering. This archive documents an extensive journey through various American landscapes, reflecting a vast spectrum of urban energy, serene natural retreats, rugged mountain vistas, and unique island cultures.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="west-coast">
+                <h3 class="region-heading">The Pacific Frontier</h3>
+                <p>The journey across the American West begins in <strong>Seattle</strong>, Washington, a city defined by its moody, atmospheric skyline, lush evergreen forests, and pioneering tech culture. Moving south, <strong>Portland</strong>, Oregon, offers a unique, quirky urban charm characterized by its famous craft coffee scene, independent bookstores, and commitment to sustainable living. The route then pushes into California, where the sprawling, sun-soaked energy of <strong>San Francisco</strong> provides a blend of historic Victorian architecture and cutting-edge innovation. Further south, the immense, culturally diverse landscape of <strong>Los Angeles</strong> offers endless exploration, followed by the suburban sophistication of <strong>Irvine</strong>. The coastal journey is perfectly anchored by the stunning, maritime beauty of <strong>Monterey</strong>, where the rugged cliffs meet the Pacific Ocean.</p>
+            </section>
+
+            <section id="desert-mountain">
+                <h3 class="region-heading">Deserts and Mountains</h3>
+                <p>Inland, the landscapes shift dramatically. The neon-lit, high-octane streets of <strong>Las Vegas</strong>, Nevada, offer a stark contrast to the quiet, arid beauty of the surrounding Mojave Desert. Continuing into Arizona, the route takes in the vibrant, heat-infused culture of <strong>Phoenix</strong> and the rustic, expansive outdoors of <strong>Camp Verde</strong>. The desert journey also includes the historic, artistic enclave of <strong>Las Vegas</strong>, New Mexico, which feels worlds apart from its Nevada namesake. The rugged beauty continues into the northern mountains, with the pristine alpine lake vistas of <strong>Cour d'alene</strong>, Idaho, and the serene, untamed wilderness surrounding <strong>Saltese</strong>, Montana, offering a refreshing departure from urban life.</p>
+            </section>
+
+            <section id="south-central">
+                <h3 class="region-heading">The American Heartland & South</h3>
+                <p>As the journey moves toward the American Heartland and the South, the scale and cultural flavor transform once more. The sprawling metropolises of <strong>Houston</strong> and <strong>Fort Worth</strong>, Texas, showcase a mix of industrial power, Texan pride, and expansive cultural institutions. Following this, the journey shifts toward the tropical, high-energy vibrancy of <strong>Miami</strong>, Florida, a city that pulsates with a distinct Caribbean and Latin-American fusion that defines its beaches and nightlife.</p>
+            </section>
+
+            <section id="northeast-midwest">
+                <h3 class="region-heading">Northeast & Midwest Corridor</h3>
+                <p>The journey through the Northeast is a deep dive into the foundational history of the country. This leg includes the cultural and urban landmarks of <strong>New York</strong> City, as well as the historic and scenic regions of <strong>Verona</strong>, <strong>Bowmansville</strong>, <strong>Buffalo</strong>, <strong>Niagara Falls</strong>, <strong>Williamson</strong>, and <strong>Sylvan Beach</strong>. New England’s rugged charm is captured in the coastal beauty of <strong>Portsmouth</strong>, New Hampshire, and the maritime spirit of Maine’s <strong>Cranberry Island</strong>, <strong>Bangor</strong>, <strong>Kittery</strong>, <strong>Bar Harbor</strong>, and <strong>Augusta</strong>. Further south, the intellectual and historic centers of <strong>Boston</strong>, <strong>Barnstable</strong>, and <strong>Everett</strong>, Massachusetts, provide a rich narrative of American heritage. The Midwest and Mid-Atlantic are represented by the industrial and cultural hubs of <strong>Chicago</strong>, Illinois; <strong>Cincinatti</strong>, Ohio; <strong>Covington</strong>, Kentucky; and the unique community of <strong>Hidden Valley</strong>, Indiana. The regional tour concludes through the historic corridors of <strong>Atlantic City</strong>, New Jersey; the foundational urban landscapes of <strong>Bensalem</strong>, <strong>Philadelphia</strong>, and <strong>Allentown</strong>, Pennsylvania; the historic harbor of <strong>Baltimore</strong>, Maryland; and the breathtaking, high-altitude mountain vistas of <strong>Denver</strong>, Colorado.</p>
+            </section>
+            
+            <section id="islands-north">
+                <h3 class="region-heading">Far North & Pacific Islands</h3>
+                <p>The grand American expedition reaches its conclusion at the geographic extremes of the country. In the far north, the rugged, coastal wilderness of Alaska is showcased through the majestic fjords and historic gold-rush lore of <strong>Ketchikan</strong>, <strong>Juneau</strong>, and <strong>Skagway</strong>. Finally, the journey transitions to the tropical serenity of the Pacific, where the lush, volcanic landscapes and crystalline waters of <strong>Honolulu</strong> and <strong>Kaneohe</strong>, Hawaii, offer a tranquil, island-paradise finale to this coast-to-coast chronicle.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive represents an extensive traversal of the United States, documenting a vast array of urban, natural, and cultural landscapes from coast to coast.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 208 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>United States Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
         <a href="https://payme.hsbc/yourmoneymymoney"><img src="../Images/qr.jpg" height="120" alt="PayMe"></a>
-        <img src="../Images/paypal.png" height="120" style="margin-left:10px;">
+        <a href="https://www.paypal.com/paypalme/kkpkenneth" target="_blank"><img src="https://kkpkenneth.github.io/Images/paypal.png" height="120" style="margin-left:10px;" alt="PayPal"></a>
         <div class="legal-links">
             <a href="../about.html">About</a>
             <a href="../privacy.html">Privacy Policy</a>
@@ -81,20 +180,29 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'United States';
+            // Photo archive uses the specific country number prefix
+            const prefix = '018-united-states-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +210,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

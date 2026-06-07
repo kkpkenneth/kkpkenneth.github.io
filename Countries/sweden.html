@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Sweden.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/060-sweden.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,28 +87,92 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Sweden</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Sweden</h2>
-        <p>Visual notes and cultural documentation from the journey through Sweden.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero">
+        <div class="txt-box">
+            <h1>Sweden</h1>
+            <p>Travel Guide & Archive</p>
+        </div>
+        <span class="hero-copyright">&copy; Kenneth Kwok</span>
+    </header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Nordic Embrace: Archipelagos, Forests, and Arctic Wonders</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">From the cosmopolitan islands of Stockholm County to the untamed wilderness of Norrbotten, this journey through Sweden explores a pristine land of midnight suns and deep cultural roots.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="stockholm-county">
+                <h3 class="region-heading">The Heart of the Archipelago: <strong>Stockholm County</strong></h3>
+                <p>Begin your Swedish exploration in <strong>Stockholm County</strong>, a vibrant region where urban sophistication meets stunning natural archipelagos. The capital city of <strong>Stockholm</strong> is famously spread across fourteen islands, offering a breathtaking mix of medieval alleyways in Gamla Stan and cutting-edge Nordic design. Just a short journey away, <strong>Jakobsberg</strong> provides a quieter, suburban perspective with deep historical roots and peaceful local parks. For those seeking the true maritime spirit of the region, the expansive municipality of <strong>Värmdö</strong> offers endless rocky shores and pine-covered islands. Navigating between <strong>Stockholm</strong>, <strong>Jakobsberg</strong>, and <strong>Värmdö</strong> reveals the seamless harmony between Swedish city life and the surrounding Baltic waters.</p>
+            </section>
+
+            <section id="sodermanland">
+                <h3 class="region-heading">Coastal History in <strong>Södermanland</strong></h3>
+                <p>Traveling south from the capital brings you into the picturesque landscapes of <strong>Södermanland</strong>, a region deeply characterized by its rolling hills, dense forests, and countless lakes. At the historic heart of <strong>Södermanland</strong> lies <strong>Nyköping</strong>, one of the oldest cities in the nation. Wandering through <strong>Nyköping</strong>, visitors are immediately drawn to the dramatic ruins of Nyköpinghus, a formidable medieval castle with a dark and fascinating royal history. The quiet, winding river that cuts through <strong>Nyköping</strong> is lined with charming cafes and traditional wooden houses, creating an incredibly peaceful atmosphere. Exploring <strong>Södermanland</strong> offers a wonderful, relaxed dive into Sweden's pastoral beauty and rich architectural heritage.</p>
+            </section>
+
+            <section id="vasternorrland-jamtland">
+                <h3 class="region-heading">Central Highlands: <strong>Västernorrland</strong> and <strong>Jämtland</strong></h3>
+                <p>Heading north into the central regions, the coastal district of <strong>Västernorrland</strong> greets travelers with dramatic sea cliffs and deep valleys. The vibrant city of <strong>Sundsvall</strong>, located in <strong>Västernorrland</strong>, boasts stunning late-19th-century stone architecture, completely rebuilt after a devastating historical fire. Moving inland into the mountainous province of <strong>Jämtland</strong>, the lakeside city of <strong>Östersund</strong> serves as a vital cultural hub surrounded by pristine wilderness. Further west in <strong>Jämtland</strong> lies the premier alpine destination of <strong>Åre</strong>, famous for its world-class skiing and sweeping, dramatic mountain vistas. The stark contrast between the coastal elegance of <strong>Sundsvall</strong> and the rugged alpine adventures in <strong>Östersund</strong> and <strong>Åre</strong> perfectly captures the diverse spirit of northern Sweden.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="vasterbotten-norrbotten">
+                <h3 class="region-heading">Arctic Gateways: <strong>Västerbotten</strong> and <strong>Norrbotten</strong></h3>
+                <p>Pushing further into the sub-Arctic, the province of <strong>Västerbotten</strong> features vast stretches of untamed wilderness and cutting-edge academic hubs. The cultural capital of <strong>Västerbotten</strong> is undoubtedly <strong>Umeå</strong>, a youthful and rapidly growing city known for its progressive arts scene and beautiful birch-lined avenues. Continuing the journey to the absolute northern extremes brings you to <strong>Norrbotten</strong>, a massive region defined by the mesmerizing midnight sun and frigid, snowy winters. Situated in <strong>Norrbotten</strong> right on the Finnish border is the fascinating town of <strong>Haparanda</strong>, where cultures blend seamlessly across the Torne River. Exploring <strong>Umeå</strong> and <strong>Haparanda</strong> provides an unforgettable glimpse into the resilient, innovative communities thriving in the harsh but beautiful environments of <strong>Västerbotten</strong> and <strong>Norrbotten</strong>.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive chronicles an expansive journey through the diverse regions of Sweden, moving from the sophisticated maritime culture of Stockholm County to the deep, historic forests of Södermanland and the breathtaking Arctic frontiers of Norrbotten. It captures the essence of a nation that profoundly respects its natural environment while continually pushing the boundaries of modern design.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 208 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Sweden Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
         <a href="https://payme.hsbc/yourmoneymymoney"><img src="../Images/qr.jpg" height="120" alt="PayMe"></a>
-        <img src="../Images/paypal.png" height="120" style="margin-left:10px;">
+        <img src="../paypal.png" height="120" style="margin-left:10px;">
         <div class="legal-links">
             <a href="../about.html">About</a>
             <a href="../privacy.html">Privacy Policy</a>
@@ -81,20 +185,29 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Sweden';
+            // Photo archive uses the specific country number prefix
+            const prefix = '060-sweden-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +215,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

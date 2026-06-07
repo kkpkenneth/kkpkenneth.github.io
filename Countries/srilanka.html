@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Sri%20Lanka.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/083-sri-lanka.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,28 +87,102 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Sri Lanka</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Sri Lanka</h2>
-        <p>Visual notes and cultural documentation from the journey through Sri Lanka.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero">
+        <div class="txt-box">
+            <h1>Sri Lanka</h1>
+            <p>Travel Guide & Archive</p>
+        </div>
+        <span class="hero-copyright">&copy; Kenneth Kwok</span>
+    </header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Teardrop of India: An Island of Endless Discovery</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">From the golden beaches of the southern coast to the misty, tea-covered hills of the interior, this journey through Sri Lanka reveals a land of breathtaking biodiversity and vibrant culture.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="colombo-negombo">
+                <h3 class="region-heading">The Gateways of <strong>Colombo</strong> and <strong>Negombo</strong></h3>
+                <p>The journey begins in the bustling commercial capital of <strong>Colombo</strong>, a city that perfectly encapsulates the rapid modernization of the island while retaining its deep colonial heritage. Wandering through <strong>Colombo</strong>, you are met with a fascinating mix of ancient temples, busy street markets, and modern high-rises along the sweeping Galle Face Green. Just a short drive north lies the coastal town of <strong>Negombo</strong>, offering a more relaxed, maritime atmosphere to ease into the island's rhythm. <strong>Negombo</strong> is famous for its sprawling, early-morning fish markets and historical Dutch canals, reflecting its long history as a crucial trading port. Whether navigating the chaotic energy of <strong>Colombo</strong> or enjoying a quiet sunset on the beaches of <strong>Negombo</strong>, the western coast serves as the perfect introduction to the country.</p>
+            </section>
+
+            <section id="koggala-mirissa">
+                <h3 class="region-heading">Southern Shores: <strong>Koggala</strong> and <strong>Mirissa</strong></h3>
+                <p>Traveling down to the southern coast, the pace of life slows considerably in the serene coastal stretch of <strong>Koggala</strong>. Known for its pristine, palm-fringed beaches and the iconic stilt fishermen gracefully perched above the crashing waves, <strong>Koggala</strong> offers an idyllic, photogenic tropical escape. Further along the coastline lies the vibrant beach town of <strong>Mirissa</strong>, a premier destination for ocean enthusiasts and sun-seekers alike. <strong>Mirissa</strong> is world-renowned for its incredible whale-watching opportunities, where majestic blue whales and dolphins regularly breach the surface of the deep blue Indian Ocean. The golden sands and lively surf culture make <strong>Mirissa</strong> an unforgettable highlight, perfectly complementing the tranquil, artistic vibe found just up the road in <strong>Koggala</strong>.</p>
+            </section>
+
+            <section id="yala">
+                <h3 class="region-heading">Wild Encounters in <strong>Yala</strong> National Park</h3>
+                <p>Moving southeast, the lush landscape dramatically shifts into the untamed wilderness of <strong>Yala</strong> National Park, the country's most celebrated wildlife sanctuary. <strong>Yala</strong> is globally recognized for boasting one of the highest densities of the elusive <strong>Leopard</strong> in the world, making every safari drive an exhilarating quest. Beyond the majestic <strong>Leopard</strong>, the scrub jungles and brackish lagoons of <strong>Yala</strong> are absolutely teeming with diverse and vibrant fauna. It is incredibly common to spot a brilliant <strong>Peacock</strong> proudly displaying its iridescent plumage in the brush or a massive <strong>Land monitor</strong> lazily crossing the red dirt trails. The raw, unfiltered nature of <strong>Yala</strong> provides a thrilling contrast to the island's cultivated regions and serene coastlines.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="ella-nuwara-eliya">
+                <h3 class="region-heading">The Misty Heights of <strong>Ella</strong> and <strong>Nuwara Eliya</strong></h3>
+                <p>Ascending into the central highlands, the climate cools rapidly and the scenery transforms into the breathtaking, misty vistas surrounding the town of <strong>Ella</strong>. The journey to <strong>Ella</strong> is often made via a spectacular, slow-moving train ride, winding through dense alpine forests and crossing the iconic, towering architecture of the Nine Arch Bridge. Further up into the mountains lies <strong>Nuwara Eliya</strong>, often affectionately referred to as "Little England" due to its lingering colonial architecture and crisp, damp weather. <strong>Nuwara Eliya</strong> is the absolute heart of the island's tea industry, characterized by endless rolling hills meticulously blanketed in vivid green tea bushes. Together, the laid-back hiker's paradise of <strong>Ella</strong> and the historic, manicured estates of <strong>Nuwara Eliya</strong> showcase the profound geographic diversity of the interior.</p>
+            </section>
+
+            <section id="kandy">
+                <h3 class="region-heading">The Cultural Heartbeat of <strong>Kandy</strong></h3>
+                <p>Serving as the gateway to the central highlands, the ancient city of <strong>Kandy</strong> remains the spiritual and cultural epicenter of the nation. <strong>Kandy</strong> is beautifully cradled within a valley of lush mountains and centers around a picturesque, tranquil lake originally built by the last Sinhalese king. The crown jewel of <strong>Kandy</strong> is the highly revered Temple of the Sacred Tooth Relic, a deeply sacred Buddhist site that continuously draws devoted pilgrims from all over the globe. Walking through the nearby botanical gardens or witnessing a vibrant, acrobatic traditional Kandyan dance performance immerses visitors fully in the enduring traditions of the region. The deep historical roots and heavy spiritual atmosphere make <strong>Kandy</strong> an essential pillar of the island's identity.</p>
+            </section>
+
+            <section id="culinary">
+                <h3 class="region-heading">A Taste of the Island</h3>
+                <p>The culinary landscape of the island is a fiery, flavorful reflection of its rich cultural history and abundant natural resources. A daily staple and absolute favorite is <strong>String hoppers</strong>, delicate nests of steamed rice flour noodles typically served with a vibrant, spiced coconut sambal and a rich dhal curry. For an intensely satisfying and deeply savory street food experience, nothing beats a steaming, chaotic plate of <strong>Cheese Kottu</strong>, where chopped roti, vegetables, eggs, and spices are aggressively griddled together with a generous melting of cheese. To balance the heavy spices of the cuisine, afternoons are perfectly spent sipping a delicate cup of <strong>Silvertip tea</strong>, a highly prized, hand-rolled white tea carefully harvested from the mist-shrouded estates of the hill country. Whether diving into a late-night plate of <strong>Cheese Kottu</strong>, enjoying morning <strong>String hoppers</strong>, or relaxing with elegant <strong>Silvertip tea</strong>, the local flavors leave a powerful and lasting impression.</p>
+            </section>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive captures the remarkable diversity of the teardrop island, tracing a path from the vibrant urban centers of the western coast to the rugged, wildlife-rich plains of <strong>Yala</strong> and the misty, culturally profound heights of the central mountains.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 208 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Sri Lanka Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
         <a href="https://payme.hsbc/yourmoneymymoney"><img src="../Images/qr.jpg" height="120" alt="PayMe"></a>
-        <img src="../Images/paypal.png" height="120" style="margin-left:10px;">
+        <a href="https://www.paypal.com/paypalme/yourhandle" target="_blank"><img src="../Images/paypal.png" height="120" style="margin-left:10px;" alt="PayPal"></a>
         <div class="legal-links">
             <a href="../about.html">About</a>
             <a href="../privacy.html">Privacy Policy</a>
@@ -81,20 +195,29 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Sri Lanka';
+            // Photo archive uses the specific country number prefix
+            const prefix = '083-sri-lanka-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +225,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

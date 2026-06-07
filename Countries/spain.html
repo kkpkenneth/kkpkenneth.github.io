@@ -15,27 +15,67 @@
         .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
         .menuspace { height: 50px; background: rgb(50,50,50); }
 
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
         /* NOTIFICATIONS */
         .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
-        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice p { color:white; font-size:13px; margin:0; line-height:45px; }
         .notice a { color:white; text-decoration:none; }
+        
         .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
-        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 p { color:gray; font-size:13px; margin:0; line-height:45px; }
         .notice2 a { color:gray; text-decoration:none; }
-        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        
+        .closebtn { 
+            cursor:pointer; 
+            position:absolute; 
+            right:20px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:20px; 
+            color:gray; 
+            line-height:1;
+        }
         .notice .closebtn { color:white; }
 
         /* HERO & CONTENT */
-        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/Spain.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/011-spain.jpg') center/cover; display:flex; justify-content:center; align-items:center; position: relative; }
         .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .hero-copyright { position: absolute; bottom: 15px; right: 20px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
         .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
 
-        /* GALLERY */
+        /* ADSENSE PLACEHOLDER */
+        .adsense-space { margin: 30px 0; text-align: center; min-height: 90px; background: #f9f9f9; border: 1px dashed #ccc; }
+        .adsense-label { font-size: 10px; color: #999; margin: 5px; text-transform: uppercase; }
+
+        /* ARCHIVE NAVIGATION */
+        .archive-nav { margin: 60px auto; text-align: center; padding: 20px; border-top: 1px solid #eee; }
+        .archive-nav h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 14px; color: #777; margin-bottom: 20px; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .archive-btn { text-decoration: none; color: #333; border: 1px solid #333; padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border-radius: 2px; min-width: 120px; }
+        .archive-btn:hover { background: #333; color: #fff; }
+
+        /* REGIONAL HEADINGS */
+        .region-heading { color: #e65100; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 40px; }
+
+        /* GALLERY SLIDER */
         .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
         .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
-        .slide { display:none; width:100%; height:100%; object-fit:contain; }
-        .slide.active { display:block; }
-        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+        
+        .slide { width:100%; height:100%; object-fit:contain; position: absolute; top: 0; left: 0; opacity: 0; z-index: 1; transition: opacity 0.6s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; z-index: 10; transition: background 0.3s ease; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
 
         /* FOOTER */
         footer { background:gray; text-align:center; padding:60px 20px; color:white; }
@@ -47,28 +87,98 @@
     <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
     <div class="menuspace"></div>
 
-    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
-
-    <header class="hero"><div class="txt-box"><h1>Spain</h1><p>Travel Guide & Archive</p></div></header>
+    <div class="notice">
+        <p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow me on Instagram!</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
+    </div>
     
-    <div class="main-content">
-        <h2>Exploring Spain</h2>
-        <p>Visual notes and cultural documentation from the journey through Spain.</p>
+    <div class="notice2">
+        <p><a href="#support">Support my journey with your donation.</a></p>
+        <span class="closebtn" onclick="this.parentElement.style.display='none'">&times;</span>
     </div>
 
-    <div class="gallery-sec" id="gWrap">
-        <h2>Photo Archive</h2>
+    <header class="hero">
+        <div class="txt-box">
+            <h1>Spain</h1>
+            <p>Travel Guide & Archive</p>
+        </div>
+        <span class="hero-copyright">&copy; Kenneth Kwok</span>
+    </header>
+    
+    <div class="main-content">
+        <article>
+            <header>
+                <h2 style="color:#0056b3; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">The Vibrant Heart of the Iberian Peninsula</h2>
+                <p style="font-style: italic; color: #666; font-size: 14px;">From architectural marvels to sun-drenched coastal towns, experience the passion and rich heritage of Spain.</p>
+            </header>
+
+            <div class="adsense-space">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="barcelona">
+                <h3 class="region-heading">Artistic Wonders in <strong>Barcelona</strong></h3>
+                <p><strong>Barcelona</strong> is a city where architectural brilliance meets a lively Mediterranean spirit. Walking through <strong>Barcelona</strong>, you are constantly surrounded by the unique modernist creations of Antoni Gaudí, from the towering spires of the Sagrada Família to the colorful mosaics of Park Güell. <strong>Barcelona</strong> perfectly captures the Catalan identity, offering world-class art, bustling street life along La Rambla, and historic Gothic quarters that feel frozen in time. As the sun sets, <strong>Barcelona</strong> truly comes alive, with its residents enjoying the coastal breeze and the city's incomparable energy. It is a place that feels both deeply traditional and daringly progressive.</p>
+            </section>
+
+            <section id="madrid">
+                <h3 class="region-heading">The Imperial Grandeur of <strong>Madrid</strong></h3>
+                <p>At the very center of the country lies <strong>Madrid</strong>, a capital defined by its majestic boulevards, immense royal parks, and world-renowned art museums. <strong>Madrid</strong> carries an imperial elegance, with grand plazas like Plaza Mayor serving as the social heart of the city for centuries. Art lovers flock to <strong>Madrid</strong> to wander the halls of the Prado Museum, home to some of the most significant collections in Western history. Life in <strong>Madrid</strong> is lived to the fullest, with a famous nightlife and late-night dining scene that keeps the streets vibrant until dawn. Balancing deep historic roots with a modern, fast-paced rhythm, <strong>Madrid</strong> is the undisputed pulse of the nation.</p>
+            </section>
+            
+            <section id="seville">
+                <h3 class="region-heading">The Andalusian Soul of <strong>Seville</strong></h3>
+                <p>Deep in the south, <strong>Seville</strong> offers a mesmerizing blend of Moorish heritage and intense Spanish passion. <strong>Seville</strong> is famously the home of flamenco, and you can hear the rhythmic strumming of guitars echoing through its winding, historic alleys at any hour. The architectural crown jewel of <strong>Seville</strong> is the Alcázar, an incredible palace complex that showcases the intricate beauty of mudéjar design and lush, hidden courtyards. Whether you are climbing the Giralda bell tower or enjoying the scent of orange blossoms in the city's plazas, <strong>Seville</strong> captures the true Andalusian spirit. It is a city that feels both intimate and grand, inviting every traveler to slow down and savor the moment.</p>
+            </section>
+            
+            <section id="tarifa">
+                <h3 class="region-heading">The Windswept Shores of <strong>Tarifa</strong></h3>
+                <p>Perched at the southernmost tip of the country, <strong>Tarifa</strong> is a bohemian paradise where the Mediterranean meets the Atlantic. <strong>Tarifa</strong> is legendary among water sports enthusiasts for its powerful coastal winds, making it one of the world's premier destinations for kiteboarding and windsurfing. The old town of <strong>Tarifa</strong> is a charming maze of whitewashed buildings and historic defensive walls that look out across the Strait of Gibraltar. On a clear day in <strong>Tarifa</strong>, the rugged coastline of Africa is visible across the water, emphasizing the town's unique geographic position. It is a laid-back, sun-drenched escape that feels miles away from the bustling interior.</p>
+            </section>
+            
+            <section id="zaragoza">
+                <h3 class="region-heading">The Layered History of <strong>Zaragoza</strong></h3>
+                <p>Situated halfway between Madrid and Barcelona, <strong>Zaragoza</strong> is a hidden gem that reveals thousands of years of layered history. <strong>Zaragoza</strong> is dominated by the awe-inspiring Basílica de Nuestra Señora del Pilar, a baroque masterpiece reflected perfectly in the waters of the Ebro River. The city's unique heritage is further highlighted by the Aljafería Palace, a fortified Islamic palace that stands as a stunning example of the Moorish influence in the region. Wandering the streets of <strong>Zaragoza</strong> offers an authentic, unhurried look at the heart of the country, away from the typical tourist crowds. <strong>Zaragoza</strong> is a city that rewards those who take the time to peel back the layers of its fascinating, deep-rooted past.</p>
+            </section>
+
+            <div class="adsense-space" style="min-height:250px;">
+                <p class="adsense-label">Advertisement</p>
+            </div>
+
+            <section id="cuisine">
+                <h3 class="region-heading">A Culinary Celebration</h3>
+                <p>The culinary identity of the country is built on fresh, seasonal ingredients and the communal joy of sharing a meal. No visit is complete without enjoying <strong>paella</strong>, a spectacular, saffron-hued rice dish often loaded with fresh seafood or meats that highlights the bounty of the land and sea. For the perfect social dining experience, many flock to the local taverns to snack on <strong>tapas gula</strong>, a delicate and flavorful dish featuring garlic-sautéed imitation baby eels that perfectly capture the coastal flair. Sharing <strong>paella</strong> with friends or enjoying small bites of <strong>tapas gula</strong> while hopping from bar to bar is the definitive way to experience the local hospitality. These timeless flavors define the very fabric of daily life across all the cities and towns of this beautiful nation.</p>
+            </section>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+            <p style="font-size: 14px; text-align: center; color: #777;">This archive chronicles a rich and diverse journey through Spain, capturing the essence of its vibrant cities, historic landmarks, and deeply ingrained culinary traditions that define the Iberian experience.</p>
+        </article>
+    </div>
+
+    <section class="archive-nav">
+        <h3>Explore the 208 Country Archive</h3>
+        <div class="btn-container">
+            <a href="../asia.html" class="archive-btn">Asia</a>
+            <a href="../europe.html" class="archive-btn">Europe</a>
+            <a href="../africa.html" class="archive-btn">Africa</a>
+            <a href="../americas.html" class="archive-btn">Americas</a>
+            <a href="../oceania.html" class="archive-btn">Oceania</a>
+            <a href="../index.html" class="archive-btn">All Countries</a>
+        </div>
+    </section>
+
+    <section class="gallery-sec" id="gWrap">
+        <h2>Spain Archive</h2>
         <div class="slider" id="sld">
             <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
             <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
         </div>
-    </div>
+    </section>
 
     <footer id="support">
         <p>Support the journey</p>
         <a href="https://payme.hsbc/yourmoneymymoney"><img src="../Images/qr.jpg" height="120" alt="PayMe"></a>
-        <img src="../Images/paypal.png" height="120" style="margin-left:10px;">
+        <a href="https://www.paypal.com/paypalme/yourhandle" target="_blank"><img src="../Images/paypal.png" height="120" style="margin-left:10px;" alt="PayPal"></a>
         <div class="legal-links">
             <a href="../about.html">About</a>
             <a href="../privacy.html">Privacy Policy</a>
@@ -81,20 +191,29 @@
     <script>
         let idx = 0;
         let imgList = [];
+        let slideInterval;
+
         async function load() {
-            const c = 'Spain';
+            // Photo archive uses the specific country number prefix
+            const prefix = '011-spain-'; 
             const sld = document.getElementById('sld');
+            
             for(let i=1; i<=50; i++) {
-                const p = '../Images/Countries/' + c + i + '.jpg';
+                const p = '../Images/Countries/' + prefix + i + '.jpg';
                 const ok = await new Promise(r => { 
                     let im = new Image(); 
                     im.onload = () => r(true); 
                     im.onerror = () => r(false); 
                     im.src = p; 
                 });
-                if(ok) imgList.push(p);
-                else if(i > 3) break;
+                
+                if(ok) {
+                    imgList.push(p);
+                } else {
+                    break;
+                }
             }
+
             if(imgList.length > 0) {
                 imgList.forEach((src, i) => {
                     let im = document.createElement('img');
@@ -102,15 +221,34 @@
                     im.className = 'slide' + (i === 0 ? ' active' : '');
                     sld.appendChild(im);
                 });
-            } else { document.getElementById('gWrap').style.display = 'none'; }
+                startTimer();
+            } else { 
+                document.getElementById('gWrap').style.display = 'none'; 
+            }
         }
+
         function move(n) {
             let s = document.querySelectorAll('.slide');
             if(s.length < 2) return;
+            
             s[idx].classList.remove('active');
             idx = (idx + n + s.length) % s.length;
             s[idx].classList.add('active');
+            
+            resetTimer();
         }
+
+        function startTimer() {
+            slideInterval = setInterval(() => {
+                move(1);
+            }, 5000); // Slide every 5 seconds
+        }
+
+        function resetTimer() {
+            clearInterval(slideInterval);
+            startTimer();
+        }
+
         load();
     </script>
 </body>

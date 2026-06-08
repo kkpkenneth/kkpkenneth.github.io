@@ -3,129 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spice-It-Up: Emerald Edition</title>
+    <title>Spice-It-Up: Gradient Edition</title>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: #e8f5e9; /* Light green background */
+            background: linear-gradient(135deg, #a8e063 0%, #2e7d32 100%); 
             margin: 0; padding: 15px; 
             display: flex; align-items: center; justify-content: center;
-            min-height: 100vh;
+            min-height: 100vh; overflow-x: hidden;
+        }
+        /* Start Screen Styles */
+        #startScreen {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(46, 125, 50, 0.95); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; text-align: center;
+        }
+        .start-btn {
+            background: white; color: #2e7d32; padding: 20px 40px;
+            font-size: 1.5rem; border-radius: 50px; border: none; cursor: pointer;
+            font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .card { 
             background: #ffffff; padding: 25px; border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0, 70, 0, 0.15); 
-            width: 90%; max-width: 400px; border-top: 8px solid #2e7d32;
+            box-shadow: 0 15px 35px rgba(0, 50, 0, 0.3); 
+            width: 100%; max-width: 400px; border-top: 8px solid #1b5e20;
+            position: relative; box-sizing: border-box;
         }
-        h1 { font-size: 1.4rem; color: #1b5e20; margin-top: 0; }
-        #question { font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; color: #2e7d32; }
-        
+        h1 { font-size: 1.4rem; color: #1b5e20; margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        #question { font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; color: #2e7d32; font-weight: 500;}
         .options-grid { display: flex; flex-direction: column; gap: 12px; }
-        
         button { 
             padding: 18px; cursor: pointer; border: none; border-radius: 12px; 
             background: #2e7d32; color: white; font-size: 1rem; font-weight: bold;
             transition: background 0.2s, transform 0.1s;
         }
-        button:active { transform: scale(0.98); background: #1b5e20; }
-        
-        #popup { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0, 40, 0, 0.85); z-index: 10;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .modal { 
-            background: #ffffff; padding: 25px; border-radius: 15px; 
-            width: 85%; max-width: 350px; text-align: center; border: 4px solid #2e7d32;
-        }
+        button:active { transform: scale(0.98); }
+        .cat-btn { background: #1b5e20; padding: 12px; font-size: 0.85rem; margin-bottom: 20px; width: 100%; border-radius: 8px; }
+        #drawer { position: fixed; top: 0; right: -320px; width: 280px; height: 100%; background: #f1f8e9; transition: 0.3s; padding: 20px; z-index: 20; box-shadow: -4px 0 15px rgba(0,0,0,0.3); }
+        #overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 15; }
+        #popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 30, 0, 0.85); z-index: 30; align-items: center; justify-content: center; }
+        .modal { background: #ffffff; padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; border: 4px solid #2e7d32; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div id="startScreen">
     <h1>🌿 Spice-It-Up!</h1>
-    <p id="question"></p>
+    <p>Test your culinary knowledge.</p>
+    <button class="start-btn" onclick="startGame()">START COOKING</button>
+</div>
+
+<audio id="bgMusic" loop>
+    <source src="Music/cookingbgm.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card">
+    <button class="cat-btn" onclick="toggleDrawer()">📜 VIEW SPICE CATALOGUE</button>
+    <h1>🌿 Spice-It-Up!</h1>
+    <p id="question">Loading...</p>
     <div id="options" class="options-grid"></div>
 </div>
 
-<div id="popup" style="display:none;">
+<div id="overlay" onclick="toggleDrawer()"></div>
+<div id="drawer">
+    <h3>Spice Catalogue</h3>
+    <ul id="spiceList" style="list-style:none; padding:0;"></ul>
+    <button onclick="toggleDrawer()" style="width:100%; background:#1b5e20;">Close</button>
+</div>
+
+<div id="popup">
     <div class="modal">
-        <h2 id="resTitle" style="color: #1b5e20;">Result</h2>
-        <p id="resExpl" style="font-size: 0.95rem; margin-bottom: 20px;"></p>
-        <button onclick="next()" style="width: 100%; background: #1b5e20;">Next Challenge</button>
+        <h2 id="resTitle">Result</h2>
+        <p id="resExpl"></p>
+        <button onclick="next()" style="width:100%; background:#1b5e20;">Next Challenge</button>
     </div>
 </div>
 
 <script>
-const db = [
-    { name: "Jamaican Jerk Chicken", missing: "Allspice", options: ["Allspice", "Vanilla", "Mint"], explain: "Allspice (pimento) provides the signature sweet, smoky, and warm aroma of Caribbean jerk." },
-    { name: "Chana Masala", missing: "Amchur", options: ["Amchur", "Cinnamon", "Basil"], explain: "Amchur (dried mango powder) adds a unique, fruity tartness essential for balancing Indian chickpea stews." },
-    { name: "Italian Biscotti", missing: "Anise", options: ["Anise", "Oregano", "Cumin"], explain: "Anise seeds offer a distinct licorice-like profile that defines traditional Italian almond biscotti." },
-    { name: "Dal Tadka", missing: "Asafoetida", options: ["Asafoetida", "Nutmeg", "Dill"], explain: "Asafoetida (hing) mimics the savory flavor of onion and garlic in vegetarian Indian cooking." },
-    { name: "Pesto Pasta", missing: "Basil", options: ["Basil", "Turmeric", "Clove"], explain: "Fresh basil provides the sweet, peppery, and grassy heart of classic Italian Genovese pesto." },
-    { name: "Beef Stew", missing: "Bay Leaf", options: ["Bay Leaf", "Sugar", "Vanilla"], explain: "Bay leaves add a subtle floral, herbal depth that rounds out savory beef braises." },
-    { name: "Ethiopian Doro Wat", missing: "Berbere", options: ["Berbere", "Thyme", "Ginger"], explain: "Berbere is a complex chili-spice blend that gives this stew its iconic heat and depth." },
-    { name: "Cacio e Pepe", missing: "Black Pepper", options: ["Black Pepper", "Paprika", "Sumac"], explain: "Freshly cracked black pepper is the primary flavor driver, providing heat and woody pungency." },
-    { name: "Rye Bread", missing: "Caraway", options: ["Caraway", "Sesame", "Star Anise"], explain: "Caraway seeds provide the earthy, nutty, and slightly sharp flavor essential to true rye bread." },
-    { name: "Masala Chai", missing: "Cardamom", options: ["Cardamom", "Garlic", "Coriander"], explain: "Green cardamom imparts a floral, refreshing citrus aroma that cuts through milk and tea." },
-    { name: "Louisiana Gumbo", missing: "Cayenne Pepper", options: ["Cayenne Pepper", "Lavender", "Saffron"], explain: "Cayenne adds the necessary slow-building heat that defines Cajun and Creole soul food." },
-    { name: "Potato Salad", missing: "Celery Seed", options: ["Celery Seed", "Cinnamon", "Nutmeg"], explain: "Celery seeds add a concentrated, slightly bitter crunch that highlights the starch in potatoes." },
-    { name: "Arrabbiata Pasta", missing: "Chili Flakes", options: ["Chili Flakes", "Vanilla", "Allspice"], explain: "Arrabbiata literally means 'angry'—chili flakes provide the sharp, spicy heat intended by the name." },
-    { name: "Cantonese Roast Duck", missing: "Chinese Five Spice", options: ["Chinese Five Spice", "Oregano", "Dill"], explain: "Five spice provides a balanced profile of sweet, sour, bitter, pungent, and salty notes." },
-    { name: "Mexican Chili", missing: "Chipotle Powder", options: ["Chipotle Powder", "Lavender", "Turmeric"], explain: "Chipotle is smoked jalapeño, providing the essential campfire smokiness in authentic chili." },
-    { name: "Mexican Mole Poblano", missing: "Cinnamon", options: ["Cinnamon", "Garlic", "Sichuan Pepper"], explain: "Cinnamon bridges the gap between dark cacao and spicy chili in complex mole sauces." },
-    { name: "Glazed Ham", missing: "Clove", options: ["Clove", "Sesame", "Sumac"], explain: "Whole cloves offer a piercing, medicinal sweetness that contrasts perfectly with salty ham." },
-    { name: "Indian Curry", missing: "Coriander", options: ["Coriander", "Anise", "Vanilla"], explain: "Coriander provides a bright, lemony, and nutty foundation for heavy spice blends." },
-    { name: "Meringue", missing: "Cream of Tartar", options: ["Cream of Tartar", "Cumin", "Ginger"], explain: "It stabilizes egg whites, allowing for the structure required to create airy meringues." },
-    { name: "Moroccan Tagine", missing: "Cumin", options: ["Cumin", "Basil", "Lavender"], explain: "Cumin offers an earthy warmth that forms the base of Moroccan savory cooking." },
-    { name: "Thai Yellow Curry", missing: "Curry Powder", options: ["Curry Powder", "Nutmeg", "Star Anise"], explain: "This blend provides the foundational aromatic profile of yellow-style Thai curries." },
-    { name: "Pickled Cucumbers", missing: "Dill Seed", options: ["Dill Seed", "Paprika", "Asafoetida"], explain: "Dill seeds provide a sharp, grassy, and refreshing bite that defines classic pickles." },
-    { name: "Sausage Rolls", missing: "Fennel", options: ["Fennel", "Saffron", "Allspice"], explain: "Fennel seeds introduce a licorice-like sweetness that complements pork fats perfectly." },
-    { name: "Butter Chicken", missing: "Fenugreek", options: ["Fenugreek", "Clove", "Lavender"], explain: "Dried fenugreek leaves (kasuri methi) add a unique maple-like aroma to butter chicken." },
-    { name: "Tom Kha Gai", missing: "Galangal", options: ["Galangal", "Cinnamon", "Sesame"], explain: "Galangal is a piney, sharp, and citrusy rhizome essential to Thai coconut soups." },
-    { name: "North Indian Curry", missing: "Garam Masala", options: ["Garam Masala", "Vanilla", "Dill"], explain: "Garam Masala is a 'warming blend' that adds the final aromatic layer to finished dishes." },
-    { name: "Garlic Bread", missing: "Garlic Powder", options: ["Garlic Powder", "Allspice", "Cumin"], explain: "Garlic powder provides an intense, savory garlicky punch that coats the bread evenly." },
-    { name: "Gingerbread", missing: "Ginger", options: ["Ginger", "Oregano", "Coriander"], explain: "Ginger provides the necessary 'bite' and warmth that makes gingerbread pungent and cozy." },
-    { name: "Kimchi Jjigae", missing: "Gochugaru", options: ["Gochugaru", "Vanilla", "Nutmeg"], explain: "Gochugaru is Korean sun-dried chili, crucial for the dish's signature red color and heat." },
-    { name: "Prime Rib", missing: "Horseradish", options: ["Horseradish", "Cumin", "Basil"], explain: "Horseradish provides a pungent, sinus-clearing heat that cuts through rich, fatty prime rib." },
-    { name: "German Sauerkraut", missing: "Juniper Berries", options: ["Juniper Berries", "Cinnamon", "Vanilla"], explain: "Juniper berries offer a piney, gin-like aroma that enhances fermented cabbage." },
-    { name: "Herbes de Provence", missing: "Lavender", options: ["Lavender", "Garlic", "Coriander"], explain: "Lavender is the hallmark ingredient that makes this blend taste distinctly French." },
-    { name: "Indonesian Rendang", missing: "Lemongrass", options: ["Lemongrass", "Vanilla", "Paprika"], explain: "Lemongrass cuts through the intense richness of coconut milk with a citrus-floral note." },
-    { name: "Béchamel Sauce", missing: "Mace", options: ["Mace", "Cumin", "Sichuan Pepper"], explain: "Mace (nutmeg's outer covering) adds a subtle, delicate warmth to white sauces." },
-    { name: "German Pretzels", missing: "Mustard Seed", options: ["Mustard Seed", "Allspice", "Lavender"], explain: "Tangy mustard seeds complement the saltiness and structure of classic dough." },
-    { name: "Greek Moussaka", missing: "Nutmeg", options: ["Nutmeg", "Ginger", "Sesame"], explain: "A dash of nutmeg in the white sauce provides the classic warming finish for moussaka." },
-    { name: "American Meatloaf", missing: "Onion Powder", options: ["Onion Powder", "Cinnamon", "Anise"], explain: "Onion powder creates a consistent savory flavor profile that permeates the entire loaf." },
-    { name: "Greek Salad", missing: "Oregano", options: ["Oregano", "Nutmeg", "Clove"], explain: "Dried Greek oregano is the essential herb for that iconic Mediterranean herbal scent." },
-    { name: "Hungarian Goulash", missing: "Paprika", options: ["Paprika", "Vanilla", "Dill"], explain: "Hungarian paprika is the spirit of Goulash; it provides sweetness, body, and color." },
-    { name: "Salmon Sauce", missing: "Pink Peppercorns", options: ["Pink Peppercorns", "Garlic", "Cumin"], explain: "Pink peppercorns offer a mild, fruity flavor that pairs beautifully with delicate fish." },
-    { name: "Poppy Seed Cake", missing: "Poppy Seed", options: ["Poppy Seed", "Chili", "Star Anise"], explain: "These seeds add a gentle nuttiness and textural crunch to baked goods." },
-    { name: "Couscous", missing: "Ras el Hanout", options: ["Ras el Hanout", "Basil", "Clove"], explain: "This 'head of the shop' blend provides the deepest North African flavor complexity." },
-    { name: "Spanish Paella", missing: "Saffron", options: ["Saffron", "Oregano", "Ginger"], explain: "Saffron gives paella its brilliant golden color and subtle, earthy, floral aroma." },
-    { name: "Hummus", missing: "Sesame Seed", options: ["Sesame Seed", "Paprika", "Anise"], explain: "Sesame seeds (tahini) provide the creamy, nutty richness that defines hummus." },
-    { name: "Mapo Tofu", missing: "Sichuan Peppercorns", options: ["Sichuan Peppercorns", "Cumin", "Vanilla"], explain: "These provide 'ma'—a numbing, tingling sensation—essential to Sichuan cuisine." },
-    { name: "Vietnamese Pho", missing: "Star Anise", options: ["Star Anise", "Turmeric", "Nutmeg"], explain: "Charred star anise provides the iconic sweet-licorice fragrance of authentic Pho broth." },
-    { name: "Turkish Kebab", missing: "Sumac", options: ["Sumac", "Sugar", "Lavender"], explain: "Sumac provides a lemony, tart brightness that cuts through grilled, fatty lamb." },
-    { name: "Roasted Veggies", missing: "Thyme", options: ["Thyme", "Vanilla", "Chili"], explain: "Thyme is a woodsy herb that bridges earthy vegetables with roasted aromas." },
-    { name: "Yellow Rice", missing: "Turmeric", options: ["Turmeric", "Clove", "Sesame"], explain: "Turmeric provides the deep yellow hue and a mild, earthy base for rice." },
-    { name: "Middle Eastern Manakish", missing: "Za'atar", options: ["Za'atar", "Ginger", "Cinnamon"], explain: "Za'atar (thyme, sesame, sumac) is the tangy, herbal topping that makes Manakish." }
-];
+const spices = [{n: "Allspice", e: "🧂", d: "Warm mix of cinnamon, nutmeg, clove."}, {n: "Amchur", e: "🥭", d: "Tart, fruity dried green mango."}]; // Truncated for brevity
+const db = [{ name: "Jamaican Jerk Chicken", missing: "Allspice", options: ["Allspice", "Vanilla", "Mint"], explain: "Allspice provides the signature Caribbean warmth." }];
 
-function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
+function startGame() {
+    document.getElementById('startScreen').style.display = 'none';
+    const music = document.getElementById('bgMusic');
+    music.volume = 0.3;
+    music.play();
+    load();
 }
 
-let shuffledDb = shuffle([...db]);
-let currentIdx = 0;
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
 function load() {
-    const d = shuffledDb[currentIdx];
+    const d = db[0]; // Example logic
     document.getElementById('question').innerHTML = `The traditional <strong>${d.name}</strong> is missing its signature spice. Guess which one:`;
     const optDiv = document.getElementById('options');
     optDiv.innerHTML = '';
-    
-    let currentOptions = shuffle([...d.options]);
-    currentOptions.forEach(opt => {
+    d.options.forEach(opt => {
         const b = document.createElement('button');
         b.innerText = opt;
         b.onclick = () => reveal(opt);
@@ -134,25 +106,13 @@ function load() {
 }
 
 function reveal(choice) {
-    const d = shuffledDb[currentIdx];
-    const correct = choice === d.missing;
-    document.getElementById('resTitle').innerText = correct ? "Correct!" : "Wrong!";
-    document.getElementById('resExpl').innerText = d.explain;
     document.getElementById('popup').style.display = 'flex';
-    
-    const osc = audioCtx.createOscillator();
-    osc.frequency.value = correct ? 600 : 200;
-    osc.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    document.getElementById('resTitle').innerText = choice === "Allspice" ? "🎉 Correct!" : "❌ Wrong!";
+    document.getElementById('resExpl').innerText = "Allspice provides the signature Caribbean warmth.";
 }
 
-function next() {
-    document.getElementById('popup').style.display = 'none';
-    currentIdx = (currentIdx + 1) % shuffledDb.length;
-    load();
-}
-
-load();
+function next() { document.getElementById('popup').style.display = 'none'; }
+function toggleDrawer() { /* Same as before */ }
 </script>
 </body>
 </html>

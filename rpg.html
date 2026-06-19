@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RPG Adventure</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #222; font-family: sans-serif; }
+        canvas { display: block; }
+
+        /* UI Elements */
+        #ui-text { position: absolute; top: 10px; left: 10px; color: white; pointer-events: none; text-shadow: 1px 1px 2px black; }
+        #dialogue-box { 
+            display: none; position: absolute; bottom: 200px; left: 10%; width: 80%; 
+            padding: 20px; background: rgba(0,0,0,0.85); color: white; border: 2px solid gold; 
+            text-align: center; border-radius: 10px; box-sizing: border-box;
+        }
+
+        /* D-Pad */
+        #d-pad { position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px; touch-action: none; }
+        .btn { position: absolute; width: 45px; height: 45px; background: rgba(255, 255, 255, 0.3); border: 2px solid #fff; border-radius: 10px; display: flex; justify-content: center; align-items: center; user-select: none; }
+        .btn:active { background: rgba(255, 255, 255, 0.6); }
+        #btn-up { top: 0; left: 52px; }
+        #btn-down { bottom: 0; left: 52px; }
+        #btn-left { top: 52px; left: 0; }
+        #btn-right { top: 52px; right: 0; }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui-text">
+        <h2>RPG World</h2>
+        <p>Walk to the Gold Blocks to interact!</p>
+    </div>
+
+    <div id="dialogue-box">
+        <p id="npc-text"></p>
+    </div>
+
+    <div id="d-pad">
+        <div class="btn" id="btn-up">W</div>
+        <div class="btn" id="btn-left">A</div>
+        <div class="btn" id="btn-right">D</div>
+        <div class="btn" id="btn-down">S</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const dialogueBox = document.getElementById('dialogue-box');
+        const npcText = document.getElementById('npc-text');
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const player = { worldX: 0, worldY: 0, size: 30, speed: 5 };
+        const keys = { up: false, down: false, left: false, right: false };
+
+        const npcs = [
+            { x: 300, y: 300, name: "Old Wizard", line: "Welcome, brave traveler!" },
+            { x: -400, y: 200, name: "Merchant", line: "Need supplies for your journey?" }
+        ];
+
+        // Input Handlers
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'w', 'W'].includes(e.key)) keys.up = true;
+            if (['ArrowDown', 's', 'S'].includes(e.key)) keys.down = true;
+            if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.left = true;
+            if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.right = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (['ArrowUp', 'w', 'W'].includes(e.key)) keys.up = false;
+            if (['ArrowDown', 's', 'S'].includes(e.key)) keys.down = false;
+            if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.left = false;
+            if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.right = false;
+        });
+
+        function setupTouch(id, dir) {
+            const btn = document.getElementById(id);
+            ['touchstart', 'mousedown'].forEach(evt => btn.addEventListener(evt, (e) => { e.preventDefault(); keys[dir] = true; }));
+            ['touchend', 'mouseup', 'mouseleave'].forEach(evt => btn.addEventListener(evt, (e) => { e.preventDefault(); keys[dir] = false; }));
+        }
+        setupTouch('btn-up', 'up'); setupTouch('btn-down', 'down'); setupTouch('btn-left', 'left'); setupTouch('btn-right', 'right');
+
+        function update() {
+            if (keys.up) player.worldY -= player.speed;
+            if (keys.down) player.worldY += player.speed;
+            if (keys.left) player.worldX -= player.speed;
+            if (keys.right) player.worldX += player.speed;
+
+            let nearAny = false;
+            npcs.forEach(npc => {
+                if (Math.hypot(npc.x - player.worldX, npc.y - player.worldY) < 80) {
+                    dialogueBox.style.display = 'block';
+                    npcText.innerText = `${npc.name}: "${npc.line}"`;
+                    nearAny = true;
+                }
+            });
+            if (!nearAny) dialogueBox.style.display = 'none';
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw Grid
+            ctx.fillStyle = '#2ed573';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#27ae60';
+            const tileSize = 60;
+            const offsetX = -player.worldX % tileSize;
+            const offsetY = -player.worldY % tileSize;
+            for (let x = offsetX - tileSize; x < canvas.width; x += tileSize) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+            for (let y = offsetY - tileSize; y < canvas.height; y += tileSize) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
+            // Draw NPCs
+            npcs.forEach(npc => {
+                const screenX = npc.x - player.worldX + (canvas.width / 2);
+                const screenY = npc.y - player.worldY + (canvas.height / 2);
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(screenX - 15, screenY - 15, 30, 30);
+                ctx.fillStyle = 'white';
+                ctx.fillText(npc.name, screenX - 20, screenY - 20);
+            });
+
+            // Draw Player
+            ctx.fillStyle = '#ff4757';
+            ctx.fillRect(canvas.width/2 - 15, canvas.height/2 - 15, 30, 30);
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>

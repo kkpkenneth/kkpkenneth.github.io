@@ -12,12 +12,12 @@
         #catalogue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
         .cat-thumb { cursor: pointer; transition: transform 0.2s; border: 1px solid #ddd; padding: 5px; }
         .cat-thumb:hover { transform: scale(1.05); }
-        .cat-thumb img { width: 100%; height: 80px; object-fit: cover; display: block; }
+        .cat-thumb img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
         
         #detail-view { display: none; padding: 20px; }
-        .detail-img { width: 100%; max-width: 200px; margin-bottom: 15px; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .detail-img { width: 100%; max-width: 200px; aspect-ratio: 1 / 1; object-fit: cover; margin-bottom: 15px; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
-        #question-image { max-width: 100%; height: auto; border: 8px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        #question-image { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border: 8px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 30px; }
         button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #333; background: transparent; cursor: pointer; font-family: 'Georgia', serif; font-size: 16px; transition: all 0.3s; }
         button:hover { background: #333; color: #fff; }
         #explanation { margin: 20px 0; padding: 20px; display: none; background: #f9f9f9; border-left: 4px solid #333; text-align: left; }
@@ -61,41 +61,53 @@
         </div>
     </div>
 
+    <audio id="bgm-audio" src="historical-figures-bgm.mp3" loop></audio>
+    <audio id="question-audio" src="historical-figures.mp3"></audio>
+    <audio id="click-audio" src="https://freesound.org/data/previews/320/320655_5260888-lq.mp3"></audio>
+    <audio id="correct-audio" src="https://freesound.org/data/previews/320/320655_5260872-lq.mp3"></audio>
+    <audio id="wrong-audio" src="https://freesound.org/data/previews/320/320655_5260897-lq.mp3"></audio>
+
     <script>
-        const figureData = [
-            {name: "Abraham Lincoln", vibe: "16th U.S. President, led during the Civil War."},
-            {name: "Adolf Hitler", vibe: "Dictator of Germany, instigator of WWII."},
-            {name: "Albert Einstein", vibe: "Theoretical physicist, developer of relativity."},
-            {name: "Alexander the Great", vibe: "King of Macedon, created one of history's largest empires."},
-            {name: "Anne Frank", vibe: "Diaries provided a poignant account of the Holocaust."},
-            {name: "Aristotle", vibe: "Ancient Greek philosopher and polymath."},
-            {name: "Barack Obama", vibe: "44th U.S. President, first African American president."},
-            {name: "Bill Gates", vibe: "Co-founder of Microsoft and philanthropist."},
-            {name: "Charles Darwin", vibe: "Naturalist who established the theory of evolution."},
-            {name: "Cleopatra", vibe: "Last active ruler of the Ptolemaic Kingdom of Egypt."},
-            {name: "Confucius", vibe: "Chinese philosopher and teacher of ethics."},
-            {name: "Dalai Lama", vibe: "Spiritual leader of Tibet."},
-            {name: "George Washington", vibe: "First U.S. President and commander-in-chief."},
-            {name: "Ghengis Khan", vibe: "Founder of the Mongol Empire."},
-            {name: "Isaac Newton", vibe: "Physicist and mathematician, laws of motion."},
-            {name: "Julius Caesar", vibe: "Roman general who played a critical role in the Republic's fall."},
-            {name: "Ludwig van Beethoven", vibe: "Crucial composer bridging Classical and Romantic eras."},
-            {name: "Mahatma Gandhi", vibe: "Leader of Indian independence movement."},
-            {name: "Marie Curie", vibe: "Pioneer in the study of radioactivity."},
-            {name: "Martin Luther King Jr.", vibe: "Leader of the American civil rights movement."},
-            {name: "Mother Teresa", vibe: "Missionary known for her charitable work."},
-            {name: "Napoleon Bonaparte", vibe: "French military and political leader."},
-            {name: "Neil Armstrong", vibe: "Astronaut and first person to walk on the moon."},
-            {name: "Nelson Mandela", vibe: "Anti-apartheid activist and South African President."},
-            {name: "Stephen Hawking", vibe: "Theoretical physicist and cosmologist."},
-            {name: "Steve Jobs", vibe: "Co-founder of Apple, pioneer of the personal computer revolution."},
-            {name: "Winston Churchill", vibe: "Prime Minister of the UK during WWII."}
+        const fullData = [
+            {name: "Abraham Lincoln", vibe: "16th U.S. President, instrumental in ending slavery.", img: "abraham-lincoln.jpeg"},
+            {name: "Adolf Hitler", vibe: "Dictator of Germany, central figure in WWII.", img: "adolf-hitler.jpeg"},
+            {name: "Albert Einstein", vibe: "Theoretical physicist who revolutionized our view of space and time.", img: "albert-einstein.jpeg"},
+            {name: "Alexander the Great", vibe: "King of Macedon who created a vast transcontinental empire.", img: "alexander-the-great.jpeg"},
+            {name: "Anne Frank", vibe: "Jewish diarist whose writing became a symbol of the Holocaust.", img: "anne-frank.jpeg"},
+            {name: "Aristotle", vibe: "Ancient Greek philosopher whose work shaped Western thought.", img: "aristotle.jpeg"},
+            {name: "Barack Obama", vibe: "44th U.S. President, first African American to hold the office.", img: "barrack-obama.jpeg"},
+            {name: "Bill Gates", vibe: "Co-founder of Microsoft and influential technology philanthropist.", img: "bill-gates.jpeg"},
+            {name: "Charles Darwin", vibe: "Naturalist who established the theory of evolution.", img: "charles-darwin.jpeg"},
+            {name: "Cleopatra", vibe: "Last active pharaoh of Ptolemaic Egypt.", img: "cleopatra.jpeg"},
+            {name: "Confucius", vibe: "Chinese philosopher whose teachings emphasize morality and social order.", img: "confucius.jpeg"},
+            {name: "Dalai Lama", vibe: "The spiritual leader of Tibet and Nobel Peace Prize laureate.", img: "dalai-lama.jpeg"},
+            {name: "Franklin D. Roosevelt", vibe: "U.S. President who led through the Great Depression and WWII.", img: "franklin-d-roosevelt.jpeg"},
+            {name: "Galileo Galilei", vibe: "Astronomer and physicist who championed heliocentrism.", img: "galileo-galilei.jpeg"},
+            {name: "George Washington", vibe: "First U.S. President and leader of the Continental Army.", img: "george-washington.jpeg"},
+            {name: "Ghengis Khan", vibe: "Founder and first Great Khan of the Mongol Empire.", img: "ghengis-khan.jpeg"},
+            {name: "Isaac Newton", vibe: "Mathematician and physicist who formulated the laws of motion.", img: "issac-newton.jpeg"},
+            {name: "Julius Caesar", vibe: "Roman general who played a key role in the fall of the Republic.", img: "julius-cesar.jpeg"},
+            {name: "Leonardo da Vinci", vibe: "High Renaissance polymath, painter of the Mona Lisa.", img: "leonardo-da-vinci.jpeg"},
+            {name: "Ludwig van Beethoven", vibe: "Composer who bridged the Classical and Romantic eras.", img: "ludwig-van-beethoven.jpeg"},
+            {name: "Mahatma Gandhi", vibe: "Leader of India's non-violent independence movement.", img: "mahatma-gandhi.jpeg"},
+            {name: "Marie Curie", vibe: "Physicist and chemist who pioneered research on radioactivity.", img: "marie-curie.jpeg"},
+            {name: "Martin Luther King Jr.", vibe: "Leader of the U.S. Civil Rights Movement.", img: "martin-luther-king-jr.jpeg"},
+            {name: "Mother Teresa", vibe: "Missionary known for her dedication to the poor.", img: "mother-teresa.jpeg"},
+            {name: "Napoleon Bonaparte", vibe: "French leader who rose to prominence during the French Revolution.", img: "napoleon-bonaparte.jpeg"},
+            {name: "Neil Armstrong", vibe: "Astronaut, the first human to walk on the moon.", img: "neil-armstrong.jpeg"},
+            {name: "Nelson Mandela", vibe: "Anti-apartheid revolutionary and South African President.", img: "nelson-mandela.jpeg"},
+            {name: "Pablo Picasso", vibe: "Influential artist and co-founder of the Cubist movement.", img: "pablo-picasso.jpeg"},
+            {name: "Stephen Hawking", vibe: "Cosmologist known for his work on black holes.", img: "stephen-hawking.jpeg"},
+            {name: "Steve Jobs", vibe: "Entrepreneur and co-founder of Apple Inc.", img: "steve-jobs.jpeg"},
+            {name: "William Shakespeare", vibe: "English playwright and poet, arguably the greatest writer in history.", img: "william-shakespeare.jpeg"},
+            {name: "Winston Churchill", vibe: "British Prime Minister who led the UK during WWII.", img: "winston-churchill.jpeg"}
         ];
 
-        const fullData = figureData.map(item => ({...item, img: item.name.toLowerCase().replace(/ /g, "-").replace(/\./g, "") + ".jpeg"}));
         let score = 0, currentIndex = 0, shuffledData = [];
 
         function startGame() {
+            document.getElementById('click-audio').play();
+            let bgm = document.getElementById('bgm-audio'); bgm.volume = 0.3; bgm.play();
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('quiz-content').style.display = 'block';
             shuffledData = [...fullData].sort(() => Math.random() - 0.5);
@@ -103,10 +115,10 @@
         }
 
         function showCatalogue() {
+            document.getElementById('click-audio').play();
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('catalogue-screen').style.display = 'block';
             let grid = document.getElementById('catalogue-grid');
-            grid.innerHTML = '';
             fullData.forEach(item => {
                 let div = document.createElement('div');
                 div.className = 'cat-thumb';
@@ -117,6 +129,7 @@
         }
 
         function showDetail(item) {
+            document.getElementById('click-audio').play();
             document.getElementById('catalogue-grid').style.display = 'none';
             document.getElementById('cat-back').style.display = 'none';
             document.getElementById('detail-view').style.display = 'block';
@@ -126,12 +139,17 @@
         }
 
         function closeDetail() {
+            document.getElementById('click-audio').play();
             document.getElementById('catalogue-grid').style.display = 'grid';
             document.getElementById('cat-back').style.display = 'block';
             document.getElementById('detail-view').style.display = 'none';
         }
 
         function loadQuestion() {
+            document.getElementById('click-audio').play();
+            let qAudio = document.getElementById('question-audio');
+            qAudio.currentTime = 0; qAudio.play();
+
             if (currentIndex >= shuffledData.length) {
                 document.getElementById('quiz-content').style.display = 'none';
                 document.getElementById('result-screen').style.display = 'block';
@@ -160,6 +178,7 @@
         function checkAnswer(ans) {
             let item = shuffledData[currentIndex];
             let correct = (ans === item.name);
+            correct ? document.getElementById('correct-audio').play() : document.getElementById('wrong-audio').play();
             if (correct) score++;
             document.getElementById('score').innerText = score;
             document.getElementById('explanation').innerHTML = `<strong>${correct ? "Correct!" : "Incorrect"}</strong><br>${item.name}: ${item.vibe}`;

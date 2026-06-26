@@ -3,91 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Art Medium Quiz</title>
+    <title>AI Museum Art Curator</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #fdfbf7; margin: 0; }
-        .card { background: white; border-radius: 15px; padding: 25px; width: 90%; max-width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-        img { max-width: 100%; height: auto; border-radius: 10px; margin-bottom: 20px; }
-        button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; background: #e0e0e0; cursor: pointer; font-size: 16px; transition: background 0.2s; }
-        button:hover { background: #d0d0d0; }
-        #explanation { margin: 15px 0; font-weight: bold; padding: 15px; display: none; background: #f8f8f8; border-radius: 8px; border: 1px solid #ddd; }
-        #start-screen, #quiz-content { display: none; }
+        body { font-family: 'Georgia', serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f2ef; color: #333; margin: 0; }
+        .card { background: #ffffff; padding: 40px; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e0e0e0; }
+        h1 { font-weight: normal; letter-spacing: 2px; text-transform: uppercase; font-size: 1.5rem; margin-bottom: 30px; }
+        
+        /* Clean Grid Layout */
+        #catalogue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .cat-thumb { cursor: pointer; transition: transform 0.2s; border: none; padding: 0; }
+        .cat-thumb:hover { transform: scale(1.05); }
+        /* Remove borders from thumbnails */
+        .cat-thumb img { width: 100%; height: 100px; object-fit: cover; display: block; border: none; box-shadow: none; }
+        
+        #detail-view { display: none; padding: 20px; background: #f9f9f9; border: 1px solid #ddd; }
+        .detail-img { width: 100%; max-width: 200px; margin-bottom: 15px; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        /* Image styling for quiz */
+        #question-image { max-width: 100%; height: auto; border: 8px solid #fff; box-shadow: 0 0 0 1px #ddd, 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #333; background: transparent; cursor: pointer; font-family: 'Georgia', serif; font-size: 16px; transition: all 0.3s; }
+        button:hover { background: #333; color: #fff; }
+        #explanation { margin: 20px 0; padding: 20px; display: none; background: #f9f9f9; border-left: 4px solid #333; text-align: left; }
+        #start-screen, #quiz-content, #catalogue-screen { display: none; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <div id="start-screen" style="display:block;">
-            <h1>Art Medium Quiz</h1>
-            <button onclick="startGame()">Start Game</button>
+            <h1>Art Medium Curator</h1>
+            <button onclick="startGame()">ENTER GALLERY</button>
+            <button onclick="showCatalogue()">CATALOGUE</button>
         </div>
 
         <div id="quiz-content">
-            <p>Score: <span id="score">0</span></p>
+            <p>SCORE: <span id="score">0</span></p>
             <img id="question-image" src="" alt="Art Medium">
             <div id="choices"></div>
             <div id="explanation"></div>
-            <button id="next-btn" style="display:none; background:#88a; color: white;" onclick="loadQuestion()">Next Question</button>
+            <button id="next-btn" style="display:none;" onclick="loadQuestion()">NEXT EXHIBIT</button>
+        </div>
+
+        <div id="catalogue-screen">
+            <h1>The Collection</h1>
+            <div id="catalogue-grid"></div>
+            <div id="detail-view">
+                <img id="detail-img" class="detail-img">
+                <h2 id="detail-name"></h2>
+                <p id="detail-vibe"></p>
+                <button onclick="closeDetail()">BACK TO COLLECTION</button>
+            </div>
+            <button id="cat-back" onclick="location.reload()">BACK TO MENU</button>
         </div>
     </div>
 
-    <!-- Media -->
-    <audio id="bg-audio" src="art-medium.mp3"></audio>
-    <audio id="correct-audio" src="https://actions.google.com/sounds/v1/notifications/positive_tone.ogg"></audio>
-    <audio id="wrong-audio" src="https://actions.google.com/sounds/v1/notifications/error_alarm.ogg"></audio>
+    <audio id="bg-audio" src="art-medium-bgm.mp3" loop></audio>
+    <audio id="click-audio" src="https://freesound.org/data/previews/253/253163_4483088-lq.mp3"></audio>
+    <audio id="correct-audio" src="https://freesound.org/data/previews/320/320655_5260872-lq.mp3"></audio>
+    <audio id="wrong-audio" src="https://freesound.org/data/previews/142/142608_2557726-lq.mp3"></audio>
 
     <script>
         const quizData = [
-            {img: "acrylic.jpeg", name: "Acrylic", vibe: "Versatile, modern, and energetic; it feels bold and efficient."},
-            {img: "bronze.jpeg", name: "Bronze", vibe: "Timeless, strong, and monumental; it conveys endurance and power."},
-            {img: "charcoal.jpeg", name: "Charcoal", vibe: "Raw, expressive, and moody; it feels grounded and dramatic."},
-            {img: "clay.jpeg", name: "Clay", vibe: "Organic, tactile, and ancient; it feels intimate and earthy."},
-            {img: "color-pencil.jpeg", name: "Color Pencil", vibe: "Patient, precise, and nostalgic; it feels methodical."},
-            {img: "crayon.jpeg", name: "Crayon", vibe: "Playful, youthful, and innocent; it evokes a sense of discovery."},
-            {img: "encaustic.jpeg", name: "Encaustic", vibe: "Luminous, layered, and historical; it feels mysterious and textured."},
-            {img: "glass.jpeg", name: "Glass", vibe: "Fragile, transparent, and transformative; it feels sharp and ethereal."},
-            {img: "gouache.jpeg", name: "Gouache", vibe: "Flat, opaque, and illustrative; it feels calm and organized."},
-            {img: "graphite.jpeg", name: "Graphite", vibe: "Technical, quiet, and academic; it feels focused and thoughtful."},
-            {img: "ink.jpeg", name: "Ink", vibe: "Permanent, fluid, and decisive; it feels confident and graceful."},
-            {img: "marble.jpeg", name: "Marble", vibe: "Elegant, cool, and divine; it conveys a sense of perfection and stillness."},
-            {img: "oil-paint.jpeg", name: "Oil Paint", vibe: "Luxurious, rich, and patient; it feels deep and sophisticated."},
-            {img: "soft-pastel.jpeg", name: "Soft Pastel", vibe: "Velvety, soft, and vibrant; it feels delicate and airy."},
-            {img: "textile.jpeg", name: "Textile", vibe: "Comforting, woven, and intricate; it feels human and warm."},
-            {img: "watercolor.jpeg", name: "Watercolor", vibe: "Dreamy, fluid, and spontaneous; it feels light and unpredictable."},
-            {img: "wood.jpeg", name: "Wood", vibe: "Natural, rustic, and warm; it feels honest and crafted."}
+            {name: "Acrylic", vibe: "Versatile, modern, and efficient."},
+            {name: "Bronze", vibe: "Timeless, strong, and monumental."},
+            {name: "Charcoal", vibe: "Raw, expressive, and dramatic."},
+            {name: "Clay", vibe: "Earthy, tactile, and ancient."},
+            {name: "Color Pencil", vibe: "Precise, layered, and methodical."},
+            {name: "Crayon", vibe: "Playful, youthful, and vibrant."},
+            {name: "Encaustic", vibe: "Luminous, layered, and historical."},
+            {name: "Glass", vibe: "Fragile, ethereal, and sharp."},
+            {name: "Gouache", vibe: "Flat, opaque, and illustrative."},
+            {name: "Graphite", vibe: "Technical, quiet, and academic."},
+            {name: "Ink", vibe: "Permanent, fluid, and decisive."},
+            {name: "Marble", vibe: "Elegant, cool, and divine."},
+            {name: "Oil Paint", vibe: "Luxurious, rich, and sophisticated."},
+            {name: "Soft Pastel", vibe: "Velvety, soft, and atmospheric."},
+            {name: "Textile", vibe: "Comforting, woven, and intricate."},
+            {name: "Watercolor", vibe: "Dreamy, fluid, and unpredictable."},
+            {name: "Wood", vibe: "Natural, rustic, and crafted."}
         ];
+
+        const fullData = quizData.map(item => ({...item, img: item.name.toLowerCase().replace(" ", "-") + ".jpeg"}));
 
         let score = 0, currentIndex = 0, shuffledData = [];
 
         function startGame() {
+            document.getElementById('click-audio').play();
+            document.getElementById('bg-audio').play();
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('quiz-content').style.display = 'block';
-            shuffledData = [...quizData].sort(() => Math.random() - 0.5);
+            shuffledData = [...fullData].sort(() => Math.random() - 0.5);
             loadQuestion();
         }
 
-        function loadQuestion() {
-            if (currentIndex >= shuffledData.length) {
-                alert("Game Over! Final Score: " + score);
-                location.reload(); return;
-            }
-            // Play background music for the question
-            let bg = document.getElementById('bg-audio');
-            bg.currentTime = 0; bg.play();
+        function showCatalogue() {
+            document.getElementById('click-audio').play();
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('catalogue-screen').style.display = 'block';
+            let grid = document.getElementById('catalogue-grid');
+            grid.innerHTML = '';
+            fullData.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'cat-thumb';
+                // Simply putting the image in the div
+                div.innerHTML = `<img src="${item.img}" alt="${item.name}">`;
+                div.onclick = () => showDetail(item);
+                grid.appendChild(div);
+            });
+        }
 
+        function showDetail(item) {
+            document.getElementById('click-audio').play();
+            document.getElementById('catalogue-grid').style.display = 'none';
+            document.getElementById('cat-back').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'block';
+            document.getElementById('detail-img').src = item.img;
+            document.getElementById('detail-name').innerText = item.name;
+            document.getElementById('detail-vibe').innerText = item.vibe;
+        }
+
+        function closeDetail() {
+            document.getElementById('click-audio').play();
+            document.getElementById('catalogue-grid').style.display = 'grid';
+            document.getElementById('cat-back').style.display = 'block';
+            document.getElementById('detail-view').style.display = 'none';
+        }
+
+        function loadQuestion() {
+            document.getElementById('click-audio').play();
+            if (currentIndex >= shuffledData.length) { alert("Gallery Tour Complete. Score: " + score); location.reload(); return; }
             let item = shuffledData[currentIndex];
             document.getElementById('question-image').src = item.img;
             document.getElementById('explanation').style.display = 'none';
             document.getElementById('next-btn').style.display = 'none';
-            
             let choicesDiv = document.getElementById('choices'); choicesDiv.innerHTML = '';
             let options = [item.name];
             while(options.length < 4) {
-                let rand = quizData[Math.floor(Math.random()*quizData.length)].name;
+                let rand = fullData[Math.floor(Math.random()*fullData.length)].name;
                 if(!options.includes(rand)) options.push(rand);
             }
             options.sort(() => Math.random() - 0.5);
-            
             options.forEach(opt => {
                 let btn = document.createElement('button');
                 btn.innerText = opt;
@@ -99,19 +154,12 @@
         function checkAnswer(ans) {
             let item = shuffledData[currentIndex];
             let correct = (ans === item.name);
-            
-            if (correct) {
-                score++;
-                document.getElementById('correct-audio').play();
-            } else {
-                document.getElementById('wrong-audio').play();
-            }
-            
+            correct ? document.getElementById('correct-audio').play() : document.getElementById('wrong-audio').play();
+            if (correct) score++;
             document.getElementById('score').innerText = score;
-            document.getElementById('explanation').innerHTML = `<strong>${correct ? "Correct!" : "Wrong!"}</strong><br>${item.name}: ${item.vibe}`;
+            document.getElementById('explanation').innerHTML = `<strong>${correct ? "Correct Choice" : "Incorrect"}</strong><br>${item.name}: ${item.vibe}`;
             document.getElementById('explanation').style.display = 'block';
             document.getElementById('next-btn').style.display = 'block';
-            
             Array.from(document.getElementById('choices').children).forEach(b => b.disabled = true);
             currentIndex++;
         }

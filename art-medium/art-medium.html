@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Medium Quiz</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #fdfbf7; margin: 0; }
+        .card { background: white; border-radius: 15px; padding: 25px; width: 90%; max-width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        img { max-width: 100%; height: auto; border-radius: 10px; margin-bottom: 20px; }
+        button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; background: #e0e0e0; cursor: pointer; font-size: 16px; transition: background 0.2s; }
+        button:hover { background: #d0d0d0; }
+        #explanation { margin: 15px 0; font-weight: bold; padding: 15px; display: none; background: #f8f8f8; border-radius: 8px; border: 1px solid #ddd; }
+        #start-screen, #quiz-content { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div id="start-screen" style="display:block;">
+            <h1>Art Medium Quiz</h1>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="quiz-content">
+            <p>Score: <span id="score">0</span></p>
+            <img id="question-image" src="" alt="Art Medium">
+            <div id="choices"></div>
+            <div id="explanation"></div>
+            <button id="next-btn" style="display:none; background:#88a; color: white;" onclick="loadQuestion()">Next Question</button>
+        </div>
+    </div>
+
+    <!-- Media -->
+    <audio id="bg-audio" src="art-medium.mp3"></audio>
+    <audio id="correct-audio" src="https://actions.google.com/sounds/v1/notifications/positive_tone.ogg"></audio>
+    <audio id="wrong-audio" src="https://actions.google.com/sounds/v1/notifications/error_alarm.ogg"></audio>
+
+    <script>
+        const quizData = [
+            {img: "acrylic.jpeg", name: "Acrylic", vibe: "Versatile, modern, and energetic; it feels bold and efficient."},
+            {img: "bronze.jpeg", name: "Bronze", vibe: "Timeless, strong, and monumental; it conveys endurance and power."},
+            {img: "charcoal.jpeg", name: "Charcoal", vibe: "Raw, expressive, and moody; it feels grounded and dramatic."},
+            {img: "clay.jpeg", name: "Clay", vibe: "Organic, tactile, and ancient; it feels intimate and earthy."},
+            {img: "color-pencil.jpeg", name: "Color Pencil", vibe: "Patient, precise, and nostalgic; it feels methodical."},
+            {img: "crayon.jpeg", name: "Crayon", vibe: "Playful, youthful, and innocent; it evokes a sense of discovery."},
+            {img: "encaustic.jpeg", name: "Encaustic", vibe: "Luminous, layered, and historical; it feels mysterious and textured."},
+            {img: "glass.jpeg", name: "Glass", vibe: "Fragile, transparent, and transformative; it feels sharp and ethereal."},
+            {img: "gouache.jpeg", name: "Gouache", vibe: "Flat, opaque, and illustrative; it feels calm and organized."},
+            {img: "graphite.jpeg", name: "Graphite", vibe: "Technical, quiet, and academic; it feels focused and thoughtful."},
+            {img: "ink.jpeg", name: "Ink", vibe: "Permanent, fluid, and decisive; it feels confident and graceful."},
+            {img: "marble.jpeg", name: "Marble", vibe: "Elegant, cool, and divine; it conveys a sense of perfection and stillness."},
+            {img: "oil-paint.jpeg", name: "Oil Paint", vibe: "Luxurious, rich, and patient; it feels deep and sophisticated."},
+            {img: "soft-pastel.jpeg", name: "Soft Pastel", vibe: "Velvety, soft, and vibrant; it feels delicate and airy."},
+            {img: "textile.jpeg", name: "Textile", vibe: "Comforting, woven, and intricate; it feels human and warm."},
+            {img: "watercolor.jpeg", name: "Watercolor", vibe: "Dreamy, fluid, and spontaneous; it feels light and unpredictable."},
+            {img: "wood.jpeg", name: "Wood", vibe: "Natural, rustic, and warm; it feels honest and crafted."}
+        ];
+
+        let score = 0, currentIndex = 0, shuffledData = [];
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'block';
+            shuffledData = [...quizData].sort(() => Math.random() - 0.5);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= shuffledData.length) {
+                alert("Game Over! Final Score: " + score);
+                location.reload(); return;
+            }
+            // Play background music for the question
+            let bg = document.getElementById('bg-audio');
+            bg.currentTime = 0; bg.play();
+
+            let item = shuffledData[currentIndex];
+            document.getElementById('question-image').src = item.img;
+            document.getElementById('explanation').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            let choicesDiv = document.getElementById('choices'); choicesDiv.innerHTML = '';
+            let options = [item.name];
+            while(options.length < 4) {
+                let rand = quizData[Math.floor(Math.random()*quizData.length)].name;
+                if(!options.includes(rand)) options.push(rand);
+            }
+            options.sort(() => Math.random() - 0.5);
+            
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt);
+                choicesDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(ans) {
+            let item = shuffledData[currentIndex];
+            let correct = (ans === item.name);
+            
+            if (correct) {
+                score++;
+                document.getElementById('correct-audio').play();
+            } else {
+                document.getElementById('wrong-audio').play();
+            }
+            
+            document.getElementById('score').innerText = score;
+            document.getElementById('explanation').innerHTML = `<strong>${correct ? "Correct!" : "Wrong!"}</strong><br>${item.name}: ${item.vibe}`;
+            document.getElementById('explanation').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+            
+            Array.from(document.getElementById('choices').children).forEach(b => b.disabled = true);
+            currentIndex++;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Art History Curator</title>
+    <style>
+        body { font-family: 'Georgia', serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f2ef; color: #333; margin: 0; }
+        .card { background: #ffffff; padding: 40px; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e0e0e0; position: relative; }
+        h1 { font-weight: normal; letter-spacing: 2px; text-transform: uppercase; font-size: 1.5rem; margin-bottom: 30px; }
+        
+        #catalogue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .cat-thumb { cursor: pointer; transition: transform 0.2s; border: 1px solid #ddd; padding: 5px; }
+        .cat-thumb:hover { transform: scale(1.05); }
+        .cat-thumb img { width: 100%; height: 80px; object-fit: cover; display: block; }
+        
+        #detail-view { display: none; padding: 20px; }
+        .detail-img { width: 100%; max-width: 200px; margin-bottom: 15px; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        #question-image { max-width: 100%; height: auto; border: 8px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #333; background: transparent; cursor: pointer; font-family: 'Georgia', serif; font-size: 16px; transition: all 0.3s; }
+        button:hover { background: #333; color: #fff; }
+        #explanation { margin: 20px 0; padding: 20px; display: none; background: #f9f9f9; border-left: 4px solid #333; text-align: left; }
+        
+        #quiz-content, #catalogue-screen, #result-screen { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div id="start-screen" style="display:block;">
+            <h1>Art History Curator</h1>
+            <button onclick="startGame()">ENTER GALLERY</button>
+            <button onclick="showCatalogue()">CATALOGUE</button>
+        </div>
+
+        <div id="quiz-content">
+            <p>SCORE: <span id="score">0</span></p>
+            <img id="question-image" src="" alt="Art Style">
+            <div id="choices"></div>
+            <div id="explanation"></div>
+            <button id="next-btn" style="display:none;" onclick="loadQuestion()">NEXT EXHIBIT</button>
+        </div>
+
+        <div id="result-screen">
+            <h1>Tour Complete</h1>
+            <p id="final-score-text" style="font-size: 20px;"></p>
+            <button onclick="location.reload()">BACK TO HOME SCREEN</button>
+        </div>
+
+        <div id="catalogue-screen">
+            <h1>Chronological Collection</h1>
+            <div id="catalogue-grid"></div>
+            <div id="detail-view">
+                <img id="detail-img" class="detail-img">
+                <h2 id="detail-name"></h2>
+                <p id="detail-vibe"></p>
+                <button onclick="closeDetail()">BACK TO COLLECTION</button>
+            </div>
+            <button id="cat-back" onclick="location.reload()">BACK TO MENU</button>
+        </div>
+    </div>
+
+    <audio id="bgm-audio" src="art-history-bgm.mp3" loop></audio>
+    <audio id="question-audio" src="art-history.mp3"></audio>
+    <audio id="click-audio" src="https://freesound.org/data/previews/320/320655_5260872-lq.mp3"></audio>
+    <audio id="correct-audio" src="https://freesound.org/data/previews/320/320655_5260872-lq.mp3"></audio>
+    <audio id="wrong-audio" src="https://freesound.org/data/previews/320/320655_5260872-lq.mp3"></audio>
+
+    <script>
+        // Ordered chronologically
+        const artData = [
+            {name: "Donatello", style: "Early Renaissance", img: "donatello-early-renaissance.png", vibe: "Focus on humanism, classical proportions, and emotional depth."},
+            {name: "Leonardo da Vinci", style: "High Renaissance", img: "leonardo-da-vinci-high-renaissance.png", vibe: "Mastery of sfumato, anatomical precision, and balanced composition."},
+            {name: "Michelangelo", style: "Mannerism", img: "michelangelo-buonarroti-high-renaissance-mannerism.png", vibe: "Dramatic tension, exaggerated forms, and complex compositions."},
+            {name: "Raphael", style: "High Renaissance", img: "raphael-high-renaissance.png", vibe: "Harmonious clarity, grace, and ideal beauty."},
+            {name: "Caravaggio", style: "Baroque", img: "caravaggio-baroque.png", vibe: "Intense tenebrism, dramatic lighting, and raw realism."},
+            {name: "Francisco Goya", style: "Romanticism", img: "francisco-goya-romanticism.png", vibe: "Emphasis on emotion, imagination, and dark, subjective themes."},
+            {name: "Gustave Courbet", style: "Realism", img: "gustave-courbet-realism.png", vibe: "Depicting everyday life with unidealized, gritty accuracy."},
+            {name: "Claude Monet", style: "Impressionism", img: "claude-monet-impressionism.png", vibe: "Capturing fleeting light and atmosphere with broken brushstrokes."},
+            {name: "Paul Cézanne", style: "Post-Impressionism", img: "paul-cézanne-post-impressionism.png", vibe: "Geometric simplification and structural analysis of nature."},
+            {name: "Vincent van Gogh", style: "Post-Impressionism", img: "vincent-van-gogh-post-impressionism.png", vibe: "Vibrant color, expressive brushwork, and emotional intensity."},
+            {name: "Edvard Munch", style: "Expressionism", img: "edvard-munch-expressionism.png", vibe: "Distorted forms to convey psychological angst and deep emotion."},
+            {name: "Henri Matisse", style: "Fauvism", img: "henri-matisse-fauvism.png", vibe: "Use of bold, arbitrary, non-naturalistic color."},
+            {name: "Georges Seurat", style: "Neo-Pointillism", img: "georges-seurat-neo-pointillism.png", vibe: "Scientific approach using tiny, distinct dots of color."},
+            {name: "Pablo Picasso", style: "Cubism", img: "pablo-picasso-cubism.png", vibe: "Breaking objects into geometric fragments and multiple perspectives."},
+            {name: "Wassily Kandinsky", style: "Abstract Art", img: "wassily-kandinsky-abstract-art.png", vibe: "Focus on form, color, and spiritual expression over representation."},
+            {name: "Salvador Dalí", style: "Surrealism", img: "salvador-dali-surrealism.png", vibe: "Dreamlike scenes, bizarre imagery, and unconscious exploration."},
+            {name: "Frida Kahlo", style: "Magical Realism", img: "frida-kahlo-magical-realism.png", vibe: "Personal, symbolic narratives blending reality and fantasy."},
+            {name: "Jackson Pollock", style: "Abstract Expressionism", img: "jackson-pollock-abstract-expressionism.png", vibe: "Spontaneous, physical 'action painting' and energetic drip style."},
+            {name: "Mark Rothko", style: "Color Field Painting", img: "mark-rothko-color-field-painting.png", vibe: "Expansive fields of color to evoke meditative, emotional responses."},
+            {name: "Andy Warhol", style: "Pop Art", img: "andy-warhol-pop-art.png", vibe: "Celebration of consumer culture, mass media, and repetition."},
+            {name: "Jean-Michel Basquiat", style: "Neo-Expressionism", img: "jean-michel-basquiat-neo-expressionism.png", vibe: "Raw, street-art-inspired energy, text, and social commentary."}
+        ];
+
+        let score = 0, currentIndex = 0, shuffledData = [];
+
+        function startGame() {
+            document.getElementById('click-audio').play();
+            let bgm = document.getElementById('bgm-audio'); bgm.volume = 0.3; bgm.play();
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'block';
+            shuffledData = [...artData].sort(() => Math.random() - 0.5);
+            loadQuestion();
+        }
+
+        function showCatalogue() {
+            document.getElementById('click-audio').play();
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('catalogue-screen').style.display = 'block';
+            let grid = document.getElementById('catalogue-grid');
+            grid.innerHTML = '';
+            artData.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'cat-thumb';
+                div.innerHTML = `<img src="${item.img}" alt="${item.style}">`;
+                div.onclick = () => showDetail(item);
+                grid.appendChild(div);
+            });
+        }
+
+        function showDetail(item) {
+            document.getElementById('click-audio').play();
+            document.getElementById('catalogue-grid').style.display = 'none';
+            document.getElementById('cat-back').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'block';
+            document.getElementById('detail-img').src = item.img;
+            document.getElementById('detail-name').innerText = item.name + " (" + item.style + ")";
+            document.getElementById('detail-vibe').innerText = item.vibe;
+        }
+
+        function closeDetail() {
+            document.getElementById('click-audio').play();
+            document.getElementById('catalogue-grid').style.display = 'grid';
+            document.getElementById('cat-back').style.display = 'block';
+            document.getElementById('detail-view').style.display = 'none';
+        }
+
+        function loadQuestion() {
+            document.getElementById('click-audio').play();
+            let qAudio = document.getElementById('question-audio');
+            qAudio.currentTime = 0; qAudio.play();
+
+            if (currentIndex >= shuffledData.length) {
+                document.getElementById('quiz-content').style.display = 'none';
+                document.getElementById('result-screen').style.display = 'block';
+                document.getElementById('final-score-text').innerText = "Score: " + score + "/" + shuffledData.length;
+                return; 
+            }
+            let item = shuffledData[currentIndex];
+            document.getElementById('question-image').src = item.img;
+            document.getElementById('explanation').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            let choicesDiv = document.getElementById('choices'); choicesDiv.innerHTML = '';
+            
+            let options = [item.style];
+            while(options.length < 4) {
+                let rand = artData[Math.floor(Math.random()*artData.length)].style;
+                if(!options.includes(rand)) options.push(rand);
+            }
+            options.sort(() => Math.random() - 0.5);
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt);
+                choicesDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(ans) {
+            let item = shuffledData[currentIndex];
+            let correct = (ans === item.style);
+            correct ? document.getElementById('correct-audio').play() : document.getElementById('wrong-audio').play();
+            if (correct) score++;
+            document.getElementById('score').innerText = score;
+            document.getElementById('explanation').innerHTML = `<strong>${correct ? "Correct!" : "Incorrect"}</strong><br>${item.name}: ${item.vibe}`;
+            document.getElementById('explanation').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+            Array.from(document.getElementById('choices').children).forEach(b => b.disabled = true);
+            currentIndex++;
+        }
+    </script>
+</body>
+</html>

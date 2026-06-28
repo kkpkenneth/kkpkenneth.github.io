@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEAM Wind Energy Quiz</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #050505; color: #00ff41; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 500px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #00ff41; padding: 30px; background: #111; margin-bottom: 20px; min-height: 100px; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; line-height: 1.4; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: none; cursor: pointer; color: white; font-weight: bold; border-radius: 5px; transition: transform 0.1s; }
+        button:active { transform: scale(0.95); }
+        .btn-cyan { background: linear-gradient(135deg, #00ffff, #008888); }
+        .btn-pink { background: linear-gradient(135deg, #ff00ff, #880088); }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffff00; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">Score: 0</div>
+    <div id="text-box">Press Initialize to Start</div>
+    <div id="options" class="options">
+        <button class="btn-cyan" onclick="initGame()">INITIALIZE</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+
+    const quizData = [
+        { q: "What energy conversion happens in a wind turbine?", a: ["Kinetic to Electric", "Thermal to Electric"], correct: "Kinetic to Electric" },
+        { q: "What is the wake effect in a wind farm?", a: ["Turbine airflow blockage", "Sound wave interference"], correct: "Turbine airflow blockage" },
+        { q: "Why are turbine blades aerodynamically shaped?", a: ["To maximize lift", "To reduce color"], correct: "To maximize lift" },
+        { q: "Where is the generator located in a typical wind turbine?", a: ["Inside the nacelle", "In the foundation"], correct: "Inside the nacelle" },
+        { q: "What type of energy is wind?", a: ["Renewable", "Non-renewable"], correct: "Renewable" },
+        { q: "What happens to wind speed as altitude increases?", a: ["It generally increases", "It decreases"], correct: "It generally increases" },
+        { q: "What are most modern turbine blades made of?", a: ["Composite materials", "Solid lead"], correct: "Composite materials" },
+        { q: "What is the function of the gearbox in a turbine?", a: ["Increase rotor speed", "Decrease height"], correct: "Increase rotor speed" },
+        { q: "What is the purpose of an anemometer on a turbine?", a: ["Measure wind speed", "Measure temperature"], correct: "Measure wind speed" },
+        { q: "Which force acts on the blades to create rotation?", a: ["Lift", "Static friction"], correct: "Lift" }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = item.q;
+        optDiv.innerHTML = "";
+        
+        item.a.forEach((choice, index) => {
+            const btn = document.createElement('button');
+            btn.innerText = choice;
+            btn.className = index === 0 ? "btn-cyan" : "btn-pink";
+            btn.onclick = () => {
+                if (choice === item.correct) {
+                    score += 10;
+                    playSFX(880, 'sine', 0.3);
+                } else {
+                    playSFX(150, 'sawtooth', 0.3);
+                }
+                document.getElementById('score-board').innerText = "Score: " + score;
+                nextQuestion();
+            };
+            optDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

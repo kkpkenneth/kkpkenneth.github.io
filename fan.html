@@ -6,8 +6,8 @@
     <title>STEAM Wind Energy Quiz</title>
     <style>
         body { font-family: 'Courier New', monospace; background: #050505; color: #00ff41; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        #game-container { max-width: 500px; width: 100%; text-align: center; }
-        #text-box { border: 2px solid #00ff41; padding: 30px; background: #111; margin-bottom: 20px; min-height: 100px; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; line-height: 1.4; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #00ff41; padding: 30px; background: #111; margin-bottom: 20px; min-height: 120px; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; line-height: 1.4; }
         .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         button { padding: 15px; border: none; cursor: pointer; color: white; font-weight: bold; border-radius: 5px; transition: transform 0.1s; }
         button:active { transform: scale(0.95); }
@@ -40,7 +40,27 @@
         { q: "What are most modern turbine blades made of?", a: ["Composite materials", "Solid lead"], correct: "Composite materials" },
         { q: "What is the function of the gearbox in a turbine?", a: ["Increase rotor speed", "Decrease height"], correct: "Increase rotor speed" },
         { q: "What is the purpose of an anemometer on a turbine?", a: ["Measure wind speed", "Measure temperature"], correct: "Measure wind speed" },
-        { q: "Which force acts on the blades to create rotation?", a: ["Lift", "Static friction"], correct: "Lift" }
+        { q: "Which force acts on the blades to create rotation?", a: ["Lift", "Static friction"], correct: "Lift" },
+        { q: "What does a yaw system do in a wind turbine?", a: ["Turns turbine to face wind", "Cleans the blades"], correct: "Turns turbine to face wind" },
+        { q: "What is the main advantage of offshore wind farms?", a: ["Stronger, steady winds", "Cheaper to build"], correct: "Stronger, steady winds" },
+        { q: "What prevents blades from spinning too fast in high winds?", a: ["Braking system", "Adding weight"], correct: "Braking system" },
+        { q: "What is a 'Betz Limit' in wind energy?", a: ["Maximum energy extraction", "Minimum height"], correct: "Maximum energy extraction" },
+        { q: "Which gas emission is reduced by using wind energy?", a: ["Carbon Dioxide", "Argon"], correct: "Carbon Dioxide" },
+        { q: "What is the purpose of a wind turbine foundation?", a: ["Stability and balance", "Electricity storage"], correct: "Stability and balance" },
+        { q: "What does 'cut-in speed' mean?", a: ["Min speed to start power", "Max speed to stop"], correct: "Min speed to start power" },
+        { q: "Which of these is a vertical axis wind turbine type?", a: ["Darrieus", "Propeller"], correct: "Darrieus" },
+        { q: "What is the pitch control system used for?", a: ["Adjusting blade angle", "Adjusting tower height"], correct: "Adjusting blade angle" },
+        { q: "What part keeps the rotor hub in place?", a: ["Main shaft", "External shell"], correct: "Main shaft" },
+        { q: "How are offshore wind turbines usually fixed?", a: ["Monopile or floating", "Glued to sand"], correct: "Monopile or floating" },
+        { q: "What is an inverter's role in wind energy?", a: ["Convert DC to AC", "Cool the motor"], correct: "Convert DC to AC" },
+        { q: "What causes wind to blow on Earth?", a: ["Uneven solar heating", "Planetary rotation"], correct: "Uneven solar heating" },
+        { q: "Which is more common for large-scale electricity?", a: ["Horizontal axis", "Vertical axis"], correct: "Horizontal axis" },
+        { q: "What is the 'swept area' of a wind turbine?", a: ["Area defined by blade path", "Area of the base"], correct: "Area defined by blade path" },
+        { q: "What is the main benefit of wind power?", a: ["Clean, zero emission", "Requires no space"], correct: "Clean, zero emission" },
+        { q: "What is the typical lifespan of a wind turbine?", a: ["20 to 25 years", "5 to 10 years"], correct: "20 to 25 years" },
+        { q: "What helps prevent ice buildup on blades?", a: ["Heating systems", "Polishing"], correct: "Heating systems" },
+        { q: "What does a SCADA system do?", a: ["Monitors performance", "Generates heat"], correct: "Monitors performance" },
+        { q: "Where is wind power potential highest?", a: ["High altitude/coastal", "Deep underground"], correct: "High altitude/coastal" }
     ];
 
     function playSFX(freq, type, duration) {
@@ -69,7 +89,10 @@
         box.innerText = item.q;
         optDiv.innerHTML = "";
         
-        item.a.forEach((choice, index) => {
+        // 複製並隨機排序選項
+        const shuffledAnswers = [...item.a].sort(() => Math.random() - 0.5);
+        
+        shuffledAnswers.forEach((choice, index) => {
             const btn = document.createElement('button');
             btn.innerText = choice;
             btn.className = index === 0 ? "btn-cyan" : "btn-pink";

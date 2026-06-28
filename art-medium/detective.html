@@ -3,69 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Detective Mystery</title>
+    <title>Bio-Forensics: Operation Chlorophyll</title>
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background: #1a1a1a; color: #00ff41; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        #game-container { max-width: 500px; width: 100%; }
-        #text-box { min-height: 150px; margin-bottom: 20px; border: 1px solid #333; padding: 15px; background: #000; }
-        button { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #333; color: #fff; border: none; cursor: pointer; font-size: 16px; }
-        button:hover { background: #444; }
+        body { font-family: 'Courier New', Courier, monospace; background: #050505; color: #00ff41; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { min-height: 200px; margin-bottom: 30px; border: 2px solid #00ff41; padding: 25px; background: #111; font-size: 1.1rem; line-height: 1.5; color: #00ff41; }
+        #options { display: flex; gap: 15px; justify-content: center; }
+        
+        /* Specific Button Colors */
+        .btn-cyan { color: #00ffff; border: 2px solid #00ffff; }
+        .btn-cyan:hover { background: #00ffff; color: #000; }
+        
+        .btn-pink { color: #ff00ff; border: 2px solid #ff00ff; }
+        .btn-pink:hover { background: #ff00ff; color: #000; }
+        
+        button { padding: 15px; background: transparent; cursor: pointer; font-family: inherit; font-weight: bold; width: 45%; transition: 0.2s; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div id="text-box"></div>
-    <div id="options"></div>
+    <div id="start-screen">
+        <h1>BIO-DETECTIVE SYSTEM</h1>
+        <button class="btn-cyan" onclick="startGame()">INITIALIZE CASE</button>
+    </div>
+    <div id="game-ui" style="display: none;">
+        <div id="text-box"></div>
+        <div id="options"></div>
+    </div>
 </div>
 
 <script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep(freq, duration) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
     const story = {
-        start: {
-            text: "Detective, a rare toxic algae bloom has killed the local fish population. You find two clues by the riverbank. What do you examine first?",
-            options: [
-                { text: "Analyze the water's nitrogen levels", next: "nitrogen" },
-                { text: "Check for nearby agricultural runoff", next: "runoff" }
-            ]
-        },
-        nitrogen: {
-            text: "High nitrogen levels suggest eutrophication. You realize a local factory is dumping untreated waste. Case closed!",
-            options: [{ text: "Restart", next: "start" }]
-        },
-        runoff: {
-            text: "You find traces of synthetic fertilizer. The culprit is the nearby farm's irrigation system. Case closed!",
-            options: [{ text: "Restart", next: "start" }]
-        }
+        1: { text: "The city's rare orchid collection is dying. You arrive at the Bio-Vault. Do you examine the soil chemistry or the ventilation logs?", options: [{text: "Soil", next: 2, color: 'cyan'}, {text: "Logs", next: 3, color: 'pink'}] },
+        2: { text: "Soil tests reveal a synthetic fungus. It’s an engineered strain. Track it to the lab or check the delivery manifest?", options: [{text: "Lab", next: 4, color: 'cyan'}, {text: "Manifest", next: 5, color: 'pink'}] },
+        3: { text: "Logs show an unauthorized override at midnight. Follow the digital footprint or check security footage?", options: [{text: "Footprint", next: 6, color: 'cyan'}, {text: "Footage", next: 7, color: 'pink'}] },
+        4: { text: "The lab is empty, but a centrifuge is still warm. Do you test the residue or hide and wait?", options: [{text: "Residue", next: 8, color: 'cyan'}, {text: "Wait", next: 9, color: 'pink'}] },
+        5: { text: "The manifest leads to an offshore research firm. Do you infiltrate via the docks or hack the server?", options: [{text: "Docks", next: 9, color: 'cyan'}, {text: "Hack", next: 8, color: 'pink'}] },
+        6: { text: "The footprint leads to a private IP in the industrial sector. Confront the coder or analyze the malware?", options: [{text: "Confront", next: 10, color: 'cyan'}, {text: "Analyze", next: 8, color: 'pink'}] },
+        7: { text: "The footage is grainy, showing a cloaked figure. Identify by movement or check entry keys?", options: [{text: "Movement", next: 10, color: 'cyan'}, {text: "Keys", next: 5, color: 'pink'}] },
+        8: { text: "The data confirms: A corporate rival is stealing genetic codes. You have the evidence. Case Solved.", options: [{text: "Restart", next: 1, color: 'cyan'}] },
+        9: { text: "You get caught in an ambush! The secret remains buried. Case Failed.", options: [{text: "Restart", next: 1, color: 'pink'}] },
+        10: { text: "The suspect confesses! They were blackmailed to sabotage the project. Case Solved.", options: [{text: "Restart", next: 1, color: 'cyan'}] }
     };
 
-    const textBox = document.getElementById('text-box');
-    const optionsDiv = document.getElementById('options');
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-ui').style.display = 'block';
+        renderScene(1);
+    }
 
     function typeWriter(text, i = 0) {
         if (i === 0) {
-            textBox.innerHTML = "";
+            document.getElementById('text-box').innerHTML = "";
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
         }
         if (i < text.length) {
-            textBox.innerHTML += text.charAt(i);
+            document.getElementById('text-box').innerHTML += text.charAt(i);
+            if (text.charAt(i) !== " ") playBeep(600, 0.05);
             setTimeout(() => typeWriter(text, i + 1), 30);
         }
     }
 
-    function showScene(sceneKey) {
-        const scene = story[sceneKey];
+    function renderScene(id) {
+        const scene = story[id];
         typeWriter(scene.text);
-        optionsDiv.innerHTML = "";
+        const optDiv = document.getElementById('options');
+        optDiv.innerHTML = "";
         scene.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.innerText = opt.text;
-            btn.onclick = () => showScene(opt.next);
-            optionsDiv.appendChild(btn);
+            btn.className = opt.color === 'pink' ? 'btn-pink' : 'btn-cyan';
+            btn.onclick = () => { playBeep(800, 0.2); renderScene(opt.next); };
+            optDiv.appendChild(btn);
         });
     }
-
-    showScene('start');
 </script>
 </body>
 </html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio-Detective Mystery</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background: #1a1a1a; color: #00ff41; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        #game-container { max-width: 500px; width: 100%; }
+        #text-box { min-height: 150px; margin-bottom: 20px; border: 1px solid #333; padding: 15px; background: #000; }
+        button { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #333; color: #fff; border: none; cursor: pointer; font-size: 16px; }
+        button:hover { background: #444; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="text-box"></div>
+    <div id="options"></div>
+</div>
+
+<script>
+    const story = {
+        start: {
+            text: "Detective, a rare toxic algae bloom has killed the local fish population. You find two clues by the riverbank. What do you examine first?",
+            options: [
+                { text: "Analyze the water's nitrogen levels", next: "nitrogen" },
+                { text: "Check for nearby agricultural runoff", next: "runoff" }
+            ]
+        },
+        nitrogen: {
+            text: "High nitrogen levels suggest eutrophication. You realize a local factory is dumping untreated waste. Case closed!",
+            options: [{ text: "Restart", next: "start" }]
+        },
+        runoff: {
+            text: "You find traces of synthetic fertilizer. The culprit is the nearby farm's irrigation system. Case closed!",
+            options: [{ text: "Restart", next: "start" }]
+        }
+    };
+
+    const textBox = document.getElementById('text-box');
+    const optionsDiv = document.getElementById('options');
+
+    function typeWriter(text, i = 0) {
+        if (i === 0) {
+            textBox.innerHTML = "";
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+        }
+        if (i < text.length) {
+            textBox.innerHTML += text.charAt(i);
+            setTimeout(() => typeWriter(text, i + 1), 30);
+        }
+    }
+
+    function showScene(sceneKey) {
+        const scene = story[sceneKey];
+        typeWriter(scene.text);
+        optionsDiv.innerHTML = "";
+        scene.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text;
+            btn.onclick = () => showScene(opt.next);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    showScene('start');
+</script>
+</body>
+</html>

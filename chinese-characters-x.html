@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粵語繁體認字挑戰 | Cantonese Quiz</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'PingFang HK', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .game-screen { display: none; }
+        .big-character { font-size: 100px; font-weight: bold; margin: 20px 0; }
+
+        .phonetic-btn {
+            background-color: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-family: monospace;
+            margin: 10px;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--bg-color);
+        }
+
+        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        .choice-btn {
+            background-color: #334155;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .choice-btn.correct { background-color: var(--correct) !important; }
+        .choice-btn.wrong { background-color: var(--wrong) !important; }
+        
+        #explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid var(--accent);
+        }
+
+        .next-btn { background-color: #64748b; color: white; margin-top: 20px; width: 100%; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>粵語繁體認字</h1>
+        <button class="btn" onclick="playSound('magic'); setTimeout(startGame, 500)">Start Quiz</button>
+    </div>
+
+    <div id="game-screen" class="game-screen">
+        <div>Score: <span id="score">0</span></div>
+        <div class="big-character" id="char">字</div>
+        <button class="phonetic-btn" id="audio-btn" onclick="playSound('click'); playCurrentAudio()">jyut6 ping3</button>
+        <div class="choices-grid" id="choices"></div>
+        <div id="explanation"></div>
+        <button class="btn next-btn" id="next-btn" onclick="playSound('click'); nextQ()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const charDB = [
+            ["屌", "diu2", "fuck", "fuck"],
+            ["你", "nei5", "you", "you or your"],
+            ["老", "lou5", "old", "old"],
+            ["母", "mou5", "mom", "mom"],
+            ["屌你老母", "diu2 nei5 lou5 mou2", "fuck your mom", "fuck your mom"],
+            ["鳩", "gau1", "dick", "dick as well as dove"],
+            ["撚", "lan2", "dick", "dick as well as skillful"],
+            ["柒", "cat6", "dick", "dick as well as the traditional character for seven"],
+            ["閪", "hai1", "vagina", "vagina is written as a west character inside a door character"],
+         
+    ];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0, answered = false, currentQ = null;
+
+    // 統一音效處理
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+
+        if (type === 'magic') {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+        } else if (type === 'correct') {
+            osc.frequency.value = 800; osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            osc.frequency.value = 200; osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'click') {
+            osc.frequency.value = 600; osc.type = 'square';
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        nextQ();
+    }
+
+    function nextQ() {
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        currentQ = charDB[Math.floor(Math.random() * charDB.length)];
+        document.getElementById('char').innerText = currentQ[0];
+        document.getElementById('audio-btn').innerText = currentQ[1];
+        
+        let options = [currentQ[2]];
+        while(options.length < 4) {
+            let op = charDB[Math.floor(Math.random() * charDB.length)][2];
+            if(!options.includes(op)) options.push(op);
+        }
+        options.sort(() => Math.random() - 0.5);
+        const grid = document.getElementById('choices');
+        grid.innerHTML = '';
+        options.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = o;
+            btn.onclick = () => { playSound('click'); check(o, btn); };
+            grid.appendChild(btn);
+        });
+        setTimeout(playCurrentAudio, 300);
+    }
+
+    function check(val, btn) {
+        if(answered) return;
+        answered = true;
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(b => {
+            if(b.innerText === currentQ[2]) b.classList.add('correct');
+            else if(b === btn) b.classList.add('wrong');
+            b.disabled = true;
+        });
+        document.getElementById('explanation').innerHTML = "<strong>Explanation:</strong> " + currentQ[3];
+        document.getElementById('explanation').style.display = 'block';
+        if(val === currentQ[2]) { score++; playSound('correct'); } else { playSound('wrong'); }
+        document.getElementById('score').innerText = score;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function playCurrentAudio() {
+        const u = new SpeechSynthesisUtterance(currentQ[0]);
+        u.lang = 'zh-HK';
+        window.speechSynthesis.speak(u);
+    }
+</script>
+</body>
+</html>

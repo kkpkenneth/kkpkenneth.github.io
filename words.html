@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Vocabulary Quiz</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .game-screen { display: none; }
+        .big-word { font-size: 80px; font-weight: bold; margin: 20px 0; color: var(--accent); }
+
+        .btn {
+            background-color: var(--accent);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--bg-color);
+            margin-top: 20px;
+        }
+
+        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        .choice-btn {
+            background-color: #334155;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .choice-btn.correct { background-color: var(--correct) !important; }
+        .choice-btn.wrong { background-color: var(--wrong) !important; }
+        
+        #explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid var(--accent);
+            text-align: left;
+        }
+
+        .next-btn { background-color: #64748b; color: white; margin-top: 20px; width: 100%; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>English Vocabulary Quiz</h1>
+        <button class="btn" onclick="startGame()">Start Quiz</button>
+    </div>
+
+    <div id="game-screen" class="game-screen">
+        <div>Score: <span id="score">0</span></div>
+        <div class="big-word" id="word">Word</div>
+        <div class="choices-grid" id="choices"></div>
+        <div id="explanation"></div>
+        <button class="btn next-btn" id="next-btn" onclick="nextQ()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    // Vocabulary Database: [Word, Definition, Explanation]
+    const wordDB = [
+        ["Dog", "A domesticated mammal", "A common pet often called man's best friend."],
+        ["Run", "To move quickly", "Moving at a speed faster than a walk."],
+        ["Happy", "Feeling pleasure", "A state of joy or contentment."],
+        ["Water", "Essential liquid", "A clear liquid necessary for all life."],
+        ["Blue", "A color", "The color of the clear sky or ocean."],
+        ["Fast", "High speed", "Moving or capable of moving at high speed."],
+        ["Book", "Written work", "A set of pages bound together for reading."],
+        ["Sleep", "To rest", "To be in a natural state of bodily rest."],
+        ["Eat", "Consume food", "Taking food into the body for energy."],
+        ["Big", "Large size", "Having a relatively great size or extent."]
+    ];
+
+    let score = 0, answered = false, currentQ = null;
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        nextQ();
+    }
+
+    function nextQ() {
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        currentQ = wordDB[Math.floor(Math.random() * wordDB.length)];
+        document.getElementById('word').innerText = currentQ[0];
+        
+        let options = [currentQ[1]];
+        while(options.length < 4) {
+            let op = wordDB[Math.floor(Math.random() * wordDB.length)][1];
+            if(!options.includes(op)) options.push(op);
+        }
+        options.sort(() => Math.random() - 0.5);
+        const grid = document.getElementById('choices');
+        grid.innerHTML = '';
+        options.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = o;
+            btn.onclick = () => check(o, btn);
+            grid.appendChild(btn);
+        });
+        
+        // Browser text-to-speech
+        const u = new SpeechSynthesisUtterance(currentQ[0]);
+        u.lang = 'en-US';
+        window.speechSynthesis.speak(u);
+    }
+
+    function check(val, btn) {
+        if(answered) return;
+        answered = true;
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(b => {
+            if(b.innerText === currentQ[1]) b.classList.add('correct');
+            else if(b === btn) b.classList.add('wrong');
+            b.disabled = true;
+        });
+        document.getElementById('explanation').innerHTML = "<strong>Definition:</strong> " + currentQ[2];
+        document.getElementById('explanation').style.display = 'block';
+        if(val === currentQ[1]) { score++; }
+        document.getElementById('score').innerText = score;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+</script>
+</body>
+</html>

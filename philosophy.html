@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Philosophy Master Quiz</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .hidden { display: none; }
+
+        h1, h2 { color: var(--accent); margin-bottom: 20px; }
+
+        .choices { display: grid; gap: 12px; margin-top: 20px; }
+
+        button {
+            background: #334155;
+            border: none;
+            color: white;
+            padding: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-main { background: var(--accent); color: var(--bg-color); font-weight: bold; width: 100%; }
+
+        .correct { background: var(--correct) !important; }
+        .wrong { background: var(--wrong) !important; }
+        
+        #explanation { margin-top: 20px; padding: 15px; background: #0f172a; border-radius: 12px; border-left: 4px solid var(--accent); text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="start-screen">
+    <h1>Philosophy Quiz</h1>
+    <p>Master the theories of the great thinkers.</p>
+    <button class="btn-main" onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div class="container hidden" id="quiz-screen">
+    <h2 id="philosopher-name"></h2>
+    <p id="question" style="font-size: 1.2rem;"></p>
+    <button onclick="speakQuestion()" style="background: transparent; border: 1px solid var(--accent); color: var(--accent); margin-bottom: 10px;">🔊 Hear Question</button>
+    <div class="choices" id="choices"></div>
+    <div id="explanation" class="hidden"></div>
+    <button class="btn-main hidden" id="next-btn" style="margin-top:20px;" onclick="loadQuestion()">Next Question</button>
+</div>
+
+<script>
+   const db = [
+    // --- ANCIENT PHILOSOPHY (The Foundation) ---
+    { name: "Thales", q: "Thales: What did he identify as the fundamental substance?", a: "Water", options: ["Fire", "Air", "Water", "Earth"], exp: "He proposed water as the source of all things." },
+    { name: "Anaximander", q: "Anaximander: What is the 'Apeiron'?", a: "The boundless or indefinite", options: ["The soul", "The boundless or indefinite", "A heavy metal", "Pure logic"], exp: "He argued the source of reality is an infinite, undefined substance." },
+    { name: "Anaximenes", q: "Anaximenes: What did he choose as the fundamental substance?", a: "Air", options: ["Air", "Gold", "Light", "Time"], exp: "He believed air creates everything through condensation and rarefaction." },
+    { name: "Heraclitus", q: "Heraclitus: What is he famous for?", a: "The doctrine of flux", options: ["Static reality", "The doctrine of flux", "Mathematical truth", "Atomism"], exp: "He noted that one cannot step into the same river twice." },
+    { name: "Parmenides", q: "Parmenides: What was his view on change?", a: "It is an illusion", options: ["It is constant", "It is an illusion", "It is divine", "It is only physical"], exp: "He argued that true 'Being' is static and eternal." },
+    { name: "Pythagoras", q: "Pythagoras: What governs the universe?", a: "Mathematics", options: ["Political power", "Chaos", "Mathematics", "Physical weight"], exp: "He believed numerical ratios determine the harmony of the universe." },
+    { name: "Empedocles", q: "Empedocles: What are the four 'roots' of reality?", a: "Earth, Air, Fire, Water", options: ["Gold, Silver, Iron, Tin", "Earth, Air, Fire, Water", "Mind, Body, Spirit, Soul", "Sun, Moon, Stars, Void"], exp: "He theorized four elements moved by Love and Strife." },
+    { name: "Anaxagoras", q: "Anaxagoras: What is 'Nous'?", a: "Cosmic Mind", options: ["Pure energy", "Cosmic Mind", "Destiny", "Physical atoms"], exp: "He argued that a cosmic intellect (Nous) ordered reality." },
+    { name: "Democritus", q: "Democritus: What is the basis of Atomism?", a: "Indivisible particles", options: ["God's will", "Indivisible particles", "Liquid flow", "Human thought"], exp: "He proposed the universe consists of atoms and the void." },
+    { name: "Socrates", q: "Socrates: What is the core of his method?", a: "Questioning to illuminate ideas.", options: ["Predicting the future", "Questioning to illuminate ideas.", "Strict law enforcement", "Polytheism"], exp: "He believed in admitting ignorance and using questions to find truth." },
+    { name: "Plato", q: "Plato: What does the 'Allegory of the Cave' symbolize?", a: "The contrast between belief and true knowledge.", options: ["Fear of darkness", "Necessity of labor", "The contrast between belief and true knowledge.", "Sea travel"], exp: "It illustrates how sensory experience mimics reality." },
+    { name: "Aristotle", q: "Aristotle: What is the 'Golden Mean'?", a: "The middle between extremes.", options: ["The center of Earth", "The middle between extremes.", "A war strategy", "Investing gold"], exp: "Virtue is the balance between deficiency and excess." },
+
+    // --- HELLENISTIC PHILOSOPHY (The Practical Turn) ---
+    { name: "The Cynics", q: "The Cynics: What was their core value?", a: "Living in accordance with nature.", options: ["Material wealth", "Living in accordance with nature.", "Political obedience", "Scientific progress"], exp: "They advocated for rejecting social conventions and artificial desires." },
+    { name: "The Cyrenaics", q: "The Cyrenaics: What did they believe was the highest good?", a: "Immediate pleasure", options: ["Suffering", "Immediate pleasure", "Eternal life", "Knowledge alone"], exp: "They were early hedonists who prioritized sensory enjoyment." },
+    { name: "Stoicism", q: "Stoicism: What is the primary goal?", a: "Control over one's reactions.", options: ["Acquiring fame", "Control over one's reactions.", "Total isolation", "Winning wars"], exp: "Stoics focus on differentiating what we can and cannot control." },
+    { name: "Epicureanism", q: "Epicureanism: What is 'Ataraxia'?", a: "Freedom from fear and pain.", options: ["Political power", "Unlimited wealth", "Freedom from fear and pain.", "Emotional outbursts"], exp: "They sought simple, modest pleasure and mental tranquility." },
+    { name: "Skepticism", q: "Skepticism: What do they believe regarding knowledge?", a: "We should suspend judgment.", options: ["Knowledge is absolute", "We should suspend judgment.", "We know nothing at all", "Science is the only way"], exp: "They advise withholding judgment due to limited human perception." },
+
+    // --- MODERN PHILOSOPHY (The Enlightenment & Beyond) ---
+    { name: "René Descartes", q: "René Descartes: What is 'Cogito, ergo sum'?", a: "I think, therefore I am.", options: ["I act, therefore I am.", "I think, therefore I am.", "I see, therefore I am.", "I die, therefore I am."], exp: "This was the foundational certainty for his rationalist philosophy." },
+    { name: "Thomas Hobbes", q: "Thomas Hobbes: How did he describe life in the state of nature?", a: "Nasty, brutish, and short.", options: ["Harmonious and free", "Nasty, brutish, and short.", "Full of wonder", "Divinely guided"], exp: "He argued for a strong state to prevent chaos." },
+    { name: "Baruch Spinoza", q: "Baruch Spinoza: What was his view on God?", a: "God and Nature are one.", options: ["God is a ruler", "God and Nature are one.", "God is absent", "God is a man"], exp: "He held a pantheistic view of the universe." },
+    { name: "John Locke", q: "John Locke: What is 'Tabula Rasa'?", a: "The mind as a blank slate.", options: ["The human soul", "The mind as a blank slate.", "A legal document", "Divine revelation"], exp: "Locke argued that we gain knowledge through experience." },
+    { name: "Gottfried Wilhelm Leibniz", q: "Gottfried Wilhelm Leibniz: What are 'Monads'?", a: "Simple, fundamental substances.", options: ["Digital bits", "Simple, fundamental substances.", "Biological cells", "Religious orders"], exp: "He argued they were the basic building blocks of reality." },
+    { name: "David Hume", q: "David Hume: What was his stance on the 'Self'?", a: "It is a bundle of perceptions.", options: ["It is a soul", "It is a bundle of perceptions.", "It is the brain", "It does not exist"], exp: "He argued there is no permanent 'I' behind experiences." },
+    { name: "Immanuel Kant", q: "Immanuel Kant: What is the 'Categorical Imperative'?", a: "Act according to universal laws.", options: ["Do as you please", "Act according to universal laws.", "Follow royalty", "Save money"], exp: "Actions should be universally applicable." },
+    { name: "G.W.F. Hegel", q: "G.W.F. Hegel: What is the Hegelian Dialectic?", a: "Thesis, Antithesis, Synthesis.", options: ["Thesis, Antithesis, Synthesis.", "Conflict leads to war", "Truth is static", "Math is supreme"], exp: "He believed history evolves through the collision of ideas." },
+    { name: "John Stuart Mill", q: "John Stuart Mill: What is the foundation of Utilitarianism?", a: "Greatest happiness for the greatest number.", options: ["Survival of the fittest", "Greatest happiness for the greatest number.", "Individual freedom at all costs", "Divine rights"], exp: "Actions are right if they promote overall well-being." },
+    { name: "Karl Marx", q: "Karl Marx: What is the core of Historical Materialism?", a: "Economic forces drive history.", options: ["Religion drives history", "Economic forces drive history.", "Great leaders drive history", "Chance drives history"], exp: "He analyzed history through class struggle and production." },
+    { name: "Søren Kierkegaard", q: "Søren Kierkegaard: What is the 'Leap of Faith'?", a: "Choosing to believe beyond reason.", options: ["Evidence-based truth", "Choosing to believe beyond reason.", "Ignoring facts", "Scientific method"], exp: "He emphasized individual subjective commitment." },
+    { name: "Friedrich Nietzsche", q: "Friedrich Nietzsche: What is the 'Übermensch'?", a: "One who creates their own values.", options: ["A superhero", "A global ruler", "One who creates their own values.", "A deity"], exp: "The Übermensch transcends traditional morality." },
+
+    // --- CONTEMPORARY PHILOSOPHY (The 20th Century & Beyond) ---
+    { name: "Bertrand Russell", q: "Bertrand Russell: What is Russell’s paradox about?", a: "Sets that contain themselves.", options: ["The nature of time", "Sets that contain themselves.", "The existence of atoms", "Love and logic"], exp: "He challenged the foundations of set theory." },
+    { name: "Ludwig Wittgenstein", q: "Ludwig Wittgenstein: What was his view on language?", a: "It has limits and creates puzzles.", options: ["It is perfect", "It has limits and creates puzzles.", "It is useless", "It is a tool for math"], exp: "He argued philosophical problems are language problems." },
+    { name: "Martin Heidegger", q: "Martin Heidegger: What is 'Dasein'?", a: "Being-in-the-world.", options: ["A physical object", "Being-in-the-world.", "The human spirit", "A scientific theory"], exp: "He explored the nature of existence and being." },
+    { name: "Jean-Paul Sartre", q: "Jean-Paul Sartre: What does 'Existence precedes essence' mean?", a: "We define ourselves through action.", options: ["We are born with a purpose", "We define ourselves through action.", "God decides our fate", "Our DNA decides all"], exp: "He is the pillar of Existentialism." },
+    { name: "Simone de Beauvoir", q: "Simone de Beauvoir: What is the main theme of 'The Second Sex'?", a: "One is not born, but becomes, a woman.", options: ["Women are superior", "One is not born, but becomes, a woman.", "Marriage is required", "Biology is destiny"], exp: "She analyzed the social construction of gender." },
+    { name: "Hannah Arendt", q: "Hannah Arendt: What is the 'Banality of Evil'?", a: "Evil often comes from thoughtlessness.", options: ["Evil is a monster", "Evil often comes from thoughtlessness.", "Evil is a choice", "Evil is rare"], exp: "She argued ordinary people commit evil by failing to think." },
+    { name: "Michel Foucault", q: "Michel Foucault: What did Foucault explore?", a: "The relationship between power and knowledge.", options: ["The stars", "The relationship between power and knowledge.", "How to get rich", "The history of math"], exp: "He analyzed how institutions exert power." },
+    { name: "Thomas Kuhn", q: "Thomas Kuhn: What is a 'Paradigm Shift'?", a: "A fundamental change in concepts.", options: ["A scientific discovery", "A fundamental change in concepts.", "A political election", "A new computer"], exp: "He explained how scientific fields change over time." }
+];
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if(type === 'magic') {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+        } else {
+            osc.frequency.value = type === 'correct' ? 800 : 200;
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+        }
+        osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+    }
+
+    function startQuiz() {
+        playSound('magic');
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    let currentQ;
+    function loadQuestion() {
+        document.getElementById('next-btn').classList.add('hidden');
+        document.getElementById('explanation').classList.add('hidden');
+        currentQ = db[Math.floor(Math.random() * db.length)];
+        document.getElementById('philosopher-name').innerText = currentQ.name;
+        document.getElementById('question').innerText = currentQ.q;
+        
+        // Randomize the options
+        let options = [...currentQ.options];
+        options.sort(() => Math.random() - 0.5);
+        
+        const choices = document.getElementById('choices');
+        choices.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => check(opt, btn);
+            choices.appendChild(btn);
+        });
+        speakQuestion();
+    }
+
+    function speakQuestion() {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(currentQ.q);
+        window.speechSynthesis.speak(msg);
+    }
+
+    function check(val, btn) {
+        document.querySelectorAll('.choices button').forEach(b => b.disabled = true);
+        if(val === currentQ.a) { btn.classList.add('correct'); playSound('correct'); }
+        else { btn.classList.add('wrong'); playSound('wrong'); }
+        
+        const exp = document.getElementById('explanation');
+        exp.innerHTML = "<strong>Explanation:</strong> " + currentQ.exp;
+        exp.classList.remove('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>

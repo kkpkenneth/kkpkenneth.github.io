@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE AGORA ARCHIVE</title>
+    <style>
+        :root { --bg: #050505; --accent: #00ff41; --wrong: #ff003c; }
+        body { margin: 0; background-color: var(--bg); color: var(--accent); font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background-color: #0a1a0a; padding: 40px; border-radius: 8px; text-align: center; width: 90%; max-width: 700px; border: 1px solid var(--accent); }
+        .big-text { font-size: 1.4rem; margin-bottom: 20px; min-height: 80px; }
+        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 15px; cursor: pointer; transition: 0.3s; font-family: inherit; }
+        .btn:hover { background: var(--accent); color: #000; }
+        .correct { background: var(--accent) !important; color: #000 !important; }
+        .wrong { background: var(--wrong) !important; border-color: var(--wrong) !important; color: white !important; }
+        #explanation { margin-top: 20px; padding: 10px; border-top: 1px solid #333; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>THE AGORA ARCHIVE</h1>
+        <p>INITIALIZING HISTORICAL PHILOSOPHY STREAM...</p>
+        <button class="btn" onclick="startGame()">BEGIN SESSION</button>
+    </div>
+    <div id="game-screen" style="display: none;">
+        <div id="score">SCORE: 0</div>
+        <div class="big-text" id="question-box"></div>
+        <div class="choices-grid" id="choices"></div>
+        <div id="explanation"></div>
+        <button class="btn" id="next-btn" style="display: none; width: 100%; margin-top: 20px;" onclick="nextQ()">CONTINUE STREAM</button>
+    </div>
+</div>
+
+<script>
+    const db = [
+        { name: "Thales", q: "Thales: What did he identify as the fundamental substance?", a: "Water", exp: "He proposed water as the source of all things." },
+        { name: "Anaximander", q: "Anaximander: What is the 'Apeiron'?", a: "The boundless or indefinite", exp: "He argued the source of reality is an infinite, undefined substance." },
+        { name: "Anaximenes", q: "Anaximenes: What did he choose as the fundamental substance?", a: "Air", exp: "He believed air creates everything through condensation and rarefaction." },
+        { name: "Heraclitus", q: "Heraclitus: What is he famous for?", a: "The doctrine of flux", exp: "He noted that one cannot step into the same river twice." },
+        { name: "Parmenides", q: "Parmenides: What was his view on change?", a: "It is an illusion", exp: "He argued that true Being is static and eternal." },
+        { name: "Pythagoras", q: "Pythagoras: What governs the universe?", a: "Mathematics", exp: "He believed numerical ratios determine the harmony of the universe." },
+        { name: "Empedocles", q: "Empedocles: What are the four 'roots' of reality?", a: "Earth, Air, Fire, Water", exp: "He theorized four elements moved by Love and Strife." },
+        { name: "Anaxagoras", q: "Anaxagoras: What is 'Nous'?", a: "Cosmic Mind", exp: "He argued that a cosmic intellect ordered reality." },
+        { name: "Democritus", q: "Democritus: What is the basis of Atomism?", a: "Indivisible particles", exp: "He proposed the universe consists of atoms and the void." },
+        { name: "Socrates", q: "Socrates: What is the core of his method?", a: "Questioning to illuminate ideas.", exp: "He believed in admitting ignorance and using questions to find truth." },
+        { name: "Plato", q: "Plato: What does the 'Allegory of the Cave' symbolize?", a: "The contrast between belief and true knowledge.", exp: "It illustrates how sensory experience mimics reality." },
+        { name: "Aristotle", q: "Aristotle: What is the 'Golden Mean'?", a: "The middle between extremes.", exp: "Virtue is the balance between deficiency and excess." },
+        { name: "The Cynics", q: "The Cynics: What was their core value?", a: "Living in accordance with nature.", exp: "They advocated for rejecting social conventions and artificial desires." },
+        { name: "The Cyrenaics", q: "The Cyrenaics: What did they believe was the highest good?", a: "Immediate pleasure", exp: "They were early hedonists who prioritized sensory enjoyment." },
+        { name: "Stoicism", q: "Stoicism: What is the primary goal?", a: "Control over one's reactions.", exp: "Stoics focus on differentiating what we can and cannot control." },
+        { name: "Epicureanism", q: "Epicureanism: What is 'Ataraxia'?", a: "Freedom from fear and pain.", exp: "They sought simple, modest pleasure and mental tranquility." },
+        { name: "Skepticism", q: "Skepticism: What do they believe regarding knowledge?", a: "We should suspend judgment.", exp: "They advise withholding judgment due to limited human perception." },
+        { name: "René Descartes", q: "René Descartes: What is 'Cogito, ergo sum'?", a: "I think, therefore I am.", exp: "This was the foundational certainty for his rationalist philosophy." },
+        { name: "Thomas Hobbes", q: "Thomas Hobbes: How did he describe life in the state of nature?", a: "Nasty, brutish, and short.", exp: "He argued for a strong state to prevent chaos." },
+        { name: "Baruch Spinoza", q: "Baruch Spinoza: What was his view on God?", a: "God and Nature are one.", exp: "He held a pantheistic view of the universe." },
+        { name: "John Locke", q: "John Locke: What is 'Tabula Rasa'?", a: "The mind as a blank slate.", exp: "Locke argued that we gain knowledge through experience." },
+        { name: "Gottfried Wilhelm Leibniz", q: "Gottfried Wilhelm Leibniz: What are 'Monads'?", a: "Simple, fundamental substances.", exp: "He argued they were the basic building blocks of reality." },
+        { name: "David Hume", q: "David Hume: What was his stance on the 'Self'?", a: "It is a bundle of perceptions.", exp: "He argued there is no permanent 'I' behind experiences." },
+        { name: "Immanuel Kant", q: "Immanuel Kant: What is the 'Categorical Imperative'?", a: "Act according to universal laws.", exp: "Actions should be universally applicable." },
+        { name: "G.W.F. Hegel", q: "G.W.F. Hegel: What is the Hegelian Dialectic?", a: "Thesis, Antithesis, Synthesis.", exp: "He believed history evolves through the collision of ideas." },
+        { name: "John Stuart Mill", q: "John Stuart Mill: What is the foundation of Utilitarianism?", a: "Greatest happiness for the greatest number.", exp: "Actions are right if they promote overall well-being." },
+        { name: "Karl Marx", q: "Karl Marx: What is the core of Historical Materialism?", a: "Economic forces drive history.", exp: "He analyzed history through class struggle and production." },
+        { name: "Søren Kierkegaard", q: "Søren Kierkegaard: What is the 'Leap of Faith'?", a: "Choosing to believe beyond reason.", exp: "He emphasized individual subjective commitment." },
+        { name: "Friedrich Nietzsche", q: "Friedrich Nietzsche: What is the 'Übermensch'?", a: "One who creates their own values.", exp: "The Übermensch transcends traditional morality." },
+        { name: "Bertrand Russell", q: "Bertrand Russell: What is Russell’s paradox about?", a: "Sets that contain themselves.", exp: "He challenged the foundations of set theory." },
+        { name: "Ludwig Wittgenstein", q: "Ludwig Wittgenstein: What was his view on language?", a: "It has limits and creates puzzles.", exp: "He argued philosophical problems are language problems." },
+        { name: "Martin Heidegger", q: "Martin Heidegger: What is 'Dasein'?", a: "Being-in-the-world.", exp: "He explored the nature of existence and being." },
+        { name: "Jean-Paul Sartre", q: "Jean-Paul Sartre: What does 'Existence precedes essence' mean?", a: "We define ourselves through action.", exp: "He is the pillar of Existentialism." },
+        { name: "Simone de Beauvoir", q: "Simone de Beauvoir: What is the main theme of 'The Second Sex'?", a: "One is not born, but becomes, a woman.", exp: "She analyzed the social construction of gender." },
+        { name: "Hannah Arendt", q: "Hannah Arendt: What is the 'Banality of Evil'?", a: "Evil often comes from thoughtlessness.", exp: "She argued ordinary people commit evil by failing to think." },
+        { name: "Michel Foucault", q: "Michel Foucault: What did Foucault explore?", a: "The relationship between power and knowledge.", exp: "He analyzed how institutions exert power." },
+        { name: "Thomas Kuhn", q: "Thomas Kuhn: What is a 'Paradigm Shift'?", a: "A fundamental change in concepts.", exp: "He explained how scientific fields change over time." }
+    ];
+
+ let score = 0, answered = false, currentQ = null;
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        nextQ();
+    }
+
+    function nextQ() {
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        
+        // Pick random question
+        currentQ = db[Math.floor(Math.random() * db.length)];
+        document.getElementById('question-box').innerText = currentQ.q;
+        
+        // Build options: correct answer + 3 random distractors
+        let options = [currentQ.a];
+        while(options.length < 4) {
+            let op = db[Math.floor(Math.random() * db.length)].a;
+            if(!options.includes(op)) options.push(op);
+        }
+        
+        // RANDOMIZE: Shuffle the options array
+        options.sort(() => Math.random() - 0.5);
+        
+        const grid = document.getElementById('choices');
+        grid.innerHTML = '';
+        options.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = o;
+            btn.onclick = () => check(o, btn);
+            grid.appendChild(btn);
+        });
+    }
+
+    function check(val, btn) {
+        if(answered) return;
+        answered = true;
+        document.getElementById('explanation').innerText = "LOGIC: " + currentQ.exp;
+        document.getElementById('explanation').style.display = 'block';
+        if(val === currentQ.a) { btn.classList.add('correct'); score += 10; } 
+        else { btn.classList.add('wrong'); }
+        document.getElementById('score').innerText = "SCORE: " + score;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+</script>
+</script>
+</body>
+</html>

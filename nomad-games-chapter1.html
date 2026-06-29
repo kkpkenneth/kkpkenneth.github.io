@@ -5,286 +5,520 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter 1: The Pilot</title>
     <style>
+        :root {
+            /* Cyber/Dark Mode Color Palette */
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --highlight-color: rgba(0, 255, 170, 0.25);
+            --btn-bg: #151b2b;
+            --btn-hover: #1f2940;
+            --btn-border: #2a3756;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        h1, h2, h3 {
-            color: #2c3e50;
+
+        /* Reading Container */
+        .story-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px;
+            box-sizing: border-box;
         }
+
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b7a99;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        /* Controls */
         .controls {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-bottom: 2px solid #ddd;
+            background: rgba(11, 15, 25, 0.95);
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--btn-border);
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
             z-index: 100;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-radius: 0 0 10px 10px;
-            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
         }
+
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: #00ffaa;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            border-radius: 4px;
             cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #3498db;
-            color: white;
-            font-weight: bold;
-            transition: background-color 0.3s;
+            transition: all 0.2s ease;
         }
+
         button:hover {
-            background-color: #2980b9;
+            background-color: var(--btn-hover);
+            color: #ffffff;
         }
-        .stop-btn {
-            background-color: #e74c3c;
+
+        /* TTS Highlight */
+        .text-seg {
+            transition: background-color 0.2s ease;
+            border-radius: 3px;
+            padding: 2px 0;
         }
-        .stop-btn:hover {
-            background-color: #c0392b;
+
+        .speaking {
+            background-color: var(--highlight-color);
+            color: #ffffff;
         }
-        .story-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
+
+        /* Blockquote for prompts */
         .prompt-block {
-            background: #f1f2f6;
-            padding: 10px 15px;
-            border-left: 4px solid #3498db;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 1.1em;
+            background-color: #151b2b;
+            padding: 15px;
+            border-left: 4px solid #00ffaa;
+            margin: 20px 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            color: #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
+
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <button onclick="playAudio()">▶ Play Audio</button>
-        <button class="stop-btn" onclick="stopAudio()">■ Stop Audio</button>
+        <button onclick="playStory()">▶ Read Story</button>
+        <button onclick="stopAudio()">■ Stop</button>
     </div>
 
-    <div class="story-content" id="story-text">
-        <h1>Chapter 1: The Pilot</h1>
+    <div class="story-container" id="story-content">
+        <h1 class="text-seg" data-char="narrator">Chapter 1</h1>
+        <div class="subtitle text-seg" data-char="narrator">THE PILOT</div>
 
-        <p>Kenjiro didn’t hate his job. In a city like Hong Kong, where the skyline is a jagged heart monitor of ambition and stress, just <em>not hating</em> your 9-to-5 is considered a luxury. But tonight, after a grueling 12-hour shift, all he wanted was the quiet sanctuary of his apartment.</p>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro didn’t hate his job. In a city like Hong Kong, where the skyline is a jagged heart monitor of ambition and stress, just not hating your 9-to-5 is considered a luxury. But tonight, after a grueling 12-hour shift, all he wanted was the quiet sanctuary of his apartment.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">He sat heavily on the edge of his bed on the 16th floor of the concrete jungle, looking out the window at the glowing, relentless sprawl of Kowloon. He was exhausted, rubbing his temples while the dull hum of the city vibrated through the glass. He was comfortable in his routine, even if that routine was slowly grinding him into dust.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">Then, his phone buzzed on the nightstand.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">It wasn't a standard notification. The screen overrode his lock screen, displaying a stark black background with a single line of plain white text:</span>
+        </p>
+        
+        <div class="prompt-block text-seg" data-char="system">Do you want to play a game? [ YES ] [ NO ]</div>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro blinked. Spam? A viral marketing campaign? Out of sheer, exhausted curiosity, his thumb tapped YES.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">The screen refreshed instantly.</span>
+        </p>
+        
+        <div class="prompt-block text-seg" data-char="system">Do you want to travel around the world? [ YES ] [ NO ]</div>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">He hesitated. He looked around his cramped 16th-floor apartment and thought about how big the world is compared to his minimal home. The air inside felt heavy with the mundane, inescapable reality of his life. Again, curiosity won. He tapped YES.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">His phone didn't refresh. Instead, it emitted a high-frequency, piercing sound that bypassed his ears and vibrated directly against his skull. A violent electric shock arced from the glass screen into his thumb. The neon lights outside his window smeared into a blinding white streak, and Kenjiro’s world went dark.</span>
+        </p>
 
-        <p>He sat heavily on the edge of his bed on the 16th floor of Kai Tak Tower, looking out the window at the glowing, relentless sprawl of Kowloon. He was exhausted, rubbing his temples while the dull hum of the city vibrated through the glass. He was comfortable in his routine, even if that routine was slowly grinding him into dust.</p>
+        <h2 class="text-seg" data-char="narrator">The Ivory Tower</h2>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro woke up on a cold, perfectly smooth floor.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">He was no longer in the concrete jungle. He was in a pristine, blindingly white circular room with no windows and a single closed elevator door. The walls looked like polished bone or flawless ivory.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"Yoo-hoo! Sleeping Beauty! Wakey wakey!"</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro scrambled backward. A small, floating stuffed turtle—no larger than a melon, made of soft green plush fabric with a stitched, patchwork shell and oversized, incredibly expressive embroidered eyes—was paddling through the air toward him. Despite looking exactly like a child's toy, it completely defied gravity.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"Welcome to the Nomad Games, Traveler 008! I am your pilot, Kame-kun!"</span>
+            <span class="text-seg" data-char="narrator">The little plush turtle did a cheerful, mid-air backflip. Then, it floated a little closer, its embroidered eyes somehow shifting into a judgmental squint.</span>
+            <span class="text-seg" data-char="kame">"Oh wow, you look even more exhausted in person. The dark circles under your eyes are tragic. Don't worry, I'll try to use small words so your brain doesn't overheat."</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Where am I?"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro stammered, staring at the floating stuffed animal.</span>
+            <span class="text-seg" data-char="kenjiro">"What is this?"</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"Your goal is to travel around the world and complete all the missions of the games!"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun chirped brightly, entirely ignoring his panic.</span>
+            <span class="text-seg" data-char="kame">"Right now, you're on the 16th floor of the Ivory Tower. Your first mission is to pass this test and descend to the ground floor."</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">A holographic keypad materialized next to the elevator door.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"The test has officially started!"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun cheered, waving his little plush legs.</span>
+            <span class="text-seg" data-char="kame">"Try not to die of a brain aneurysm on the math questions, okay? Good luck!"</span>
+        </p>
 
-        <p>Then, his phone buzzed on the nightstand. It wasn't a standard notification. The screen overrode his lock screen, displaying a stark black background with a single line of plain white text:</p>
+        <h2 class="text-seg" data-char="narrator">The Descent: 16 Floors of Logic</h2>
+        
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 16: The Primer</strong><br>Prompt: What comes next in the sequence: 2, 4, 8, 16, 32...?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"64."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">The door chimed and opened. Kame-kun floated past him.</span>
+            <span class="text-seg" data-char="kame">"Aww, look at you! You know your multiplication tables. Good boy!"</span>
+        </p>
+        
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 15: Pattern Recognition</strong><br>Prompt: O, T, T, F, F, S, S, E, N, _ ?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro counted under his breath. One, Two, Three, Four...</span>
+            <span class="text-seg" data-char="kenjiro">"T. For Ten."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+        
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 14: Cognitive Reflection</strong><br>Prompt: A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">His exhausted brain screamed 10 cents. But he caught himself.</span>
+            <span class="text-seg" data-char="kenjiro">"5 cents,"</span>
+            <span class="text-seg" data-char="narrator">he typed.</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime. Kame-kun swam circles around his head.</span>
+            <span class="text-seg" data-char="kame">"Ooh, you almost said 10 cents, didn't you? I could literally smell the smoke coming out of your ears, 008!"</span>
+        </p>
 
-        <div class="prompt-block">
-            <strong>Do you want to play a game?</strong><br>
-            <strong>[ YES ]</strong>
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 13: Spatial Reasoning</strong><br>Prompt: A pond has a patch of lily pads. The patch doubles in size every day. If it takes 48 days to cover the entire pond, how long does it take to cover half?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"47 days."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 12: Linguistic Lateral Thinking</strong><br>Prompt: What is seen in the middle of March and April that can't be seen at the beginning or end of either month?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"The letter R."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 11: The Trap of Assumption</strong><br>Prompt: A man and his son are in a terrible car accident. The father dies. The son is rushed to the hospital. The surgeon looks at the boy and says, "I can't operate on him, he is my son." Who is the surgeon?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"The boy's mother."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 10: Deductive Logic</strong><br>Prompt: If 1=3, 2=3, 3=5, 4=4, and 5=4, what does 6 equal?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro realized it was letter counts. One (3), Two (3), Three (5).</span>
+            <span class="text-seg" data-char="kenjiro">"3."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+            <span class="text-seg" data-char="kame">"Not bad,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun yawned, projecting a tiny holographic hammock and lying his soft, stuffed body inside it.</span>
+            <span class="text-seg" data-char="kame">"Still painfully slow, but not bad."</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 9: Contextual Physics</strong><br>Prompt: You are in a freezing, dark cabin. You have one match. There is a candle, a wood stove, and a kerosene lamp. What do you light first?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"The match."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 8: Abstract Wordplay</strong><br>Prompt: A butcher at the market is 5 feet 10 inches tall and wears size 11 shoes. What does he weigh?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"Meat."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 7: The Trick of Words</strong><br>Prompt: A man pushes his car to a hotel and immediately tells the owner he is bankrupt. Why?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"He's playing Monopoly."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 6: Sequential Paradox</strong><br>Prompt: What has keys but can't open locks, space but no room, and you can enter but not go outside?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"A keyboard."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 5: Probability Optimization</strong><br>Prompt: You have 50 red marbles, 50 blue marbles, and two jars. How do you divide the marbles to maximize the probability of drawing a red marble blindly?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"Put one red marble in one jar, and all the rest of the 99 marbles in the other."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 4: Mathematical Wordplay</strong><br>Prompt: I have two coins totaling 30 cents. One of them is not a nickel. What are the two coins?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"A quarter and a nickel. One is not a nickel, but the other is."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 3: The Liar's Paradox</strong><br>Prompt: Two guards stand before two doors. One door leads to the exit, one leads to death. One guard always lies, one always tells the truth. You can ask one question to one guard. What do you ask?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"'Which door would the other guard point to?' And then I take the opposite door."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime.</span>
+        </p>
+
+        <div class="prompt-block text-seg" data-char="system"><strong>Floor 2: The Grid</strong><br>Prompt: There are three switches outside a closed room, and three lightbulbs inside. You can only enter the room once. How do you know which switch operates which bulb?</div>
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro’s Answer:</span>
+            <span class="text-seg" data-char="kenjiro">"Turn on switch 1 for ten minutes. Turn it off. Turn on switch 2. Enter the room. The bulb that is on is switch 2. The bulb that is off but warm is switch 1. The cold bulb is switch 3."</span>
+        </p>
+        <p>
+            <span class="text-seg" data-char="narrator">Chime. Kame-kun clapped his little stuffed feet together.</span>
+            <span class="text-seg" data-char="kame">"Wow, you actually got that! I was already drafting your obituary."</span>
+        </p>
+
+        <h2 class="text-seg" data-char="narrator">Floor 1: The Final Check</h2>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro stepped out of the elevator onto the ground floor. His head was pounding. The final terminal stood before an imposing set of heavy double doors. Kame-kun floated up, resting his soft chin on top of the terminal screen, looking unusually quiet.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">There was no math equation. No wordplay. Just a single blinking cursor and a question:</span>
+        </p>
+        
+        <div class="prompt-block text-seg" data-char="system">You were given a choice. What is the only reason you are here?</div>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro froze. He almost typed "Because I pressed Yes." He almost typed "My phone shocked me." His finger hovered over the holographic keyboard. If he got this wrong, what would happen?</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">He thought back to his cramped apartment in Kai Tak Tower. He didn't hate his job, but he didn't love his life either. What was the exact emotion that forced his thumb to press that button?</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">He typed a single word:</span>
+            <span class="text-seg" data-char="kenjiro">Curiosity.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">The screen flashed green. The heavy double doors hissed and slid open, revealing a blindingly bright sunlight that washed over the sterile white floor.</span>
+        </p>
+
+        <h2 class="text-seg" data-char="narrator">Mission Accomplished</h2>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">As his boots hit solid, natural ground, a translucent digital interface abruptly expanded in Kenjiro's field of vision.</span>
+        </p>
+        
+        <div class="prompt-block text-seg" data-char="system">
+            <strong>[ MISSION 1 COMPLETED: THE IVORY TOWER ]</strong><br>
+            FUNDS DEPOSITED: $1,000 USD
         </div>
-
-        <p>Kenjiro blinked. Spam? A viral marketing campaign? Out of sheer, exhausted curiosity, his thumb tapped YES.</p>
-
-        <p>The screen refreshed instantly.</p>
-
-        <div class="prompt-block">
-            <strong>Do you want to travel around the world?</strong><br>
-            <strong>[ YES ]</strong>
-        </div>
-
-        <p>He hesitated. He looked around his cramped 16th-floor apartment. The rent was due next week. Another 12-hour shift awaited him tomorrow. The air inside felt heavy with the mundane, inescapable reality of his life. Again, curiosity won. He tapped YES.</p>
-
-        <p>His phone didn't refresh. Instead, it emitted a high-frequency, piercing sound that bypassed his ears and vibrated directly against his skull. A violent electric shock arced from the glass screen into his thumb. The neon lights outside his window smeared into a blinding white streak, and Kenjiro’s world went dark.</p>
-
-        <hr>
-
-        <h2>The Ivory Tower</h2>
-
-        <p>Kenjiro woke up on a cold, perfectly smooth floor. He was no longer in Kai Tak Tower. He was in a pristine, blindingly white circular room with no windows and a single closed elevator door. The walls looked like polished bone or flawless ivory.</p>
-
-        <p>He looked down at his hands, patting his chest. He was still wearing his casual clothes—a slightly rumpled white t-shirt and black shorts that contrasted sharply with his tanned skin. He ran a hand nervously through his turquoise hair, feeling the spiky top and the freshly trimmed fade on the sides. At least he was in one piece.</p>
-
-        <p>"Yoo-hoo! Sleeping Beauty! Wakey wakey!"</p>
-
-        <p>Kenjiro scrambled backward. A small, floating stuffed turtle—no larger than a melon and easily smaller than Kenjiro's head—was paddling through the air toward him. It was made of soft green plush fabric with a stitched, patchwork shell and oversized, incredibly expressive embroidered eyes. Despite looking exactly like a child's toy, it completely defied gravity.</p>
-
-        <p>"Welcome to the Nomad Games, Traveler 008! I am your pilot, Kame-kun!" The little plush turtle did a cheerful, mid-air backflip. Then, it floated a little closer, its embroidered eyes somehow shifting into a judgmental squint. "Oh wow, you look even more exhausted in person. The dark circles under your eyes are <em>tragic</em>. Don't worry, I'll try to use small words so your brain doesn't overheat."</p>
-
-        <p>"Where am I?" Kenjiro stammered, staring at the floating stuffed animal. "What is this?"</p>
-
-        <p>"Your goal is to travel around the world and complete all the missions of the games!" Kame-kun chirped brightly, entirely ignoring his panic. "Right now, you're on the 16th floor of the Ivory Tower. Your first mission is to pass this test and descend to the ground floor."</p>
-
-        <p>A holographic keypad materialized next to the elevator door.</p>
-
-        <p>"The test has officially started!" Kame-kun cheered, waving his little plush legs. "Try not to die of a brain aneurysm on the math questions, okay? Good luck!"</p>
-
-        <hr>
-
-        <h2>The Descent: 16 Floors of Logic</h2>
-
-        <p><strong>Floor 16: The Primer</strong><br>
-        Prompt: What comes next in the sequence: 2, 4, 8, 16, 32...?<br>
-        Kenjiro typed: "64."<br>
-        <em>The door chimed and opened. Kame-kun floated past him. "Aww, look at you! You know your multiplication tables. Good boy!"</em></p>
-
-        <p><strong>Floor 15: Pattern Recognition</strong><br>
-        Prompt: O, T, T, F, F, S, S, E, N, _ ?<br>
-        Kenjiro counted under his breath. One, Two, Three, Four... "T. For Ten."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 14: Cognitive Reflection</strong><br>
-        Prompt: A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost?<br>
-        His exhausted brain screamed 10 cents. But he caught himself. "5 cents," he typed.<br>
-        <em>Chime. Kame-kun swam circles around his spiky turquoise hair. "Ooh, you almost said 10 cents, didn't you? I could literally smell the smoke coming out of your ears, 008!"</em></p>
-
-        <p><strong>Floor 13: Spatial Reasoning</strong><br>
-        Prompt: A pond has a patch of lily pads. The patch doubles in size every day. If it takes 48 days to cover the entire pond, how long does it take to cover half?<br>
-        Kenjiro typed: "47 days."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 12: Linguistic Lateral Thinking</strong><br>
-        Prompt: What is seen in the middle of March and April that can't be seen at the beginning or end of either month?<br>
-        Kenjiro typed: "The letter R."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 11: The Trap of Assumption</strong><br>
-        Prompt: A man and his son are in a terrible car accident. The father dies. The son is rushed to the hospital. The surgeon looks at the boy and says, "I can't operate on him, he is my son." Who is the surgeon?<br>
-        Kenjiro typed: "The boy's mother."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 10: Deductive Logic</strong><br>
-        Prompt: If 1 equals 3, 2 equals 3, 3 equals 5, 4 equals 4, and 5 equals 4, what does 6 equal?<br>
-        Kenjiro realized it was letter counts. "3."<br>
-        <em>Chime. "Not bad," Kame-kun yawned, projecting a tiny holographic hammock and lying his soft, stuffed body inside it. "Still painfully slow, but not bad."</em></p>
-
-        <p><strong>Floor 9: Contextual Physics</strong><br>
-        Prompt: You are in a freezing, dark cabin. You have one match. There is a candle, a wood stove, and a kerosene lamp. What do you light first?<br>
-        Kenjiro typed: "The match."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 8: Abstract Wordplay</strong><br>
-        Prompt: A butcher at the market is 5 feet 10 inches tall and wears size 11 shoes. What does he weigh?<br>
-        Kenjiro typed: "Meat."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 7: The Trick of Words</strong><br>
-        Prompt: A man pushes his car to a hotel and immediately tells the owner he is bankrupt. Why?<br>
-        Kenjiro wiped sweat from his tan forehead. "He's playing Monopoly."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 6: Sequential Paradox</strong><br>
-        Prompt: What has keys but can't open locks, space but no room, and you can enter but not go outside?<br>
-        Kenjiro typed: "A keyboard."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 5: Probability Optimization</strong><br>
-        Prompt: You have 50 red marbles, 50 blue marbles, and two jars. How do you divide the marbles to maximize the probability of drawing a red marble blindly?<br>
-        Kenjiro typed: "Put one red marble in one jar, and all the rest of the 99 marbles in the other."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 4: Mathematical Wordplay</strong><br>
-        Prompt: I have two coins totaling 30 cents. One of them is not a nickel. What are the two coins?<br>
-        Kenjiro typed: "A quarter and a nickel. One is not a nickel, but the other is."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 3: The Liar's Paradox</strong><br>
-        Prompt: Two guards stand before two doors. One door leads to the exit, one leads to death. One guard always lies, one always tells the truth. You can ask one question to one guard. What do you ask?<br>
-        Kenjiro typed: "Which door would the other guard point to? And then I take the opposite door."<br>
-        <em>Chime.</em></p>
-
-        <p><strong>Floor 2: The Grid</strong><br>
-        Prompt: There are three switches outside a closed room, and three lightbulbs inside. You can only enter the room once. How do you know which switch operates which bulb?<br>
-        Kenjiro typed: "Turn on switch 1 for ten minutes. Turn it off. Turn on switch 2. Enter the room. The bulb that is on is switch 2. The bulb that is off but warm is switch 1. The cold bulb is switch 3."<br>
-        <em>Chime. Kame-kun clapped his little stuffed feet together. "Wow, you actually got that! I was already drafting your obituary."</em></p>
-
-        <hr>
-
-        <h2>Floor 1: The Final Check</h2>
-
-        <p>Kenjiro stepped out of the elevator onto the ground floor. His head was pounding. The final terminal stood before an imposing set of heavy double doors. Kame-kun floated up, resting his soft chin on top of the terminal screen, looking unusually quiet.</p>
-
-        <p>There was no math equation. No wordplay. Just a single blinking cursor and a question:</p>
-
-        <div class="prompt-block">
-            <strong>You were given a choice. What is the only reason you are here?</strong>
-        </div>
-
-        <p>Kenjiro froze. He almost typed "Because I pressed Yes." He almost typed "My phone shocked me." His finger hovered over the holographic keyboard. If he got this wrong, what would happen?</p>
-
-        <p>He thought back to his cramped apartment in Kai Tak Tower. He didn't hate his job, but he didn't love his life either. What was the exact emotion that forced his thumb to press that button?</p>
-
-        <p>He typed a single word: <strong>Curiosity.</strong></p>
-
-        <p>The screen flashed green. The heavy double doors hissed and slid open, revealing a blindingly bright sunlight that washed over the sterile white floor.</p>
-
-        <hr>
-
-        <h2>Mission Accomplished</h2>
-
-        <p>As his boots hit solid, natural ground, a translucent digital interface abruptly expanded in Kenjiro's field of vision.</p>
-
-        <div class="prompt-block">
-            <strong>[ MISSION 1 COMPLETED: THE IVORY TOWER ]</strong>
-        </div>
-
-        <p>A sharp, incredibly satisfying audio cue played in his head. <em>Ka-ching.</em></p>
-
-        <div class="prompt-block">
-            <strong>FUNDS DEPOSITED: $15.00 USD</strong>
-        </div>
-
-        <p>"Congratulations, Traveler 008!" Kame-kun cheered, zipping out of the tower and doing a series of ecstatic cartwheels in the air, his plush fabric spinning wildly. "The money has been deposited into your traveler's account. This is your budget for the next leg of your journey!"</p>
-
-        <p>Kenjiro stared at the glowing numbers hovering in the air. He blinked once. Twice.</p>
-
-        <p>"Fifteen dollars?" Kenjiro asked, his voice flat. "I just survived a psychological labyrinth and got electrocuted by my phone, and my budget to travel the world is <em>fifteen dollars</em>?"</p>
-
-        <p>"Hey, don't spend it all in one place!" Kame-kun chirped, fluttering down to hover right at Kenjiro's eye level. The little stuffed turtle smiled sweetly. "You really beat the odds... and my incredibly low expectations of your species! Now, go buy yourself a cheap sandwich and prepare yourself, Kenjiro!"</p>
-
-        <p>The little plush turtle pointed a soft, stubby arm toward the horizon.</p>
-
-        <p><strong>"Mission 2: Green Island!"</strong></p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">A sharp, incredibly satisfying audio cue played in his head. Ka-ching.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"Congratulations, Traveler 008!"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun cheered, zipping out of the tower and doing a series of ecstatic cartwheels in the air, his plush fabric spinning wildly.</span>
+            <span class="text-seg" data-char="kame">"The money has been deposited into your traveler's account. This is your budget for the next leg of your journey."</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro looked around. The air smelled of salt and lush tropical vegetation. The relentless skyline of Kowloon was completely gone.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"I honestly didn't think you'd make it,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun said, fluttering down to hover right at Kenjiro's eye level. The little stuffed turtle smiled sweetly.</span>
+            <span class="text-seg" data-char="kame">"You really beat the odds... and my incredibly low expectations of your species! Prepare yourself, Kenjiro!"</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="narrator">The little plush turtle pointed a soft, stubby arm toward the horizon.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"Mission 2: Emerald Island!"</span>
+        </p>
     </div>
 
     <script>
         const synth = window.speechSynthesis;
-        let utterances = [];
+        let activeUtterances = []; // Array to prevent Chrome garbage collection bug
 
-        function playAudio() {
-            // Stop any current speaking
-            synth.cancel();
-            utterances = [];
+        function applyCharacterVoice(utterance, character) {
+    // Get the list of voices available on the user's specific device/browser
+    const voices = window.speechSynthesis.getVoices();
 
-            // Get all text elements within the story content
-            const elements = document.getElementById('story-text').querySelectorAll('p, h1, h2, h3, .prompt-block');
+    switch(character) {
+        case 'kenjiro':
+            utterance.pitch = 0.8; 
+            utterance.rate = 0.95; 
+            utterance.volume = 0.7; // Quieter to reflect his exhaustion
+            utterance.lang = 'en-US'; // Standard American English
             
-            elements.forEach(element => {
-                let textToSpeak = element.innerText;
-                // Add a small pause for headings and blocks
-                if(element.tagName.match(/^H[1-6]$/)) textToSpeak += ". "; 
-                
-                let utterance = new SpeechSynthesisUtterance(textToSpeak);
-                
-                // Optional: You can attempt to find a specific voice here
-                // let voices = synth.getVoices();
-                // utterance.voice = voices.find(v => v.lang === 'en-US' && v.name.includes('Male')) || voices[0];
-                
-                utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                
-                utterances.push(utterance);
-            });
+            // Try to find a deeper male voice if available (like "Daniel" on Mac or a Google Male voice)
+            const kenjiroVoice = voices.find(v => v.name.includes('Male') || v.name.includes('Daniel'));
+            if (kenjiroVoice) utterance.voice = kenjiroVoice;
+            break;
 
-            // Speak all elements sequentially
-            utterances.forEach(u => synth.speak(u));
+        case 'kame':
+            utterance.pitch = 1.8; 
+            utterance.rate = 1.15; 
+            utterance.volume = 1.0; // Loud, energetic, and in your face
+            utterance.lang = 'en-US';
+            
+            // Try to find a bright, higher-pitched female voice (like "Samantha" or "Karen" on Apple, or a Google female voice)
+            const kameVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Female') || v.name.includes('Karen'));
+            if (kameVoice) utterance.voice = kameVoice;
+            break;
+
+        case 'system':
+            utterance.pitch = 0.2; 
+            utterance.rate = 0.9;  
+            utterance.volume = 1.0; // Max volume, authoritative and impossible to ignore
+            utterance.lang = 'en-GB'; // British English to make the system sound cold, calculated, and distinct
+            
+            // Try to find a distinct UK voice (like "Arthur" or "Google UK English Male")
+            const systemVoice = voices.find(v => v.lang === 'en-GB' && (v.name.includes('Male') || v.name.includes('Arthur')));
+            if (systemVoice) utterance.voice = systemVoice;
+            break;
+
+        case 'narrator':
+        default:
+            utterance.pitch = 1.0; 
+            utterance.rate = 1.0;
+            utterance.volume = 0.9; // Just slightly below max volume
+            utterance.lang = 'en-US'; // Neutral fallback
+            break;
+    }
+}
+
+        function playStory() {
+            // Cancel current speech if any
+            synth.cancel();
+            if (synth.paused) {
+                synth.resume();
+            }
+            
+            activeUtterances = []; 
+            const container = document.getElementById('story-content');
+            const textSegments = container.querySelectorAll('.text-seg');
+            
+            textSegments.forEach((segment) => {
+                const text = segment.innerText.trim();
+                if (!text) return;
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Get the character attribute to apply the right voice profile
+                const character = segment.getAttribute('data-char') || 'narrator';
+                applyCharacterVoice(utterance, character);
+
+                // Highlight text while it is being read
+                utterance.onstart = () => {
+                    // Remove highlight from all other segments first
+                    document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                    segment.classList.add('speaking');
+                    // Smooth scroll to the element being read
+                    segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                
+                utterance.onend = () => segment.classList.remove('speaking');
+                utterance.onerror = () => segment.classList.remove('speaking');
+
+                activeUtterances.push(utterance);
+                synth.speak(utterance);
+            });
         }
 
         function stopAudio() {
             synth.cancel();
+            activeUtterances = [];
+            document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
         }
     </script>
 </body>

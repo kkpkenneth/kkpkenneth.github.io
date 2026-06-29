@@ -456,24 +456,21 @@
 
             switch(character) {
                 case 'kenjiro':
-                    utterance.pitch = 0.8; 
-                    utterance.rate = 0.95; 
-                    utterance.volume = 0.7; 
-                    utterance.lang = 'en-US'; 
-                    
-                    const kenjiroVoice = voices.find(v => v.name.includes('Male') || v.name.includes('Daniel'));
-                    if (kenjiroVoice) utterance.voice = kenjiroVoice;
-                    break;
+                        utterance.pitch = 1.2; 
+                        utterance.rate = 1; 
+                        utterance.volume = 1; 
+                        utterance.lang = 'en-US'; 
+                        break;
 
                 case 'kame':
-                    utterance.pitch = 1.8; 
+                    utterance.pitch = 1.0; 
                     utterance.rate = 1.15; 
                     utterance.volume = 1.0; 
-                    utterance.lang = 'en-US';
+                    utterance.lang = 'jp-JP';
                     
-                    const kameVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Female') || v.name.includes('Karen'));
-                    if (kameVoice) utterance.voice = kameVoice;
-                    break;
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語');
+                        if (kameVoice) utterance.voice = kameVoice;
+                        break;
 
                 case 'system':
                     utterance.pitch = 0.2; 
@@ -548,8 +545,8 @@
         function stopAudio() {
             synth.cancel();
             activeUtterances = [];
-            currentIndex = 0;
-            document.getElementById('progress-bar').value = 0;
+            
+            
             document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
         }
     </script>

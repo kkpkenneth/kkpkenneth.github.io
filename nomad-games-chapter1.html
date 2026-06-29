@@ -74,6 +74,7 @@
             gap: 15px;
             z-index: 100;
             backdrop-filter: blur(5px);
+            flex-wrap: wrap; /* Allows the bar to drop down on small screens */
         }
 
         button {
@@ -91,6 +92,15 @@
         button:hover {
             background-color: var(--btn-hover);
             color: #ffffff;
+        }
+
+        /* Progress Bar */
+        #progress-bar {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            accent-color: #00ffaa; /* Cyber neon green */
+            align-self: center;
         }
 
         /* TTS Highlight */
@@ -122,8 +132,9 @@
 <body>
 
     <div class="controls">
-        <button onclick="playStory()">▶ Read Story</button>
+        <button onclick="playStory()">▶ Read</button>
         <button onclick="stopAudio()">■ Stop</button>
+        <input type="range" id="progress-bar" min="0" max="100" value="0" step="1" oninput="seekStory(this.value)">
     </div>
 
     <div class="story-container" id="story-content">
@@ -373,7 +384,7 @@
         </p>
         
         <p>
-            <span class="text-seg" data-char="narrator">He thought back to his cramped apartment in Kai Tak Tower. He didn't hate his job, but he didn't love his life either. What was the exact emotion that forced his thumb to press that button?</span>
+            <span class="text-seg" data-char="narrator">He thought back to his cramped apartment in the concrete jungle. He didn't hate his job, but he didn't love his life either. What was the exact emotion that forced his thumb to press that button?</span>
         </p>
         
         <p>
@@ -427,83 +438,92 @@
 
     <script>
         const synth = window.speechSynthesis;
-        let activeUtterances = []; // Array to prevent Chrome garbage collection bug
+        let activeUtterances = []; 
+        let textSegments = [];
+        let currentIndex = 0;
+
+        // Initialize the progress bar max value when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('story-content');
+            textSegments = Array.from(container.querySelectorAll('.text-seg'));
+            
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.max = textSegments.length - 1;
+        });
 
         function applyCharacterVoice(utterance, character) {
-    // Get the list of voices available on the user's specific device/browser
-    const voices = window.speechSynthesis.getVoices();
+            const voices = window.speechSynthesis.getVoices();
 
-    switch(character) {
-        case 'kenjiro':
-            utterance.pitch = 0.8; 
-            utterance.rate = 0.95; 
-            utterance.volume = 0.7; // Quieter to reflect his exhaustion
-            utterance.lang = 'en-US'; // Standard American English
-            
-            // Try to find a deeper male voice if available (like "Daniel" on Mac or a Google Male voice)
-            const kenjiroVoice = voices.find(v => v.name.includes('Male') || v.name.includes('Daniel'));
-            if (kenjiroVoice) utterance.voice = kenjiroVoice;
-            break;
+            switch(character) {
+                case 'kenjiro':
+                    utterance.pitch = 0.8; 
+                    utterance.rate = 0.95; 
+                    utterance.volume = 0.7; 
+                    utterance.lang = 'en-US'; 
+                    
+                    const kenjiroVoice = voices.find(v => v.name.includes('Male') || v.name.includes('Daniel'));
+                    if (kenjiroVoice) utterance.voice = kenjiroVoice;
+                    break;
 
-        case 'kame':
-            utterance.pitch = 1.8; 
-            utterance.rate = 1.15; 
-            utterance.volume = 1.0; // Loud, energetic, and in your face
-            utterance.lang = 'en-US';
-            
-            // Try to find a bright, higher-pitched female voice (like "Samantha" or "Karen" on Apple, or a Google female voice)
-            const kameVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Female') || v.name.includes('Karen'));
-            if (kameVoice) utterance.voice = kameVoice;
-            break;
+                case 'kame':
+                    utterance.pitch = 1.8; 
+                    utterance.rate = 1.15; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-US';
+                    
+                    const kameVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Female') || v.name.includes('Karen'));
+                    if (kameVoice) utterance.voice = kameVoice;
+                    break;
 
-        case 'system':
-            utterance.pitch = 0.2; 
-            utterance.rate = 0.9;  
-            utterance.volume = 1.0; // Max volume, authoritative and impossible to ignore
-            utterance.lang = 'en-GB'; // British English to make the system sound cold, calculated, and distinct
-            
-            // Try to find a distinct UK voice (like "Arthur" or "Google UK English Male")
-            const systemVoice = voices.find(v => v.lang === 'en-GB' && (v.name.includes('Male') || v.name.includes('Arthur')));
-            if (systemVoice) utterance.voice = systemVoice;
-            break;
+                case 'system':
+                    utterance.pitch = 0.2; 
+                    utterance.rate = 0.9;  
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-GB'; 
+                    
+                    const systemVoice = voices.find(v => v.lang === 'en-GB' && (v.name.includes('Male') || v.name.includes('Arthur')));
+                    if (systemVoice) utterance.voice = systemVoice;
+                    break;
 
-        case 'narrator':
-        default:
-            utterance.pitch = 1.0; 
-            utterance.rate = 1.0;
-            utterance.volume = 0.9; // Just slightly below max volume
-            utterance.lang = 'en-US'; // Neutral fallback
-            break;
-    }
-}
+                case 'narrator':
+                default:
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.0;
+                    utterance.volume = 0.9; 
+                    utterance.lang = 'en-US'; 
+                    break;
+            }
+        }
 
-        function playStory() {
-            // Cancel current speech if any
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
+        };
+
+        function playStory(startIndex = currentIndex) {
             synth.cancel();
             if (synth.paused) {
                 synth.resume();
             }
             
             activeUtterances = []; 
-            const container = document.getElementById('story-content');
-            const textSegments = container.querySelectorAll('.text-seg');
+            currentIndex = startIndex;
             
-            textSegments.forEach((segment) => {
+            const remainingSegments = textSegments.slice(currentIndex);
+            
+            remainingSegments.forEach((segment) => {
                 const text = segment.innerText.trim();
                 if (!text) return;
 
                 const utterance = new SpeechSynthesisUtterance(text);
-                
-                // Get the character attribute to apply the right voice profile
                 const character = segment.getAttribute('data-char') || 'narrator';
                 applyCharacterVoice(utterance, character);
 
-                // Highlight text while it is being read
                 utterance.onstart = () => {
-                    // Remove highlight from all other segments first
+                    currentIndex = textSegments.indexOf(segment);
+                    document.getElementById('progress-bar').value = currentIndex;
+
                     document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
                     segment.classList.add('speaking');
-                    // Smooth scroll to the element being read
                     segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 };
                 
@@ -515,9 +535,21 @@
             });
         }
 
+        function seekStory(index) {
+            const newIndex = parseInt(index, 10);
+            
+            if (synth.speaking) {
+                playStory(newIndex);
+            } else {
+                currentIndex = newIndex;
+            }
+        }
+
         function stopAudio() {
             synth.cancel();
             activeUtterances = [];
+            currentIndex = 0;
+            document.getElementById('progress-bar').value = 0;
             document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
         }
     </script>

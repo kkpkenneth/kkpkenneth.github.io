@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粵語繁體認字挑戰 | Cantonese Quiz</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'PingFang HK', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .game-screen { display: none; }
+        .big-character { font-size: 100px; font-weight: bold; margin: 20px 0; }
+
+        .phonetic-btn {
+            background-color: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-family: monospace;
+            margin: 10px;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--bg-color);
+        }
+
+        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        .choice-btn {
+            background-color: #334155;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .choice-btn.correct { background-color: var(--correct) !important; }
+        .choice-btn.wrong { background-color: var(--wrong) !important; }
+        
+        #explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid var(--accent);
+        }
+
+        .next-btn { background-color: #64748b; color: white; margin-top: 20px; width: 100%; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>粵語繁體認字</h1>
+        <button class="btn" onclick="playSound('magic'); setTimeout(startGame, 500)">Start Quiz</button>
+    </div>
+
+    <div id="game-screen" class="game-screen">
+        <div>Score: <span id="score">0</span></div>
+        <div class="big-character" id="char">字</div>
+        <button class="phonetic-btn" id="audio-btn" onclick="playSound('click'); playCurrentAudio()">jyut6 ping3</button>
+        <div class="choices-grid" id="choices"></div>
+        <div id="explanation"></div>
+        <button class="btn next-btn" id="next-btn" onclick="playSound('click'); nextQ()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const charDB = [
+            ["我", "ngo5", "I / me", "First-person pronoun."],
+            ["你", "nei5", "you", "Second-person pronoun."],
+            ["佢", "keoi5", "he/she/it", "Third-person pronoun."],
+            ["係", "hai6", "to be", "The copula verb, equivalent to 'is/am/are'."],
+            ["唔", "m4", "not", "General negation particle."],
+            ["好", "hou2", "good / very", "Can mean 'good' or act as an intensifier."],
+            ["冇", "mou5", "none", "Meaning 'to not have' or 'without'."],
+            ["喺", "hai2", "at", "Indicates location, meaning 'at' or 'in'."],
+            ["咁", "gam3", "so", "Used to mean 'so' or 'like this'."],
+            ["呢", "ni1", "this", "Demonstrative pronoun for 'this'."],
+            ["嚟", "lai4", "come", "The verb 'to come'."],
+            ["睇", "tai2", "look / watch", "To look, watch, or read."],
+            ["想", "soeng2", "want", "To want or to think about."],
+            ["食", "sik6", "eat", "The verb 'to eat'."],
+            ["飲", "jam2", "drink", "The verb 'to drink'."],
+            ["去", "heoi3", "go", "The verb 'to go'."],
+            ["做", "zou6", "do / work", "To do something or to work."],
+            ["講", "gong2", "speak", "To speak or say."],
+            ["聽", "teng1", "listen", "To listen or hear."],
+            ["買", "maai5", "buy", "To purchase."],
+            ["賣", "maai6", "sell", "To sell."],
+            ["識", "sik1", "know", "To know a person or how to do something."],
+            ["覺", "gok3", "feel", "To feel or perceive."],
+            ["瞓", "fan3", "sleep", "To sleep."],
+            ["玩", "waan2", "play", "To play or have fun."],
+            ["畀", "bei2", "give", "To give something."],
+            ["搵", "wan2", "find", "To find or look for."],
+            ["著", "zoek3", "wear", "To wear clothes or shoes."],
+            ["行", "haang4", "walk", "To walk."],
+            ["走", "zau2", "leave", "To leave or run away."],
+            ["返", "faan1", "return", "To return or go back."],
+            ["企", "kei5", "stand", "To stand."],
+            ["坐", "co5", "sit", "To sit."],
+            ["寫", "se2", "write", "To write."],
+            ["畫", "waak6", "draw", "To draw or paint."],
+            ["飛", "fei1", "fly", "To fly."],
+            ["游", "jau4", "swim", "To swim."],
+            ["跑", "paau2", "run", "To run."],
+            ["叫", "giu3", "call", "To call or be called."],
+            ["問", "man6", "ask", "To ask a question."],
+            ["答", "daap3", "answer", "To provide an answer."],
+            ["笑", "siu3", "laugh", "To laugh or smile."],
+            ["喊", "haam3", "cry", "To cry or weep."],
+            ["諗", "nam2", "think", "To ponder or think."],
+            ["知", "zi1", "know", "To know a fact."],
+            ["幫", "bong1", "help", "To assist or help."],
+            ["見", "gin3", "see", "To see or meet."],
+            ["點", "dim2", "how", "Used to ask 'how', or referring to a dot/time."],
+            ["乜", "mat1", "what", "Question word for 'what'."],
+            ["邊", "bin1", "which", "Question word for 'which' or 'where'."],
+            ["幾", "gei2", "how much", "Used to ask about quantity."],
+            ["多", "do1", "many", "A large amount."],
+            ["少", "siu2", "few", "A small amount."],
+            ["大", "daai6", "big", "Large in size."],
+            ["細", "sai3", "small", "Little in size."],
+            ["長", "coeng4", "long", "Extended in length."],
+            ["短", "dyun2", "short", "Not long in length."],
+            ["高", "gou1", "tall", "High in height."],
+            ["矮", "ngai2", "short", "Low in height."],
+            ["靚", "leng3", "beautiful", "Pretty or handsome."],
+            ["醜", "cau2", "ugly", "Not attractive."],
+            ["新", "san1", "new", "Recently made."],
+            ["舊", "gau6", "old", "Not new."],
+            ["快", "faai3", "fast", "Moving with speed."],
+            ["慢", "maan6", "slow", "Not fast."],
+            ["貴", "gwai3", "expensive", "High in price."],
+            ["平", "peng4", "cheap", "Low in price."],
+            ["遠", "jyun5", "far", "A long distance away."],
+            ["近", "gan6", "near", "A short distance away."],
+            ["早", "zou2", "early", "Happening before expected."],
+            ["晏", "aan3", "late", "After the expected time."],
+            ["晚", "maan5", "night", "The evening period."],
+            ["日", "jat6", "day", "The sun or a 24-hour period."],
+            ["月", "jyut6", "month", "The moon or a calendar month."],
+            ["年", "nin4", "year", "A period of 365 days."],
+            ["歲", "seoi3", "age", "A measure of years of life."],
+            ["鐘", "zung1", "clock", "An instrument for telling time."],
+            ["錢", "cin2", "money", "Currency used for trade."],
+            ["筆", "bat1", "pen", "Tool for writing."],
+            ["書", "syu1", "book", "Printed or written work."],
+            ["水", "seoi2", "water", "The essential liquid."],
+            ["火", "fo2", "fire", "Combustion producing heat."],
+            ["山", "saan1", "mountain", "A large natural elevation."],
+            ["石", "sek6", "rock", "A solid mineral substance."],
+            ["天", "tin1", "sky", "The atmosphere above us."],
+            ["地", "dei6", "earth", "The ground or land."],
+            ["人", "jan4", "person", "A human being."],
+            ["男", "naam4", "male", "Masculine gender."],
+            ["女", "neoi5", "female", "Feminine gender."],
+            ["爸", "baa1", "father", "Paternal parent."],
+            ["媽", "maa1", "mother", "Maternal parent."],
+            ["哥", "go1", "big brother", "Older male sibling."],
+            ["姐", "ze2", "big sister", "Older female sibling."],
+            ["車", "ce1", "car", "A wheeled vehicle."],
+            ["路", "lou6", "road", "A route or path."],
+            ["街", "gaai1", "street", "A public road in a city."],
+            ["屋", "uk1", "house", "A place of residence."],
+            ["房", "fong2", "room", "An enclosed space in a building."],
+            ["頭", "tau4", "head", "Upper part of the body."],
+            ["眼", "ngaan5", "eye", "Organ of sight."]
+    ];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0, answered = false, currentQ = null;
+
+    // 統一音效處理
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+
+        if (type === 'magic') {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+        } else if (type === 'correct') {
+            osc.frequency.value = 800; osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            osc.frequency.value = 200; osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'click') {
+            osc.frequency.value = 600; osc.type = 'square';
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        nextQ();
+    }
+
+    function nextQ() {
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        currentQ = charDB[Math.floor(Math.random() * charDB.length)];
+        document.getElementById('char').innerText = currentQ[0];
+        document.getElementById('audio-btn').innerText = currentQ[1];
+        
+        let options = [currentQ[2]];
+        while(options.length < 4) {
+            let op = charDB[Math.floor(Math.random() * charDB.length)][2];
+            if(!options.includes(op)) options.push(op);
+        }
+        options.sort(() => Math.random() - 0.5);
+        const grid = document.getElementById('choices');
+        grid.innerHTML = '';
+        options.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = o;
+            btn.onclick = () => { playSound('click'); check(o, btn); };
+            grid.appendChild(btn);
+        });
+        setTimeout(playCurrentAudio, 300);
+    }
+
+    function check(val, btn) {
+        if(answered) return;
+        answered = true;
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(b => {
+            if(b.innerText === currentQ[2]) b.classList.add('correct');
+            else if(b === btn) b.classList.add('wrong');
+            b.disabled = true;
+        });
+        document.getElementById('explanation').innerHTML = "<strong>Explanation:</strong> " + currentQ[3];
+        document.getElementById('explanation').style.display = 'block';
+        if(val === currentQ[2]) { score++; playSound('correct'); } else { playSound('wrong'); }
+        document.getElementById('score').innerText = score;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function playCurrentAudio() {
+        const u = new SpeechSynthesisUtterance(currentQ[0]);
+        u.lang = 'zh-HK';
+        window.speechSynthesis.speak(u);
+    }
+</script>
+</body>
+</html>

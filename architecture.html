@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Archikids: Lesson 1</title>
+    <style>
+        body { font-family: 'Comic Sans MS', cursive; background: #f0f4f8; text-align: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
+        .btn { background: #4a90e2; color: white; padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1 id="lesson-title">Lesson 1: The Strongest Shape</h1>
+    <p id="lesson-text">Welcome! Today we learn why the triangle is the strongest shape in architecture.</p>
+    <button class="btn" onclick="startLesson()">Start Audio Lesson</button>
+</div>
+
+<script>
+    const lessonData = {
+        title: "Lesson 1: The Strongest Shape",
+        content: "Hello young architect! Did you know that triangles are super strong? Because they have three fixed sides, they cannot be pushed out of shape. That's why bridges and towers use triangles to stay standing tall!"
+    };
+
+    function startLesson() {
+        // Voiceover Logic
+        const msg = new SpeechSynthesisUtterance(lessonData.content);
+        msg.rate = 0.9; // Slightly slower for kids
+        window.speechSynthesis.speak(msg);
+    }
+</script>
+</body>
+</html>

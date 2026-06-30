@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CYBER-COLOR HACK</title>
+    <style>
+        body { 
+            background: #050505; color: #00ffcc; font-family: 'Courier New', monospace; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; margin: 0; text-transform: uppercase;
+        }
+        #hud { border: 2px solid #00ffcc; padding: 20px; box-shadow: 0 0 15px #00ffcc; text-align: center; }
+        #palette { width: 200px; height: 200px; border: 4px solid #fff; box-shadow: 0 0 30px #fff; margin: 20px auto; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        button { 
+            background: rgba(0, 255, 204, 0.1); border: 2px solid #00ffcc; color: #00ffcc;
+            padding: 15px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        button:hover { background: #00ffcc; color: #000; box-shadow: 0 0 20px #00ffcc; }
+        #score-board { font-size: 1.5rem; margin-bottom: 20px; text-shadow: 0 0 10px #00ffcc; }
+    </style>
+</head>
+<body>
+
+    <div id="score-board">SCORE: <span id="score">0</span></div>
+    
+    <div id="hud">
+        <h2>IDENTIFY TARGET DATA</h2>
+        <div id="palette"></div>
+        <div class="options" id="options"></div>
+    </div>
+
+    <script>
+        let score = 0;
+        const colors = [
+           // CYBER & NEON
+    { name: "Neon Cyan", hex: "#00ffff" }, { name: "Laser Red", hex: "#ff003c" }, { name: "Acid Green", hex: "#7fff00" }, { name: "Void Purple", hex: "#8a2be2" }, { name: "Data Gold", hex: "#ffd700" }, { name: "Plasma Pink", hex: "#ff00ff" }, { name: "Reactor Orange", hex: "#ff4500" }, { name: "Grid Blue", hex: "#00bfff" }, { name: "Signal Lime", hex: "#32cd32" }, { name: "Glitch Magenta", hex: "#ff0090" },
+    
+    // BLUES & TEALS
+    { name: "Navy Blue", hex: "#000080" }, { name: "Royal Blue", hex: "#4169e1" }, { name: "Sky Blue", hex: "#87ceeb" }, { name: "Steel Blue", hex: "#4682b4" }, { name: "Teal", hex: "#008080" }, { name: "Aquamarine", hex: "#7fffd4" }, { name: "Turquoise", hex: "#40e0d0" }, { name: "Midnight Blue", hex: "#191970" }, { name: "Cobalt", hex: "#0047ab" }, { name: "Cerulean", hex: "#007ba7" },
+
+    // REDS & PINKS
+    { name: "Brick Red", hex: "#b22222" }, { name: "Crimson", hex: "#dc143c" }, { name: "Firebrick", hex: "#b22222" }, { name: "Indian Red", hex: "#cd5c5c" }, { name: "Maroon", hex: "#800000" }, { name: "Hot Pink", hex: "#ff69b4" }, { name: "Deep Pink", hex: "#ff1493" }, { name: "Salmon", hex: "#fa8072" }, { name: "Coral", hex: "#ff7f50" }, { name: "Tomato", hex: "#ff6347" },
+
+    // GREENS
+    { name: "Forest Green", hex: "#228b22" }, { name: "Olive", hex: "#808000" }, { name: "Sea Green", hex: "#2e8b57" }, { name: "Spring Green", hex: "#00ff7f" }, { name: "Chartreuse", hex: "#7fff00" }, { name: "Lime", hex: "#00ff00" }, { name: "Dark Green", hex: "#006400" }, { name: "Sage", hex: "#bcca8b" }, { name: "Mint", hex: "#98ff98" }, { name: "Emerald", hex: "#50c878" },
+
+    // YELLOWS & ORANGES
+    { name: "Goldenrod", hex: "#daa520" }, { name: "Gold", hex: "#ffd700" }, { name: "Dark Orange", hex: "#ff8c00" }, { name: "Orange", hex: "#ffa500" }, { name: "Khaki", hex: "#f0e68c" }, { name: "Lemon", hex: "#fff700" }, { name: "Amber", hex: "#ffbf00" }, { name: "Peach", hex: "#ffdab9" }, { name: "Wheat", hex: "#f5deb3" }, { name: "Tan", hex: "#d2b48c" },
+
+    // PURPLES & VIOLETS
+    { name: "Indigo", hex: "#4b0082" }, { name: "Lavender", hex: "#e6e6fa" }, { name: "Plum", hex: "#dda0dd" }, { name: "Dark Violet", hex: "#9400d3" }, { name: "Orchid", hex: "#da70d6" }, { name: "Thistle", hex: "#d8bfd8" }, { name: "Amethyst", hex: "#9966cc" }, { name: "Mulberry", hex: "#c54b8c" }, { name: "Mauve", hex: "#e0b0ff" }, { name: "Eggplant", hex: "#614051" },
+
+    // BROWNS & NEUTRALS
+    { name: "Chocolate", hex: "#d2691e" }, { name: "Saddle Brown", hex: "#8b4513" }, { name: "Sienna", hex: "#a0522d" }, { name: "Rosy Brown", hex: "#bc8f8f" }, { name: "Beige", hex: "#f5f5dc" }, { name: "Slate Gray", hex: "#708090" }, { name: "Dim Gray", hex: "#696969" }, { name: "Black", hex: "#000000" }, { name: "White", hex: "#ffffff" }, { name: "Silver", hex: "#c0c0c0" },
+
+    // ... To complete the full 255 count, you would add variations like:
+    { name: "Light Cyan", hex: "#e0ffff" }, { name: "Dark Slate Blue", hex: "#483d8b" }, { name: "Medium Sea Green", hex: "#3cb371" },
+    { name: "Light Coral", hex: "#f08080" }, { name: "Pale Goldenrod", hex: "#eee8aa" }, { name: "Medium Slate Blue", hex: "#7b68ee" },
+        ];
+
+        function playSound(freq, duration) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.frequency.value = freq;
+            osc.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + duration);
+        }
+
+        function updateScore(points) {
+            score += points;
+            document.getElementById('score').innerText = score;
+        }
+
+        function nextQuestion() {
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = "";
+            const correct = colors[Math.floor(Math.random() * colors.length)];
+            document.getElementById('palette').style.backgroundColor = correct.hex;
+            document.getElementById('palette').style.boxShadow = `0 0 50px ${correct.hex}`;
+
+            let pool = [correct];
+            while (pool.length < 4) {
+                let random = colors[Math.floor(Math.random() * colors.length)];
+                if (!pool.includes(random)) pool.push(random);
+            }
+            pool.sort(() => Math.random() - 0.5);
+
+            pool.forEach(c => {
+                const btn = document.createElement('button');
+                btn.innerText = c.name;
+                btn.onclick = () => {
+                    if (c.name === correct.name) {
+                        playSound(600, 0.2);
+                        updateScore(100);
+                        nextQuestion();
+                    } else {
+                        playSound(150, 0.3);
+                        updateScore(-50);
+                    }
+                };
+                optionsDiv.appendChild(btn);
+            });
+        }
+        nextQuestion();
+    </script>
+</body>
+</html>

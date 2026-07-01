@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: The Night Market</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --highlight-color: rgba(0, 255, 170, 0.25);
+            --btn-bg: #151b2b;
+            --btn-hover: #1f2940;
+            --btn-border: #2a3756;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .story-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b7a99;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            position: sticky;
+            top: 0;
+            background: rgba(11, 15, 25, 0.95);
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--btn-border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: #00ffaa;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            color: #ffffff;
+        }
+
+        #progress-bar {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            accent-color: #00ffaa;
+            align-self: center;
+        }
+
+        .text-seg {
+            transition: background-color 0.2s ease;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+
+        .speaking {
+            background-color: var(--highlight-color);
+            color: #ffffff;
+        }
+
+        .prompt-block {
+            background-color: #151b2b;
+            padding: 15px;
+            border-left: 4px solid #00ffaa;
+            margin: 20px 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            color: #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button onclick="playStory()">▶ Read</button>
+        <button onclick="stopAudio()">■ Stop</button>
+        <input type="range" id="progress-bar" min="0" max="100" value="0" step="1" oninput="seekStory(this.value)">
+    </div>
+
+    <div class="story-container" id="story-content">
+        <h1 class="text-seg" data-char="narrator">Chapter 2</h1>
+        <div class="subtitle text-seg" data-char="narrator">THE NIGHT MARKET</div>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The air in the Green Island night market was thick with the mouth-watering aromas of "small sausage in large sausage" (sticky rice sausage wrapped around a grilled pork sausage) and freshly baked "pepper buns" (crispy dough filled with peppery pork and scallions), as Kame-kun and Kenjiro navigated the bustling stalls. Kame-kun paused at a vendor serving these delicacies, gesturing with a skewer toward the vibrant, shifting crowd.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"You know, Kenjiro,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun said, sampling a piece of the savory sausage,</span>
+            <span class="text-seg" data-char="kame">"every traveler in the games is a 'hunter' of sorts, tracking different prey across the globe. Each traveler follows a specific mission based on their type."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"So, you're saying our 'hunt' here makes us a specific type?"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Exactly. By being here to experience the regional culinary traditions, we are currently acting as Gastro-travelers. But look at the others. It’s a vast, interconnected hunt."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Think of it this way: Gastro-travelers hunt for culinary authenticity and regional specialties to understand a destination's identity. Eco-travelers hunt for fragile ecosystems to study and protect, while Geo-travelers hunt for remote territories to complete their global map and document their presence in diverse landscapes. Photo-travelers, the 'travelers of light,' hunt for the perfect intersection of time and illumination to capture the visual aesthetics of architecture and scenery. Athlo-travelers hunt for the intensity of competition, whether attending high-stakes matches or participating in local sports. Historio-travelers hunt for the remnants of a bygone era by standing exactly where historical events occurred. Heorto-travelers hunt for the peak of cultural energy, syncing their journeys to immerse themselves in major celebrations and public rituals. Periegeto-travelers hunt for the thrill of remote expeditions or specialized exploration, often utilizing specific skills to navigate their environment. Polito-travelers hunt for an understanding of the systems, governance, and civic identities that shape a destination. Finally, Dromo-travelers hunt for the heartbeat of a region’s transit systems, studying how connectivity and infrastructure shape a culture."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"I see. They're all hunting for something that isn't always physical, aren't they?"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Precisely. We choose our destinations based on what our specific mission demands us to find."</span>
+        </p>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        let activeUtterances = []; 
+        let textSegments = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('story-content');
+            textSegments = Array.from(container.querySelectorAll('.text-seg'));
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.max = textSegments.length - 1;
+        });
+
+        function applyCharacterVoice(utterance, character) {
+            const voices = window.speechSynthesis.getVoices();
+            switch(character) {
+                case 'kenjiro':
+                        utterance.pitch = 1.2; 
+                        utterance.rate = 1; 
+                        utterance.volume = 1; 
+                        utterance.lang = 'en-US'; 
+                        break;
+
+                case 'kame':
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.15; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'jp-JP';
+                    
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語');
+                        if (kameVoice) utterance.voice = kameVoice;
+                        break;
+
+                case 'system':
+                    utterance.pitch = 0.2; 
+                    utterance.rate = 0.9;  
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-GB'; 
+                    
+                    const systemVoice = voices.find(v => v.lang === 'en-GB' && (v.name.includes('Male') || v.name.includes('Arthur')));
+                    if (systemVoice) utterance.voice = systemVoice;
+                    break;
+
+                case 'narrator':
+                default:
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.0;
+                    utterance.volume = 0.9; 
+                    utterance.lang = 'en-US'; 
+                    break;
+            }
+        }
+
+        function playStory(startIndex = currentIndex) {
+            synth.cancel();
+            activeUtterances = []; 
+            currentIndex = startIndex;
+            const remainingSegments = textSegments.slice(currentIndex);
+            remainingSegments.forEach((segment) => {
+                const text = segment.innerText.trim();
+                if (!text) return;
+                const utterance = new SpeechSynthesisUtterance(text);
+                applyCharacterVoice(utterance, segment.getAttribute('data-char'));
+                utterance.onstart = () => {
+                    document.getElementById('progress-bar').value = textSegments.indexOf(segment);
+                    document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                    segment.classList.add('speaking');
+                    segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                synth.speak(utterance);
+            });
+        }
+
+        function seekStory(index) {
+            currentIndex = parseInt(index, 10);
+            if (synth.speaking) playStory(currentIndex);
+        }
+
+        function stopAudio() {
+            synth.cancel();
+            document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+        }
+    </script>
+</body>
+</html>

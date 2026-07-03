@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粵語繁體認字挑戰 | Cantonese Quiz</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'PingFang HK', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .game-screen { display: none; }
+        .big-character { font-size: 100px; font-weight: bold; margin: 20px 0; }
+
+        .phonetic-btn {
+            background-color: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-family: monospace;
+            margin: 10px;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--bg-color);
+        }
+
+        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        .choice-btn {
+            background-color: #334155;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .choice-btn.correct { background-color: var(--correct) !important; }
+        .choice-btn.wrong { background-color: var(--wrong) !important; }
+        
+        #explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid var(--accent);
+        }
+
+        .next-btn { background-color: #64748b; color: white; margin-top: 20px; width: 100%; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>粵語繁體認字</h1>
+        <button class="btn" onclick="playSound('magic'); setTimeout(startGame, 500)">Start Quiz</button>
+    </div>
+
+    <div id="game-screen" class="game-screen">
+        <div>Score: <span id="score">0</span></div>
+        <div class="big-character" id="char">字</div>
+        <button class="phonetic-btn" id="audio-btn" onclick="playSound('click'); playCurrentAudio()">jyut6 ping3</button>
+        <div class="choices-grid" id="choices"></div>
+        <div id="explanation"></div>
+        <button class="btn next-btn" id="next-btn" onclick="playSound('click'); nextQ()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const charDB = [
+            ["我", "ngo5", "I / me", "First-person pronoun."],
+            ["你", "nei5", "you", "Second-person pronoun."],
+            ["佢", "keoi5", "he/she/it", "Third-person pronoun."],
+            ["係", "hai6", "to be", "The copula verb, equivalent to 'is/am/are'."],
+            ["唔", "m4", "not", "General negation particle."],
+            ["好", "hou2", "good / very", "Can mean 'good' or act as an intensifier."],
+            ["冇", "mou5", "none", "Meaning 'to not have' or 'without'."],
+            ["喺", "hai2", "at", "Indicates location, meaning 'at' or 'in'."],
+            ["咁", "gam3", "so", "Used to mean 'so' or 'like this'."],
+            ["呢", "ni1", "this", "Demonstrative pronoun for 'this'."],
+            ["嚟", "lai4", "come", "The verb 'to come'."],
+            ["睇", "tai2", "look / watch", "To look, watch, or read."],
+            ["想", "soeng2", "want", "To want or to think about."],
+            ["食", "sik6", "eat", "The verb 'to eat'."],
+            ["飲", "jam2", "drink", "The verb 'to drink'."],
+            ["去", "heoi3", "go", "The verb 'to go'."],
+            ["做", "zou6", "do / work", "To do something or to work."],
+            ["講", "gong2", "speak", "To speak or say."],
+            ["聽", "teng1", "listen", "To listen or hear."],
+            ["買", "maai5", "buy", "To purchase."],
+            ["賣", "maai6", "sell", "To sell."],
+            ["識", "sik1", "know", "To know a person or how to do something."],
+            ["覺", "gok3", "feel", "To feel or perceive."],
+            ["瞓", "fan3", "sleep", "To sleep."],
+            ["玩", "waan2", "play", "To play or have fun."],
+            ["畀", "bei2", "give", "To give something."],
+            ["搵", "wan2", "find", "To find or look for."],
+            ["著", "zoek3", "wear", "To wear clothes or shoes."],
+            ["行", "haang4", "walk", "To walk."],
+            ["走", "zau2", "leave", "To leave or run away."],
+            ["返", "faan1", "return", "To return or go back."],
+            ["企", "kei5", "stand", "To stand."],
+            ["坐", "co5", "sit", "To sit."],
+            ["寫", "se2", "write", "To write."],
+            ["畫", "waak6", "draw", "To draw or paint."],
+            ["飛", "fei1", "fly", "To fly."],
+            ["游", "jau4", "swim", "To swim."],
+            ["跑", "paau2", "run", "To run."],
+            ["叫", "giu3", "call", "To call or be called."],
+            ["問", "man6", "ask", "To ask a question."],
+            ["答", "daap3", "answer", "To provide an answer."],
+            ["笑", "siu3", "laugh", "To laugh or smile."],
+            ["喊", "haam3", "cry", "To cry or weep."],
+            ["諗", "nam2", "think", "To ponder or think."],
+            ["知", "zi1", "know", "To know a fact."],
+            ["幫", "bong1", "help", "To assist or help."],
+            ["見", "gin3", "see", "To see or meet."],
+            ["點", "dim2", "how", "Used to ask 'how', or referring to a dot/time."],
+            ["乜", "mat1", "what", "Question word for 'what'."],
+            ["邊", "bin1", "which", "Question word for 'which' or 'where'."],
+            ["幾", "gei2", "how much", "Used to ask about quantity."],
+            ["多", "do1", "many", "A large amount."],
+            ["少", "siu2", "few", "A small amount."],
+            ["大", "daai6", "big", "Large in size."],
+            ["細", "sai3", "small", "Little in size."],
+            ["長", "coeng4", "long", "Extended in length."],
+            ["短", "dyun2", "short", "Not long in length."],
+            ["高", "gou1", "tall", "High in height."],
+            ["矮", "ngai2", "short", "Low in height."],
+            ["靚", "leng3", "beautiful", "Pretty or handsome."],
+            ["醜", "cau2", "ugly", "Not attractive."],
+            ["新", "san1", "new", "Recently made."],
+            ["舊", "gau6", "old", "Not new."],
+            ["快", "faai3", "fast", "Moving with speed."],
+            ["慢", "maan6", "slow", "Not fast."],
+            ["貴", "gwai3", "expensive", "High in price."],
+            ["平", "peng4", "cheap", "Low in price."],
+            ["遠", "jyun5", "far", "A long distance away."],
+            ["近", "gan6", "near", "A short distance away."],
+            ["早", "zou2", "early", "Happening before expected."],
+            ["晏", "aan3", "late", "After the expected time."],
+            ["晚", "maan5", "night", "The evening period."],
+            ["日", "jat6", "day", "The sun or a 24-hour period."],
+            ["月", "jyut6", "month", "The moon or a calendar month."],
+            ["年", "nin4", "year", "A period of 365 days."],
+            ["歲", "seoi3", "age", "A measure of years of life."],
+            ["鐘", "zung1", "clock", "An instrument for telling time."],
+            ["錢", "cin2", "money", "Currency used for trade."],
+            ["筆", "bat1", "pen", "Tool for writing."],
+            ["書", "syu1", "book", "Printed or written work."],
+            ["水", "seoi2", "water", "The essential liquid."],
+            ["火", "fo2", "fire", "Combustion producing heat."],
+            ["山", "saan1", "mountain", "A large natural elevation."],
+            ["石", "sek6", "rock", "A solid mineral substance."],
+            ["天", "tin1", "sky", "The atmosphere above us."],
+            ["地", "dei6", "earth", "The ground or land."],
+            ["人", "jan4", "person", "A human being."],
+            ["男", "naam4", "male", "Masculine gender."],
+            ["女", "neoi5", "female", "Feminine gender."],
+            ["爸", "baa1", "father", "Paternal parent."],
+            ["媽", "maa1", "mother", "Maternal parent."],
+            ["哥", "go1", "big brother", "Older male sibling."],
+            ["姐", "ze2", "big sister", "Older female sibling."],
+            ["車", "ce1", "car", "A wheeled vehicle."],
+            ["路", "lou6", "road", "A route or path."],
+            ["街", "gaai1", "street", "A public road in a city."],
+            ["屋", "uk1", "house", "A place of residence."],
+            ["房", "fong2", "room", "An enclosed space in a building."],
+            ["頭", "tau4", "head", "Upper part of the body."],
+            ["眼", "ngaan5", "eye", "Organ of sight."],
+
+        // --- 食物 (Food) ---
+            ["飯", "faan6", "cooked rice", "Steamed rice served as a meal."],
+            ["麵", "min6", "noodles", "Noodles made from dough."],
+            ["湯", "tong1", "soup", "A liquid food made by boiling ingredients."],
+            ["菜", "coi3", "vegetable/dish", "Plant-based food or a cooked dish."],
+            ["果", "gwo2", "fruit", "The sweet product of a plant."],
+            ["茶", "caa4", "tea", "A drink made from steeped leaves."],
+            ["奶", "naai5", "milk", "A white liquid produced by mammals."],
+            ["蛋", "daan2", "egg", "A hard-shelled reproductive body."],
+            ["包", "baau1", "bun/bread", "A baked bread item."],
+            ["餅", "beng2", "biscuit/cake", "A baked flat food item."],
+            ["糖", "tong4", "sugar/candy", "A sweet crystalline substance."],
+            ["鹽", "jim4", "salt", "A mineral used for seasoning."],
+            ["油", "jau4", "oil", "A viscous liquid used for cooking."],
+            ["肉", "juk6", "meat", "Flesh of animals used as food."],
+            ["菜", "coi3", "vegetable", "Leafy plants eaten as food."],
+            ["果", "gwo2", "fruit", "Sweet edible plant parts."],
+            ["粥", "zuk1", "congee", "Rice porridge."],
+            ["點", "dim2", "snack/dimsum", "Commonly refers to dim sum or snacks."],
+            ["薯", "syu4", "potato", "A starchy tuber."],
+            ["豆", "dau6", "bean", "A leguminous plant seed."],
+            ["瓜", "gwaa1", "melon", "A large fleshy fruit."],
+            ["橙", "caang2", "orange", "A citrus fruit."],
+            ["蘋", "ping4", "apple", "A common round fruit."],
+            ["蕉", "ziu1", "banana", "An elongated yellow fruit."],
+            ["咖", "gaa3", "coffee", "A caffeinated beverage."],
+            ["酒", "zau2", "alcohol", "An intoxicating drink."],
+            ["醋", "cou3", "vinegar", "A sour liquid seasoning."],
+            ["醬", "zoeng3", "sauce", "A savory liquid condiment."],
+            ["炒", "caau2", "stir-fry", "A cooking method."],
+            ["蒸", "zing1", "steam", "A cooking method."],
+            ["炸", "zaa3", "fry", "A cooking method."],
+            ["炆", "man1", "braise", "A cooking method."],
+            ["烤", "haau2", "roast", "A cooking method."],
+            ["腐", "fu6", "tofu", "Bean curd."],
+            ["餅", "beng2", "cookie/cake", "Sweet baked snack."],
+            ["雪", "syut3", "ice cream/snow", "Often refers to ice/cold desserts."],
+            ["甜", "tim4", "sweet", "Having a sugary taste."],
+            ["酸", "syun1", "sour", "Having an acidic taste."],
+            ["苦", "fu2", "bitter", "Having a sharp, unpleasant taste."],
+            ["辣", "laat6", "spicy", "Having a hot taste."],
+            ["鹹", "haam4", "salty", "Having the taste of salt."],
+
+        // --- 動物 (Animals) ---
+            ["貓", "maau1", "cat", "A small domesticated carnivorous mammal."],
+            ["狗", "gau2", "dog", "A domesticated carnivorous mammal."],
+            ["豬", "zyu1", "pig", "An omnivorous mammal."],
+            ["牛", "ngau4", "cow/ox", "A large bovine mammal."],
+            ["羊", "joeng4", "sheep/goat", "A woolly ruminant mammal."],
+            ["雞", "gai1", "chicken", "A domestic fowl."],
+            ["鴨", "aap3", "duck", "A water bird."],
+            ["鵝", "ngo4", "goose", "A large water bird."],
+            ["魚", "jyu2", "fish", "A limbless cold-blooded vertebrate animal."],
+            ["蝦", "haa1", "shrimp", "A small crustacean."],
+            ["蟹", "haai5", "crab", "A crustacean with a broad carapace."],
+            ["馬", "maa5", "horse", "A large herbivorous mammal."],
+            ["鼠", "syu2", "mouse/rat", "A small rodent."],
+            ["蛇", "se4", "snake", "A long limbless reptile."],
+            ["虎", "fu2", "tiger", "A large carnivorous feline."],
+            ["獅", "si1", "lion", "A large wild cat."],
+            ["豹", "paau3", "leopard", "A large spotted feline."],
+            ["鹿", "luk6", "deer", "A hoofed grazing animal."],
+            ["兔", "tou3", "rabbit", "A small hopping mammal."],
+            ["熊", "hung4", "bear", "A large heavy mammal."],
+            ["象", "zoeng6", "elephant", "A large mammal with a trunk."],
+            ["猴", "hau4", "monkey", "A primate."],
+            ["鳥", "niu5", "bird", "A feathered vertebrate."],
+            ["雀", "zoek3", "small bird", "Common term for small birds."],
+            ["鷹", "jing1", "eagle", "A large bird of prey."],
+            ["蜂", "fung1", "bee", "A winged insect."],
+            ["蟻", "ngai5", "ant", "A small colonial insect."],
+            ["蝶", "dip6", "butterfly", "A winged insect with colorful wings."],
+            ["龜", "gwai1", "turtle", "A reptile with a hard shell."],
+            ["龍", "lung4", "dragon", "A mythical creature."],
+
+        // --- 雙字詞組 (Two-word Phrases) ---
+            ["你好", "nei5 hou2", "Hello", "A common greeting."],
+            ["多謝", "do1 ze6", "Thank you", "Used for receiving gifts or services."],
+            ["早晨", "zou2 san4", "Good morning", "Morning greeting."],
+            ["再見", "zoi3 gin3", "Goodbye", "Standard farewell."],
+            ["對唔住", "deoi3 m4 zyu6", "Sorry", "Apology for a mistake."],
+            ["唔該", "m4 goi1", "Please / Thanks", "Used for requests or small favors."],
+            ["好食", "hou2 sik6", "Delicious", "Used to describe tasty food."],
+            ["好飲", "hou2 jam2", "Tasty (drink)", "Used for tasty beverages."],
+            ["去街", "heoi3 gaai1", "Go out", "Going out for leisure or shopping."],
+            ["返屋", "faan1 uk1", "Go home", "Returning to one's residence."],
+            ["瞓覺", "fan3 gaau3", "Sleep", "The act of sleeping."],
+            ["返工", "faan1 gung1", "Go to work", "Starting or returning to work."],
+            ["放工", "fong3 gung1", "Finish work", "Ending the workday."],
+            ["好靚", "hou2 leng3", "Very beautiful", "Used to describe something attractive."],
+            ["好貴", "hou2 gwai3", "Very expensive", "High price."],
+            ["好平", "hou2 peng4", "Very cheap", "Low price."],
+            ["幾多", "gei2 do1", "How much", "Asking for a quantity or price."],
+            ["邊度", "bin1 dou6", "Where", "Asking for location."],
+            ["點解", "dim2 gaai2", "Why", "Asking for a reason."],
+            ["好玩", "hou2 waan2", "Very fun", "Used for entertainment."],
+            ["食飯", "sik6 faan6", "Eat rice/meal", "Standard phrase for having a meal."],
+            ["飲茶", "jam2 caa4", "Yum cha", "Traditional Cantonese brunch."],
+            ["買嘢", "maai5 je5", "Shopping", "Buying things."],
+            ["搵錢", "wan2 cin2", "Make money", "Earning an income."],
+            ["好快", "hou2 faai3", "Very fast", "High speed."],
+            ["好慢", "hou2 maan6", "Very slow", "Low speed."],
+            ["唔好", "m4 hou2", "Not good", "Used for negation or prohibition."],
+            ["好難", "hou2 naan4", "Very difficult", "Used to describe a hard task."],
+            ["好易", "hou2 ji6", "Very easy", "Used to describe a simple task."],
+            ["屋企", "uk1 kei2", "Home", "Referring to one's family or house."],
+    ];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0, answered = false, currentQ = null;
+    let currentIdx = 0; // Added variable to track sequential progress
+
+    // 統一音效處理
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+
+        if (type === 'magic') {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+        } else if (type === 'correct') {
+            osc.frequency.value = 800; osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            osc.frequency.value = 200; osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'click') {
+            osc.frequency.value = 600; osc.type = 'square';
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+    }
+
+    function startGame() {
+        // Reset variables when starting/restarting
+        currentIdx = 0;
+        score = 0;
+        document.getElementById('score').innerText = score;
+        
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        nextQ();
+    }
+
+    function nextQ() {
+        // Check if we have reached the end of the database
+        if (currentIdx >= charDB.length) {
+            alert("Quiz Complete! Your final score is " + score + "/" + charDB.length);
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+            return;
+        }
+
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        
+        // Fetch the question sequentially instead of randomly
+        currentQ = charDB[currentIdx];
+        
+        document.getElementById('char').innerText = currentQ[0];
+        document.getElementById('audio-btn').innerText = currentQ[1];
+        
+        // Keep the wrong options randomized to prevent predictable UI
+        let options = [currentQ[2]];
+        while(options.length < 4) {
+            let op = charDB[Math.floor(Math.random() * charDB.length)][2];
+            if(!options.includes(op)) options.push(op);
+        }
+        options.sort(() => Math.random() - 0.5);
+        
+        const grid = document.getElementById('choices');
+        grid.innerHTML = '';
+        options.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = o;
+            btn.onclick = () => { playSound('click'); check(o, btn); };
+            grid.appendChild(btn);
+        });
+        
+        // Move to the next index for the next question
+        currentIdx++;
+        
+        setTimeout(playCurrentAudio, 300);
+    }
+
+    function check(val, btn) {
+        if(answered) return;
+        answered = true;
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(b => {
+            if(b.innerText === currentQ[2]) b.classList.add('correct');
+            else if(b === btn) b.classList.add('wrong');
+            b.disabled = true;
+        });
+        document.getElementById('explanation').innerHTML = "<strong>Explanation:</strong> " + currentQ[3];
+        document.getElementById('explanation').style.display = 'block';
+        if(val === currentQ[2]) { score++; playSound('correct'); } else { playSound('wrong'); }
+        document.getElementById('score').innerText = score;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function playCurrentAudio() {
+        const u = new SpeechSynthesisUtterance(currentQ[0]);
+        u.lang = 'zh-HK';
+        window.speechSynthesis.speak(u);
+    }
+</script>
+</body>
+</html>

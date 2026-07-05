@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjective Upgrader</title>
+    <style>
+        :root { --bg: #f4f7f6; --primary: #3498db; --success: #2ecc71; --error: #e74c3c; }
+        
+        /* Updated Body for Centering */
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background: var(--bg); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; /* Vertical Center */
+            min-height: 100vh;   /* Full viewport height */
+            margin: 0; 
+            padding: 20px;
+        }
+
+        .container { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+        }
+        
+        .word-box { font-size: 2rem; font-weight: bold; margin: 20px 0; color: #2c3e50; cursor: pointer; padding: 10px; border-bottom: 2px dashed #ccc; }
+        button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #eee; border-radius: 8px; cursor: pointer; background: #f8f9fa; font-size: 1.1rem; }
+        .correct { background: #d4edda !important; border-color: var(--success) !important; }
+        .wrong { background: #f8d7da !important; border-color: var(--error) !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <p>Tap any word to hear it (Indian Accent)</p>
+    <div id="word" class="word-box" onclick="speakWord(this.innerText)"></div>
+    <div id="options"></div>
+</div>
+
+<script>
+const challenges = [
+    { weak: "good", strong: "excellent", bad: ["blue", "slow", "hard"] },
+    { weak: "bad", strong: "terrible", bad: ["fast", "calm", "neat"] },
+    { weak: "big", strong: "huge", bad: ["thin", "mild", "dry"] },
+    { weak: "small", strong: "tiny", bad: ["loud", "wild", "soft"] },
+    { weak: "happy", strong: "ecstatic", bad: ["dark", "grim", "cold"] },
+    { weak: "sad", strong: "devastated", bad: ["bright", "warm", "bold"] },
+    { weak: "fast", strong: "rapid", bad: ["dull", "stiff", "flat"] },
+    { weak: "slow", strong: "sluggish", bad: ["sharp", "keen", "grand"] },
+    { weak: "hot", strong: "scorching", bad: ["cold", "mild", "damp"] },
+    { weak: "cold", strong: "freezing", bad: ["lush", "rich", "loud"] },
+    { weak: "funny", strong: "hilarious", bad: ["bland", "plain", "sour"] },
+    { weak: "scary", strong: "terrifying", bad: ["sweet", "calm", "vivid"] },
+    { weak: "tired", strong: "exhausted", bad: ["alert", "brisk", "firm"] },
+    { weak: "angry", strong: "furious", bad: ["calm", "mild", "cool"] },
+    { weak: "smart", strong: "brilliant", bad: ["naive", "dim", "vague"] },
+    { weak: "boring", strong: "tedious", bad: ["vivid", "lively", "deep"] },
+    { weak: "pretty", strong: "gorgeous", bad: ["rough", "plain", "stiff"] },
+    { weak: "old", strong: "ancient", bad: ["fresh", "new", "raw"] },
+    { weak: "new", strong: "innovative", bad: ["stale", "worn", "fixed"] },
+    { weak: "easy", strong: "effortless", bad: ["tough", "hard", "stiff"] },
+    { weak: "hard", strong: "challenging", bad: ["soft", "easy", "light"] },
+    { weak: "bright", strong: "radiant", bad: ["dim", "dull", "dark"] },
+    { weak: "dark", strong: "gloomy", bad: ["clear", "bright", "sunny"] },
+    { weak: "rich", strong: "wealthy", bad: ["poor", "needy", "bare"] },
+    { weak: "poor", strong: "impoverished", bad: ["rich", "grand", "full"] },
+    { weak: "clean", strong: "spotless", bad: ["filthy", "dirty", "grimy"] },
+    { weak: "dirty", strong: "filthy", bad: ["clean", "pure", "neat"] },
+    { weak: "calm", strong: "serene", bad: ["wild", "loud", "harsh"] },
+    { weak: "loud", strong: "deafening", bad: ["soft", "quiet", "faint"] },
+    { weak: "quiet", strong: "silent", bad: ["noisy", "wild", "loud"] },
+    { weak: "weak", strong: "frail", bad: ["strong", "firm", "tough"] },
+    { weak: "strong", strong: "powerful", bad: ["weak", "fragile", "thin"] },
+    { weak: "busy", strong: "swamped", bad: ["idle", "free", "slow"] },
+    { weak: "brave", strong: "courageous", bad: ["coward", "afraid", "shy"] },
+    { weak: "scared", strong: "petrified", bad: ["bold", "brave", "calm"] },
+    { weak: "hungry", strong: "famished", bad: ["full", "fed", "stuffed"] },
+    { weak: "thirsty", strong: "parched", bad: ["wet", "full", "damp"] },
+    { weak: "important", strong: "crucial", bad: ["minor", "small", "vague"] },
+    { weak: "interesting", strong: "captivating", bad: ["boring", "dull", "flat"] },
+    { weak: "lazy", strong: "slothful", bad: ["active", "busy", "fast"] },
+    { weak: "nervous", strong: "apprehensive", bad: ["calm", "brave", "bold"] },
+    { weak: "serious", strong: "solemn", bad: ["silly", "jolly", "light"] },
+    { weak: "strange", strong: "peculiar", bad: ["normal", "plain", "usual"] },
+    { weak: "cheap", strong: "inexpensive", bad: ["dear", "costly", "grand"] },
+    { weak: "expensive", strong: "exorbitant", bad: ["cheap", "fair", "low"] },
+    { weak: "thin", strong: "slender", bad: ["wide", "fat", "thick"] },
+    { weak: "thick", strong: "dense", bad: ["thin", "slim", "light"] },
+    { weak: "dry", strong: "arid", bad: ["wet", "damp", "soak"] },
+    { weak: "wet", strong: "soaked", bad: ["dry", "arid", "parch"] },
+    { weak: "angry", strong: "irate", bad: ["mild", "calm", "cool"] },
+    { weak: "big", strong: "immense", bad: ["tiny", "slight", "wee"] },
+    { weak: "sad", strong: "melancholy", bad: ["jolly", "upbeat", "gay"] },
+    { weak: "happy", strong: "jubilant", bad: ["dreary", "bleak", "sad"] },
+    { weak: "fast", strong: "swift", bad: ["slow", "sluggish", "lazy"] },
+    { weak: "smart", strong: "astute", bad: ["naive", "foolish", "dull"] },
+    { weak: "bad", strong: "atrocious", bad: ["good", "grand", "fine"] },
+    { weak: "good", strong: "superb", bad: ["vile", "foul", "poor"] },
+    { weak: "hard", strong: "arduous", bad: ["simple", "easy", "light"] },
+    { weak: "easy", strong: "facile", bad: ["strenuous", "tough", "harsh"] },
+    { weak: "old", strong: "archaic", bad: ["modern", "new", "fresh"] },
+    { weak: "new", strong: "novel", bad: ["stale", "worn", "fixed"] },
+    { weak: "bright", strong: "brilliant", bad: ["murky", "dim", "faint"] },
+    { weak: "dark", strong: "obscure", bad: ["clear", "vivid", "plain"] },
+    { weak: "calm", strong: "tranquil", bad: ["chaotic", "loud", "frenetic"] },
+    { weak: "loud", strong: "vociferous", bad: ["hushed", "silent", "mute"] },
+    { weak: "quiet", strong: "hushed", bad: ["boisterous", "wild", "noisy"] },
+    { weak: "weak", strong: "feeble", bad: ["robust", "mighty", "strong"] },
+    { weak: "strong", strong: "stalwart", bad: ["frail", "wimpy", "weak"] },
+    { weak: "busy", strong: "occupied", bad: ["idle", "vacant", "free"] },
+    { weak: "brave", strong: "valiant", bad: ["timid", "coward", "scared"] },
+    { weak: "scared", strong: "timorous", bad: ["bold", "daring", "gutsy"] },
+    { weak: "hungry", strong: "ravenous", bad: ["satiated", "full", "stuffed"] },
+    { weak: "important", strong: "paramount", bad: ["trivial", "minor", "slight"] },
+    { weak: "interesting", strong: "intriguing", bad: ["bland", "vapid", "dry"] },
+    { weak: "lazy", strong: "indolent", bad: ["active", "dynamic", "zealous"] },
+    { weak: "strange", strong: "bizarre", bad: ["normal", "usual", "common"] },
+    { weak: "cheap", strong: "frugal", bad: ["lavish", "pricey", "grand"] },
+    { weak: "expensive", strong: "lavish", bad: ["cheap", "thrifty", "base"] },
+    { weak: "thin", strong: "gaunt", bad: ["plump", "stout", "broad"] },
+    { weak: "thick", strong: "voluminous", bad: ["scant", "slim", "fine"] },
+    { weak: "dry", strong: "parched", bad: ["drenched", "soaked", "humid"] },
+    { weak: "wet", strong: "saturated", bad: ["arid", "dry", "dessicated"] },
+    { weak: "rich", strong: "affluent", bad: ["destitute", "broke", "needy"] },
+    { weak: "poor", strong: "indigent", bad: ["opulent", "wealthy", "flush"] },
+    { weak: "clean", strong: "pristine", bad: ["squalid", "dirty", "soiled"] },
+    { weak: "dirty", strong: "squalid", bad: ["immaculate", "neat", "pure"] },
+    { weak: "funny", strong: "droll", bad: ["somber", "grave", "stern"] },
+    { weak: "boring", strong: "monotonous", bad: ["vibrant", "lively", "fresh"] },
+    { weak: "pretty", strong: "radiant", bad: ["hideous", "vile", "plain"] },
+    { weak: "scary", strong: "frightening", bad: ["serene", "mild", "safe"] },
+    { weak: "tired", strong: "fatigued", bad: ["vigorous", "spry", "lively"] },
+    { weak: "nervous", strong: "anxious", bad: ["serene", "poised", "composed"] },
+    { weak: "serious", strong: "grave", bad: ["frivolous", "jovial", "witty"] },
+    { weak: "small", strong: "diminutive", bad: ["gargantuan", "vast", "huge"] },
+    { weak: "hot", strong: "torrid", bad: ["frigid", "icy", "chilly"] },
+    { weak: "cold", strong: "frigid", bad: ["tepid", "warm", "balmy"] },
+    { weak: "slow", strong: "languid", bad: ["rapid", "brisk", "hasty"] },
+    { weak: "tough", strong: "resilient", bad: ["brittle", "weak", "soft"] },
+    { weak: "soft", strong: "pliant", bad: ["rigid", "stiff", "firm"] },
+    { weak: "brave", strong: "gallant", bad: ["meek", "fearful", "weak"] }
+];
+
+let currentIndex = 0;
+
+function speakWord(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    const indianVoice = voices.find(v => v.lang.startsWith('en-IN')) || voices.find(v => v.name.includes('India'));
+    
+    if (indianVoice) {
+        utterance.voice = indianVoice;
+        utterance.lang = indianVoice.lang;
+    } else {
+        utterance.lang = 'en-IN';
+    }
+    window.speechSynthesis.speak(utterance);
+}
+
+function loadGame() {
+    let q = challenges[currentIndex % challenges.length];
+    document.getElementById('word').innerText = q.weak;
+    
+    const options = [q.strong, ...q.bad].sort(() => Math.random() - 0.5);
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    
+    options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => {
+            speakWord(opt);
+            check(opt === q.strong, btn);
+        };
+        optDiv.appendChild(btn);
+    });
+}
+
+function check(isCorrect, btn) {
+    if(isCorrect) {
+        btn.classList.add('correct');
+        setTimeout(() => { currentIndex++; loadGame(); }, 1000);
+    } else {
+        btn.classList.add('wrong');
+    }
+}
+
+window.onload = () => {
+    window.speechSynthesis.onvoiceschanged = loadGame;
+    loadGame();
+};
+</script>
+</body>
+</html>

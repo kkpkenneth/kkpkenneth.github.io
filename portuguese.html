@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Portuguese Language Journal</title>
+    <!-- Importing elegant serif fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Lora', serif; 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; background-color: #e3dac9; margin: 0; color: #4a4a4a;
+        }
+        #quiz-card { 
+            background: #fdfaf6; padding: 50px; border-radius: 2px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; 
+            max-width: 500px; text-align: center; border-top: 5px solid #556b2f;
+        }
+        h1, h2 { font-family: 'Playfair Display', serif; color: #556b2f; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 12px 0; 
+            border: 1px solid #cbbbb0; background: #fdfaf6; color: #4a4a4a;
+            cursor: pointer; font-family: 'Lora', serif; transition: 0.3s;
+        }
+        .option:hover { background: #e3dac9; }
+        #next-btn { 
+            margin-top: 20px; padding: 10px 25px; background: #556b2f; color: #fdfaf6; 
+            border: none; cursor: pointer; font-family: 'Lora', serif;
+        }
+        #score-board { color: #cc6633; font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-card">
+    <div id="screen">
+        <h1>Language Journal</h1>
+        <p>A collection of phrases for your travels.</p>
+        <button id="next-btn" onclick="startGame()">Begin Session</button>
+    </div>
+</div>
+
+<script>
+    const synth = window.speechSynthesis;
+    const clickSound = new Audio('https://actions.google.com/sounds/v1/ui/button_toggle.ogg');
+    const correctSound = new Audio('https://actions.google.com/sounds/v1/ui/check_mark_success.ogg');
+    const wrongSound = new Audio('https://actions.google.com/sounds/v1/ui/error_pop.ogg');
+
+    const quizData = [
+            { q: "Olá, como vai você?", a: "Hello, how are you?", opts: ["Hello, how are you?", "Good morning.", "Goodbye."] },
+            { q: "Prazer em conhecê-lo.", a: "Nice to meet you.", opts: ["Nice to meet you.", "See you later.", "I am fine."] },
+            { q: "Qual é o seu nome?", a: "What is your name?", opts: ["What is your job?", "What is your name?", "Where are you?"] },
+            { q: "De onde você é?", a: "Where are you from?", opts: ["Where are you from?", "Who are you?", "How are you?"] },
+            { q: "Como foi o seu dia?", a: "How was your day?", opts: ["How is your job?", "How was your day?", "What is your plan?"] },
+            { q: "Estou bem.", a: "I am doing well.", opts: ["I am doing well.", "I am tired.", "I am hungry."] },
+            { q: "O que você faz?", a: "What do you do?", opts: ["Where do you go?", "What do you do?", "How do you do?"] },
+            { q: "Onde fica a estação?", a: "Where is the station?", opts: ["Where is the station?", "Where is the hotel?", "Where is the bank?"] },
+            { q: "Pode me ajudar?", a: "Can you help me?", opts: ["Can you see me?", "Can you help me?", "Can you hear me?"] },
+            { q: "Que horas são?", a: "What time is it?", opts: ["What time is it?", "What day is it?", "Where is the time?"] },
+            { q: "Quanto custa isto?", a: "How much is this?", opts: ["How much is this?", "Where is this?", "What is this?"] },
+            { q: "Eu gostaria disso.", a: "I would like that.", opts: ["I want this.", "I would like that.", "I like that."] },
+            { q: "Onde fica o banheiro?", a: "Where is the bathroom?", opts: ["Where is the hotel?", "Where is the bathroom?", "Where is the street?"] },
+            { q: "Você fala inglês?", a: "Do you speak English?", opts: ["Do you speak Portuguese?", "Do you speak English?", "Do you speak Spanish?"] },
+            { q: "Eu não entendo.", a: "I do not understand.", opts: ["I do not understand.", "I do not know.", "I do not like it."] },
+            { q: "Pode repetir isso?", a: "Can you repeat that?", opts: ["Can you repeat that?", "Can you read that?", "Can you write that?"] },
+            { q: "O que isso significa?", a: "What does this mean?", opts: ["What do you say?", "What does this mean?", "Where is this?"] },
+            { q: "Eu sou estudante.", a: "I am a student.", opts: ["I am a teacher.", "I am a student.", "I am a traveler."] },
+            { q: "Qual é o seu trabalho?", a: "What is your job?", opts: ["What is your name?", "What is your job?", "Where is your office?"] },
+            { q: "Onde você mora?", a: "Where do you live?", opts: ["Where do you go?", "Where do you live?", "Where do you work?"] },
+            { q: "Eu amo viajar.", a: "I love to travel.", opts: ["I love to eat.", "I love to learn.", "I love to travel."] },
+            { q: "Isso é muito interessante.", a: "That is very interesting.", opts: ["That is very good.", "That is very interesting.", "That is very big."] },
+            { q: "O que você está fazendo?", a: "What are you doing?", opts: ["What are you doing?", "What do you want?", "What did you say?"] },
+            { q: "Até mais tarde.", a: "See you later today.", opts: ["See you tomorrow.", "See you later today.", "Goodbye."] },
+            { q: "Tenha um bom dia.", a: "Have a good day.", opts: ["Good morning.", "Have a good day.", "Good night."] },
+            { q: "Muito obrigado.", a: "Thank you so much.", opts: ["You are welcome.", "Thank you so much.", "Please."] },
+            { q: "Você é muito gentil.", a: "You are very kind.", opts: ["You are very smart.", "You are very kind.", "You are very funny."] },
+            { q: "Com licença, por favor.", a: "Excuse me, please.", opts: ["Excuse me, please.", "Sorry.", "Thank you."] },
+            { q: "Estou com muita fome.", a: "I am very hungry.", opts: ["I am very thirsty.", "I am very hungry.", "I am very tired."] },
+            { q: "Vamos comer agora.", a: "Let us eat now.", opts: ["Let us go now.", "Let us eat now.", "Let us sleep now."] },
+            { q: "Onde fica o hotel?", a: "Where is the hotel?", opts: ["Where is the house?", "Where is the hotel?", "Where is the airport?"] },
+            { q: "Preciso de um táxi.", a: "I need a taxi.", opts: ["I need a car.", "I need a taxi.", "I need help."] },
+            { q: "Este lugar está ocupado?", a: "Is this seat taken?", opts: ["Are you busy?", "Is this seat taken?", "Where is my seat?"] },
+            { q: "Posso me sentar aqui?", a: "Can I sit here?", opts: ["Can I stand here?", "Can I sit here?", "Can I wait here?"] },
+            { q: "O que tem para o almoço?", a: "What is for lunch?", opts: ["What is for breakfast?", "What is for dinner?", "What is for lunch?"] },
+            { q: "Eu quero aprender.", a: "I want to learn.", opts: ["I want to go.", "I want to eat.", "I want to learn."] },
+            { q: "Essa é uma boa ideia.", a: "That is a good idea.", opts: ["That is a good day.", "That is a good idea.", "That is true."] },
+            { q: "Você gosta disso?", a: "Do you like this?", opts: ["Do you want this?", "Do you like this?", "Do you have this?"] },
+            { q: "É muito bonito.", a: "It is very beautiful.", opts: ["It is very big.", "It is very beautiful.", "It is very expensive."] },
+            { q: "Qual é o seu plano?", a: "What is your plan?", opts: ["What is your name?", "What is your plan?", "How are you?"] },
+            { q: "Eu vou para casa.", a: "I will go home.", opts: ["I will go to work.", "I will go home.", "I will travel."] },
+            { q: "Está ficando tarde.", a: "It is getting late.", opts: ["It is getting cold.", "It is getting late.", "It is getting dark."] },
+            { q: "Você está pronto agora?", a: "Are you ready now?", opts: ["Are you ready now?", "Are you happy?", "Are you here?"] },
+            { q: "Vamos lá.", a: "Let us go there.", opts: ["Let us eat.", "Let us go there.", "Let us leave."] },
+            { q: "Isso não está certo.", a: "That is not right.", opts: ["That is not good.", "That is not right.", "That is not true."] },
+            { q: "Pode me mostrar?", a: "Can you show me?", opts: ["Can you tell me?", "Can you show me?", "Can you help me?"] },
+            { q: "O que você disse?", a: "What did you say?", opts: ["What did you do?", "What did you say?", "What do you want?"] },
+            { q: "Tenho uma pergunta.", a: "I have a question.", opts: ["I have a doubt.", "I have a question.", "I have a problem."] },
+            { q: "Estou muito feliz.", a: "I am very happy.", opts: ["I am very sad.", "I am very happy.", "I am very tired."] },
+            { q: "Falamos em breve.", a: "Talk to you soon.", opts: ["Goodbye.", "Talk to you soon.", "See you later."] }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function startGame() {
+        clickSound.play();
+        render();
+    }
+
+    function render() {
+        const data = quizData[current];
+        const screen = document.getElementById('screen');
+        screen.innerHTML = `
+            <div id="score-board">Progress: ${current + 1} / ${quizData.length} | Score: ${score}</div>
+            <h2>${data.q}</h2>
+            <div id="options"></div>
+            <button id="next-btn" style="display:none;" onclick="nextQuestion()">Continue</button>
+        `;
+        
+        setTimeout(() => {
+            const msg = new SpeechSynthesisUtterance(data.q);
+            msg.lang = 'pt-PT';
+            synth.speak(msg);
+        }, 500);
+
+        data.opts.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'option';
+            btn.innerText = o;
+            btn.onclick = () => {
+                clickSound.play();
+                document.querySelectorAll('.option').forEach(b => b.disabled = true);
+                
+                if(o === data.a) {
+                    correctSound.play();
+                    score++;
+                    btn.style.backgroundColor = "#e3dac9";
+                    btn.style.borderColor = "#556b2f";
+                } else {
+                    wrongSound.play();
+                    btn.style.backgroundColor = "#fdece6";
+                }
+                document.getElementById('next-btn').style.display = "inline-block";
+            };
+            document.getElementById('options').appendChild(btn);
+        });
+    }
+
+    function nextQuestion() {
+        clickSound.play();
+        current++;
+        if(current < quizData.length) render();
+        else document.getElementById('quiz-card').innerHTML = `<h1>Session Complete</h1><p>Final Score: ${score} / ${quizData.length}</p>`;
+    }
+</script>
+</body>
+</html>

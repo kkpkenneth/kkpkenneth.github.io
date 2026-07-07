@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjective Upgrader</title>
+    <style>
+        :root { --bg: #f4f7f6; --primary: #3498db; --success: #2ecc71; --error: #e74c3c; }
+        
+        /* Updated Body for Centering */
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background: var(--bg); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; /* Vertical Center */
+            min-height: 100vh;   /* Full viewport height */
+            margin: 0; 
+            padding: 20px;
+        }
+
+        .container { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+        }
+        
+        .word-box { font-size: 2rem; font-weight: bold; margin: 20px 0; color: #2c3e50; cursor: pointer; padding: 10px; border-bottom: 2px dashed #ccc; }
+        button { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #eee; border-radius: 8px; cursor: pointer; background: #f8f9fa; font-size: 1.1rem; }
+        .correct { background: #d4edda !important; border-color: var(--success) !important; }
+        .wrong { background: #f8d7da !important; border-color: var(--error) !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <p>Tap any word to hear it</p>
+    <div id="word" class="word-box" onclick="speakWord(this.innerText)"></div>
+    <div id="options"></div>
+</div>
+
+<script>
+    const challenges = [
+        { weak: "好", strong: "美好得如同一場美夢", bad: ["藍色", "慢", "困難"] },
+        { weak: "壞", strong: "惡劣得如同一場噩夢", bad: ["快", "冷靜", "整潔"] },
+        { weak: "大", strong: "大得猶如一座高山", bad: ["瘦", "溫和", "乾燥"] },
+        { weak: "小", strong: "小得像一粒微塵", bad: ["大聲", "狂野", "柔軟"] },
+        { weak: "快樂", strong: "快樂得猶如中了大獎", bad: ["黑暗", "冷酷", "寒冷"] },
+        { weak: "悲傷", strong: "悲傷得好似天塌下來", bad: ["明亮", "溫暖", "大膽"] },
+        { weak: "快", strong: "快得如疾風閃電", bad: ["遲鈍", "僵硬", "平坦"] },
+        { weak: "慢", strong: "慢得如同蝸牛爬行", bad: ["鋒利", "敏銳", "宏偉"] },
+        { weak: "熱", strong: "熱得如同置身火爐", bad: ["寒冷", "溫和", "潮濕"] },
+        { weak: "冷", strong: "冷得如同冰塊一般", bad: ["繁茂", "富有", "大聲"] },
+        { weak: "有趣", strong: "滑稽得就像小丑表演", bad: ["平淡", "普通", "酸"] },
+        { weak: "可怕", strong: "驚悚得彷彿見到了鬼魅", bad: ["甜", "冷靜", "生動"] },
+        { weak: "疲憊", strong: "疲憊得像一條死魚", bad: ["警覺", "輕快", "堅固"] },
+        { weak: "憤怒", strong: "憤怒得如同火藥桶", bad: ["冷靜", "溫和", "冷酷"] },
+        { weak: "聰明", strong: "聰穎得如同機靈的猴子", bad: ["天真", "遲鈍", "模糊"] },
+        { weak: "無聊", strong: "無聊得讓人如坐針氈", bad: ["生動", "活潑", "深刻"] },
+        { weak: "漂亮", strong: "美麗得如同畫中仙子", bad: ["粗糙", "普通", "僵硬"] },
+        { weak: "舊", strong: "古老得好似出土文物", bad: ["新鮮", "新", "原始"] },
+        { weak: "新", strong: "新穎得像晨間的露水", bad: ["陳舊", "磨損", "固定"] },
+        { weak: "容易", strong: "簡單得如同探囊取物", bad: ["艱難", "困難", "僵硬"] },
+        { weak: "困難", strong: "艱難得好比愚公移山", bad: ["柔軟", "容易", "輕盈"] },
+        { weak: "明亮", strong: "明亮得如同璀璨星辰", bad: ["昏暗", "遲鈍", "黑暗"] },
+        { weak: "黑暗", strong: "黑暗得如同深不見底的洞穴", bad: ["清晰", "明亮", "晴朗"] },
+        { weak: "富有", strong: "富有得好比大財主", bad: ["貧窮", "貧困", "赤裸"] },
+        { weak: "貧窮", strong: "貧窮得像個一無所有的乞兒", bad: ["富有", "宏偉", "飽滿"] },
+        { weak: "乾淨", strong: "乾淨得好似一張白紙", bad: ["骯髒", "髒", "污穢"] },
+        { weak: "骯髒", strong: "骯髒得如同泥潭中的豬", bad: ["乾淨", "純潔", "整潔"] },
+        { weak: "冷靜", strong: "平靜得如同明鏡般的湖水", bad: ["狂野", "大聲", "嚴厲"] },
+        { weak: "大聲", strong: "響亮得好似雷鳴轟頂", bad: ["柔軟", "安靜", "微弱"] },
+        { weak: "安靜", strong: "安靜得如同落針可聞", bad: ["吵鬧", "狂野", "大聲"] },
+        { weak: "虛弱", strong: "虛弱得好似隨風倒的柳枝", bad: ["強壯", "堅固", "艱難"] },
+        { weak: "強壯", strong: "強壯得如同一頭猛牛", bad: ["虛弱", "易碎", "瘦"] },
+        { weak: "忙碌", strong: "忙碌得如同採蜜的蜜蜂", bad: ["閒置", "自由", "慢"] },
+        { weak: "勇敢", strong: "勇敢得好似叢林之王", bad: ["膽小", "害怕", "害羞"] },
+        { weak: "害怕", strong: "恐懼得像隻受驚的兔仔", bad: ["大膽", "勇敢", "冷靜"] },
+        { weak: "飢餓", strong: "飢餓得像隻餓虎", bad: ["飽滿", "餵食", "飽和"] },
+        { weak: "口渴", strong: "乾渴得好似荒蕪的沙漠", bad: ["濕潤", "飽滿", "潮濕"] },
+        { weak: "重要", strong: "重要得好比氧氣", bad: ["次要", "小", "模糊"] },
+        { weak: "有趣", strong: "吸引得好似套卡通片", bad: ["無聊", "遲鈍", "平坦"] },
+        { weak: "懶惰", strong: "懶散得如同一隻熱帶雨林的樹懶", bad: ["活躍", "忙碌", "快"] },
+        { weak: "緊張", strong: "驚慌得好似心裡有鹿撞", bad: ["冷靜", "勇敢", "大膽"] },
+        { weak: "嚴肅", strong: "嚴肅得好比法官", bad: ["愚蠢", "快樂", "輕盈"] },
+        { weak: "奇怪", strong: "怪異得好比外星人", bad: ["正常", "普通", "習慣"] },
+        { weak: "便宜", strong: "便宜得好比地上的沙粒", bad: ["昂貴", "代價高", "宏偉"] },
+        { weak: "昂貴", strong: "昂貴得好比獨一無二的寶石", bad: ["便宜", "公平", "低"] },
+        { weak: "瘦", strong: "消瘦得好似枯枝", bad: ["寬", "胖", "厚"] },
+        { weak: "厚", strong: "厚重得好比一隻剛果的黑猩猩", bad: ["瘦", "苗條", "輕盈"] },
+        { weak: "乾燥", strong: "乾燥得像塊乾柴", bad: ["濕潤", "潮濕", "浸泡"] },
+        { weak: "潮濕", strong: "濕透得好似一隻落湯雞", bad: ["乾燥", "乾旱", "脫水"] },
+    ];
+
+let currentIndex = 0;
+
+function speakWord(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    
+    // 優先尋找香港粵語語音
+    // 檢查語音名稱中是否包含 'Hong Kong' 或語言代碼為 'zh-HK'
+    const hkVoice = voices.find(v => v.lang === 'zh-HK' || v.name.includes('Hong Kong'));
+    
+    if (hkVoice) {
+        utterance.voice = hkVoice;
+        utterance.lang = 'zh-HK';
+    } else {
+        // 若找不到粵語，則預設為中文
+        utterance.lang = 'zh-HK';
+    }
+    
+    window.speechSynthesis.speak(utterance);
+}
+
+function loadGame() {
+    let q = challenges[currentIndex % challenges.length];
+    document.getElementById('word').innerText = q.weak;
+    
+    const options = [q.strong, ...q.bad].sort(() => Math.random() - 0.5);
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    
+    options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => {
+            speakWord(opt);
+            check(opt === q.strong, btn);
+        };
+        optDiv.appendChild(btn);
+    });
+}
+
+function check(isCorrect, btn) {
+    if(isCorrect) {
+        btn.classList.add('correct');
+        setTimeout(() => { currentIndex++; loadGame(); }, 1000);
+    } else {
+        btn.classList.add('wrong');
+    }
+}
+
+window.onload = () => {
+    window.speechSynthesis.onvoiceschanged = loadGame;
+    loadGame();
+};
+</script>
+</body>
+</html>

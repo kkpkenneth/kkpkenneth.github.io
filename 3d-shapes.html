@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Ultimate Geometry Lab</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #050505; color: white; font-family: sans-serif; }
+        #ui { position: absolute; top: 20px; left: 20px; z-index: 10; background: rgba(0,0,0,0.85); padding: 20px; border-radius: 12px; border: 1px solid #444; width: 250px; }
+        .control { margin-bottom: 15px; }
+        select, input { width: 100%; margin-top: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <h3>Geometry Lab</h3>
+    <div class="control">
+        <label>Shape Category:</label>
+        <select id="catSelect">
+            <option value="Prism">Prism (稜柱)</option>
+            <option value="Pyramid">Pyramid (錐體)</option>
+            <option value="Platonic">Platonic Solids (正多面體)</option>
+        </select>
+    </div>
+    <div class="control" id="sidesCtrl">
+        <label>Number of Sides: <span id="sidesVal">4</span></label>
+        <input type="range" id="sidesRange" min="3" max="20" step="1" value="4">
+    </div>
+    <div class="control" id="platonicCtrl" style="display:none;">
+        <label>Select Solid:</label>
+        <select id="platonicSelect">
+            <option value="Tetrahedron">Tetrahedron (4)</option>
+            <option value="Box">Cube (6)</option>
+            <option value="Octahedron">Octahedron (8)</option>
+            <option value="Dodecahedron">Dodecahedron (12)</option>
+            <option value="Icosahedron">Icosahedron (20)</option>
+        </select>
+    </div>
+</div>
+
+<script type="importmap">
+  { "imports": { 
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  } }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    camera.position.z = 6;
+
+    let mesh;
+    function updateShape() {
+        if (mesh) scene.remove(mesh);
+        const cat = document.getElementById('catSelect').value;
+        const sides = parseInt(document.getElementById('sidesRange').value);
+        let geometry;
+
+        document.getElementById('sidesCtrl').style.display = (cat === 'Platonic') ? 'none' : 'block';
+        document.getElementById('platonicCtrl').style.display = (cat === 'Platonic') ? 'block' : 'none';
+
+        if (cat === 'Prism') {
+            geometry = new THREE.CylinderGeometry(1.5, 1.5, 3, sides);
+        } else if (cat === 'Pyramid') {
+            geometry = new THREE.ConeGeometry(2, 3, sides);
+        } else {
+            const pType = document.getElementById('platonicSelect').value;
+            if (pType === "Box") geometry = new THREE.BoxGeometry(2,2,2);
+            else if (pType === "Octahedron") geometry = new THREE.OctahedronGeometry(2);
+            else if (pType === "Tetrahedron") geometry = new THREE.TetrahedronGeometry(2);
+            else if (pType === "Dodecahedron") geometry = new THREE.DodecahedronGeometry(2);
+            else geometry = new THREE.IcosahedronGeometry(2);
+        }
+
+        const colors = [];
+        for (let i = 0; i < geometry.attributes.position.count; i++) {
+            colors.push(Math.random(), Math.random(), Math.random());
+        }
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        const material = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true });
+        mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+    }
+
+    ['catSelect', 'sidesRange', 'platonicSelect'].forEach(id => 
+        document.getElementById(id).addEventListener('input', () => {
+            document.getElementById('sidesVal').innerText = document.getElementById('sidesRange').value;
+            updateShape();
+        })
+    );
+
+    updateShape();
+    function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
+    animate();
+</script>
+</body>
+</html>

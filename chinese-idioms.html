@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>文筆鑑賞挑戰</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .quiz-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 500px; }
+        button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 8px; text-align: left; transition: 0.2s; font-size: 16px; }
+        button:hover { background: #eef2f7; border-color: #007bff; }
+        #score-board { font-weight: bold; margin-bottom: 20px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="score-board">當前得分：0</div>
+    <div id="q-box"></div>
+</div>
+
+<script>
+    const data = [
+        { q: "形容人做事不慌不忙，非常有把握。", options: [{t: "他很冷靜，不怕困難。", p: 0}, {t: "他從容不迫，鎮定自若。", p: 1}] },
+        { q: "形容人說話囉嗦，反覆說同樣的話。", options: [{t: "他說話一直在重複。", p: 0}, {t: "他喋喋不休，老調重彈。", p: 1}] },
+        { q: "形容聲音非常響亮，傳得很遠。", options: [{t: "他的聲音很大。", p: 0}, {t: "他聲如洪鐘，響徹雲霄。", p: 1}] },
+        { q: "形容做事情非常認真，一點也不馬虎。", options: [{t: "他把事情做得很好。", p: 0}, {t: "他一絲不苟，腳踏實地。", p: 1}] },
+        { q: "形容東西非常破舊，快要不能用了。", options: [{t: "這個東西很舊了。", p: 0}, {t: "這已是破爛不堪，陳舊老朽。", p: 1}] },
+        { q: "形容情況非常危險，就在那一瞬間。", options: [{t: "當時真的很危險。", p: 0}, {t: "當時千鈞一髮，命懸一線。", p: 1}] },
+        { q: "形容人很有學問，懂得很多。", options: [{t: "他讀過很多書。", p: 0}, {t: "他博學多才，學富五車。", p: 1}] },
+        { q: "形容天氣非常熱，像被火烤一樣。", options: [{t: "今天天氣很熱。", p: 0}, {t: "今日烈日炎炎，揮汗如雨。", p: 1}] },
+        { q: "形容人做事很快，一點也不拖延。", options: [{t: "他動作很快。", p: 0}, {t: "他雷厲風行，乾淨俐落。", p: 1}] },
+        { q: "形容人說話很幽默，讓大家發笑。", options: [{t: "他說的話很好笑。", p: 0}, {t: "他幽默風趣，妙語如珠。", p: 1}] },
+        { q: "形容心情非常難過，心像碎了一樣。", options: [{t: "他心裡很難過。", p: 0}, {t: "他痛心疾首，肝腸寸斷。", p: 1}] },
+        { q: "形容人非常有禮貌，態度很客氣。", options: [{t: "他對人很好。", p: 0}, {t: "他謙謙君子，彬彬有禮。", p: 1}] },
+        { q: "形容環境非常安靜，沒有聲音。", options: [{t: "這裡很安靜。", p: 0}, {t: "這裡萬籟俱寂，靜若無人。", p: 1}] },
+        { q: "形容人做事很小心，怕出錯。", options: [{t: "他做事很小心。", p: 0}, {t: "他謹小慎微，如履薄冰。", p: 1}] },
+        { q: "形容人很有自信，不害怕失敗。", options: [{t: "他相信自己會成功。", p: 0}, {t: "他信心滿滿，義無反顧。", p: 1}] },
+        { q: "形容人群聚集在一起，非常熱鬧。", options: [{t: "很多人聚在一起。", p: 0}, {t: "他們人山人海，摩肩接踵。", p: 1}] },
+        { q: "形容事情變得非常複雜，很難解決。", options: [{t: "事情變得很麻煩。", p: 0}, {t: "情況錯綜複雜，棘手難辦。", p: 1}] },
+        { q: "形容人很有志氣，想要做大事。", options: [{t: "他想做大事。", p: 0}, {t: "他志存高遠，壯志凌雲。", p: 1}] },
+        { q: "形容人走路很輕，怕吵到別人。", options: [{t: "他走路沒聲音。", p: 0}, {t: "他腳步輕盈，悄無聲息。", p: 1}] },
+        { q: "形容天氣很冷，手腳都凍僵了。", options: [{t: "天氣真的很冷。", p: 0}, {t: "天寒地凍，滴水成冰。", p: 1}] },
+        { q: "形容人很有毅力，不怕困難。", options: [{t: "他很有恆心。", p: 0}, {t: "他持之以恆，百折不撓。", p: 1}] },
+        { q: "形容人對事情看得很清楚，不被騙。", options: [{t: "他看得出來這是在騙人。", p: 0}, {t: "他明察秋毫，洞若觀火。", p: 1}] },
+        { q: "形容人很有名，大家都知道他。", options: [{t: "很多人認識他。", p: 0}, {t: "他家喻戶曉，名聞遐邇。", p: 1}] },
+        { q: "形容事情突然發生，讓人意外。", options: [{t: "這件事發生得很突然。", p: 0}, {t: "這件事突如其來，措手不及。", p: 1}] },
+        { q: "形容人很懶，什麼事都不想做。", options: [{t: "他真的很懶。", p: 0}, {t: "他好吃懶做，遊手好閒。", p: 1}] },
+        { q: "形容人很富有，家裡很有錢。", options: [{t: "他家裡很有錢。", p: 0}, {t: "他腰纏萬貫，富甲一方。", p: 1}] },
+        { q: "形容事情做得非常完美，沒缺點。", options: [{t: "他做得很好。", p: 0}, {t: "他盡善盡美，無懈可擊。", p: 1}] },
+        { q: "形容人很有勇氣，不怕壞人。", options: [{t: "他不怕壞人。", p: 0}, {t: "他大義凜然，無所畏懼。", p: 1}] },
+        { q: "形容東西很珍貴，很難得。", options: [{t: "這東西很難得。", p: 0}, {t: "這稀世珍寶，價值連城。", p: 1}] },
+        { q: "形容人因為生氣，全身都在發抖。", options: [{t: "他氣到發抖。", p: 0}, {t: "他怒髮衝冠，渾身顫抖。", p: 1}] },
+        { q: "形容做事情要從小處開始，慢慢累積。", options: [{t: "慢慢做就會變好。", p: 0}, {t: "積沙成塔，聚腋成裘。", p: 1}] },
+        { q: "形容人做事情不考慮後果，很衝動。", options: [{t: "他想做就做，不管後果。", p: 0}, {t: "他魯莽行事，不計後果。", p: 1}] },
+        { q: "形容天氣一直下雨，沒完沒了。", options: [{t: "雨一直下不停。", p: 0}, {t: "陰雨連綿，沒完沒了。", p: 1}] },
+        { q: "形容人看東西很專注，什麼都沒注意到。", options: [{t: "他看得很投入。", p: 0}, {t: "他目不轉睛，渾然忘我。", p: 1}] },
+        { q: "形容人的想法很特別，跟大家不一樣。", options: [{t: "他想法很特別。", p: 0}, {t: "他別出心裁，獨樹一幟。", p: 1}] },
+        { q: "形容這件事已經說過很多次了。", options: [{t: "這件事已經說過很多次了。", p: 0}, {t: "這件事老生常談，不厭其煩。", p: 1}] },
+        { q: "形容人對於過去的事情感到後悔。", options: [{t: "他後悔以前做錯事。", p: 0}, {t: "他悔不當初，追悔莫及。", p: 1}] },
+        { q: "形容這地方以前很熱鬧，現在卻很冷清。", options: [{t: "這地方變得很冷清。", p: 0}, {t: "這裡門可羅雀，冷冷清清。", p: 1}] },
+        { q: "形容做事情要一步一步來，不能急。", options: [{t: "做事要慢慢來。", p: 0}, {t: "循序漸進，水到渠成。", p: 1}] },
+        { q: "形容人很膽小，什麼都不敢做。", options: [{t: "他什麼都不敢做。", p: 0}, {t: "他膽小如鼠，畏首畏尾。", p: 1}] },
+        { q: "形容人很有氣質，給人感覺很好。", options: [{t: "他看起來很有氣質。", p: 0}, {t: "他儀態萬千，氣宇軒昂。", p: 1}] },
+        { q: "形容事情已經定下來了，不能改了。", options: [{t: "這件事已經決定了。", p: 0}, {t: "這件事板上釘釘，不容置疑。", p: 1}] },
+        { q: "形容東西非常小，看得不清楚。", options: [{t: "東西太小看不見。", p: 0}, {t: "這微不足道，細如毫芒。", p: 1}] },
+        { q: "形容這是一個很大的挑戰，很難贏。", options: [{t: "這很難贏。", p: 0}, {t: "這是一場硬仗，勝負難料。", p: 1}] },
+        { q: "形容做事情要大家一起幫忙才會成功。", options: [{t: "大家幫忙就能成功。", p: 0}, {t: "眾志成城，其利斷金。", p: 1}] },
+        { q: "形容這地方到處都是垃圾，很髒。", options: [{t: "這裡很髒。", p: 0}, {t: "這裡髒亂不堪，污穢滿地。", p: 1}] },
+        { q: "形容人學習知識要從頭開始。", options: [{t: "從基礎開始學。", p: 0}, {t: "循序漸進，由淺入深。", p: 1}] },
+        { q: "形容人非常大方，願意分享。", options: [{t: "他願意跟大家分享。", p: 0}, {t: "他慷慨解囊，樂善好施。", p: 1}] },
+        { q: "形容人因為害怕，臉色都變了。", options: [{t: "他嚇得臉色發白。", p: 0}, {t: "他面如土色，驚魂未定。", p: 1}] },
+        { q: "形容雖然遇到困難，但最後還是成功了。", options: [{t: "雖然辛苦，但最後成功了。", p: 0}, {t: "歷經磨難，終成大器。", p: 1}] }
+    ];
+
+    let current = 0;
+    let score = 0;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(freq) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function handleAnswer(points) {
+        score += points;
+        playSound(points === 1 ? 880 : 220);
+        current++;
+        render();
+    }
+
+    function render() {
+        if (current >= data.length) {
+            document.getElementById('q-box').innerHTML = `<h3>測驗結束！總分：${score} / ${data.length}</h3>`;
+            return;
+        }
+
+        // 隨機排列選項
+        let opts = [...data[current].options].sort(() => Math.random() - 0.5);
+        
+        document.getElementById('score-board').innerText = `當前得分：${score}`;
+        document.getElementById('q-box').innerHTML = `
+            <p><strong>${current + 1}. ${data[current].q}</strong></p>
+            ${opts.map(o => `<button onclick="handleAnswer(${o.p})">${o.t}</button>`).join('')}
+        `;
+    }
+    render();
+</script>
+
+</body>
+</html>

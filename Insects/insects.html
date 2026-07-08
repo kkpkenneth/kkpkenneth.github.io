@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insect Explorer: Quiz & Gallery</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --bg: #eceff1;
+            --text: #263238;
+            --card: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Centers everything vertically */
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px; /* Widened slightly for the gallery view */
+            text-align: center; /* Centers all internal text and inline elements */
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 { 
+            color: var(--primary); 
+            margin-bottom: 10px;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px; /* Pill-shaped buttons for a modern look */
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(46, 125, 50, 0.2);
+        }
+        
+        button:hover { 
+            background-color: #1b5e20; 
+            box-shadow: 0 6px 12px rgba(46, 125, 50, 0.3);
+        }
+        button:active { transform: scale(0.97); }
+        
+        .btn-secondary { 
+            background-color: #546e7a; 
+            box-shadow: 0 4px 6px rgba(84, 110, 122, 0.2);
+        }
+        .btn-secondary:hover { 
+            background-color: #37474f; 
+            box-shadow: 0 6px 12px rgba(84, 110, 122, 0.3);
+        }
+        
+        /* Views */
+        #start-page, #quiz-page, #gallery-page { display: none; }
+        .active-page { display: block !important; }
+
+        /* Quiz UI */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #546e7a;
+        }
+
+        .quiz-image-container {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin: 0 auto 30px auto;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .quiz-image-container img {
+            max-width: 100%;
+            height: auto;
+            max-height: 280px;
+            border-radius: 8px;
+        }
+
+        #options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Gallery UI - Centered Flexbox */
+        .gallery-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* Centers the cards */
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .gallery-item {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            width: 140px; /* Fixed width for uniform gallery look */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-item:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12); 
+        }
+
+        .gallery-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-item-title {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 16px;
+        }
+        
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(38, 50, 56, 0.85);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-content img { 
+            max-width: 100%; 
+            height: 200px; 
+            object-fit: contain; 
+            margin-bottom: 20px;
+        }
+        
+        .classification { 
+            font-style: italic; 
+            color: #78909c; 
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        #modal-fact {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #455a64;
+            margin-bottom: 30px;
+        }
+
+        #modal-diet {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #455a64;
+            margin-bottom: 30px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-page" class="container active-page">
+        <h1 style="font-size: 3em; margin-bottom: 5px;">🐞</h1>
+        <h1 style="font-size: 2.5em;">Insect Explorer</h1>
+        <p style="font-size: 1.2em; color: #546e7a;">Test your knowledge or browse the encyclopedia.</p>
+        
+        <div class="btn-group">
+            <button onclick="playSound('click'); startQuiz()">Start Quiz</button>
+            <button class="btn-secondary" onclick="playSound('click'); showGallery()">View Gallery</button>
+        </div>
+    </div>
+
+    <div id="quiz-page" class="container">
+        <h2>Identify the Insect</h2>
+        <div class="stats">
+            <span id="score-display">Score: 0</span>
+            <span id="question-display">Question: 1/10</span>
+        </div>
+        <div class="quiz-image-container">
+            <img id="quiz-img" src="" alt="Who's that insect?">
+        </div>
+        <div id="options-container"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()" style="max-width: 200px; padding: 10px 20px; font-size: 16px;">Quit to Menu</button>
+        </div>
+    </div>
+
+    <div id="gallery-page" class="container">
+        <h2>Insect Gallery</h2>
+        <p style="color: #546e7a; margin-bottom: 30px;">Click on any insect to learn more.</p>
+        <div class="gallery-grid" id="gallery-grid"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()">Back to Menu</button>
+        </div>
+    </div>
+
+    <div id="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="">
+            <h2 id="modal-title" style="margin-bottom: 5px; font-size: 28px;"></h2>
+            <div class="classification" id="modal-class"></div>
+            <p id="modal-fact"></p>
+            <p id="modal-diet"></p>
+            <div class="btn-group" style="margin-top: 0;">
+                <button onclick="playSound('click'); readFactOutLoud()">🔊 Read Fact</button>
+                <button class="btn-secondary" onclick="playSound('click'); closeModal(true)">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Sound Effects System ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            if (type === 'correct') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(600, now);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'wrong') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(150, now);
+                oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'click') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                oscillator.start(now);
+                oscillator.stop(now + 0.1);
+            } else if (type === 'win') {
+                playTone(440, now, 0.1);       
+                playTone(554.37, now + 0.1, 0.1); 
+                playTone(659.25, now + 0.2, 0.3); 
+            }
+        }
+
+        function playTone(freq, time, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        // --- Database ---
+        const insects = [
+    { name: "1. Springtail", file: "01-springtail.jpg", order: "Collembola", fact: "They have a tail-like appendage that allows them to jump high into the air.", diet: "Diet: Decaying plant matter, fungi, and bacteria." },
+    { name: "2. Bristletail", file: "02-bristletail.jpg", order: "Archaeognatha", fact: "They are among the most primitive insects and completely lack wings.", diet: "Diet: Algae, lichens, and decaying vegetation." },
+    { name: "3. Silverfish", file: "03-silverfish.jpg", order: "Zygentoma", fact: "They get their name from their silvery, metallic appearance and fish-like movements.", diet: "Diet: Starches and carbohydrates, including paper, glue, and dead skin cells." },
+    { name: "4. Mayfly", file: "04-mayfly.jpg", order: "Ephemeroptera", fact: "Adult mayflies have incredibly short lifespans, sometimes living for only a few hours.", diet: "Diet: Nymphs eat algae and organic debris; adults do not eat." },
+    { name: "5. Dragonfly", file: "05-dragonfly.jpg", order: "Odonata", fact: "They are expert hunters with nearly 360-degree vision and can fly backward.", diet: "Diet: Strictly carnivorous; other flying insects like mosquitoes and flies." },
+    { name: "6. Damselfly", file: "06-damselfly.jpg", order: "Odonata", fact: "Unlike dragonflies, damselflies fold their wings parallel to their bodies when resting.", diet: "Diet: Small insects caught mid-air or plucked from vegetation." },
+    { name: "7. Stonefly", file: "07-stonefly.jpg", order: "Plecoptera", fact: "They are excellent indicators of water quality because they require highly oxygenated, clean water.", diet: "Diet: Nymphs feed on algae and debris; adults may eat lichen, nectar, or nothing at all." },
+    { name: "8. Earwig", file: "08-earwig.jpg", order: "Dermaptera", fact: "Despite the myth, earwigs do not crawl into human ears to lay eggs!", diet: "Diet: Omnivorous scavengers; decaying plant matter, live plants, and small insects." },
+    { name: "9. Grasshopper", file: "09-grasshopper.jpg", order: "Orthoptera", fact: "They have special organs on their hind legs that they rub together to 'sing'.", diet: "Diet: Grasses, leaves, and crop stems." },
+    { name: "10. Cricket", file: "10-cricket.jpg", order: "Orthoptera", fact: "You can tell the temperature by counting a cricket's chirps over a 15-second period and adding 40.", diet: "Diet: Decaying plant material, fungi, and dead insects." },
+    { name: "11. Katydid", file: "11-katydid.jpg", order: "Orthoptera", fact: "Their bodies perfectly mimic leaves to hide from predators.", diet: "Diet: Mostly leaves, stems, and flowers; occasionally small insects." },
+    { name: "12. Stick Insect", file: "12-stick-insect.jpg", order: "Phasmatodea", fact: "Some species can regenerate lost limbs during their molting process.", diet: "Diet: Leaves of trees and shrubs." },
+    { name: "13. Leaf Insect", file: "13-leaf-insect.jpg", order: "Phasmatodea", fact: "Their camouflage is so advanced they even have fake bite marks to look like damaged leaves.", diet: "Diet: Leaves of various plants." },
+    { name: "14. Praying Mantis", file: "14-praying-mantis.jpg", order: "Mantodea", fact: "They are the only insects capable of turning their heads 180 degrees.", diet: "Diet: Other insects and occasionally small vertebrates like frogs." },
+    { name: "15. Cockroach", file: "15-cockroach.jpg", order: "Blattodea", fact: "A cockroach can live for a week without its head.", diet: "Diet: Almost any organic matter, including food scraps, paper, and dead matter." },
+    { name: "16. Termite", file: "16-termite.jpg", order: "Blattodea", fact: "Termites digest wood with the help of special microbes living in their guts.", diet: "Diet: Cellulose from wood, dead plant material, and paper." },
+    { name: "17. Thrip", file: "17-thrip.jpg", order: "Thysanoptera", fact: "They are incredibly tiny and can be carried by wind currents for thousands of miles.", diet: "Diet: Mostly plant sap; some prey on tiny insects or fungi." },
+    { name: "18. Chewing Lice", file: "18-chewing-lice.jpg", order: "Phthiraptera", fact: "Unlike other lice, they feed on skin debris and feathers rather than blood.", diet: "Diet: Skin debris, feathers, and sometimes blood of birds and mammals." },
+    { name: "19. Sucking Lice", file: "19-sucking-lice.jpg", order: "Phthiraptera", fact: "They are completely wingless and rely entirely on a host mammal for survival.", diet: "Diet: Strictly the blood of mammals." },
+    { name: "20. Cicada", file: "20-cicada.jpg", order: "Hemiptera", fact: "Some species of cicadas stay underground for exactly 13 or 17 years before emerging.", diet: "Diet: Sap from tree roots (nymphs) and branches (adults)." },
+    { name: "21. Leafhopper", file: "21-leafhopper.jpg", order: "Hemiptera", fact: "They have a special gear-like mechanism in their legs to synchronize their powerful jumps.", diet: "Diet: Plant sap." },
+    { name: "22. Aphid", file: "22-aphid.jpg", order: "Hemiptera", fact: "Many aphids are born already pregnant, allowing their populations to explode rapidly.", diet: "Diet: Phloem sap from plants." },
+    { name: "23. Water Strider", file: "23-water-strider.jpg", order: "Hemiptera", fact: "They use the surface tension of water to skate across ponds without sinking.", diet: "Diet: Small insects that fall onto the water's surface." },
+    { name: "24. Assassin Bug", file: "24-assasin-bug.jpg", order: "Hemiptera", fact: "They inject a specialized venom that liquefies the insides of their prey.", diet: "Diet: The liquefied insides of other insects." },
+    { name: "25. Bed Bug", file: "25-bed-bug.jpg", order: "Hemiptera", fact: "They can survive for several months in a dormant state without feeding.", diet: "Diet: Blood of humans and other warm-blooded animals." },
+    { name: "26. Stink Bug", file: "26-stink-bug.jpg", order: "Hemiptera", fact: "They release a strong, foul odor from a gland on their abdomen when threatened.", diet: "Diet: Plant juices and crops; some eat other insects." },
+    { name: "27. Wasp", file: "27-wasp.jpg", order: "Hymenoptera", fact: "Wasps are crucial pest controllers, hunting many insects that would otherwise destroy crops.", diet: "Diet: Adults drink nectar; they hunt insects to feed their larvae." },
+    { name: "28. Ant", file: "28-ant.jpg", order: "Hymenoptera", fact: "Ants can carry objects that are 10 to 50 times their own body weight.", diet: "Diet: Varies by species; nectar, seeds, fungus, and other insects." },
+    { name: "29. Bee", file: "29-bee.jpg", order: "Hymenoptera", fact: "Honey bees communicate where to find flowers by performing a 'waggle dance'.", diet: "Diet: Nectar and pollen from flowering plants." },
+    { name: "30. Snakefly", file: "30-snakefly.jpg", order: "Raphidioptera", fact: "They have an elongated 'neck' that makes them look like a snake preparing to strike.", diet: "Diet: Small, soft-bodied insects such as aphids." },
+    { name: "31. Dobsonfly", file: "31-dobsonfly.jpg", order: "Megaloptera", fact: "Males have huge, terrifying mandibles that are actually harmless and just used for mating.", diet: "Diet: Nymphs eat aquatic insects; adults usually do not eat." },
+    { name: "32. Lacewing", file: "32-lacewing.jpg", order: "Neuroptera", fact: "Their larvae are called 'aphid lions' because of their voracious appetite for garden pests.", diet: "Diet: Adults eat nectar/pollen; larvae hunt soft-bodied garden pests." },
+    { name: "33. Antlion", file: "33-antlion.jpg", order: "Neuroptera", fact: "Their larvae dig small, funnel-shaped pitfall traps in sand to catch wandering ants.", diet: "Diet: Larvae eat ants and small insects; adults eat nectar and pollen." },
+    { name: "34. Ground Beetle", file: "34-ground-beetle.jpg", order: "Coleoptera", fact: "Many species of ground beetles cannot fly and instead hunt on foot at night.", diet: "Diet: Worms, snails, and other insects." },
+    { name: "35. Rove Beetle", file: "35-rove-beetle.jpg", order: "Coleoptera", fact: "They tuck their wings under tiny wing cases, making them look somewhat like earwigs.", diet: "Diet: Decaying organic matter, maggots, and small insects." },
+    { name: "36. Scarab Beetle", file: "36-scarab-beetle.jpg", order: "Coleoptera", fact: "Ancient Egyptians revered the dung beetle, a type of scarab, as a symbol of rebirth.", diet: "Diet: Varies; dung, decaying plant matter, fungi, or plant roots." },
+    { name: "37. Stag Beetle", file: "37-stag-beetle.jpg", order: "Coleoptera", fact: "The massive jaws of the male are primarily used for wrestling rival males, not for biting.", diet: "Diet: Larvae eat decaying wood; adults eat tree sap and rotting fruit." },
+    { name: "38. Click Beetle", file: "38-click-beetle.jpg", order: "Coleoptera", fact: "They have a spine on their thorax that snaps, flinging them into the air to escape danger.", diet: "Diet: Larvae eat plant roots and seeds; adults eat leaves and nectar." },
+    { name: "39. Dung Beetle", file: "39-dung-beetle.jpg", order: "Coleoptera", fact: "They navigate using the Milky Way to roll their dung balls in a straight line.", diet: "Diet: Animal feces (dung)." },
+    { name: "40. Longhorn Beetle", file: "40-longhorn-beetle.jpg", order: "Coleoptera", fact: "They are named for their incredibly long antennae, which can be longer than their entire body.", diet: "Diet: Larvae bore into wood; adults eat leaves, sap, and nectar." },
+    { name: "41. Firefly", file: "41-firefly.jpg", order: "Coleoptera", fact: "They produce light through an incredibly efficient chemical reaction called bioluminescence.", diet: "Diet: Larvae eat snails and worms; adults eat nectar, pollen, or nothing." },
+    { name: "42. Ladybug", file: "42-ladybug.jpg", order: "Coleoptera", fact: "A single ladybug can eat up to 5,000 aphids during its lifetime.", diet: "Diet: Aphids, scale insects, and other soft-bodied plant pests." },
+    { name: "43. Scorpionfly", file: "43-scorpionfly.jpg", order: "Mecoptera", fact: "Males have an enlarged tail segment that looks exactly like a scorpion's stinger but is harmless.", diet: "Diet: Dead or dying insects, nectar, and rotting fruit." },
+    { name: "44. Weevil", file: "44-weevil.jpg", order: "Coleoptera", fact: "They feature an elongated snout that they use to bore holes into seeds and plants.", diet: "Diet: Seeds, nuts, and plant stems." },
+    { name: "45. Flea", file: "45-flea.jpg", order: "Siphonaptera", fact: "Fleas are incredible jumpers, capable of leaping over 100 times their own body length.", diet: "Diet: The blood of mammals and birds." },
+    { name: "46. Crane Fly", file: "46-crane-fly.jpg", order: "Diptera", fact: "Despite looking like giant mosquitoes, they are completely harmless and do not bite.", diet: "Diet: Larvae eat decaying matter; adults usually do not eat." },
+    { name: "47. Mosquito", file: "47-mosquito.jpg", order: "Diptera", fact: "Only female mosquitoes bite humans; they need the blood protein to develop their eggs.", diet: "Diet: Nectar for energy; females require blood for eggs." },
+    { name: "48. Hover Fly", file: "48-hoverfly.jpg", order: "Diptera", fact: "They perfectly mimic the black and yellow stripes of bees and wasps to scare off predators.", diet: "Diet: Adults eat nectar and pollen; larvae prey on aphids." },
+    { name: "49. Fly", file: "49-fly.jpg", order: "Diptera", fact: "House flies taste their food using special sensory receptors located on their feet.", diet: "Diet: Liquid or semi-liquid organic matter, including decaying food." },
+    { name: "50. Caddisfly", file: "50-caddisfly.jpg", order: "Trichoptera", fact: "Their aquatic larvae build protective armor cases out of underwater silk, stones, and twigs.", diet: "Diet: Larvae eat algae and plant debris; adults generally do not eat." },
+    { name: "51. Moth", file: "51-moth.jpg", order: "Lepidoptera", fact: "Some adult moths completely lack mouthparts and live just a few days solely to mate.", diet: "Diet: Caterpillars eat leaves; adults drink nectar, sap, or eat nothing." },
+    { name: "52. Butterfly", file: "52-butterfly.jpg", order: "Lepidoptera", fact: "Butterflies taste their food using special sensors located on their feet.", diet: "Diet: Caterpillars eat host plant leaves; adults drink nectar." }
+];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizQuestions = [];
+        let synth = window.speechSynthesis;
+
+        function speak(text) {
+            if (synth.speaking) synth.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            let voices = synth.getVoices();
+            let maleVoice = voices.find(v => 
+                v.name.toLowerCase().includes('male') || 
+                v.name.toLowerCase().includes('guy') || 
+                v.name.toLowerCase().includes('david') ||
+                v.name.toLowerCase().includes('mark')
+            );
+            if (maleVoice) utterance.voice = maleVoice;
+            utterance.pitch = 0.9; 
+            synth.speak(utterance);
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+            if (synth.speaking) synth.cancel();
+            window.scrollTo(0, 0);
+        }
+
+        function goHome() {
+            switchPage('start-page');
+        }
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            quizQuestions = shuffleArray(insects).slice(0, 10);
+            updateScoreUI();
+            loadQuestion();
+            switchPage('quiz-page');
+            speak("Let's begin the insect quiz.");
+
+        }
+
+        function loadQuestion() {
+            const currentBug = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-img').src = `images/${currentBug.file}`;
+            document.getElementById('question-display').innerText = `Question: ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+            let options = [currentBug];
+            let remainingBugs = shuffleArray(insects.filter(b => b.name !== currentBug.name));
+            options.push(...remainingBugs.slice(0, 3));
+            options = shuffleArray(options);
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.innerText = opt.name;
+                btn.onclick = () => checkAnswer(opt.name, currentBug.name);
+                optionsContainer.appendChild(btn);
+            });
+
+            // --- NEW AUDIO LOGIC ---
+                // If it's the first question, include the greeting. Otherwise, just ask.
+                if (currentQuestionIndex === 0) {
+                    speak("Let's begin. What is this insect?");
+                } else {
+                    speak("What is this insect?");
+                }
+        }
+
+        function checkAnswer(selectedName, correctName) {
+            if (selectedName === correctName) {
+                score++;
+                playSound('correct');
+                speak(`Correct. It is a ${correctName}.`);
+
+            } else {
+                playSound('wrong');
+                speak(`Incorrect. That was a ${correctName}.`);
+                speak("What is this insect?");
+            }
+            
+            currentQuestionIndex++;
+            updateScoreUI();
+
+
+
+            setTimeout(() => {
+                if (currentQuestionIndex < quizQuestions.length) {
+                    loadQuestion();
+                } else {
+                    endQuiz();
+                }
+            }, 3000);
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-display').innerText = `Score: ${score}`;
+        }
+
+        function endQuiz() {
+            playSound('win');
+            const finalScore = `You scored ${score} out of ${quizQuestions.length}.`;
+            speak(`Quiz complete. ${finalScore}`);
+            document.getElementById('options-container').innerHTML = 
+                `<div style="width: 100%; text-align: center;">
+                    <h3 style="font-size: 24px;">Quiz Complete!</h3>
+                    <p style="font-size: 18px; margin-bottom: 20px;">${finalScore}</p>
+                    <button onclick="playSound('click'); startQuiz()">Play Again</button>
+                </div>`;
+        }
+
+        function showGallery() {
+            const grid = document.getElementById('gallery-grid');
+            if (grid.innerHTML === '') {
+                insects.forEach(bug => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+                    div.innerHTML = `
+                        <img src="images/${bug.file}" alt="${bug.name}">
+                        <div class="gallery-item-title">${bug.name}</div>
+                    `;
+                    div.onclick = () => { playSound('click'); openModal(bug); };
+                    grid.appendChild(div);
+                });
+            }
+            switchPage('gallery-page');
+        }
+
+        let currentModalBug = null;
+
+        function openModal(bug) {
+            currentModalBug = bug;
+            document.getElementById('modal-img').src = `images/${bug.file}`;
+            document.getElementById('modal-title').innerText = bug.name;
+            document.getElementById('modal-class').innerText = `Order: ${bug.order}`;
+            document.getElementById('modal-fact').innerText = bug.fact;
+            document.getElementById('modal-diet').innerText = bug.diet;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal(force = false) {
+            if (force === true || event.target.id === 'modal') {
+                document.getElementById('modal').style.display = 'none';
+                if (synth.speaking) synth.cancel();
+            }
+        }
+
+        function readFactOutLoud() {
+            if (currentModalBug) {
+                speak(`${currentModalBug.name}. Scientific order: ${currentModalBug.order}. ${currentModalBug.fact}. ${currentModalBug.diet}`);
+            }
+        }
+        
+        speechSynthesis.onvoiceschanged = () => {
+             synth.getVoices();
+        };
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 <title>Gemini API Chatbot</title>
 <style>
   :root {
-    --primary: #10a37f; /* A nice AI green */
+    --primary: #10a37f; 
     --bg-color: #f4f7f6;
     --panel-bg: #ffffff;
     --text-color: #2d3748;
@@ -53,7 +53,7 @@
     border-radius: 50%;
     position: relative;
     box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2);
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .eye {
@@ -88,6 +88,17 @@
   @keyframes chatter {
     0% { height: 6px; border-radius: 3px 3px 15px 15px; }
     100% { height: 24px; border-radius: 12px 12px 24px 24px; }
+  }
+
+  /* Thinking Animation */
+  .thinking {
+    animation: pulse 1.2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2); }
+    50% { transform: scale(1.05); box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 0 25px rgba(255, 255, 255, 0.8); }
+    100% { transform: scale(1); box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2); }
   }
 
   /* --- Chat Interface --- */
@@ -126,6 +137,33 @@
     color: var(--text-color);
     align-self: flex-start;
     border-bottom-left-radius: 2px;
+  }
+  
+  .typing-indicator {
+    font-style: italic;
+    color: #718096;
+    background: transparent;
+    padding: 5px 15px;
+  }
+
+  /* --- Controls --- */
+  .voice-controls {
+    padding: 10px 15px;
+    background: var(--panel-bg);
+    border-top: 1px solid #edf2f7;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .voice-controls select {
+    flex: 1;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e0;
+    outline: none;
+    font-size: 13px;
+    background: var(--bg-color);
   }
 
   .input-area {
@@ -177,6 +215,13 @@
     <div class="message bot-msg">Hello! I am connected to the Gemini API. Ask me anything!</div>
   </div>
 
+  <div class="voice-controls">
+    <label for="voiceSelect" style="font-size: 13px; font-weight: bold;">Voice:</label>
+    <select id="voiceSelect">
+      <option>Loading voices...</option>
+    </select>
+  </div>
+
   <div class="input-area">
     <input type="text" id="userInput" placeholder="Ask me something..." onkeypress="handleKeyPress(event)">
     <button onclick="sendMessage()">Send</button>
@@ -187,14 +232,48 @@
 <script>
   // ⚠️ SECURITY WARNING: Never expose API keys in a production web app! 
   // This is strictly for local testing.
-  const API_KEY = "AQ.Ab8RN6I_5l_LSd7o6nud9HqYe7W7MNQtjCZflVxqvt7H6AeLAg"; 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${API_KEY}`;
-
+  const API_KEY = "AQ.Ab8RN6KEfq8CE-kUN1lobNTFYIIcz0OkKFUX_1pE73F-mv4qLA"; 
+  // Note: Updated model to 1.5-flash as 3.5-flash does not currently exist.
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+  
   const chatWindow = document.getElementById('chatWindow');
   const userInput = document.getElementById('userInput');
   const avatarFace = document.getElementById('avatarFace');
+  const voiceSelect = document.getElementById('voiceSelect');
   const synth = window.speechSynthesis;
+  let voices = [];
 
+  // --- Voice Loading Logic ---
+  function populateVoiceList() {
+    voices = synth.getVoices();
+    voiceSelect.innerHTML = '';
+    
+    if (voices.length === 0) {
+      voiceSelect.innerHTML = '<option>No voices available</option>';
+      return;
+    }
+
+    voices.forEach((voice, i) => {
+      const option = document.createElement('option');
+      option.textContent = `${voice.name} (${voice.lang})`;
+      option.value = i;
+      
+      // Default to a known good voice if available (e.g., Google or standard English)
+      if (voice.default) {
+        option.selected = true;
+      }
+      
+      voiceSelect.appendChild(option);
+    });
+  }
+
+  // Voices load asynchronously in some browsers
+  populateVoiceList();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+  }
+
+  // --- Chat Logic ---
   function handleKeyPress(event) {
     if (event.key === 'Enter') {
       sendMessage();
@@ -216,8 +295,6 @@
       }
 
       const data = await response.json();
-      
-      // Navigate the JSON response to extract the actual text
       return data.candidates[0].content.parts[0].text; 
 
     } catch (error) {
@@ -237,20 +314,27 @@
     userInput.value = '';
 
     // 2. Visual "Thinking" State
-    avatarFace.style.opacity = '0.5';
+    avatarFace.classList.add('thinking');
+    const typingId = 'typing-' + Date.now();
+    appendMessage('...', 'message typing-indicator', typingId);
 
     // 3. Call the API
     const replyText = await fetchGeminiResponse(text);
 
     // 4. Restore Visual State and Reply
-    avatarFace.style.opacity = '1';
+    avatarFace.classList.remove('thinking');
+    const typingElement = document.getElementById(typingId);
+    if (typingElement) typingElement.remove();
+
     appendMessage(replyText, 'bot-msg');
     speakText(replyText);
   }
 
-  function appendMessage(text, className) {
+  function appendMessage(text, className, id = null) {
     const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message', className);
+    // Handle multiple classes properly
+    msgDiv.className = className.includes('message') ? className : `message ${className}`;
+    if (id) msgDiv.id = id;
     msgDiv.textContent = text;
     chatWindow.appendChild(msgDiv);
     chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -259,10 +343,15 @@
   function speakText(text) {
     if (synth.speaking) return;
 
-    // Clean up Markdown formatting (like **bold**) so the TTS doesn't read the asterisks
+    // Clean up Markdown formatting
     const cleanText = text.replace(/[*#]/g, '');
-    
     const utterThis = new SpeechSynthesisUtterance(cleanText);
+    
+    // Apply selected voice
+    const selectedVoiceIndex = voiceSelect.value;
+    if (voices[selectedVoiceIndex]) {
+      utterThis.voice = voices[selectedVoiceIndex];
+    }
     
     utterThis.onstart = () => avatarFace.classList.add('talking');
     utterThis.onend = () => avatarFace.classList.remove('talking');

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini API Chatbot</title>
+<style>
+  :root {
+    --primary: #10a37f; /* A nice AI green */
+    --bg-color: #f4f7f6;
+    --panel-bg: #ffffff;
+    --text-color: #2d3748;
+    --bot-msg-bg: #e2e8f0;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 400px;
+    background: var(--panel-bg);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* --- Visualization Panel --- */
+  .face-panel {
+    background: var(--primary);
+    padding: 30px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .avatar {
+    width: 100px;
+    height: 100px;
+    background: #fbd38d;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2);
+    transition: opacity 0.3s ease;
+  }
+
+  .eye {
+    width: 14px;
+    height: 14px;
+    background: #2d3748;
+    border-radius: 50%;
+    position: absolute;
+    top: 35%;
+  }
+
+  .eye.left { left: 25%; }
+  .eye.right { right: 25%; }
+
+  .mouth {
+    width: 36px;
+    height: 6px;
+    background: #9b2c2c;
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 3px 3px 15px 15px;
+    transition: all 0.1s ease;
+  }
+
+  /* Talking Animation synced with TTS */
+  .talking .mouth {
+    animation: chatter 0.2s infinite alternate;
+  }
+
+  @keyframes chatter {
+    0% { height: 6px; border-radius: 3px 3px 15px 15px; }
+    100% { height: 24px; border-radius: 12px 12px 24px 24px; }
+  }
+
+  /* --- Chat Interface --- */
+  .chat-window {
+    height: 350px;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .message {
+    max-width: 85%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.4;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .user-msg {
+    background: var(--primary);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+
+  .bot-msg {
+    background: var(--bot-msg-bg);
+    color: var(--text-color);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+  }
+
+  .input-area {
+    display: flex;
+    padding: 15px;
+    background: var(--panel-bg);
+    border-top: 1px solid #edf2f7;
+  }
+
+  .input-area input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .input-area button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+
+  .input-area button:hover {
+    background: #0d8a6a;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <div class="face-panel">
+    <div class="avatar" id="avatarFace">
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+      <div class="mouth" id="avatarMouth"></div>
+    </div>
+  </div>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="message bot-msg">Hello! I am connected to the Gemini API. Ask me anything!</div>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Ask me something..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+</div>
+
+<script>
+  // ⚠️ SECURITY WARNING: Never expose API keys in a production web app! 
+  // This is strictly for local testing.
+  const API_KEY = "AQ.Ab8RN6I_5l_LSd7o6nud9HqYe7W7MNQtjCZflVxqvt7H6AeLAg"; 
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${API_KEY}`;
+
+  const chatWindow = document.getElementById('chatWindow');
+  const userInput = document.getElementById('userInput');
+  const avatarFace = document.getElementById('avatarFace');
+  const synth = window.speechSynthesis;
+
+  function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  }
+
+  async function fetchGeminiResponse(prompt) {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Navigate the JSON response to extract the actual text
+      return data.candidates[0].content.parts[0].text; 
+
+    } catch (error) {
+      console.error("API Error:", error);
+      return "Sorry, I lost my connection to the Gemini server. Please check your API key.";
+    }
+  }
+
+  async function sendMessage() {
+    const text = userInput.value.trim();
+    if (text === '') return;
+
+    if (synth.speaking) synth.cancel();
+
+    // 1. Post User Message
+    appendMessage(text, 'user-msg');
+    userInput.value = '';
+
+    // 2. Visual "Thinking" State
+    avatarFace.style.opacity = '0.5';
+
+    // 3. Call the API
+    const replyText = await fetchGeminiResponse(text);
+
+    // 4. Restore Visual State and Reply
+    avatarFace.style.opacity = '1';
+    appendMessage(replyText, 'bot-msg');
+    speakText(replyText);
+  }
+
+  function appendMessage(text, className) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', className);
+    msgDiv.textContent = text;
+    chatWindow.appendChild(msgDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function speakText(text) {
+    if (synth.speaking) return;
+
+    // Clean up Markdown formatting (like **bold**) so the TTS doesn't read the asterisks
+    const cleanText = text.replace(/[*#]/g, '');
+    
+    const utterThis = new SpeechSynthesisUtterance(cleanText);
+    
+    utterThis.onstart = () => avatarFace.classList.add('talking');
+    utterThis.onend = () => avatarFace.classList.remove('talking');
+    utterThis.onerror = () => avatarFace.classList.remove('talking');
+
+    synth.speak(utterThis);
+  }
+</script>
+
+</body>
+</html>

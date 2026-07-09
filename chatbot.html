@@ -37,6 +37,24 @@
     flex-direction: column;
   }
 
+  /* --- Security Config Panel --- */
+  .config-panel {
+    background: #2d3748;
+    padding: 10px 15px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .config-panel input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 12px;
+    outline: none;
+    background: #edf2f7;
+  }
+
   /* --- Visualization Panel --- */
   .face-panel {
     background: var(--primary);
@@ -80,7 +98,7 @@
     transition: all 0.1s ease;
   }
 
-  /* Talking Animation synced with TTS */
+  /* Talking Animation */
   .talking .mouth {
     animation: chatter 0.2s infinite alternate;
   }
@@ -162,204 +180,4 @@
     border-radius: 10px;
     border: 1px solid #cbd5e0;
     outline: none;
-    font-size: 13px;
-    background: var(--bg-color);
-  }
-
-  .input-area {
-    display: flex;
-    padding: 15px;
-    background: var(--panel-bg);
-    border-top: 1px solid #edf2f7;
-  }
-
-  .input-area input {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid #cbd5e0;
-    border-radius: 20px;
-    outline: none;
-    font-size: 14px;
-  }
-
-  .input-area button {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 0 20px;
-    margin-left: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
-  }
-
-  .input-area button:hover {
-    background: #0d8a6a;
-  }
-</style>
-</head>
-<body>
-
-<div class="app-container">
-  
-  <div class="face-panel">
-    <div class="avatar" id="avatarFace">
-      <div class="eye left"></div>
-      <div class="eye right"></div>
-      <div class="mouth" id="avatarMouth"></div>
-    </div>
-  </div>
-
-  <div class="chat-window" id="chatWindow">
-    <div class="message bot-msg">Hello! I am connected to the Gemini API. Ask me anything!</div>
-  </div>
-
-  <div class="voice-controls">
-    <label for="voiceSelect" style="font-size: 13px; font-weight: bold;">Voice:</label>
-    <select id="voiceSelect">
-      <option>Loading voices...</option>
-    </select>
-  </div>
-
-  <div class="input-area">
-    <input type="text" id="userInput" placeholder="Ask me something..." onkeypress="handleKeyPress(event)">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-
-</div>
-
-<script>
-  // ⚠️ SECURITY WARNING: Never expose API keys in a production web app! 
-  // This is strictly for local testing.
-  const API_KEY = "AQ.Ab8RN6KEfq8CE-kUN1lobNTFYIIcz0OkKFUX_1pE73F-mv4qLA"; 
-  // Note: Updated model to 1.5-flash as 3.5-flash does not currently exist.
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-  
-  const chatWindow = document.getElementById('chatWindow');
-  const userInput = document.getElementById('userInput');
-  const avatarFace = document.getElementById('avatarFace');
-  const voiceSelect = document.getElementById('voiceSelect');
-  const synth = window.speechSynthesis;
-  let voices = [];
-
-  // --- Voice Loading Logic ---
-  function populateVoiceList() {
-    voices = synth.getVoices();
-    voiceSelect.innerHTML = '';
-    
-    if (voices.length === 0) {
-      voiceSelect.innerHTML = '<option>No voices available</option>';
-      return;
-    }
-
-    voices.forEach((voice, i) => {
-      const option = document.createElement('option');
-      option.textContent = `${voice.name} (${voice.lang})`;
-      option.value = i;
-      
-      // Default to a known good voice if available (e.g., Google or standard English)
-      if (voice.default) {
-        option.selected = true;
-      }
-      
-      voiceSelect.appendChild(option);
-    });
-  }
-
-  // Voices load asynchronously in some browsers
-  populateVoiceList();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = populateVoiceList;
-  }
-
-  // --- Chat Logic ---
-  function handleKeyPress(event) {
-    if (event.key === 'Enter') {
-      sendMessage();
-    }
-  }
-
-  async function fetchGeminiResponse(prompt) {
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.candidates[0].content.parts[0].text; 
-
-    } catch (error) {
-      console.error("API Error:", error);
-      return "Sorry, I lost my connection to the Gemini server. Please check your API key.";
-    }
-  }
-
-  async function sendMessage() {
-    const text = userInput.value.trim();
-    if (text === '') return;
-
-    if (synth.speaking) synth.cancel();
-
-    // 1. Post User Message
-    appendMessage(text, 'user-msg');
-    userInput.value = '';
-
-    // 2. Visual "Thinking" State
-    avatarFace.classList.add('thinking');
-    const typingId = 'typing-' + Date.now();
-    appendMessage('...', 'message typing-indicator', typingId);
-
-    // 3. Call the API
-    const replyText = await fetchGeminiResponse(text);
-
-    // 4. Restore Visual State and Reply
-    avatarFace.classList.remove('thinking');
-    const typingElement = document.getElementById(typingId);
-    if (typingElement) typingElement.remove();
-
-    appendMessage(replyText, 'bot-msg');
-    speakText(replyText);
-  }
-
-  function appendMessage(text, className, id = null) {
-    const msgDiv = document.createElement('div');
-    // Handle multiple classes properly
-    msgDiv.className = className.includes('message') ? className : `message ${className}`;
-    if (id) msgDiv.id = id;
-    msgDiv.textContent = text;
-    chatWindow.appendChild(msgDiv);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-  }
-
-  function speakText(text) {
-    if (synth.speaking) return;
-
-    // Clean up Markdown formatting
-    const cleanText = text.replace(/[*#]/g, '');
-    const utterThis = new SpeechSynthesisUtterance(cleanText);
-    
-    // Apply selected voice
-    const selectedVoiceIndex = voiceSelect.value;
-    if (voices[selectedVoiceIndex]) {
-      utterThis.voice = voices[selectedVoiceIndex];
-    }
-    
-    utterThis.onstart = () => avatarFace.classList.add('talking');
-    utterThis.onend = () => avatarFace.classList.remove('talking');
-    utterThis.onerror = () => avatarFace.classList.remove('talking');
-
-    synth.speak(utterThis);
-  }
-</script>
-
-</body>
-</html>
+    font-size: 13px

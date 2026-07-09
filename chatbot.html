@@ -180,4 +180,208 @@
     border-radius: 10px;
     border: 1px solid #cbd5e0;
     outline: none;
-    font-size: 13px
+    font-size: 13px;
+    background: var(--bg-color);
+  }
+
+  .input-area {
+    display: flex;
+    padding: 15px;
+    background: var(--panel-bg);
+    border-top: 1px solid #edf2f7;
+  }
+
+  .input-area input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .input-area button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+
+  .input-area button:hover {
+    background: #0d8a6a;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <div class="config-panel">
+    <input type="password" id="apiKeyInput" placeholder="Paste your Gemini API Key here...">
+  </div>
+
+  <div class="face-panel">
+    <div class="avatar" id="avatarFace">
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+      <div class="mouth" id="avatarMouth"></div>
+    </div>
+  </div>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="message bot-msg">Hello! Paste your API key at the top, then ask me anything!</div>
+  </div>
+
+  <div class="voice-controls">
+    <label for="voiceSelect" style="font-size: 13px; font-weight: bold;">Voice:</label>
+    <select id="voiceSelect">
+      <option>Loading voices...</option>
+    </select>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Ask me something..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+</div>
+
+<script>
+  const chatWindow = document.getElementById('chatWindow');
+  const userInput = document.getElementById('userInput');
+  const avatarFace = document.getElementById('avatarFace');
+  const voiceSelect = document.getElementById('voiceSelect');
+  const apiKeyInput = document.getElementById('apiKeyInput');
+  const synth = window.speechSynthesis;
+  let voices = [];
+
+  // --- Voice Loading Logic ---
+  function populateVoiceList() {
+    voices = synth.getVoices();
+    voiceSelect.innerHTML = '';
+    
+    if (voices.length === 0) {
+      voiceSelect.innerHTML = '<option>No voices available</option>';
+      return;
+    }
+
+    voices.forEach((voice, i) => {
+      const option = document.createElement('option');
+      option.textContent = `${voice.name} (${voice.lang})`;
+      option.value = i;
+      
+      if (voice.default) {
+        option.selected = true;
+      }
+      
+      voiceSelect.appendChild(option);
+    });
+  }
+
+  populateVoiceList();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+  }
+
+  // --- Chat Logic ---
+  function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  }
+
+  async function fetchGeminiResponse(prompt) {
+    // Dynamically grab the key from the input field
+    const currentKey = apiKeyInput.value.trim();
+    
+    if (!currentKey) {
+      return "⚠️ Please paste your Gemini API Key into the dark box at the top of the screen before sending a message.";
+    }
+
+    // Updated to standard 1.5-flash endpoint
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${currentKey}`;
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.candidates[0].content.parts[0].text; 
+
+    } catch (error) {
+      console.error("API Error:", error);
+      return "Sorry, there was an error connecting to the API. Double-check your API key and ensure you are running this on a local server.";
+    }
+  }
+
+  async function sendMessage() {
+    const text = userInput.value.trim();
+    if (text === '') return;
+
+    if (synth.speaking) synth.cancel();
+
+    // 1. Post User Message
+    appendMessage(text, 'user-msg');
+    userInput.value = '';
+
+    // 2. Visual "Thinking" State
+    avatarFace.classList.add('thinking');
+    const typingId = 'typing-' + Date.now();
+    appendMessage('...', 'message typing-indicator', typingId);
+
+    // 3. Call the API
+    const replyText = await fetchGeminiResponse(text);
+
+    // 4. Restore Visual State and Reply
+    avatarFace.classList.remove('thinking');
+    const typingElement = document.getElementById(typingId);
+    if (typingElement) typingElement.remove();
+
+    appendMessage(replyText, 'bot-msg');
+    speakText(replyText);
+  }
+
+  function appendMessage(text, className, id = null) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = className.includes('message') ? className : `message ${className}`;
+    if (id) msgDiv.id = id;
+    msgDiv.textContent = text;
+    chatWindow.appendChild(msgDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function speakText(text) {
+    if (synth.speaking) return;
+
+    const cleanText = text.replace(/[*#]/g, '');
+    const utterThis = new SpeechSynthesisUtterance(cleanText);
+    
+    const selectedVoiceIndex = voiceSelect.value;
+    if (voices[selectedVoiceIndex]) {
+      utterThis.voice = voices[selectedVoiceIndex];
+    }
+    
+    utterThis.onstart = () => avatarFace.classList.add('talking');
+    utterThis.onend = () => avatarFace.classList.remove('talking');
+    utterThis.onerror = () => avatarFace.classList.remove('talking');
+
+    synth.speak(utterThis);
+  }
+</script>
+
+</body>
+</html>

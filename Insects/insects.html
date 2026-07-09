@@ -434,11 +434,11 @@
         function startQuiz() {
             score = 0;
             currentQuestionIndex = 0;
-            quizQuestions = shuffleArray(insects).slice(0, 10);
+            quizQuestions = shuffleArray(insects).slice(0, 52);
             updateScoreUI();
             loadQuestion();
             switchPage('quiz-page');
-            speak("Let's begin the insect quiz.");
+            speak("Let's begin the insect quiz. What is this insect?");
 
         }
 
@@ -479,7 +479,6 @@
             } else {
                 playSound('wrong');
                 speak(`Incorrect. That was a ${correctName}.`);
-                speak("What is this insect?");
             }
             
             currentQuestionIndex++;

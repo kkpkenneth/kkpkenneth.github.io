@@ -1,386 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gemini API Chatbot</title>
-<style>
-  :root {
-    --primary: #10a37f; 
-    --bg-color: #f4f7f6;
-    --panel-bg: #ffffff;
-    --text-color: #2d3748;
-    --bot-msg-bg: #e2e8f0;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZhongYi AI - Chinese Medicine Assistant</title>
+    <style>
+        :root {
+            --bg-color: #f7f5f0;
+            --panel-bg: #ffffff;
+            --primary-color: #2c5e43; /* Jade Green */
+            --accent-color: #8c2d19;  /* Deep Madder/Crimson */
+            --text-main: #333333;
+            --text-light: #666666;
+            --border-color: #e0dacb;
+        }
 
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 20px;
-    box-sizing: border-box;
-  }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
 
-  .app-container {
-    width: 100%;
-    max-width: 400px;
-    background: var(--panel-bg);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-  /* --- Security Config Panel --- */
-  .config-panel {
-    background: #2d3748;
-    padding: 10px 15px;
-    display: flex;
-    gap: 10px;
-  }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--panel-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(44, 94, 67, 0.1);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+        }
 
-  .config-panel input {
-    flex: 1;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: none;
-    font-size: 12px;
-    outline: none;
-    background: #edf2f7;
-  }
+        /* Avatar Panel */
+        .avatar-panel {
+            background: linear-gradient(135deg, var(--primary-color), #1b3d2b);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
 
-  /* --- Visualization Panel --- */
-  .face-panel {
-    background: var(--primary);
-    padding: 30px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+        .avatar-container {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
 
-  .avatar {
-    width: 100px;
-    height: 100px;
-    background: #fbd38d;
-    border-radius: 50%;
-    position: relative;
-    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-  }
+        /* Animated Face SVG */
+        .face-svg {
+            width: 100%;
+            height: 100%;
+        }
 
-  .eye {
-    width: 14px;
-    height: 14px;
-    background: #2d3748;
-    border-radius: 50%;
-    position: absolute;
-    top: 35%;
-  }
+        .eye {
+            transform-origin: center;
+            animation: blink 4s infinite;
+        }
 
-  .eye.left { left: 25%; }
-  .eye.right { right: 25%; }
+        .mouth {
+            transform-origin: 50px 70px;
+            transition: d 0.2s ease;
+        }
 
-  .mouth {
-    width: 36px;
-    height: 6px;
-    background: #9b2c2c;
-    position: absolute;
-    bottom: 25%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 3px 3px 15px 15px;
-    transition: all 0.1s ease;
-  }
+        /* Idle Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .avatar-container {
+            animation: float 4s ease-in-out infinite;
+        }
 
-  /* Talking Animation */
-  .talking .mouth {
-    animation: chatter 0.2s infinite alternate;
-  }
+        /* Eye Blinking Animation */
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
 
-  @keyframes chatter {
-    0% { height: 6px; border-radius: 3px 3px 15px 15px; }
-    100% { height: 24px; border-radius: 12px 12px 24px 24px; }
-  }
+        /* Talking Animation (Triggered via JS) */
+        .talking .mouth {
+            animation: speak-move 0.25s infinite alternate;
+        }
 
-  /* Thinking Animation */
-  .thinking {
-    animation: pulse 1.2s infinite;
-  }
+        @keyframes speak-move {
+            0% { transform: scaleY(0.6) translateY(5px); }
+            100% { transform: scaleY(1.4) translateY(-3px); }
+        }
 
-  @keyframes pulse {
-    0% { transform: scale(1); box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2); }
-    50% { transform: scale(1.05); box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 0 25px rgba(255, 255, 255, 0.8); }
-    100% { transform: scale(1); box-shadow: inset -5px -5px 15px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.2); }
-  }
+        /* Controls / Voice Dropdown */
+        .controls {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
 
-  /* --- Chat Interface --- */
-  .chat-window {
-    height: 350px;
-    padding: 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+        .controls label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+        }
 
-  .message {
-    max-width: 85%;
-    padding: 10px 15px;
-    border-radius: 15px;
-    font-size: 14px;
-    line-height: 1.4;
-    animation: fadeIn 0.3s ease;
-  }
+        .voice-select {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+            max-width: 200px;
+        }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+        .voice-select option {
+            background: #1b3d2b;
+            color: #ffffff;
+        }
 
-  .user-msg {
-    background: var(--primary);
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 2px;
-  }
+        /* Chat Display Area */
+        .chat-log {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #faf9f6;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-  .bot-msg {
-    background: var(--bot-msg-bg);
-    color: var(--text-color);
-    align-self: flex-start;
-    border-bottom-left-radius: 2px;
-  }
-  
-  .typing-indicator {
-    font-style: italic;
-    color: #718096;
-    background: transparent;
-    padding: 5px 15px;
-  }
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.45;
+            word-wrap: break-word;
+        }
 
-  /* --- Controls --- */
-  .voice-controls {
-    padding: 10px 15px;
-    background: var(--panel-bg);
-    border-top: 1px solid #edf2f7;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  
-  .voice-controls select {
-    flex: 1;
-    padding: 8px;
-    border-radius: 10px;
-    border: 1px solid #cbd5e0;
-    outline: none;
-    font-size: 13px;
-    background: var(--bg-color);
-  }
+        .message.bot {
+            background-color: #ffffff;
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
 
-  .input-area {
-    display: flex;
-    padding: 15px;
-    background: var(--panel-bg);
-    border-top: 1px solid #edf2f7;
-  }
+        .message.user {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
 
-  .input-area input {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid #cbd5e0;
-    border-radius: 20px;
-    outline: none;
-    font-size: 14px;
-  }
+        /* Input Panel */
+        .input-panel {
+            padding: 15px 20px;
+            background: var(--panel-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
 
-  .input-area button {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 0 20px;
-    margin-left: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
-  }
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            outline: none;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            background-color: #fcfbfa;
+        }
 
-  .input-area button:hover {
-    background: #0d8a6a;
-  }
-</style>
+        .chat-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .send-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .send-btn:hover {
+            background-color: #732414;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-  
-  <div class="config-panel">
-    <input type="password" id="apiKeyInput" placeholder="Paste your Gemini API Key here...">
-  </div>
-
-  <div class="face-panel">
-    <div class="avatar" id="avatarFace">
-      <div class="eye left"></div>
-      <div class="eye right"></div>
-      <div class="mouth" id="avatarMouth"></div>
+<div class="container">
+    <!-- Top Panel with Animated Face & Voice Select -->
+    <div class="avatar-panel" id="avatar-panel">
+        <div class="avatar-container" id="avatar-container">
+            <svg class="face-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head Background -->
+                <circle cx="50" cy="50" r="45" fill="#eaddca" stroke="#cbbba3" stroke-width="2"/>
+                <!-- Eyes -->
+                <circle class="eye" cx="35" cy="42" r="4" fill="#2c5e43"/>
+                <circle class="eye" cx="65" cy="42" r="4" fill="#2c5e43"/>
+                <!-- Cheeks -->
+                <circle cx="28" cy="48" r="5" fill="#e29c8e" opacity="0.6"/>
+                <circle cx="72" cy="48" r="5" fill="#e29c8e" opacity="0.6"/>
+                <!-- Mouth (Default Smile) -->
+                <path class="mouth" d="M 38 65 Q 50 75 62 65" fill="none" stroke="#8c2d19" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+        </div>
+        
+        <div class="controls">
+            <label for="voice-select">Voice:</label>
+            <select id="voice-select" class="voice-select">
+                <option value="">Default System Voice</option>
+            </select>
+        </div>
     </div>
-  </div>
 
-  <div class="chat-window" id="chatWindow">
-    <div class="message bot-msg">Hello! Paste your API key at the top, then ask me anything!</div>
-  </div>
+    <!-- Chat Logs -->
+    <div class="chat-log" id="chat-log">
+        <div class="message bot">Greetings. I am your Chinese Medicine assistant. You may ask me about concepts like Qi, Yin and Yang, Acupuncture, or specific herbal wisdom. What balancing insights do you seek today?</div>
+    </div>
 
-  <div class="voice-controls">
-    <label for="voiceSelect" style="font-size: 13px; font-weight: bold;">Voice:</label>
-    <select id="voiceSelect">
-      <option>Loading voices...</option>
-    </select>
-  </div>
-
-  <div class="input-area">
-    <input type="text" id="userInput" placeholder="Ask me something..." onkeypress="handleKeyPress(event)">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-
+    <!-- User Input Actions -->
+    <div class="input-panel">
+        <input type="text" id="user-input" class="chat-input" placeholder="Ask about Qi, Yin & Yang, or herbs..." autocomplete="off">
+        <button id="send-btn" class="send-btn">Ask</button>
+    </div>
 </div>
 
 <script>
-  const chatWindow = document.getElementById('chatWindow');
-  const userInput = document.getElementById('userInput');
-  const avatarFace = document.getElementById('avatarFace');
-  const voiceSelect = document.getElementById('voiceSelect');
-  const apiKeyInput = document.getElementById('apiKeyInput');
-  const synth = window.speechSynthesis;
-  let voices = [];
+    const chatLog = document.getElementById('chat-log');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const voiceSelect = document.getElementById('voice-select');
+    const avatarContainer = document.getElementById('avatar-container');
 
-  // --- Voice Loading Logic ---
-  function populateVoiceList() {
-    voices = synth.getVoices();
-    voiceSelect.innerHTML = '';
-    
-    if (voices.length === 0) {
-      voiceSelect.innerHTML = '<option>No voices available</option>';
-      return;
+    let voices = [];
+    const synth = window.speechSynthesis;
+
+    // Localized responses focusing on Chinese Medicine
+    const knowledgeBase = {
+        qi: "Qi is the vital life force or energy that flows through invisible pathways in your body called meridians. When Qi flows smoothly, you experience vibrant health. Blockages or deficiencies often cause illness or fatigue.",
+        yin: "Yin and Yang are complementary opposites. Yin represents cold, rest, passivity, and fluids, while Yang represents heat, movement, activity, and transformation. Good health relies entirely on keeping these two forces in harmony.",
+        yang: "Yin and Yang are complementary opposites. Yin represents cold, rest, passivity, and fluids, while Yang represents heat, movement, activity, and transformation. Good health relies entirely on keeping these two forces in harmony.",
+        acupuncture: "Acupuncture is an ancient practice where ultra-thin sterile needles are inserted into precise strategic points along your body's meridians. This process helps unblock stagnant Qi, reduces inflammation, and stimulates natural healing mechanics.",
+        herb: "Traditional Chinese herbalism utilizes customized formulas containing natural plants, roots, and minerals. Unlike targeted modern medicine, these complex herbs work together to restore systemic balance to your whole body.",
+        herbs: "Traditional Chinese herbalism utilizes customized formulas containing natural plants, roots, and minerals. Unlike targeted modern medicine, these complex herbs work together to restore systemic balance to your whole body.",
+        tongue: "In Chinese medicine, tongue diagnosis reveals internal states. The tongue body shows structural organ strength and blood state, while the coating shows the state of digestion, heat, and structural moisture levels.",
+        liver: "In TCM, the Liver is the general of the body. It ensures the smooth flow of Qi and emotions. When balanced, you are decisive and calm. When stressed or stagnant, it often leads to frustration, tension headaches, and PMS.",
+        heart: "The Heart is the emperor of your bodily systems and the home of your Shen (Spirit). It governs blood circulation and emotional joy. Sleep disturbances or anxiety often point to a Heart imbalance.",
+        spleen: "The Spleen is your center of digestion and transformation. It turns the food you eat into usable Qi and Blood. Worry and overthinking severely deplete the Spleen, leading to fatigue and digestive issues.",
+        lung: "The Lungs govern Qi and respiration. They are deeply connected to your immune system (Wei Qi) and skin. Emotionally, the Lungs hold onto grief and sadness; deep breathing helps release this heavy energy.",
+        kidney: "The Kidneys are the root of life and the storehouse of your Jing (Essence). They govern your bones, marrow, and reproductive health. Fear is the emotion of the Kidneys, while willpower is their virtue.",
+        wind: "Wind is considered the 'spearhead' of disease. It enters the body quickly, often causing sudden symptoms like chills, wandering joint pain, or the onset of a common cold.",
+        cold: "Internal or external Cold slows everything down. It constricts circulation, causing sharp, localized pains, poor digestion, and lethargy. Warming herbs and moxibustion are used to reignite the body's fire.",
+        heat: "Internal 'Heat' or 'Fire' can manifest as inflammation, redness, rapid pulse, thirst, or irritability. We treat it by using cooling herbs, like chrysanthemum or mint, to clear the fire and restore peace.",
+        dampness: "Dampness is a sticky, heavy condition often caused by a weak Spleen or living in a humid environment. It feels like lethargy, brain fog, or sluggish digestion—much like a thick fog rolling into a valley.",
+        dryness: "Dryness naturally peaks in autumn. It affects the Lungs and fluids, leading to dry coughs, cracked skin, and dehydration. We use moistening foods like pears and honey to combat it.",
+        phlegm: "In TCM, Phlegm isn't just mucus; it is congealed dampness. 'Substantial' phlegm affects the lungs, but 'insubstantial' phlegm can cloud the mind, contributing to dizziness, cysts, or mental fogginess.",
+        ginseng: "Ginseng (Ren Shen) is a powerful, warming Qi tonic. It forcefully restores vital energy, rescues collapsed Yang, and calms the spirit. It is best used for severe fatigue and weakness.",
+        goji: "Goji berries (Gou Qi Zi) deeply nourish the Yin and Blood of the Liver and Kidneys. They are famous for brightening the eyes, easing lower back weakness, and promoting longevity.",
+        astragalus: "Astragalus (Huang Qi) is a premier herb for lifting Qi and strengthening your Wei Qi (immune shield). It is often used to prevent colds, heal chronic fatigue, and support digestion.",
+        ginger: "Fresh ginger (Sheng Jiang) warms the middle, stops nausea, and helps induce a light sweat to push external 'Cold' pathogens out of the body when you feel a sickness coming on.",
+        licorice: "Licorice root (Gan Cao) is the great harmonizer. It balances the harsher effects of other herbs in a formula, soothes the throat, and gently tonifies the Spleen and Heart.",
+        "dong quai": "Dong Quai (Dang Gui) is often called 'female ginseng.' It is a premier herb for building and moving Blood, frequently used to regulate menstruation, ease pain, and moisturize dry skin.",
+        reishi: "Reishi mushroom (Ling Zhi) is known as the 'mushroom of immortality.' It calms the Shen (spirit), deeply tonifies Qi, and is widely used for insomnia, anxiety, and immune support.",
+        cinnamon: "Cinnamon (Gui Zhi or Rou Gui) brings warming Yang energy to the body. It helps unblock cold stagnation, improves circulation to the extremities, and warms the internal organs.",
+        peony: "White Peony root (Bai Shao) nourishes the Blood and preserves Yin. It is excellent for relaxing muscle spasms, calming a hyperactive Liver, and easing menstrual cramps.",
+        chrysanthemum: "Chrysanthemum flowers (Ju Hua) are cooling and slightly sweet. Brewed as a tea, they clear 'Wind-Heat' from the Liver, soothing red, dry eyes, and easing tension headaches.",
+        "red date": "Jujube or Red Date (Da Zao) is a sweet, warm fruit that nourishes the Blood and calms the mind. It is often cooked into soups to strengthen digestion and restore energy.",
+        poria: "Poria (Fu Ling) is a type of mushroom that gently drains dampness through urination while strengthening the Spleen. It is also famous for calming the heart and spirit.",
+        tangerine: "Aged Tangerine Peel (Chen Pi) regulates the flow of Qi in the digestive system. It helps resolve dampness and phlegm, making it wonderful for bloating, nausea, and chest congestion.",
+        mint: "Field Mint (Bo He) is a cooling, aromatic herb. It disperses 'Wind-Heat' from the head, making it a go-to for sore throats, red eyes, and gently soothing Liver Qi stagnation.",
+        hawthorn: "Hawthorn berry (Shan Zha) is the ultimate herb for moving food stagnation, especially after eating heavy meats or fats. It also promotes healthy blood circulation and heart health.",
+        schisandra: "Schisandra berry (Wu Wei Zi) contains all five flavors (sour, bitter, sweet, pungent, salty). It acts as an astringent, helping to 'lock in' escaping energy, stop excessive sweating, and calm the heart.",
+        cordyceps: "Cordyceps (Dong Chong Xia Cao) is a highly prized tonic that nourishes both Lung Yin and Kidney Yang. It is widely used to improve physical stamina, chronic coughs, and deep exhaustion.",
+        atractylodes: "White Atractylodes (Bai Zhu) is a foundational herb for building Qi and drying dampness. It strengthens the digestive system, preventing bloating and fatigue after meals.",
+        "yin qiao": "Yin Qiao San is a very common classical formula used at the very first sign of a 'Wind-Heat' cold—typically marked by a sore throat, fever, and a headache.",
+        "xiao yao": "Xiao Yao San, or 'Free and Easy Wanderer,' is a famous herbal formula that moves stagnant Liver Qi and nourishes Blood. It is widely used for stress relief, irritability, and PMS.",
+        "suggestions": "I suggest starting with the basics of balance. You can ask me about concepts like 'Qi' and 'Yin and Yang', or specific organs like the 'Liver' or 'Spleen'. If you have a specific imbalance like 'stress', 'insomnia', or 'cold', tell me about it and I can offer traditional insights.",
+        "general": "Traditional Chinese Medicine (TCM) is a holistic healing system over 2,000 years old. Rather than just treating isolated symptoms, it looks at your body as an interconnected ecosystem. True health is achieved by balancing Yin and Yang, ensuring the smooth flow of Qi, and living in harmony with nature.",
+        "chinese medicine": "You can learn about vital energies like 'Qi' and 'Blood', the balance of 'Yin' and 'Yang', or the Five Elements. We can also explore therapies like 'acupuncture' and 'cupping', or discuss specific 'herbs' like ginseng and ginger. What area draws your curiosity?",
+        "body": "In Chinese medicine, your body is a reflection of nature. You can learn how your organs—like the Heart, Spleen, or Liver—govern not just physical functions, but your emotions as well. We can look at your 'sleep', 'stress', 'diet', or even your 'tongue' to understand your unique internal climate.",
+        stress: "Stress often causes Qi to stagnate, particularly in the Liver meridian. This stagnation can lead to irritability, muscle tension, and digestive issues. Moving the body and breathing deeply helps restore the flow.",
+        sleep: "Sleep is the ultimate Yin activity. It is when our bodies cool, rest, and repair. Insomnia often points to a lack of cooling Yin energy, or a restless Shen (spirit) that needs calming.",
+        insomnia: "Sleep is the ultimate Yin activity. It is when our bodies cool, rest, and repair. Insomnia often points to a lack of cooling Yin energy, or a restless Shen (spirit) that needs calming.",
+        diet: "Food is considered our first medicine. In TCM, we choose foods based on their energetic properties—whether they are warming, cooling, drying, or moistening—to balance your specific internal climate.",
+        cupping: "Cupping therapy uses glass, silicone, or bamboo cups to create gentle suction on the skin. Think of it like a reverse massage—instead of pushing down into the muscle, it pulls upward. This pulls stagnant Qi and blood to the surface, restores circulation, and relieves deep muscle tension.",
+        "cupping marks": "The round, colored marks left after cupping are not actually bruises! In Chinese medicine, we call this 'Sha.' It represents stagnant blood, metabolic waste, or old injuries being pulled to the surface so your body's lymphatic system can finally clear them away. The marks usually fade in a few days.",
+        sha: "Sha refers to the reddish or purple marks that appear on the skin after therapies like Cupping or Gua Sha. While they look like bruises, they don't hurt like them. They simply show us exactly where your energy and blood were stuck."
+    };
+
+    // Load available voices for Text-to-Speech dropdown
+    function populateVoiceList() {
+        if (typeof synth === 'undefined') return;
+        
+        voices = synth.getVoices();
+        voiceSelect.innerHTML = '';
+        
+        // Prioritize English or Chinese voices depending on what's available
+        voices.forEach((voice) => {
+            const option = document.createElement('option');
+            option.textContent = `${voice.name} (${voice.lang})`;
+            option.value = voice.name;
+            voiceSelect.appendChild(option);
+        });
     }
 
-    voices.forEach((voice, i) => {
-      const option = document.createElement('option');
-      option.textContent = `${voice.name} (${voice.lang})`;
-      option.value = i;
-      
-      if (voice.default) {
-        option.selected = true;
-      }
-      
-      voiceSelect.appendChild(option);
+    populateVoiceList();
+    if (synth && synth.onvoiceschanged !== undefined) {
+        synth.onvoiceschanged = populateVoiceList;
+    }
+
+    // Dynamic AI response text generator
+    function generateBotResponse(text) {
+        const lowerText = text.toLowerCase();
+        for (let key in knowledgeBase) {
+            if (lowerText.includes(key)) {
+                return knowledgeBase[key];
+            }
+        }
+        return "To understand health, we look at the whole body as an ecosystem rather than isolated parts. Tell me more about your balance, energy levels, or elements you want to explore. For example: Chinese medicine, yin and yang etc.";
+    }
+
+    // Handle standard Text-to-Speech vocal output and face animation sync
+    function speakText(text) {
+        if (!synth) return;
+        
+        // Stop any current speaking tasks immediately
+        synth.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        const selectedVoiceName = voiceSelect.value;
+        
+        if (selectedVoiceName) {
+            const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+            if (selectedVoice) utterance.voice = selectedVoice;
+        }
+
+        // Synchronize animation with audio events
+        utterance.onstart = () => {
+            avatarContainer.classList.add('talking');
+        };
+
+        utterance.onend = () => {
+            avatarContainer.classList.remove('talking');
+        };
+
+        utterance.onerror = () => {
+            avatarContainer.classList.remove('talking');
+        };
+
+        synth.speak(utterance);
+    }
+
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', sender);
+        messageDiv.textContent = text;
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to latest response
+    }
+
+    function handleUserInput() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        appendMessage('user', text);
+        userInput.value = '';
+
+        // Simulate AI thinking buffer delay
+        setTimeout(() => {
+            const reply = generateBotResponse(text);
+            appendMessage('bot', reply);
+            speakText(reply);
+        }, 600);
+    }
+
+    // Action listeners for standard event handling
+    sendBtn.addEventListener('click', handleUserInput);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleUserInput();
     });
-  }
-
-  populateVoiceList();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = populateVoiceList;
-  }
-
-  // --- Chat Logic ---
-  function handleKeyPress(event) {
-    if (event.key === 'Enter') {
-      sendMessage();
-    }
-  }
-
-  async function fetchGeminiResponse(prompt) {
-    // Dynamically grab the key from the input field
-    const currentKey = apiKeyInput.value.trim();
-    
-    if (!currentKey) {
-      return "⚠️ Please paste your Gemini API Key into the dark box at the top of the screen before sending a message.";
-    }
-
-    // Updated to standard 1.5-flash endpoint
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${currentKey}`;
-
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.candidates[0].content.parts[0].text; 
-
-    } catch (error) {
-      console.error("API Error:", error);
-      return "Sorry, there was an error connecting to the API. Double-check your API key and ensure you are running this on a local server.";
-    }
-  }
-
-  async function sendMessage() {
-    const text = userInput.value.trim();
-    if (text === '') return;
-
-    if (synth.speaking) synth.cancel();
-
-    // 1. Post User Message
-    appendMessage(text, 'user-msg');
-    userInput.value = '';
-
-    // 2. Visual "Thinking" State
-    avatarFace.classList.add('thinking');
-    const typingId = 'typing-' + Date.now();
-    appendMessage('...', 'message typing-indicator', typingId);
-
-    // 3. Call the API
-    const replyText = await fetchGeminiResponse(text);
-
-    // 4. Restore Visual State and Reply
-    avatarFace.classList.remove('thinking');
-    const typingElement = document.getElementById(typingId);
-    if (typingElement) typingElement.remove();
-
-    appendMessage(replyText, 'bot-msg');
-    speakText(replyText);
-  }
-
-  function appendMessage(text, className, id = null) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = className.includes('message') ? className : `message ${className}`;
-    if (id) msgDiv.id = id;
-    msgDiv.textContent = text;
-    chatWindow.appendChild(msgDiv);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-  }
-
-  function speakText(text) {
-    if (synth.speaking) return;
-
-    const cleanText = text.replace(/[*#]/g, '');
-    const utterThis = new SpeechSynthesisUtterance(cleanText);
-    
-    const selectedVoiceIndex = voiceSelect.value;
-    if (voices[selectedVoiceIndex]) {
-      utterThis.voice = voices[selectedVoiceIndex];
-    }
-    
-    utterThis.onstart = () => avatarFace.classList.add('talking');
-    utterThis.onend = () => avatarFace.classList.remove('talking');
-    utterThis.onerror = () => avatarFace.classList.remove('talking');
-
-    synth.speak(utterThis);
-  }
 </script>
 
 </body>

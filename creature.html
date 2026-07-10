@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Creature Generator & Prompt Builder</title>
+    <style>
+        :root {
+            --bg-color: #1a1a24;
+            --card-bg: #2d2d3f;
+            --text-main: #e2e8f0;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --border: #475569;
+        }
+
+        /* Base Styles & Box Sizing */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h1, h2 {
+            margin-top: 0;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+
+        /* Touch-friendly inputs */
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            min-height: 48px; /* Better for mobile tapping */
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #1e1e2f;
+            color: var(--text-main);
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none; /* Removes native styling on some mobile browsers */
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e2e8f0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem top 50%;
+            background-size: 0.65rem auto;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            min-height: 54px; /* Big touch target */
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Result Layout */
+        .result-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 0;
+        }
+
+        .result-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .result-list li:last-child {
+            border-bottom: none;
+        }
+
+        .trait-name {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+        }
+
+        .trait-value {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+        
+        .adaptations-group {
+            background-color: rgba(0,0,0,0.2);
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+
+        /* Prompt Box Styles */
+        .prompt-container {
+            margin-top: 1.5rem;
+            background-color: #1e1e2f;
+            padding: 1.2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .prompt-header label {
+            color: var(--accent);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .prompt-hint {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px; /* Taller for mobile editing */
+            background-color: #14141f;
+            color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.8rem;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .copy-btn {
+            background-color: #475569;
+            font-size: 1rem;
+            margin-top: 0.8rem;
+        }
+        
+        .copy-btn:hover {
+            background-color: #64748b;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem; /* Maximize screen width */
+            }
+
+            .container {
+                grid-template-columns: 1fr; /* Stack panels vertically */
+                gap: 1rem;
+            }
+
+            .panel {
+                padding: 1.5rem; /* Slightly less inner padding */
+            }
+
+            h1, h2 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Controls Panel -->
+        <div class="panel">
+            <div>
+                <h1>Creature Forge</h1>
+                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1.5rem;">Customize your creature or let chaos decide.</p>
+
+                <div class="form-group">
+                    <label for="habitat">Habitat</label>
+                    <select id="habitat"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="diet">Diet</label>
+                    <select id="diet"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="head">Head Type</label>
+                    <select id="head"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="torso">Torso / Body</label>
+                    <select id="torso"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="limbs">Limbs</label>
+                    <select id="limbs"></select>
+                </div>
+
+                <div class="adaptations-group">
+                    <label style="color: white; border-bottom: 1px solid #475569; padding-bottom: 0.5rem; margin-bottom: 1rem;">Adaptations (Select 3)</label>
+                    <div class="form-group">
+                        <select id="adap1"></select>
+                    </div>
+                    <div class="form-group">
+                        <select id="adap2"></select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="adap3"></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="artstyle">Art Style</label>
+                    <select id="artstyle"></select>
+                </div>
+            </div>
+
+            <button onclick="randomizeAll()">🎲 Randomize Creature</button>
+        </div>
+
+        <!-- Result Panel -->
+        <div class="panel">
+            <div>
+                <h2>Subject Profile</h2>
+                <ul class="result-list">
+                    <li>
+                        <span class="trait-name">Habitat</span>
+                        <span class="trait-value" id="res-habitat">-</span>
+                    </li>
+                    <li>
+                        <span class="trait-name">Diet</span>
+                        <span class="trait-value" id="res-diet">-</span>
+                    </li>
+                    <li>
+                        <span class="trait-name">Head Anatomy</span>
+                        <span class="trait-value" id="res-head">-</span>
+                    </li>
+                    <li>
+                        <span class="trait-name">Body Structure</span>
+                        <span class="trait-value" id="res-torso">-</span>
+                    </li>
+                    <li>
+                        <span class="trait-name">Appendages</span>
+                        <span class="trait-value" id="res-limbs">-</span>
+                    </li>
+                    <li>
+                        <span class="trait-name">Adaptations</span>
+                        <span class="trait-value" id="res-adaptations">-</span>
+                    </li>
+                    <li>
+                        <span class="trait-name">Selected Art Style</span>
+                        <span class="trait-value" id="res-artstyle">-</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- AI Image Generator Prompt Box -->
+            <div class="prompt-container">
+                <div class="prompt-header">
+                    <label>Image Generation Prompt</label>
+                    <span class="prompt-hint">Editable</span>
+                </div>
+                <!-- Removed readonly attribute here so users can type into it -->
+                <textarea id="prompt-text" placeholder="Your prompt will appear here..."></textarea>
+                <button class="copy-btn" onclick="copyPrompt()">📋 Copy Prompt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA DICTIONARIES ---
+
+        const data = {
+            habitat: [
+                "Abyssal Ocean Trench", "Bioluminescent Fungi Forest", "Volcanic Ash Wastes", 
+                "Floating Crystal Islands", "Subterranean Hive Caverns", "Scorched Desert Oasis", 
+                "Frozen Glacial Tundra", "Radioactive Swamp", "Dense Canopy Jungle", 
+                "Atmospheric Gas Clouds", "Abandoned Urban Ruins"
+            ],
+            diet: [
+                "Carnivorous (Apex Predator)", "Photosynthetic (Sunlight)", "Lithovore (Minerals & Rocks)", 
+                "Hematophage (Blood-drinker)", "Scavenger (Carrion/Bone)", "Frugivore (Fruits & Nectar)", 
+                "Insectivore (Swarm-feeder)", "Filter Feeder (Micro-organisms)", "Omnivore (Opportunistic)", 
+                "Chronovore (Eats Memories/Time)", "Electrovore (Absorbs Energy)"
+            ],
+            head: [
+                "Multi-Eyed (Arachnid) head", "Eyeless head with heat-sensory pits", "Elongated Crocodilian Snout", 
+                "Mandibles with protruding tusks", "Crown of sharp horns", "Bulbous Translucent Braincase", 
+                "Tentacled Cthulhu-like muzzle", "Razor-sharp Avian Beak", "Exposed Skeletal Skull face", 
+                "Frilled, crested lizard head", "Faceless void of darkness"
+            ],
+            torso: [
+                "Elongated Serpentine body", "Hulking Gorilla-like chest", "Segmented Insectoid Carapace body", 
+                "Sleek Aerodynamic & Feathered body", "Pustule-covered & Bloated torso", "Emaciated Skeletal Frame", 
+                "Amorphous Gelatinous Blob body", "Heavily Armored Turtle-shell torso", "Bipedal Humanoid body", 
+                "Quadrupedal Feline body"
+            ],
+            limbs: [
+                "multiple jointed spider legs", "muscular arms with scythe claws", "webbed flippers", 
+                "giant membranous bat wings", "heavy cloven hooves", "suction-cup tentacles", 
+                "spring-loaded hind legs", "vestigial stumps", "root-like prehensile vines", 
+                "hovering anti-gravity pods", "retractable forearm blades"
+            ],
+            adaptations: [
+                "Echolocation capabilities", "Chameleonic active camouflage skin", "Venomous spines lining its back", 
+                "Thermal infrared glowing vision", "Corrosive acidic saliva dripping from its mouth", "A prehensile muscular tail", 
+                "Bioluminescent dangling lures", "Rapidly regenerating cell tissue", "Telepathic energy patterns", 
+                "Gills for aquatic breathing", "Electro-magnetic pulse pulsing nodes", "Spooky mimicry properties"
+            ],
+            artstyle: [
+                "Photorealistic cinematic macro photography, dramatic lighting, 8k resolution",
+                "Dark fantasy concept art, oil painting, gritty, moody lighting, highly detailed",
+                "Sci-fi digital concept art, cyberpunk aesthetic, neon accents, crisp details",
+                "Surrealist painting in the style of H.R. Giger, biomechanical, eerie and organic",
+                "Mythological creature illustration, watercolor and ink, intricate line work",
+                "Vibrant 3D stylized character render, Pixar style, soft lighting, smooth textures",
+                "Retro 1980s sci-fi monster movie poster, painted illustration style",
+                "Anatomical sketch, vintage explorer journal style, sepia parchment paper",
+                "Anime / Manga style, dynamic action pose, clean lines, cel-shaded coloring",
+                "Eldritch horror cosmic art, cosmic dust, dark psychedelic colors, abstract elements"
+            ]
+        };
+
+        // --- INITIALIZATION ---
+
+        function populateSelect(selectElementId, optionsArray) {
+            const selectElement = document.getElementById(selectElementId);
+            optionsArray.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = optionText;
+                option.textContent = optionText.split(',')[0]; 
+                selectElement.appendChild(option);
+            });
+        }
+
+        populateSelect('habitat', data.habitat);
+        populateSelect('diet', data.diet);
+        populateSelect('head', data.head);
+        populateSelect('torso', data.torso);
+        populateSelect('limbs', data.limbs);
+        populateSelect('adap1', data.adaptations);
+        populateSelect('adap2', data.adaptations);
+        populateSelect('adap3', data.adaptations);
+        populateSelect('artstyle', data.artstyle);
+
+        // --- LOGIC ---
+
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function updateResults() {
+            const habitat = document.getElementById('habitat').value;
+            const diet = document.getElementById('diet').value;
+            const head = document.getElementById('head').value;
+            const torso = document.getElementById('torso').value;
+            const limbs = document.getElementById('limbs').value;
+            const adap1 = document.getElementById('adap1').value;
+            const adap2 = document.getElementById('adap2').value;
+            const adap3 = document.getElementById('adap3').value;
+            const artstyle = document.getElementById('artstyle').value;
+
+            document.getElementById('res-habitat').textContent = habitat;
+            document.getElementById('res-diet').textContent = diet;
+            document.getElementById('res-head').textContent = head;
+            document.getElementById('res-torso').textContent = torso;
+            document.getElementById('res-limbs').textContent = limbs;
+            document.getElementById('res-artstyle').textContent = artstyle.split(',')[0];
+
+            let uniqueAdapts = [...new Set([adap1, adap2, adap3])];
+            document.getElementById('res-adaptations').textContent = uniqueAdapts.join(', ');
+
+            generatePrompt(habitat, diet, head, torso, limbs, uniqueAdapts, artstyle);
+        }
+
+        function generatePrompt(habitat, diet, head, torso, limbs, adaptations, artstyle) {
+            const promptBox = document.getElementById('prompt-text');
+            
+            let prompt = `A full-body shot of a unique creature. It features a ${head.toLowerCase()}, a ${torso.toLowerCase()}, and moves using ${limbs.toLowerCase()}. `;
+            prompt += `This creature thrives as a ${diet.split(' (')[0].toLowerCase()} in a ${habitat.toLowerCase()} environment. `;
+            prompt += `It displays unique survival adaptations including ${adaptations.join(', ').toLowerCase()}. `;
+            prompt += `The scene is rendered in an ${artstyle}.`;
+
+            // Overwrites the textbox when dropdowns change, but user can freely edit afterward.
+            promptBox.value = prompt;
+        }
+
+        function randomizeAll() {
+            document.getElementById('habitat').value = getRandomItem(data.habitat);
+            document.getElementById('diet').value = getRandomItem(data.diet);
+            document.getElementById('head').value = getRandomItem(data.head);
+            document.getElementById('torso').value = getRandomItem(data.torso);
+            document.getElementById('limbs').value = getRandomItem(data.limbs);
+            document.getElementById('artstyle').value = getRandomItem(data.artstyle);
+
+            let shuffledAdaps = [...data.adaptations].sort(() => 0.5 - Math.random());
+            document.getElementById('adap1').value = shuffledAdaps[0];
+            document.getElementById('adap2').value = shuffledAdaps[1];
+            document.getElementById('adap3').value = shuffledAdaps[2];
+
+            updateResults();
+        }
+
+        function copyPrompt() {
+            const promptBox = document.getElementById('prompt-text');
+            
+            // Select text in a mobile-friendly way before copying
+            promptBox.select();
+            promptBox.setSelectionRange(0, 99999); 
+            
+            navigator.clipboard.writeText(promptBox.value).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = "✅ Copied!";
+                copyBtn.style.backgroundColor = "#10b981"; // Turn green temporarily
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.backgroundColor = ""; // Reset
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        // Add event listeners to update dynamic changes live
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', updateResults);
+        });
+
+        // Initialize with a fully random generation on first load
+        randomizeAll();
+    </script>
+</body>
+</html>

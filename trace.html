@@ -1,43 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<style>
-  /* 1. Square */
-  .square {
-    width: 100px;
-    height: 100px;
-    background-color: currentColor;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trace 50 Levels</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-  /* 2. Circle */
-  .circle {
-    width: 100px;
-    height: 100px;
-    background-color: currentColor;
-    border-radius: 50%;
-  }
+        .game-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
 
-  /* 3. Triangle (CSS Border Trick) */
-  .triangle {
-    width: 0;
-    height: 0;
-    border-left: 50px solid transparent;
-    border-right: 50px solid transparent;
-    border-bottom: 100px solid currentColor;
-  }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
 
-  /* 4. Rectangle */
-  .rectangle {
-    width: 150px;
-    height: 80px;
-    background-color: currentColor;
-  }
-</style>
+        .level-title {
+            color: #0984e3;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .feedback {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #636e72;
+            height: 30px;
+            margin-bottom: 20px;
+        }
+
+        .correct { color: #00b894; }
+        .incorrect { color: #d63031; }
+
+        canvas {
+            background-color: #fafafa;
+            border: 3px solid #dfe6e9;
+            border-radius: 12px;
+            cursor: crosshair;
+            touch-action: none; /* Prevent scroll on touch */
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-retry {
+            background-color: #dfe6e9;
+            color: #2d3436;
+        }
+        .btn-retry:hover { background-color: #b2bec3; }
+
+        .btn-next {
+            background-color: #00b894;
+            color: white;
+            display: none;
+        }
+        .btn-next:hover { background-color: #009678; }
+
+    </style>
 </head>
 <body>
-  <div class="square"></div>
-  <div class="circle"></div>
-  <div class="triangle"></div>
-  <div class="rectangle"></div>
+
+    <div class="game-container">
+        <h1 id="level-header">Level 1 / 50</h1>
+        <div class="level-title" id="shape-name">Line</div>
+        
+        <div class="feedback" id="feedback">Start drawing from the green dot!</div>
+        
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        
+        <div class="controls">
+            <button class="btn-retry" id="retry-btn">Retry Level</button>
+            <button class="btn-next" id="next-btn">Next Level ➔</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Setup & DOM ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const feedbackEl = document.getElementById('feedback');
+        const retryBtn = document.getElementById('retry-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const levelHeader = document.getElementById('level-header');
+        const shapeNameEl = document.getElementById('shape-name');
+
+        // --- Game State ---
+        let currentLevel = 1;
+        const MAX_LEVELS = 50;
+        let targetPath = [];
+        let targetLength = 0;
+        let userPath = [];
+        let isDrawing = false;
+        let gameWon = false;
+        const TOLERANCE = 35; // Pixels user can stray from line
+
+        // --- Web Audio API (Sound Effects) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'win') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1); 
+                gain.gain.setValueAtTime(1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // --- Procedural Shape Generator ---
+        function generateShapeForLevel(level) {
+            const cx = 200, cy = 200, r = 140;
+            let pts = [];
+            let name = "";
+
+            if (level === 1) {
+                name = "A Straight Line";
+                pts.push({x: cx - r, y: cy}, {x: cx + r, y: cy});
+            } else if (level >= 2 && level <= 9) {
+                const sides = level + 1;
+                const names = ["", "", "Triangle", "Square", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Nonagon", "Decagon"];
+                name = names[sides - 1];
+                for(let i=0; i<=sides; i++) {
+                    let angle = (i * Math.PI * 2) / sides - Math.PI/2;
+                    pts.push({x: cx + Math.cos(angle)*r, y: cy + Math.sin(angle)*r});
+                }
+            } else if (level === 10) {
+                name = "Perfect Circle";
+                for(let i=0; i<=40; i++) {
+                    let angle = (i * Math.PI * 2) / 40;
+                    pts.push({x: cx + Math.cos(angle)*r, y: cy + Math.sin(angle)*r});
+                }
+            } else if (level >= 11 && level <= 20) {
+                const spikes = level - 6; // 5 to 14 points
+                name = `${spikes}-Point Star`;
+                const outer = r, inner = r * 0.4;
+                for(let i=0; i<=spikes*2; i++) {
+                    let radius = (i % 2 === 0) ? outer : inner;
+                    let angle = (i * Math.PI) / spikes - Math.PI/2;
+                    pts.push({x: cx + Math.cos(angle)*radius, y: cy + Math.sin(angle)*radius});
+                }
+            } else if (level >= 21 && level <= 35) {
+                const a = (level - 19), b = (level - 18);
+                name = `Lissajous Curve (${a}:${b})`;
+                for(let i=0; i<=100; i++) {
+                    let t = (i * Math.PI * 2) / 100;
+                    pts.push({x: cx + Math.sin(a*t + Math.PI/2)*r, y: cy + Math.sin(b*t)*r});
+                }
+            } else {
+                const k = (level - 33); // Petals
+                name = `Rose Curve (${k} Petals)`;
+                for(let i=0; i<=200; i++) {
+                    let theta = (i * Math.PI * 2) / 200;
+                    let rad = Math.cos(k * theta) * r;
+                    pts.push({x: cx + Math.cos(theta)*rad, y: cy + Math.sin(theta)*rad});
+                }
+            }
+            return { points: pts, name: name };
+        }
+
+        // --- Math Helpers ---
+        function getDist(p1, p2) { return Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2); }
+        
+        function distToSegment(p, v, w) {
+            const l2 = (v.x - w.x)**2 + (v.y - w.y)**2;
+            if (l2 === 0) return getDist(p, v);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return getDist(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+        }
+
+        function isPointOnPath(p) {
+            for (let i = 0; i < targetPath.length - 1; i++) {
+                if (distToSegment(p, targetPath[i], targetPath[i+1]) <= TOLERANCE) return true;
+            }
+            return false;
+        }
+
+        function getPathLength(path) {
+            let len = 0;
+            for(let i=0; i<path.length-1; i++) len += getDist(path[i], path[i+1]);
+            return len;
+        }
+
+        // --- Game Logic ---
+        function initLevel() {
+            const shapeData = generateShapeForLevel(currentLevel);
+            targetPath = shapeData.points;
+            targetLength = getPathLength(targetPath);
+            
+            levelHeader.textContent = `Level ${currentLevel} / ${MAX_LEVELS}`;
+            shapeNameEl.textContent = shapeData.name;
+            
+            userPath = [];
+            isDrawing = false;
+            gameWon = false;
+            
+            nextBtn.style.display = 'none';
+            feedbackEl.textContent = 'Start drawing from the green dot!';
+            feedbackEl.className = 'feedback';
+            
+            drawScene();
+        }
+
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Guide Line
+            ctx.beginPath();
+            ctx.moveTo(targetPath[0].x, targetPath[0].y);
+            for (let i=1; i<targetPath.length; i++) ctx.lineTo(targetPath[i].x, targetPath[i].y);
+            ctx.lineWidth = 18;
+            ctx.strokeStyle = '#dfe6e9';
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Draw Starting Dot
+            ctx.beginPath();
+            ctx.arc(targetPath[0].x, targetPath[0].y, 12, 0, Math.PI * 2);
+            ctx.fillStyle = gameWon ? '#b2bec3' : '#00b894';
+            ctx.fill();
+
+            // Draw User's Line
+            if (userPath.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(userPath[0].x, userPath[0].y);
+                for (let i=1; i<userPath.length; i++) ctx.lineTo(userPath[i].x, userPath[i].y);
+                ctx.lineWidth = 8;
+                ctx.strokeStyle = gameWon ? '#00b894' : '#0984e3';
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.stroke();
+            }
+        }
+
+        // --- Input Handling ---
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            if (gameWon) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const pos = getPointerPos(e);
+            
+            // Must start near the first point
+            if (getDist(pos, targetPath[0]) > TOLERANCE * 1.5) {
+                feedbackEl.textContent = 'Start at the green dot!';
+                return;
+            }
+
+            isDrawing = true;
+            userPath = [pos];
+            feedbackEl.textContent = 'Keep going...';
+            feedbackEl.className = 'feedback';
+            drawScene();
+        }
+
+        function draw(e) {
+            e.preventDefault();
+            if (!isDrawing || gameWon) return;
+
+            const pos = getPointerPos(e);
+
+            if (!isPointOnPath(pos)) {
+                isDrawing = false;
+                userPath = [];
+                feedbackEl.textContent = 'Oops! You went outside the line.';
+                feedbackEl.className = 'feedback incorrect';
+                playSound('error');
+                drawScene();
+                return;
+            }
+
+            userPath.push(pos);
+
+            // Win Condition: User has drawn enough length AND is near the final point
+            const uLen = getPathLength(userPath);
+            const distToEnd = getDist(pos, targetPath[targetPath.length - 1]);
+            
+            // Requires drawing at least 80% of the total distance
+            if (uLen > targetLength * 0.8 && distToEnd < TOLERANCE) {
+                isDrawing = false;
+                gameWon = true;
+                feedbackEl.textContent = 'Perfect! You traced it! 🎉';
+                feedbackEl.className = 'feedback correct';
+                nextBtn.style.display = 'block';
+                playSound('win');
+            }
+
+            drawScene();
+        }
+
+        function stopDrawing(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            isDrawing = false;
+
+            if (!gameWon) {
+                feedbackEl.textContent = 'You lifted your pen! Try again.';
+                userPath = [];
+                drawScene();
+            }
+        }
+
+        // Events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        window.addEventListener('touchend', stopDrawing);
+
+        retryBtn.addEventListener('click', initLevel);
+        nextBtn.addEventListener('click', () => {
+            if (currentLevel < MAX_LEVELS) {
+                currentLevel++;
+                initLevel();
+            } else {
+                feedbackEl.textContent = "🏆 YOU BEAT ALL 50 LEVELS! 🏆";
+                nextBtn.style.display = 'none';
+            }
+        });
+
+        // Start Game
+        initLevel();
+    </script>
 </body>
 </html>

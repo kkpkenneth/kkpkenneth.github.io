@@ -16,7 +16,6 @@
             margin: 0;
             padding: 15px;
             box-sizing: border-box;
-            /* Prevent pull-to-refresh on mobile */
             overscroll-behavior-y: contain; 
         }
 
@@ -33,12 +32,34 @@
             align-items: center;
         }
 
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 5px;
+            width: 100%;
+        }
+
         h1 {
             color: #2c3e50;
-            margin-top: 0;
-            margin-bottom: 5px;
+            margin: 0;
             font-size: 1.5rem;
         }
+
+        .level-select {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0984e3;
+            padding: 4px 8px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            background-color: #f4f7f6;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .level-select:focus { border-color: #0984e3; }
 
         .level-title {
             color: #0984e3;
@@ -60,7 +81,6 @@
 
         .canvas-wrapper {
             width: 100%;
-            /* Forces a perfect square */
             aspect-ratio: 1 / 1; 
             margin-bottom: 20px;
         }
@@ -71,7 +91,6 @@
             border-radius: 12px;
             width: 100%;
             height: 100%;
-            /* Critical for mobile: stops browser from scrolling when touching canvas */
             touch-action: none; 
             cursor: crosshair;
             box-sizing: border-box;
@@ -82,7 +101,6 @@
             gap: 12px;
             width: 100%;
             justify-content: center;
-            /* Ensures buttons stay above any touch-action zones */
             position: relative;
             z-index: 10;
         }
@@ -112,15 +130,18 @@
             display: none;
             box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
         }
-
     </style>
 </head>
 <body>
 
     <div class="game-container">
-        <h1 id="level-header">Level 1 / 50</h1>
-        <div class="level-title" id="shape-name">Line</div>
+        <div class="header-row">
+            <h1>Level</h1>
+            <select id="level-select" class="level-select"></select>
+            <h1>/ 50</h1>
+        </div>
         
+        <div class="level-title" id="shape-name">Line</div>
         <div class="feedback" id="feedback">Start drawing from the green dot!</div>
         
         <div class="canvas-wrapper">
@@ -139,7 +160,7 @@
         const feedbackEl = document.getElementById('feedback');
         const retryBtn = document.getElementById('retry-btn');
         const nextBtn = document.getElementById('next-btn');
-        const levelHeader = document.getElementById('level-header');
+        const levelSelect = document.getElementById('level-select');
         const shapeNameEl = document.getElementById('shape-name');
 
         let currentLevel = 1;
@@ -151,7 +172,20 @@
         let gameWon = false;
         const TOLERANCE = 35; 
 
-        // Sound Effects
+        // Populate Dropdown
+        for (let i = 1; i <= MAX_LEVELS; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+            levelSelect.appendChild(option);
+        }
+
+        levelSelect.addEventListener('change', (e) => {
+            currentLevel = parseInt(e.target.value, 10);
+            initLevel();
+        });
+
+        // Audio
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -176,7 +210,7 @@
             }
         }
 
-        // Generate Math Shapes
+        // Shape Generator
         function generateShapeForLevel(level) {
             const cx = 200, cy = 200, r = 140; 
             let pts = [];
@@ -195,8 +229,8 @@
                 }
             } else if (level === 10) {
                 name = "Perfect Circle";
-                for(let i=0; i<=40; i++) {
-                    let angle = (i * Math.PI * 2) / 40;
+                for(let i=0; i<=60; i++) {
+                    let angle = (i * Math.PI * 2) / 60;
                     pts.push({x: cx + Math.cos(angle)*r, y: cy + Math.sin(angle)*r});
                 }
             } else if (level >= 11 && level <= 20) {
@@ -211,15 +245,15 @@
             } else if (level >= 21 && level <= 35) {
                 const a = (level - 19), b = (level - 18);
                 name = `Lissajous Curve (${a}:${b})`;
-                for(let i=0; i<=100; i++) {
-                    let t = (i * Math.PI * 2) / 100;
+                for(let i=0; i<=200; i++) { // Increased resolution for smoother curves
+                    let t = (i * Math.PI * 2) / 200;
                     pts.push({x: cx + Math.sin(a*t + Math.PI/2)*r, y: cy + Math.sin(b*t)*r});
                 }
             } else {
                 const k = (level - 33); 
                 name = `Rose Curve (${k} Petals)`;
-                for(let i=0; i<=200; i++) {
-                    let theta = (i * Math.PI * 2) / 200;
+                for(let i=0; i<=300; i++) { // Increased resolution
+                    let theta = (i * Math.PI * 2) / 300;
                     let rad = Math.cos(k * theta) * r;
                     pts.push({x: cx + Math.cos(theta)*rad, y: cy + Math.sin(theta)*rad});
                 }
@@ -257,7 +291,7 @@
             targetPath = shapeData.points;
             targetLength = getPathLength(targetPath);
             
-            levelHeader.textContent = `Level ${currentLevel} / ${MAX_LEVELS}`;
+            levelSelect.value = currentLevel;
             shapeNameEl.textContent = shapeData.name;
             
             userPath = [];
@@ -276,13 +310,32 @@
         function drawScene() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Guide Line
+            // --- SMOOTHED GUIDE LINE ---
             ctx.beginPath();
             ctx.moveTo(targetPath[0].x, targetPath[0].y);
-            for (let i=1; i<targetPath.length; i++) ctx.lineTo(targetPath[i].x, targetPath[i].y);
+            
+            // Check if the shape is a continuous curve (Circle, Lissajous, Rose)
+            const isCurve = currentLevel === 10 || currentLevel >= 21;
+
+            if (isCurve) {
+                // Apply Bezier Smoothing to the Guide Line
+                for (let i = 1; i < targetPath.length - 1; i++) {
+                    const xc = (targetPath[i].x + targetPath[i + 1].x) / 2;
+                    const yc = (targetPath[i].y + targetPath[i + 1].y) / 2;
+                    ctx.quadraticCurveTo(targetPath[i].x, targetPath[i].y, xc, yc);
+                }
+                const last = targetPath.length - 1;
+                ctx.lineTo(targetPath[last].x, targetPath[last].y);
+            } else {
+                // Keep sharp corners for Line, Polygons, and Stars
+                for (let i = 1; i < targetPath.length; i++) {
+                    ctx.lineTo(targetPath[i].x, targetPath[i].y);
+                }
+            }
+
             ctx.lineWidth = 18;
             ctx.strokeStyle = '#dfe6e9';
-            ctx.setLineDash([15, 15]);
+            ctx.setLineDash([10, 2]);
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             ctx.stroke();
@@ -290,17 +343,28 @@
 
             // Starting Dot
             ctx.beginPath();
-            ctx.arc(targetPath[0].x, targetPath[0].y, 14, 0, Math.PI * 2);
+            ctx.arc(targetPath[0].x, targetPath[0].y, 10, 0, Math.PI * 2);
             ctx.fillStyle = gameWon ? '#b2bec3' : '#00b894';
             ctx.fill();
 
-            // User Trace
+            // --- SMOOTHED USER TRACE ---
             if (userPath.length > 0) {
                 ctx.beginPath();
                 ctx.moveTo(userPath[0].x, userPath[0].y);
-                for (let i=1; i<userPath.length; i++) ctx.lineTo(userPath[i].x, userPath[i].y);
-                ctx.lineWidth = 10;
-                ctx.strokeStyle = gameWon ? '#00b894' : '#0984e3';
+                
+                for (let i = 1; i < userPath.length - 1; i++) {
+                    const xc = (userPath[i].x + userPath[i + 1].x) / 2;
+                    const yc = (userPath[i].y + userPath[i + 1].y) / 2;
+                    ctx.quadraticCurveTo(userPath[i].x, userPath[i].y, xc, yc);
+                }
+                
+                if (userPath.length > 1) {
+                    const last = userPath.length - 1;
+                    ctx.lineTo(userPath[last].x, userPath[last].y);
+                }
+
+                ctx.lineWidth = 18;
+                ctx.strokeStyle = gameWon ? '#b2bec3' : '#00b894'; 
                 ctx.lineCap = 'round'; 
                 ctx.lineJoin = 'round';
                 ctx.stroke();
@@ -321,7 +385,7 @@
 
         function startDrawing(e) {
             if (gameWon) return;
-            e.preventDefault(); // Safe to block here, event is on canvas
+            e.preventDefault(); 
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const pos = getPointerPos(e);
@@ -340,8 +404,6 @@
 
         function draw(e) {
             if (!isDrawing || gameWon) return;
-            // ONLY prevent default if user is actively drawing. 
-            // This stops button taps from being cancelled!
             e.preventDefault(); 
 
             const pos = getPointerPos(e);
@@ -361,7 +423,7 @@
             const uLen = getPathLength(userPath);
             const distToEnd = getDist(pos, targetPath[targetPath.length - 1]);
             
-            if (uLen > targetLength * 0.8 && distToEnd < TOLERANCE) {
+            if (uLen > targetLength * 0.8 && distToEnd < 3) {
                 isDrawing = false;
                 gameWon = true;
                 feedbackEl.textContent = 'Perfect! 🎉';
@@ -376,7 +438,6 @@
 
         function stopDrawing(e) {
             if (!isDrawing) return;
-            // Only prevent default if we were actually drawing
             e.preventDefault(); 
             isDrawing = false;
 
@@ -397,10 +458,8 @@
         window.addEventListener('touchend', stopDrawing, { passive: false });
         window.addEventListener('touchcancel', stopDrawing, { passive: false });
 
-        // Button Listeners
         retryBtn.addEventListener('click', initLevel);
         
-        // This will now trigger perfectly on mobile!
         nextBtn.addEventListener('click', () => {
             if (currentLevel < MAX_LEVELS) {
                 currentLevel++;

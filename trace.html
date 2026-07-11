@@ -2,99 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trace 50 Levels</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trace 50 Levels (Mobile)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #f0f3f5;
             color: #333;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: contain; 
         }
 
         .game-container {
             background: #ffffff;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
             text-align: center;
-            max-width: 500px;
             width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
             color: #2c3e50;
             margin-top: 0;
             margin-bottom: 5px;
+            font-size: 1.5rem;
         }
 
         .level-title {
             color: #0984e3;
             font-size: 1.1rem;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .feedback {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #636e72;
-            height: 30px;
-            margin-bottom: 20px;
+            height: 28px;
+            margin-bottom: 15px;
         }
 
         .correct { color: #00b894; }
         .incorrect { color: #d63031; }
 
+        .canvas-wrapper {
+            width: 100%;
+            /* Forces a perfect square */
+            aspect-ratio: 1 / 1; 
+            margin-bottom: 20px;
+        }
+
         canvas {
             background-color: #fafafa;
             border: 3px solid #dfe6e9;
             border-radius: 12px;
-            cursor: crosshair;
-            touch-action: none; /* Prevent scroll on touch */
-            margin-bottom: 20px;
             width: 100%;
-            max-width: 400px;
-            height: auto;
+            height: 100%;
+            /* Critical for mobile: stops browser from scrolling when touching canvas */
+            touch-action: none; 
+            cursor: crosshair;
+            box-sizing: border-box;
         }
 
         .controls {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            width: 100%;
             justify-content: center;
         }
 
         button {
-            font-size: 1rem;
-            padding: 10px 20px;
+            font-size: 1.1rem;
+            padding: 14px 20px; /* Tall padding for easy tapping */
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+            transition: transform 0.1s;
+            flex: 1; /* Make buttons share space equally */
+            max-width: 200px;
         }
 
-        button:active { transform: scale(0.98); }
+        button:active { transform: scale(0.96); }
 
         .btn-retry {
             background-color: #dfe6e9;
             color: #2d3436;
         }
-        .btn-retry:hover { background-color: #b2bec3; }
 
         .btn-next {
             background-color: #00b894;
             color: white;
             display: none;
+            box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
         }
-        .btn-next:hover { background-color: #009678; }
 
     </style>
 </head>
@@ -106,11 +120,13 @@
         
         <div class="feedback" id="feedback">Start drawing from the green dot!</div>
         
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+        </div>
         
         <div class="controls">
-            <button class="btn-retry" id="retry-btn">Retry Level</button>
-            <button class="btn-next" id="next-btn">Next Level ➔</button>
+            <button class="btn-retry" id="retry-btn">Retry</button>
+            <button class="btn-next" id="next-btn">Next ➔</button>
         </div>
     </div>
 
@@ -132,7 +148,9 @@
         let userPath = [];
         let isDrawing = false;
         let gameWon = false;
-        const TOLERANCE = 35; // Pixels user can stray from line
+        
+        // Tolerance for drawing outside the lines
+        const TOLERANCE = 35; 
 
         // --- Web Audio API (Sound Effects) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -159,9 +177,9 @@
             }
         }
 
-        // --- Procedural Shape Generator ---
+        // --- Procedural Math Shape Generator ---
         function generateShapeForLevel(level) {
-            const cx = 200, cy = 200, r = 140;
+            const cx = 200, cy = 200, r = 140; // Center X/Y and Radius matching 400x400 canvas
             let pts = [];
             let name = "";
 
@@ -183,7 +201,7 @@
                     pts.push({x: cx + Math.cos(angle)*r, y: cy + Math.sin(angle)*r});
                 }
             } else if (level >= 11 && level <= 20) {
-                const spikes = level - 6; // 5 to 14 points
+                const spikes = level - 6; 
                 name = `${spikes}-Point Star`;
                 const outer = r, inner = r * 0.4;
                 for(let i=0; i<=spikes*2; i++) {
@@ -199,7 +217,7 @@
                     pts.push({x: cx + Math.sin(a*t + Math.PI/2)*r, y: cy + Math.sin(b*t)*r});
                 }
             } else {
-                const k = (level - 33); // Petals
+                const k = (level - 33); 
                 name = `Rose Curve (${k} Petals)`;
                 for(let i=0; i<=200; i++) {
                     let theta = (i * Math.PI * 2) / 200;
@@ -210,7 +228,7 @@
             return { points: pts, name: name };
         }
 
-        // --- Math Helpers ---
+        // --- Math & Distance Helpers ---
         function getDist(p1, p2) { return Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2); }
         
         function distToSegment(p, v, w) {
@@ -248,6 +266,7 @@
             gameWon = false;
             
             nextBtn.style.display = 'none';
+            retryBtn.style.display = 'block';
             feedbackEl.textContent = 'Start drawing from the green dot!';
             feedbackEl.className = 'feedback';
             
@@ -257,39 +276,45 @@
         function drawScene() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Guide Line
+            // Draw Dashed Guide Line
             ctx.beginPath();
             ctx.moveTo(targetPath[0].x, targetPath[0].y);
             for (let i=1; i<targetPath.length; i++) ctx.lineTo(targetPath[i].x, targetPath[i].y);
             ctx.lineWidth = 18;
             ctx.strokeStyle = '#dfe6e9';
+            ctx.setLineDash([15, 15]);
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             ctx.stroke();
+            ctx.setLineDash([]); // Reset for next lines
 
-            // Draw Starting Dot
+            // Draw Starting Green Dot
             ctx.beginPath();
-            ctx.arc(targetPath[0].x, targetPath[0].y, 12, 0, Math.PI * 2);
+            ctx.arc(targetPath[0].x, targetPath[0].y, 14, 0, Math.PI * 2);
             ctx.fillStyle = gameWon ? '#b2bec3' : '#00b894';
             ctx.fill();
 
-            // Draw User's Line
+            // Draw User's Trace
             if (userPath.length > 0) {
                 ctx.beginPath();
                 ctx.moveTo(userPath[0].x, userPath[0].y);
                 for (let i=1; i<userPath.length; i++) ctx.lineTo(userPath[i].x, userPath[i].y);
-                ctx.lineWidth = 8;
+                ctx.lineWidth = 10;
                 ctx.strokeStyle = gameWon ? '#00b894' : '#0984e3';
-                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.lineCap = 'round'; 
+                ctx.lineJoin = 'round';
                 ctx.stroke();
             }
         }
 
-        // --- Input Handling ---
+        // --- Input Handling (Touch & Mouse) ---
         function getPointerPos(e) {
             const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            // Handle both touch and mouse events
+            const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+            
+            // Map the screen coordinates to the internal 400x400 canvas coordinates
             return {
                 x: (clientX - rect.left) * (canvas.width / rect.width),
                 y: (clientY - rect.top) * (canvas.height / rect.height)
@@ -297,13 +322,13 @@
         }
 
         function startDrawing(e) {
-            e.preventDefault();
+            e.preventDefault(); // Prevents pull-to-refresh / scrolling
             if (gameWon) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const pos = getPointerPos(e);
             
-            // Must start near the first point
+            // Must start near the first point (green dot)
             if (getDist(pos, targetPath[0]) > TOLERANCE * 1.5) {
                 feedbackEl.textContent = 'Start at the green dot!';
                 return;
@@ -317,7 +342,7 @@
         }
 
         function draw(e) {
-            e.preventDefault();
+            e.preventDefault(); // Prevents page scrolling while drawing
             if (!isDrawing || gameWon) return;
 
             const pos = getPointerPos(e);
@@ -334,17 +359,18 @@
 
             userPath.push(pos);
 
-            // Win Condition: User has drawn enough length AND is near the final point
+            // Win Condition
             const uLen = getPathLength(userPath);
             const distToEnd = getDist(pos, targetPath[targetPath.length - 1]);
             
-            // Requires drawing at least 80% of the total distance
+            // Require 80% of length and being near the final point
             if (uLen > targetLength * 0.8 && distToEnd < TOLERANCE) {
                 isDrawing = false;
                 gameWon = true;
-                feedbackEl.textContent = 'Perfect! You traced it! 🎉';
+                feedbackEl.textContent = 'Perfect! 🎉';
                 feedbackEl.className = 'feedback correct';
                 nextBtn.style.display = 'block';
+                retryBtn.style.display = 'none';
                 playSound('win');
             }
 
@@ -357,21 +383,27 @@
             isDrawing = false;
 
             if (!gameWon) {
-                feedbackEl.textContent = 'You lifted your pen! Try again.';
+                feedbackEl.textContent = 'You lifted your finger! Try again.';
                 userPath = [];
                 drawScene();
             }
         }
 
-        // Events
+        // --- Event Listeners ---
+        
+        // Mouse
         canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mousemove', draw);
         window.addEventListener('mouseup', stopDrawing);
+        
+        // Touch (passive: false is critical for e.preventDefault() to work)
         canvas.addEventListener('touchstart', startDrawing, { passive: false });
-        canvas.addEventListener('touchmove', draw, { passive: false });
-        window.addEventListener('touchend', stopDrawing);
+        window.addEventListener('touchmove', draw, { passive: false });
+        window.addEventListener('touchend', stopDrawing, { passive: false });
+        window.addEventListener('touchcancel', stopDrawing, { passive: false });
 
         retryBtn.addEventListener('click', initLevel);
+        
         nextBtn.addEventListener('click', () => {
             if (currentLevel < MAX_LEVELS) {
                 currentLevel++;
@@ -382,7 +414,7 @@
             }
         });
 
-        // Start Game
+        // Initialize First Level
         initLevel();
     </script>
 </body>

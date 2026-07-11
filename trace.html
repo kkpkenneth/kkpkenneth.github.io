@@ -82,17 +82,20 @@
             gap: 12px;
             width: 100%;
             justify-content: center;
+            /* Ensures buttons stay above any touch-action zones */
+            position: relative;
+            z-index: 10;
         }
 
         button {
             font-size: 1.1rem;
-            padding: 14px 20px; /* Tall padding for easy tapping */
+            padding: 14px 20px; 
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
             transition: transform 0.1s;
-            flex: 1; /* Make buttons share space equally */
+            flex: 1; 
             max-width: 200px;
         }
 
@@ -131,7 +134,6 @@
     </div>
 
     <script>
-        // --- Setup & DOM ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const feedbackEl = document.getElementById('feedback');
@@ -140,7 +142,6 @@
         const levelHeader = document.getElementById('level-header');
         const shapeNameEl = document.getElementById('shape-name');
 
-        // --- Game State ---
         let currentLevel = 1;
         const MAX_LEVELS = 50;
         let targetPath = [];
@@ -148,11 +149,9 @@
         let userPath = [];
         let isDrawing = false;
         let gameWon = false;
-        
-        // Tolerance for drawing outside the lines
         const TOLERANCE = 35; 
 
-        // --- Web Audio API (Sound Effects) ---
+        // Sound Effects
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -177,9 +176,9 @@
             }
         }
 
-        // --- Procedural Math Shape Generator ---
+        // Generate Math Shapes
         function generateShapeForLevel(level) {
-            const cx = 200, cy = 200, r = 140; // Center X/Y and Radius matching 400x400 canvas
+            const cx = 200, cy = 200, r = 140; 
             let pts = [];
             let name = "";
 
@@ -228,7 +227,7 @@
             return { points: pts, name: name };
         }
 
-        // --- Math & Distance Helpers ---
+        // Geometry Helpers
         function getDist(p1, p2) { return Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2); }
         
         function distToSegment(p, v, w) {
@@ -252,7 +251,7 @@
             return len;
         }
 
-        // --- Game Logic ---
+        // Init Level
         function initLevel() {
             const shapeData = generateShapeForLevel(currentLevel);
             targetPath = shapeData.points;
@@ -273,10 +272,11 @@
             drawScene();
         }
 
+        // Render Graphics
         function drawScene() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Dashed Guide Line
+            // Guide Line
             ctx.beginPath();
             ctx.moveTo(targetPath[0].x, targetPath[0].y);
             for (let i=1; i<targetPath.length; i++) ctx.lineTo(targetPath[i].x, targetPath[i].y);
@@ -286,15 +286,15 @@
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             ctx.stroke();
-            ctx.setLineDash([]); // Reset for next lines
+            ctx.setLineDash([]); 
 
-            // Draw Starting Green Dot
+            // Starting Dot
             ctx.beginPath();
             ctx.arc(targetPath[0].x, targetPath[0].y, 14, 0, Math.PI * 2);
             ctx.fillStyle = gameWon ? '#b2bec3' : '#00b894';
             ctx.fill();
 
-            // Draw User's Trace
+            // User Trace
             if (userPath.length > 0) {
                 ctx.beginPath();
                 ctx.moveTo(userPath[0].x, userPath[0].y);
@@ -307,14 +307,12 @@
             }
         }
 
-        // --- Input Handling (Touch & Mouse) ---
+        // Input Mechanics
         function getPointerPos(e) {
             const rect = canvas.getBoundingClientRect();
-            // Handle both touch and mouse events
             const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
             
-            // Map the screen coordinates to the internal 400x400 canvas coordinates
             return {
                 x: (clientX - rect.left) * (canvas.width / rect.width),
                 y: (clientY - rect.top) * (canvas.height / rect.height)
@@ -322,13 +320,12 @@
         }
 
         function startDrawing(e) {
-            e.preventDefault(); // Prevents pull-to-refresh / scrolling
             if (gameWon) return;
+            e.preventDefault(); // Safe to block here, event is on canvas
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const pos = getPointerPos(e);
             
-            // Must start near the first point (green dot)
             if (getDist(pos, targetPath[0]) > TOLERANCE * 1.5) {
                 feedbackEl.textContent = 'Start at the green dot!';
                 return;
@@ -342,8 +339,10 @@
         }
 
         function draw(e) {
-            e.preventDefault(); // Prevents page scrolling while drawing
             if (!isDrawing || gameWon) return;
+            // ONLY prevent default if user is actively drawing. 
+            // This stops button taps from being cancelled!
+            e.preventDefault(); 
 
             const pos = getPointerPos(e);
 
@@ -359,11 +358,9 @@
 
             userPath.push(pos);
 
-            // Win Condition
             const uLen = getPathLength(userPath);
             const distToEnd = getDist(pos, targetPath[targetPath.length - 1]);
             
-            // Require 80% of length and being near the final point
             if (uLen > targetLength * 0.8 && distToEnd < TOLERANCE) {
                 isDrawing = false;
                 gameWon = true;
@@ -378,8 +375,9 @@
         }
 
         function stopDrawing(e) {
-            e.preventDefault();
             if (!isDrawing) return;
+            // Only prevent default if we were actually drawing
+            e.preventDefault(); 
             isDrawing = false;
 
             if (!gameWon) {
@@ -390,20 +388,19 @@
         }
 
         // --- Event Listeners ---
-        
-        // Mouse
         canvas.addEventListener('mousedown', startDrawing);
         window.addEventListener('mousemove', draw);
         window.addEventListener('mouseup', stopDrawing);
         
-        // Touch (passive: false is critical for e.preventDefault() to work)
         canvas.addEventListener('touchstart', startDrawing, { passive: false });
         window.addEventListener('touchmove', draw, { passive: false });
         window.addEventListener('touchend', stopDrawing, { passive: false });
         window.addEventListener('touchcancel', stopDrawing, { passive: false });
 
+        // Button Listeners
         retryBtn.addEventListener('click', initLevel);
         
+        // This will now trigger perfectly on mobile!
         nextBtn.addEventListener('click', () => {
             if (currentLevel < MAX_LEVELS) {
                 currentLevel++;
@@ -414,7 +411,6 @@
             }
         });
 
-        // Initialize First Level
         initLevel();
     </script>
 </body>

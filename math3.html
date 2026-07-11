@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Addition Quiz with Sound</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .quiz-container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .score-board {
+            font-size: 1.2rem;
+            color: #636e72;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .question-area {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #0984e3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        input[type="number"] {
+            font-size: 2.5rem;
+            width: 100px;
+            text-align: center;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            outline: none;
+            color: #2d3436;
+            transition: border-color 0.2s;
+            /* Hide arrows in input */
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"]:focus {
+            border-color: #74b9ff;
+        }
+
+        button {
+            font-size: 1.1rem;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+            margin: 5px;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-submit {
+            background-color: #0984e3;
+            color: white;
+            width: 100%;
+            margin: 0 0 15px 0;
+        }
+
+        .btn-submit:hover {
+            background-color: #076bbb;
+        }
+
+        .btn-next {
+            background-color: #00b894;
+            color: white;
+            width: 100%;
+            margin: 0 0 15px 0;
+            display: none;
+        }
+
+        .btn-next:hover {
+            background-color: #009678;
+        }
+
+        .btn-reset {
+            background-color: #dfe6e9;
+            color: #2d3436;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .btn-reset:hover {
+            background-color: #b2bec3;
+        }
+
+        .feedback {
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 30px;
+            margin-bottom: 20px;
+        }
+
+        .correct { color: #00b894; }
+        .incorrect { color: #d63031; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1>Addition Quiz</h1>
+        <div class="score-board" id="score-board">Score: 0 / 0</div>
+        
+        <div class="question-area">
+            <span id="num1">0</span> + <span id="num2">0</span> = 
+            <input type="number" id="answer" autocomplete="off" autofocus>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <button class="btn-submit" id="submit-btn">Submit Answer</button>
+        <button class="btn-next" id="next-btn">Next Question</button>
+        
+        <button class="btn-reset" id="reset-btn">Reset Quiz</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const num1El = document.getElementById('num1');
+        const num2El = document.getElementById('num2');
+        const answerInput = document.getElementById('answer');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const scoreBoardEl = document.getElementById('score-board');
+
+        // Game State Variables
+        let currentNum1 = 0;
+        let currentNum2 = 0;
+        let score = 0;
+        let totalQuestions = 0;
+        let isQuestionActive = true;
+
+        // Initialize the Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Sound Generator Function
+        function playSound(type) {
+            // Browsers require audio context to be resumed after user interaction
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                // A cheerful, high-pitched "Ding!"
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+                oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1); 
+                
+                gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+
+            } else if (type === 'incorrect') {
+                // A low, flat "Buzzer" sound
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(150, audioCtx.currentTime); 
+                
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.4);
+            }
+        }
+
+        // Generate a random number between 0 and 9
+        function getRandomDigit() {
+            return Math.floor(Math.random() * 1000);
+        }
+
+        // Initialize a new question
+        function generateQuestion() {
+            currentNum1 = getRandomDigit();
+            currentNum2 = getRandomDigit();
+            
+            num1El.textContent = currentNum1;
+            num2El.textContent = currentNum2;
+            
+            answerInput.value = '';
+            answerInput.disabled = false;
+            answerInput.focus();
+            
+            feedbackEl.textContent = '';
+            feedbackEl.className = 'feedback';
+            
+            submitBtn.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            isQuestionActive = true;
+        }
+
+        // Check the user's answer
+        function checkAnswer() {
+            if (!isQuestionActive || answerInput.value.trim() === '') return;
+
+            // Ensure AudioContext is active on first interaction
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const userAnswer = parseInt(answerInput.value, 10);
+            const correctAnswer = currentNum1 + currentNum2;
+            
+            totalQuestions++;
+            isQuestionActive = false;
+            answerInput.disabled = true;
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                feedbackEl.textContent = 'Correct! 🎉';
+                feedbackEl.className = 'feedback correct';
+                playSound('correct'); // Play Ding
+            } else {
+                feedbackEl.textContent = `Incorrect. ${currentNum1} + ${currentNum2} = ${correctAnswer}`;
+                feedbackEl.className = 'feedback incorrect';
+                playSound('incorrect'); // Play Buzzer
+            }
+
+            // Update Scoreboard
+            scoreBoardEl.textContent = `Score: ${score} / ${totalQuestions}`;
+
+            // Toggle Buttons
+            submitBtn.style.display = 'none';
+            nextBtn.style.display = 'block';
+            nextBtn.focus();
+        }
+
+        // Reset the entire quiz
+        function resetQuiz() {
+            score = 0;
+            totalQuestions = 0;
+            scoreBoardEl.textContent = `Score: 0 / 0`;
+            generateQuestion();
+        }
+
+        // Event Listeners
+        submitBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', generateQuestion);
+        resetBtn.addEventListener('click', resetQuiz);
+
+        // Allow pressing "Enter" to submit or go to next question
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (isQuestionActive) {
+                    checkAnswer();
+                } else {
+                    generateQuestion();
+                }
+            }
+        });
+
+        // Start the first game
+        generateQuestion();
+    </script>
+
+</body>
+</html>

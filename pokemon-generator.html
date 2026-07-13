@@ -4,87 +4,33 @@
     <meta charset="UTF-8">
     <title>Pokémon Dex Generator</title>
     <style>
-        :root {
-            --pokedex-red: #cc0000;
-            --pokedex-dark: #222;
-            --text-light: #f0f0f0;
-            --accent: #ffcb05; /* Pikachu yellow */
-        }
-
-        body {
-            background-color: #333;
-            color: var(--text-light);
-            font-family: 'Courier New', Courier, monospace;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            max-width: 900px;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            background: var(--pokedex-red);
-            padding: 20px;
-            border-radius: 20px;
-            border: 8px solid #000;
-        }
-
-        .panel { background: var(--pokedex-dark); padding: 20px; border-radius: 10px; }
+        :root { --pokedex-red: #cc0000; --pokedex-dark: #222; --text-light: #f0f0f0; --accent: #ffcb05; }
+        body { background-color: #333; color: var(--text-light); font-family: 'Courier New', Courier, monospace; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: var(--pokedex-red); padding: 20px; border-radius: 20px; border: 8px solid #000; }
+        .panel { background: var(--pokedex-dark); padding: 20px; border-radius: 10px; height: 85vh; overflow-y: auto; }
         h1, h2 { color: var(--accent); text-transform: uppercase; margin-top: 0; }
-        
-        select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background: #444;
-            color: white;
-            border: 2px solid var(--accent);
-            border-radius: 5px;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: var(--accent);
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .trait-name { color: var(--accent); display: block; font-size: 0.8rem; }
-        .trait-value { font-size: 1.2rem; margin-bottom: 10px; display: block; }
+        .control-group { margin-bottom: 10px; }
+        label { display: block; font-size: 0.75rem; color: #ccc; }
+        select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #444; color: white; border: 1px solid var(--accent); border-radius: 4px; }
+        button { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .trait-name { color: var(--accent); font-size: 0.7rem; text-transform: uppercase; }
+        .trait-value { font-size: 1rem; margin-bottom: 8px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="panel">
+    <div class="panel" id="controls">
         <h1>Dex Forge</h1>
-        <label>Type 1</label>
-        <select id="type1"></select>
-        <label>Type 2</label>
-        <select id="type2"><option value="">None</option></select>
-        <label>Habitat</label>
-        <select id="habitat"></select>
-        <label>Body Style</label>
-        <select id="torso"></select>
-        <label>Primary Feature</label>
-        <select id="head"></select>
-        <button onclick="randomizeAll()">GENERATE NEW ENTRY</button>
+        <div class="control-group"><label>Type 1</label><select id="type1"></select></div>
+        <div class="control-group"><label>Type 2</label><select id="type2"><option value="">None</option></select></div>
+        <!-- Dynamic selects will be injected here -->
     </div>
 
     <div class="panel">
         <h2>Entry Profile</h2>
-        <div id="res-types"></div>
-        <span class="trait-name">Habitat</span><span class="trait-value" id="res-habitat">-</span>
-        <span class="trait-name">Physiology</span><span class="trait-value" id="res-torso">-</span>
-        <span class="trait-name">Feature</span><span class="trait-value" id="res-head">-</span>
-        
-        <textarea id="prompt-text" rows="8"></textarea>
+        <div id="res-display"></div>
+        <textarea id="prompt-text" rows="12"></textarea>
         <button onclick="copyPrompt()">COPY PROMPT</button>
     </div>
 </div>
@@ -94,35 +40,43 @@
     const data = {
         habitat: ["Forest", "Mountain", "Ocean", "Cave", "Urban", "Volcanic", "Desert"],
         torso: ["Bipedal", "Quadrupedal", "Serpentine", "Floating", "Insectoid", "Amorphous"],
-        head: ["Spiky crest", "Long snout", "Pointed ears", "Multiple eyes", "Horned", "Beak"]
+        head: ["Spiky crest", "Long snout", "Pointed ears", "Multiple eyes", "Horned", "Beak"],
+        appendages: ["Scythe claws", "Webbed flippers", "Tentacles", "Prehensile vines", "Hover pods", "Heavy hooves"],
+        texture: ["Glossy chitin", "Coarse fur", "Crystalline scales", "Soft rubbery skin", "Moss-covered", "Metallic plating"],
+        tail: ["Bushy", "Club-tipped", "Whip-like", "Fan-shaped", "Stinger-tipped", "None"],
+        colorPalette: ["Neon and Dark", "Pastel and Metallic", "Earth tones", "Camo-pattern", "High-contrast"],
+        aura: ["Crackling electricity", "Steaming mist", "Floating embers", "Shimmering light", "Poisonous vapor"],
+        eyes: ["Slanted", "Large circular", "Rectangular pupils", "Opaque"],
+        pattern: ["Striped", "Spotted", "Chevron-patterned", "Gradient", "Bioluminescent nodes"]
     };
 
     function init() {
-        ['type1', 'type2'].forEach(id => types.forEach(t => {
-            const el = document.getElementById(id);
-            el.innerHTML += `<option value="${t}">${t}</option>`;
-        }));
-        Object.keys(data).forEach(key => {
-            data[key].forEach(val => {
-                const el = document.getElementById(key);
-                el.innerHTML += `<option value="${val}">${val}</option>`;
-            });
+        const controls = document.getElementById('controls');
+        // Add type selects
+        ['type1', 'type2'].forEach(id => {
+            document.getElementById(id).innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
         });
+        // Generate UI for data keys
+        Object.keys(data).forEach(key => {
+            controls.innerHTML += `<div class="control-group"><label>${key.toUpperCase()}</label><select id="${key}">${data[key].map(v => `<option value="${v}">${v}</option>`).join('')}</select></div>`;
+        });
+        controls.innerHTML += `<button onclick="randomizeAll()">GENERATE NEW ENTRY</button>`;
+        document.querySelectorAll('select').forEach(s => s.addEventListener('change', update));
+        randomizeAll();
     }
 
     function update() {
-        const t1 = document.getElementById('type1').value;
-        const t2 = document.getElementById('type2').value;
-        const hab = document.getElementById('habitat').value;
-        const body = document.getElementById('torso').value;
-        const head = document.getElementById('head').value;
+        let displayHTML = `<span class="trait-name">Types</span><span class="trait-value">${document.getElementById('type1').value} ${document.getElementById('type2').value ? '/ ' + document.getElementById('type2').value : ''}</span>`;
+        let promptParts = [`Professional Pokémon character design, a ${document.getElementById('type1').value}${document.getElementById('type2').value ? '-' + document.getElementById('type2').value : ''} type Pokémon.`];
+        
+        Object.keys(data).forEach(key => {
+            const val = document.getElementById(key).value;
+            displayHTML += `<span class="trait-name">${key}</span><span class="trait-value">${val}</span>`;
+            promptParts.push(`It features ${val.toLowerCase()} characteristics.`);
+        });
 
-        document.getElementById('res-types').innerHTML = `<span class="trait-value">${t1} ${t2 ? '/ ' + t2 : ''}</span>`;
-        document.getElementById('res-habitat').textContent = hab;
-        document.getElementById('res-torso').textContent = body;
-        document.getElementById('res-head').textContent = head;
-
-        document.getElementById('prompt-text').value = `Professional Pokémon character design, a ${t1}${t2 ? '-' + t2 : ''} type Pokémon. It has a ${body.toLowerCase()} body structure, a ${head.toLowerCase()}, and lives in a ${hab.toLowerCase()} environment. High quality, Ken Sugimori art style, official Pokémon game aesthetic, clean background.`;
+        document.getElementById('res-display').innerHTML = displayHTML;
+        document.getElementById('prompt-text').value = promptParts.join(' ') + " High quality, Ken Sugimori art style, official Pokémon game aesthetic, clean background.";
     }
 
     function randomizeAll() {
@@ -132,9 +86,7 @@
 
     function copyPrompt() { navigator.clipboard.writeText(document.getElementById('prompt-text').value); }
 
-    document.querySelectorAll('select').forEach(s => s.addEventListener('change', update));
     init();
-    randomizeAll();
 </script>
 </body>
 </html>

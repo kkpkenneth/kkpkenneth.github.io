@@ -2,19 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon Dex Generator</title>
     <style>
-        :root { --pokedex-red: #cc0000; --pokedex-dark: #222; --text-light: #f0f0f0; --accent: #ffcb05; }
-        body { background-color: #333; color: var(--text-light); font-family: 'Courier New', Courier, monospace; padding: 20px; display: flex; justify-content: center; }
-        .container { max-width: 1000px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: var(--pokedex-red); padding: 20px; border-radius: 20px; border: 8px solid #000; }
-        .panel { background: var(--pokedex-dark); padding: 20px; border-radius: 10px; height: 85vh; overflow-y: auto; }
+        :root { 
+            --pokedex-red: #cc0000; 
+            --pokedex-dark: #222; 
+            --text-light: #f0f0f0; 
+            --accent: #ffcb05; 
+        }
+        
+        /* Added box-sizing for better width calculations */
+        * { box-sizing: border-box; }
+
+        body { 
+            background-color: #333; 
+            color: var(--text-light); 
+            font-family: 'Courier New', Courier, monospace; 
+            padding: 20px; 
+            margin: 0;
+            display: flex; 
+            justify-content: center; 
+        }
+
+        .container { 
+            max-width: 1000px; 
+            width: 100%; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+            background: var(--pokedex-red); 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 8px solid #000; 
+        }
+
+        .panel { 
+            background: var(--pokedex-dark); 
+            padding: 20px; 
+            border-radius: 10px; 
+            height: 85vh; 
+            overflow-y: auto; 
+        }
+
         h1, h2 { color: var(--accent); text-transform: uppercase; margin-top: 0; }
-        .control-group { margin-bottom: 12px; }
-        label { display: block; font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+        .control-group { margin-bottom: 10px; }
+        label { display: block; font-size: 0.75rem; color: #ccc; }
         select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #444; color: white; border: 1px solid var(--accent); border-radius: 4px; }
-        button { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; color: #222; }
+        button { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .trait-name { color: var(--accent); font-size: 0.7rem; text-transform: uppercase; }
-        .trait-value { font-size: 0.9rem; margin-bottom: 8px; display: block; border-bottom: 1px solid #444; padding-bottom: 4px; }
+        .trait-value { font-size: 1rem; margin-bottom: 8px; display: block; }
+
+        /* --- MOBILE RESPONSIVE LAYOUT --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                grid-template-columns: 1fr; /* Stack into a single column */
+                gap: 15px;
+                padding: 15px;
+                border-width: 4px; /* Slightly thinner border for small screens */
+                border-radius: 15px;
+            }
+            .panel {
+                height: auto;
+                max-height: 50vh; /* Keeps panels scrollable but fits better on screen */
+            }
+        }
     </style>
 </head>
 <body>
@@ -22,9 +77,15 @@
 <div class="container">
     <div class="panel" id="controls">
         <h1>Dex Forge</h1>
-        <div class="control-group"><label>Type 1</label><select id="type1"></select></div>
-        <div class="control-group"><label>Type 2</label><select id="type2"><option value="">None</option></select></div>
-    </div>
+        <div class="control-group">
+            <label>Type 1</label>
+            <select id="type1"></select>
+        </div>
+        <div class="control-group">
+            <label>Type 2</label>
+            <select id="type2"><option value="">None</option></select>
+        </div>
+        </div>
 
     <div class="panel">
         <h2>Entry Profile</h2>
@@ -37,7 +98,6 @@
 <script>
     const types = ["Normal", "Fire", "Water", "Grass", "Electric", "Ice", "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
     const data = {
-        stage: ["Baby", "Basic", "Evolved", "Legendary"],
         habitat: ["Forest", "Mountain", "Ocean", "Cave", "Urban", "Volcanic", "Desert"],
         torso: ["Bipedal", "Quadrupedal", "Serpentine", "Floating", "Insectoid", "Amorphous"],
         head: ["Spiky crest", "Long snout", "Pointed ears", "Multiple eyes", "Horned", "Beak"],
@@ -52,33 +112,31 @@
 
     function init() {
         const controls = document.getElementById('controls');
-        document.getElementById('type1').innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
-        document.getElementById('type2').innerHTML = '<option value="">None</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
         
+        // Add type selects
+        document.getElementById('type1').innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
+        // Keep the "None" option for type 2, then add the rest
+        document.getElementById('type2').innerHTML = `<option value="">None</option>` + types.map(t => `<option value="${t}">${t}</option>`).join('');
+
+        // Generate UI for data keys
         Object.keys(data).forEach(key => {
             controls.innerHTML += `<div class="control-group"><label>${key.toUpperCase()}</label><select id="${key}">${data[key].map(v => `<option value="${v}">${v}</option>`).join('')}</select></div>`;
         });
+        
         controls.innerHTML += `<button onclick="randomizeAll()">GENERATE NEW ENTRY</button>`;
         document.querySelectorAll('select').forEach(s => s.addEventListener('change', update));
         randomizeAll();
     }
 
     function update() {
-        let t1 = document.getElementById('type1').value;
-        let t2 = document.getElementById('type2').value;
-        let displayHTML = `<span class="trait-name">Type</span><span class="trait-value">${t1}${t2 ? '/' + t2 : ''}</span>`;
-        let promptParts = [`Professional Pokémon character design, a ${t1}${t2 ? '-' + t2 : ''} type Pokémon.`];
+        let type2Val = document.getElementById('type2').value;
+        let displayHTML = `<span class="trait-name">Types</span><span class="trait-value">${document.getElementById('type1').value} ${type2Val ? '/ ' + type2Val : ''}</span>`;
+        let promptParts = [`Professional Pokémon character design, a ${document.getElementById('type1').value}${type2Val ? '-' + type2Val : ''} type Pokémon.`];
         
         Object.keys(data).forEach(key => {
             const val = document.getElementById(key).value;
             displayHTML += `<span class="trait-name">${key}</span><span class="trait-value">${val}</span>`;
-            
-            // Grammar logic for the prompt
-            if (key === 'stage') {
-                promptParts.push(`It is a ${val.toLowerCase()}-stage Pokémon.`);
-            } else {
-                promptParts.push(`It features ${val.toLowerCase()} characteristics.`);
-            }
+            promptParts.push(`It features ${val.toLowerCase()} characteristics.`);
         });
 
         document.getElementById('res-display').innerHTML = displayHTML;
@@ -90,7 +148,9 @@
         update();
     }
 
-    function copyPrompt() { navigator.clipboard.writeText(document.getElementById('prompt-text').value); }
+    function copyPrompt() { 
+        navigator.clipboard.writeText(document.getElementById('prompt-text').value); 
+    }
 
     init();
 </script>

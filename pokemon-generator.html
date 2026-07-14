@@ -12,7 +12,6 @@
             --accent: #ffcb05; 
         }
         
-        /* Added box-sizing for better width calculations */
         * { box-sizing: border-box; }
 
         body { 
@@ -53,21 +52,18 @@
         .trait-name { color: var(--accent); font-size: 0.7rem; text-transform: uppercase; }
         .trait-value { font-size: 1rem; margin-bottom: 8px; display: block; }
 
-        /* --- MOBILE RESPONSIVE LAYOUT --- */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
+            body { padding: 10px; }
             .container {
-                grid-template-columns: 1fr; /* Stack into a single column */
+                grid-template-columns: 1fr;
                 gap: 15px;
                 padding: 15px;
-                border-width: 4px; /* Slightly thinner border for small screens */
+                border-width: 4px;
                 border-radius: 15px;
             }
             .panel {
                 height: auto;
-                max-height: 50vh; /* Keeps panels scrollable but fits better on screen */
+                max-height: 50vh;
             }
         }
     </style>
@@ -85,7 +81,7 @@
             <label>Type 2</label>
             <select id="type2"><option value="">None</option></select>
         </div>
-        </div>
+    </div>
 
     <div class="panel">
         <h2>Entry Profile</h2>
@@ -97,7 +93,10 @@
 
 <script>
     const types = ["Normal", "Fire", "Water", "Grass", "Electric", "Ice", "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
+    
+    // Added stage to the dataset
     const data = {
+        stage: ["Baby", "Basic", "Evolved", "Legendary"],
         habitat: ["Forest", "Mountain", "Ocean", "Cave", "Urban", "Volcanic", "Desert"],
         torso: ["Bipedal", "Quadrupedal", "Serpentine", "Floating", "Insectoid", "Amorphous"],
         head: ["Spiky crest", "Long snout", "Pointed ears", "Multiple eyes", "Horned", "Beak"],
@@ -113,12 +112,9 @@
     function init() {
         const controls = document.getElementById('controls');
         
-        // Add type selects
         document.getElementById('type1').innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
-        // Keep the "None" option for type 2, then add the rest
         document.getElementById('type2').innerHTML = `<option value="">None</option>` + types.map(t => `<option value="${t}">${t}</option>`).join('');
 
-        // Generate UI for data keys
         Object.keys(data).forEach(key => {
             controls.innerHTML += `<div class="control-group"><label>${key.toUpperCase()}</label><select id="${key}">${data[key].map(v => `<option value="${v}">${v}</option>`).join('')}</select></div>`;
         });
@@ -129,18 +125,33 @@
     }
 
     function update() {
+        let type1Val = document.getElementById('type1').value;
         let type2Val = document.getElementById('type2').value;
-        let displayHTML = `<span class="trait-name">Types</span><span class="trait-value">${document.getElementById('type1').value} ${type2Val ? '/ ' + type2Val : ''}</span>`;
-        let promptParts = [`Professional Pokémon character design, a ${document.getElementById('type1').value}${type2Val ? '-' + type2Val : ''} type Pokémon.`];
+        let typeString = `${type1Val}${type2Val ? '/' + type2Val : ''}`;
         
+        let displayHTML = `<span class="trait-name">Types</span><span class="trait-value">${typeString}</span>`;
+        
+        // Gather all values into an object for easier prompt construction
+        const v = {};
         Object.keys(data).forEach(key => {
-            const val = document.getElementById(key).value;
-            displayHTML += `<span class="trait-name">${key}</span><span class="trait-value">${val}</span>`;
-            promptParts.push(`It features ${val.toLowerCase()} characteristics.`);
+            const rawValue = document.getElementById(key).value;
+            v[key] = rawValue.toLowerCase();
+            displayHTML += `<span class="trait-name">${key}</span><span class="trait-value">${rawValue}</span>`;
         });
 
         document.getElementById('res-display').innerHTML = displayHTML;
-        document.getElementById('prompt-text').value = promptParts.join(' ') + " High quality, Ken Sugimori art style, official Pokémon game aesthetic, clean background.";
+
+        // Build a grammatically correct paragraph
+        let tailText = v.tail === 'none' ? 'no tail' : `a ${v.tail} tail`;
+        
+        let promptText = `Professional Pokémon character design of a ${v.stage}-stage, ${typeString}-type Pokémon native to ${v.habitat} habitats. `;
+        promptText += `It features a ${v.torso} body structure covered in ${v.texture}, with a ${v.colorPalette} color scheme and a ${v.pattern} pattern. `;
+        promptText += `Its head is defined by ${v.eyes} eyes and ${v.head}. `;
+        promptText += `The design includes ${v.appendages} and ${tailText}. `;
+        promptText += `It emits an aura of ${v.aura}. `;
+        promptText += `High quality, Ken Sugimori art style, official Pokémon game aesthetic, clean background.`;
+
+        document.getElementById('prompt-text').value = promptText;
     }
 
     function randomizeAll() {

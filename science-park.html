@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HKSTP Robotics Quiz</title>
+    <style>
+        :root {
+            --primary: #F37021; /* HKSTP Orange */
+            --primary-hover: #D95C14;
+            --secondary: #003366; /* HKSTP Blue */
+            --correct: #27AE60;
+            --incorrect: #E74C3C;
+            --bg-color: #F4F7F6;
+            --card-bg: #FFFFFF;
+            --text-dark: #2C3E50;
+            --text-light: #596A7B;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .quiz-container {
+            background: var(--card-bg);
+            max-width: 650px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { margin-top: 0; color: var(--secondary); font-size: 1.9rem; }
+        h2 { font-size: 1.2rem; margin-bottom: 20px; line-height: 1.4; color: var(--secondary); }
+        p { line-height: 1.6; color: var(--text-light); }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+            font-weight: bold;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn:hover { background-color: var(--primary-hover); }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: var(--secondary);
+            font-weight: bold;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background-color: #F8F9FA;
+            border: 2px solid #DFE4EA;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #E2E8F0;
+            border-color: #CBD5E1;
+        }
+
+        .option-btn.correct {
+            background-color: #E8F8F5;
+            border-color: var(--correct);
+            color: #117A4D;
+        }
+
+        .option-btn.incorrect {
+            background-color: #FDEDED;
+            border-color: var(--incorrect);
+            color: #A11E1E;
+        }
+
+        .option-btn:disabled { cursor: default; }
+
+        .explanation-box {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #F0F4F8;
+            display: none;
+            text-align: left;
+            border-left: 5px solid var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .score-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        @media (min-width: 500px) {
+            .options-grid { display: grid; grid-template-columns: 1fr 1fr; }
+            .screen { padding: 40px 30px; }
+            h1 { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    
+    <div id="start-screen" class="screen active">
+        <h1>HKSTP Robotics Quiz</h1>
+        <p>Hong Kong Science Park (HKSTP) is a living laboratory for advanced robotics. Test your knowledge on the autonomous tech deployed across the campus!</p>
+        <p><em>Ensure your device volume is up for sound effects!</em></p>
+        <button class="btn" onclick="startQuiz()">START QUIZ</button>
+    </div>
+
+    <div id="quiz-screen" class="screen" style="padding: 0;">
+        <div class="header-bar">
+            <span id="question-tracker">Q: 1/6</span>
+            <span id="score-tracker">Score: 0</span>
+        </div>
+        <div style="padding: 25px;">
+            <h2 id="question-text">Question text goes here?</h2>
+            
+            <div class="options-grid" id="options-container">
+                </div>
+            
+            <div id="explanation-box" class="explanation-box">
+                <strong id="result-title"></strong>
+                <p id="explanation-text"></p>
+            </div>
+
+            <button id="next-btn" class="btn" style="display: none; width: 100%; max-width: 100%;" onclick="nextQuestion()">NEXT QUESTION</button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h1>Quiz Complete!</h1>
+        <div class="score-display" id="final-score">0/6</div>
+        <p id="final-message">Great job exploring the innovations at Science Park.</p>
+        <button class="btn" onclick="resetQuiz()">PLAY AGAIN</button>
+    </div>
+
+</div>
+
+<script>
+    // Synthesized Sound Effects
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+
+    function playSound(type) {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+
+    const quizData = [
+        {
+            question: "In 2023, HKSTP launched the 'Robots Everywhere' Smart Campus Challenge. What was the primary focus of its first cohort?",
+            options: [
+                "Financial data analysis",
+                "Property management tasks like cleaning and security",
+                "Autonomous taxi services",
+                "Surgical assistance"
+            ],
+            correct: "Property management tasks like cleaning and security",
+            explanation: "Cohort 1 of the <b>'Robots Everywhere'</b> programme focused on implementing automated solutions for facility management, including lawn mowing, floor scrubbing, and security patrols across the Science Park campus."
+        },
+        {
+            question: "The Hong Kong Centre for Construction Robotics (HKCRC) developed a specialised amphibious robot. What hazardous, confined-space task does it perform?",
+            options: [
+                "Cleaning water tanks",
+                "Inspecting underground electrical cables",
+                "Repairing elevator shafts",
+                "Extinguishing deep-seated building fires"
+            ],
+            correct: "Cleaning water tanks",
+            explanation: "The AI-enabled amphibious robot is designed for <b>cleaning water tanks</b>. This protects workers from entering confined, poorly ventilated spaces and utilizes AI to verify cleanliness."
+        },
+        {
+            question: "What is a key feature of the autonomous outdoor patrol robots deployed at HKSTP?",
+            options: [
+                "Flying up to 50 meters to monitor traffic",
+                "Automatically washing building windows",
+                "360-degree video surveillance and AI obstacle avoidance",
+                "Serving coffee to park visitors"
+            ],
+            correct: "360-degree video surveillance and AI obstacle avoidance",
+            explanation: "The outdoor patrol solutions feature autonomous driving, <b>360-degree video surveillance</b>, and <b>AI-powered obstacle avoidance</b> to enhance the park's security efficiently."
+        },
+        {
+            question: "To enhance the food and beverage experience at Science Park, what type of robotic system was provided by the tech venture Robot Anno?",
+            options: [
+                "A burger-flipping mechanical arm",
+                "An innovative Coffee Robot Machine",
+                "An autonomous pizza delivery drone",
+                "A robotic cocktail bartender"
+            ],
+            correct: "An innovative Coffee Robot Machine",
+            explanation: "Robot Anno provided an automated <b>Coffee Robot Machine</b> tailored for Hong Kong Science Park to offer an innovative, contactless, and efficient beverage experience."
+        },
+        {
+            question: "The Multi-Scale Medical Robotics Center (MRC) at HKSTP focuses on clinical translation. Which local university collaborated heavily in its establishment?",
+            options: [
+                "The University of Hong Kong (HKU)",
+                "Hong Kong University of Science and Technology (HKUST)",
+                "The Chinese University of Hong Kong (CUHK)",
+                "Hong Kong Polytechnic University (PolyU)"
+            ],
+            correct: "The Chinese University of Hong Kong (CUHK)",
+            explanation: "The MRC was established by the Faculty of Medicine and the Faculty of Engineering of <b>CUHK</b>, in collaboration with international institutions like ETH Zürich and Imperial College London."
+        },
+        {
+            question: "What is the name of the digital platform launched by HKSTP to share the validation results of over 10 cleaning robot models tested across the park?",
+            options: [
+                "The 'Discovery' platform",
+                "Robot Index",
+                "InnoHub",
+                "TechTrek"
+            ],
+            correct: "The 'Discovery' platform",
+            explanation: "HKSTP launched the <b>'Discovery'</b> webpage to share the results and experiences from testing various robotic solutions on-site, helping businesses make informed tech adoption decisions."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const endScreen = document.getElementById('end-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationBox = document.getElementById('explanation-box');
+    const explanationText = document.getElementById('explanation-text');
+    const resultTitle = document.getElementById('result-title');
+    const nextBtn = document.getElementById('next-btn');
+    const questionTracker = document.getElementById('question-tracker');
+    const scoreTracker = document.getElementById('score-tracker');
+
+    function switchScreen(hideScreen, showScreen) {
+        hideScreen.classList.remove('active');
+        showScreen.classList.add('active');
+    }
+
+    function startQuiz() {
+        if (!audioCtx) audioCtx = new AudioContext();
+        currentQuestionIndex = 0;
+        score = 0;
+        updateTrackers();
+        switchScreen(startScreen, quizScreen);
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        explanationBox.style.display = 'none';
+        nextBtn.style.display = 'none';
+        optionsContainer.innerHTML = '';
+        
+        const currentQ = quizData[currentQuestionIndex];
+        questionText.innerText = currentQ.question;
+        questionTracker.innerText = `Q: ${currentQuestionIndex + 1}/${quizData.length}`;
+
+        currentQ.options.forEach(option => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.classList.add('option-btn');
+            button.onclick = () => selectAnswer(button, option, currentQ.correct, currentQ.explanation);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function selectAnswer(selectedButton, selectedText, correctText, explanation) {
+        const buttons = optionsContainer.querySelectorAll('.option-btn');
+        buttons.forEach(btn => btn.disabled = true);
+
+        const isCorrect = (selectedText === correctText);
+
+        if (isCorrect) {
+            selectedButton.classList.add('correct');
+            playSound('correct');
+            score++;
+            resultTitle.innerText = "Correct!";
+            resultTitle.style.color = "var(--correct)";
+            explanationBox.style.borderLeftColor = "var(--correct)";
+        } else {
+            selectedButton.classList.add('incorrect');
+            playSound('incorrect');
+            resultTitle.innerText = "Incorrect";
+            resultTitle.style.color = "var(--incorrect)";
+            explanationBox.style.borderLeftColor = "var(--incorrect)";
+            
+            buttons.forEach(btn => {
+                if (btn.innerText === correctText) btn.classList.add('correct');
+            });
+        }
+
+        updateTrackers();
+        explanationText.innerHTML = explanation;
+        explanationBox.style.display = 'block';
+        nextBtn.style.display = 'block';
+        
+        setTimeout(() => {
+            nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 150);
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            endQuiz();
+        }
+    }
+
+    function updateTrackers() {
+        scoreTracker.innerText = `Score: ${score}`;
+    }
+
+    function endQuiz() {
+        switchScreen(quizScreen, endScreen);
+        document.getElementById('final-score').innerText = `${score}/${quizData.length}`;
+        
+        const msg = document.getElementById('final-message');
+        const percentage = score / quizData.length;
+        
+        if (percentage === 1) {
+            msg.innerText = "Flawless! You know your HKSTP tech.";
+        } else if (percentage >= 0.6) {
+            msg.innerText = "Great job! You have a solid grasp on Science Park's robotics.";
+        } else {
+            msg.innerText = "Good effort! Keep exploring Hong Kong's innovation scene.";
+        }
+    }
+
+    function resetQuiz() {
+        switchScreen(endScreen, startScreen);
+    }
+</script>
+
+</body>
+</html>

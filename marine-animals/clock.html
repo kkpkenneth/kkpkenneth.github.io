@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Analog Clock</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Clock container */
+        .clock-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background-color: white;
+            border-radius: 50%;
+            border: 8px solid #2c3e50;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            touch-action: none; /* Prevents screen scrolling while dragging */
+        }
+
+        /* Center dot */
+        .clock-container::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* Clock Numbers */
+        .clock-number {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #34495e;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            /* Prevents the numbers from blocking drag events */
+            pointer-events: none; 
+        }
+
+        /* Clock Hands */
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+            cursor: grab;
+        }
+
+        .hand:active {
+            cursor: grabbing;
+        }
+
+        .hour-hand {
+            width: 8px;
+            height: 80px;
+            background-color: #2c3e50;
+            margin-left: -4px;
+            z-index: 5;
+        }
+        .hour-hand.dragging { background-color: #3498db; }
+
+        .minute-hand {
+            width: 6px;
+            height: 110px;
+            background-color: #7f8c8d;
+            margin-left: -3px;
+            z-index: 6;
+        }
+        .minute-hand.dragging { background-color: #e67e22; }
+
+        .second-hand {
+            width: 4px;
+            height: 125px;
+            background-color: #e74c3c;
+            margin-left: -2px;
+            z-index: 7;
+        }
+        .second-hand.dragging { background-color: #c0392b; }
+
+        /* Editable Time Input */
+        .time-input {
+            margin-top: 40px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            background: white;
+            padding: 10px 20px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            font-family: inherit;
+            cursor: pointer;
+        }
+        
+        .time-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="clock-container" id="clock">
+        <div class="hand hour-hand" id="hourHand"></div>
+        <div class="hand minute-hand" id="minuteHand"></div>
+        <div class="hand second-hand" id="secondHand"></div>
+    </div>
+
+    <input type="time" class="time-input" id="timeInput" step="1">
+    
+    <div class="instructions">Drag the hands or edit the box to set the time</div>
+
+    <script>
+        const clock = document.getElementById('clock');
+        const hourHand = document.getElementById('hourHand');
+        const minuteHand = document.getElementById('minuteHand');
+        const secondHand = document.getElementById('secondHand');
+        const timeInput = document.getElementById('timeInput');
+
+        let activeHand = null;
+        let prevAngle = 0;
+        
+        // Track the total time in seconds (Start at 10:10:00)
+        let totalSeconds = (10 * 3600) + (10 * 60);
+
+        // --- Generate Clock Numbers ---
+        function generateNumbers() {
+            const radius = 120; // Distance from the center
+            const clockCenter = 150; // Half of the 300px container width/height
+
+            for (let i = 1; i <= 12; i++) {
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'clock-number';
+                numberDiv.textContent = i;
+
+                // Calculate angle in radians. 12 o'clock is -90 degrees.
+                // Each hour is 30 degrees (360 / 12)
+                const angle = (i * 30 - 90) * (Math.PI / 180);
+                
+                // Calculate x and y coordinates
+                const x = clockCenter + radius * Math.cos(angle);
+                const y = clockCenter + radius * Math.sin(angle);
+
+                numberDiv.style.left = `${x}px`;
+                numberDiv.style.top = `${y}px`;
+
+                clock.appendChild(numberDiv);
+            }
+        }
+        
+        generateNumbers();
+
+        // Calculate pointer angle relative to clock center (0 to 360)
+        function calculateAngle(e) {
+            const rect = clock.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const x = e.clientX;
+            const y = e.clientY;
+
+            let angle = Math.atan2(y - centerY, x - centerX) * (180 / Math.PI) + 90;
+            if (angle < 0) angle += 360;
+            return angle;
+        }
+
+        // Apply rotation to hands and update the input box
+        function updateDisplay() {
+            const secAngle = (totalSeconds % 60) * 6;
+            const minAngle = (totalSeconds / 60) * 6; 
+            const hourAngle = (totalSeconds / 3600) * 30; 
+
+            secondHand.style.transform = `rotate(${secAngle}deg)`;
+            minuteHand.style.transform = `rotate(${minAngle}deg)`;
+            hourHand.style.transform = `rotate(${hourAngle}deg)`;
+            
+            // Update the input box
+            let h = Math.floor(totalSeconds / 3600);
+            let m = Math.floor((totalSeconds % 3600) / 60);
+            let s = Math.floor(totalSeconds % 60);
+            
+            const pad = (num) => num.toString().padStart(2, '0');
+            timeInput.value = `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+
+        // Handle Input Box Changes
+        timeInput.addEventListener('change', (e) => {
+            const parts = timeInput.value.split(':');
+            if (parts.length >= 2) {
+                const h = parseInt(parts[0]) || 0;
+                const m = parseInt(parts[1]) || 0;
+                const s = parseInt(parts[2]) || 0;
+                totalSeconds = (h * 3600) + (m * 60) + s;
+                updateDisplay();
+            }
+        });
+
+        // Handle Pointer Down (Start drag)
+        function startDrag(e, handType) {
+            activeHand = handType;
+            prevAngle = calculateAngle(e);
+            
+            if (handType === 'second') secondHand.classList.add('dragging');
+            if (handType === 'minute') minuteHand.classList.add('dragging');
+            if (handType === 'hour') hourHand.classList.add('dragging');
+            
+            document.addEventListener('pointermove', onDrag);
+            document.addEventListener('pointerup', endDrag);
+        }
+
+        // Handle Pointer Move (Continuous winding logic)
+        function onDrag(e) {
+            if (!activeHand) return;
+            
+            const angle = calculateAngle(e);
+            let diff = angle - prevAngle;
+
+            // Handle crossing the 12 o'clock boundary (wrap-around prevention)
+            if (diff > 180) diff -= 360;
+            else if (diff < -180) diff += 360;
+
+            prevAngle = angle;
+
+            // Apply gear ratios
+            if (activeHand === 'second') {
+                totalSeconds += diff / 6; 
+            } 
+            else if (activeHand === 'minute') {
+                totalSeconds += diff * 10; 
+            } 
+            else if (activeHand === 'hour') {
+                totalSeconds += diff * 120; 
+            }
+
+            // Keep time within a 24-hour cycle (86400 seconds)
+            totalSeconds = (totalSeconds + 86400) % 86400;
+
+            updateDisplay();
+        }
+
+        // Handle Pointer Up (Stop drag)
+        function endDrag() {
+            secondHand.classList.remove('dragging');
+            minuteHand.classList.remove('dragging');
+            hourHand.classList.remove('dragging');
+            activeHand = null;
+            
+            document.removeEventListener('pointermove', onDrag);
+            document.removeEventListener('pointerup', endDrag);
+        }
+
+        // Attach event listeners
+        secondHand.addEventListener('pointerdown', (e) => startDrag(e, 'second'));
+        minuteHand.addEventListener('pointerdown', (e) => startDrag(e, 'minute'));
+        hourHand.addEventListener('pointerdown', (e) => startDrag(e, 'hour'));
+
+        // Prevent native dragging from interfering
+        secondHand.addEventListener('dragstart', (e) => e.preventDefault());
+        minuteHand.addEventListener('dragstart', (e) => e.preventDefault());
+        hourHand.addEventListener('dragstart', (e) => e.preventDefault());
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>

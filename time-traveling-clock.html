@@ -101,22 +101,28 @@
             align-items: center;
             gap: 15px;
             margin-top: 40px;
+            width: 100%;
+            max-width: 350px;
         }
 
-        /* Editable Time Input */
+        /* Editable Time Input - FIXED WIDTH ISSUE */
         .time-input {
             font-size: 2.5rem;
             font-weight: bold;
             color: #2c3e50;
             background: white;
-            padding: 10px 20px;
+            padding: 10px;
             border: 2px solid #bdc3c7;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             font-family: inherit;
             cursor: pointer;
             text-align: center;
-            width: 200px;
+            /* Allow the browser to size it naturally to fit all content */
+            width: auto; 
+            min-width: 220px;
+            max-width: 90vw; /* Prevents it from breaking off small phone screens */
+            box-sizing: border-box;
         }
         
         .time-input:focus {
@@ -201,7 +207,7 @@
         let isTicking = false;
         let tickerInterval = null;
         let soundEnabled = true;
-        let dragAccumulator = 0; // Tracks rotation amount for drag sounds
+        let dragAccumulator = 0; 
 
         // --- Audio Context for Synthetic Sounds ---
         let audioCtx = null;
@@ -216,7 +222,6 @@
             }
         }
 
-        // Plays either a normal tick or a mechanical winding click
         function playTickSound(isWinding = false) {
             if (!audioCtx || !soundEnabled) return;
             
@@ -226,13 +231,11 @@
             osc.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             
-            // Winding sound is a sharper 'square' wave, ticking is a cleaner 'sine' wave
             osc.type = isWinding ? 'square' : 'sine'; 
             
-            // Adjust pitch and length based on the action
             const startFreq = isWinding ? 1200 : 800;
             const duration = isWinding ? 0.015 : 0.04;
-            const volume = isWinding ? 0.05 : 0.5; // Make dragging much quieter
+            const volume = isWinding ? 0.05 : 0.5;
 
             osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + duration);
@@ -267,7 +270,6 @@
         
         generateNumbers();
 
-        // Calculate pointer angle
         function calculateAngle(e) {
             const rect = clock.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
@@ -281,7 +283,6 @@
             return angle;
         }
 
-        // Apply rotation to hands and update input box
         function updateDisplay() {
             const secAngle = (totalSeconds % 60) * 6;
             const minAngle = (totalSeconds / 60) * 6; 
@@ -299,7 +300,6 @@
             timeInput.value = `${pad(h)}:${pad(m)}:${pad(s)}`;
         }
 
-        // --- Ticking Logic ---
         function tick() {
             if (!activeHand) {
                 totalSeconds = (totalSeconds + 1) % 86400;
@@ -308,7 +308,6 @@
             }
         }
 
-        // --- Button Listeners ---
         toggleClockBtn.addEventListener('click', () => {
             initAudio();
             isTicking = !isTicking;
@@ -355,12 +354,11 @@
             }
         });
 
-        // --- Dragging Logic ---
         function startDrag(e, handType) {
             initAudio();
             activeHand = handType;
             prevAngle = calculateAngle(e);
-            dragAccumulator = 0; // Reset drag distance on new grab
+            dragAccumulator = 0;
             
             if (handType === 'second') secondHand.classList.add('dragging');
             if (handType === 'minute') minuteHand.classList.add('dragging');
@@ -376,16 +374,14 @@
             const angle = calculateAngle(e);
             let diff = angle - prevAngle;
 
-            // Handle wrap-around at 12 o'clock
             if (diff > 180) diff -= 360;
             else if (diff < -180) diff += 360;
 
             prevAngle = angle;
 
-            // Trigger a winding sound every 2.5 degrees of movement
             dragAccumulator += Math.abs(diff);
             if (dragAccumulator > 2.5) {
-                playTickSound(true); // true = winding mode
+                playTickSound(true); 
                 dragAccumulator = 0;
             }
 
@@ -407,17 +403,14 @@
             document.removeEventListener('pointerup', endDrag);
         }
 
-        // Attach event listeners
         secondHand.addEventListener('pointerdown', (e) => startDrag(e, 'second'));
         minuteHand.addEventListener('pointerdown', (e) => startDrag(e, 'minute'));
         hourHand.addEventListener('pointerdown', (e) => startDrag(e, 'hour'));
 
-        // Prevent native dragging
         secondHand.addEventListener('dragstart', (e) => e.preventDefault());
         minuteHand.addEventListener('dragstart', (e) => e.preventDefault());
         hourHand.addEventListener('dragstart', (e) => e.preventDefault());
 
-        // Initialize display
         updateDisplay();
     </script>
 </body>

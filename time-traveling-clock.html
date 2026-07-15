@@ -25,7 +25,7 @@
             border-radius: 50%;
             border: 8px solid #2c3e50;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            touch-action: none; /* Prevents screen scrolling while dragging */
+            touch-action: none;
         }
 
         /* Center dot */
@@ -50,7 +50,6 @@
             color: #34495e;
             transform: translate(-50%, -50%);
             z-index: 2;
-            /* Prevents the numbers from blocking drag events */
             pointer-events: none; 
         }
 
@@ -95,9 +94,17 @@
         }
         .second-hand.dragging { background-color: #c0392b; }
 
+        /* Controls Section */
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
         /* Editable Time Input */
         .time-input {
-            margin-top: 40px;
             font-size: 2.5rem;
             font-weight: bold;
             color: #2c3e50;
@@ -108,6 +115,8 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             font-family: inherit;
             cursor: pointer;
+            text-align: center;
+            width: 200px;
         }
         
         .time-input:focus {
@@ -115,10 +124,42 @@
             border-color: #3498db;
         }
 
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover { background-color: #2980b9; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 3px rgba(0,0,0,0.1); }
+
+        button.ticking-active { background-color: #e74c3c; }
+        button.ticking-active:hover { background-color: #c0392b; }
+
+        button.sound-off { background-color: #95a5a6; }
+        button.sound-off:hover { background-color: #7f8c8d; }
+
         .instructions {
-            margin-top: 15px;
+            margin-top: 20px;
             color: #7f8c8d;
             font-size: 0.9rem;
+            text-align: center;
+            max-width: 320px;
         }
     </style>
 </head>
@@ -130,9 +171,17 @@
         <div class="hand second-hand" id="secondHand"></div>
     </div>
 
-    <input type="time" class="time-input" id="timeInput" step="1">
+    <div class="controls-container">
+        <input type="time" class="time-input" id="timeInput" step="1">
+        
+        <div class="button-group">
+            <button id="toggleClockBtn">Start Clock</button>
+            <button id="toggleSoundBtn">Sound: ON</button>
+            <button id="currentTimeBtn">Current Time</button>
+        </div>
+    </div>
     
-    <div class="instructions">Drag the hands or edit the box to set the time</div>
+    <div class="instructions">Drag hands, edit the box, or use buttons to control time. Sound requires interaction to activate.</div>
 
     <script>
         const clock = document.getElementById('clock');
@@ -140,28 +189,72 @@
         const minuteHand = document.getElementById('minuteHand');
         const secondHand = document.getElementById('secondHand');
         const timeInput = document.getElementById('timeInput');
+        
+        const toggleClockBtn = document.getElementById('toggleClockBtn');
+        const toggleSoundBtn = document.getElementById('toggleSoundBtn');
+        const currentTimeBtn = document.getElementById('currentTimeBtn');
 
         let activeHand = null;
         let prevAngle = 0;
-        
-        // Track the total time in seconds (Start at 10:10:00)
         let totalSeconds = (10 * 3600) + (10 * 60);
+
+        let isTicking = false;
+        let tickerInterval = null;
+        let soundEnabled = true;
+        let dragAccumulator = 0; // Tracks rotation amount for drag sounds
+
+        // --- Audio Context for Synthetic Sounds ---
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Plays either a normal tick or a mechanical winding click
+        function playTickSound(isWinding = false) {
+            if (!audioCtx || !soundEnabled) return;
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            // Winding sound is a sharper 'square' wave, ticking is a cleaner 'sine' wave
+            osc.type = isWinding ? 'square' : 'sine'; 
+            
+            // Adjust pitch and length based on the action
+            const startFreq = isWinding ? 1200 : 800;
+            const duration = isWinding ? 0.015 : 0.04;
+            const volume = isWinding ? 0.05 : 0.5; // Make dragging much quieter
+
+            osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + duration);
+            
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + duration);
+        }
 
         // --- Generate Clock Numbers ---
         function generateNumbers() {
-            const radius = 120; // Distance from the center
-            const clockCenter = 150; // Half of the 300px container width/height
+            const radius = 120;
+            const clockCenter = 150; 
 
             for (let i = 1; i <= 12; i++) {
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'clock-number';
                 numberDiv.textContent = i;
 
-                // Calculate angle in radians. 12 o'clock is -90 degrees.
-                // Each hour is 30 degrees (360 / 12)
                 const angle = (i * 30 - 90) * (Math.PI / 180);
-                
-                // Calculate x and y coordinates
                 const x = clockCenter + radius * Math.cos(angle);
                 const y = clockCenter + radius * Math.sin(angle);
 
@@ -174,7 +267,7 @@
         
         generateNumbers();
 
-        // Calculate pointer angle relative to clock center (0 to 360)
+        // Calculate pointer angle
         function calculateAngle(e) {
             const rect = clock.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
@@ -188,7 +281,7 @@
             return angle;
         }
 
-        // Apply rotation to hands and update the input box
+        // Apply rotation to hands and update input box
         function updateDisplay() {
             const secAngle = (totalSeconds % 60) * 6;
             const minAngle = (totalSeconds / 60) * 6; 
@@ -198,7 +291,6 @@
             minuteHand.style.transform = `rotate(${minAngle}deg)`;
             hourHand.style.transform = `rotate(${hourAngle}deg)`;
             
-            // Update the input box
             let h = Math.floor(totalSeconds / 3600);
             let m = Math.floor((totalSeconds % 3600) / 60);
             let s = Math.floor(totalSeconds % 60);
@@ -207,8 +299,52 @@
             timeInput.value = `${pad(h)}:${pad(m)}:${pad(s)}`;
         }
 
-        // Handle Input Box Changes
-        timeInput.addEventListener('change', (e) => {
+        // --- Ticking Logic ---
+        function tick() {
+            if (!activeHand) {
+                totalSeconds = (totalSeconds + 1) % 86400;
+                updateDisplay();
+                playTickSound();
+            }
+        }
+
+        // --- Button Listeners ---
+        toggleClockBtn.addEventListener('click', () => {
+            initAudio();
+            isTicking = !isTicking;
+            
+            if (isTicking) {
+                tickerInterval = setInterval(tick, 1000);
+                toggleClockBtn.textContent = "Stop Clock";
+                toggleClockBtn.classList.add('ticking-active');
+                if (!activeHand) playTickSound(); 
+            } else {
+                clearInterval(tickerInterval);
+                toggleClockBtn.textContent = "Start Clock";
+                toggleClockBtn.classList.remove('ticking-active');
+            }
+        });
+
+        toggleSoundBtn.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                toggleSoundBtn.textContent = "Sound: ON";
+                toggleSoundBtn.classList.remove('sound-off');
+            } else {
+                toggleSoundBtn.textContent = "Sound: OFF";
+                toggleSoundBtn.classList.add('sound-off');
+            }
+        });
+
+        currentTimeBtn.addEventListener('click', () => {
+            initAudio();
+            const now = new Date();
+            totalSeconds = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+            updateDisplay();
+        });
+
+        timeInput.addEventListener('change', () => {
             const parts = timeInput.value.split(':');
             if (parts.length >= 2) {
                 const h = parseInt(parts[0]) || 0;
@@ -219,10 +355,12 @@
             }
         });
 
-        // Handle Pointer Down (Start drag)
+        // --- Dragging Logic ---
         function startDrag(e, handType) {
+            initAudio();
             activeHand = handType;
             prevAngle = calculateAngle(e);
+            dragAccumulator = 0; // Reset drag distance on new grab
             
             if (handType === 'second') secondHand.classList.add('dragging');
             if (handType === 'minute') minuteHand.classList.add('dragging');
@@ -232,37 +370,33 @@
             document.addEventListener('pointerup', endDrag);
         }
 
-        // Handle Pointer Move (Continuous winding logic)
         function onDrag(e) {
             if (!activeHand) return;
             
             const angle = calculateAngle(e);
             let diff = angle - prevAngle;
 
-            // Handle crossing the 12 o'clock boundary (wrap-around prevention)
+            // Handle wrap-around at 12 o'clock
             if (diff > 180) diff -= 360;
             else if (diff < -180) diff += 360;
 
             prevAngle = angle;
 
-            // Apply gear ratios
-            if (activeHand === 'second') {
-                totalSeconds += diff / 6; 
-            } 
-            else if (activeHand === 'minute') {
-                totalSeconds += diff * 10; 
-            } 
-            else if (activeHand === 'hour') {
-                totalSeconds += diff * 120; 
+            // Trigger a winding sound every 2.5 degrees of movement
+            dragAccumulator += Math.abs(diff);
+            if (dragAccumulator > 2.5) {
+                playTickSound(true); // true = winding mode
+                dragAccumulator = 0;
             }
 
-            // Keep time within a 24-hour cycle (86400 seconds)
-            totalSeconds = (totalSeconds + 86400) % 86400;
+            if (activeHand === 'second') totalSeconds += diff / 6; 
+            else if (activeHand === 'minute') totalSeconds += diff * 10; 
+            else if (activeHand === 'hour') totalSeconds += diff * 120; 
 
+            totalSeconds = (totalSeconds + 86400) % 86400;
             updateDisplay();
         }
 
-        // Handle Pointer Up (Stop drag)
         function endDrag() {
             secondHand.classList.remove('dragging');
             minuteHand.classList.remove('dragging');
@@ -278,12 +412,12 @@
         minuteHand.addEventListener('pointerdown', (e) => startDrag(e, 'minute'));
         hourHand.addEventListener('pointerdown', (e) => startDrag(e, 'hour'));
 
-        // Prevent native dragging from interfering
+        // Prevent native dragging
         secondHand.addEventListener('dragstart', (e) => e.preventDefault());
         minuteHand.addEventListener('dragstart', (e) => e.preventDefault());
         hourHand.addEventListener('dragstart', (e) => e.preventDefault());
 
-        // Initialize
+        // Initialize display
         updateDisplay();
     </script>
 </body>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marine Explorer: Quiz & Gallery</title>
+    <style>
+        :root {
+            /* Updated to an ocean blue theme */
+            --primary: #0277bd; 
+            --bg: #eceff1;
+            --text: #263238;
+            --card: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 { 
+            color: var(--primary); 
+            margin-bottom: 10px;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(2, 119, 189, 0.2);
+        }
+        
+        button:hover { 
+            background-color: #01579b; 
+            box-shadow: 0 6px 12px rgba(2, 119, 189, 0.3);
+        }
+        button:active { transform: scale(0.97); }
+        
+        .btn-secondary { 
+            background-color: #546e7a; 
+            box-shadow: 0 4px 6px rgba(84, 110, 122, 0.2);
+        }
+        .btn-secondary:hover { 
+            background-color: #37474f; 
+            box-shadow: 0 6px 12px rgba(84, 110, 122, 0.3);
+        }
+        
+        /* Views */
+        #start-page, #quiz-page, #gallery-page { display: none; }
+        .active-page { display: block !important; }
+
+        /* Quiz UI */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #546e7a;
+        }
+
+        .quiz-image-container {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin: 0 auto 30px auto;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .quiz-image-container img {
+            max-width: 100%;
+            height: auto;
+            max-height: 280px;
+            border-radius: 8px;
+        }
+
+        #options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Gallery UI */
+        .gallery-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .gallery-item {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            width: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-item:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12); 
+        }
+
+        .gallery-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-item-title {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(38, 50, 56, 0.85);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-content img { 
+            max-width: 100%; 
+            height: 200px; 
+            object-fit: contain; 
+            margin-bottom: 20px;
+        }
+        
+        .classification { 
+            font-style: italic; 
+            color: #78909c; 
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        #modal-fact {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #455a64;
+            margin-bottom: 30px;
+        }
+
+        #modal-diet {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #455a64;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-page" class="container active-page">
+        <h1 style="font-size: 3em; margin-bottom: 5px;">🌊</h1>
+        <h1 style="font-size: 2.5em;">Marine Explorer</h1>
+        <p style="font-size: 1.2em; color: #546e7a;">Test your knowledge or browse the encyclopedia.</p>
+        
+        <div class="btn-group">
+            <button onclick="playSound('click'); startQuiz()">Start Quiz</button>
+            <button class="btn-secondary" onclick="playSound('click'); showGallery()">View Gallery</button>
+        </div>
+    </div>
+
+    <div id="quiz-page" class="container">
+        <h2>Identify the Marine Animal</h2>
+        <div class="stats">
+            <span id="score-display">Score: 0</span>
+            <span id="question-display">Question: 1/10</span>
+        </div>
+        <div class="quiz-image-container">
+            <img id="quiz-img" src="" alt="Who's that animal?">
+        </div>
+        <div id="options-container"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()" style="max-width: 200px; padding: 10px 20px; font-size: 16px;">Quit to Menu</button>
+        </div>
+    </div>
+
+    <div id="gallery-page" class="container">
+        <h2>Marine Gallery</h2>
+        <p style="color: #546e7a; margin-bottom: 30px;">Click on any animal to learn more.</p>
+        <div class="gallery-grid" id="gallery-grid"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()">Back to Menu</button>
+        </div>
+    </div>
+
+    <div id="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="">
+            <h2 id="modal-title" style="margin-bottom: 5px; font-size: 28px;"></h2>
+            <div class="classification" id="modal-class"></div>
+            <p id="modal-fact"></p>
+            <p id="modal-diet"></p>
+            <div class="btn-group" style="margin-top: 0;">
+                <button onclick="playSound('click'); readFactOutLoud()">🔊 Read Fact</button>
+                <button class="btn-secondary" onclick="playSound('click'); closeModal(true)">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Sound Effects System ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            if (type === 'correct') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(600, now);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'wrong') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(150, now);
+                oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'click') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                oscillator.start(now);
+                oscillator.stop(now + 0.1);
+            } else if (type === 'win') {
+                playTone(440, now, 0.1);       
+                playTone(554.37, now + 0.1, 0.1); 
+                playTone(659.25, now + 0.2, 0.3); 
+            }
+        }
+
+        function playTone(freq, time, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        // --- Database ---
+        const marineAnimals = [
+            { name: "Angelfish", file: "angelfish.png", order: "Perciformes", fact: "Marine angelfish are known for their vibrant colors and deep, laterally compressed bodies.", diet: "Diet: Sponges, algae, and small benthic invertebrates." },
+            { name: "Anglerfish", file: "anglerfish.png", order: "Lophiiformes", fact: "They use a bioluminescent lure extending from their head to attract prey in the deep dark sea.", diet: "Diet: Other fish and deep-sea invertebrates." },
+            { name: "Barracuda", file: "barracuda.png", order: "Perciformes", fact: "Known for their large size, fearsome appearance, and ferocious behavior.", diet: "Diet: Fish, sometimes swimming in large schools." },
+            { name: "Beluga Whale", file: "beluga-whale.png", order: "Artiodactyla", fact: "Often called the 'canary of the sea' due to their highly vocal and social nature.", diet: "Diet: Fish, crustaceans, and worms." },
+            { name: "Regal Tang", file: "blue-tang.png", order: "Perciformes", fact: "They have a royal blue body and yellow tail, and possess a venomous spine near their tail fin.", diet: "Diet: Primarily plankton and algae." },
+            { name: "Blue Whale", file: "blue-whale.png", order: "Artiodactyla", fact: "The largest animal known to have ever existed on Earth, weighing up to 200 tons.", diet: "Diet: Exclusively tiny crustaceans called krill." },
+            { name: "Clownfish", file: "clownfish.png", order: "Perciformes", fact: "They form a unique symbiotic relationship with highly toxic sea anemones for protection.", diet: "Diet: Zooplankton, copepods, and algae." },
+            { name: "Coral", file: "coral.png", order: "Scleractinia", fact: "Corals are actually colonies of hundreds of thousands of tiny animals called polyps.", diet: "Diet: Zooplankton caught with tentacles, and nutrients from symbiotic algae." },
+            { name: "Crab", file: "crab.png", order: "Decapoda", fact: "They are decapod crustaceans usually covered with a thick exoskeleton and armed with claws.", diet: "Diet: Omnivorous; algae, mollusks, worms, and detritus." },
+            { name: "Cuttlefish", file: "cuttlefish.png", order: "Sepiida", fact: "Masters of camouflage, they have unique W-shaped pupils and highly developed brains.", diet: "Diet: Small mollusks, crabs, and shrimp." },
+            { name: "Dolphin", file: "dolphin.png", order: "Artiodactyla", fact: "Highly intelligent marine mammals known for their playful behavior and complex communication.", diet: "Diet: Fish, squid, and crustaceans." },
+            { name: "Dragonfish", file: "dragonfish.png", order: "Stomiiformes", fact: "Fierce deep-sea predators with oversized teeth and bioluminescent photophores.", diet: "Diet: Small fish and crustaceans." },
+            { name: "Dugong", file: "dugong.png", order: "Sirenia", fact: "Close relatives of manatees, they have a fluked, dolphin-like tail instead of a paddle shape.", diet: "Diet: Strictly herbivorous, feeding on seagrass." },
+            { name: "Electric Eel", file: "electric-eel.png", order: "Gymnotiformes", fact: "Not actually eels, these knifefish can generate powerful electric shocks for hunting and defense.", diet: "Diet: Fish, amphibians, and occasionally birds." },
+            { name: "Flying Fish", file: "flying-fish.png", order: "Beloniformes", fact: "They can leap out of the water and glide long distances using their wing-like fins to escape predators.", diet: "Diet: Plankton." },
+            { name: "Giant Clam", file: "giant-clam.png", order: "Cardiida", fact: "The largest living bivalve mollusk, capable of weighing over 200 kilograms.", diet: "Diet: Algae produced by symbiotic zooxanthellae in their tissues." },
+            { name: "Giant Squid", file: "giant-squid.png", order: "Oegopsida", fact: "Elusive deep-ocean dwellers that can grow to tremendous sizes, with eyes the size of dinner plates.", diet: "Diet: Fish and other squid." },
+            { name: "Great White", file: "great-white-shark.png", order: "Lamniformes", fact: "A large mackerel shark known globally as one of the ocean's premier apex predators.", diet: "Diet: Marine mammals, fish, and seabirds." },
+            { name: "Green Turtle", file: "green-sea-turtle.png", order: "Testudines", fact: "Named not for the color of their shell, but for the greenish color of their fat.", diet: "Diet: Mostly herbivorous; seagrass and algae." },
+            { name: "Hammerhead", file: "hammerhead-shark.png", order: "Carcharhiniformes", fact: "Their distinctive hammer-shaped heads provide them with superior 360-degree vision.", diet: "Diet: Stingrays, small fish, and cephalopods." },
+            { name: "Leatherback", file: "leatherback.png", order: "Testudines", fact: "The largest of all living turtles, possessing a leathery skin rather than a hard bony shell.", diet: "Diet: Almost exclusively jellyfish." },
+            { name: "Lionfish", file: "lionfish.png", order: "Scorpaeniformes", fact: "Strikingly beautiful but highly invasive in some regions, known for their venomous fin rays.", diet: "Diet: Small fish, invertebrates, and mollusks." },
+            { name: "Lobster", file: "lobster.png", order: "Decapoda", fact: "Marine crustaceans that can live incredibly long lives and continue to grow as they age.", diet: "Diet: Fish, mollusks, worms, and plant life." },
+            { name: "Manatee", file: "manatee.png", order: "Sirenia", fact: "Large, gentle marine mammals often referred to colloquially as 'sea cows'.", diet: "Diet: Over 60 different freshwater and marine plant species." },
+            { name: "Manta Ray", file: "manta-ray.png", order: "Myliobatiformes", fact: "Gentle giants of the sea that possess the largest brains of any fish.", diet: "Diet: Filter feeders that consume microscopic plankton." },
+            { name: "Moray Eel", file: "moray-eel.png", order: "Anguilliformes", fact: "They have a second set of jaws hidden in their throat (pharyngeal jaws) to help swallow prey.", diet: "Diet: Fish, mollusks, and crustaceans." },
+            { name: "Narwhal", file: "narwhal.png", order: "Artiodactyla", fact: "Often called the 'unicorn of the sea' due to the long, spiral tusk found on males.", diet: "Diet: Flatfish, squid, and shrimp." },
+            { name: "Octopus", file: "octopus.png", order: "Octopoda", fact: "Incredibly intelligent problem-solvers with three hearts and blue blood.", diet: "Diet: Crabs, shrimp, and lobsters." },
+            { name: "Orca", file: "orca.png", order: "Artiodactyla", fact: "Also known as killer whales, they are actually the largest members of the oceanic dolphin family.", diet: "Diet: Apex predators eating fish, squid, and marine mammals." },
+            { name: "Porpoise", file: "porpoise.png", order: "Artiodactyla", fact: "Small toothed whales that are closely related to dolphins but generally have shorter beaks.", diet: "Diet: Small schooling fish and squid." },
+            { name: "Pufferfish", file: "pufferfish.png", order: "Tetraodontiformes", fact: "They can rapidly inflate their bodies into an unswallowable ball to evade predators.", diet: "Diet: Invertebrates, algae, and sometimes shellfish." },
+            { name: "Sea Anemone", file: "sea-anemone.png", order: "Actiniaria", fact: "Predatory marine animals named after a terrestrial flower, using venomous tentacles to catch food.", diet: "Diet: Plankton, small fish, and crustaceans." },
+            { name: "Sea Cucumber", file: "sea-cucumber.png", order: "Holothuroidea", fact: "Echinoderms that act as the ocean's vacuum cleaners, recycling nutrients in the sand.", diet: "Diet: Decaying organic matter, algae, and microscopic organisms." },
+            { name: "Sea Lion", file: "sea-lion.png", order: "Carnivora", fact: "Pinnipeds characterized by external ear flaps and the ability to walk on all four flippers on land.", diet: "Diet: Fish, squid, and octopus." },
+            { name: "Sea Otter", file: "sea-otter.png", order: "Carnivora", fact: "They have the densest fur in the animal kingdom and often use rocks as tools to crack open shells.", diet: "Diet: Sea urchins, crabs, mussels, and clams." },
+            { name: "Sea Turtle", file: "sea-turtle.png", order: "Testudines", fact: "Ancient marine reptiles that have existed on Earth for over 100 million years.", diet: "Diet: Varies by species; jellyfish, sponges, or seagrass." },
+            { name: "Seahorse", file: "seahorse.png", order: "Syngnathiformes", fact: "One of the only animal species where the male experiences pregnancy and gives birth to the young.", diet: "Diet: Tiny crustaceans, such as Mysis shrimp." },
+            { name: "Jellyfish", file: "seajelly.png", order: "Semaeostomeae", fact: "They have no brain, heart, bones, or eyes, and are made up of about 95% water.", diet: "Diet: Plankton, fish eggs, small fish, and other jellyfish." },
+            { name: "Seal", file: "seal.png", order: "Carnivora", fact: "Fin-footed, semiaquatic marine mammals that are generally clumsy on land but elegant in water.", diet: "Diet: Primarily fish and squid." },
+            { name: "Starfish", file: "seastar.png", order: "Forcipulatida", fact: "Also known as sea stars, they have the remarkable ability to regenerate lost arms.", diet: "Diet: Clams, oysters, snails, and barnacles." },
+            { name: "Shrimp", file: "shrimp.png", order: "Decapoda", fact: "Small swimming crustaceans with elongated bodies, playing a crucial role in the oceanic food web.", diet: "Diet: Plankton, algae, and microscopic organic matter." },
+            { name: "Sperm Whale", file: "sperm-whale.png", order: "Artiodactyla", fact: "The largest of the toothed whales, famous for diving to incredible depths to hunt giant squid.", diet: "Diet: Giant squid, colossal squid, and deep-water fish." },
+            { name: "Sponge", file: "sponge.png", order: "Porifera", fact: "Simple multicellular organisms that lack complex organs and filter water constantly to survive.", diet: "Diet: Microscopic organic particles and plankton." },
+            { name: "Squid", file: "squid.png", order: "Teuthida", fact: "Cephalopods with elongated bodies, large eyes, eight arms, and two feeding tentacles.", diet: "Diet: Fish, crustaceans, and other squid." },
+            { name: "Stingray", file: "stingray.png", order: "Myliobatiformes", fact: "Cartilaginous fish with flat bodies that often hide in the sand and possess a venomous tail stinger.", diet: "Diet: Mollusks, crustaceans, and small fish." },
+            { name: "Stonefish", file: "stonefish.png", order: "Scorpaeniformes", fact: "Considered the most venomous fish in the world, they rely on perfect camouflage among rocks.", diet: "Diet: Small fish and crustaceans." },
+            { name: "Swordfish", file: "swordfish.png", order: "Perciformes", fact: "Large, highly migratory predatory fish characterized by a long, flat, sword-like bill.", diet: "Diet: Pelagic fish and squid." },
+            { name: "Tiger Shark", file: "tiger-shark.png", order: "Carcharhiniformes", fact: "Named for the dark, tiger-like stripes down its body which fade as the shark matures.", diet: "Diet: Crustaceans, fish, seals, birds, squid, and turtles." },
+            { name: "Walrus", file: "walrus.png", order: "Carnivora", fact: "Large flippered marine mammals easily recognized by their prominent tusks and whiskers.", diet: "Diet: Mostly benthic bivalve mollusks like clams." },
+            { name: "Whale Shark", file: "whale-shark.png", order: "Orectolobiformes", fact: "The largest known extant fish species in the world, yet they are completely harmless filter feeders.", diet: "Diet: Plankton, krill, and small schooling fishes." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizQuestions = [];
+        let synth = window.speechSynthesis;
+
+        function speak(text) {
+            if (synth.speaking) synth.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            let voices = synth.getVoices();
+            let maleVoice = voices.find(v => 
+                v.name.toLowerCase().includes('male') || 
+                v.name.toLowerCase().includes('guy') || 
+                v.name.toLowerCase().includes('david') ||
+                v.name.toLowerCase().includes('mark')
+            );
+            if (maleVoice) utterance.voice = maleVoice;
+            utterance.pitch = 0.9; 
+            synth.speak(utterance);
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+            if (synth.speaking) synth.cancel();
+            window.scrollTo(0, 0);
+        }
+
+        function goHome() {
+            switchPage('start-page');
+        }
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            // Shuffles all 50 animals
+            quizQuestions = shuffleArray(marineAnimals);
+            updateScoreUI();
+            loadQuestion();
+            switchPage('quiz-page');
+            speak("Let's begin the marine quiz. What is this animal?");
+        }
+
+        function loadQuestion() {
+            const currentAnimal = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-img').src = `${currentAnimal.file}`;
+            document.getElementById('question-display').innerText = `Question: ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+            
+            let options = [currentAnimal];
+            let remainingAnimals = shuffleArray(marineAnimals.filter(a => a.name !== currentAnimal.name));
+            options.push(...remainingAnimals.slice(0, 3));
+            options = shuffleArray(options);
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.innerText = opt.name;
+                btn.onclick = () => checkAnswer(opt.name, currentAnimal.name);
+                optionsContainer.appendChild(btn);
+            });
+
+            if (currentQuestionIndex === 0) {
+                speak("Let's begin. What is this marine animal?");
+            } else {
+                speak("What is this marine animal?");
+            }
+        }
+
+        function checkAnswer(selectedName, correctName) {
+            if (selectedName === correctName) {
+                score++;
+                playSound('correct');
+                speak(`Correct. It is a ${correctName}.`);
+            } else {
+                playSound('wrong');
+                speak(`Incorrect. That was a ${correctName}.`);
+            }
+            
+            currentQuestionIndex++;
+            updateScoreUI();
+
+            setTimeout(() => {
+                if (currentQuestionIndex < quizQuestions.length) {
+                    loadQuestion();
+                } else {
+                    endQuiz();
+                }
+            }, 3000);
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-display').innerText = `Score: ${score}`;
+        }
+
+        function endQuiz() {
+            playSound('win');
+            const finalScore = `You scored ${score} out of ${quizQuestions.length}.`;
+            speak(`Quiz complete. ${finalScore}`);
+            document.getElementById('options-container').innerHTML = 
+                `<div style="width: 100%; text-align: center;">
+                    <h3 style="font-size: 24px;">Quiz Complete!</h3>
+                    <p style="font-size: 18px; margin-bottom: 20px;">${finalScore}</p>
+                    <button onclick="playSound('click'); startQuiz()">Play Again</button>
+                </div>`;
+        }
+
+        function showGallery() {
+            const grid = document.getElementById('gallery-grid');
+            if (grid.innerHTML === '') {
+                marineAnimals.forEach(animal => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+                    div.innerHTML = `
+                        <img src="${animal.file}" alt="${animal.name}">
+                        <div class="gallery-item-title">${animal.name}</div>
+                    `;
+                    div.onclick = () => { playSound('click'); openModal(animal); };
+                    grid.appendChild(div);
+                });
+            }
+            switchPage('gallery-page');
+        }
+
+        let currentModalAnimal = null;
+
+        function openModal(animal) {
+            currentModalAnimal = animal;
+            document.getElementById('modal-img').src = `${animal.file}`;
+            document.getElementById('modal-title').innerText = animal.name;
+            document.getElementById('modal-class').innerText = `Order: ${animal.order}`;
+            document.getElementById('modal-fact').innerText = animal.fact;
+            document.getElementById('modal-diet').innerText = animal.diet;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal(force = false) {
+            if (force === true || event.target.id === 'modal') {
+                document.getElementById('modal').style.display = 'none';
+                if (synth.speaking) synth.cancel();
+            }
+        }
+
+        function readFactOutLoud() {
+            if (currentModalAnimal) {
+                speak(`${currentModalAnimal.name}. Scientific order: ${currentModalAnimal.order}. ${currentModalAnimal.fact}. ${currentModalAnimal.diet}`);
+            }
+        }
+        
+        speechSynthesis.onvoiceschanged = () => {
+             synth.getVoices();
+        };
+    </script>
+</body>
+</html>

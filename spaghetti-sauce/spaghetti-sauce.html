@@ -362,8 +362,8 @@
 
     const sounds = {
         add: () => playTone(800, 'sine', 0.6, 0.05),
-        cook: () => playTone(300, 'square', 0.2, 0.05),
-        openBook: () => playTone(400, 'triangle', 0.1, 0.05),
+        cook: () => playTone(300, 'square', 0.5, 0.05),
+        openBook: () => playTone(400, 'triangle', 0.5, 0.05),
         win: () => {
             playTone(523.25, 'triangle', 0.15, 0.1); 
             setTimeout(() => playTone(659.25, 'triangle', 0.15, 0.1), 150); 
@@ -371,7 +371,7 @@
         },
         fail: () => {
             playTone(200, 'sawtooth', 0.3, 0.1);
-            setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 200);
+            setTimeout(() => playTone(150, 'sawtooth', 0.8, 0.1), 200);
         }
     };
 
@@ -392,7 +392,8 @@
     const allIngredients = {
         "Tomato": "🍅", "Garlic": "🧄", "Onion": "🧅", "Basil": "🌿", 
         "Olive Oil": "🫒", "Salt": "🧂", "Black Pepper": "⚫", "Chili": "🌶️", 
-        "Parmesan": "🧀", "Pecorino": "🧀", "Heavy Cream": "🥛", "Butter": "🧈", 
+        "Parmesan": "🧀", "Pecorino": "🧀", "Mozzarella": "🧀", "Ricotta": "🧀", "Gorgonzola": "🧀", 
+        "Heavy Cream": "🥛", "Butter": "🧈", 
         "Pine Nuts": "🥜", "Ground Beef": "🥩", "Pancetta": "🥓", "Eggs": "🥚", 
         "Olives": "🫐", "Capers": "🌱", "Mushroom": "🍄", "Sausage": "🌭", "Lemon": "🍋"
     };
@@ -424,7 +425,7 @@
         { name: "Olive & Caper Oil", desc: "Briny, Mediterranean oil-based sauce.", ind: { "Olives": 2, "Capers": 2, "Olive Oil": 2, "Garlic": 1 } },
         { name: "Creamy Pancetta", desc: "Luxurious cream accented with salty pork.", ind: { "Pancetta": 2, "Heavy Cream": 2, "Onion": 1, "Black Pepper": 1 } },
         { name: "Spicy Mushroom", desc: "Earthy mushrooms with a chili kick.", ind: { "Mushroom": 2, "Chili": 1, "Garlic": 1, "Olive Oil": 1 } },
-        { name: "Three Cheese", desc: "Decadent melting of cheeses and cream.", ind: { "Parmesan": 2, "Pecorino": 2, "Heavy Cream": 1 } },
+        { name: "Quattro Formaggi", desc: "The ultimate rich and creamy four-cheese Italian sauce.", ind: { "Mozzarella": 2, "Gorgonzola": 1, "Parmesan": 1, "Ricotta": 1, "Heavy Cream": 1 } },
         { name: "Marcella's Onion Butter", desc: "Famous simple tomato and onion sauce.", ind: { "Tomato": 3, "Onion": 2, "Butter": 2 } },
         { name: "Garlic Tomato Cream", desc: "Balanced tomato with a heavy garlic punch.", ind: { "Tomato": 2, "Garlic": 2, "Heavy Cream": 1 } },
         { name: "Rustic Sausage Mushroom", desc: "Hearty mix of sausage and mushrooms.", ind: { "Sausage": 2, "Mushroom": 2, "Tomato": 1, "Olive Oil": 1 } }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spaghetti Sauce Master - Progression & Numbers</title>
+<title>Spaghetti Sauce Master - Start Screen & Audio</title>
 <style>
     body { 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -13,7 +13,62 @@
         background-color: #fff9f5; 
         padding: 20px; 
         margin: 0;
+        overflow-x: hidden;
     }
+
+    /* Start Screen Styles */
+    #start-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(135deg, #c0392b, #8e44ad);
+        color: white;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    #start-screen h1 {
+        font-size: 4em;
+        margin: 0 0 10px 0;
+        text-shadow: 2px 4px 10px rgba(0,0,0,0.3);
+    }
+    #start-screen p {
+        font-size: 1.5em;
+        margin-bottom: 40px;
+        color: #f1c40f;
+    }
+    #start-btn {
+        background-color: #27ae60;
+        color: white;
+        font-size: 1.8em;
+        padding: 15px 50px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        transition: transform 0.2s, background-color 0.2s;
+        animation: pulse 2s infinite;
+    }
+    #start-btn:hover {
+        background-color: #2ecc71;
+        transform: scale(1.05);
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+        70% { box-shadow: 0 0 0 20px rgba(39, 174, 96, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+    }
+
+    /* Main Game UI Styles */
+    #game-container {
+        display: none; /* Hidden until start */
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    
     #game-header {
         text-align: center;
         margin-bottom: 20px;
@@ -82,7 +137,7 @@
         background-color: #e9ecef;
     }
     
-    /* BIGGER POT STYLES */
+    /* POT STYLES */
     #pot-container { 
         display: flex; 
         flex-direction: column; 
@@ -139,7 +194,7 @@
         text-align: center;
     }
 
-    /* Modal Overlay Styles (Shared) */
+    /* Modal Styles */
     .modal-overlay {
         display: none;
         position: fixed;
@@ -151,7 +206,6 @@
         backdrop-filter: blur(3px);
     }
     
-    /* Encyclopedia Modal */
     #encyclopedia-modal {
         background: white;
         width: 90%;
@@ -172,10 +226,7 @@
         align-items: center;
     }
     #modal-header h2 { margin: 0; }
-    #close-modal-btn {
-        background: #e74c3c;
-        padding: 8px 15px;
-    }
+    #close-modal-btn { background: #e74c3c; padding: 8px 15px; }
     #modal-body {
         padding: 20px;
         overflow-y: auto;
@@ -188,7 +239,6 @@
         border: 1px solid #dee2e6;
         padding: 15px;
         border-radius: 8px;
-        transition: transform 0.2s;
     }
     .recipe-card h3 { margin: 0 0 10px 0; color: #d35400; font-size: 1.2em;}
     .recipe-num { color: #7f8c8d; font-size: 0.85em; margin-right: 5px; }
@@ -209,7 +259,6 @@
     }
     .locked-num { font-size: 0.8em; margin-bottom: 5px; color: #ced4da; }
 
-    /* Success Modal */
     #success-modal {
         background: white;
         width: 90%;
@@ -228,63 +277,76 @@
 </head>
 <body>
 
-<div id="game-header">
-    <h1>🍝 Kitchen Rush: Sauce Master</h1>
-    <div id="score-board">Orders Completed: <span id="score">0</span></div>
-    <button id="encyclopedia-btn">📖 Sauce Encyclopedia (<span id="unlock-count">0</span>/30)</button>
+<!-- Start Screen Overlay -->
+<div id="start-screen">
+    <h1>🍝 Kitchen Rush</h1>
+    <p>30 Recipes. Infinite Orders. One Master Chef.</p>
+    <button id="start-btn">Start Game</button>
 </div>
 
-<div id="order-slip">
-    <h2>Current Order: <span id="recipe-name">Loading...</span></h2>
-    <div id="recipe-hint"></div>
-</div>
-
-<div id="game-board">
-    <div class="ingredients" id="ingredient-list">
-        <!-- Ingredients injected by JS -->
+<!-- Main Game Wrapper (Hidden until start) -->
+<div id="game-container">
+    <div id="game-header">
+        <h1>🍝 Kitchen Rush: Sauce Master</h1>
+        <div id="score-board">Orders Completed: <span id="score">0</span></div>
+        <button id="encyclopedia-btn">📖 Sauce Encyclopedia (<span id="unlock-count">0</span>/30)</button>
     </div>
 
-    <div id="pot-container">
-        <div id="pot">
-            <div id="pot-contents">Empty</div>
+    <div id="order-slip">
+        <h2>Current Order: <span id="recipe-name">Loading...</span></h2>
+        <div id="recipe-hint"></div>
+    </div>
+
+    <div id="game-board">
+        <div class="ingredients" id="ingredient-list">
+            <!-- Ingredients injected by JS -->
         </div>
-        <div class="controls">
-            <button id="cook-btn">Cook Sauce!</button>
-            <button id="reset-btn">Empty Pot</button>
-            <button id="skip-btn">Skip Order</button>
+
+        <div id="pot-container">
+            <div id="pot">
+                <div id="pot-contents">Empty</div>
+            </div>
+            <div class="controls">
+                <button id="cook-btn">Cook Sauce!</button>
+                <button id="reset-btn">Empty Pot</button>
+                <button id="skip-btn">Skip Order</button>
+            </div>
+            <div id="message"></div>
         </div>
-        <div id="message"></div>
     </div>
 </div>
 
-<!-- Encyclopedia Modal -->
+<!-- Modals -->
 <div id="modal-overlay" class="modal-overlay">
     <div id="encyclopedia-modal">
         <div id="modal-header">
             <h2>📖 The Master Recipe Book</h2>
             <button id="close-modal-btn">Close</button>
         </div>
-        <div id="modal-body">
-            <!-- Recipe cards injected by JS -->
-        </div>
+        <div id="modal-body"></div>
     </div>
 </div>
 
-<!-- Success Modal -->
 <div id="success-overlay" class="modal-overlay">
     <div id="success-modal">
         <h2>⭐⭐⭐</h2>
         <div id="success-message">You perfected the Marinara!</div>
-        <div id="unlock-message">📖 New sauce unlocked in Encyclopedia!</div>
+        <div id="unlock-message">📖 New sauce unlocked!</div>
         <button id="next-order-btn">Serve & Get Next Order</button>
     </div>
 </div>
 
 <script>
-    // --- Web Audio API Synthesizer ---
+    // --- Audio System ---
+    // 1. Background Music setup
+    const bgMusic = new Audio('tarantella.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.1; // Set slightly lower so sound effects pop
+
+    // 2. Synthesizer for SFX
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    function playTone(freq, type, duration, vol=0.1) {
+    function playTone(freq, type, duration, vol=0.3) {
         if(audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -299,7 +361,7 @@
     }
 
     const sounds = {
-        add: () => playTone(800, 'sine', 0.1, 0.05),
+        add: () => playTone(800, 'sine', 0.6, 0.05),
         cook: () => playTone(300, 'square', 0.2, 0.05),
         openBook: () => playTone(400, 'triangle', 0.1, 0.05),
         win: () => {
@@ -312,6 +374,19 @@
             setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 200);
         }
     };
+
+    // --- Game Logic Startup ---
+    document.getElementById('start-btn').addEventListener('click', () => {
+        // Hide start screen and show game
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'flex';
+        
+        // Unlock AudioContext and play music
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        bgMusic.play().catch(e => console.log("Audio play failed:", e));
+        
+        init(); // Start game
+    });
 
     // --- Game Data ---
     const allIngredients = {
@@ -355,29 +430,14 @@
         { name: "Rustic Sausage Mushroom", desc: "Hearty mix of sausage and mushrooms.", ind: { "Sausage": 2, "Mushroom": 2, "Tomato": 1, "Olive Oil": 1 } }
     ];
 
-    // --- State Variables ---
     let potState = {}; 
     let currentRecipe = null;
     let score = 0;
-    const unlockedRecipes = new Set(); // Tracks learned recipes by name
-
-    // --- DOM Elements ---
-    const ingredientListDisplay = document.getElementById('ingredient-list');
-    const potDisplay = document.getElementById('pot-contents');
-    const messageDisplay = document.getElementById('message');
-    const recipeNameDisplay = document.getElementById('recipe-name');
-    const recipeHintDisplay = document.getElementById('recipe-hint');
-    const scoreDisplay = document.getElementById('score');
-    const unlockCountDisplay = document.getElementById('unlock-count');
-    
-    // Modals
-    const modalOverlay = document.getElementById('modal-overlay');
-    const modalBody = document.getElementById('modal-body');
-    const successOverlay = document.getElementById('success-overlay');
+    const unlockedRecipes = new Set(); 
 
     // --- Initialize Game ---
     function init() {
-        // Render ingredient buttons
+        const ingredientListDisplay = document.getElementById('ingredient-list');
         for (let [name, emoji] of Object.entries(allIngredients)) {
             const btn = document.createElement('div');
             btn.className = 'ingredient';
@@ -395,8 +455,9 @@
     }
 
     function renderEncyclopedia() {
+        const modalBody = document.getElementById('modal-body');
         modalBody.innerHTML = '';
-        unlockCountDisplay.textContent = unlockedRecipes.size;
+        document.getElementById('unlock-count').textContent = unlockedRecipes.size;
         
         recipes.forEach((recipe, index) => {
             const recipeNum = index + 1;
@@ -404,15 +465,10 @@
             
             if (unlockedRecipes.has(recipe.name)) {
                 card.className = 'recipe-card';
-                const ingText = Object.entries(recipe.ind)
-                    .map(([item, qty]) => `${qty}x ${item}`)
-                    .join(", ");
-                    
-                card.innerHTML = `
-                    <h3><span class="recipe-num">#${recipeNum}</span>${recipe.name}</h3>
-                    <p>${recipe.desc}</p>
-                    <div class="ingredients-list">${ingText}</div>
-                `;
+                const ingText = Object.entries(recipe.ind).map(([item, qty]) => `${qty}x ${item}`).join(", ");
+                card.innerHTML = `<h3><span class="recipe-num">#${recipeNum}</span>${recipe.name}</h3>
+                                  <p>${recipe.desc}</p>
+                                  <div class="ingredients-list">${ingText}</div>`;
             } else {
                 card.className = 'locked-card';
                 card.innerHTML = `<span class="locked-num">#${recipeNum}</span>🔒 Unknown Sauce`;
@@ -422,13 +478,11 @@
     }
 
     function loadNewOrder() {
-        const randomIndex = Math.floor(Math.random() * recipes.length);
-        currentRecipe = recipes[randomIndex];
-        recipeNameDisplay.textContent = currentRecipe.name;
+        currentRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+        document.getElementById('recipe-name').textContent = currentRecipe.name;
         
-        // Generate hint text for the order slip
         const hintParts = Object.entries(currentRecipe.ind).map(([item, qty]) => `${qty} ${item}`);
-        recipeHintDisplay.textContent = hintParts.join(", ");
+        document.getElementById('recipe-hint').textContent = hintParts.join(", ");
         
         potState = {};
         updatePot();
@@ -437,105 +491,63 @@
 
     function updatePot() {
         const items = Object.entries(potState).map(([key, val]) => `${key} x${val}`);
-        potDisplay.innerHTML = items.length ? items.join('<br>') : 'Empty';
+        document.getElementById('pot-contents').innerHTML = items.length ? items.join('<br>') : 'Empty';
     }
 
     function showMessage(text, color) {
-        messageDisplay.textContent = text;
-        messageDisplay.style.color = color;
+        const msg = document.getElementById('message');
+        msg.textContent = text;
+        msg.style.color = color;
     }
 
-    // --- Button Listeners ---
-    document.getElementById('reset-btn').addEventListener('click', () => {
-        potState = {};
-        sounds.add();
-        updatePot();
-        showMessage("Pot emptied.", "#7f8c8d");
-    });
+    // --- Events ---
+    document.getElementById('reset-btn').addEventListener('click', () => { potState = {}; sounds.add(); updatePot(); showMessage("Pot emptied.", "#7f8c8d"); });
+    document.getElementById('skip-btn').addEventListener('click', loadNewOrder);
 
-    document.getElementById('skip-btn').addEventListener('click', () => {
-        loadNewOrder();
-    });
+    const modalOverlay = document.getElementById('modal-overlay');
+    document.getElementById('encyclopedia-btn').addEventListener('click', () => { sounds.openBook(); modalOverlay.style.display = 'flex'; });
+    document.getElementById('close-modal-btn').addEventListener('click', () => { sounds.add(); modalOverlay.style.display = 'none'; });
+    modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) modalOverlay.style.display = 'none'; });
 
-    // Encyclopedia Listeners
-    document.getElementById('encyclopedia-btn').addEventListener('click', () => {
-        sounds.openBook();
-        modalOverlay.style.display = 'flex';
-    });
+    const successOverlay = document.getElementById('success-overlay');
+    document.getElementById('next-order-btn').addEventListener('click', () => { sounds.add(); successOverlay.style.display = 'none'; loadNewOrder(); });
 
-    document.getElementById('close-modal-btn').addEventListener('click', () => {
-        sounds.add();
-        modalOverlay.style.display = 'none';
-    });
-
-    modalOverlay.addEventListener('click', (e) => {
-        if(e.target === modalOverlay) modalOverlay.style.display = 'none';
-    });
-
-    // Success Modal Listener
-    document.getElementById('next-order-btn').addEventListener('click', () => {
-        sounds.add();
-        successOverlay.style.display = 'none';
-        loadNewOrder();
-    });
-
-    // Cooking Logic
     document.getElementById('cook-btn').addEventListener('click', () => {
         sounds.cook();
-        
-        if (Object.keys(potState).length === 0) {
-            showMessage("The pot is empty!", "#7f8c8d");
-            sounds.fail();
-            return;
-        }
+        if (Object.keys(potState).length === 0) { showMessage("The pot is empty!", "#7f8c8d"); sounds.fail(); return; }
 
-        let isPerfect = true;
-        let hasExtraIngredients = false;
+        let isPerfect = true, hasExtraIngredients = false;
         
-        // Check exact quantities
         for (let [item, targetAmount] of Object.entries(currentRecipe.ind)) {
-            if ((potState[item] || 0) !== targetAmount) {
-                isPerfect = false;
-            }
+            if ((potState[item] || 0) !== targetAmount) isPerfect = false;
         }
-        // Check for extra rogue ingredients
         for (let item in potState) {
-            if (!currentRecipe.ind[item]) {
-                isPerfect = false;
-                hasExtraIngredients = true;
-            }
+            if (!currentRecipe.ind[item]) { isPerfect = false; hasExtraIngredients = true; }
         }
 
         if (isPerfect) {
             sounds.win();
             score++;
-            scoreDisplay.textContent = score;
-            showMessage("", "#27ae60"); // Clear main screen message
+            document.getElementById('score').textContent = score;
+            showMessage("", "#27ae60");
             
-            // Handle Encyclopedia Unlock
             let isNewUnlock = false;
             if (!unlockedRecipes.has(currentRecipe.name)) {
                 unlockedRecipes.add(currentRecipe.name);
                 isNewUnlock = true;
-                renderEncyclopedia(); // Re-render to show the new card
+                renderEncyclopedia(); 
             }
             
-            // Trigger Success Popup
             document.getElementById('success-message').textContent = `You perfectly cooked the ${currentRecipe.name}!`;
             document.getElementById('unlock-message').textContent = isNewUnlock ? "📖 New sauce unlocked in the Encyclopedia!" : "";
             successOverlay.style.display = 'flex';
             
         } else if (hasExtraIngredients) {
-            sounds.fail();
-            showMessage("Customer complained! Weird flavor...", "#c0392b");
+            sounds.fail(); showMessage("Customer complained! Weird flavor...", "#c0392b");
         } else {
-            sounds.fail();
-            showMessage("Not quite right. Check quantities!", "#e67e22");
+            sounds.fail(); showMessage("Not quite right. Check quantities!", "#e67e22");
         }
     });
-
-    // Start
-    init();
 </script>
 </body>
 </html>

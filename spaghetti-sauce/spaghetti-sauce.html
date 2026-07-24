@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spaghetti Sauce Master - Start Screen & Audio</title>
+<title>Spaghetti Sauce Master - Save Progress</title>
 <style>
     body { 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -63,7 +63,7 @@
 
     /* Main Game UI Styles */
     #game-container {
-        display: none; /* Hidden until start */
+        display: none; 
         flex-direction: column;
         align-items: center;
         width: 100%;
@@ -284,7 +284,7 @@
     <button id="start-btn">Start Game</button>
 </div>
 
-<!-- Main Game Wrapper (Hidden until start) -->
+<!-- Main Game Wrapper -->
 <div id="game-container">
     <div id="game-header">
         <h1>🍝 Kitchen Rush: Sauce Master</h1>
@@ -338,12 +338,10 @@
 
 <script>
     // --- Audio System ---
-    // 1. Background Music setup
     const bgMusic = new Audio('tarantella.mp3');
     bgMusic.loop = true;
-    bgMusic.volume = 0.1; // Set slightly lower so sound effects pop
+    bgMusic.volume = 0.1; 
 
-    // 2. Synthesizer for SFX
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     function playTone(freq, type, duration, vol=0.3) {
@@ -377,15 +375,13 @@
 
     // --- Game Logic Startup ---
     document.getElementById('start-btn').addEventListener('click', () => {
-        // Hide start screen and show game
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('game-container').style.display = 'flex';
         
-        // Unlock AudioContext and play music
         if(audioCtx.state === 'suspended') audioCtx.resume();
         bgMusic.play().catch(e => console.log("Audio play failed:", e));
         
-        init(); // Start game
+        init(); 
     });
 
     // --- Game Data ---
@@ -439,8 +435,33 @@
     let score = 0;
     const unlockedRecipes = new Set(); 
 
+    // --- Save & Load Progress ---
+    function loadProgress() {
+        const savedScore = localStorage.getItem('sauceMasterScore');
+        const savedUnlocks = localStorage.getItem('sauceMasterUnlocks');
+
+        if (savedScore) {
+            score = parseInt(savedScore, 10);
+            document.getElementById('score').textContent = score;
+        }
+        
+        if (savedUnlocks) {
+            const parsedUnlocks = JSON.parse(savedUnlocks);
+            parsedUnlocks.forEach(recipeName => unlockedRecipes.add(recipeName));
+        }
+    }
+
+    function saveProgress() {
+        localStorage.setItem('sauceMasterScore', score);
+        // Sets can't be stringified directly, so we convert it to an array first
+        localStorage.setItem('sauceMasterUnlocks', JSON.stringify([...unlockedRecipes]));
+    }
+
     // --- Initialize Game ---
     function init() {
+        // Load data before building UI
+        loadProgress();
+
         const ingredientListDisplay = document.getElementById('ingredient-list');
         for (let [name, emoji] of Object.entries(allIngredients)) {
             const btn = document.createElement('div');
@@ -541,6 +562,9 @@
                 isNewUnlock = true;
                 renderEncyclopedia(); 
             }
+            
+            // Save progress to localStorage after a successful dish
+            saveProgress();
             
             document.getElementById('success-message').textContent = `You perfectly cooked the ${currentRecipe.name}!`;
             document.getElementById('unlock-message').textContent = isNewUnlock ? "📖 New sauce unlocked in the Encyclopedia!" : "";

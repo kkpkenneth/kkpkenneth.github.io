@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>St. John 急救證書課程 - 互動模擬試題</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: var(--primary-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .question-title {
+            font-size: 1.25em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1em;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            background: #eef7ff;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+        .correct-ans {
+            background-color: #d4edda !important;
+            border-color: var(--success-color) !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-ans {
+            background-color: #f8d7da !important;
+            border-color: var(--danger-color) !important;
+            color: #721c24;
+        }
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef7ff;
+            border-left: 5px solid var(--primary-color);
+            border-radius: 4px;
+            animation: fadeIn 0.5s;
+        }
+        .explanation-box h4 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+        }
+        .btn-next {
+            display: none;
+            width: 100%;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+            animation: fadeIn 0.5s;
+        }
+        .btn-next:hover {
+            background: #2980b9;
+        }
+        #result-screen {
+            display: none;
+            text-align: center;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .pass { color: var(--success-color); }
+        .fail { color: var(--danger-color); }
+        .btn-restart {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>St. John 急救模擬試題 (50題)</h1>
+    
+    <div id="quiz-screen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="header-info">
+            <span id="question-counter">問題 1 / 50</span>
+            <span id="current-score">得分: 0</span>
+        </div>
+
+        <div class="question-card">
+            <div class="question-title" id="question-text">載入中...</div>
+            <div class="options-list" id="options-container">
+                <!-- 選項會透過 JS 動態產生 -->
+            </div>
+            
+            <div class="explanation-box" id="explanation-box">
+                <h4>答案解析</h4>
+                <p id="explanation-text"></p>
+            </div>
+            
+            <button class="btn-next" id="btn-next" onclick="nextQuestion()">下一題</button>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <h2>測驗完成！</h2>
+        <div class="final-score" id="final-score">0 / 50</div>
+        <h3 id="result-message"></h3>
+        <p>及格要求為答對 30 題 (60%)。</p>
+        <button class="btn-restart" onclick="location.reload()">重新測驗</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        { q: "急救的首要原則是甚麼？", options: ["保持鎮定", "拯救生命", "尋找醫生", "聯絡家屬"], ans: 1, exp: "拯救生命是急救的首要目的，其次是防止傷勢惡化和促進復原。" },
+        { q: "成人心肺復甦法 (CPR) 的按壓與人工呼吸比例是？", options: ["15:2", "30:2", "15:1", "30:1"], ans: 1, exp: "根據現行國際急救指引，成人 CPR 的按壓與呼吸比例應為 30:2。" },
+        { q: "處理嚴重出血時，第一步應做甚麼？", options: ["塗紅藥水", "直接壓迫止血", "抬高雙腳", "用水沖洗傷口"], ans: 1, exp: "直接壓迫傷口是最快速、最有效控制嚴重出血的方法。" },
+        { q: "燒傷及燙傷的初步處理是？", options: ["塗燙火膏或牙膏", "刺破水泡", "用清水沖洗最少 10 分鐘", "敷冰塊降溫"], ans: 2, exp: "輕微燒燙傷應立刻用清水沖洗至少 10 分鐘以降低皮膚溫度，減輕組織損害。切勿刺破水泡或塗抹偏方。" },
+        { q: "若傷病者清醒但大量流血，他最可能出現甚麼併發情況？", options: ["休克", "中風", "哮喘", "骨折"], ans: 0, exp: "大量失血會導致血液循環容量不足，引發低血容性休克，威脅生命。" },
+        { q: "懷疑頸椎受損的傷病者，應如何處理？", options: ["讓他坐起休息", "保持其頭頸固定，不可隨意移動", "墊高頭部", "立即進行人工呼吸"], ans: 1, exp: "隨意移動可能導致脊椎神經永久受損甚至癱瘓，必須保持頭頸於自然位置固定。" },
+        { q: "以下哪項是中風的常見先兆評估 (FAST) 的其中一項？", options: ["狂躁不安", "面部表情不對稱", "全身出疹", "呼吸困難"], ans: 1, exp: "FAST 指標為：Face (面部不對稱)、Arm (單側手臂無力)、Speech (說話不清)、Time (記錄時間並立即求醫)。" },
+        { q: "對嬰兒進行 CPR 時，應使用甚麼部位進行胸部按壓？", options: ["雙手掌根", "單手掌根", "兩隻手指", "整個手掌"], ans: 2, exp: "嬰兒體型小，只需用兩隻手指（食指和中指）在胸骨中央按壓即可，以免造成骨折傷及內臟。" },
+        { q: "處理哽塞的清醒成人時，應優先使用甚麼方法？", options: ["拍背及推腹法 (哈姆立克法)", "喝大量清水", "扣喉催吐", "將傷者倒吊"], ans: 0, exp: "拍背及哈姆立克法能利用肺部殘餘空氣將氣道內的異物逼出，是解除哽塞的標準做法。" },
+        { q: "化學品濺入眼睛，應如何處理？", options: ["用紙巾擦拭", "戴上眼罩", "用大量流動清水沖洗眼睛最少 15 分鐘", "滴眼藥水"], ans: 2, exp: "化學品入眼必須立刻用大量流動清水沖洗至少 15 分鐘，以稀釋並沖走化學物。" },
+        { q: "正常成人的每分鐘呼吸次數大約為？", options: ["12 - 20 次", "5 - 10 次", "25 - 35 次", "40 - 50 次"], ans: 0, exp: "正常成年人在安靜狀態下，每分鐘的呼吸頻率約為 12 至 20 次。" },
+        { q: "正常成人安靜時的脈搏大約為每分鐘？", options: ["40 - 50 次", "60 - 100 次", "100 - 120 次", "120 - 140 次"], ans: 1, exp: "正常成年人安靜時的心跳/脈搏率約為每分鐘 60 至 100 次。" },
+        { q: "骨折的初步處理原則是？", options: ["嘗試把骨頭復位", "讓傷者走動測試痛楚", "在原位固定受傷部位", "熱敷患處"], ans: 2, exp: "骨折急救首要原則是在原位固定，絕對不可嘗試復位，以免碎骨刺傷血管或神經。" },
+        { q: "傷病者失去知覺，但有正常呼吸和脈搏，應讓他保持甚麼姿勢？", options: ["仰臥，墊高頭部", "復原臥式 (復甦姿勢)", "俯臥", "坐姿"], ans: 1, exp: "復原臥式能防止舌頭後墜阻塞氣道，並讓嘔吐物自然流出，防止窒息。" },
+        { q: "休克病人的表徵通常包括？", options: ["面色潮紅，脈搏緩慢", "面色蒼白，皮膚濕冷，脈搏快而弱", "體溫極高，神智清醒", "呼吸深而慢"], ans: 1, exp: "休克時血液集中流向重要器官，導致周邊皮膚缺血缺氧，出現面色蒼白、濕冷及脈搏快而弱的表徵。" },
+        { q: "處理休克病人的方法之一是？", options: ["墊高頭部", "墊高雙腳 (如無骨折情況下)", "餵食熱飲保暖", "讓其走動以促進血液循環"], ans: 1, exp: "墊高雙腳可利用地心吸力幫助血液回流至心臟和腦部，改善重要器官的血液供應。" },
+        { q: "如遇上觸電意外，急救員首要採取甚麼行動？", options: ["立即用手拉開傷者", "切斷電源", "立即進行 CPR", "檢查傷者脈搏"], ans: 1, exp: "確保自身安全是首要條件，必須先切斷電源，否則貿然接觸傷者會導致急救員一同觸電。" },
+        { q: "癲癇 (腦癇) 發作抽搐時，急救員應？", options: ["強行制止傷者抽搐", "將硬物塞入其口中防咬舌", "移開附近危險物品，保護其頭部", "立即餵服抗腦癇藥物"], ans: 2, exp: "抽搐時不可強行制止或塞物入口，以免造成骨折、牙齒脫落或窒息，只需移開雜物保護其免受撞擊即可。" },
+        { q: "當有人心臟病發，他通常會感到？", options: ["胸口如同被重物壓著，痛楚可能放射至手臂或下巴", "腹部劇烈絞痛", "突然下肢麻痺", "視力模糊"], ans: 0, exp: "心絞痛或心肌梗塞的典型症狀是胸口中央有劇烈壓迫感，痛楚常放射至左臂、頸或下巴。" },
+        { q: "對懷疑骨折的肢體，最好使用甚麼來固定？", options: ["熱毛巾", "夾板和繃帶", "冰袋", "橡筋"], ans: 1, exp: "夾板和繃帶能提供堅固的支持，有效限制骨折部位的活動，減輕痛楚及防止傷勢惡化。" },
+        { q: "若被蜜蜂螫傷，發現有螫針留在皮膚上，應如何處理？", options: ["用手直接拔出", "用指甲或硬卡紙平刮刮走螫針", "用力擠壓傷口擠出毒液", "用熱水燙洗"], ans: 1, exp: "用手拔或擠壓會將毒囊內剩餘的毒液逼入體內，正確做法是用硬卡紙或卡片平刮去除螫針。" },
+        { q: "處理中暑傷病者，以下哪項是正確的？", options: ["讓他穿上厚衣排汗", "將他移至陰涼處，並協助降溫", "給他喝大量濃茶", "讓他進行劇烈運動"], ans: 1, exp: "中暑時體溫調節系統失常，體溫危險地飆升，必須立刻移至陰涼處並盡快協助降溫。" },
+        { q: "發現傷病者腹部有大傷口且腸臟溢出，應如何處理？", options: ["嘗試把腸臟塞回腹腔", "用乾紙巾抹拭乾淨", "用清潔的濕敷料覆蓋，絕對不要推回腹腔", "用緊繃帶加壓包紮"], ans: 2, exp: "腸臟外露容易感染或壞死，絕不可推回腹腔以免引發腹膜炎，應用濕潤的無菌敷料覆蓋並保護。" },
+        { q: "急救箱內不應存放甚麼？", options: ["三角繃帶", "消毒膠布", "口服藥物", "安全別針"], ans: 2, exp: "急救箱內不應存放口服藥物，以免誤服、過期或引起傷病者的藥物敏感反應。" },
+        { q: "在評估傷病者清醒程度時，常用哪種指標？", options: ["FAST", "AVPU", "RICE", "ABC"], ans: 1, exp: "AVPU 代表：Alert (清醒)、Voice (對聲音有反應)、Pain (對痛楚有反應)、Unresponsive (無反應)。" },
+        { q: "進行成人心肺復甦法時，胸部按壓深度應為？", options: ["大約 5 厘米", "至少 10 厘米", "2 厘米", "1 厘米"], ans: 0, exp: "成人 CPR 按壓深度應為 5 至 6 厘米，以確保能有效擠壓心臟促使血液流動。" },
+        { q: "使用自動體外心臟去顫器 (AED) 時，第一步是甚麼？", options: ["貼上電極片", "開啟電源", "離開傷病者", "按下電擊掣"], ans: 1, exp: "使用 AED 的第一步永遠是開啟電源，然後只需跟隨機器的語音指示一步步操作即可。" },
+        { q: "處理扭傷的原則 (R.I.C.E.) 中，'I' 代表甚麼？", options: ["Injection (注射)", "Ice (冰敷)", "Infection (感染)", "Immobilization (固定)"], ans: 1, exp: "RICE 分別代表 Rest (休息)、Ice (冰敷)、Compression (加壓)、Elevation (抬高)。" },
+        { q: "急救員處理傷口前戴上即棄手套，主要目的是？", options: ["為雙手保暖", "防止交叉感染", "減少傷者疼痛", "幫助止血"], ans: 1, exp: "戴手套可以保護急救員免受血液傳染病感染，同時避免急救員手上的細菌污染傷者的傷口。" },
+        { q: "發現有人在密閉空間暈倒，首先應？", options: ["立即衝入空間救人", "確保自身安全，尋求支援或報警", "在門外大聲呼叫傷病者", "拋入急救箱"], ans: 1, exp: "密閉空間可能有毒氣或嚴重缺氧，貿然進入會導致急救員也遇險，必須先確保安全及召求專業救援。" },
+        { q: "當遇到低血糖患者清醒時，應如何處理？", options: ["讓他飲用含糖飲料或進食糖果", "為他注射胰島素", "讓他平躺休息，不可給予任何飲食", "餵服大量清水"], ans: 0, exp: "低血糖患者若清醒並能吞嚥，給予易吸收的糖分 (如糖水、果汁或糖果) 能最快緩解危險症狀。" },
+        { q: "如何正確處理流鼻血？", options: ["仰起頭部防止血流出", "低下頭，並用口呼吸，捏住鼻翼軟骨部位", "用力擤出鼻內的血塊", "塞入大量紙巾直達鼻腔深處"], ans: 1, exp: "捏住鼻翼並低下頭，可讓血液流出體外，防止血液倒流氣道引起窒息或流入胃部引起嘔吐。" },
+        { q: "哮喘發作時，傷病者的呼吸通常會發出甚麼聲音？", options: ["咕嚕聲", "喘鳴聲 (哮鳴)", "打鼾聲", "毫無聲音"], ans: 1, exp: "哮喘導致氣管痙攣收窄，氣流通過狹窄氣道時會產生高音調的喘鳴聲 (Wheezing)。" },
+        { q: "狗咬傷的初步處理首要是？", options: ["立即打死狗隻", "用肥皂和大量清水沖洗傷口，然後覆蓋送院", "立即自行縫合傷口", "塗抹高濃度酒精"], ans: 1, exp: "徹底清洗傷口能有效減少細菌及狂犬病病毒感染的風險，隨後必須送院作進一步治療及打破傷風針。" },
+        { q: "如果傷病者前臂骨折，可使用甚麼來承托？", options: ["臂吊帶 (大懸帶)", "頸圈", "止血帶", "彈性繃帶緊紮"], ans: 0, exp: "臂吊帶 (大懸帶) 能有效承托前臂及手部的重量，減少受傷部位的移動，從而減輕痛楚。" },
+        { q: "當有人誤服腐蝕性毒物（如漂白水），若傷病者清醒，應？", options: ["立即扣喉催吐", "給予少量清水或牛奶稀釋 (不可過量以免嘔吐)", "餵服梳打水中和", "餵食固體食物"], ans: 1, exp: "腐蝕性毒物嘔吐出時會再次灼傷食道，絕不可催吐。清醒時可給予少量清水或牛奶稀釋毒物。" },
+        { q: "處理眼睛異物時，若異物嵌在眼球上，應？", options: ["用鑷子拔出", "用水大力沖走", "蓋住雙眼，立即送院", "讓傷病者自行揉眼睛"], ans: 2, exp: "拔出眼球上的異物會造成更嚴重的結構性損傷，必須蓋住雙眼 (防止眼球隨好眼轉動而加重傷勢) 並送院。" },
+        { q: "若傷病者心跳及呼吸停止，腦部細胞在缺氧多少分鐘後會開始受到不可逆轉的損害？", options: ["1 - 2 分鐘", "3 - 4 分鐘", "10 - 15 分鐘", "30 分鐘"], ans: 1, exp: "腦細胞對缺氧極度敏感，缺氧約 3 至 4 分鐘後，便會開始大量死亡並造成不可逆轉的腦部損害。" },
+        { q: "下列哪一項不是休克的急救處理？", options: ["處理出血源頭", "保暖", "給予熱飲", "墊高雙足 (如無禁忌症)"], ans: 2, exp: "休克傷病者絕對不應進食或飲水，以免因意識轉差嘔吐導致窒息，或影響日後可能需要進行的全身麻醉手術。" },
+        { q: "判斷昏迷傷病者是否有正常呼吸，應觀察甚麼？", options: ["胸腹起伏", "瞳孔大小", "脈搏快慢", "體溫高低"], ans: 0, exp: "評估呼吸時，應將臉貼近傷者口鼻感受氣流，並同時觀察其胸部和腹部是否有明顯的起伏。" },
+        { q: "二級燒傷 (淺度至中度燒傷) 的特徵是甚麼？", options: ["皮膚微紅", "出現水泡，感覺劇痛", "皮膚焦黑，完全無痛楚", "骨骼外露"], ans: 1, exp: "二級燒傷傷及真皮層，會導致組織液滲出形成水泡，且因為神經末梢受損受刺激，會感到劇烈痛楚。" },
+        { q: "AED 語音提示「不要接觸傷病者，正在分析心律」時，急救員應？", options: ["繼續胸部按壓", "暫停 CPR，確保沒有人接觸傷病者", "拔除電極片", "進行人工呼吸"], ans: 1, exp: "觸摸或移動傷病者會產生震動，干擾 AED 分析心律的準確性，因此必須確保所有人散開。" },
+        { q: "兒童 (1至8歲) CPR 的按壓深度為？", options: ["大約 5 厘米 或胸部厚度 1/3", "至少 10 厘米", "1 厘米", "越深越好"], ans: 0, exp: "兒童的按壓深度應大約為胸部前後厚度的三分之一，即大約 5 厘米。" },
+        { q: "若遇上多名傷病者，應優先處理哪類情況？", options: ["呼吸道受阻及嚴重出血", "輕度燒傷", "腳踝扭傷", "精神緊張大聲呼救者"], ans: 0, exp: "呼吸道受阻及嚴重出血會在極短時間內致命，在傷者分流中屬於必須最優先處理的危急情況。" },
+        { q: "若遇到懷孕後期的孕婦需要平躺休息，最好讓她採取甚麼姿勢？", options: ["仰臥", "右側臥", "左側臥 (防止下腔靜脈受壓)", "俯臥"], ans: 2, exp: "左側臥能避免沉重的子宮壓迫腹腔內的下腔靜脈，確保血液能順利回流心臟，防止孕婦休克及胎兒缺氧。" },
+        { q: "對於嚴重過敏反應 (如花生敏感) 導致呼吸困難，可能有需要協助傷病者使用甚麼藥物？", options: ["胰島素筆", "腎上腺素注射筆 (EpiPen)", "哮喘吸入器", "止痛藥"], ans: 1, exp: "嚴重過敏 (過敏性休克) 需要及時注射腎上腺素來擴張氣管、收縮血管及提升血壓以保命。" },
+        { q: "懷疑盆骨骨折的傷病者，應避免甚麼？", options: ["報警求助", "任何不必要的移動", "陪伴傷病者", "觀察其呼吸狀態"], ans: 1, exp: "盆骨周圍有大量重要血管，隨意移動可能導致斷骨割破血管，引發腹腔內致命的大出血。" },
+        { q: "處理脫位的關節，急救員應？", options: ["嘗試將關節用力托回原位", "讓傷病者活動該關節以恢復功能", "在最舒適的姿勢下固定患處並送院", "塗抹跌打酒用力推拿按摩"], ans: 2, exp: "脫位可能伴隨骨折或神經血管損傷，強行復位會造成嚴重的二次傷害，必須在原位以最舒適的姿勢固定送院。" },
+        { q: "遇到突發事故，急救員評估現場的第一步行動 (DRABC 中的 D) 是？", options: ["檢查傷者反應 (Response)", "評估現場危險 (Danger)", "檢查呼吸道 (Airway)", "檢查血液循環 (Circulation)"], ans: 1, exp: "確保環境安全 (Danger) 永遠是急救的首要步驟，若現場有危險 (如火災、毒氣)，急救員不應貿然靠近，避免產生更多傷者。" },
+        { q: "當你發現嬰兒哽塞但清醒時，正確的急救法是？", options: ["5次推腹法", "5次拍背法及5次壓胸法", "把手指伸入嬰兒口中盲目挖取異物", "捉住嬰兒雙腳倒吊並大力搖晃"], ans: 1, exp: "嬰兒內臟脆弱，不可使用推腹法以免傷及肝臟，應交替進行 5 次拍背及 5 次壓胸直至異物吐出。" }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    // DOM Elements
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationBox = document.getElementById('explanation-box');
+    const explanationText = document.getElementById('explanation-text');
+    const btnNext = document.getElementById('btn-next');
+    const progressBar = document.getElementById('progress-bar');
+    const questionCounter = document.getElementById('question-counter');
+    const currentScore = document.getElementById('current-score');
+    
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const finalScore = document.getElementById('final-score');
+    const resultMessage = document.getElementById('result-message');
+
+    function loadQuestion() {
+        // Reset UI for new question
+        explanationBox.style.display = 'none';
+        btnNext.style.display = 'none';
+        optionsContainer.innerHTML = '';
+        
+        const currentQ = quizData[currentQuestionIndex];
+        
+        // Update trackers
+        questionCounter.innerText = `問題 ${currentQuestionIndex + 1} / ${quizData.length}`;
+        const progressPercentage = ((currentQuestionIndex) / quizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+        
+        // Render Question
+        questionText.innerText = currentQ.q;
+        
+        // Render Options
+        const labels = ['A', 'B', 'C', 'D'];
+        currentQ.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<strong>${labels[index]}.</strong> &nbsp; ${opt}`;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, selectedBtn) {
+        const currentQ = quizData[currentQuestionIndex];
+        const allOptionBtns = optionsContainer.children;
+        
+        // Disable all buttons to prevent multiple clicks
+        for (let btn of allOptionBtns) {
+            btn.disabled = true;
+        }
+
+        // Check if correct
+        if (selectedIndex === currentQ.ans) {
+            score++;
+            selectedBtn.classList.add('correct-ans');
+            currentScore.innerText = `得分: ${score}`;
+        } else {
+            selectedBtn.classList.add('wrong-ans');
+            // Highlight the correct one as well
+            allOptionBtns[currentQ.ans].classList.add('correct-ans');
+        }
+
+        // Show explanation
+        explanationText.innerText = currentQ.exp;
+        explanationBox.style.display = 'block';
+        
+        // Show next button
+        btnNext.style.display = 'block';
+        if (currentQuestionIndex === quizData.length - 1) {
+            btnNext.innerText = "查看總成績";
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizScreen.style.display = 'none';
+        resultScreen.style.display = 'block';
+        
+        finalScore.innerText = `${score} / ${quizData.length}`;
+        
+        if (score >= 30) {
+            finalScore.className = 'final-score pass';
+            resultMessage.innerText = "恭喜，你達到了及格標準！";
+            resultMessage.className = 'pass';
+        } else {
+            finalScore.className = 'final-score fail';
+            resultMessage.innerText = "未能及格，請溫習後再試。";
+            resultMessage.className = 'fail';
+        }
+    }
+
+    // Initialize first question
+    loadQuestion();
+</script>
+
+</body>
+</html>

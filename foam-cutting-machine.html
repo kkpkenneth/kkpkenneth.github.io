@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Foam Cutting Machine Challenge</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c14; color: #00f2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ffcc00; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.4rem; color: #ffcc00; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ffcc0055; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-left { border-color: #00f2ff; background: transparent; color: #00f2ff; }
+        .btn-left:hover { background: #00f2ff; color: #000; }
+        .btn-right { border-color: #ff00ff; background: transparent; color: #ff00ff; }
+        .btn-right:hover { background: #ff00ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">MISSION SCORE: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE TO START.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">INITIALIZE SYSTEM</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+        { q: "What is the most common type of wire used in a hot wire foam cutting machine?", a: ["Nichrome Wire", "Copper Wire"], correct: "Nichrome Wire", exp: "Nichrome is used because it has high electrical resistance and can withstand high temperatures without oxidizing or breaking." },
+        { q: "How does a hot wire cutter actually separate the foam?", a: ["It melts/vaporizes the foam", "It saws through with friction"], correct: "It melts/vaporizes the foam", exp: "The radiant heat from the wire melts and vaporizes the foam just before physical contact, creating a smooth cut." },
+        { q: "Why is a tensioning mechanism (like a spring) essential on a hot wire cutter?", a: ["The wire expands when heated", "It increases electrical flow"], correct: "The wire expands when heated", exp: "Thermal expansion causes the wire to lengthen as it heats up. The spring keeps the wire taut so cuts remain straight." },
+        { q: "Which type of foam is most commonly and safely cut using a hot wire machine?", a: ["Polystyrene (EPS/XPS)", "Polyurethane"], correct: "Polystyrene (EPS/XPS)", exp: "Expanded and Extruded Polystyrene cut smoothly. Cutting Polyurethane foam releases highly toxic fumes and shouldn't be cut with a hot wire." },
+        { q: "What physical principle causes the wire to heat up when the machine is turned on?", a: ["Electrical Resistance", "Magnetic Induction"], correct: "Electrical Resistance", exp: "Joule heating occurs when an electrical current passes through a conductor with high resistance, converting electrical energy into heat." },
+        { q: "Why is proper ventilation crucial when operating a foam cutting machine?", a: ["Melting foam releases toxic fumes", "The machine needs air cooling"], correct: "Melting foam releases toxic fumes", exp: "Vaporizing plastics like polystyrene releases styrene gas and other harmful VOCs, requiring a well-ventilated area or a respirator." },
+        { q: "What will happen if the wire's temperature is set too low while trying to cut foam?", a: ["The wire will drag and snap", "The foam will cut perfectly"], correct: "The wire will drag and snap", exp: "If it's too cool, it won't melt the foam fast enough. Pushing the foam will put physical tension on the wire, causing it to break." },
+        { q: "What will happen if the voltage (and therefore heat) is set too high?", a: ["Wider cuts and melted edges", "A perfectly thin slice"], correct: "Wider cuts and melted edges", exp: "Excessive radiant heat melts too much of the surrounding foam, resulting in a wide, inaccurate cut (kerf), and risks snapping the wire." },
+        { q: "What component is used to safely adjust the temperature of the cutting wire?", a: ["Variable Power Supply", "A stronger magnet"], correct: "Variable Power Supply", exp: "A variable power supply or dimmer circuit regulates the voltage and current, allowing the user to dial in the perfect heat." },
+        { q: "In an automated CNC foam cutting machine, how many axes of movement are typically required to cut complex shapes like airplane wings?", a: ["4-Axis", "2-Axis"], correct: "4-Axis", exp: "A 4-axis machine can move the left and right sides of the wire independently (X/Y and U/V), allowing for tapered cuts and complex geometry." }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.8;
+        msg.pitch = 0.5;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(200, 'square', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 50);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "CORRECT" : "INCORRECT") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(600, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "MISSION SCORE: " + score;
+                        
+                        setTimeout(nextQuestion, 4000); 
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

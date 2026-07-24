@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rainbow Windmill Challenge</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c14; color: #00f2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ffcc00; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.4rem; color: #ffcc00; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ffcc0055; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-left { border-color: #00f2ff; background: transparent; color: #00f2ff; }
+        .btn-left:hover { background: #00f2ff; color: #000; }
+        .btn-right { border-color: #ff00ff; background: transparent; color: #ff00ff; }
+        .btn-right:hover { background: #ff00ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">MISSION SCORE: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE TO START.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">INITIALIZE SYSTEM</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+        { q: "What force primarily causes a toy rainbow windmill (pinwheel) to spin when air blows against it?", a: ["Aerodynamic Lift and Drag", "Magnetic Repulsion"], correct: "Aerodynamic Lift and Drag", exp: "The angled blades catch the wind, creating areas of high and low pressure that push the blades to rotate." },
+        { q: "When a rainbow-colored windmill spins very rapidly, the colors may blur together and appear nearly white. What is this phenomenon called?", a: ["Persistence of Vision", "Chromatic Aberration"], correct: "Persistence of Vision", exp: "The human eye retains an image for a fraction of a second, causing the rapidly spinning colors of the light spectrum to visually mix into white." },
+        { q: "What energy transformation occurs when the wind turns a rainbow pinwheel?", a: ["Kinetic to Mechanical", "Thermal to Electrical"], correct: "Kinetic to Mechanical", exp: "The kinetic energy of the moving air (wind) is transferred into the physical rotation (mechanical energy) of the windmill's rotor." },
+        { q: "Why are the blades of a toy windmill angled rather than perfectly flat against the wind?", a: ["To generate rotational torque", "To make it look prettier"], correct: "To generate rotational torque", exp: "The angle deflects the incoming air, converting the forward motion of the wind into a rotational force that spins the hub." },
+        { q: "If you blow on the windmill and it doesn't spin well, what is the most likely physical problem?", a: ["Too much friction on the axle", "The colors are too dark"], correct: "Too much friction on the axle", exp: "Friction between the spinning hub and the central pin resists the rotational force, slowing down or stopping the windmill." },
+        { q: "What meteorological instrument uses a similar spinning principle to a windmill to measure wind speed?", a: ["Anemometer", "Barometer"], correct: "Anemometer", exp: "An anemometer typically uses cups or a propeller to catch the wind, spinning faster as the wind speed increases." },
+        { q: "In a classic DIY folded paper rainbow pinwheel, what shape of paper do you start with before folding the corners to the center?", a: ["A Square", "A Circle"], correct: "A Square", exp: "A standard pinwheel is made by cutting diagonally from the corners of a square toward the center, then folding alternating points inward." },
+        { q: "What is the center piece called where all the colored blades of the windmill are attached and pivot?", a: ["The Hub", "The Stator"], correct: "The Hub", exp: "The hub is the central component that holds the blades and rotates around the central axle or pin." },
+        { q: "If the wind direction changes by 90 degrees, what must happen for a handheld toy windmill to keep spinning optimally?", a: ["It must be turned to face the wind", "It will spin in reverse"], correct: "It must be turned to face the wind", exp: "Unless it has a tail fin to self-orient (like a weather vane), a fixed windmill must manually face the wind stream to work efficiently." },
+        { q: "Which colors make up the standard traditional 'rainbow' often seen on these toy windmills?", a: ["Red, Orange, Yellow, Green, Blue, Indigo, Violet", "Red, White, and Blue"], correct: "Red, Orange, Yellow, Green, Blue, Indigo, Violet", exp: "The classic rainbow pattern follows the visible light spectrum, often remembered by the acronym ROYGBIV." }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.8;
+        msg.pitch = 0.5;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(200, 'square', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 50);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "CORRECT" : "INCORRECT") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(600, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "MISSION SCORE: " + score;
+                        
+                        setTimeout(nextQuestion, 4000); 
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

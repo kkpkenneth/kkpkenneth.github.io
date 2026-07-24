@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personality Dimension Test</title>
+    <style>
+        :root {
+            --blue: #3498db;
+            --gold: #f39c12;
+            --green: #2ecc71;
+            --orange: #e67e22;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: #2c3e50;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .question-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1em;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            color: #333;
+        }
+        .option-btn:hover {
+            border-color: #2c3e50;
+            background: #eef7ff;
+            transform: translateY(-2px);
+        }
+        #result-screen {
+            display: none;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .dominant-color {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .chart-container {
+            margin: 30px 0;
+        }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .bar-label {
+            width: 100px;
+            font-weight: bold;
+        }
+        .bar-track {
+            flex-grow: 1;
+            background: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+        .bar-score {
+            width: 30px;
+            text-align: right;
+            font-weight: bold;
+        }
+        .description-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #2c3e50;
+            margin-top: 20px;
+        }
+        .btn-restart {
+            display: block;
+            width: 100%;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+        .btn-restart:hover {
+            background: #1a252f;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Personality Dimensions® Style Test</h1>
+    <p class="subtitle" id="subtitle">Answer 10 quick questions to discover your dominant trait.</p>
+    
+    <div id="quiz-screen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="question-card" id="question-card">
+            <div class="question-title" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container">
+                <!-- Options injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <div class="result-header">
+            <h2>Your Dominant Personality Dimension</h2>
+            <div class="dominant-color" id="dominant-title">Color</div>
+        </div>
+        
+        <div class="chart-container" id="chart-container">
+            <!-- Bars injected via JS -->
+        </div>
+
+        <div class="description-box" id="description-box">
+            <h3 id="desc-title">Trait Name</h3>
+            <p id="desc-text">Description goes here.</p>
+        </div>
+
+        <button class="btn-restart" onclick="location.reload()">Take Test Again</button>
+    </div>
+</div>
+
+<script>
+    // Personality dimensions data
+    const dimensions = {
+        gold: { 
+            name: "Organized Gold", 
+            color: "#f39c12", 
+            desc: "You value structure, rules, and responsibility. You are dependable, punctual, and detail-oriented. People can always count on you to get the job done right and on time." 
+        },
+        blue: { 
+            name: "Authentic Blue", 
+            color: "#3498db", 
+            desc: "You are empathetic, compassionate, and focused on relationships. You value harmony and authenticity, and you possess a natural ability to connect with and support others." 
+        },
+        green: { 
+            name: "Inquiring Green", 
+            color: "#2ecc71", 
+            desc: "You are analytical, logical, and visionary. You are driven by a need to understand the world, solve complex problems, and acquire knowledge. You value competence." 
+        },
+        orange: { 
+            name: "Resourceful Orange", 
+            color: "#e67e22", 
+            desc: "You are spontaneous, adaptable, and action-oriented. You love freedom, excitement, and practical results. You excel in a crisis and learn best by doing." 
+        }
+    };
+
+    // Quiz Questions (Options randomized in logic)
+    const questions = [
+        {
+            q: "When planning a vacation, you prefer to:",
+            options: [
+                { text: "Have a detailed itinerary and booking confirmations.", type: "gold" },
+                { text: "Go with the flow and seek out spontaneous adventures.", type: "orange" },
+                { text: "Connect with locals and have meaningful cultural experiences.", type: "blue" },
+                { text: "Research the history, geography, and architecture thoroughly.", type: "green" }
+            ]
+        },
+        {
+            q: "In a group project, your natural role is usually:",
+            options: [
+                { text: "The peacemaker who ensures everyone feels heard.", type: "blue" },
+                { text: "The organizer who creates the schedule and assigns tasks.", type: "gold" },
+                { text: "The troubleshooter who handles unexpected crises hands-on.", type: "orange" },
+                { text: "The strategist who designs the overarching concept and logic.", type: "green" }
+            ]
+        },
+        {
+            q: "You are most frustrated by people who are:",
+            options: [
+                { text: "Incompetent or illogical.", type: "green" },
+                { text: "Irresponsible or late.", type: "gold" },
+                { text: "Fake, insensitive, or mean.", type: "blue" },
+                { text: "Rigid, boring, or overly strict.", type: "orange" }
+            ]
+        },
+        {
+            q: "If you have a free weekend, you are most likely to:",
+            options: [
+                { text: "Catch up on chores, errands, and organize your space.", type: "gold" },
+                { text: "Read a fascinating book, watch documentaries, or learn a new skill.", type: "green" },
+                { text: "Have deep conversations with close friends over coffee.", type: "blue" },
+                { text: "Try a new physical activity, go to a concert, or travel somewhere new.", type: "orange" }
+            ]
+        },
+        {
+            q: "When making a difficult decision, you primarily rely on:",
+            options: [
+                { text: "Your gut feeling and immediate instincts.", type: "orange" },
+                { text: "Objective facts, data, and logical analysis.", type: "green" },
+                { text: "How the decision will impact the feelings of others.", type: "blue" },
+                { text: "Past experiences, rules, and established procedures.", type: "gold" }
+            ]
+        },
+        {
+            q: "At work or school, you feel most appreciated when you are praised for your:",
+            options: [
+                { text: "Intelligence and innovative ideas.", type: "green" },
+                { text: "Reliability and hard work.", type: "gold" },
+                { text: "Compassion and ability to help others.", type: "blue" },
+                { text: "Boldness, energy, and quick results.", type: "orange" }
+            ]
+        },
+        {
+            q: "Your ideal learning environment is:",
+            options: [
+                { text: "Interactive, collaborative, and emotionally supportive.", type: "blue" },
+                { text: "Independent, intellectually challenging, and theory-based.", type: "green" },
+                { text: "Hands-on, fast-paced, and practically applied.", type: "orange" },
+                { text: "Structured, clear expectations, and follow-the-book.", type: "gold" }
+            ]
+        },
+        {
+            q: "When facing a strict deadline, you:",
+            options: [
+                { text: "Thrive on the adrenaline and pull it together at the last minute.", type: "orange" },
+                { text: "Finished it days ago. You hate leaving things to the last minute.", type: "gold" },
+                { text: "Analyze the most efficient way to complete the system requirements.", type: "green" },
+                { text: "Worry about the stress it's causing the team and try to support them.", type: "blue" }
+            ]
+        },
+        {
+            q: "If you were to buy a new car, your top priority would be:",
+            options: [
+                { text: "Safety, reliability, and good resale value.", type: "gold" },
+                { text: "Advanced technology, specs, and engineering efficiency.", type: "green" },
+                { text: "Looks, speed, and how fun it is to drive.", type: "orange" },
+                { text: "Eco-friendliness or how comfortably it fits your friends/family.", type: "blue" }
+            ]
+        },
+        {
+            q: "Your personal motto is closest to:",
+            options: [
+                { text: "Knowledge is power.", type: "green" },
+                { text: "To thine own self be true.", type: "blue" },
+                { text: "Be prepared.", type: "gold" },
+                { text: "Just do it.", type: "orange" }
+            ]
+        }
+    ];
+
+    let currentQuestion = 0;
+    let scores = { gold: 0, blue: 0, green: 0, orange: 0 };
+
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const progressBar = document.getElementById('progress-bar');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const subtitle = document.getElementById('subtitle');
+
+    // Shuffle options so patterns aren't obvious
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function loadQuestion() {
+        // Trigger reflow for animation restart
+        const card = document.getElementById('question-card');
+        card.style.animation = 'none';
+        card.offsetHeight; 
+        card.style.animation = 'fadeIn 0.4s ease-in-out';
+
+        const q = questions[currentQuestion];
+        questionText.innerText = `${currentQuestion + 1}. ${q.q}`;
+        optionsContainer.innerHTML = '';
+
+        const progressPercentage = (currentQuestion / questions.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+
+        let shuffledOptions = shuffleArray([...q.options]);
+
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.type);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(type) {
+        scores[type]++;
+        currentQuestion++;
+
+        if (currentQuestion < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        progressBar.style.width = '100%';
+        setTimeout(() => {
+            quizScreen.style.display = 'none';
+            subtitle.style.display = 'none';
+            resultScreen.style.display = 'block';
+            calculateProfile();
+        }, 300);
+    }
+
+    function calculateProfile() {
+        // Find dominant trait
+        let dominantTrait = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        let profile = dimensions[dominantTrait];
+
+        // Set dominant UI elements
+        const domTitle = document.getElementById('dominant-title');
+        domTitle.innerText = profile.name;
+        domTitle.style.color = profile.color;
+        
+        document.getElementById('desc-title').innerText = `About ${profile.name}`;
+        document.getElementById('desc-title').style.color = profile.color;
+        document.getElementById('description-box').style.borderLeftColor = profile.color;
+        document.getElementById('desc-text').innerText = profile.desc;
+
+        // Render Bars (sorted by score)
+        const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        const chartContainer = document.getElementById('chart-container');
+        chartContainer.innerHTML = '';
+
+        const maxScore = sortedScores[0][1]; // to scale the bars
+
+        sortedScores.forEach(([key, val]) => {
+            let dim = dimensions[key];
+            let widthPct = maxScore > 0 ? (val / questions.length) * 100 : 0;
+            
+            chartContainer.innerHTML += `
+                <div class="bar-row">
+                    <div class="bar-label" style="color: ${dim.color}">${dim.name.split(' ')[1]}</div>
+                    <div class="bar-track">
+                        <div class="bar-fill" id="bar-${key}" style="background-color: ${dim.color};"></div>
+                    </div>
+                    <div class="bar-score">${val}</div>
+                </div>
+            `;
+            
+            // Animate bars after rendering
+            setTimeout(() => {
+                document.getElementById(`bar-${key}`).style.width = `${widthPct}%`;
+            }, 100);
+        });
+    }
+
+    // Start Quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>

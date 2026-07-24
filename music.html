@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Music Genre Quiz & Gallery</title>
+<style>
+  :root {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --secondary: #6366f1;
+    --secondary-hover: #4f46e5;
+    --text: #f8fafc;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .app-container {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    transition: max-width 0.3s ease;
+  }
+
+  /* Expand container when gallery is open */
+  .app-container.gallery-mode {
+    max-width: 900px;
+  }
+
+  h2 { margin-top: 0; }
+  
+  .hidden { display: none !important; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    background-color: var(--primary);
+    border: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .btn:hover { background-color: var(--primary-hover); }
+  
+  .btn.btn-secondary { background-color: var(--secondary); }
+  .btn.btn-secondary:hover { background-color: var(--secondary-hover); }
+
+  #audio-player {
+    width: 100%;
+    margin: 15px 0;
+    outline: none;
+  }
+
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 10px;
+  }
+
+  #question-text {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  /* Gallery Styles */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+    text-align: left;
+    padding-right: 10px;
+  }
+
+  /* Custom Scrollbar for Gallery */
+  .gallery-grid::-webkit-scrollbar { width: 8px; }
+  .gallery-grid::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 4px; }
+  .gallery-grid::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+  .genre-card {
+    background-color: var(--bg-color);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .genre-card h4 { 
+    margin: 0 0 5px 0; 
+    color: var(--primary); 
+    font-size: 1.2rem;
+  }
+  
+  .genre-card .short-def {
+    font-style: italic;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+
+  .genre-card .explanation {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    line-height: 1.4;
+    flex-grow: 1;
+  }
+
+  .genre-card audio {
+    width: 100%;
+    height: 30px;
+    margin-top: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container" id="app-container">
+  <!-- Start Screen -->
+  <div id="start-screen">
+    <h2>🎧 Global Music Quiz</h2>
+    <p>Identify the genre based on its sonic characteristics.</p>
+    <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    <button class="btn btn-secondary" onclick="showGallery()">Study Gallery</button>
+  </div>
+
+  <!-- Quiz Interface -->
+  <div id="quiz-screen" class="hidden">
+    <div class="status-bar">
+      <span id="question-counter">Question: 1/20</span>
+      <span>Score: <span id="score-display">0</span></span>
+    </div>
+    
+    <h3 id="question-text"></h3>
+    
+    <audio id="audio-player" controls controlsList="nodownload"></audio>
+    <div id="options-container"></div>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="result-screen" class="hidden">
+    <h2>Quiz Complete! 🎉</h2>
+    <p>Your Final Score: <span id="final-score">0</span> / 20</p>
+    <button class="btn" onclick="location.reload()">Play Again</button>
+    <button class="btn btn-secondary" onclick="showGallery()">Review in Gallery</button>
+  </div>
+
+  <!-- Gallery Screen -->
+  <div id="gallery-screen" class="hidden">
+    <h2>📚 Music Genre Gallery</h2>
+    <p style="color: #94a3b8; font-size: 0.9rem;">Explore the characteristics and history of each genre.</p>
+    <div class="gallery-grid" id="gallery-grid">
+      <!-- Cards injected by JS -->
+    </div>
+    <button class="btn" onclick="hideGallery()" style="margin-top: 20px;">Back to Main Menu</button>
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      question: "Catchy hooks, verse-chorus structures.",
+      options: ["Pop", "R&B", "Synthwave", "Country"],
+      answer: "Pop",
+      explanation: "Pop music is designed to appeal to a broad audience, heavily featuring memorable melodies, repeated choruses, and accessible, highly produced song structures."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+      question: "Gritty guitar-driven anthems, stadium rock.",
+      options: ["Heavy Metal", "Rock", "Grunge", "Alternative Rock"],
+      answer: "Rock",
+      explanation: "Rooted in 1950s rock and roll, this genre relies heavily on the electric guitar, bass, and drums, often featuring energetic and rebellious themes designed for live performance."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+      question: "Rhythmic, intricate lyrical flows.",
+      options: ["Trap", "Boom Bap", "Hip Hop", "Grime"],
+      answer: "Hip Hop",
+      explanation: "Originating in the Bronx in the 1970s, Hip Hop centers around rhythmic vocal delivery (rapping) over drum beats, often accompanied by DJing and sampling."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+      question: "Smooth vocal melodies, contemporary rhythms.",
+      options: ["Soul", "R&B", "Gospel", "Pop"],
+      answer: "R&B",
+      explanation: "Rhythm and Blues combines soulful singing with a strong backbeat. It originated in African American communities and has evolved into a polished, electronically-driven contemporary style."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+      question: "1980s retro-futuristic synthesizer aesthetics.",
+      options: ["Synthwave", "Electronic", "Techno", "Eurodance"],
+      answer: "Synthwave",
+      explanation: "A microgenre of electronic music heavily inspired by 1980s action/sci-fi film soundtracks and video games, relying on analog synthesizers and a nostalgic neon aesthetic."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+      question: "Relaxed, low-fidelity study beats.",
+      options: ["Ambient", "Trip Hop", "Lo-Fi", "Dubstep"],
+      answer: "Lo-Fi",
+      explanation: "Lo-Fi (low fidelity) intentionally embraces sonic imperfections like vinyl crackle or tape hiss, combining them with mellow, looped hip-hop beats to create a relaxing atmosphere."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+      question: "Heavy bass drops, syncopated rhythms.",
+      options: ["Hardstyle", "Drum and Bass", "Dubstep", "Grime"],
+      answer: "Dubstep",
+      explanation: "Emerging from South London in the early 2000s, Dubstep is defined by its sparse, syncopated drum patterns and overwhelming, manipulated sub-bass frequencies."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+      question: "Swing rhythms, complex chord progressions.",
+      options: ["Blues", "Jazz", "Funk", "Salsa"],
+      answer: "Jazz",
+      explanation: "Born in New Orleans, Jazz is characterized by swing and blue notes, complex chords, call-and-response vocals, polyrhythms, and a heavy emphasis on live improvisation."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
+      question: "Orchestral symphonies, sonatas, arrangements.",
+      options: ["Classical", "Symphonic Metal", "Ambient", "Folk"],
+      answer: "Classical",
+      explanation: "Rooted in Western art music, Classical features highly formalized structures, diverse orchestration, and complex notation spanning from the Medieval era through the Romantic period."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+      question: "Bassline-driven danceable syncopated grooves.",
+      options: ["Disco", "House", "Funk", "Afrobeats"],
+      answer: "Funk",
+      explanation: "De-emphasizing melody and chord progressions, Funk brings the rhythmic groove of a bassline and drum kit to the foreground to create intensely danceable music."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3",
+      question: "Off-beat guitar chops, Rastafarian themes.",
+      options: ["Reggae", "Ska", "Dancehall", "Bachata"],
+      answer: "Reggae",
+      explanation: "Originating in Jamaica, Reggae is known for its rhythmic accents on the off-beat (the 'skank'), prominent, melodic basslines, and socially conscious lyrics."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
+      question: "Complex Afro-Cuban dance rhythms.",
+      options: ["Reggaeton", "Latin Pop", "Salsa", "Bachata"],
+      answer: "Salsa",
+      explanation: "A highly energetic dance genre that arose in New York City during the 1960s, fusing elements of Cuban son, mambo, and intricate Afro-Cuban percussion."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3",
+      question: "Highly stylized Korean pop structures.",
+      options: ["J-Pop", "K-Pop", "Pop", "Eurodance"],
+      answer: "K-Pop",
+      explanation: "South Korean popular music characterized by a wide variety of audiovisual elements, extensive idol training systems, synchronized choreography, and intense genre-blending."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3",
+      question: "West African beats, contemporary rhythms.",
+      options: ["Afrobeats", "Reggae", "Salsa", "Trap"],
+      answer: "Afrobeats",
+      explanation: "A contemporary musical movement originating in West Africa that blends traditional rhythms like highlife and fuji with Western pop, dancehall, and electronic production."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3",
+      question: "Aggressive guitar riffs, fast tempos.",
+      options: ["Hardstyle", "Punk Rock", "Heavy Metal", "Industrial"],
+      answer: "Heavy Metal",
+      explanation: "Developed in the late 1960s, Heavy Metal relies on a massive, thick sound powered by highly amplified distortion, extended guitar solos, and emphatic, aggressive drum beats."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3",
+      question: "Fast, raw, politically charged anthems.",
+      options: ["Punk Rock", "Grunge", "Rock", "Alternative Rock"],
+      answer: "Punk Rock",
+      explanation: "Emerging in the mid-1970s, Punk rock rejected mainstream conventions, favoring short, stripped-down instrumentation, hard-edged melodies, and anti-establishment themes."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
+      question: "Hi-hat heavy production, urban themes.",
+      options: ["Drill", "Boom Bap", "Trap", "Trip Hop"],
+      answer: "Trap",
+      explanation: "A subgenre of hip hop from the Southern US, recognizable by its complex, rapid-fire hi-hat patterns, synthesized drums, and heavy, booming 808 sub-bass."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      question: "Walls of distorted, echoing guitar sound.",
+      options: ["Shoegaze", "Dream Pop", "Psychedelic Rock", "Grunge"],
+      answer: "Shoegaze",
+      explanation: "An alternative rock subgenre characterized by an ethereal mixture of obscured vocals, heavy guitar feedback, effect pedals, and overwhelming volume."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+      question: "Fast Jamaican roots party music.",
+      options: ["Reggae", "Ska", "Calypso", "Dubstep"],
+      answer: "Ska",
+      explanation: "Pre-dating rocksteady and reggae, Ska combines elements of Caribbean mento and calypso with American R&B. It is distinguished by a fast tempo and prominent walking bassline."
+    },
+    {
+      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+      question: "Textural, atmospheric soundscapes without drums.",
+      options: ["Ambient", "Lo-Fi", "Dream Pop", "Classical"],
+      answer: "Ambient",
+      explanation: "Electronic music that emphasizes tone, texture, and atmosphere over traditional musical structure or rhythm, often lacking a distinct beat entirely to evoke a sense of space."
+    }
+  ];
+
+  let currentQuestionIndex = 0;
+  let score = 0;
+
+  const appContainer = document.getElementById('app-container');
+  const startScreen = document.getElementById('start-screen');
+  const quizScreen = document.getElementById('quiz-screen');
+  const resultScreen = document.getElementById('result-screen');
+  const galleryScreen = document.getElementById('gallery-screen');
+  
+  const audioPlayer = document.getElementById('audio-player');
+  const optionsContainer = document.getElementById('options-container');
+  const questionCounter = document.getElementById('question-counter');
+  const scoreDisplay = document.getElementById('score-display');
+  const finalScore = document.getElementById('final-score');
+  const questionText = document.getElementById('question-text');
+  const galleryGrid = document.getElementById('gallery-grid');
+
+  function startQuiz() {
+    startScreen.classList.add('hidden');
+    resultScreen.classList.add('hidden');
+    galleryScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    appContainer.classList.remove('gallery-mode');
+    currentQuestionIndex = 0;
+    score = 0;
+    scoreDisplay.textContent = score;
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    optionsContainer.innerHTML = '';
+    
+    const currentQuestion = quizData[currentQuestionIndex];
+    
+    questionText.textContent = currentQuestion.question;
+    questionCounter.textContent = `Question: ${currentQuestionIndex + 1}/${quizData.length}`;
+    
+    audioPlayer.src = currentQuestion.audioSrc;
+    audioPlayer.play().catch(e => console.log("Audio autoplay prevented by browser. User must press play."));
+
+    currentQuestion.options.forEach(option => {
+      const button = document.createElement('button');
+      button.textContent = option;
+      button.className = 'btn';
+      button.onclick = () => checkAnswer(option, currentQuestion.answer);
+      optionsContainer.appendChild(button);
+    });
+  }
+
+  function checkAnswer(selectedOption, correctAnswer) {
+    if (selectedOption === correctAnswer) {
+      score++;
+      scoreDisplay.textContent = score;
+    }
+
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex < quizData.length) {
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults() {
+    audioPlayer.pause();
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+    finalScore.textContent = score;
+  }
+
+  function showGallery() {
+    audioPlayer.pause(); // Pause quiz audio if running
+    startScreen.classList.add('hidden');
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.add('hidden');
+    
+    appContainer.classList.add('gallery-mode');
+    galleryScreen.classList.remove('hidden');
+
+    // Only render the gallery once to save DOM operations
+    if (galleryGrid.innerHTML.trim() === '') {
+      renderGallery();
+    }
+  }
+
+  function hideGallery() {
+    // Pause any playing audio in the gallery before leaving
+    const galleryAudios = galleryGrid.querySelectorAll('audio');
+    galleryAudios.forEach(aud => aud.pause());
+
+    galleryScreen.classList.add('hidden');
+    appContainer.classList.remove('gallery-mode');
+    
+    // Determine where to route back to
+    if (currentQuestionIndex >= quizData.length && score > 0) {
+      resultScreen.classList.remove('hidden');
+    } else {
+      startScreen.classList.remove('hidden');
+    }
+  }
+
+  function renderGallery() {
+    // Sort alphabetically by genre name for the gallery view
+    const sortedData = [...quizData].sort((a, b) => a.answer.localeCompare(b.answer));
+
+    sortedData.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'genre-card';
+      
+      card.innerHTML = `
+        <h4>${item.answer}</h4>
+        <div class="short-def">"${item.question}"</div>
+        <div class="explanation">${item.explanation}</div>
+        <audio controls controlsList="nodownload" src="${item.audioSrc}" preload="none"></audio>
+      `;
+      
+      galleryGrid.appendChild(card);
+    });
+
+    // Add event listeners to gallery audio players to ensure only one plays at a time
+    const audios = galleryGrid.querySelectorAll('audio');
+    audios.forEach(audio => {
+      audio.addEventListener('play', (e) => {
+        audios.forEach(otherAudio => {
+          if (otherAudio !== e.target) {
+            otherAudio.pause();
+          }
+        });
+      });
+    });
+  }
+</script>
+
+</body>
+</html>

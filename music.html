@@ -1,468 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Music Genre Quiz & Gallery</title>
-<style>
-  :root {
-    --bg-color: #0f172a;
-    --card-bg: #1e293b;
-    --primary: #10b981;
-    --primary-hover: #059669;
-    --secondary: #6366f1;
-    --secondary-hover: #4f46e5;
-    --text: #f8fafc;
-  }
-  
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Genre Explorer</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
 
-  .app-container {
-    background-color: var(--card-bg);
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    transition: max-width 0.3s ease;
-  }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
 
-  /* Expand container when gallery is open */
-  .app-container.gallery-mode {
-    max-width: 900px;
-  }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-  h2 { margin-top: 0; }
-  
-  .hidden { display: none !important; }
+        /* Header (Hidden on Start Screen) */
+        #main-header {
+            display: none;
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: var(--surface);
+            border-bottom: 1px solid #334155;
+            animation: slideDown 0.4s ease;
+        }
 
-  .btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    background-color: var(--primary);
-    border: none;
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
 
-  .btn:hover { background-color: var(--primary-hover); }
-  
-  .btn.btn-secondary { background-color: var(--secondary); }
-  .btn.btn-secondary:hover { background-color: var(--secondary-hover); }
+        /* Buttons */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
 
-  #audio-player {
-    width: 100%;
-    margin: 15px 0;
-    outline: none;
-  }
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
 
-  .status-bar {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: #94a3b8;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 10px;
-  }
+        button.outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+        }
 
-  #question-text {
-    font-size: 1.1rem;
-    line-height: 1.5;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    font-weight: 500;
-  }
+        button.outline:hover {
+            background-color: var(--primary);
+        }
 
-  /* Gallery Styles */
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-    max-height: 60vh;
-    overflow-y: auto;
-    text-align: left;
-    padding-right: 10px;
-  }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
-  /* Custom Scrollbar for Gallery */
-  .gallery-grid::-webkit-scrollbar { width: 8px; }
-  .gallery-grid::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 4px; }
-  .gallery-grid::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        /* View toggling */
+        .view { display: none; width: 100%; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
 
-  .genre-card {
-    background-color: var(--bg-color);
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #334155;
-    display: flex;
-    flex-direction: column;
-  }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-  .genre-card h4 { 
-    margin: 0 0 5px 0; 
-    color: var(--primary); 
-    font-size: 1.2rem;
-  }
-  
-  .genre-card .short-def {
-    font-style: italic;
-    color: #94a3b8;
-    font-size: 0.85rem;
-    margin-bottom: 10px;
-  }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-  .genre-card .explanation {
-    font-size: 0.9rem;
-    color: #cbd5e1;
-    line-height: 1.4;
-    flex-grow: 1;
-  }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
 
-  .genre-card audio {
-    width: 100%;
-    height: 30px;
-    margin-top: 15px;
-  }
-</style>
+        /* Start Screen UI */
+        #start-screen {
+            text-align: center;
+            margin: auto;
+            max-width: 600px;
+            padding: 4rem 2rem;
+            background: var(--surface);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        #start-screen h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #start-screen p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .start-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-pulse {
+            animation: pulseGlow 2s infinite;
+            padding: 1.2rem;
+            font-size: 1.2rem;
+        }
+
+        /* Quiz UI */
+        #quiz-view {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .audio-controls {
+            margin: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .option-btn {
+            background-color: #334155;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) { background-color: #475569; transform: none; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        .option-btn.correct { background-color: var(--success); }
+        .option-btn.wrong { background-color: var(--danger); }
+
+        /* Collection UI */
+        #collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .genre-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border: 1px solid #334155;
+            transition: transform 0.2s;
+        }
+        
+        .genre-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .genre-card h3 {
+            font-size: 1.5rem;
+            text-transform: capitalize;
+            color: var(--primary);
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.5rem;
+        }
+
+        .tag {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+
+        .card-actions button {
+            flex: 1;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app-container" id="app-container">
-  <!-- Start Screen -->
-  <div id="start-screen">
-    <h2>🎧 Global Music Quiz</h2>
-    <p>Identify the genre based on its sonic characteristics.</p>
-    <button class="btn" onclick="startQuiz()">Start Quiz</button>
-    <button class="btn btn-secondary" onclick="showGallery()">Study Gallery</button>
-  </div>
+    <header id="main-header">
+        <h1>Music Genre Explorer</h1>
+        <div class="nav-tabs">
+            <button onclick="switchView('quiz')" id="tab-quiz">Speed Quiz</button>
+            <button onclick="switchView('collection')" id="tab-collection" class="outline">Study Collection</button>
+        </div>
+    </header>
 
-  <!-- Quiz Interface -->
-  <div id="quiz-screen" class="hidden">
-    <div class="status-bar">
-      <span id="question-counter">Question: 1/20</span>
-      <span>Score: <span id="score-display">0</span></span>
+    <div class="container">
+        
+        <!-- Start Screen View -->
+        <div id="start-screen" class="view active">
+            <h1>Music Genre Explorer</h1>
+            <p>Train your ear and explore the characteristics of 50 different music genres.</p>
+            
+            <div class="start-actions">
+                <button onclick="switchView('quiz')" class="btn-pulse">Start Speed Quiz</button>
+                <button onclick="switchView('collection')" class="outline" style="padding: 1rem;">Browse Study Collection</button>
+            </div>
+        </div>
+
+        <!-- Quiz View -->
+        <div id="quiz-view" class="view">
+            <h2>Identify the Genre</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Score: <span id="score">0</span></p>
+            
+            <div class="audio-controls">
+                <p id="play-instruction" style="color: var(--primary); font-weight: bold; margin: 0;">Click Play to start!</p>
+                <button onclick="playQuizAudio()" style="border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    ▶
+                </button>
+            </div>
+
+            <div id="options-grid"></div>
+            <button onclick="nextQuestion()" id="next-btn" style="margin-top: 2rem; display: none; width: 100%; padding: 1.2rem;">Next Track</button>
+        </div>
+
+        <!-- Collection View -->
+        <div id="collection-view" class="view">
+            <div id="collection-grid"></div>
+        </div>
     </div>
-    
-    <h3 id="question-text"></h3>
-    
-    <audio id="audio-player" controls controlsList="nodownload"></audio>
-    <div id="options-container"></div>
-  </div>
 
-  <!-- Results Screen -->
-  <div id="result-screen" class="hidden">
-    <h2>Quiz Complete! 🎉</h2>
-    <p>Your Final Score: <span id="final-score">0</span> / 20</p>
-    <button class="btn" onclick="location.reload()">Play Again</button>
-    <button class="btn btn-secondary" onclick="showGallery()">Review in Gallery</button>
-  </div>
+    <script>
+        const genreData = [
+            { id: "3-hiphop", name: "Hip Hop", file: "3-hiphop.mp3", mood: "Nostalgic, rhythmic, and cozy.", instruments: "Vinyl drum breaks, sampled piano or jazz loops, and heavy bass.", scene: "A slow-motion montage of city life in an urban neighborhood at dusk." },
+            { id: "4-r&b", name: "R&B", file: "4-r&b.mp3", mood: "Smooth, sensual, and intimate.", instruments: "Electric piano, syncopated electronic drums, deep bass, and lush vocal harmonies.", scene: "A quiet, neon-lit drive through a modern metropolis late at night." },
+            { id: "11-lo-fi", name: "Lo-Fi", file: "11-lo-fi.mp3", mood: "Relaxed, warm, and slightly melancholic.", instruments: "Vinyl crackle, muffled kick drums, detuned pianos, and environmental Foley like rain.", scene: "Studying alone by a window while rain pours outside in the evening." },
+            { id: "15-ambienct", name: "Ambient", file: "15-ambienct.mp3", mood: "Weightless, atmospheric, and calm.", instruments: "Synthesizer drones, heavy reverb, and drifting electronic textures.", scene: "A wide, panning shot of the Earth viewed from a silent space station." },
+            { id: "34-k-pop", name: "K-Pop", file: "34-k-pop.mp3", mood: "High-energy, glossy, and euphoric.", instruments: "Crisp four-on-the-floor kicks, bright synthesizer arpeggios, and heavy sub-bass.", scene: "A highly choreographed, neon-soaked dance battle in an underground futuristic club." },
+            { id: "39-disco", name: "Disco", file: "39-disco.mp3", mood: "Celebratory, sophisticated, and rhythmic.", instruments: "Slap-bass, sweeping orchestral strings, rhythm guitar, and four-on-the-floor drums.", scene: "A protagonist making a grand, slow-motion entrance onto a packed, glowing dance floor in 1978." },
+            { id: "40-industrial", name: "Industrial", file: "40-industrial.mp3", mood: "Dark, mechanical, and oppressive.", instruments: "Distorted synthesizers, heavy metallic percussion, and drum machines.", scene: "A high-speed foot chase through a dystopian, rain-slicked cyberpunk factory." },
+            { id: "41-darkwave", name: "Darkwave", file: "41-darkwave.mp3", mood: "Nocturnal, moody, and sleek.", instruments: "Throbbing analog synth bass, icy hi-hats, and eerie, swelling synthesizer leads.", scene: "A lone detective walking through a foggy, technologically advanced city block at midnight." },
+            { id: "42-symphonic-metal", name: "Symphonic Metal", file: "42-symphonic-metal.mp3", mood: "Epic, grand, and high-stakes.", instruments: "Distorted electric guitars, double-kick drums, choral vocals, and orchestral brass.", scene: "A climactic, final showdown between armies in front of an ancient, collapsing cathedral." },
+            { id: "43-grime", name: "Grime", file: "43-grime.mp3", mood: "Aggressive, cold, and confrontational.", instruments: "Sliding sub-bass, complex syncopated hi-hats, and sharp, biting snare hits.", scene: "An underground, high-stakes street race winding through the narrow alleys of a modern city." },
+            { id: "44-trap", name: "Trap", file: "44-trap.mp3", mood: "Gritty, ambitious, and heavy.", instruments: "Rapid-fire 808 hi-hats, booming sub-bass kicks, and cinematic brass stabs.", scene: "A slow-motion panning shot of a crew preparing for a massive, high-stakes heist." },
+            { id: "45-drill", name: "Drill", file: "45-drill.mp3", mood: "Tense, ominous, and energetic.", instruments: "Warping, sliding 808 bass, stuttering snare rolls, and dark piano melodies.", scene: "A shadowy, high-velocity chase sequence evading pursuit in a brutalist concrete cityscape." },
+            { id: "46-boom-bap", name: "Boom Bap", file: "46-boom-bap.mp3", mood: "Grounded, head-nodding, and raw.", instruments: "Hard, acoustic kick-snare loops, upright bass, and chopped horn samples.", scene: "A protagonist walking confidently down a bustling, sunlit block in a 90s metropolis." },
+            { id: "47-psychedelic-rock", name: "Psychedelic Rock", file: "47-psychedelic-rock.mp3", mood: "Hypnotic, hazy, and hallucinogenic.", instruments: "Fuzz-distorted bass, wah-wah guitar, swirling Hammond organ, and delay pedals.", scene: "A surreal dream sequence where the city environment slowly melts and changes colors." },
+            { id: "48-dream-pop", name: "Dream Pop", file: "48-dream-pop.mp3", mood: "Comforting, ethereal, and vulnerable.", instruments: "Chorus-drenched guitars, soft-focus drums, and sweeping, airy synthesizers.", scene: "Standing alone on a quiet city bridge during the golden hour, watching the sky change." },
+            { id: "49-shoegaze", name: "Shoegaze", file: "49-shoegaze.mp3", mood: "Overwhelming, melancholic, and immersive.", instruments: "A massive wall of distorted, feedback-heavy guitars and steady, driving drums.", scene: "A moment of intense emotional realization while staring out at a vast, foggy landscape." },
+            { id: "50-ska", name: "Ska", file: "50-ska.mp3", mood: "Bouncy, frantic, and rebellious.", instruments: "Walking bassline, brass fanfares (trumpet/trombone), and off-beat rhythm guitar skanks.", scene: "A comedic, high-speed chase scene knocking over fruit stands in a crowded street market." }
+        ];
 
-  <!-- Gallery Screen -->
-  <div id="gallery-screen" class="hidden">
-    <h2>📚 Music Genre Gallery</h2>
-    <p style="color: #94a3b8; font-size: 0.9rem;">Explore the characteristics and history of each genre.</p>
-    <div class="gallery-grid" id="gallery-grid">
-      <!-- Cards injected by JS -->
-    </div>
-    <button class="btn" onclick="hideGallery()" style="margin-top: 20px;">Back to Main Menu</button>
-  </div>
-</div>
+        const screenshotFiles = [
+            "1-pop.mp3", "2-rock.mp3", "5-country.mp3", "6-indie-rock.mp3", "7-alternative-rock.mp3", 
+            "8-grunge.mp3", "9-electronic.mp3", "10-synthwave.mp3", "12-techno.mp3", "13-house.mp3", 
+            "14-dubstep.mp3", "16-chiptune.mp3", "17-eurodance.mp3", "18-hardstyle.mp3", "19-drum-and-bass.mp3", 
+            "20-trip-hop.mp3", "21-jazz.mp3", "22-blues.mp3", "23-classical.mp3", "24-folk.mp3", 
+            "25-soul.mp3", "26-funk.mp3", "27-gospel.mp3", "28-bluegrass.mp3", "29-reggae.mp3", 
+            "30-latin-pop.mp3", "31-salsa.mp3", "32-bachata.mp3", "33-reggaeton.mp3", "35-city-pop.mp3", 
+            "36-afrobeat.mp3", "37-heavy-metal.mp3", "38-punk-rock.mp3"
+        ];
 
-<script>
-  const quizData = [
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      question: "Catchy hooks, verse-chorus structures.",
-      options: ["Pop", "R&B", "Synthwave", "Country"],
-      answer: "Pop",
-      explanation: "Pop music is designed to appeal to a broad audience, heavily featuring memorable melodies, repeated choruses, and accessible, highly produced song structures."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-      question: "Gritty guitar-driven anthems, stadium rock.",
-      options: ["Heavy Metal", "Rock", "Grunge", "Alternative Rock"],
-      answer: "Rock",
-      explanation: "Rooted in 1950s rock and roll, this genre relies heavily on the electric guitar, bass, and drums, often featuring energetic and rebellious themes designed for live performance."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-      question: "Rhythmic, intricate lyrical flows.",
-      options: ["Trap", "Boom Bap", "Hip Hop", "Grime"],
-      answer: "Hip Hop",
-      explanation: "Originating in the Bronx in the 1970s, Hip Hop centers around rhythmic vocal delivery (rapping) over drum beats, often accompanied by DJing and sampling."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-      question: "Smooth vocal melodies, contemporary rhythms.",
-      options: ["Soul", "R&B", "Gospel", "Pop"],
-      answer: "R&B",
-      explanation: "Rhythm and Blues combines soulful singing with a strong backbeat. It originated in African American communities and has evolved into a polished, electronically-driven contemporary style."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-      question: "1980s retro-futuristic synthesizer aesthetics.",
-      options: ["Synthwave", "Electronic", "Techno", "Eurodance"],
-      answer: "Synthwave",
-      explanation: "A microgenre of electronic music heavily inspired by 1980s action/sci-fi film soundtracks and video games, relying on analog synthesizers and a nostalgic neon aesthetic."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
-      question: "Relaxed, low-fidelity study beats.",
-      options: ["Ambient", "Trip Hop", "Lo-Fi", "Dubstep"],
-      answer: "Lo-Fi",
-      explanation: "Lo-Fi (low fidelity) intentionally embraces sonic imperfections like vinyl crackle or tape hiss, combining them with mellow, looped hip-hop beats to create a relaxing atmosphere."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
-      question: "Heavy bass drops, syncopated rhythms.",
-      options: ["Hardstyle", "Drum and Bass", "Dubstep", "Grime"],
-      answer: "Dubstep",
-      explanation: "Emerging from South London in the early 2000s, Dubstep is defined by its sparse, syncopated drum patterns and overwhelming, manipulated sub-bass frequencies."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
-      question: "Swing rhythms, complex chord progressions.",
-      options: ["Blues", "Jazz", "Funk", "Salsa"],
-      answer: "Jazz",
-      explanation: "Born in New Orleans, Jazz is characterized by swing and blue notes, complex chords, call-and-response vocals, polyrhythms, and a heavy emphasis on live improvisation."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
-      question: "Orchestral symphonies, sonatas, arrangements.",
-      options: ["Classical", "Symphonic Metal", "Ambient", "Folk"],
-      answer: "Classical",
-      explanation: "Rooted in Western art music, Classical features highly formalized structures, diverse orchestration, and complex notation spanning from the Medieval era through the Romantic period."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
-      question: "Bassline-driven danceable syncopated grooves.",
-      options: ["Disco", "House", "Funk", "Afrobeats"],
-      answer: "Funk",
-      explanation: "De-emphasizing melody and chord progressions, Funk brings the rhythmic groove of a bassline and drum kit to the foreground to create intensely danceable music."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3",
-      question: "Off-beat guitar chops, Rastafarian themes.",
-      options: ["Reggae", "Ska", "Dancehall", "Bachata"],
-      answer: "Reggae",
-      explanation: "Originating in Jamaica, Reggae is known for its rhythmic accents on the off-beat (the 'skank'), prominent, melodic basslines, and socially conscious lyrics."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
-      question: "Complex Afro-Cuban dance rhythms.",
-      options: ["Reggaeton", "Latin Pop", "Salsa", "Bachata"],
-      answer: "Salsa",
-      explanation: "A highly energetic dance genre that arose in New York City during the 1960s, fusing elements of Cuban son, mambo, and intricate Afro-Cuban percussion."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3",
-      question: "Highly stylized Korean pop structures.",
-      options: ["J-Pop", "K-Pop", "Pop", "Eurodance"],
-      answer: "K-Pop",
-      explanation: "South Korean popular music characterized by a wide variety of audiovisual elements, extensive idol training systems, synchronized choreography, and intense genre-blending."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3",
-      question: "West African beats, contemporary rhythms.",
-      options: ["Afrobeats", "Reggae", "Salsa", "Trap"],
-      answer: "Afrobeats",
-      explanation: "A contemporary musical movement originating in West Africa that blends traditional rhythms like highlife and fuji with Western pop, dancehall, and electronic production."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3",
-      question: "Aggressive guitar riffs, fast tempos.",
-      options: ["Hardstyle", "Punk Rock", "Heavy Metal", "Industrial"],
-      answer: "Heavy Metal",
-      explanation: "Developed in the late 1960s, Heavy Metal relies on a massive, thick sound powered by highly amplified distortion, extended guitar solos, and emphatic, aggressive drum beats."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3",
-      question: "Fast, raw, politically charged anthems.",
-      options: ["Punk Rock", "Grunge", "Rock", "Alternative Rock"],
-      answer: "Punk Rock",
-      explanation: "Emerging in the mid-1970s, Punk rock rejected mainstream conventions, favoring short, stripped-down instrumentation, hard-edged melodies, and anti-establishment themes."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
-      question: "Hi-hat heavy production, urban themes.",
-      options: ["Drill", "Boom Bap", "Trap", "Trip Hop"],
-      answer: "Trap",
-      explanation: "A subgenre of hip hop from the Southern US, recognizable by its complex, rapid-fire hi-hat patterns, synthesized drums, and heavy, booming 808 sub-bass."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      question: "Walls of distorted, echoing guitar sound.",
-      options: ["Shoegaze", "Dream Pop", "Psychedelic Rock", "Grunge"],
-      answer: "Shoegaze",
-      explanation: "An alternative rock subgenre characterized by an ethereal mixture of obscured vocals, heavy guitar feedback, effect pedals, and overwhelming volume."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-      question: "Fast Jamaican roots party music.",
-      options: ["Reggae", "Ska", "Calypso", "Dubstep"],
-      answer: "Ska",
-      explanation: "Pre-dating rocksteady and reggae, Ska combines elements of Caribbean mento and calypso with American R&B. It is distinguished by a fast tempo and prominent walking bassline."
-    },
-    {
-      audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-      question: "Textural, atmospheric soundscapes without drums.",
-      options: ["Ambient", "Lo-Fi", "Dream Pop", "Classical"],
-      answer: "Ambient",
-      explanation: "Electronic music that emphasizes tone, texture, and atmosphere over traditional musical structure or rhythm, often lacking a distinct beat entirely to evoke a sense of space."
-    }
-  ];
-
-  let currentQuestionIndex = 0;
-  let score = 0;
-
-  const appContainer = document.getElementById('app-container');
-  const startScreen = document.getElementById('start-screen');
-  const quizScreen = document.getElementById('quiz-screen');
-  const resultScreen = document.getElementById('result-screen');
-  const galleryScreen = document.getElementById('gallery-screen');
-  
-  const audioPlayer = document.getElementById('audio-player');
-  const optionsContainer = document.getElementById('options-container');
-  const questionCounter = document.getElementById('question-counter');
-  const scoreDisplay = document.getElementById('score-display');
-  const finalScore = document.getElementById('final-score');
-  const questionText = document.getElementById('question-text');
-  const galleryGrid = document.getElementById('gallery-grid');
-
-  function startQuiz() {
-    startScreen.classList.add('hidden');
-    resultScreen.classList.add('hidden');
-    galleryScreen.classList.add('hidden');
-    quizScreen.classList.remove('hidden');
-    appContainer.classList.remove('gallery-mode');
-    currentQuestionIndex = 0;
-    score = 0;
-    scoreDisplay.textContent = score;
-    loadQuestion();
-  }
-
-  function loadQuestion() {
-    optionsContainer.innerHTML = '';
-    
-    const currentQuestion = quizData[currentQuestionIndex];
-    
-    questionText.textContent = currentQuestion.question;
-    questionCounter.textContent = `Question: ${currentQuestionIndex + 1}/${quizData.length}`;
-    
-    audioPlayer.src = currentQuestion.audioSrc;
-    audioPlayer.play().catch(e => console.log("Audio autoplay prevented by browser. User must press play."));
-
-    currentQuestion.options.forEach(option => {
-      const button = document.createElement('button');
-      button.textContent = option;
-      button.className = 'btn';
-      button.onclick = () => checkAnswer(option, currentQuestion.answer);
-      optionsContainer.appendChild(button);
-    });
-  }
-
-  function checkAnswer(selectedOption, correctAnswer) {
-    if (selectedOption === correctAnswer) {
-      score++;
-      scoreDisplay.textContent = score;
-    }
-
-    currentQuestionIndex++;
-
-    if (currentQuestionIndex < quizData.length) {
-      loadQuestion();
-    } else {
-      showResults();
-    }
-  }
-
-  function showResults() {
-    audioPlayer.pause();
-    quizScreen.classList.add('hidden');
-    resultScreen.classList.remove('hidden');
-    finalScore.textContent = score;
-  }
-
-  function showGallery() {
-    audioPlayer.pause(); // Pause quiz audio if running
-    startScreen.classList.add('hidden');
-    quizScreen.classList.add('hidden');
-    resultScreen.classList.add('hidden');
-    
-    appContainer.classList.add('gallery-mode');
-    galleryScreen.classList.remove('hidden');
-
-    // Only render the gallery once to save DOM operations
-    if (galleryGrid.innerHTML.trim() === '') {
-      renderGallery();
-    }
-  }
-
-  function hideGallery() {
-    // Pause any playing audio in the gallery before leaving
-    const galleryAudios = galleryGrid.querySelectorAll('audio');
-    galleryAudios.forEach(aud => aud.pause());
-
-    galleryScreen.classList.add('hidden');
-    appContainer.classList.remove('gallery-mode');
-    
-    // Determine where to route back to
-    if (currentQuestionIndex >= quizData.length && score > 0) {
-      resultScreen.classList.remove('hidden');
-    } else {
-      startScreen.classList.remove('hidden');
-    }
-  }
-
-  function renderGallery() {
-    // Sort alphabetically by genre name for the gallery view
-    const sortedData = [...quizData].sort((a, b) => a.answer.localeCompare(b.answer));
-
-    sortedData.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'genre-card';
-      
-      card.innerHTML = `
-        <h4>${item.answer}</h4>
-        <div class="short-def">"${item.question}"</div>
-        <div class="explanation">${item.explanation}</div>
-        <audio controls controlsList="nodownload" src="${item.audioSrc}" preload="none"></audio>
-      `;
-      
-      galleryGrid.appendChild(card);
-    });
-
-    // Add event listeners to gallery audio players to ensure only one plays at a time
-    const audios = galleryGrid.querySelectorAll('audio');
-    audios.forEach(audio => {
-      audio.addEventListener('play', (e) => {
-        audios.forEach(otherAudio => {
-          if (otherAudio !== e.target) {
-            otherAudio.pause();
-          }
+        screenshotFiles.forEach(file => {
+            let name = file.replace(/^\d+-/, '').replace('.mp3', '').replace(/-/g, ' ');
+            genreData.push({
+                id: file.replace('.mp3', ''),
+                name: name,
+                file: file,
+                mood: "A unique and defining emotional atmosphere.",
+                instruments: "Standard instrumentation characteristic to this genre.",
+                scene: "A cinematic moment perfectly suited for this track's energy."
+            });
         });
-      });
-    });
-  }
-</script>
 
+        let currentAudio = null;
+        let currentQuizCorrect = null;
+        let score = 0;
+        let isFirstQuizLoad = true;
+
+        function switchView(view) {
+            // Hide start screen and show header if moving away from start
+            if (view !== 'start-screen') {
+                document.getElementById('main-header').style.display = 'block';
+            }
+
+            // Toggle view visibility
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`${view}-view`).classList.add('active');
+            
+            // Update active tab buttons
+            document.getElementById('tab-quiz').className = view === 'quiz' ? '' : 'outline';
+            document.getElementById('tab-collection').className = view === 'collection' ? '' : 'outline';
+
+            stopAudio();
+            window.speechSynthesis.cancel();
+
+            // Prepare the first quiz question if entering quiz view for the first time
+            if(view === 'quiz' && isFirstQuizLoad) {
+                nextQuestion(true);
+                isFirstQuizLoad = false;
+            }
+        }
+
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+        }
+
+        function playTrack(file) {
+            stopAudio();
+            const playInstruction = document.getElementById('play-instruction');
+            if (playInstruction) playInstruction.style.display = 'none';
+            
+            currentAudio = new Audio(file);
+            currentAudio.play().catch(e => {
+                console.error("Audio playback failed.", e);
+                alert("Could not play track. Make sure '" + file + "' is in the same folder as the HTML file.");
+            });
+        }
+
+        function playQuizAudio() {
+            if (currentQuizCorrect) playTrack(currentQuizCorrect.file);
+        }
+
+        function readExplanation(genre) {
+            const synth = window.speechSynthesis;
+            synth.cancel(); 
+            
+            const text = `${genre.name}. Mood: ${genre.mood} Main Instruments: ${genre.instruments} Perfect Movie Scene: ${genre.scene}`;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            synth.speak(utterance);
+        }
+
+        function nextQuestion(preventAutoplay = false) {
+            document.getElementById('next-btn').style.display = 'none';
+            stopAudio();
+            
+            let shuffled = [...genreData].sort(() => 0.5 - Math.random());
+            currentQuizCorrect = shuffled[0];
+            let options = shuffled.slice(0, 4).sort(() => 0.5 - Math.random());
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.name;
+                btn.onclick = () => handleGuess(btn, opt);
+                grid.appendChild(btn);
+            });
+
+            if (!preventAutoplay) {
+                playQuizAudio();
+            }
+        }
+
+        function handleGuess(btn, selectedObj) {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true); 
+
+            if (selectedObj.id === currentQuizCorrect.id) {
+                btn.classList.add('correct');
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                buttons.forEach(b => {
+                    if(b.innerText.toLowerCase() === currentQuizCorrect.name.toLowerCase()) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function renderCollection() {
+            const grid = document.getElementById('collection-grid');
+            const sorted = [...genreData].sort((a,b) => a.name.localeCompare(b.name));
+            
+            sorted.forEach(genre => {
+                const card = document.createElement('div');
+                card.className = 'genre-card';
+                card.innerHTML = `
+                    <h3>${genre.name}</h3>
+                    <div>
+                        <div class="tag">Mood</div>
+                        <p>${genre.mood}</p>
+                    </div>
+                    <div>
+                        <div class="tag">Instruments</div>
+                        <p>${genre.instruments}</p>
+                    </div>
+                    <div>
+                        <div class="tag">Movie Scene</div>
+                        <p>${genre.scene}</p>
+                    </div>
+                    <div class="card-actions">
+                        <button onclick="playTrack('${genre.file}')">▶ Play Track</button>
+                        <button class="outline" onclick='readExplanation(${JSON.stringify(genre).replace(/'/g, "&apos;")})'>🔊 Read Aloud</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.onload = () => {
+            renderCollection();
+        };
+    </script>
 </body>
 </html>

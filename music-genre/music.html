@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Genre Explorer</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Buttons */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        button.outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+        }
+
+        button.outline:hover {
+            background-color: var(--primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* View toggling */
+        .view { display: none; width: 100%; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        /* Start Screen UI */
+        #start-screen-view {
+            text-align: center;
+            margin: auto;
+            max-width: 600px;
+            padding: 4rem 2rem;
+            background: var(--surface);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        #start-screen-view h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #start-screen-view p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .start-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-pulse {
+            animation: pulseGlow 2s infinite;
+            padding: 1.2rem;
+            font-size: 1.2rem;
+        }
+
+        /* Audio Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.1s linear;
+            pointer-events: none;
+        }
+
+        /* Quiz UI */
+        #quiz-view {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .audio-controls {
+            margin: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        #options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .option-btn {
+            background-color: #334155;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) { background-color: #475569; transform: none; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        .option-btn.correct { background-color: var(--success); }
+        .option-btn.wrong { background-color: var(--danger); }
+
+        /* Modal / Popup UI */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(15, 23, 42, 0.85); 
+            align-items: center; 
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--primary);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+            text-align: left;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-content h3 {
+            color: var(--primary); 
+            border-bottom: 1px solid #334155; 
+            padding-bottom: 0.5rem; 
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+
+        .modal-content p {
+            margin-bottom: 0.8rem; 
+            font-size: 1.05rem;
+        }
+
+        /* Collection UI */
+        #collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .genre-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border: 1px solid #334155;
+            transition: transform 0.2s;
+        }
+        
+        .genre-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .genre-card h3 {
+            font-size: 1.5rem;
+            text-transform: capitalize;
+            color: var(--primary);
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.5rem;
+        }
+
+        .tag {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+
+        .card-actions button {
+            flex: 1;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Back Button Footer */
+        .back-btn-container {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Start Screen View -->
+        <div id="start-screen-view" class="view active">
+            <h1>Music Genre Explorer</h1>
+            <p>Train your ear and explore the characteristics of 50 different music genres.</p>
+            
+            <div class="start-actions">
+                <button onclick="switchView('quiz')" class="btn-pulse">Start Speed Quiz</button>
+                <button onclick="switchView('collection')" class="outline" style="padding: 1rem;">Browse Study Collection</button>
+            </div>
+        </div>
+
+        <!-- Quiz View -->
+        <div id="quiz-view" class="view">
+            <h2>Identify the Genre</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Score: <span id="score">0</span></p>
+            
+            <div class="audio-controls">
+                <button id="quiz-play-btn" onclick="playQuizAudio()" style="border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    ▶
+                </button>
+                <div class="progress-container" onclick="seekAudio(event, this)">
+                    <div class="progress-fill" id="quiz-progress"></div>
+                </div>
+            </div>
+
+            <div id="options-grid"></div>
+            
+            <div class="back-btn-container">
+                <button onclick="switchView('start-screen')" class="outline">Back to Start</button>
+            </div>
+        </div>
+
+        <!-- Collection View -->
+        <div id="collection-view" class="view">
+            <div id="collection-grid"></div>
+            
+            <div class="back-btn-container">
+                <button onclick="switchView('start-screen')" class="outline">Back to Start</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal Popup -->
+    <div id="explanation-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-mood"></p>
+            <p id="modal-instruments"></p>
+            <p id="modal-scene"></p>
+            <button onclick="nextQuestion()" style="width: 100%; margin-top: 1.5rem; padding: 1rem;">Next Track</button>
+        </div>
+    </div>
+
+    <script>
+        const genreData = [
+    { id: "1-pop", name: "Pop", file: "1-pop.mp3", mood: "Upbeat, catchy, and bright.", instruments: "Synthesizers, programmed drums, clear vocals, and acoustic guitar.", scene: "A vibrant summer beach party montage." },
+    { id: "2-rock", name: "Rock", file: "2-rock.mp3", mood: "Energetic, rebellious, and driving.", instruments: "Electric guitar, bass guitar, drum kit, and dynamic vocals.", scene: "A band performing in a packed, sweaty underground club." },
+    { id: "3-hiphop", name: "Hip Hop", file: "3-hiphop.mp3", mood: "Nostalgic, rhythmic, and cozy.", instruments: "Vinyl drum breaks, sampled piano or jazz loops, and heavy bass.", scene: "A slow-motion montage of city life in an urban neighborhood at dusk." },
+    { id: "4-r&b", name: "R&B", file: "4-r&b.mp3", mood: "Smooth, sensual, and intimate.", instruments: "Electric piano, syncopated electronic drums, deep bass, and lush vocal harmonies.", scene: "A quiet, neon-lit drive through a modern metropolis late at night." },
+    { id: "5-country", name: "Country", file: "5-country.mp3", mood: "Rustic, storytelling, and heartfelt.", instruments: "Acoustic guitar, pedal steel, fiddle, and twangy vocals.", scene: "Driving a pickup truck down a dusty dirt road at sunset." },
+    { id: "6-indie-rock", name: "Indie Rock", file: "6-indie-rock.mp3", mood: "Quirky, raw, and introspective.", instruments: "Jingly guitars, lo-fi drum kits, and expressive vocals.", scene: "A group of friends taking a spontaneous road trip in an old van." },
+    { id: "7-alternative-rock", name: "Alternative Rock", file: "7-alternative-rock.mp3", mood: "Edgy, angsty, and dynamic.", instruments: "Distorted guitars, heavy basslines, and crashing cymbals.", scene: "A teenager skateboarding through suburban streets on an overcast afternoon." },
+    { id: "8-grunge", name: "Grunge", file: "8-grunge.mp3", mood: "Apathetic, gritty, and raw.", instruments: "Heavily distorted guitars, sludgy bass, and aggressive drumming.", scene: "A dimly lit garage band practice in the early 90s Pacific Northwest." },
+    { id: "9-electronic", name: "Electronic", file: "9-electronic.mp3", mood: "Futuristic, synthetic, and rhythmic.", instruments: "Synthesizers, drum machines, and digital sequencers.", scene: "A montage of glowing data streams hacking into a mainframe." },
+    { id: "10-synthwave", name: "Synthwave", file: "10-synthwave.mp3", mood: "Nostalgic, retro-futuristic, and driving.", instruments: "Analog synthesizers, gated snare drums, and pulsing basslines.", scene: "Driving a sports car down a neon-lit coastal highway at night in the 1980s." },
+    { id: "11-lo-fi", name: "Lo-Fi", file: "11-lo-fi.mp3", mood: "Relaxed, warm, and slightly melancholic.", instruments: "Vinyl crackle, muffled kick drums, detuned pianos, and environmental Foley like rain.", scene: "Studying alone by a window while rain pours outside in the evening." },
+    { id: "12-techno", name: "Techno", file: "12-techno.mp3", mood: "Hypnotic, repetitive, and mechanical.", instruments: "Roland TR-909 drum machines, synthesizers, and heavy four-on-the-floor kicks.", scene: "A strobe-lit, underground warehouse rave at 3 AM." },
+    { id: "13-house", name: "House", file: "13-house.mp3", mood: "Groovy, uplifting, and rhythmic.", instruments: "Four-on-the-floor kick drums, hi-hats, synth bass, and vocal samples.", scene: "A glamorous outdoor pool party in Ibiza as the sun goes down." },
+    { id: "14-dubstep", name: "Dubstep", file: "14-dubstep.mp3", mood: "Aggressive, bass-heavy, and intense.", instruments: "Wobble bass, heavy sub-bass, syncopated drum patterns, and synthesizers.", scene: "A slow-motion robot battle with heavy impacts matching the bass drops." },
+    { id: "15-ambienct", name: "Ambient", file: "15-ambienct.mp3", mood: "Weightless, atmospheric, and calm.", instruments: "Synthesizer drones, heavy reverb, and drifting electronic textures.", scene: "A wide, panning shot of the Earth viewed from a silent space station." },
+    { id: "16-chiptune", name: "Chiptune", file: "16-chiptune.mp3", mood: "Playful, nostalgic, and hyperactive.", instruments: "8-bit synthesizers, square waves, and retro console sound chips.", scene: "A fast-paced montage of classic arcade game boss fights." },
+    { id: "17-eurodance", name: "Eurodance", file: "17-eurodance.mp3", mood: "High-energy, cheesy, and euphoric.", instruments: "Synthesizer riffs, heavy bass drums, and energetic vocal hooks.", scene: "A flashy 90s aerobics video with neon spandex." },
+    { id: "18-hardstyle", name: "Hardstyle", file: "18-hardstyle.mp3", mood: "Intense, distorted, and relentless.", instruments: "Distorted kick drums, reverse basslines, and detuned synth leads.", scene: "A massive, laser-filled festival crowd jumping in perfect unison." },
+    { id: "19-drum-and-bass", name: "Drum and Bass", file: "19-drum-and-bass.mp3", mood: "Fast-paced, frantic, and futuristic.", instruments: "Breakbeats, heavy sub-bass, and rapid synthesizers.", scene: "A high-speed parkour chase across modern city rooftops." },
+    { id: "20-trip-hop", name: "Trip Hop", file: "20-trip-hop.mp3", mood: "Moody, atmospheric, and cinematic.", instruments: "Slow hip-hop breakbeats, sub-bass, turntables, and ethereal vocals.", scene: "Walking through a rainy, shadowy city alleyway late at night." },
+    { id: "21-jazz", name: "Jazz", file: "21-jazz.mp3", mood: "Sophisticated, improvisational, and smooth.", instruments: "Saxophone, upright bass, piano, and brush drums.", scene: "A smoky, dimly lit speakeasy in the 1920s." },
+    { id: "22-blues", name: "Blues", file: "22-blues.mp3", mood: "Soulful, melancholic, and expressive.", instruments: "Electric guitar, harmonica, bass, and drums.", scene: "A lonely musician playing on a porch in the deep South." },
+    { id: "23-classical", name: "Classical", file: "23-classical.mp3", mood: "Grand, emotional, and timeless.", instruments: "Violins, cellos, pianos, brass, and woodwinds.", scene: "Sweeping aerial views of a majestic, snow-capped mountain range." },
+    { id: "24-folk", name: "Folk", file: "24-folk.mp3", mood: "Earthy, acoustic, and storytelling.", instruments: "Acoustic guitar, banjo, mandolin, and upright bass.", scene: "Gathering around a campfire in the woods under a starry sky." },
+    { id: "25-soul", name: "Soul", file: "25-soul.mp3", mood: "Passionate, powerful, and emotive.", instruments: "Horn sections, Hammond organ, bass, and powerful vocals.", scene: "A heartfelt, tearful reunion at a train station." },
+    { id: "26-funk", name: "Funk", file: "26-funk.mp3", mood: "Groovy, syncopated, and energetic.", instruments: "Slap bass, wah-wah guitar, brass hits, and tight drum breaks.", scene: "Strutting down a bustling city block in 1970s platform shoes." },
+    { id: "27-gospel", name: "Gospel", file: "27-gospel.mp3", mood: "Uplifting, spiritual, and powerful.", instruments: "Choirs, Hammond organ, piano, and tambourine.", scene: "A joyous, hand-clapping celebration in a sunlit wooden church." },
+    { id: "28-bluegrass", name: "Bluegrass", file: "28-bluegrass.mp3", mood: "Fast-paced, acoustic, and twangy.", instruments: "Banjo, fiddle, mandolin, acoustic guitar, and upright bass.", scene: "A lively barn dance in the Appalachian mountains." },
+    { id: "29-reggae", name: "Reggae", file: "29-reggae.mp3", mood: "Relaxed, tropical, and rhythmic.", instruments: "Off-beat guitar skanks, heavy basslines, drums, and brass.", scene: "Swinging in a hammock on a Caribbean beach with palm trees." },
+    { id: "30-latin-pop", name: "Latin Pop", file: "30-latin-pop.mp3", mood: "Vibrant, danceable, and passionate.", instruments: "Spanish guitar, brass, synthesizers, and tropical percussion.", scene: "A lively, colorful street carnival in Miami." },
+    { id: "31-salsa", name: "Salsa", file: "31-salsa.mp3", mood: "Fiery, energetic, and rhythmic.", instruments: "Congas, timbales, piano, trumpets, and trombones.", scene: "Couples dancing with rapid, intricate footwork in a Havana club." },
+    { id: "32-bachata", name: "Bachata", file: "32-bachata.mp3", mood: "Romantic, melancholic, and rhythmic.", instruments: "Requinto guitar, bongo, and güira.", scene: "A close, sensual couples dance on a moonlit patio." },
+    { id: "33-reggaeton", name: "Reggaeton", file: "33-reggaeton.mp3", mood: "Gritty, rhythmic, and club-ready.", instruments: "Dembow drum rhythm, synthesizers, and heavy bass.", scene: "A packed, underground dance club with heavy bass vibrating the walls." },
+    { id: "34-k-pop", name: "K-Pop", file: "34-k-pop.mp3", mood: "High-energy, glossy, and euphoric.", instruments: "Crisp four-on-the-floor kicks, bright synthesizer arpeggios, and heavy sub-bass.", scene: "A highly choreographed, neon-soaked dance battle in an underground futuristic club." },
+    { id: "35-city-pop", name: "City Pop", file: "35-city-pop.mp3", mood: "Nostalgic, breezy, and cosmopolitan.", instruments: "Slap bass, synthesizers, electric piano, and brass.", scene: "Driving a convertible through a retro-anime 1980s Tokyo skyline." },
+    { id: "36-afrobeat", name: "Afrobeat", file: "36-afrobeat.mp3", mood: "Hypnotic, polyrhythmic, and energetic.", instruments: "Congas, talking drums, brass sections, and interlocking guitars.", scene: "A vibrant, bustling marketplace in Lagos filled with movement." },
+    { id: "37-heavy-metal", name: "Heavy Metal", file: "37-heavy-metal.mp3", mood: "Aggressive, powerful, and dark.", instruments: "Distorted guitars, heavy bass, rapid double-kick drums.", scene: "A mosh pit erupting at a dark, pyrotechnic-filled arena concert." },
+    { id: "38-punk-rock", name: "Punk Rock", file: "38-punk-rock.mp3", mood: "Fast, rebellious, and raw.", instruments: "Distorted power chords, frantic drumming, and aggressive bass.", scene: "Skateboarders crashing into trash cans in a rebellious montage." },
+    { id: "39-disco", name: "Disco", file: "39-disco.mp3", mood: "Celebratory, sophisticated, and rhythmic.", instruments: "Slap-bass, sweeping orchestral strings, rhythm guitar, and four-on-the-floor drums.", scene: "A protagonist making a grand, slow-motion entrance onto a packed, glowing dance floor in 1978." },
+    { id: "40-industrial", name: "Industrial", file: "40-industrial.mp3", mood: "Dark, mechanical, and oppressive.", instruments: "Distorted synthesizers, heavy metallic percussion, and drum machines.", scene: "A high-speed foot chase through a dystopian, rain-slicked cyberpunk factory." },
+    { id: "41-darkwave", name: "Darkwave", file: "41-darkwave.mp3", mood: "Nocturnal, moody, and sleek.", instruments: "Throbbing analog synth bass, icy hi-hats, and eerie, swelling synthesizer leads.", scene: "A lone detective walking through a foggy, technologically advanced city block at midnight." },
+    { id: "42-symphonic-metal", name: "Symphonic Metal", file: "42-symphonic-metal.mp3", mood: "Epic, grand, and high-stakes.", instruments: "Distorted electric guitars, double-kick drums, choral vocals, and orchestral brass.", scene: "A climactic, final showdown between armies in front of an ancient, collapsing cathedral." },
+    { id: "43-grime", name: "Grime", file: "43-grime.mp3", mood: "Aggressive, cold, and confrontational.", instruments: "Sliding sub-bass, complex syncopated hi-hats, and sharp, biting snare hits.", scene: "An underground, high-stakes street race winding through the narrow alleys of a modern city." },
+    { id: "44-trap", name: "Trap", file: "44-trap.mp3", mood: "Gritty, ambitious, and heavy.", instruments: "Rapid-fire 808 hi-hats, booming sub-bass kicks, and cinematic brass stabs.", scene: "A slow-motion panning shot of a crew preparing for a massive, high-stakes heist." },
+    { id: "45-drill", name: "Drill", file: "45-drill.mp3", mood: "Tense, ominous, and energetic.", instruments: "Warping, sliding 808 bass, stuttering snare rolls, and dark piano melodies.", scene: "A shadowy, high-velocity chase sequence evading pursuit in a brutalist concrete cityscape." },
+    { id: "46-boom-bap", name: "Boom Bap", file: "46-boom-bap.mp3", mood: "Grounded, head-nodding, and raw.", instruments: "Hard, acoustic kick-snare loops, upright bass, and chopped horn samples.", scene: "A protagonist walking confidently down a bustling, sunlit block in a 90s metropolis." },
+    { id: "47-psychedelic-rock", name: "Psychedelic Rock", file: "47-psychedelic-rock.mp3", mood: "Hypnotic, hazy, and hallucinogenic.", instruments: "Fuzz-distorted bass, wah-wah guitar, swirling Hammond organ, and delay pedals.", scene: "A surreal dream sequence where the city environment slowly melts and changes colors." },
+    { id: "48-dream-pop", name: "Dream Pop", file: "48-dream-pop.mp3", mood: "Comforting, ethereal, and vulnerable.", instruments: "Chorus-drenched guitars, soft-focus drums, and sweeping, airy synthesizers.", scene: "Standing alone on a quiet city bridge during the golden hour, watching the sky change." },
+    { id: "49-shoegaze", name: "Shoegaze", file: "49-shoegaze.mp3", mood: "Overwhelming, melancholic, and immersive.", instruments: "A massive wall of distorted, feedback-heavy guitars and steady, driving drums.", scene: "A moment of intense emotional realization while staring out at a vast, foggy landscape." },
+    { id: "50-ska", name: "Ska", file: "50-ska.mp3", mood: "Bouncy, frantic, and rebellious.", instruments: "Walking bassline, brass fanfares (trumpet/trombone), and off-beat rhythm guitar skanks.", scene: "A comedic, high-speed chase scene knocking over fruit stands in a crowded street market." }
+        ];
+
+    
+
+        let currentAudio = null;
+        let currentFile = null;
+        let currentPlayingId = null;
+        let currentQuizCorrect = null;
+        let score = 0;
+        let isFirstQuizLoad = true;
+
+        function switchView(view) {
+            // Toggle view visibility
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`${view}-view`).classList.add('active');
+
+            stopAudio();
+            currentFile = null;
+            window.speechSynthesis.cancel();
+            
+            // Close modal if open
+            document.getElementById('explanation-modal').classList.remove('show');
+
+            // Autoplay and manage Quiz startup
+            if (view === 'quiz') {
+                if (isFirstQuizLoad || !currentQuizCorrect) {
+                    nextQuestion();
+                    isFirstQuizLoad = false;
+                } else {
+                    // Autoplay the exact spot you left off at if returning to the quiz
+                    playQuizAudio();
+                }
+            }
+        }
+
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            updateButtonUI(null, false);
+            // Reset all progress bars
+            document.querySelectorAll('.progress-fill').forEach(el => el.style.width = '0%');
+        }
+
+        function updateButtonUI(trackId, isPlaying) {
+            // Reset all buttons to default "Play" state
+            const quizBtn = document.getElementById('quiz-play-btn');
+            if (quizBtn) quizBtn.innerHTML = '▶';
+            
+            document.querySelectorAll('.collection-play-btn').forEach(btn => {
+                btn.innerHTML = '▶ Play Track';
+            });
+
+            if (!isPlaying || !trackId) return;
+
+            // Update active track to "Pause" state
+            if (trackId === 'quiz' && quizBtn) {
+                quizBtn.innerHTML = '⏸';
+            } else if (trackId !== 'quiz') {
+                const activeBtn = document.getElementById('play-btn-' + trackId);
+                if (activeBtn) activeBtn.innerHTML = '⏸ Pause';
+            }
+        }
+
+        function playTrack(file, trackId) {
+            // Check if clicking the same track that is already loaded to trigger pause/play toggle
+            if (currentFile === file && currentAudio) {
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                } else {
+                    currentAudio.pause();
+                }
+                return; 
+            }
+
+            // Stop any currently playing audio but do not reset variables yet
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+            
+            // Reset visuals 
+            document.querySelectorAll('.progress-fill').forEach(el => el.style.width = '0%');
+            
+            currentFile = file;
+            currentPlayingId = trackId;
+
+            currentAudio = new Audio(file);
+            
+            // Add listeners to automatically handle Play/Pause UI swapping
+            currentAudio.addEventListener('play', () => updateButtonUI(currentPlayingId, true));
+            currentAudio.addEventListener('pause', () => updateButtonUI(currentPlayingId, false));
+            currentAudio.addEventListener('ended', () => updateButtonUI(currentPlayingId, false));
+
+            // Event listener to update the progress bar as audio plays
+            currentAudio.addEventListener('timeupdate', () => {
+                const percent = (currentAudio.currentTime / currentAudio.duration) * 100 || 0;
+                if (currentPlayingId === 'quiz') {
+                    const prog = document.getElementById('quiz-progress');
+                    if (prog) prog.style.width = percent + '%';
+                } else {
+                    const fill = document.getElementById('fill-' + currentPlayingId);
+                    if (fill) fill.style.width = percent + '%';
+                }
+            });
+
+            currentAudio.play().catch(e => {
+                console.error("Audio playback failed.", e);
+                alert("Could not play track. Make sure '" + file + "' is in the same folder as the HTML file.");
+            });
+        }
+
+        function playQuizAudio() {
+            if (currentQuizCorrect) playTrack(currentQuizCorrect.file, 'quiz');
+        }
+
+        function seekAudio(e, container) {
+            if (!currentAudio) return;
+            const rect = container.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percent = clickX / rect.width;
+            currentAudio.currentTime = percent * currentAudio.duration;
+        }
+
+        function readExplanation(genre) {
+            const synth = window.speechSynthesis;
+            synth.cancel(); 
+            
+            const text = `${genre.name}. Mood: ${genre.mood} Main Instruments: ${genre.instruments} Perfect Movie Scene: ${genre.scene}`;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            synth.speak(utterance);
+        }
+
+        function nextQuestion() {
+            // Hide Modal
+            document.getElementById('explanation-modal').classList.remove('show');
+            
+            stopAudio();
+            currentFile = null; // Reset track state
+            
+            let shuffled = [...genreData].sort(() => 0.5 - Math.random());
+            currentQuizCorrect = shuffled[0];
+            let options = shuffled.slice(0, 4).sort(() => 0.5 - Math.random());
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.name;
+                btn.onclick = () => handleGuess(btn, opt);
+                grid.appendChild(btn);
+            });
+
+            // Automatically play when moving to the next track
+            playQuizAudio();
+        }
+
+        function handleGuess(btn, selectedObj) {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true); 
+
+            if (selectedObj.id === currentQuizCorrect.id) {
+                btn.classList.add('correct');
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                buttons.forEach(b => {
+                    if(b.innerText.toLowerCase() === currentQuizCorrect.name.toLowerCase()) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Populate Modal Content
+            document.getElementById('modal-title').innerText = currentQuizCorrect.name;
+            document.getElementById('modal-mood').innerHTML = `<strong><span style="color: var(--text-muted)">Mood:</span></strong> ${currentQuizCorrect.mood}`;
+            document.getElementById('modal-instruments').innerHTML = `<strong><span style="color: var(--text-muted)">Instruments:</span></strong> ${currentQuizCorrect.instruments}`;
+            document.getElementById('modal-scene').innerHTML = `<strong><span style="color: var(--text-muted)">Scene:</span></strong> ${currentQuizCorrect.scene}`;
+            
+            // Show Explanation Modal Popup
+            const modal = document.getElementById('explanation-modal');
+            modal.classList.add('show');
+        }
+
+        function renderCollection() {
+            const grid = document.getElementById('collection-grid');
+            
+            // Sort by numerical file prefix (1-50)
+            const sorted = [...genreData].sort((a, b) => {
+                const numA = parseInt(a.file.match(/^\d+/)[0]);
+                const numB = parseInt(b.file.match(/^\d+/)[0]);
+                return numA - numB;
+            });
+            
+            sorted.forEach(genre => {
+                const card = document.createElement('div');
+                card.className = 'genre-card';
+                
+                // Extract the numerical prefix for display
+                const trackNumber = genre.file.match(/^\d+/)[0];
+
+                card.innerHTML = `
+                    <h3>${trackNumber}. ${genre.name}</h3>
+                    <div>
+                        <div class="tag">Mood</div>
+                        <p>${genre.mood}</p>
+                    </div>
+                    <div>
+                        <div class="tag">Instruments</div>
+                        <p>${genre.instruments}</p>
+                    </div>
+                    <div>
+                        <div class="tag">Movie Scene</div>
+                        <p>${genre.scene}</p>
+                    </div>
+                    
+                    <div class="progress-container" onclick="seekAudio(event, this)">
+                        <div class="progress-fill" id="fill-${genre.id}"></div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button id="play-btn-${genre.id}" class="collection-play-btn" onclick="playTrack('${genre.file}', '${genre.id}')">▶ Play Track</button>
+                        <button class="outline" onclick='readExplanation(${JSON.stringify(genre).replace(/'/g, "&apos;")})'>🔊 Read Aloud</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.onload = () => {
+            renderCollection();
+        };
+    </script>
+</body>
+</html>

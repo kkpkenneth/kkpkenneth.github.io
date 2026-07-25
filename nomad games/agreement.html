@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject-Verb Agreement Master Quiz</title>
+    <style>
+        :root {
+            --primary-color: #2b3a42;
+            --accent-color: #3f5765;
+            --bg-color: #eff3f5;
+            --card-bg: #ffffff;
+            --correct-color: #27ae60;
+            --incorrect-color: #e74c3c;
+            --text-main: #333333;
+            --text-muted: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 750px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e1e8ed;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .score-tracker {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            background: #e1e8ed;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e1e8ed;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            font-weight: bold;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #e2e6ea;
+            border-color: #ced4da;
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--correct-color);
+            color: #155724;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.2);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: var(--incorrect-color);
+            color: #721c24;
+        }
+
+        .explanation-box {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #e8f4f8;
+            border-left: 5px solid #3498db;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .next-btn {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .next-btn:hover {
+            background-color: #1a252f;
+        }
+
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+
+        .results-container h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .results-container p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background-color: #2980b9;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-container">
+        <div class="header">
+            <h1>Subject-Verb Agreement</h1>
+            <div class="score-tracker">Score: <span id="score-display">0</span> / 50</div>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div id="question-area">
+            <div class="question-text">
+                <span id="q-num">1</span>. <span id="q-text">Loading question...</span>
+            </div>
+            <div class="options-grid" id="options-grid">
+                <!-- Options injected via JS -->
+            </div>
+
+            <div class="explanation-box" id="explanation-box">
+                <!-- Explanation injected via JS -->
+            </div>
+
+            <button class="next-btn" id="next-btn">Next Question</button>
+        </div>
+
+        <div class="results-container" id="results-container">
+            <h2>Quiz Complete!</h2>
+            <p>You scored <strong id="final-score">0</strong> out of 50.</p>
+            <p id="feedback-message"></p>
+            <button class="restart-btn" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "The dog ________ when he is hungry.", opts: ["barks", "bark"], ans: 0, exp: "Singular subject (dog) requires a singular verb (barks)." },
+            { q: "The dogs ________ when they are hungry.", opts: ["barks", "bark"], ans: 1, exp: "Plural subject (dogs) requires a plural verb (bark)." },
+            { q: "A bouquet of yellow roses ________ color to the room.", opts: ["lends", "lend"], ans: 0, exp: "The subject is 'bouquet' (singular), not 'roses'." },
+            { q: "My aunt or my uncle ________ arriving by train today.", opts: ["is", "are"], ans: 0, exp: "Two singular subjects connected by 'or' take a singular verb." },
+            { q: "Neither Juan nor Carmen ________ available.", opts: ["is", "are"], ans: 0, exp: "Two singular subjects connected by 'neither/nor' take a singular verb." },
+            { q: "Either the bears or the lion ________ escaped from the zoo.", opts: ["has", "have"], ans: 0, exp: "When singular and plural subjects are connected by 'or/nor', the verb agrees with the subject closest to it (lion -> has)." },
+            { q: "Either the lion or the bears ________ escaped from the zoo.", opts: ["has", "have"], ans: 1, exp: "The verb agrees with the closest subject (bears -> have)." },
+            { q: "The director and the producer ________ arriving soon.", opts: ["is", "are"], ans: 1, exp: "Two subjects connected by 'and' are plural." },
+            { q: "The creator and producer ________ arriving soon.", opts: ["is", "are"], ans: 0, exp: "When referring to the same single person, the verb is singular." },
+            { q: "There ________ fifteen candies in that bag.", opts: ["is", "are"], ans: 1, exp: "With 'there is/are', the subject follows the verb. 'Candies' is plural." },
+            { q: "There ________ a book on the table.", opts: ["is", "are"], ans: 0, exp: "The subject 'book' is singular." },
+            { q: "The team ________ playing well tonight.", opts: ["is", "are"], ans: 0, exp: "Collective nouns (team) are singular when acting as one unit." },
+            { q: "The team members ________ arguing among themselves.", opts: ["is", "are"], ans: 1, exp: "When the members act individually, the collective noun is treated as plural." },
+            { q: "Mathematics ________ John's favorite subject.", opts: ["is", "are"], ans: 0, exp: "Nouns ending in -ics (Mathematics, Physics, News) are usually singular." },
+            { q: "The news ________ on at six.", opts: ["is", "are"], ans: 0, exp: "'News' is singular." },
+            { q: "Five dollars ________ a lot of money.", opts: ["is", "are"], ans: 0, exp: "Amounts of money, time, or distance are considered singular." },
+            { q: "Ten years ________ a long time to wait.", opts: ["is", "are"], ans: 0, exp: "Periods of time are singular." },
+            { q: "These scissors ________ dull.", opts: ["is", "are"], ans: 1, exp: "Tools with two parts (scissors, tweezers, pants) take plural verbs." },
+            { q: "Those trousers ________ made of wool.", opts: ["is", "are"], ans: 1, exp: "'Trousers' is plural." },
+            { q: "A pair of plaid trousers ________ in the closet.", opts: ["is", "are"], ans: 0, exp: "The subject is 'pair' (singular), not 'trousers'." },
+            { q: "Everyone ________ done his or her homework.", opts: ["has", "have"], ans: 0, exp: "Indefinite pronouns like 'everyone', 'nobody', 'someone' are singular." },
+            { q: "Somebody ________ left their purse.", opts: ["has", "have"], ans: 0, exp: "'Somebody' is singular." },
+            { q: "Some of the beads ________ missing.", opts: ["is", "are"], ans: 1, exp: "With 'some', look at the noun after 'of'. 'Beads' is plural." },
+            { q: "Some of the water ________ gone.", opts: ["is", "are"], ans: 0, exp: "With 'some', look at the noun after 'of'. 'Water' is uncountable (singular)." },
+            { q: "None of the students ________ done their homework.", opts: ["has", "have"], ans: 1, exp: "'None' can be singular or plural, but when referring to plural countable nouns, plural is commonly used." },
+            { q: "Each of the students ________ responsible.", opts: ["is", "are"], ans: 0, exp: "'Each' is always singular." },
+            { q: "Either of the choices ________ fine with me.", opts: ["is", "are"], ans: 0, exp: "'Either' as a pronoun is singular." },
+            { q: "The mayor, together with his brothers, ________ going to be indicted.", opts: ["is", "are"], ans: 0, exp: "Phrases like 'together with', 'along with', or 'as well as' do not make a singular subject plural." },
+            { q: "The politicians, along with the newsmen, ________ expected shortly.", opts: ["is", "are"], ans: 1, exp: "The main subject 'politicians' is plural." },
+            { q: "Excitement, as well as nervousness, ________ the cause of her shaking.", opts: ["is", "are"], ans: 0, exp: "The subject 'Excitement' is singular. Ignore the 'as well as' phrase." },
+            { q: "Not only the students but also their instructor ________ been called.", opts: ["has", "have"], ans: 0, exp: "With 'not only... but also', the verb agrees with the subject closest to it (instructor)." },
+            { q: "Not only the instructor but also the students ________ been called.", opts: ["has", "have"], ans: 1, exp: "The verb agrees with the closest subject (students)." },
+            { q: "One of my sisters ________ going on a trip.", opts: ["is", "are"], ans: 0, exp: "The subject is 'One' (singular), not 'sisters'." },
+            { q: "The man with all the birds ________ on my street.", opts: ["live", "lives"], ans: 1, exp: "The subject 'man' is singular." },
+            { q: "The movie, including all the previews, ________ about two hours to watch.", opts: ["take", "takes"], ans: 1, exp: "The subject 'movie' is singular." },
+            { q: "The players, as well as the captain, ________ to win.", opts: ["want", "wants"], ans: 0, exp: "The main subject 'players' is plural." },
+            { q: "Every one of those books ________ fiction.", opts: ["is", "are"], ans: 0, exp: "'Every one' is singular." },
+            { q: "Nobody ________ the trouble I've seen.", opts: ["know", "knows"], ans: 1, exp: "'Nobody' is a singular indefinite pronoun." },
+            { q: "________ the tweezers in this drawer?", opts: ["Is", "Are"], ans: 1, exp: "'Tweezers' is a plural noun." },
+            { q: "Your pants ________ at the cleaner's.", opts: ["is", "are"], ans: 1, exp: "'Pants' is a plural noun." },
+            { q: "There ________ a few problems with the new software.", opts: ["was", "were"], ans: 1, exp: "The subject 'problems' is plural, so use 'were'." },
+            { q: "The committee ________ these questions carefully.", opts: ["debates", "debate"], ans: 0, exp: "The committee is acting as a single unit, so the verb is singular." },
+            { q: "The committee members ________ very different lives in private.", opts: ["leads", "lead"], ans: 1, exp: "'Members' is plural." },
+            { q: "The Prime Minister, together with his wife, ________ the press.", opts: ["greets", "greet"], ans: 0, exp: "The subject 'Prime Minister' is singular." },
+            { q: "All of the CDs, even the scratched one, ________ in this case.", opts: ["is", "are"], ans: 1, exp: "The subject 'All' refers to 'CDs' (plural)." },
+            { q: "Even though the students like the class, nobody ________ the tests.", opts: ["enjoys", "enjoy"], ans: 0, exp: "'Nobody' is singular." },
+            { q: "The boy who won the two medals ________ a friend of mine.", opts: ["is", "are"], ans: 0, exp: "The main subject is 'boy' (singular)." },
+            { q: "My glasses ________ on the bed.", opts: ["was", "were"], ans: 1, exp: "'Glasses' (eyewear) is plural." },
+            { q: "Measles ________ a contagious disease.", opts: ["is", "are"], ans: 0, exp: "Diseases ending in -s (Measles, Mumps) are singular." },
+            { q: "The rhythm of the pounding waves ________ calming.", opts: ["is", "are"], ans: 0, exp: "The subject is 'rhythm' (singular)." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // DOM Elements
+        const qNumEl = document.getElementById('q-num');
+        const qTextEl = document.getElementById('q-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const explanationBox = document.getElementById('explanation-box');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const questionArea = document.getElementById('question-area');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        function updateProgress() {
+            const progress = (currentQuestionIndex / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function loadQuestion() {
+            answered = false;
+            explanationBox.style.display = 'none';
+            nextBtn.style.display = 'none';
+            optionsGrid.innerHTML = '';
+            
+            updateProgress();
+
+            const currentQ = quizData[currentQuestionIndex];
+            
+            qNumEl.textContent = currentQuestionIndex + 1;
+            qTextEl.textContent = currentQ.q;
+
+            currentQ.opts.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, clickedBtn) {
+            if (answered) return; 
+            answered = true;
+
+            const currentQ = quizData[currentQuestionIndex];
+            const allBtns = optionsGrid.querySelectorAll('.option-btn');
+
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === currentQ.ans) {
+                clickedBtn.classList.add('correct');
+                score++;
+                scoreDisplay.textContent = score;
+            } else {
+                clickedBtn.classList.add('incorrect');
+                allBtns[currentQ.ans].classList.add('correct');
+            }
+
+            explanationBox.innerHTML = `<strong>Explanation:</strong> ${currentQ.exp}`;
+            explanationBox.style.display = 'block';
+
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.textContent = "See Final Results";
+            } else {
+                nextBtn.textContent = "Next Question";
+            }
+            
+            nextBtn.style.display = 'block';
+        }
+
+        function showResults() {
+            progressBar.style.width = '100%';
+            questionArea.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            finalScoreEl.textContent = score;
+
+            if (score === 50) {
+                feedbackMessage.textContent = "Flawless! You are a master of subject-verb agreement.";
+            } else if (score >= 40) {
+                feedbackMessage.textContent = "Outstanding! You have a very solid grasp of the rules.";
+            } else if (score >= 30) {
+                feedbackMessage.textContent = "Good effort! You know the basics well, but watch out for those tricky exceptions.";
+            } else {
+                feedbackMessage.textContent = "Keep practicing! Review the rules regarding compound subjects and collective nouns.";
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            questionArea.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            loadQuestion();
+        });
+
+        // Initialize first question
+        loadQuestion();
+    </script>
+</body>
+</html>

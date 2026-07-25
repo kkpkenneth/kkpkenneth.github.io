@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bipartite Nouns: 50-Question Master Quiz</title>
+    <style>
+        :root {
+            --primary-color: #008080; /* Teal */
+            --accent-color: #20b2aa;
+            --bg-color: #f0f8ff;
+            --card-bg: #ffffff;
+            --correct-color: #2e8b57;
+            --incorrect-color: #cd5c5c;
+            --text-main: #2f4f4f;
+            --text-muted: #708090;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 750px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 128, 128, 0.1);
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0eeee;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
+
+        .score-tracker {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            background: #e0eeee;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0eeee;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            background-color: #f8ffff;
+            border: 2px solid #d1eeee;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            font-weight: bold;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #e0eeee;
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .option-btn.correct {
+            background-color: #e3fada;
+            border-color: var(--correct-color);
+            color: #155724;
+            box-shadow: 0 0 10px rgba(46, 139, 87, 0.2);
+        }
+
+        .option-btn.incorrect {
+            background-color: #ffe6e6;
+            border-color: var(--incorrect-color);
+            color: #721c24;
+        }
+
+        .explanation-box {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f0f8ff;
+            border-left: 5px solid var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .next-btn {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .next-btn:hover {
+            background-color: #006666;
+        }
+
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+
+        .results-container h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .results-container p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background-color: #1a938c;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-container">
+        <div class="header">
+            <h1>Bipartite Nouns Mastery</h1>
+            <div class="score-tracker">Score: <span id="score-display">0</span> / 50</div>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div id="question-area">
+            <div class="question-text">
+                <span id="q-num">1</span>. <span id="q-text">Loading question...</span>
+            </div>
+            <div class="options-grid" id="options-grid">
+                <!-- Options injected via JS -->
+            </div>
+
+            <div class="explanation-box" id="explanation-box">
+                <!-- Explanation injected via JS -->
+            </div>
+
+            <button class="next-btn" id="next-btn">Next Question</button>
+        </div>
+
+        <div class="results-container" id="results-container">
+            <h2>Quiz Complete!</h2>
+            <p>You scored <strong id="final-score">0</strong> out of 50.</p>
+            <p id="feedback-message"></p>
+            <button class="restart-btn" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // Block 1: Optics & Eyewear
+            { q: "Where ________ my new binoculars?", opts: ["is", "are"], ans: 1, exp: "'Binoculars' is plural and takes a plural verb." },
+            { q: "A pair of sunglasses ________ on the dashboard.", opts: ["is", "are"], ans: 0, exp: "The subject is the singular word 'pair'." },
+            { q: "My goggles ________ fogging up under the water.", opts: ["is", "are"], ans: 1, exp: "'Goggles' is a plural bipartite noun." },
+            { q: "That pair of spectacles ________ very expensive.", opts: ["was", "were"], ans: 0, exp: "The singular subject 'pair' takes the singular verb 'was'." },
+            { q: "These sunglasses ________ too dark for driving.", opts: ["is", "are"], ans: 1, exp: "'Sunglasses' takes a plural verb." },
+            { q: "I have two ________ of reading glasses.", opts: ["pair", "pairs"], ans: 1, exp: "To count multiple bipartite nouns, pluralize the word 'pair'." },
+            { q: "Have you seen my glasses? I can't find ________.", opts: ["it", "them"], ans: 1, exp: "Because 'glasses' is plural, the pronoun must be 'them'." },
+            { q: "A pair of binoculars ________ a great gift for a birdwatcher.", opts: ["makes", "make"], ans: 0, exp: "The subject is 'pair' (singular), so the verb is 'makes'." },
+            
+            // Block 2: Clothing (Pants/Shorts)
+            { q: "These jeans ________ too tight around the waist.", opts: ["feels", "feel"], ans: 1, exp: "'Jeans' is plural, so it takes the plural verb 'feel'." },
+            { q: "My pajama pants ________ in the wash.", opts: ["is", "are"], ans: 1, exp: "Clothing with two legs is always plural." },
+            { q: "How many ________ of shorts did you pack for the trip?", opts: ["pair", "pairs"], ans: 1, exp: "You need the plural 'pairs' after 'How many'." },
+            { q: "These leggings ________ a small tear in the knee.", opts: ["has", "have"], ans: 1, exp: "'Leggings' is plural and requires 'have'." },
+            { q: "A pair of sweatpants ________ perfect for lounging at home.", opts: ["is", "are"], ans: 0, exp: "The phrase 'A pair of' makes the subject singular." },
+            { q: "Three pairs of tights ________ ruined in the dryer.", opts: ["was", "were"], ans: 1, exp: "The subject is 'pairs' (plural), so the verb is 'were'." },
+            { q: "This pair of overalls ________ covered in oil.", opts: ["is", "are"], ans: 0, exp: "The singular 'pair' dictates the singular verb 'is'." },
+            { q: "His swimming trunks ________ still wet from the pool.", opts: ["is", "are"], ans: 1, exp: "'Trunks' is plural." },
+            { q: "A new pair of jeans ________ stiff at first.", opts: ["feels", "feel"], ans: 0, exp: "The subject 'pair' requires the singular verb 'feels'." },
+            { q: "Those dungarees ________ incredibly comfortable.", opts: ["looks", "look"], ans: 1, exp: "'Dungarees' is plural, taking the plural verb 'look'." },
+            { q: "Are my clean shorts in the drawer? Yes, ________ are.", opts: ["they", "it"], ans: 0, exp: "The pronoun for 'shorts' must be 'they'." },
+            { q: "These chaps ________ made of genuine leather.", opts: ["is", "are"], ans: 1, exp: "'Chaps' (leg coverings) is a bipartite plural noun." },
+            { q: "I need to buy a new ________ of trousers.", opts: ["pair", "pairs"], ans: 0, exp: "Since it is singular ('a new...'), use 'pair'." },
+            { q: "Five pairs of jeans ________ donated to the charity.", opts: ["was", "were"], ans: 1, exp: "The subject 'pairs' is plural." },
+            { q: "My tights keep getting snagged. I hate ________.", opts: ["it", "them"], ans: 1, exp: "'Tights' requires the plural pronoun 'them'." },
+            { q: "A pair of swimming trunks ________ essential for the beach trip.", opts: ["is", "are"], ans: 0, exp: "The subject 'pair' is singular." },
+            { q: "A pair of knickers ________ found in the laundry room.", opts: ["was", "were"], ans: 0, exp: "The subject 'pair' is singular." },
+            { q: "My suspenders ________ black with white stripes.", opts: ["is", "are"], ans: 1, exp: "'Suspenders' is a bipartite noun and takes a plural verb." },
+            { q: "Those suspenders ________ your tie perfectly.", opts: ["matches", "match"], ans: 1, exp: "'Suspenders' requires the plural verb 'match'." },
+            
+            // Block 3: Tools and Instruments
+            { q: "The tongs ________ next to the grill.", opts: ["is", "are"], ans: 1, exp: "Tools with two parts, like tongs, are always plural." },
+            { q: "That pair of shears ________ very sharp.", opts: ["is", "are"], ans: 0, exp: "The subject is 'pair' (singular)." },
+            { q: "The forceps ________ used by the surgeon yesterday.", opts: ["was", "were"], ans: 1, exp: "'Forceps' is plural and takes 'were'." },
+            { q: "Those pliers belong in the toolbox. Put ________ away.", opts: ["it", "them"], ans: 1, exp: "Pliers is plural, so use the pronoun 'them'." },
+            { q: "The clippers ________ on the bathroom counter.", opts: ["is", "are"], ans: 1, exp: "'Clippers' is a plural noun." },
+            { q: "Where did you put the scales? ________ are in the kitchen.", opts: ["It", "They"], ans: 1, exp: "'Scales' (for weighing) historically has two pans and is treated as plural." },
+            { q: "Handcuffs ________ used by law enforcement.", opts: ["is", "are"], ans: 1, exp: "'Handcuffs' is plural." },
+            { q: "The shears need to be sharpened. Take ________ to the hardware store.", opts: ["it", "them"], ans: 1, exp: "Shears is plural, requiring 'them'." },
+            { q: "The pincers ________ made of hardened steel.", opts: ["is", "are"], ans: 1, exp: "'Pincers' is plural." },
+            { q: "Does he have the tweezers? Yes, he has ________.", opts: ["it", "them"], ans: 1, exp: "Tweezers is plural, requiring the pronoun 'them'." },
+            { q: "The bellows ________ used to stoke the fire.", opts: ["is", "are"], ans: 1, exp: "'Bellows' (the tool for blowing air) is a bipartite plural noun." },
+            { q: "The snips ________ for cutting wire.", opts: ["is", "are"], ans: 1, exp: "'Snips' is plural." },
+            { q: "That pair of pliers ________ rusty.", opts: ["is", "are"], ans: 0, exp: "The subject 'pair' takes the singular verb 'is'." },
+            { q: "The tongs ________ silicone tips to prevent scratching.", opts: ["has", "have"], ans: 1, exp: "'Tongs' is plural and takes 'have'." },
+            { q: "The forceps ________ sterilized before every procedure.", opts: ["is", "are"], ans: 1, exp: "'Forceps' is plural." },
+            { q: "The clippers ________ very well.", opts: ["cuts", "cut"], ans: 1, exp: "'Clippers' is plural, so the verb is 'cut'." },
+            { q: "Where ________ the scales?", opts: ["is", "are"], ans: 1, exp: "'Scales' is plural, so we use 'are'." },
+            { q: "Handcuffs ________ movement securely.", opts: ["restricts", "restrict"], ans: 1, exp: "'Handcuffs' is plural, so the verb is 'restrict'." },
+            { q: "These bellows ________ air into the hearth.", opts: ["blows", "blow"], ans: 1, exp: "'Bellows' is plural, so the verb is 'blow'." },
+            
+            // Block 4: Mixed Review
+            { q: "A pair of scissors ________ missing from my desk.", opts: ["is", "are"], ans: 0, exp: "Because of 'A pair of', the subject is singular." },
+            { q: "________ these trousers yours?", opts: ["Is", "Are"], ans: 1, exp: "'Trousers' is plural." },
+            { q: "I bought a new pair of shades. ________ look great.", opts: ["It", "They"], ans: 1, exp: "Even though 'pair' is singular, when referring back to the shades themselves as an item of clothing/optics, we use the plural pronoun 'They'." },
+            { q: "Two pairs of tongs ________ needed for the BBQ.", opts: ["is", "are"], ans: 1, exp: "'Pairs' is plural." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // DOM Elements
+        const qNumEl = document.getElementById('q-num');
+        const qTextEl = document.getElementById('q-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const explanationBox = document.getElementById('explanation-box');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const questionArea = document.getElementById('question-area');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        function updateProgress() {
+            const progress = (currentQuestionIndex / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function loadQuestion() {
+            answered = false;
+            explanationBox.style.display = 'none';
+            nextBtn.style.display = 'none';
+            optionsGrid.innerHTML = '';
+            
+            updateProgress();
+
+            const currentQ = quizData[currentQuestionIndex];
+            
+            qNumEl.textContent = currentQuestionIndex + 1;
+            qTextEl.textContent = currentQ.q;
+
+            currentQ.opts.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, clickedBtn) {
+            if (answered) return; 
+            answered = true;
+
+            const currentQ = quizData[currentQuestionIndex];
+            const allBtns = optionsGrid.querySelectorAll('.option-btn');
+
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === currentQ.ans) {
+                clickedBtn.classList.add('correct');
+                score++;
+                scoreDisplay.textContent = score;
+            } else {
+                clickedBtn.classList.add('incorrect');
+                allBtns[currentQ.ans].classList.add('correct');
+            }
+
+            explanationBox.innerHTML = `<strong>Explanation:</strong> ${currentQ.exp}`;
+            explanationBox.style.display = 'block';
+
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.textContent = "See Final Results";
+            } else {
+                nextBtn.textContent = "Next Question";
+            }
+            
+            nextBtn.style.display = 'block';
+        }
+
+        function showResults() {
+            progressBar.style.width = '100%';
+            questionArea.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            finalScoreEl.textContent = score;
+
+            if (score === 50) {
+                feedbackMessage.textContent = "Flawless! You are a master of bipartite nouns.";
+            } else if (score >= 45) {
+                feedbackMessage.textContent = "Outstanding! You have a very solid grasp of the rules.";
+            } else if (score >= 35) {
+                feedbackMessage.textContent = "Good effort! You know the basics well, but watch out for when 'pair' is used vs the noun itself.";
+            } else {
+                feedbackMessage.textContent = "Keep practicing! Remember, these tools and clothing items are always plural unless preceded by 'a pair of'.";
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            questionArea.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            loadQuestion();
+        });
+
+        // Initialize first question
+        loadQuestion();
+    </script>
+</body>
+</html>

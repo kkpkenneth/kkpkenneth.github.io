@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Present Tense Master Quiz</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --correct-color: #27ae60;
+            --incorrect-color: #e74c3c;
+            --text-main: #333333;
+            --text-muted: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 700px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .score-tracker {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #e2e6ea;
+            border-color: #ced4da;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--correct-color);
+            color: #155724;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: var(--incorrect-color);
+            color: #721c24;
+        }
+
+        .explanation-box {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #e8f4f8;
+            border-left: 5px solid #3498db;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .next-btn {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .next-btn:hover {
+            background-color: #1a252f;
+        }
+
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+
+        .results-container h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .results-container p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background-color: #219a52;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-container">
+        <div class="header">
+            <h1>Present Tense Quiz</h1>
+            <div class="score-tracker">Score: <span id="score-display">0</span> / 20</div>
+        </div>
+
+        <div id="question-area">
+            <div class="question-text">
+                <span id="q-num">1</span>. <span id="q-text">Loading question...</span>
+            </div>
+            <div class="options-grid" id="options-grid">
+                <!-- Options injected via JS -->
+            </div>
+
+            <div class="explanation-box" id="explanation-box">
+                <!-- Explanation injected via JS -->
+            </div>
+
+            <button class="next-btn" id="next-btn">Next Question</button>
+        </div>
+
+        <div class="results-container" id="results-container">
+            <h2>Quiz Complete!</h2>
+            <p>You scored <strong id="final-score">0</strong> out of 20.</p>
+            <p id="feedback-message"></p>
+            <button class="restart-btn" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "She ________ to the gym every morning before work.",
+                options: ["go", "goes", "is going", "going"],
+                correct: 1,
+                explanation: "<strong>'Goes'</strong> is correct. We use the <em>Present Simple</em> for habits and routines. Since the subject is 'She' (third-person singular), we add '-es'."
+            },
+            {
+                question: "I can't talk right now. I ________ a great book.",
+                options: ["read", "reads", "am reading", "reading"],
+                correct: 2,
+                explanation: "<strong>'Am reading'</strong> is correct. We use the <em>Present Continuous</em> for actions happening right now at the moment of speaking."
+            },
+            {
+                question: "Water ________ at 100 degrees Celsius.",
+                options: ["boils", "boil", "is boiling", "boiling"],
+                correct: 0,
+                explanation: "<strong>'Boils'</strong> is correct. We use the <em>Present Simple</em> to state general truths and scientific facts."
+            },
+            {
+                question: "Look! The bus ________.",
+                options: ["come", "comes", "is coming", "coming"],
+                correct: 2,
+                explanation: "<strong>'Is coming'</strong> is correct. The word 'Look!' indicates that the action is happening right now, so we use the <em>Present Continuous</em>."
+            },
+            {
+                question: "He ________ playing basketball; he prefers soccer.",
+                options: ["isn't liking", "don't like", "doesn't like", "not likes"],
+                correct: 2,
+                explanation: "<strong>'Doesn't like'</strong> is correct. 'Like' is a stative verb (not usually used in the continuous form). For negative third-person singular in the <em>Present Simple</em>, we use 'doesn't'."
+            },
+            {
+                question: "What ________ at the moment?",
+                options: ["do you do", "are you doing", "you do", "you are doing"],
+                correct: 1,
+                explanation: "<strong>'Are you doing'</strong> is correct. 'At the moment' requires the <em>Present Continuous</em>. For questions, we invert the subject and the auxiliary verb (are + you + verb-ing)."
+            },
+            {
+                question: "My brother ________ in a bank downtown.",
+                options: ["is working", "work", "works", "working"],
+                correct: 2,
+                explanation: "<strong>'Works'</strong> is correct. We use the <em>Present Simple</em> for permanent situations or long-term states."
+            },
+            {
+                question: "We ________ with friends until we find our own apartment.",
+                options: ["stay", "stays", "are staying", "staying"],
+                correct: 2,
+                explanation: "<strong>'Are staying'</strong> is correct. We use the <em>Present Continuous</em> for temporary situations ('until we find our own apartment')."
+            },
+            {
+                question: "She always ________ her keys! It's so frustrating.",
+                options: ["forgets", "is forgetting", "forget", "forgetting"],
+                correct: 1,
+                explanation: "<strong>'Is forgetting'</strong> is correct. While 'always' usually takes the Present Simple, we use <em>Present Continuous + always</em> to express annoyance about a repeated habit."
+            },
+            {
+                question: "I ________ you are completely right about this.",
+                options: ["think", "am thinking", "thinks", "thinking"],
+                correct: 0,
+                explanation: "<strong>'Think'</strong> is correct. When 'think' means 'to have an opinion', it is a stative verb and is used in the <em>Present Simple</em>, not continuous."
+            },
+            {
+                question: "Shh! Be quiet. The baby ________.",
+                options: ["sleeps", "sleep", "is sleeping", "sleeping"],
+                correct: 2,
+                explanation: "<strong>'Is sleeping'</strong> is correct. The action is happening right now, requiring the <em>Present Continuous</em>."
+            },
+            {
+                question: "How often ________ your grandparents?",
+                options: ["are you visiting", "do you visit", "you visit", "visits"],
+                correct: 1,
+                explanation: "<strong>'Do you visit'</strong> is correct. 'How often' asks about frequency and habits, which requires the <em>Present Simple</em>."
+            },
+            {
+                question: "He ________ three dogs and a cat.",
+                options: ["have", "has", "is having", "having"],
+                correct: 1,
+                explanation: "<strong>'Has'</strong> is correct. When 'have' implies possession, it is a stative verb and must be used in the <em>Present Simple</em>. 'He' requires 'has'."
+            },
+            {
+                question: "I ________ this math problem. Can you help me?",
+                options: ["don't understand", "am not understanding", "not understand", "doesn't understand"],
+                correct: 0,
+                explanation: "<strong>'Don't understand'</strong> is correct. 'Understand' is a stative verb (mental state) and is rarely used in the continuous tense."
+            },
+            {
+                question: "This soup ________ absolutely delicious.",
+                options: ["tasting", "is tasting", "taste", "tastes"],
+                correct: 3,
+                explanation: "<strong>'Tastes'</strong> is correct. Verbs of the senses (taste, smell, sound, etc.) are stative and use the <em>Present Simple</em> when describing the quality of an object."
+            },
+            {
+                question: "Why ________? Did something bad happen?",
+                options: ["she cries", "does she cry", "is she crying", "she is crying"],
+                correct: 2,
+                explanation: "<strong>'Is she crying'</strong> is correct. The action is happening right now. Question structure requires inversion: 'is + she + crying'."
+            },
+            {
+                question: "The train to London ________ at 8:30 AM tomorrow.",
+                options: ["leaves", "is leaving", "leave", "leaving"],
+                correct: 0,
+                explanation: "<strong>'Leaves'</strong> is correct. We use the <em>Present Simple</em> for scheduled future events (like timetables, flights, and public transport)."
+            },
+            {
+                question: "I ________ John for lunch later today.",
+                options: ["meet", "am meeting", "meets", "meeting"],
+                correct: 1,
+                explanation: "<strong>'Am meeting'</strong> is correct. We use the <em>Present Continuous</em> to talk about fixed future plans or arrangements."
+            },
+            {
+                question: "The Earth ________ the Sun.",
+                options: ["orbit", "is orbiting", "orbits", "orbiting"],
+                correct: 2,
+                explanation: "<strong>'Orbits'</strong> is correct. This is a scientific fact/general truth, requiring the <em>Present Simple</em>."
+            },
+            {
+                question: "I ________ to work by bus this week because my car is broken.",
+                options: ["go", "goes", "am going", "going"],
+                correct: 2,
+                explanation: "<strong>'Am going'</strong> is correct. We use the <em>Present Continuous</em> for temporary routines ('this week'). Normally, 'go' would be used for a permanent routine."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // DOM Elements
+        const qNumEl = document.getElementById('q-num');
+        const qTextEl = document.getElementById('q-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const explanationBox = document.getElementById('explanation-box');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        
+        const questionArea = document.getElementById('question-area');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        function loadQuestion() {
+            // Reset UI for new question
+            answered = false;
+            explanationBox.style.display = 'none';
+            nextBtn.style.display = 'none';
+            optionsGrid.innerHTML = '';
+
+            const currentQ = quizData[currentQuestionIndex];
+            
+            qNumEl.textContent = currentQuestionIndex + 1;
+            qTextEl.textContent = currentQ.question;
+
+            // Generate options
+            currentQ.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, clickedBtn) {
+            if (answered) return; // Prevent multiple clicks
+            answered = true;
+
+            const currentQ = quizData[currentQuestionIndex];
+            const allBtns = optionsGrid.querySelectorAll('.option-btn');
+
+            // Disable all buttons
+            allBtns.forEach(btn => btn.disabled = true);
+
+            // Check if correct
+            if (selectedIndex === currentQ.correct) {
+                clickedBtn.classList.add('correct');
+                score++;
+                scoreDisplay.textContent = score;
+            } else {
+                clickedBtn.classList.add('incorrect');
+                // Highlight the correct one
+                allBtns[currentQ.correct].classList.add('correct');
+            }
+
+            // Show explanation
+            explanationBox.innerHTML = currentQ.explanation;
+            explanationBox.style.display = 'block';
+
+            // Change Next Button text if it's the last question
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.textContent = "See Results";
+            } else {
+                nextBtn.textContent = "Next Question";
+            }
+            
+            nextBtn.style.display = 'block';
+        }
+
+        function showResults() {
+            questionArea.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            finalScoreEl.textContent = score;
+
+            if (score === 20) {
+                feedbackMessage.textContent = "Flawless! You are a master of the present tense.";
+            } else if (score >= 15) {
+                feedbackMessage.textContent = "Great job! You have a very solid understanding.";
+            } else if (score >= 10) {
+                feedbackMessage.textContent = "Good effort! A little more practice will make you perfect.";
+            } else {
+                feedbackMessage.textContent = "Keep practicing! Review the rules of Simple vs. Continuous tenses.";
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            questionArea.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            loadQuestion();
+        });
+
+        // Initialize first question
+        loadQuestion();
+    </script>
+</body>
+</html>

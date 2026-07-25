@@ -38,7 +38,7 @@
         }
 
         .header {
-            display: flex;
+            display: none; /* Hidden until quiz starts */
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
@@ -56,6 +56,10 @@
             font-size: 1.2rem;
             font-weight: bold;
             color: var(--primary-color);
+        }
+
+        #question-area {
+            display: none; /* Hidden until quiz starts */
         }
 
         .question-text {
@@ -135,24 +139,24 @@
             background-color: #1a252f;
         }
 
-        .results-container {
+        .screen-container {
             display: none;
             text-align: center;
         }
 
-        .results-container h2 {
+        .screen-container h2 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             color: var(--primary-color);
         }
 
-        .results-container p {
+        .screen-container p {
             font-size: 1.3rem;
             color: var(--text-muted);
             margin-bottom: 30px;
         }
 
-        .restart-btn {
+        .action-btn {
             background-color: #27ae60;
             color: white;
             border: none;
@@ -163,7 +167,7 @@
             font-weight: bold;
         }
 
-        .restart-btn:hover {
+        .action-btn:hover {
             background-color: #219a52;
         }
 
@@ -176,7 +180,14 @@
 <body>
 
     <div class="quiz-container" id="quiz-container">
-        <div class="header">
+        <!-- Start Screen -->
+        <div class="screen-container" id="start-screen" style="display: block;">
+            <h2>Present Tense Quiz</h2>
+            <p>Includes automatic Text-to-Speech audio.</p>
+            <button class="action-btn" id="start-btn">Start Quiz</button>
+        </div>
+
+        <div class="header" id="quiz-header">
             <h1>Present Tense Quiz</h1>
             <div class="score-tracker">Score: <span id="score-display">0</span> / 20</div>
         </div>
@@ -196,11 +207,12 @@
             <button class="next-btn" id="next-btn">Next Question</button>
         </div>
 
-        <div class="results-container" id="results-container">
+        <!-- Results Screen -->
+        <div class="screen-container" id="results-container">
             <h2>Quiz Complete!</h2>
             <p>You scored <strong id="final-score">0</strong> out of 20.</p>
             <p id="feedback-message"></p>
-            <button class="restart-btn" id="restart-btn">Take Quiz Again</button>
+            <button class="action-btn" id="restart-btn">Take Quiz Again</button>
         </div>
     </div>
 
@@ -333,6 +345,9 @@
         let answered = false;
 
         // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizHeader = document.getElementById('quiz-header');
+        const startBtn = document.getElementById('start-btn');
         const qNumEl = document.getElementById('q-num');
         const qTextEl = document.getElementById('q-text');
         const optionsGrid = document.getElementById('options-grid');
@@ -345,6 +360,28 @@
         const finalScoreEl = document.getElementById('final-score');
         const feedbackMessage = document.getElementById('feedback-message');
         const restartBtn = document.getElementById('restart-btn');
+
+        // Text-to-Speech Engine
+        const synth = window.speechSynthesis;
+
+        function speakText(text) {
+            // Cancel any currently speaking audio so they don't overlap
+            if (synth.speaking) {
+                synth.cancel();
+            }
+            if (text !== '') {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95; // Slightly slower for better comprehension
+                synth.speak(utterance);
+            }
+        }
+
+        // Helper function to strip HTML tags for clean audio reading
+        function stripHtml(html) {
+            let tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
 
         function loadQuestion() {
             // Reset UI for new question
@@ -366,6 +403,10 @@
                 btn.onclick = () => checkAnswer(index, btn);
                 optionsGrid.appendChild(btn);
             });
+
+            // Automatically speak the question (replace dashes with "blank" for audio)
+            let audioQuestion = currentQ.question.replace(/________/g, "blank");
+            speakText("Question " + (currentQuestionIndex + 1) + ". " + audioQuestion);
         }
 
         function checkAnswer(selectedIndex, clickedBtn) {
@@ -393,6 +434,9 @@
             explanationBox.innerHTML = currentQ.explanation;
             explanationBox.style.display = 'block';
 
+            // Automatically read the explanation aloud (strip the strong/em tags)
+            speakText(stripHtml(currentQ.explanation));
+
             // Change Next Button text if it's the last question
             if (currentQuestionIndex === quizData.length - 1) {
                 nextBtn.textContent = "See Results";
@@ -404,20 +448,34 @@
         }
 
         function showResults() {
+            quizHeader.style.display = 'none';
             questionArea.style.display = 'none';
             resultsContainer.style.display = 'block';
             finalScoreEl.textContent = score;
 
+            let resultText = "";
             if (score === 20) {
-                feedbackMessage.textContent = "Flawless! You are a master of the present tense.";
+                resultText = "Flawless! You are a master of the present tense.";
             } else if (score >= 15) {
-                feedbackMessage.textContent = "Great job! You have a very solid understanding.";
+                resultText = "Great job! You have a very solid understanding.";
             } else if (score >= 10) {
-                feedbackMessage.textContent = "Good effort! A little more practice will make you perfect.";
+                resultText = "Good effort! A little more practice will make you perfect.";
             } else {
-                feedbackMessage.textContent = "Keep practicing! Review the rules of Simple vs. Continuous tenses.";
+                resultText = "Keep practicing! Review the rules of Simple vs. Continuous tenses.";
             }
+
+            feedbackMessage.textContent = resultText;
+            
+            // Read out final score
+            speakText("Quiz Complete. You scored " + score + " out of 20. " + resultText);
         }
+
+        startBtn.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            quizHeader.style.display = 'flex';
+            questionArea.style.display = 'block';
+            loadQuestion();
+        });
 
         nextBtn.addEventListener('click', () => {
             currentQuestionIndex++;
@@ -432,13 +490,13 @@
             currentQuestionIndex = 0;
             score = 0;
             scoreDisplay.textContent = score;
-            questionArea.style.display = 'block';
+            
             resultsContainer.style.display = 'none';
+            quizHeader.style.display = 'flex';
+            questionArea.style.display = 'block';
             loadQuestion();
         });
 
-        // Initialize first question
-        loadQuestion();
     </script>
 </body>
 </html>

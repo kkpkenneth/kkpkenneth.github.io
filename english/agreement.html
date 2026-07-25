@@ -38,8 +38,12 @@
             box-sizing: border-box;
         }
 
+        /* Hidden initially for the start screen */
+        .header, .progress-bar-container, #question-area {
+            display: none;
+        }
+
         .header {
-            display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
@@ -159,24 +163,24 @@
             background-color: #1a252f;
         }
 
-        .results-container {
+        .screen-container {
             display: none;
             text-align: center;
         }
 
-        .results-container h2 {
+        .screen-container h2 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             color: var(--primary-color);
         }
 
-        .results-container p {
+        .screen-container p {
             font-size: 1.3rem;
             color: var(--text-muted);
             margin-bottom: 30px;
         }
 
-        .restart-btn {
+        .action-btn, .restart-btn {
             background-color: #3498db;
             color: white;
             border: none;
@@ -187,7 +191,7 @@
             font-weight: bold;
         }
 
-        .restart-btn:hover {
+        .action-btn:hover, .restart-btn:hover {
             background-color: #2980b9;
         }
 
@@ -206,15 +210,25 @@
 <body>
 
     <div class="quiz-container" id="quiz-container">
-        <div class="header">
+        
+        <!-- Start Screen -->
+        <div class="screen-container" id="start-screen" style="display: block;">
+            <h2>Subject-Verb Agreement</h2>
+            <p>Includes automatic Text-to-Speech audio.</p>
+            <button class="action-btn" id="start-btn">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Header & Progress -->
+        <div class="header" id="quiz-header">
             <h1>Subject-Verb Agreement</h1>
             <div class="score-tracker">Score: <span id="score-display">0</span> / 50</div>
         </div>
         
-        <div class="progress-bar-container">
+        <div class="progress-bar-container" id="progress-container">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
 
+        <!-- Question Area -->
         <div id="question-area">
             <div class="question-text">
                 <span id="q-num">1</span>. <span id="q-text">Loading question...</span>
@@ -230,7 +244,8 @@
             <button class="next-btn" id="next-btn">Next Question</button>
         </div>
 
-        <div class="results-container" id="results-container">
+        <!-- Results Screen -->
+        <div class="screen-container" id="results-container">
             <h2>Quiz Complete!</h2>
             <p>You scored <strong id="final-score">0</strong> out of 50.</p>
             <p id="feedback-message"></p>
@@ -297,6 +312,11 @@
         let answered = false;
 
         // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+        const quizHeader = document.getElementById('quiz-header');
+        const progressContainer = document.getElementById('progress-container');
+        
         const qNumEl = document.getElementById('q-num');
         const qTextEl = document.getElementById('q-text');
         const optionsGrid = document.getElementById('options-grid');
@@ -310,6 +330,28 @@
         const finalScoreEl = document.getElementById('final-score');
         const feedbackMessage = document.getElementById('feedback-message');
         const restartBtn = document.getElementById('restart-btn');
+
+        // Text-to-Speech Engine
+        const synth = window.speechSynthesis;
+
+        function speakText(text) {
+            // Cancel any currently speaking audio to prevent overlapping
+            if (synth.speaking) {
+                synth.cancel();
+            }
+            if (text !== '') {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95; // Slightly slower for readability
+                synth.speak(utterance);
+            }
+        }
+
+        // Helper function to strip HTML tags for clean audio reading
+        function stripHtml(html) {
+            let tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
 
         function updateProgress() {
             const progress = (currentQuestionIndex / quizData.length) * 100;
@@ -336,6 +378,10 @@
                 btn.onclick = () => checkAnswer(index, btn);
                 optionsGrid.appendChild(btn);
             });
+
+            // Automatically speak the question (replace dashes with "blank")
+            let audioQuestion = currentQ.q.replace(/________/g, "blank");
+            speakText("Question " + (currentQuestionIndex + 1) + ". " + audioQuestion);
         }
 
         function checkAnswer(selectedIndex, clickedBtn) {
@@ -359,6 +405,9 @@
             explanationBox.innerHTML = `<strong>Explanation:</strong> ${currentQ.exp}`;
             explanationBox.style.display = 'block';
 
+            // Automatically read the explanation aloud (strip any HTML tags)
+            speakText(stripHtml(currentQ.exp));
+
             if (currentQuestionIndex === quizData.length - 1) {
                 nextBtn.textContent = "See Final Results";
             } else {
@@ -370,20 +419,37 @@
 
         function showResults() {
             progressBar.style.width = '100%';
+            quizHeader.style.display = 'none';
+            progressContainer.style.display = 'none';
             questionArea.style.display = 'none';
             resultsContainer.style.display = 'block';
             finalScoreEl.textContent = score;
 
+            let resultText = "";
             if (score === 50) {
-                feedbackMessage.textContent = "Flawless! You are a master of subject-verb agreement.";
+                resultText = "Flawless! You are a master of subject-verb agreement.";
             } else if (score >= 40) {
-                feedbackMessage.textContent = "Outstanding! You have a very solid grasp of the rules.";
+                resultText = "Outstanding! You have a very solid grasp of the rules.";
             } else if (score >= 30) {
-                feedbackMessage.textContent = "Good effort! You know the basics well, but watch out for those tricky exceptions.";
+                resultText = "Good effort! You know the basics well, but watch out for those tricky exceptions.";
             } else {
-                feedbackMessage.textContent = "Keep practicing! Review the rules regarding compound subjects and collective nouns.";
+                resultText = "Keep practicing! Review the rules regarding compound subjects and collective nouns.";
             }
+
+            feedbackMessage.textContent = resultText;
+            
+            // Read out the final score and feedback
+            speakText("Quiz Complete. You scored " + score + " out of " + quizData.length + ". " + resultText);
         }
+
+        // Start button listener
+        startBtn.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            quizHeader.style.display = 'flex';
+            progressContainer.style.display = 'block';
+            questionArea.style.display = 'block';
+            loadQuestion();
+        });
 
         nextBtn.addEventListener('click', () => {
             currentQuestionIndex++;
@@ -398,13 +464,14 @@
             currentQuestionIndex = 0;
             score = 0;
             scoreDisplay.textContent = score;
-            questionArea.style.display = 'block';
             resultsContainer.style.display = 'none';
+            
+            quizHeader.style.display = 'flex';
+            progressContainer.style.display = 'block';
+            questionArea.style.display = 'block';
             loadQuestion();
         });
 
-        // Initialize first question
-        loadQuestion();
     </script>
 </body>
 </html>

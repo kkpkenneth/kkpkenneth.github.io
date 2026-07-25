@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean Tycoon</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden; /* Fluid layout, no scrollbars */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #00cae9; 
+        user-select: none;
+    }
+
+    /* The Ocean (Game Container) */
+    #ocean {
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh;
+        background: linear-gradient(to bottom, #00cae9 0%, #005a9c 50%, #001233 100%);
+        z-index: 1; 
+    }
+
+    /* Start Screen */
+    #start-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: radial-gradient(circle, #0f2027, #203a43, #2c5364);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 200;
+        color: white;
+    }
+    #start-screen h1 { font-size: 4em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    #start-btn {
+        padding: 15px 40px; font-size: 1.5em; font-weight: bold;
+        background: #00d2ff; color: #0f2027; border: none; border-radius: 50px;
+        cursor: pointer; box-shadow: 0 4px 15px rgba(0,210,255,0.4);
+        transition: transform 0.2s;
+    }
+    #start-btn:hover { transform: scale(1.1); }
+
+    /* UI Overlay */
+    #ui-layer {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
+        display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    
+    .hud-column {
+        display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .hud-box {
+        background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px);
+        padding: 15px 25px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.5);
+        color: white; font-weight: bold; font-size: 1.5em; pointer-events: auto;
+    }
+    
+    #auto-harvest-box {
+        font-size: 1em; padding: 10px 20px; background: rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.6);
+        display: none; /* Hidden until 5 recruits */
+    }
+
+    #collection-btn {
+        background: #ff7675; cursor: pointer; transition: transform 0.2s; border: none; color: white;
+    }
+    #collection-btn:hover { transform: scale(1.05); }
+
+    /* Marine Animals */
+    .animal {
+        position: absolute;
+        cursor: grab;
+        transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex; 
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center;
+        touch-action: none; /* Prevents mobile screen scrolling while dragging */
+    }
+    .animal:active { cursor: grabbing; }
+    
+    .animal-name {
+        font-size: 14px;
+        font-weight: bold;
+        color: #fff;
+        background: rgba(0, 30, 60, 0.6);
+        padding: 4px 10px;
+        border-radius: 12px;
+        margin-bottom: 5px;
+        pointer-events: none;
+        white-space: nowrap;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .animal img {
+        width: 100px; 
+        height: auto;
+        pointer-events: none; 
+        user-select: none;
+    }
+    .animal.clicked {
+        transform: scale(1.4) !important;
+    }
+
+    /* Floating Heart Animation */
+    .floating-heart {
+        position: absolute;
+        color: #ff4757;
+        font-size: 1.5em;
+        font-weight: bold;
+        pointer-events: none;
+        animation: floatUp 1s ease-out forwards;
+        z-index: 50;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    @keyframes floatUp {
+        0% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
+    }
+
+    /* Modals */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7); z-index: 100;
+        display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px);
+    }
+    .modal {
+        background: white; padding: 30px; border-radius: 20px;
+        max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
+    }
+    .modal h2 { margin-top: 0; color: #003666; font-size: 2em; position: sticky; top: 0; background: white; padding-bottom: 15px; z-index: 2; border-bottom: 2px solid #f1f2f6;}
+    
+    /* Collection Grid */
+    #collection-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
+    }
+    .collection-item {
+        background: #f1f2f6; padding: 15px; border-radius: 15px;
+        display: flex; flex-direction: column; align-items: center; border: 2px solid #dfe4ea;
+    }
+    .collection-item.locked .visual img {
+        filter: brightness(0) opacity(0.2); 
+    }
+    .collection-item .visual { margin-bottom: 10px; }
+    .collection-item .visual img { width: 70px; height: auto; }
+    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.9em; height: 35px; display: flex; align-items: center; text-align: center;}
+    
+    .buy-btn {
+        background: #2ed573; color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em;
+    }
+    .buy-btn:disabled { background: #a4b0be; cursor: not-allowed; }
+    .close-btn { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1.2em; }
+
+    /* New Animal Popup */
+    #unlock-popup { z-index: 300; }
+    #unlock-popup .visual img { width: 150px; height: auto; margin: 20px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+    <h1>🌊 Ocean Tycoon</h1>
+    <p>Grow your reef. Tap & Drag animals for hearts.</p>
+    <button id="start-btn">Dive In</button>
+</div>
+
+<div id="ui-layer">
+    <div class="hud-column">
+        <div class="hud-box">❤️ <span id="heart-count">0</span></div>
+        <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
+    </div>
+    <button id="collection-btn" class="hud-box">📖 Collection</button>
+</div>
+
+<div id="ocean"></div>
+
+<!-- Collection Modal -->
+<div id="collection-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>Marine Collection (50 Species)</h2>
+        <div id="collection-grid"></div>
+        <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<!-- Unlock Popup Modal -->
+<div id="unlock-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 400px;">
+        <h2>New Marine Life Recruited!</h2>
+        <div id="popup-visual" class="visual"></div>
+        <h3 id="popup-name">Clownfish</h3>
+        <button class="close-btn" onclick="document.getElementById('unlock-popup').style.display='none'">Awesome!</button>
+    </div>
+</div>
+
+<script>
+    // --- Audio Context & Synth ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    const bgm = new Audio("lo-fi-aquatic.mp3");
+    bgm.loop = true;
+    bgm.volume = 0.4;
+
+    function playSynth(freq, type, duration, vol=0.2) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sfx = {
+        bubble: () => playSynth(600 + Math.random()*200, 'sine', 0.1, 0.1),
+        unlock: () => {
+            playSynth(440, 'triangle', 0.2, 0.2);
+            setTimeout(() => playSynth(554, 'triangle', 0.2, 0.2), 150);
+            setTimeout(() => playSynth(659, 'triangle', 0.4, 0.2), 300);
+        }
+    };
+
+    // --- Complete 50-Animal Game Data ---
+    const animalData = [
+        { id: 'clownfish', name: 'Clownfish', img: 'clownfish.png', cost: 0, speed: 0.5, heartsPerClick: 1 },
+        { id: 'sponge', name: 'Sponge', img: 'sponge.png', cost: 10, speed: 0, heartsPerClick: 2 },
+        { id: 'coral', name: 'Coral', img: 'coral.png', cost: 20, speed: 0, heartsPerClick: 3 },
+        { id: 'seastar', name: 'Sea Star', img: 'seastar.png', cost: 35, speed: 0.05, heartsPerClick: 4 },
+        { id: 'sea-anemone', name: 'Sea Anemone', img: 'sea-anemone.png', cost: 50, speed: 0, heartsPerClick: 5 },
+        { id: 'shrimp', name: 'Shrimp', img: 'shrimp.png', cost: 75, speed: 0.4, heartsPerClick: 6 },
+        { id: 'crab', name: 'Crab', img: 'crab.png', cost: 100, speed: 0.2, heartsPerClick: 8 },
+        { id: 'sea-cucumber', name: 'Sea Cucumber', img: 'sea-cucumber.png', cost: 150, speed: 0.05, heartsPerClick: 10 },
+        { id: 'giant-clam', name: 'Giant Clam', img: 'giant-clam.png', cost: 200, speed: 0, heartsPerClick: 12 },
+        { id: 'seahorse', name: 'Seahorse', img: 'seahorse.png', cost: 250, speed: 0.2, heartsPerClick: 15 },
+        { id: 'blue-tang', name: 'Blue Tang', img: 'blue-tang.png', cost: 350, speed: 0.5, heartsPerClick: 20 },
+        { id: 'angelfish', name: 'Angelfish', img: 'angelfish.png', cost: 500, speed: 0.5, heartsPerClick: 25 },
+        { id: 'pufferfish', name: 'Pufferfish', img: 'pufferfish.png', cost: 750, speed: 0.3, heartsPerClick: 30 },
+        { id: 'lionfish', name: 'Lionfish', img: 'lionfish.png', cost: 1000, speed: 0.3, heartsPerClick: 35 },
+        { id: 'stonefish', name: 'Stonefish', img: 'stonefish.png', cost: 1250, speed: 0.1, heartsPerClick: 40 },
+        { id: 'lobster', name: 'Lobster', img: 'lobster.png', cost: 1500, speed: 0.2, heartsPerClick: 50 },
+        { id: 'cuttlefish', name: 'Cuttlefish', img: 'cuttlefish.png', cost: 2000, speed: 0.4, heartsPerClick: 60 },
+        { id: 'squid', name: 'Squid', img: 'squid.png', cost: 2500, speed: 0.5, heartsPerClick: 70 },
+        { id: 'seajelly', name: 'Sea Jelly', img: 'seajelly.png', cost: 3000, speed: 0.2, heartsPerClick: 80 },
+        { id: 'flying-fish', name: 'Flying Fish', img: 'flying-fish.png', cost: 4000, speed: 0.7, heartsPerClick: 90 },
+        { id: 'barracuda', name: 'Barracuda', img: 'barracuda.png', cost: 5000, speed: 0.6, heartsPerClick: 100 },
+        { id: 'moray-eel', name: 'Moray Eel', img: 'moray-eel.png', cost: 6500, speed: 0.4, heartsPerClick: 120 },
+        { id: 'electric-eel', name: 'Electric Eel', img: 'electric-eel.png', cost: 8000, speed: 0.4, heartsPerClick: 140 },
+        { id: 'stingray', name: 'Stingray', img: 'stingray.png', cost: 10000, speed: 0.5, heartsPerClick: 160 },
+        { id: 'manta-ray', name: 'Manta Ray', img: 'manta-ray.png', cost: 12500, speed: 0.6, heartsPerClick: 180 },
+        { id: 'octopus', name: 'Octopus', img: 'octopus.png', cost: 15000, speed: 0.3, heartsPerClick: 200 },
+        { id: 'sea-turtle', name: 'Sea Turtle', img: 'sea-turtle.png', cost: 20000, speed: 0.3, heartsPerClick: 250 },
+        { id: 'green-sea-turtle', name: 'Green Sea Turtle', img: 'green-sea-turtle.png', cost: 25000, speed: 0.3, heartsPerClick: 300 },
+        { id: 'leatherback', name: 'Leatherback', img: 'leatherback.png', cost: 30000, speed: 0.3, heartsPerClick: 350 },
+        { id: 'sea-otter', name: 'Sea Otter', img: 'sea-otter.png', cost: 40000, speed: 0.4, heartsPerClick: 400 },
+        { id: 'seal', name: 'Seal', img: 'seal.png', cost: 50000, speed: 0.4, heartsPerClick: 500 },
+        { id: 'sea-lion', name: 'Sea Lion', img: 'sea-lion.png', cost: 60000, speed: 0.4, heartsPerClick: 600 },
+        { id: 'walrus', name: 'Walrus', img: 'walrus.png', cost: 75000, speed: 0.3, heartsPerClick: 700 },
+        { id: 'dugong', name: 'Dugong', img: 'dugong.png', cost: 90000, speed: 0.2, heartsPerClick: 800 },
+        { id: 'manatee', name: 'Manatee', img: 'manatee.png', cost: 100000, speed: 0.2, heartsPerClick: 900 },
+        { id: 'dolphin', name: 'Dolphin', img: 'dolphin.png', cost: 125000, speed: 0.6, heartsPerClick: 1000 },
+        { id: 'porpoise', name: 'Porpoise', img: 'porpoise.png', cost: 150000, speed: 0.6, heartsPerClick: 1200 },
+        { id: 'narwhal', name: 'Narwhal', img: 'narwhal.png', cost: 175000, speed: 0.5, heartsPerClick: 1400 },
+        { id: 'swordfish', name: 'Swordfish', img: 'swordfish.png', cost: 200000, speed: 0.8, heartsPerClick: 1600 },
+        { id: 'anglerfish', name: 'Anglerfish', img: 'anglerfish.png', cost: 250000, speed: 0.3, heartsPerClick: 1800 },
+        { id: 'dragonfish', name: 'Dragonfish', img: 'dragonfish.png', cost: 300000, speed: 0.3, heartsPerClick: 2000 },
+        { id: 'hammerhead-shark', name: 'Hammerhead Shark', img: 'hammerhead-shark.png', cost: 400000, speed: 0.5, heartsPerClick: 2500 },
+        { id: 'tiger-shark', name: 'Tiger Shark', img: 'tiger-shark.png', cost: 500000, speed: 0.5, heartsPerClick: 3000 },
+        { id: 'great-white-shark', name: 'Great White Shark', img: 'great-white-shark.png', cost: 600000, speed: 0.5, heartsPerClick: 3500 },
+        { id: 'whale-shark', name: 'Whale Shark', img: 'whale-shark.png', cost: 750000, speed: 0.2, heartsPerClick: 4500 },
+        { id: 'beluga-whale', name: 'Beluga Whale', img: 'beluga-whale.png', cost: 1000000, speed: 0.4, heartsPerClick: 6000 },
+        { id: 'orca', name: 'Orca', img: 'orca.png', cost: 1500000, speed: 0.6, heartsPerClick: 8000 },
+        { id: 'sperm-whale', name: 'Sperm Whale', img: 'sperm-whale.png', cost: 2500000, speed: 0.3, heartsPerClick: 12000 },
+        { id: 'giant-squid', name: 'Giant Squid', img: 'giant-squid.png', cost: 5000000, speed: 0.4, heartsPerClick: 25000 },
+        { id: 'blue-whale', name: 'Blue Whale', img: 'blue-whale.png', cost: 10000000, speed: 0.2, heartsPerClick: 50000 }
+    ];
+
+    let hearts = 0;
+    let unlockedIds = ['clownfish']; 
+    let activeAnimals = [];
+
+    // --- Local Storage Management ---
+    function saveProgress() {
+        localStorage.setItem("oceanHearts", hearts);
+        localStorage.setItem("oceanUnlocks", JSON.stringify(unlockedIds));
+    }
+
+    function loadProgress() {
+        const savedHearts = localStorage.getItem("oceanHearts");
+        const savedUnlocks = localStorage.getItem("oceanUnlocks");
+        
+        if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
+        if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
+        
+        updateUI();
+    }
+
+    // --- Game Logic ---
+    function updateUI() {
+        document.getElementById('heart-count').innerText = hearts.toLocaleString();
+        
+        // Auto Harvest Display Logic (Requires 1 Starter + 5 Recruits = 6 Total)
+        const autoBox = document.getElementById('auto-harvest-box');
+        if (unlockedIds.length >= 6) {
+            autoBox.style.display = 'block';
+            let heartsPerSecond = activeAnimals.reduce((sum, anim) => sum + anim.heartsPerClick, 0);
+            document.getElementById('auto-rate').innerText = heartsPerSecond.toLocaleString();
+        } else {
+            autoBox.style.display = 'none';
+        }
+    }
+
+    function spawnAnimal(animalDef) {
+        const ocean = document.getElementById('ocean');
+        const el = document.createElement('div');
+        el.className = 'animal';
+        
+        // Add Name Tag and Image
+        el.innerHTML = `
+            <div class="animal-name">${animalDef.name}</div>
+            <img src="${animalDef.img}" alt="${animalDef.name}">
+        `;
+        
+        let x = Math.random() * (window.innerWidth - 100);
+        let y = Math.random() * (window.innerHeight - 130);
+        
+        // Always start moving right
+        let vx = animalDef.speed; 
+        let vy = (Math.random() > 0.5 ? 1 : -1) * animalDef.speed;
+
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        // Pointer Down Event (Click / Start Drag)
+        el.addEventListener('pointerdown', (e) => {
+            e.preventDefault(); 
+            
+            sfx.bubble();
+            hearts += animalDef.heartsPerClick;
+            updateUI();
+            saveProgress();
+
+            el.classList.add('clicked');
+            setTimeout(() => el.classList.remove('clicked'), 200);
+
+            // Floating Heart
+            const floatHeart = document.createElement('div');
+            floatHeart.className = 'floating-heart';
+            floatHeart.innerText = `+${animalDef.heartsPerClick} ❤️`;
+            floatHeart.style.left = e.clientX + 'px';
+            floatHeart.style.top = (e.clientY - 30) + 'px';
+            ocean.appendChild(floatHeart);
+            setTimeout(() => floatHeart.remove(), 1000);
+
+            // Start Dragging Setup
+            let animObj = activeAnimals.find(a => a.el === el);
+            if (animObj) {
+                animObj.isDragging = true;
+                el.setPointerCapture(e.pointerId);
+                animObj.offsetX = e.clientX - animObj.x;
+                animObj.offsetY = e.clientY - animObj.y;
+            }
+        });
+
+        // Pointer Move Event (Dragging)
+        el.addEventListener('pointermove', (e) => {
+            let animObj = activeAnimals.find(a => a.el === el);
+            if (animObj && animObj.isDragging) {
+                animObj.x = e.clientX - animObj.offsetX;
+                animObj.y = e.clientY - animObj.offsetY;
+                el.style.left = animObj.x + 'px';
+                el.style.top = animObj.y + 'px';
+            }
+        });
+
+        // Pointer Up / Cancel Event (Release Drag)
+        const endDrag = (e) => {
+            let animObj = activeAnimals.find(a => a.el === el);
+            if (animObj) {
+                animObj.isDragging = false;
+                el.releasePointerCapture(e.pointerId);
+            }
+        };
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+
+        ocean.appendChild(el);
+        
+        // Track the animals along with their heartsPerClick stat for Auto-Harvest
+        activeAnimals.push({ 
+            el, x, y, vx, vy, 
+            speed: animalDef.speed, 
+            isDragging: false,
+            heartsPerClick: animalDef.heartsPerClick
+        });
+    }
+
+    // Auto Harvest Loop (Runs every 1 second)
+    setInterval(() => {
+        // Only collect if they have made at least 5 recruits
+        if (unlockedIds.length >= 6) {
+            let heartsPerSecond = activeAnimals.reduce((sum, anim) => sum + anim.heartsPerClick, 0);
+            if (heartsPerSecond > 0) {
+                hearts += heartsPerSecond;
+                updateUI();
+                saveProgress();
+            }
+        }
+    }, 1000);
+
+    // Animation Loop
+    function animate() {
+        activeAnimals.forEach(anim => {
+            if (anim.isDragging) return; 
+            if (anim.speed === 0) return; 
+
+            anim.x += anim.vx;
+            anim.y += anim.vy;
+
+            // Flip images according to direction of travel (Right = 1, Left = -1)
+            if (anim.x <= 0) {
+                anim.x = 0;
+                anim.vx = Math.abs(anim.vx);
+                anim.el.querySelector('img').style.transform = "scaleX(1)";
+            } else if (anim.x >= window.innerWidth - 100) {
+                anim.x = window.innerWidth - 100;
+                anim.vx = -Math.abs(anim.vx);
+                anim.el.querySelector('img').style.transform = "scaleX(-1)";
+            }
+
+            if (anim.y <= 0) {
+                anim.y = 0;
+                anim.vy *= -1;
+            } else if (anim.y >= window.innerHeight - 130) {
+                anim.y = window.innerHeight - 130;
+                anim.vy *= -1;
+            }
+
+            anim.el.style.left = anim.x + 'px';
+            anim.el.style.top = anim.y + 'px';
+        });
+        requestAnimationFrame(animate);
+    }
+
+    // --- UI Modals ---
+    function openCollection() {
+        const grid = document.getElementById('collection-grid');
+        grid.innerHTML = '';
+        
+        animalData.forEach((a) => {
+            const isUnlocked = unlockedIds.includes(a.id);
+            const item = document.createElement('div');
+            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
+            
+            let btnHTML = '';
+            if (isUnlocked) {
+                btnHTML = `<div style="color:#2ed573; font-weight:bold; font-size: 0.9em;">Recruited!</div>`;
+            } else {
+                const canAfford = hearts >= a.cost;
+                btnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
+                            Unlock<br>(${a.cost.toLocaleString()} ❤️)
+                           </button>`;
+            }
+
+            item.innerHTML = `
+                <div class="visual"><img src="${a.img}" alt="${a.name}"></div>
+                <div class="name-tag">${isUnlocked ? a.name : '???'}</div>
+                ${btnHTML}
+            `;
+            grid.appendChild(item);
+        });
+        document.getElementById('collection-modal').style.display = 'flex';
+    }
+
+    window.recruit = function(id) {
+        const animal = animalData.find(a => a.id === id);
+        if (hearts >= animal.cost && !unlockedIds.includes(id)) {
+            hearts -= animal.cost;
+            unlockedIds.push(id);
+            updateUI();
+            saveProgress();
+            
+            spawnAnimal(animal);
+            
+            document.getElementById('collection-modal').style.display = 'none';
+            document.getElementById('popup-visual').innerHTML = `<img src="${animal.img}" alt="${animal.name}">`;
+            document.getElementById('popup-name').innerText = animal.name;
+            document.getElementById('unlock-popup').style.display = 'flex';
+            sfx.unlock();
+        }
+    };
+
+    // Modal Background Click-to-Close Listeners
+    document.getElementById('collection-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'collection-modal') {
+            e.target.style.display = 'none';
+        }
+    });
+
+    document.getElementById('unlock-popup').addEventListener('click', (e) => {
+        if (e.target.id === 'unlock-popup') {
+            e.target.style.display = 'none';
+        }
+    });
+
+    // --- Init ---
+    document.getElementById('start-btn').addEventListener('click', () => {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('ui-layer').style.display = 'flex';
+        
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        bgm.play().catch(e => console.log("BGM play failed:", e));
+
+        loadProgress();
+        
+        unlockedIds.forEach(id => {
+            const animal = animalData.find(a => a.id === id);
+            if(animal) spawnAnimal(animal);
+        });
+
+        requestAnimationFrame(animate);
+    });
+
+    document.getElementById('collection-btn').addEventListener('click', openCollection);
+
+</script>
+</body>
+</html>

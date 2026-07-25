@@ -36,7 +36,7 @@
         z-index: 200;
         color: white;
     }
-    #start-screen h1 { font-size: 4em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    #start-screen h1 { font-size: 2em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     #start-btn {
         padding: 15px 40px; font-size: 1.5em; font-weight: bold;
         background: #00d2ff; color: #0f2027; border: none; border-radius: 50px;
@@ -64,7 +64,7 @@
     
     #auto-harvest-box {
         font-size: 1em; padding: 10px 20px; background: rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.6);
-        display: none; /* Hidden until 5 recruits */
+        display: none; /* Hidden until 6 total recruits */
     }
 
     #collection-btn {
@@ -113,7 +113,7 @@
     .floating-heart {
         position: absolute;
         color: #ff4757;
-        font-size: 1.5em;
+        font-size: 0.5em;
         font-weight: bold;
         pointer-events: none;
         animation: floatUp 1s ease-out forwards;
@@ -125,42 +125,76 @@
         100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
     }
 
-    /* Modals */
+    /* Modals (Glassmorphism Deep Sea Theme Update) */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.7); z-index: 100;
-        display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px);
+        display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px);
     }
+    
     .modal {
-        background: white; padding: 30px; border-radius: 20px;
+        background: rgba(0, 18, 51, 0.65); /* Semi-transparent */
+        backdrop-filter: blur(16px); /* Heavy blur for glass effect */
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 25px; /* Highly rounded corners */
+        color: white; padding: 30px; 
         max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(0, 210, 255, 0.1);
+        border: 2px solid rgba(0, 210, 255, 0.3);
     }
-    .modal h2 { margin-top: 0; color: #003666; font-size: 2em; position: sticky; top: 0; background: white; padding-bottom: 15px; z-index: 2; border-bottom: 2px solid #f1f2f6;}
+    
+    /* Scrollbar Styling for Modal */
+    .modal::-webkit-scrollbar { width: 8px; }
+    .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .modal::-webkit-scrollbar-thumb { background: rgba(0, 210, 255, 0.5); border-radius: 10px; }
+
+    .modal h2 { 
+        margin-top: -10px; padding-top: 10px; color: #00d2ff; font-size: 2.2em; 
+        position: sticky; top: 0; 
+        background: transparent; /* Transparent header to match glass effect */
+        padding-bottom: 15px; z-index: 2; 
+        border-bottom: 2px solid rgba(0, 210, 255, 0.3);
+        box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
+    }
     
     /* Collection Grid */
     #collection-grid {
         display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
     }
     .collection-item {
-        background: #f1f2f6; padding: 15px; border-radius: 15px;
-        display: flex; flex-direction: column; align-items: center; border: 2px solid #dfe4ea;
+        background: rgba(0, 210, 255, 0.05); padding: 15px; border-radius: 15px;
+        display: flex; flex-direction: column; align-items: center; 
+        border: 1px solid rgba(0, 210, 255, 0.2);
+        transition: transform 0.2s, background 0.2s;
+    }
+    .collection-item:hover {
+        background: rgba(0, 210, 255, 0.15);
+        transform: translateY(-3px);
     }
     .collection-item.locked .visual img {
         filter: brightness(0) opacity(0.2); 
     }
     .collection-item .visual { margin-bottom: 10px; }
     .collection-item .visual img { width: 70px; height: auto; }
-    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.9em; height: 35px; display: flex; align-items: center; text-align: center;}
+    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.9em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+    .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
     
     .buy-btn {
-        background: #2ed573; color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em;
+        background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
     }
-    .buy-btn:disabled { background: #a4b0be; cursor: not-allowed; }
-    .close-btn { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1.2em; }
+    .buy-btn:active { transform: scale(0.95); }
+    .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
+    
+    .close-btn { background: #ff4757; color: white; border: none; padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); transition: transform 0.2s; margin-top: 10px;}
+    .close-btn:hover { transform: scale(1.05); }
 
-    /* New Animal Popup */
-    #unlock-popup { z-index: 300; }
-    #unlock-popup .visual img { width: 150px; height: auto; margin: 20px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    /* Popups */
+    #unlock-popup, #auto-popup { z-index: 300; }
+    .visual img { width: 150px; height: auto; margin: 20px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    
+    #auto-popup .modal { max-width: 500px; }
+    .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
     @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 </style>
 </head>
@@ -194,10 +228,21 @@
 <!-- Unlock Popup Modal -->
 <div id="unlock-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden; max-height: 400px;">
-        <h2>New Marine Life Recruited!</h2>
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">New Marine Life!</h2>
         <div id="popup-visual" class="visual"></div>
-        <h3 id="popup-name">Clownfish</h3>
+        <h3 id="popup-name" style="margin-top: 0; font-size: 1.5em; color: white;">Clownfish</h3>
         <button class="close-btn" onclick="document.getElementById('unlock-popup').style.display='none'">Awesome!</button>
+    </div>
+</div>
+
+<!-- Auto-Harvest Unlocked Popup -->
+<div id="auto-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 400px;">
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #2ed573;">System Upgrade!</h2>
+        <div class="gear-icon">⚙️</div>
+        <h3 style="margin-top: 0; font-size: 1.5em; color: white;">Auto-Harvest Activated</h3>
+        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your thriving reef is now collecting hearts automatically every second!</p>
+        <button class="close-btn" onclick="document.getElementById('auto-popup').style.display='none'">Keep Growing</button>
     </div>
 </div>
 
@@ -310,9 +355,9 @@
     function updateUI() {
         document.getElementById('heart-count').innerText = hearts.toLocaleString();
         
-        // Auto Harvest Display Logic (Requires 1 Starter + 5 Recruits = 6 Total)
+        // Auto Harvest Display Logic (Requires 6 total recruits)
         const autoBox = document.getElementById('auto-harvest-box');
-        if (unlockedIds.length >= 6) {
+        if (activeAnimals.length >= 6) {
             autoBox.style.display = 'block';
             let heartsPerSecond = activeAnimals.reduce((sum, anim) => sum + anim.heartsPerClick, 0);
             document.getElementById('auto-rate').innerText = heartsPerSecond.toLocaleString();
@@ -359,7 +404,7 @@
             floatHeart.className = 'floating-heart';
             floatHeart.innerText = `+${animalDef.heartsPerClick} ❤️`;
             floatHeart.style.left = e.clientX + 'px';
-            floatHeart.style.top = (e.clientY - 30) + 'px';
+            floatHeart.style.top = (e.clientY - 10) + 'px';
             ocean.appendChild(floatHeart);
             setTimeout(() => floatHeart.remove(), 1000);
 
@@ -409,9 +454,30 @@
 
     // Auto Harvest Loop (Runs every 1 second)
     setInterval(() => {
-        // Only collect if they have made at least 5 recruits
-        if (unlockedIds.length >= 6) {
-            let heartsPerSecond = activeAnimals.reduce((sum, anim) => sum + anim.heartsPerClick, 0);
+        // Only collect if they have made at least 5 additional recruits (6 total animals)
+        if (activeAnimals.length >= 6) {
+            let heartsPerSecond = 0;
+            const ocean = document.getElementById('ocean');
+            
+            activeAnimals.forEach(anim => {
+                if (anim.heartsPerClick > 0) {
+                    heartsPerSecond += anim.heartsPerClick;
+                    
+                    // Spawn visual hearts for auto collection
+                    const floatHeart = document.createElement('div');
+                    floatHeart.className = 'floating-heart';
+                    floatHeart.innerText = `+${anim.heartsPerClick} ❤️`;
+                    
+                    // Slightly offset to pop out around the center of the animal
+                    const offsetX = (Math.random() * 40) - 10;
+                    floatHeart.style.left = (anim.x + 30 + offsetX) + 'px';
+                    floatHeart.style.top = (anim.y - 20) + 'px';
+                    
+                    ocean.appendChild(floatHeart);
+                    setTimeout(() => floatHeart.remove(), 1000);
+                }
+            });
+            
             if (heartsPerSecond > 0) {
                 hearts += heartsPerSecond;
                 updateUI();
@@ -460,23 +526,26 @@
         grid.innerHTML = '';
         
         animalData.forEach((a) => {
-            const isUnlocked = unlockedIds.includes(a.id);
+            // Count how many of this specific animal we own
+            const count = unlockedIds.filter(id => id === a.id).length;
+            const isUnlocked = count > 0;
+            
             const item = document.createElement('div');
             item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
             
-            let btnHTML = '';
-            if (isUnlocked) {
-                btnHTML = `<div style="color:#2ed573; font-weight:bold; font-size: 0.9em;">Recruited!</div>`;
-            } else {
-                const canAfford = hearts >= a.cost;
-                btnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
-                            Unlock<br>(${a.cost.toLocaleString()} ❤️)
-                           </button>`;
-            }
+            const canAfford = hearts >= a.cost;
+            
+            // Allow multiple recruits - Button stays visible
+            const btnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
+                                ${isUnlocked ? 'Recruit More' : 'Unlock'}<br>(${a.cost.toLocaleString()} ❤️)
+                             </button>`;
+
+            // Add a counter badge if we own any
+            const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
             item.innerHTML = `
                 <div class="visual"><img src="${a.img}" alt="${a.name}"></div>
-                <div class="name-tag">${isUnlocked ? a.name : '???'}</div>
+                <div class="name-tag">${isUnlocked ? a.name : '???'} ${countBadge}</div>
                 ${btnHTML}
             `;
             grid.appendChild(item);
@@ -486,19 +555,37 @@
 
     window.recruit = function(id) {
         const animal = animalData.find(a => a.id === id);
-        if (hearts >= animal.cost && !unlockedIds.includes(id)) {
+        
+        if (hearts >= animal.cost) {
+            const isFirstTime = !unlockedIds.includes(id);
+            const wasBelowThreshold = activeAnimals.length < 6;
+            
             hearts -= animal.cost;
             unlockedIds.push(id);
-            updateUI();
-            saveProgress();
             
             spawnAnimal(animal);
+            updateUI();
+            saveProgress();
+            openCollection(); 
             
-            document.getElementById('collection-modal').style.display = 'none';
-            document.getElementById('popup-visual').innerHTML = `<img src="${animal.img}" alt="${animal.name}">`;
-            document.getElementById('popup-name').innerText = animal.name;
-            document.getElementById('unlock-popup').style.display = 'flex';
-            sfx.unlock();
+            // Check if this specific recruit hit the 6-animal auto-harvest threshold
+            if (wasBelowThreshold && activeAnimals.length >= 6) {
+                document.getElementById('collection-modal').style.display = 'none';
+                document.getElementById('unlock-popup').style.display = 'none'; // Ensure no overlap
+                document.getElementById('auto-popup').style.display = 'flex';
+                sfx.unlock();
+            } 
+            // Otherwise, show standard unlock popup for first-time discoveries
+            else if (isFirstTime) {
+                document.getElementById('collection-modal').style.display = 'none';
+                document.getElementById('popup-visual').innerHTML = `<img src="${animal.img}" alt="${animal.name}">`;
+                document.getElementById('popup-name').innerText = animal.name;
+                document.getElementById('unlock-popup').style.display = 'flex';
+                sfx.unlock();
+            } 
+            else {
+                sfx.bubble(); // Duplicate animal sound
+            }
         }
     };
 
@@ -511,6 +598,12 @@
 
     document.getElementById('unlock-popup').addEventListener('click', (e) => {
         if (e.target.id === 'unlock-popup') {
+            e.target.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('auto-popup').addEventListener('click', (e) => {
+        if (e.target.id === 'auto-popup') {
             e.target.style.display = 'none';
         }
     });
@@ -530,6 +623,7 @@
             if(animal) spawnAnimal(animal);
         });
 
+        updateUI();
         requestAnimationFrame(animate);
     });
 

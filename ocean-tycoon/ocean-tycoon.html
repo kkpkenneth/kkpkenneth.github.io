@@ -67,10 +67,24 @@
         display: none; /* Hidden until 6 total recruits */
     }
 
+    .btn-column {
+        display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+    }
+
+    #sound-btn {
+        background: rgba(46, 213, 115, 0.2); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(46, 213, 115, 0.5); color: white; font-size: 1em; padding: 10px 15px;
+    }
+    #sound-btn:hover { transform: scale(1.05); background: rgba(46, 213, 115, 0.4); }
+
     #collection-btn {
         background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: transform 0.2s; border: none; color: white;
     }
     #collection-btn:hover { transform: scale(1.05); }
+
+    #reset-btn {
+        background: rgba(255, 71, 87, 0.2); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255, 71, 87, 0.5); color: white; font-size: 1em; padding: 10px 15px;
+    }
+    #reset-btn:hover { transform: scale(1.05); background: rgba(255, 71, 87, 0.4); }
 
     /* Marine Animals */
     .animal {
@@ -125,7 +139,7 @@
         100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
     }
 
-    /* Modals (Glassmorphism Deep Sea Theme Update) */
+    /* Modals */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.7); z-index: 100;
@@ -133,10 +147,10 @@
     }
     
     .modal {
-        background: rgba(0, 18, 51, 0.65); /* Semi-transparent */
-        backdrop-filter: blur(16px); /* Heavy blur for glass effect */
+        background: rgba(0, 18, 51, 0.65); 
+        backdrop-filter: blur(16px); 
         -webkit-backdrop-filter: blur(16px);
-        border-radius: 25px; /* Highly rounded corners */
+        border-radius: 25px; 
         color: white; padding: 30px; 
         max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
         box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(0, 210, 255, 0.1);
@@ -151,7 +165,7 @@
     .modal h2 { 
         margin-top: -10px; padding-top: 10px; color: #00d2ff; font-size: 2.2em; 
         position: sticky; top: 0; 
-        background: transparent; /* Transparent header to match glass effect */
+        background: transparent; 
         padding-bottom: 15px; z-index: 2; 
         border-bottom: 2px solid rgba(0, 210, 255, 0.3);
         box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
@@ -179,12 +193,21 @@
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.9em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
     .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
     
+    .btn-group {
+        display: flex; gap: 5px; width: 100%; margin-top: auto;
+    }
     .buy-btn {
-        background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
+        background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; font-size: 0.85em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
     }
     .buy-btn:active { transform: scale(0.95); }
     .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
     
+    .remove-btn {
+        background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s; flex: 0.3;
+    }
+    .remove-btn:active { transform: scale(0.95); }
+    .remove-btn:hover { filter: brightness(1.1); }
+
     .close-btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; transition: transform 0.2s; margin-top: 10px;}
     .close-btn:hover { transform: scale(1.05); }
 
@@ -211,7 +234,11 @@
         <div class="hud-box">❤️ <span id="heart-count">0</span></div>
         <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
     </div>
-    <button id="collection-btn" class="hud-box">📖 Collection</button>
+    <div class="btn-column">
+        <button id="collection-btn" class="hud-box">📖 Collection</button>
+        <button id="sound-btn" class="hud-box">🔊 Sound</button>
+        <button id="reset-btn" class="hud-box">⚠️ Reset</button>
+    </div>
 </div>
 
 <div id="ocean"></div>
@@ -231,7 +258,7 @@
         <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">New Marine Life!</h2>
         <div id="popup-visual" class="visual"></div>
         <h3 id="popup-name" style="margin-top: 0; font-size: 1.5em; color: white;">Clownfish</h3>
-        <button class="close-btn" onclick="document.getElementById('unlock-popup').style.display='none'">Awesome!</button>
+        <button class="close-btn" onclick="closeUnlockPopup()">Awesome!</button>
     </div>
 </div>
 
@@ -253,8 +280,11 @@
     const bgm = new Audio("lo-fi-aquatic.mp3");
     bgm.loop = true;
     bgm.volume = 0.4;
+    
+    let isMuted = false;
 
     function playSynth(freq, type, duration, vol=0.2) {
+        if (isMuted) return;
         if(audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -332,13 +362,16 @@
     ];
 
     let hearts = 0;
-    let unlockedIds = ['clownfish']; 
+    let unlockedIds = ['clownfish']; // Tracks current animals in the ocean
+    let everUnlockedIds = ['clownfish']; // Tracks all historically unlocked animals to prevent double pop-ups
     let activeAnimals = [];
+    let pendingAutoPopup = false; 
 
     // --- Local Storage Management ---
     function saveProgress() {
         localStorage.setItem("oceanHearts", hearts);
         localStorage.setItem("oceanUnlocks", JSON.stringify(unlockedIds));
+        localStorage.setItem("oceanEverUnlocks", JSON.stringify(everUnlockedIds));
         
         // Save current positions and velocities
         const animalStates = activeAnimals.map(anim => ({
@@ -354,9 +387,17 @@
     function loadProgress() {
         const savedHearts = localStorage.getItem("oceanHearts");
         const savedUnlocks = localStorage.getItem("oceanUnlocks");
+        const savedEverUnlocks = localStorage.getItem("oceanEverUnlocks");
         
         if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
         if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
+        
+        if (savedEverUnlocks !== null) {
+            everUnlockedIds = JSON.parse(savedEverUnlocks);
+        } else {
+            // Backup migration for existing saves without this new tracking
+            everUnlockedIds = [...new Set(['clownfish', ...unlockedIds])];
+        }
         
         updateUI();
     }
@@ -544,29 +585,37 @@
         requestAnimationFrame(animate);
     }
 
-    // --- UI Modals ---
+    // --- UI Modals & Logic ---
     function openCollection() {
         const grid = document.getElementById('collection-grid');
         grid.innerHTML = '';
         
         animalData.forEach((a) => {
             const count = unlockedIds.filter(id => id === a.id).length;
+            const hasBeenUnlocked = everUnlockedIds.includes(a.id);
             const isUnlocked = count > 0;
             
             const item = document.createElement('div');
-            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
+            item.className = `collection-item ${hasBeenUnlocked ? '' : 'locked'}`;
             
             const canAfford = hearts >= a.cost;
             
-            const btnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
-                                ${isUnlocked ? 'Recruit More' : 'Unlock'}<br>(${a.cost.toLocaleString()} ❤️)
-                             </button>`;
+            const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">X</button>` : '';
+
+            const btnHTML = `
+                <div class="btn-group">
+                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
+                        ${hasBeenUnlocked ? 'Recruit' : 'Unlock'}<br>(${a.cost.toLocaleString()} ❤️)
+                    </button>
+                    ${removeBtnHTML}
+                </div>
+            `;
 
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
             item.innerHTML = `
                 <div class="visual"><img src="${a.img}" alt="${a.name}"></div>
-                <div class="name-tag">${isUnlocked ? a.name : '???'} ${countBadge}</div>
+                <div class="name-tag">${hasBeenUnlocked ? a.name : '???'} ${countBadge}</div>
                 ${btnHTML}
             `;
             grid.appendChild(item);
@@ -578,33 +627,74 @@
         const animal = animalData.find(a => a.id === id);
         
         if (hearts >= animal.cost) {
-            const isFirstTime = !unlockedIds.includes(id);
+            const isFirstTimeEver = !everUnlockedIds.includes(id);
             const wasBelowThreshold = activeAnimals.length < 6;
             
             hearts -= animal.cost;
             unlockedIds.push(id);
+            if (isFirstTimeEver) {
+                everUnlockedIds.push(id);
+            }
             
             spawnAnimal(animal);
             updateUI();
             saveProgress();
             openCollection(); 
             
+            // Set pending popup flag if we crossed the auto-harvest threshold
             if (wasBelowThreshold && activeAnimals.length >= 6) {
-                document.getElementById('collection-modal').style.display = 'none';
-                document.getElementById('unlock-popup').style.display = 'none'; 
-                document.getElementById('auto-popup').style.display = 'flex';
-                sfx.unlock();
-            } 
-            else if (isFirstTime) {
+                pendingAutoPopup = true;
+            }
+
+            if (isFirstTimeEver) {
                 document.getElementById('collection-modal').style.display = 'none';
                 document.getElementById('popup-visual').innerHTML = `<img src="${animal.img}" alt="${animal.name}">`;
                 document.getElementById('popup-name').innerText = animal.name;
                 document.getElementById('unlock-popup').style.display = 'flex';
                 sfx.unlock();
             } 
+            else if (pendingAutoPopup) {
+                // If it wasn't the first time, but we did unlock auto-harvest
+                document.getElementById('collection-modal').style.display = 'none';
+                document.getElementById('auto-popup').style.display = 'flex';
+                sfx.unlock();
+                pendingAutoPopup = false; 
+            } 
             else {
                 sfx.bubble();
             }
+        }
+    };
+
+    window.removeAnimal = function(id) {
+        // 1. Remove one instance from unlockedIds
+        const unlockIndex = unlockedIds.indexOf(id);
+        if (unlockIndex > -1) {
+            unlockedIds.splice(unlockIndex, 1);
+        }
+        
+        // 2. Remove one instance from activeAnimals and the DOM
+        const activeIndex = activeAnimals.findIndex(a => a.id === id);
+        if (activeIndex > -1) {
+            activeAnimals[activeIndex].el.remove();
+            activeAnimals.splice(activeIndex, 1);
+        }
+
+        // 3. Update everything to reflect changes
+        updateUI();
+        saveProgress();
+        openCollection(); 
+        sfx.bubble();
+    };
+
+    window.closeUnlockPopup = function() {
+        document.getElementById('unlock-popup').style.display = 'none';
+        
+        // If we queued the auto-popup up while unlocking a new creature, show it now
+        if (pendingAutoPopup) {
+            document.getElementById('auto-popup').style.display = 'flex';
+            sfx.unlock();
+            pendingAutoPopup = false;
         }
     };
 
@@ -617,13 +707,41 @@
 
     document.getElementById('unlock-popup').addEventListener('click', (e) => {
         if (e.target.id === 'unlock-popup') {
-            e.target.style.display = 'none';
+            closeUnlockPopup();
         }
     });
     
     document.getElementById('auto-popup').addEventListener('click', (e) => {
         if (e.target.id === 'auto-popup') {
             e.target.style.display = 'none';
+        }
+    });
+
+    // Sound Toggle Logic
+    document.getElementById('sound-btn').addEventListener('click', () => {
+        isMuted = !isMuted; 
+        bgm.muted = isMuted; 
+        
+        const btn = document.getElementById('sound-btn');
+        if (isMuted) {
+            btn.innerText = '🔇 Muted';
+            btn.style.borderColor = 'rgba(255, 165, 0, 0.5)';
+            btn.style.background = 'rgba(255, 165, 0, 0.2)';
+        } else {
+            btn.innerText = '🔊 Sound';
+            btn.style.borderColor = 'rgba(46, 213, 115, 0.5)';
+            btn.style.background = 'rgba(46, 213, 115, 0.2)';
+        }
+    });
+
+    // Reset Button Logic
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm("Are you sure you want to reset all progress? Your reef will be permanently cleared.")) {
+            localStorage.removeItem("oceanHearts");
+            localStorage.removeItem("oceanUnlocks");
+            localStorage.removeItem("oceanEverUnlocks");
+            localStorage.removeItem("oceanAnimalStates");
+            location.reload(); 
         }
     });
 

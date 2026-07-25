@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sauce Master: 2-Player Chaos</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600;800&display=swap');
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e; /* Deep elegant background */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* UI Overlays - Elegant Redesign */
+        .screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #16213e 0%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 { 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 3.5em; 
+            margin: 0 0 10px 0; 
+            color: #d4af37; /* Elegant Gold */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.6); 
+        }
+        
+        .subtitle { 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            font-size: 1.2em; 
+            color: #e0e0e0; 
+            max-width: 700px; 
+            line-height: 1.6; 
+            margin-bottom: 25px; 
+        }
+
+        .controls-hint {
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+            font-size: 0.9em;
+            margin-bottom: 30px;
+        }
+
+        /* Level Grid */
+        #level-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .level-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .level-btn.unlocked {
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+
+        .level-btn.unlocked:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: #d4af37;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .level-btn.locked {
+            color: rgba(255,255,255,0.3);
+            cursor: not-allowed;
+            background: rgba(0, 0, 0, 0.4);
+            border-color: transparent;
+        }
+
+        .lvl-num { font-size: 1.8em; font-weight: bold; color: #d4af37; font-family: 'Montserrat', sans-serif;}
+        .lvl-desc { font-size: 0.85em; margin-top: 8px; color: #ecf0f1; }
+        .lvl-target { font-size: 0.75em; margin-top: 4px; color: #bdc3c7; }
+
+        .btn {
+            background-color: #d4af37;
+            color: #1a1a2e;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2em;
+            padding: 12px 35px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: transform 0.2s, background-color 0.2s;
+            font-weight: 800;
+            margin: 5px;
+            text-transform: uppercase;
+        }
+        .btn:hover { background-color: #f1c40f; transform: scale(1.05); }
+        
+        .mode-btn { background-color: transparent; border: 2px solid #d4af37; color: #d4af37; }
+        .mode-btn.active { background-color: #d4af37; color: #1a1a2e; }
+
+        /* Game HUD */
+        #hud {
+            position: absolute;
+            top: 5px;
+            width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 20px;
+            border-radius: 8px;
+            z-index: 10;
+            border-bottom: 2px solid #d4af37;
+        }
+        .hud-orders {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+        .order-badge {
+            background: #e74c3c;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            animation: pulseOrder 1.5s infinite;
+            text-align: center;
+            min-width: 100px;
+            max-width: 200px;
+            border: 1px solid #c0392b;
+        }
+        @keyframes pulseOrder { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        /* Game Board Layout */
+        #game-canvas-container {
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #34495e;
+            border: 4px solid #d4af37;
+            margin-top: 45px;
+        }
+        canvas { display: block; background: #ecf0f1; }
+    </style>
+</head>
+<body>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen">
+        <h1>Sauce Master</h1>
+        <div class="subtitle">Assemble authentic Italian sauces under pressure. Drop ingredients into the Pasta Blocks 🍝 to serve. Drop mistakes on the floor to discard!</div>
+        <div class="controls-hint"><strong>P1 (Red):</strong> WASD + E (Pick) / R (Drop) &nbsp;&nbsp;|&nbsp;&nbsp; <strong>P2 (Blue):</strong> Arrows + O (Pick) / P (Drop)</div>
+        
+        <div id="level-grid">
+            <!-- Injected by JS -->
+        </div>
+
+        <div>
+            <button class="btn mode-btn active" id="normal-mode-btn" onclick="setMode(false)">Normal (Recipes Shown)</button>
+            <button class="btn mode-btn" id="hard-mode-btn" onclick="setMode(true)">Hard (Memory Only)</button>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" class="screen" style="display: none;">
+        <h1 id="go-title">Shift Finished!</h1>
+        <p id="go-stats" class="subtitle">You served 0 sauces successfully.</p>
+        <div>
+            <button class="btn" onclick="restartLevel()">Try Again</button>
+            <button class="btn" style="background: transparent; border: 2px solid #d4af37; color: #d4af37;" onclick="showMenu()">Main Menu</button>
+        </div>
+    </div>
+
+    <!-- Main Game UI -->
+    <div id="hud">
+        <div id="timer-display" style="color: #f1c40f;">Time: <span id="time-left">120</span>s</div>
+        <div class="hud-orders" id="active-orders"></div>
+        <div id="score-display" style="color: #2ecc71;">Served: <span id="score">0</span> / <span id="target-score">0</span></div>
+    </div>
+
+    <div id="game-canvas-container">
+        <canvas id="gameCanvas" width="900" height="600"></canvas>
+    </div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Progression config
+    const levelConfigs = [
+        { sauces: 2, target: 4 },
+        { sauces: 4, target: 6 },
+        { sauces: 6, target: 8 },
+        { sauces: 8, target: 10 },
+        { sauces: 10, target: 12 },
+        { sauces: 13, target: 15 },
+        { sauces: 16, target: 18 },
+        { sauces: 20, target: 21 },
+        { sauces: 25, target: 24 },
+        { sauces: 30, target: 28 }
+    ];
+    let highestLevel = parseInt(localStorage.getItem('sauceMasterLevel') || '1');
+    let currentLevel = 1;
+    let currentRecipePool = [];
+
+    // Game Config & States
+    let gameRunning = false;
+    let hardMode = false;
+    let score = 0;
+    let targetScore = 0;
+    let timeLeft = 120;
+    let gameTimer = null;
+    let orderTimer = null;
+    let floatingTexts = [];
+
+    // Controls Map
+    const keys = {};
+    window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+    window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+    function setMode(isHard) {
+        hardMode = isHard;
+        document.getElementById('normal-mode-btn').classList.toggle('active', !isHard);
+        document.getElementById('hard-mode-btn').classList.toggle('active', isHard);
+    }
+
+    // --- Audio System ---
+    const bgMusic = new Audio('tarantella.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.1; 
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, duration, vol=0.1) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+    const sfx = {
+        pickup: () => playTone(600, 'sine', 0.1, 0.05),
+        drop: () => playTone(300, 'sine', 0.15, 0.05),
+        serve: () => { playTone(523, 'triangle', 0.1, 0.1); setTimeout(()=>playTone(659, 'triangle', 0.2, 0.1), 100); },
+        trash: () => playTone(150, 'sawtooth', 0.2, 0.1),
+        win: () => { playTone(440, 'square', 0.1, 0.1); setTimeout(()=>playTone(554, 'square', 0.1, 0.1), 100); setTimeout(()=>playTone(659, 'square', 0.3, 0.1), 200); }
+    };
+
+    // Full 32 Ingredients
+    const allIngredients = {
+        "Tomato": "🍅", "Garlic": "🧄", "Onion": "🧅", "Basil": "🌿", 
+        "Olive Oil": "🫒", "Salt": "🧂", "Black Pepper": "⚫", "Chili": "🌶️", 
+        "Parmesan": "🧀", "Pecorino": "🧀", "Mozzarella": "🧀", "Ricotta": "🧀", "Gorgonzola": "🧀", 
+        "Heavy Cream": "🥛", "Butter": "🧈", "Pine Nuts": "🥜", "Ground Beef": "🥩", "Pancetta": "🥓", "Eggs": "🥚", 
+        "Olives": "🫒", "Capers": "🌱", "Sausage": "🌭", "Lemon": "🍋", "Clams": "🦪", "Parsley": "🌿", "Rosemary": "🌿",
+        "Squid Ink": "🖋️", "White Wine": "🍾", "Red Wine": "🍷", "White Truffle": "🍄", "Black Truffle": "🍄", "Mushroom": "🍄"
+    };
+
+    // Full 30 Recipes
+    const rawRecipes = [
+        { name: "Marinara", ind: { "Tomato": 3, "Garlic": 1, "Onion": 1, "Basil": 1, "Olive Oil": 1 } },
+        { name: "Aglio e Olio", ind: { "Garlic": 3, "Olive Oil": 2, "Chili": 1, "Salt": 1 } },
+        { name: "Pesto Genovese", ind: { "Basil": 3, "Pine Nuts": 1, "Parmesan": 1, "Garlic": 1, "Olive Oil": 2 } },
+        { name: "Alfredo", ind: { "Butter": 2, "Heavy Cream": 2, "Parmesan": 2 } },
+        { name: "Carbonara", ind: { "Eggs": 2, "Pancetta": 2, "Pecorino": 2, "Black Pepper": 1 } },
+        { name: "Bolognese", ind: { "Ground Beef": 2, "Tomato": 2, "Onion": 1, "Garlic": 1, "Olive Oil": 1 } },
+        { name: "Arrabbiata", ind: { "Tomato": 3, "Garlic": 2, "Chili": 2, "Olive Oil": 1 } },
+        { name: "Puttanesca", ind: { "Tomato": 2, "Olives": 2, "Capers": 1, "Garlic": 1, "Olive Oil": 1 } },
+        { name: "Amatriciana", ind: { "Tomato": 2, "Pancetta": 2, "Pecorino": 1, "Onion": 1 } },
+        { name: "Cacio e Pepe", ind: { "Pecorino": 2, "Black Pepper": 2 } },
+        { name: "Pomodoro", ind: { "Tomato": 4, "Basil": 2, "Olive Oil": 1, "Salt": 1 } },
+        { name: "Creamy Tomato", ind: { "Tomato": 2, "Heavy Cream": 1, "Onion": 1, "Garlic": 1 } },
+        { name: "Ragù di Cinghiale", ind: { "Ground Beef": 2, "Red Wine": 2, "Tomato": 1, "Rosemary": 1, "Garlic": 1 } },
+        { name: "Tartufo Bianco", ind: { "White Truffle": 1, "Butter": 2, "Parmesan": 2, "Salt": 1 } },
+        { name: "Lemon Butter Garlic", ind: { "Lemon": 1, "Butter": 2, "Garlic": 2, "Parmesan": 1 } },
+        { name: "Cheesy Garlic", ind: { "Garlic": 3, "Butter": 1, "Parmesan": 2, "Heavy Cream": 1 } },
+        { name: "Tartufo Nero", ind: { "Black Truffle": 1, "Mushroom": 2, "Butter": 2, "Garlic": 1 } },
+        { name: "Nero di Seppia", ind: { "Squid Ink": 2, "White Wine": 2, "Garlic": 2, "Olive Oil": 1, "Parsley": 1 } },
+        { name: "Brown Butter Pine Nut", ind: { "Butter": 3, "Pine Nuts": 2, "Parmesan": 1 } },
+        { name: "Creamy Pesto", ind: { "Basil": 2, "Heavy Cream": 1, "Parmesan": 1, "Pine Nuts": 1 } },
+        { name: "Vongole", ind: { "Clams": 2, "White Wine": 2, "Garlic": 2, "Olive Oil": 1, "Parsley": 1} },
+        { name: "Meatball Sauce", ind: { "Ground Beef": 2, "Tomato": 3, "Garlic": 1, "Onion": 1, "Salt": 1 } },
+        { name: "Burro e Parmigiano", ind: { "Butter": 2, "Parmesan": 3 } },
+        { name: "Olive & Caper Oil", ind: { "Olives": 2, "Capers": 2, "Olive Oil": 2, "Garlic": 1 } },
+        { name: "Creamy Pancetta", ind: { "Pancetta": 2, "Heavy Cream": 2, "Onion": 1, "Black Pepper": 1 } },
+        { name: "Spicy Mushroom", ind: { "Mushroom": 2, "Chili": 1, "Garlic": 1, "Olive Oil": 1 } },
+        { name: "Quattro Formaggi", ind: { "Mozzarella": 2, "Gorgonzola": 1, "Parmesan": 1, "Ricotta": 1, "Heavy Cream": 1 } },
+        { name: "Marcella's Onion Butter", ind: { "Tomato": 3, "Onion": 2, "Butter": 2 } },
+        { name: "Garlic Tomato Cream", ind: { "Tomato": 2, "Garlic": 2, "Heavy Cream": 1 } },
+        { name: "Portofino", ind: { "Tomato": 2, "Basil": 2, "Pine Nuts": 1, "Parmesan": 1, "Garlic": 1, "Olive Oil": 1 } }
+    ];
+
+    const recipes = rawRecipes.map(r => {
+        let items = [];
+        for (let [ing, qty] of Object.entries(r.ind)) {
+            for (let i = 0; i < qty; i++) items.push(ing);
+        }
+        return { name: r.name, items: items };
+    });
+
+    // --- Progression & Level Selection ---
+    function renderLevelGrid() {
+        const grid = document.getElementById('level-grid');
+        grid.innerHTML = '';
+        
+        for (let i = 1; i <= 10; i++) {
+            const btn = document.createElement('button');
+            const conf = levelConfigs[i-1];
+            const isUnlocked = i <= highestLevel;
+            
+            btn.className = `level-btn ${isUnlocked ? 'unlocked' : 'locked'}`;
+            if (isUnlocked) {
+                btn.innerHTML = `<div class="lvl-num">Lvl ${i}</div><div class="lvl-desc">${conf.sauces} Sauces</div><div class="lvl-target">Target: ${conf.target}</div>`;
+                btn.onclick = () => startGame(i);
+            } else {
+                btn.innerHTML = `<div style="font-size: 1.5em; margin-bottom: 5px;">🔒</div><div class="lvl-desc">Level ${i}</div>`;
+                btn.disabled = true;
+            }
+            grid.appendChild(btn);
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameover-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'flex';
+        renderLevelGrid();
+    }
+
+    // Call once to initialize menu
+    renderLevelGrid();
+
+
+    let activeOrders = [];
+    const tileSize = 60;
+    const gridCols = 15; // 900px
+    const gridRows = 10; // 600px
+
+    // Counters / Stations Array
+    let stations = [];
+    function initStations() {
+        stations = [];
+        
+        // Pasta Block 1 (Top Center)
+        stations.push({ x: 7, y: 0, type: 'serve', emoji: '🍝', pot: [] });
+        // Pasta Block 2 (Bottom Center)
+        stations.push({ x: 7, y: 9, type: 'serve', emoji: '🍝', pot: [] });
+
+        // Calculate perimeter
+        let perimeter = [];
+        for (let x = 1; x < gridCols - 1; x++) {
+            if (x !== 7) perimeter.push({ x: x, y: 0 }); 
+            if (x !== 7) perimeter.push({ x: x, y: 9 }); 
+        }
+        for (let y = 1; y < gridRows - 1; y++) {
+            perimeter.push({ x: 0, y: y }); 
+            perimeter.push({ x: 14, y: y }); 
+        }
+
+        // Always stock all 32 ingredients so the layout remains consistent and familiar
+        let i = 0;
+        for (let [name, emoji] of Object.entries(allIngredients)) {
+            if (i < perimeter.length) {
+                let pos = perimeter[i++];
+                stations.push({ x: pos.x, y: pos.y, type: 'ingredient', item: name, emoji: emoji });
+            }
+        }
+
+        while (i < perimeter.length) {
+            let pos = perimeter[i++];
+            stations.push({ x: pos.x, y: pos.y, type: 'counter', item: null });
+        }
+    }
+
+    // Players Setup
+    let p1, p2;
+
+    function resetPlayers() {
+        p1 = {
+            x: 300, y: 400, w: 36, h: 36, speed: 4.2, color: '#e74c3c', name: 'P1',
+            dirX: 0, dirY: -1, holding: [], maxHold: 9,
+            keys: { up: 'w', left: 'a', down: 's', right: 'd', pick: 'e', drop: 'r' },
+            pickPressed: false, dropPressed: false
+        };
+
+        p2 = {
+            x: 540, y: 400, w: 36, h: 36, speed: 4.2, color: '#3498db', name: 'P2',
+            dirX: 0, dirY: -1, holding: [], maxHold: 9,
+            keys: { up: 'arrowup', left: 'arrowleft', down: 'arrowdown', right: 'arrowright', pick: 'o', drop: 'p' },
+            pickPressed: false, dropPressed: false
+        };
+    }
+
+    function restartLevel() {
+        startGame(currentLevel);
+    }
+
+    function startGame(level) {
+        currentLevel = level;
+        targetScore = levelConfigs[level-1].target;
+        currentRecipePool = recipes.slice(0, levelConfigs[level-1].sauces);
+
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('gameover-screen').style.display = 'none';
+        
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        bgMusic.play().catch(e => console.log("Audio play failed:", e));
+
+        score = 0;
+        timeLeft = 120;
+        floatingTexts = [];
+        document.getElementById('score').textContent = score;
+        document.getElementById('target-score').textContent = targetScore;
+        document.getElementById('time-left').textContent = timeLeft;
+        
+        resetPlayers();
+        activeOrders = [];
+        addNewOrder();
+        addNewOrder();
+
+        initStations();
+        gameRunning = true;
+
+        if(gameTimer) clearInterval(gameTimer);
+        if(orderTimer) clearInterval(orderTimer);
+
+        gameTimer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('time-left').textContent = timeLeft;
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+
+        orderTimer = setInterval(() => {
+            if (activeOrders.length < 3) addNewOrder();
+        }, 15000);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function addNewOrder() {
+        const recipe = currentRecipePool[Math.floor(Math.random() * currentRecipePool.length)];
+        activeOrders.push(recipe);
+        updateOrderHUD();
+    }
+
+    function updateOrderHUD() {
+        const container = document.getElementById('active-orders');
+        container.innerHTML = '';
+        activeOrders.forEach(ord => {
+            const badge = document.createElement('div');
+            badge.className = 'order-badge';
+            
+            if (hardMode) {
+                badge.innerHTML = `<strong>${ord.name}</strong><div style="font-size: 0.7em; font-weight: normal; margin-top: 2px;">(Secret Recipe)</div>`;
+            } else {
+                let counts = {};
+                ord.items.forEach(i => counts[i] = (counts[i] || 0) + 1);
+                let desc = Object.entries(counts).map(([item, qty]) => `${allIngredients[item]} ${item} x${qty}`).join(', ');
+                badge.innerHTML = `<strong>${ord.name}</strong><div style="font-size: 0.7em; font-weight: normal; margin-top: 2px; line-height: 1.15;">${desc}</div>`;
+            }
+            container.appendChild(badge);
+        });
+    }
+
+    function endGame() {
+        gameRunning = false;
+        clearInterval(gameTimer);
+        clearInterval(orderTimer);
+        bgMusic.pause();
+        
+        const passed = score >= targetScore;
+        const titleEl = document.getElementById('go-title');
+        const statsEl = document.getElementById('go-stats');
+
+        if (passed) {
+            sfx.win();
+            if (currentLevel === 10) {
+                titleEl.textContent = "Master Chef!";
+                titleEl.style.color = "#d4af37";
+                statsEl.textContent = `You beat the final level by serving ${score} intricate sauces!`;
+            } else {
+                titleEl.textContent = "Level Passed!";
+                titleEl.style.color = "#2ecc71";
+                statsEl.textContent = `You served ${score} / ${targetScore} sauces. Next level unlocked!`;
+                
+                if (currentLevel === highestLevel) {
+                    highestLevel++;
+                    localStorage.setItem('sauceMasterLevel', highestLevel);
+                }
+            }
+        } else {
+            titleEl.textContent = "Shift Failed!";
+            titleEl.style.color = "#e74c3c";
+            statsEl.textContent = `You only served ${score} / ${targetScore} sauces. Try again!`;
+        }
+
+        document.getElementById('gameover-screen').style.display = 'flex';
+    }
+
+    function getTargetedStation(player) {
+        let targetX = player.x + player.w/2 + player.dirX * 35;
+        let targetY = player.y + player.h/2 + player.dirY * 35;
+        let gridX = Math.floor(targetX / tileSize);
+        let gridY = Math.floor(targetY / tileSize);
+        return stations.find(s => s.x === gridX && s.y === gridY);
+    }
+
+    function handlePlayerAction(player, action) {
+        let station = getTargetedStation(player);
+
+        if (action === 'pick') {
+            if (station) {
+                if (station.type === 'ingredient') {
+                    if (player.holding.length < player.maxHold) {
+                        player.holding.push(station.item);
+                        sfx.pickup();
+                    }
+                } else if (station.type === 'counter') {
+                    if (station.item && player.holding.length < player.maxHold) {
+                        player.holding.push(station.item);
+                        station.item = null;
+                        sfx.pickup();
+                    }
+                } else if (station.type === 'serve') {
+                    if (station.pot.length > 0 && player.holding.length < player.maxHold) {
+                        player.holding.push(station.pot.pop());
+                        sfx.pickup();
+                    }
+                }
+            }
+        } else if (action === 'drop') {
+            if (station) {
+                if (station.type === 'serve') {
+                    if (player.holding.length > 0) {
+                        station.pot.push(player.holding.pop());
+                        sfx.drop();
+                        checkPotAgainstOrders(station, player);
+                    }
+                } else if (station.type === 'counter') {
+                    if (!station.item && player.holding.length > 0) {
+                        station.item = player.holding.pop();
+                        sfx.drop();
+                    }
+                }
+            } else {
+                // Drop on floor (trash)
+                if (player.holding.length > 0) {
+                    player.holding.pop();
+                    sfx.trash(); // Used trash sound instead of standard drop to signal discarding
+                }
+            }
+        }
+    }
+
+    function checkPotAgainstOrders(serveStation, player) {
+        let matchedIndex = -1;
+        for (let i = 0; i < activeOrders.length; i++) {
+            let ordItems = [...activeOrders[i].items].sort();
+            let potItems = [...serveStation.pot].sort();
+
+            if (ordItems.length === potItems.length && ordItems.every((val, idx) => val === potItems[idx])) {
+                matchedIndex = i;
+                break;
+            }
+        }
+
+        if (matchedIndex !== -1) {
+            activeOrders.splice(matchedIndex, 1);
+            score++;
+            timeLeft += 15; 
+            document.getElementById('score').textContent = score;
+            
+            floatingTexts.push({
+                x: player.x + (player.w / 2),
+                y: player.y - 10,
+                text: "+1 🍝",
+                life: 60,
+                maxLife: 60
+            });
+
+            serveStation.pot = [];
+            sfx.serve();
+            addNewOrder();
+            updateOrderHUD();
+        }
+    }
+
+    function updatePlayer(p) {
+        let dx = 0;
+        let dy = 0;
+
+        if (keys[p.keys.left]) { dx = -1; p.dirX = -1; p.dirY = 0; }
+        if (keys[p.keys.right]) { dx = 1; p.dirX = 1; p.dirY = 0; }
+        if (keys[p.keys.up]) { dy = -1; p.dirX = 0; p.dirY = -1; }
+        if (keys[p.keys.down]) { dy = 1; p.dirX = 0; p.dirY = 1; }
+
+        if (dx !== 0 && dy !== 0) { dx *= 0.7071; dy *= 0.7071; }
+
+        p.x += dx * p.speed;
+        p.y += dy * p.speed;
+
+        let minX = tileSize; 
+        let maxX = canvas.width - tileSize - p.w; 
+        let minY = tileSize; 
+        let maxY = canvas.height - tileSize - p.h;
+
+        if (p.x < minX) p.x = minX;
+        if (p.x > maxX) p.x = maxX;
+        if (p.y < minY) p.y = minY;
+        if (p.y > maxY) p.y = maxY;
+
+        if (keys[p.keys.pick]) {
+            if (!p.pickPressed) { handlePlayerAction(p, 'pick'); p.pickPressed = true; }
+        } else { p.pickPressed = false; }
+
+        if (keys[p.keys.drop]) {
+            if (!p.dropPressed) { handlePlayerAction(p, 'drop'); p.dropPressed = true; }
+        } else { p.dropPressed = false; }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Floor Grid
+        for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
+                ctx.fillStyle = (r + c) % 2 === 0 ? '#ecf0f1' : '#dfe6e9';
+                if (r === gridRows - 1 || r === 0 || c === 0 || c === gridCols - 1) {
+                    ctx.fillStyle = '#bdc3c7';
+                }
+                ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                ctx.strokeStyle = '#95a5a6';
+                ctx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
+            }
+        }
+
+        // Draw Stations
+        stations.forEach(s => {
+            let sx = s.x * tileSize;
+            let sy = s.y * tileSize;
+
+            ctx.fillStyle = '#7f8c8d';
+            if (s.type === 'ingredient') ctx.fillStyle = '#d35400';
+            if (s.type === 'serve') ctx.fillStyle = '#27ae60';
+
+            ctx.fillRect(sx, sy, tileSize, tileSize);
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(sx, sy, tileSize, tileSize);
+
+            ctx.font = '24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.fillText(s.emoji || '', sx + tileSize/2, sy + tileSize/2);
+
+            if (s.type === 'counter' && s.item) {
+                ctx.fillText(allIngredients[s.item] || '📦', sx + tileSize/2, sy + tileSize/2);
+            }
+
+            if (s.type === 'serve' && s.pot && s.pot.length > 0) {
+                let maxDraw = 6;
+                let drawLen = Math.min(s.pot.length, maxDraw);
+                let startX = sx + tileSize/2 - (drawLen * 7);
+                let stackY = sy - 12;
+                
+                if (s.y > 0) {
+                    stackY = sy + tileSize + 18;
+                }
+                
+                for(let i = 0; i < drawLen; i++) {
+                    ctx.font = '16px sans-serif';
+                    ctx.fillText(allIngredients[s.pot[i]], startX + (i * 14), stackY);
+                }
+                if (s.pot.length > maxDraw) {
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.fillText('+', startX + (maxDraw * 14), stackY);
+                }
+            }
+        });
+
+        // Draw Players
+        drawPlayer(p1);
+        drawPlayer(p2);
+
+        // Tooltips (Text only, no highlight box)
+        let activeTooltips = new Map();
+        
+        [p1, p2].forEach(p => {
+            let targetStation = getTargetedStation(p);
+            if (targetStation) {
+                let text = "";
+                if (targetStation.type === 'ingredient') {
+                    text = targetStation.item;
+                } else if (targetStation.type === 'serve') {
+                    if (targetStation.pot.length === 0) {
+                        text = "Pasta Pot (Empty)";
+                    } else {
+                        let counts = {};
+                        targetStation.pot.forEach(i => counts[i] = (counts[i] || 0) + 1);
+                        text = Object.entries(counts).map(([k, v]) => `${k} x${v}`).join(', ');
+                    }
+                } else if (targetStation.type === 'counter' && targetStation.item) {
+                    text = targetStation.item;
+                } 
+
+                if (text) {
+                    activeTooltips.set(targetStation, text);
+                }
+            }
+        });
+
+        // Draw Tooltips
+        activeTooltips.forEach((text, station) => {
+            ctx.font = 'bold 14px sans-serif';
+            let padding = 16;
+            let textWidth = ctx.measureText(text).width;
+            let boxWidth = textWidth + padding;
+            let boxHeight = 26;
+            
+            let tx = station.x * tileSize + tileSize/2;
+            let ty = station.y * tileSize - 5; 
+            
+            let drawX = tx - boxWidth/2;
+            
+            if (drawX < 5) drawX = 5;
+            if (drawX + boxWidth > canvas.width - 5) drawX = canvas.width - 5 - boxWidth;
+            
+            if (station.y === 0) {
+                ty = station.y * tileSize + tileSize + boxHeight + 5; 
+            }
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+            ctx.fillRect(drawX, ty - boxHeight, boxWidth, boxHeight);
+            
+            ctx.fillStyle = '#f1c40f';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, drawX + boxWidth/2, ty - boxHeight/2);
+        });
+
+        // Draw Floating Texts
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+            let ft = floatingTexts[i];
+            ctx.fillStyle = `rgba(46, 204, 113, ${ft.life / ft.maxLife})`;
+            ctx.font = 'bold 32px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(ft.text, ft.x, ft.y);
+            ft.y -= 1;
+            ft.life--;
+            if (ft.life <= 0) floatingTexts.splice(i, 1);
+        }
+    }
+
+    function drawPlayer(p) {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(p.x, p.y, p.w, p.h);
+
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(p.name, p.x + p.w/2, p.y - 6);
+
+        // Draw Player Holding Stack 
+        if (p.holding.length > 0) {
+            ctx.font = '12px sans-serif'; 
+            
+            p.holding.forEach((item, index) => {
+                let col = index % 3;
+                let row = Math.floor(index / 3);
+                
+                let offsetX = (col - 1) * 12;
+                let offsetY = 12 + (row * 12); 
+                
+                ctx.fillText(allIngredients[item] || '📦', p.x + p.w/2 + offsetX, p.y - offsetY);
+            });
+        }
+    }
+
+    function gameLoop() {
+        if (!gameRunning) return;
+        updatePlayer(p1);
+        updatePlayer(p2);
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+</script>
+</body>
+</html>

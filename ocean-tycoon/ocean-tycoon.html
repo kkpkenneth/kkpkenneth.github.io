@@ -36,7 +36,7 @@
         z-index: 200;
         color: white;
     }
-    #start-screen h1 { font-size: 2em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    #start-screen h1 { font-size: 4em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     #start-btn {
         padding: 15px 40px; font-size: 1.5em; font-weight: bold;
         background: #00d2ff; color: #0f2027; border: none; border-radius: 50px;
@@ -279,7 +279,7 @@
 
     // --- Complete 50-Animal Game Data ---
     const animalData = [
-        { id: 'clownfish', name: 'Clownfish', img: 'clownfish.png', cost: 0, speed: 0.5, heartsPerClick: 1 },
+        { id: 'clownfish', name: 'Clownfish', img: 'clownfish.png', cost: 5, speed: 0.5, heartsPerClick: 1 },
         { id: 'sponge', name: 'Sponge', img: 'sponge.png', cost: 10, speed: 0, heartsPerClick: 2 },
         { id: 'coral', name: 'Coral', img: 'coral.png', cost: 20, speed: 0, heartsPerClick: 3 },
         { id: 'seastar', name: 'Sea Star', img: 'seastar.png', cost: 35, speed: 0.05, heartsPerClick: 4 },
@@ -339,6 +339,16 @@
     function saveProgress() {
         localStorage.setItem("oceanHearts", hearts);
         localStorage.setItem("oceanUnlocks", JSON.stringify(unlockedIds));
+        
+        // Save current positions and velocities
+        const animalStates = activeAnimals.map(anim => ({
+            id: anim.id,
+            x: anim.x,
+            y: anim.y,
+            vx: anim.vx,
+            vy: anim.vy
+        }));
+        localStorage.setItem("oceanAnimalStates", JSON.stringify(animalStates));
     }
 
     function loadProgress() {
@@ -355,7 +365,7 @@
     function updateUI() {
         document.getElementById('heart-count').innerText = hearts.toLocaleString();
         
-        // Auto Harvest Display Logic (Requires 6 total recruits)
+        // Auto Harvest Display Logic
         const autoBox = document.getElementById('auto-harvest-box');
         if (activeAnimals.length >= 6) {
             autoBox.style.display = 'block';
@@ -366,7 +376,7 @@
         }
     }
 
-    function spawnAnimal(animalDef) {
+    function spawnAnimal(animalDef, savedState = null) {
         const ocean = document.getElementById('ocean');
         const el = document.createElement('div');
         el.className = 'animal';
@@ -377,15 +387,28 @@
             <img src="${animalDef.img}" alt="${animalDef.name}">
         `;
         
-        let x = Math.random() * (window.innerWidth - 100);
-        let y = Math.random() * (window.innerHeight - 130);
+        let x, y, vx, vy;
         
-        // Always start moving right
-        let vx = animalDef.speed; 
-        let vy = (Math.random() > 0.5 ? 1 : -1) * animalDef.speed;
+        // Load saved state coordinates if available, otherwise spawn randomly
+        if (savedState) {
+            x = savedState.x;
+            y = savedState.y;
+            vx = savedState.vx;
+            vy = savedState.vy;
+        } else {
+            x = Math.random() * (window.innerWidth - 100);
+            y = Math.random() * (window.innerHeight - 130);
+            vx = animalDef.speed; 
+            vy = (Math.random() > 0.5 ? 1 : -1) * animalDef.speed;
+        }
 
         el.style.left = x + 'px';
         el.style.top = y + 'px';
+
+        // Keep image orientation consistent with loaded velocity
+        if (vx < 0 && animalDef.speed > 0) {
+            el.querySelector('img').style.transform = "scaleX(-1)";
+        }
 
         // Pointer Down Event (Click / Start Drag)
         el.addEventListener('pointerdown', (e) => {
@@ -404,7 +427,7 @@
             floatHeart.className = 'floating-heart';
             floatHeart.innerText = `+${animalDef.heartsPerClick} ❤️`;
             floatHeart.style.left = e.clientX + 'px';
-            floatHeart.style.top = (e.clientY - 10) + 'px';
+            floatHeart.style.top = (e.clientY - 5) + 'px';
             ocean.appendChild(floatHeart);
             setTimeout(() => floatHeart.remove(), 1000);
 
@@ -443,8 +466,8 @@
 
         ocean.appendChild(el);
         
-        // Track the animals along with their heartsPerClick stat for Auto-Harvest
         activeAnimals.push({ 
+            id: animalDef.id, 
             el, x, y, vx, vy, 
             speed: animalDef.speed, 
             isDragging: false,
@@ -454,7 +477,6 @@
 
     // Auto Harvest Loop (Runs every 1 second)
     setInterval(() => {
-        // Only collect if they have made at least 5 additional recruits (6 total animals)
         if (activeAnimals.length >= 6) {
             let heartsPerSecond = 0;
             const ocean = document.getElementById('ocean');
@@ -468,7 +490,6 @@
                     floatHeart.className = 'floating-heart';
                     floatHeart.innerText = `+${anim.heartsPerClick} ❤️`;
                     
-                    // Slightly offset to pop out around the center of the animal
                     const offsetX = (Math.random() * 40) - 10;
                     floatHeart.style.left = (anim.x + 30 + offsetX) + 'px';
                     floatHeart.style.top = (anim.y - 20) + 'px';
@@ -481,9 +502,12 @@
             if (heartsPerSecond > 0) {
                 hearts += heartsPerSecond;
                 updateUI();
-                saveProgress();
             }
         }
+        
+        // Auto-save the game (including positions!) every 1 second
+        saveProgress();
+        
     }, 1000);
 
     // Animation Loop
@@ -495,7 +519,7 @@
             anim.x += anim.vx;
             anim.y += anim.vy;
 
-            // Flip images according to direction of travel (Right = 1, Left = -1)
+            // Strict boundary rules to keep animals inside screen
             if (anim.x <= 0) {
                 anim.x = 0;
                 anim.vx = Math.abs(anim.vx);
@@ -526,7 +550,6 @@
         grid.innerHTML = '';
         
         animalData.forEach((a) => {
-            // Count how many of this specific animal we own
             const count = unlockedIds.filter(id => id === a.id).length;
             const isUnlocked = count > 0;
             
@@ -535,12 +558,10 @@
             
             const canAfford = hearts >= a.cost;
             
-            // Allow multiple recruits - Button stays visible
             const btnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
                                 ${isUnlocked ? 'Recruit More' : 'Unlock'}<br>(${a.cost.toLocaleString()} ❤️)
                              </button>`;
 
-            // Add a counter badge if we own any
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
             item.innerHTML = `
@@ -568,14 +589,12 @@
             saveProgress();
             openCollection(); 
             
-            // Check if this specific recruit hit the 6-animal auto-harvest threshold
             if (wasBelowThreshold && activeAnimals.length >= 6) {
                 document.getElementById('collection-modal').style.display = 'none';
-                document.getElementById('unlock-popup').style.display = 'none'; // Ensure no overlap
+                document.getElementById('unlock-popup').style.display = 'none'; 
                 document.getElementById('auto-popup').style.display = 'flex';
                 sfx.unlock();
             } 
-            // Otherwise, show standard unlock popup for first-time discoveries
             else if (isFirstTime) {
                 document.getElementById('collection-modal').style.display = 'none';
                 document.getElementById('popup-visual').innerHTML = `<img src="${animal.img}" alt="${animal.name}">`;
@@ -584,7 +603,7 @@
                 sfx.unlock();
             } 
             else {
-                sfx.bubble(); // Duplicate animal sound
+                sfx.bubble();
             }
         }
     };
@@ -618,10 +637,27 @@
 
         loadProgress();
         
-        unlockedIds.forEach(id => {
-            const animal = animalData.find(a => a.id === id);
-            if(animal) spawnAnimal(animal);
-        });
+        // Safely map saved positions, or fallback to default spawn logic
+        const savedStatesJSON = localStorage.getItem("oceanAnimalStates");
+        let loadedFromState = false;
+        
+        if (savedStatesJSON) {
+            const savedStates = JSON.parse(savedStatesJSON);
+            if (savedStates.length === unlockedIds.length) {
+                savedStates.forEach(state => {
+                    const animal = animalData.find(a => a.id === state.id);
+                    if(animal) spawnAnimal(animal, state);
+                });
+                loadedFromState = true;
+            }
+        }
+        
+        if (!loadedFromState) {
+            unlockedIds.forEach(id => {
+                const animal = animalData.find(a => a.id === id);
+                if(animal) spawnAnimal(animal);
+            });
+        }
 
         updateUI();
         requestAnimationFrame(animate);

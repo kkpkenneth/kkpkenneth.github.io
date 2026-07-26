@@ -214,7 +214,7 @@
 
     <!-- Main Game UI -->
     <div id="hud">
-        <div id="timer-display" style="color: #f1c40f;">Time: <span id="time-left">120</span>s</div>
+        <div id="timer-display" style="color: #f1c40f;">Time: <span id="time-left">60</span>s</div>
         <div class="hud-orders" id="active-orders"></div>
         <div id="score-display" style="color: #2ecc71;">Served: <span id="score">0</span> / <span id="target-score">0</span></div>
     </div>
@@ -249,7 +249,7 @@
     let hardMode = false;
     let score = 0;
     let targetScore = 0;
-    let timeLeft = 120;
+    let timeLeft = 60;
     let gameTimer = null;
     let orderTimer = null;
     let floatingTexts = [];
@@ -452,7 +452,7 @@
         bgMusic.play().catch(e => console.log("Audio play failed:", e));
 
         score = 0;
-        timeLeft = 120;
+        timeLeft = 60;
         floatingTexts = [];
         document.getElementById('score').textContent = score;
         document.getElementById('target-score').textContent = targetScore;
@@ -612,7 +612,7 @@
         if (matchedIndex !== -1) {
             activeOrders.splice(matchedIndex, 1);
             score++;
-            timeLeft += 15; 
+            timeLeft += 5; 
             document.getElementById('score').textContent = score;
             
             floatingTexts.push({

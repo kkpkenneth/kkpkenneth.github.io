@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mangrove Explorer: Quiz & Gallery</title>
+    <style>
+        :root {
+            /* Updated to a mangrove green theme */
+            --primary: #2E8B57; 
+            --bg: #f4f9f4;
+            --text: #1b2e23;
+            --card: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 { 
+            color: var(--primary); 
+            margin-bottom: 10px;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+            box-shadow: 0 4px 6px rgba(46, 139, 87, 0.2);
+        }
+        
+        button:hover:not(:disabled) { 
+            background-color: #1e5a38; 
+            box-shadow: 0 6px 12px rgba(46, 139, 87, 0.3);
+        }
+        button:active:not(:disabled) { transform: scale(0.97); }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .btn-secondary { 
+            background-color: #5d826a; 
+            box-shadow: 0 4px 6px rgba(93, 130, 106, 0.2);
+        }
+        .btn-secondary:hover:not(:disabled) { 
+            background-color: #3f5e4a; 
+            box-shadow: 0 6px 12px rgba(93, 130, 106, 0.3);
+        }
+        
+        /* Views */
+        #start-page, #quiz-page, #gallery-page { display: none; }
+        .active-page { display: block !important; }
+
+        /* Quiz UI */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #5d826a;
+        }
+
+        .quiz-image-container {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin: 0 auto 30px auto;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .quiz-image-container img {
+            max-width: 100%;
+            height: auto;
+            max-height: 280px;
+            border-radius: 8px;
+        }
+
+        #options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Gallery UI */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px 15px; /* 25px vertical gap, 15px horizontal gap */
+            padding: 20px 0;
+            width: 100%;
+            /* Removed justify-items: center; so we can control columns individually below */
+        }
+
+        .gallery-item {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            
+            width: 60%; /* Card size is 60% */
+            box-sizing: border-box; 
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
+            
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Pushes all odd-numbered items (the left column) to the right side of their slot */
+        .gallery-item:nth-child(odd) {
+            justify-self: end;
+        }
+
+        /* Pushes all even-numbered items (the right column) to the left side of their slot */
+        .gallery-item:nth-child(even) {
+            justify-self: start;
+        }
+
+        .gallery-item:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12); 
+        }
+
+        .gallery-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-item-title {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 15px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .gallery-item-title span {
+            font-size: 13px;
+            color: #5d826a;
+            font-weight: normal;
+        }
+        
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(27, 46, 35, 0.85);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-content img { 
+            max-width: 100%; 
+            height: 200px; 
+            object-fit: contain; 
+            margin-bottom: 20px;
+        }
+        
+        .classification { 
+            font-style: italic; 
+            color: #5d826a; 
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        #modal-fact {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #354a3e;
+            margin-bottom: 20px;
+        }
+
+        #modal-adaptation {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2E8B57;
+            margin-bottom: 30px;
+            font-weight: 600;
+            background: #e9f2ec;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-page" class="container active-page">
+        <h1 style="font-size: 3em; margin-bottom: 5px;">🌿</h1>
+        <h1 style="font-size: 2.5em;">Hong Kong Mangrove Explorer</h1>
+        <p style="font-size: 1.2em; color: #5d826a;">Test your knowledge or browse the encyclopedia of the 8 true mangrove species.</p>
+        
+        <div class="btn-group">
+            <button onclick="playSound('click'); startQuiz()">Start Quiz</button>
+            <button class="btn-secondary" onclick="playSound('click'); showGallery()">View Gallery</button>
+        </div>
+    </div>
+
+    <div id="quiz-page" class="container">
+        <h2>Identify the Mangrove Species</h2>
+        <div class="stats">
+            <span id="score-display">Score: 0</span>
+            <span id="question-display">Question: 1/8</span>
+        </div>
+        <div class="quiz-image-container">
+            <img id="quiz-img" src="" alt="Which species is this?">
+        </div>
+        <div id="options-container"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()" style="max-width: 200px; padding: 10px 20px; font-size: 16px;">Quit to Menu</button>
+        </div>
+    </div>
+
+    <div id="gallery-page" class="container">
+        <h2>Mangrove Gallery</h2>
+        <p style="color: #5d826a; margin-bottom: 30px;">Click on any plant to learn about its unique adaptations.</p>
+        <div class="gallery-grid" id="gallery-grid"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()">Back to Menu</button>
+        </div>
+    </div>
+
+    <div id="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="">
+            <h2 id="modal-title" style="margin-bottom: 5px; font-size: 26px;"></h2>
+            <div class="classification" id="modal-class"></div>
+            <p id="modal-fact"></p>
+            <p id="modal-adaptation"></p>
+            <div class="btn-group" style="margin-top: 0;">
+                <button onclick="playSound('click'); readFactOutLoud()">🔊 Read Fact</button>
+                <button class="btn-secondary" onclick="playSound('click'); closeModal(true)">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Sound Effects System ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            if (type === 'correct') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(600, now);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'wrong') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(150, now);
+                oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'click') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                oscillator.start(now);
+                oscillator.stop(now + 0.1);
+            } else if (type === 'win') {
+                playTone(440, now, 0.1);       
+                playTone(554.37, now + 0.1, 0.1); 
+                playTone(659.25, now + 0.2, 0.3); 
+            }
+        }
+
+        function playTone(freq, time, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        // --- Database ---
+        // Separated English and Chinese names into distinct properties for cleaner logic
+        const mangroveSpecies = [
+            { 
+                engName: "Kandelia",
+                chiName: "秋茄樹", 
+                file: "kandelia-obovata.png", 
+                familyEng: "Rhizophoraceae",
+                familyChi: "紅樹科", 
+                fact: "The most common mangrove in Hong Kong, known for its droopy, pencil-shaped seedlings.", 
+                adaptation: "Adaptation: True vivipary (seeds germinate on the tree) and salt exclusion at the roots." 
+            },
+            { 
+                engName: "River Mangrove",
+                chiName: "桐花樹", 
+                file: "aegiceras-corniculatum.png", 
+                familyEng: "Primulaceae",
+                familyChi: "報春花科",
+                fact: "Recognizable by its distinctively curved, horn-like or banana-shaped fruits.", 
+                adaptation: "Adaptation: Secretes excess salt through specialized glands on the surface of its leaves." 
+            },
+            { 
+                engName: "Grey Mangrove",
+                chiName: "白骨壤", 
+                file: "avicennia-marina.png", 
+                familyEng: "Acanthaceae",
+                familyChi: "爵床科", 
+                fact: "Features a massive shallow cable root system to survive in deep, anoxic mud.", 
+                adaptation: "Adaptation: Thousands of pencil-like vertical roots (pneumatophores) stick out of the mud like snorkels to breathe." 
+            },
+            { 
+                engName: "Many-petaled Mangrove",
+                chiName: "木欖", 
+                file: "bruguiera-gymnorrhiza.png", 
+                familyEng: "Rhizophoraceae",
+                familyChi: "紅樹科", 
+                fact: "A highly shade-tolerant tree that produces beautiful red flowers and reddish propagules.", 
+                adaptation: "Adaptation: Uses knee roots that break the surface of the mud and loop back down for oxygen intake." 
+            },
+            { 
+                engName: "Milky Mangrove",
+                chiName: "海漆", 
+                file: "excoecaria-agallocha.png", 
+                familyEng: "Euphorbiaceae",
+                familyChi: "大戟科", 
+                fact: "Also known as the 'Blind-your-eye Mangrove' due to the danger it poses to humans and animals.", 
+                adaptation: "Adaptation: Secretes a highly toxic, milky latex when its bark or leaves are damaged to deter herbivores." 
+            },
+            { 
+                engName: "Coastal Heritiera",
+                chiName: "銀葉樹", 
+                file: "heritiera-littoralis.png", 
+                familyEng: "Malvaceae",
+                familyChi: "錦葵科", 
+                fact: "Has large, glossy, dark green leaves with silvery undersides.", 
+                adaptation: "Adaptation: Forms massive, plank-like buttress roots for stability, and produces woody, boat-shaped floating fruits." 
+            },
+            { 
+                engName: "Lumnitzera",
+                chiName: "欖李", 
+                file: "lumnitzera-racemosa.png", 
+                familyEng: "Combretaceae",
+                familyChi: "使君子科",
+                fact: "A rarer species usually found in somewhat drier upper intertidal areas with less regular flooding.", 
+                adaptation: "Adaptation: Has thick, succulent leaves to store water and reduce transpiration in highly saline environments." 
+            },
+            { 
+                engName: "Leather Fern",
+                chiName: "鹵地蕨", 
+                file: "acrostichum-aureum.png", 
+                familyEng: "Pteridaceae",
+                familyChi: "鳳尾蕨科", 
+                fact: "Considered a true mangrove because it thrives exclusively in brackish intertidal environments.", 
+                adaptation: "Adaptation: A halophytic fern with heavily cutinized, leathery fronds to resist intense sun desiccation." 
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizQuestions = [];
+        let synth = window.speechSynthesis;
+
+        // Modified speak function to accept a callback when audio completes
+        function speak(text, callback = null) {
+            if (synth.speaking) synth.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            let voices = synth.getVoices();
+            let maleVoice = voices.find(v => 
+                v.name.toLowerCase().includes('male') || 
+                v.name.toLowerCase().includes('guy') || 
+                v.name.toLowerCase().includes('david') ||
+                v.name.toLowerCase().includes('mark')
+            );
+            
+            if (maleVoice) utterance.voice = maleVoice;
+            utterance.pitch = 0.9; 
+            
+            // Execute callback once the speech successfully finishes
+            if (callback) {
+                utterance.onend = () => callback();
+                // Fallback just in case the browser TTS engine errors out
+                utterance.onerror = () => callback();
+            }
+            
+            synth.speak(utterance);
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+            if (synth.speaking) synth.cancel();
+            window.scrollTo(0, 0);
+        }
+
+        function goHome() {
+            switchPage('start-page');
+        }
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            quizQuestions = shuffleArray(mangroveSpecies);
+            updateScoreUI();
+            loadQuestion();
+            switchPage('quiz-page');
+            speak("Let's begin the mangrove quiz. Which species is this?");
+        }
+
+        function loadQuestion() {
+            const currentPlant = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-img').src = `${currentPlant.file}`;
+            document.getElementById('question-display').innerText = `Question: ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+            
+            let options = [currentPlant];
+            let remainingPlants = shuffleArray(mangroveSpecies.filter(a => a.engName !== currentPlant.engName));
+            options.push(...remainingPlants.slice(0, 3));
+            options = shuffleArray(options);
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                // Displaying both names cleanly on the UI button
+                btn.innerHTML = `${opt.engName} <br><span style="font-size: 14px; font-weight: normal;">${opt.chiName}</span>`;
+                btn.onclick = () => checkAnswer(opt, currentPlant);
+                optionsContainer.appendChild(btn);
+            });
+
+            if (currentQuestionIndex > 0) {
+                speak("Which mangrove species is this?");
+            }
+        }
+
+        function checkAnswer(selectedOpt, correctOpt) {
+            // Immediately disable all buttons so the user can't click multiple times during TTS
+            const buttons = document.getElementById('options-container').querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            // Determine if correct, set feedback text (English only)
+            let feedbackText = "";
+            if (selectedOpt.engName === correctOpt.engName) {
+                score++;
+                playSound('correct');
+                feedbackText = `Correct. It is the ${correctOpt.engName}.`;
+            } else {
+                playSound('wrong');
+                feedbackText = `Incorrect. That was the ${correctOpt.engName}.`;
+            }
+            
+            updateScoreUI();
+
+            // Speak the feedback and pass the advance state as the callback
+            speak(feedbackText, () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizQuestions.length) {
+                    loadQuestion();
+                } else {
+                    endQuiz();
+                }
+            });
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-display').innerText = `Score: ${score}`;
+        }
+
+        function endQuiz() {
+            playSound('win');
+            const finalScore = `You scored ${score} out of ${quizQuestions.length}.`;
+            speak(`Quiz complete. ${finalScore}`);
+            document.getElementById('options-container').innerHTML = 
+                `<div style="width: 100%; text-align: center;">
+                    <h3 style="font-size: 24px;">Quiz Complete!</h3>
+                    <p style="font-size: 18px; margin-bottom: 20px;">${finalScore}</p>
+                    <button onclick="playSound('click'); startQuiz()">Play Again</button>
+                </div>`;
+        }
+
+        function showGallery() {
+            const grid = document.getElementById('gallery-grid');
+            if (grid.innerHTML === '') {
+                mangroveSpecies.forEach(plant => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+                    div.innerHTML = `
+                        <img src="${plant.file}" alt="${plant.engName}">
+                        <div class="gallery-item-title">${plant.engName}<br><span>${plant.chiName}</span></div>
+                    `;
+                    div.onclick = () => { playSound('click'); openModal(plant); };
+                    grid.appendChild(div);
+                });
+            }
+            switchPage('gallery-page');
+        }
+
+        let currentModalPlant = null;
+
+        function openModal(plant) {
+            currentModalPlant = plant;
+            document.getElementById('modal-img').src = `${plant.file}`;
+            document.getElementById('modal-title').innerHTML = `${plant.engName} <span style="font-size: 18px; color: #5d826a;">(${plant.chiName})</span>`;
+            document.getElementById('modal-class').innerText = `Family: ${plant.familyEng} (${plant.familyChi})`;
+            document.getElementById('modal-fact').innerText = plant.fact;
+            document.getElementById('modal-adaptation').innerText = plant.adaptation;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal(force = false) {
+            if (force === true || event.target.id === 'modal') {
+                document.getElementById('modal').style.display = 'none';
+                if (synth.speaking) synth.cancel();
+            }
+        }
+
+        function readFactOutLoud() {
+            if (currentModalPlant) {
+                // Reads purely the English text utilizing the clean properties
+                speak(`${currentModalPlant.engName}. Family: ${currentModalPlant.familyEng}. ${currentModalPlant.fact} ${currentModalPlant.adaptation}`);
+            }
+        }
+        
+        speechSynthesis.onvoiceschanged = () => {
+             synth.getVoices();
+        };
+    </script>
+</body>
+</html>

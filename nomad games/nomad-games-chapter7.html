@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: The Great Fire Wall</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --highlight-color: rgba(0, 255, 170, 0.25);
+            --btn-bg: #151b2b;
+            --btn-hover: #1f2940;
+            --btn-border: #2a3756;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .story-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b7a99;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            position: sticky;
+            top: 0;
+            background: rgba(11, 15, 25, 0.95);
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--btn-border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: #00ffaa;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            color: #ffffff;
+        }
+
+        #progress-bar {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            accent-color: #00ffaa;
+            align-self: center;
+        }
+
+        .text-seg {
+            transition: background-color 0.2s ease;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+
+        .speaking {
+            background-color: var(--highlight-color);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button onclick="playStory()">▶ Read</button>
+        <button onclick="stopAudio()">■ Stop</button>
+        <input type="range" id="progress-bar" min="0" max="100" value="0" step="1" oninput="seekStory(this.value)">
+    </div>
+
+    <div class="story-container" id="story-content">
+        <h1 class="text-seg" data-char="narrator">Chapter 7</h1>
+        <div class="subtitle text-seg" data-char="narrator">The Great Fire Wall</div>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The journey led the duo to the base of a colossal, seemingly impenetrable barrier known as the Great Fire Wall. It was a massive architectural anomaly, glowing with a faint, heat-less red energy.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"There are no doors,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro muttered, walking along the perimeter and running his hand along the smooth, sheer surface.</span>
+            <span class="text-seg" data-char="kenjiro">"The Great Fire Wall has no gates at all. The only way to get to the other side is to climb over the wall. But how do you even do that?"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Exhausted and out of ideas, Kenjiro groaned, giving up entirely. He slumped down and sat on the dirt floor, Kame-kun, the plush size AI turtle perching on his shoulder, emitting a soft, digitized hum of frustration.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Suddenly, with a soft thud, a local with a grappling hook just landed seamlessly next to them.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="local">"You don't look like a local,"</span>
+            <span class="text-seg" data-char="narrator">the stranger said cheerfully, dusting off their robes.</span>
+            <span class="text-seg" data-char="local">"Are you having trouble climbing over the fire wall? It's actually quite simple. You just need the right tools."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="local">"Here you are,"</span>
+            <span class="text-seg" data-char="narrator">the local continued, tossing a heavy burlap sack at Kenjiro's feet.</span>
+            <span class="text-seg" data-char="local">"Vines, Pitons, and a Nut tool. To get past the wall, you just need V, P, and N."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Equipped with the V, P, and N, Kenjiro painstakingly scaled the sheer face of the barrier. Finally, the duo climbed to the top of the wall and stood up, gazing out over the sprawling horizon.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"The land is enormous inside the wall,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro breathed in awe.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">They spent an hour just walking around the wide parapets, indulging themselves in the spectacular scenery of mist-shrouded ridged mountains and cascading, crystalline waterfalls. After taking in the breathtaking view, the duo started climbing down the other side of the wall.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">But the moment they crossed the inner edge of the wall, a sharp crackle of static filled the air. Kame-kun's optical sensors suddenly flickered, flashed bright red, and then died completely. He broke down, slipping off Kenjiro's shoulder and falling all the way to the ground with a dull thud.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Kame-kun!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro yelled, scrambling down the rest of the vines.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Before his boots even hit the dirt, an old lady darted out from a nearby thicket, scooped up the disconnected Kame-kun, and quickly ran away.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Hey! You sure are fast given your age!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro shouted, sprinting after her. He chased the old lady through a maze of stone pathways, finally cornering her at the back of her rustic home.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"This is my friend Kame-kun,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro panted, holding his hands out pleadingly.</span>
+            <span class="text-seg" data-char="kenjiro">"Can you give me back my friend?"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="oldlady">"Sorry, finder's keepers,"</span>
+            <span class="text-seg" data-char="narrator">the old lady huffed, clutching the plush turtle tightly.</span>
+            <span class="text-seg" data-char="oldlady">"And I'm going to eat this delicious turtle!"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Noooooooo!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro cried in horror.</span>
+            <span class="text-seg" data-char="kenjiro">"I'd do anything to help you, but please don't eat my turtle friend!"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Seeing his genuine desperation, the old lady's tough exterior crumbled. She ushered him inside, where a young boy lay pale and shivering on a bed. Then came the story of the old lady's sick grandson. It turned out that the old lady was trying to look for the mystic tea plant inside the walls, which rumor had it could cure any disease.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="oldlady">"But to find the plant, one has to scale up those jagged mountains for four hours,"</span>
+            <span class="text-seg" data-char="narrator">the old lady sobbed, wiping away tears. She blamed herself for not having a body healthy enough to help her grandson.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"I will get it for you,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro decided firmly, resolving to help the old lady.</span>
+            <span class="text-seg" data-char="kenjiro">"But in return, you must give Kame-kun back to me safe and sound."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The scale up the mountain was tough, but the environment was bursting with life. Along the way, Kenjiro trekked through a dense bamboo forest where there lived many majestic creatures, including giant pandas munching lazily on stalks, agile red pandas leaping between branches, chattering golden monkeys swinging overhead, and massive giant salamanders resting in the cool mountain streams.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">After four grueling hours, Kenjiro finally reached the misty peak and found the mystic tea plant. He carefully harvested its shimmering leaves and raced back down the mountain.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"To make tea, you carefully crush the fresh leaves, steep them in pure boiling spring water, and strain the liquid precisely three times,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro instructed as he worked over the stove.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">When poured, this mystical tea, unlike usual tea, was perfectly transparent. Yet, it produced a wildly intense aroma, and when tasted, it offered multiple, evolving layers of rich, herbaceous flavors.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="oldlady">"My dear grandson, please drink the tea and feel better,"</span>
+            <span class="text-seg" data-char="narrator">the old lady whispered softly, lifting the cup to the boy's lips.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The grandson sipped the transparent tea slowly, and eventually drank the whole cup. Miraculously, the grandson's color returned, and he sat up, starting to feel much better. Overjoyed, the old lady started dancing around the room. In her wild celebration, she bumped the table and accidentally spilled the leftover tea from the teapot directly onto the offline Kame-kun.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Uwaaaaaah! Bikkurishita!"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun shrieked in Japanese, his optical sensors snapping back online as he short-circuited into wakefulness.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Kame-kun! You're back!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro shouted, grabbing the wet, plush size AI turtle and pulling him into a massive, crushing hug.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Waaaaah, Kenjiro, you are squeezing me too hard that I'm being squished!!!!!!"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun protested digitally.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"I'm glad you're back. I was so worried,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro laughed, finally loosening his grip.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"So what happened just then when I was offline?"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun asked, shaking the transparent tea off his chassis.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro explained how he scaled the steep mountains all alone, navigated the bamboo forest, and brewed the mystic tea to help the old lady's grandson.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"So that's what happened,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun hummed. Out of pure curiosity, Kame-kun directed a medical scan at the newly recovered boy. The results chimed in his processor.</span>
+            <span class="text-seg" data-char="kame">"Fascinating. Kenjiro, my scans indicate that the grandson was just severely dehydrated. Literally any liquid would have helped him recover."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"So my hard work scaling a mountain for four hours was completely futile?!?"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro groaned, his shoulders dropping in disbelief.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Sufficient exercising is always good for your health and mind,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun replied smoothly, perching himself back upon Kenjiro's shoulder.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The entire group burst into bright, echoing laughter. To show her immense gratitude, the old lady cooked them an incredible, ten-course thank you meal. With full stomachs and high spirits, Kenjiro and his plush AI companion stepped back out into the enormous land within the walls, ready for the journey to continue.</span>
+        </p>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        let activeUtterances = []; 
+        let textSegments = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('story-content');
+            textSegments = Array.from(container.querySelectorAll('.text-seg'));
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.max = textSegments.length - 1;
+        });
+
+        function applyCharacterVoice(utterance, character) {
+            const voices = window.speechSynthesis.getVoices();
+            switch(character) {
+                case 'kenjiro':
+                    utterance.pitch = 1.2; 
+                    utterance.rate = 1; 
+                    utterance.volume = 1; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'kame':
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.15; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'ja-JP'; 
+                    
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語' || v.lang === 'ja-JP');
+                    if (kameVoice) utterance.voice = kameVoice;
+                    break;
+                    
+                case 'local':
+                    utterance.pitch = 1.1; 
+                    utterance.rate = 1.2; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'oldlady':
+                    utterance.pitch = 1.4; 
+                    utterance.rate = 0.9; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'zh-CN'; 
+                    
+                    const oldLadyVoice = voices.find(v => v.lang === 'zh-CN' || v.lang === 'zh-HK');
+                    if (oldLadyVoice) utterance.voice = oldLadyVoice;
+                    break;
+
+                case 'system':
+                    utterance.pitch = 0.2; 
+                    utterance.rate = 0.9;  
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-GB'; 
+                    
+                    const systemVoice = voices.find(v => v.lang === 'en-GB' && (v.name.includes('Male') || v.name.includes('Arthur')));
+                    if (systemVoice) utterance.voice = systemVoice;
+                    break;
+
+                case 'narrator':
+                default:
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.0;
+                    utterance.volume = 0.9; 
+                    utterance.lang = 'en-US'; 
+                    break;
+            }
+        }
+
+        function playStory(startIndex = currentIndex) {
+            synth.cancel();
+            activeUtterances = []; 
+            currentIndex = startIndex;
+            const remainingSegments = textSegments.slice(currentIndex);
+            remainingSegments.forEach((segment) => {
+                const text = segment.innerText.trim();
+                if (!text) return;
+                const utterance = new SpeechSynthesisUtterance(text);
+                applyCharacterVoice(utterance, segment.getAttribute('data-char'));
+                utterance.onstart = () => {
+                    document.getElementById('progress-bar').value = textSegments.indexOf(segment);
+                    document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                    segment.classList.add('speaking');
+                    segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                synth.speak(utterance);
+            });
+        }
+
+        function seekStory(index) {
+            currentIndex = parseInt(index, 10);
+            if (synth.speaking) playStory(currentIndex);
+        }
+
+        function stopAudio() {
+            synth.cancel();
+            document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+        }
+        
+        // Ensures voices are loaded before trying to play, particularly for some browsers
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+    </script>
+</body>
+</html>

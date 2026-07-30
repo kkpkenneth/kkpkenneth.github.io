@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Task Manager with Trash</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f5f7;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Input Form Styles */
+        .add-task-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            color: #5e6c84;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .add-task-container input, .add-task-container select {
+            padding: 8px 12px;
+            border: 2px solid #dfe1e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .add-task-container button {
+            padding: 10px 20px;
+            background: #0079bf;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 18px; /* Aligns with inputs */
+            transition: background 0.2s;
+        }
+
+        .add-task-container button:hover {
+            background: #026aa7;
+        }
+
+        /* Board Styles */
+        .board {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+            max-width: 940px;
+            margin-bottom: 20px;
+        }
+
+        /* The Drop Zones (Columns) */
+        .column {
+            background-color: #ebecf0;
+            border-radius: 8px;
+            flex: 1;
+            padding: 15px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .column h3 {
+            margin: 0;
+            color: #172b4d;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .total-time {
+            font-size: 12px;
+            background: #dfe1e6;
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: #172b4d;
+            font-weight: bold;
+        }
+
+        /* Visual feedback when dragging over a column */
+        .column.drag-over {
+            background-color: #dfe1e6;
+            border: 2px dashed #0079bf;
+        }
+
+        /* The Draggable Tasks */
+        .task {
+            background-color: white;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            cursor: grab;
+            border-left: 5px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task:active {
+            cursor: grabbing;
+        }
+
+        .task-title {
+            word-break: break-word;
+        }
+
+        .task-duration {
+            font-size: 12px;
+            color: #5e6c84;
+            background: #f4f5f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        /* Color Coding Priorities */
+        .priority-high { border-left-color: #eb5a46; } /* Red */
+        .priority-med { border-left-color: #f2d600; }  /* Yellow */
+        .priority-low { border-left-color: #61bd4f; }  /* Green */
+
+        /* Style applied while the item is actively being dragged */
+        .is-dragging {
+            opacity: 0.5;
+        }
+
+        /* Trash Zone Styles */
+        .trash-zone {
+            width: 100%;
+            max-width: 900px;
+            background-color: #ffebee;
+            border: 2px dashed #ff5252;
+            color: #ff5252;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        /* Visual feedback when dragging over the trash */
+        .trash-zone.drag-over {
+            background-color: #ffcdd2;
+            border-color: #c62828;
+            color: #c62828;
+            transform: scale(1.01);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Input Form -->
+    <div class="add-task-container">
+        <div class="input-group">
+            <label for="newTaskInput">Task Name</label>
+            <input type="text" id="newTaskInput" placeholder="e.g. Finish Q3 Report" style="width: 250px;">
+        </div>
+
+        <div class="input-group">
+            <label for="durationInput">Duration (Hours)</label>
+            <input type="number" id="durationInput" min="0.5" step="0.5" value="1" style="width: 100px;">
+        </div>
+        
+        <div class="input-group">
+            <label for="prioritySelect">Priority Color</label>
+            <select id="prioritySelect">
+                <option value="priority-high">High (Red)</option>
+                <option value="priority-med">Medium (Yellow)</option>
+                <option value="priority-low">Low (Green)</option>
+            </select>
+        </div>
+        
+        <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <!-- The Kanban Board -->
+    <div class="board">
+        <!-- Column 1: To Do -->
+        <div class="column" id="todo" ondragover="allowDrop(event)" ondrop="drop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)">
+            <div class="column-header">
+                <h3>To Do</h3>
+                <span class="total-time">0 hrs</span>
+            </div>
+            <!-- Empty to start -->
+        </div>
+
+        <!-- Column 2: In Progress -->
+        <div class="column" id="in-progress" ondragover="allowDrop(event)" ondrop="drop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)">
+            <div class="column-header">
+                <h3>In Progress</h3>
+                <span class="total-time">0 hrs</span>
+            </div>
+        </div>
+
+        <!-- Column 3: Done -->
+        <div class="column" id="done" ondragover="allowDrop(event)" ondrop="drop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)">
+            <div class="column-header">
+                <h3>Done</h3>
+                <span class="total-time">0 hrs</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Trash Zone -->
+    <div class="trash-zone" id="trash" ondragover="allowDrop(event)" ondrop="deleteDrop(event)" ondragenter="trashDragEnter(event)" ondragleave="trashDragLeave(event)">
+        🗑️ Drag tasks here to delete them
+    </div>
+
+    <script>
+        let taskCounter = 1;
+
+        // --- TASK CREATION LOGIC ---
+
+        function addTask() {
+            const taskText = document.getElementById("newTaskInput").value;
+            const durationVal = document.getElementById("durationInput").value;
+            const priorityClass = document.getElementById("prioritySelect").value;
+            
+            if (!taskText.trim()) {
+                alert("Please enter a task name.");
+                return;
+            }
+
+            // Create the main task wrapper
+            const newTask = document.createElement("div");
+            newTask.classList.add("task", priorityClass);
+            newTask.id = "task" + taskCounter;
+            taskCounter++;
+            
+            // Set up HTML5 Drag API
+            newTask.setAttribute("draggable", "true");
+            newTask.addEventListener("dragstart", dragStart);
+            newTask.addEventListener("dragend", dragEnd);
+            
+            // Store the raw duration data
+            newTask.setAttribute("data-duration", durationVal);
+
+            // Create inner HTML
+            newTask.innerHTML = `
+                <span class="task-title">${taskText}</span>
+                <span class="task-duration">${durationVal} hrs</span>
+            `;
+
+            // Append to "To Do"
+            const todoColumn = document.getElementById("todo");
+            todoColumn.appendChild(newTask);
+
+            // Update column totals
+            calculateTotals();
+
+            // Clear inputs
+            document.getElementById("newTaskInput").value = "";
+            document.getElementById("durationInput").value = "1";
+        }
+
+        // --- DRAG AND DROP API LOGIC FOR COLUMNS ---
+        
+        function dragStart(event) {
+            event.target.classList.add('is-dragging');
+            event.dataTransfer.setData("text/plain", event.target.id);
+            event.dataTransfer.effectAllowed = "move";
+        }
+
+        function dragEnd(event) {
+            event.target.classList.remove('is-dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault(); 
+        }
+
+        function dragEnter(event) {
+            event.preventDefault();
+            if(event.currentTarget.classList.contains('column')) {
+                event.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function dragLeave(event) {
+            if(event.currentTarget.classList.contains('column')) {
+                event.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function drop(event) {
+            event.preventDefault(); 
+            event.currentTarget.classList.remove('drag-over');
+
+            const draggedElementId = event.dataTransfer.getData("text/plain");
+            const draggedElement = document.getElementById(draggedElementId);
+
+            // Ensure we are dropping a task into a valid column
+            if (draggedElement && event.currentTarget.classList.contains('column')) {
+                 event.currentTarget.appendChild(draggedElement);
+                 calculateTotals();
+            }
+        }
+
+        // --- DRAG AND DROP API LOGIC FOR TRASH ---
+
+        function trashDragEnter(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function trashDragLeave(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        function deleteDrop(event) {
+            event.preventDefault(); 
+            // Remove hover styles from trash bin
+            event.currentTarget.classList.remove('drag-over');
+
+            // Find the task that was dropped
+            const draggedElementId = event.dataTransfer.getData("text/plain");
+            const draggedElement = document.getElementById(draggedElementId);
+
+            // If a task was dropped here, delete it completely
+            if (draggedElement) {
+                draggedElement.remove();
+                
+                // Recalculate totals so the columns reflect the missing task
+                calculateTotals();
+            }
+        }
+
+        // --- TIME CALCULATION LOGIC ---
+
+        function calculateTotals() {
+            const columns = document.querySelectorAll('.column');
+
+            columns.forEach(column => {
+                let columnTotal = 0;
+                const tasksInColumn = column.querySelectorAll('.task');
+                
+                tasksInColumn.forEach(task => {
+                    const taskDuration = parseFloat(task.getAttribute('data-duration'));
+                    if (!isNaN(taskDuration)) {
+                        columnTotal += taskDuration;
+                    }
+                });
+
+                const totalSpan = column.querySelector('.total-time');
+                if (totalSpan) {
+                    totalSpan.innerText = columnTotal + " hrs";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

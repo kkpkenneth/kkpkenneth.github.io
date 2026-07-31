@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: The Gardens of Romance</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --highlight-color: rgba(0, 255, 170, 0.25);
+            --btn-bg: #151b2b;
+            --btn-hover: #1f2940;
+            --btn-border: #2a3756;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .story-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b7a99;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            position: sticky;
+            top: 0;
+            background: rgba(11, 15, 25, 0.95);
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--btn-border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: #00ffaa;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 110px;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            color: #ffffff;
+        }
+
+        #progress-bar {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            accent-color: #00ffaa;
+            align-self: center;
+        }
+
+        .text-seg {
+            transition: background-color 0.2s ease;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+
+        .speaking {
+            background-color: var(--highlight-color);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button id="play-toggle-btn" onclick="togglePlay()">▶ Read</button>
+        <input type="range" id="progress-bar" min="0" max="100" value="0" step="1" oninput="seekStory(this.value)">
+    </div>
+
+    <div class="story-container" id="story-content">
+        <h1 class="text-seg" data-char="narrator">Chapter 10</h1>
+        <div class="subtitle text-seg" data-char="narrator">The Gardens of Romance</div>
+
+        <p>
+            <span class="text-seg" data-char="narrator">They say the Cradle of Passion burns with an endless, fiery energy. And the Haven of Gourmet overflows with absolute culinary indulgence.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">But to reach the Cradle of Passion, they first had to traverse this aromatic garden route. Breathing in the scent of blooming purple lavender drifting from the quaint cafés as he walked down a winding, sun-baked brick path, Kenjiro knew he had arrived somewhere entirely different. This was the Gardens of Romance, a place where pastel skies mirrored the sparkling rivers, and art seemed to hang thickly in the air itself.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"It's beautiful,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro admitted, jingling the few remaining copper coins in his pocket.</span>
+            <span class="text-seg" data-char="kenjiro">"And the best part is, looking at it is completely free. Which is great, because between our flight from Luckland and my absolute inability to resist ordering a steaming bowl of bouillabaisse, a hearty serving of ratatouille, and a rich baba au rum for dessert, we are officially broke."</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"Your financial ruin was further accelerated by the expensive escargot appetizer you insisted on ordering,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun whirred from his perch on Kenjiro's shoulder.</span>
+            <span class="text-seg" data-char="kame">"Furthermore, your dining etiquette was highly inefficient. Proper regional protocol dictates securing the snail shell firmly with the specialized tongs in your left hand before extracting the meat with the two-pronged fork in your right. You, however, managed to slip and launch a garlic-buttered shell directly at the waiter."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Hey, the tongs were slippery!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro protested, his cheeks flushing slightly at the memory.</span>
+            <span class="text-seg" data-char="kenjiro">"Either way, exploring the local food was totally worth it. But now we only have exactly enough money left to buy our transit tickets out of here."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Fiscal responsibility is a virtue you have yet to master,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun replied dryly.</span>
+            <span class="text-seg" data-char="kame">"However, I detect an anomaly approaching."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Standing proudly beneath the sweeping, lattice-work arches of the Iron Spire—the towering landmark known locally as the Apex of Needle-Lace—a figure blocked their path. It was a street performer dressed in a classic black-and-white striped shirt, white suspenders, and a face painted stark white. A mime. But what caught Kenjiro's eye wasn't the mime—it was the creature sitting on the mime's shoulder. It was a raccoon pilot—a navigation AI just like Kame-kun.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="raccoon">"Greetings, travelers!"</span>
+            <span class="text-seg" data-char="narrator">the raccoon pilot chirped, its soft, stuffed tail swishing side to side with a hidden mechanical click.</span>
+            <span class="text-seg" data-char="raccoon">"I am this gentleman's pilot, and he is my silent partner. Prepare to be amazed!"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The mime immediately went into an elaborate routine, pressing his white-gloved hands against an invisible glass wall. Kenjiro, amused, clapped politely.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">But as Kenjiro clapped, the mime suddenly pulled out a thick, glowing glass jar and uncorked it. Simultaneously, the raccoon pilot aimed a small, satellite-dish gadget at a wealthy couple walking past a nearby café.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The couple gasped, but no sound came out! A shimmering wisp of light was sucked from their throats directly into the glowing glass jar. While the couple panicked in absolute silence, the raccoon pilot darted off the mime's shoulder, expertly picked both of their pockets in a blur of plush paws, and scurried back.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Hey! You can't just steal people's voices and their money!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro yelled, stepping forward to intervene.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The mime turned to Kenjiro, raising a finger to his lips in a theatrical shushing motion. The raccoon aimed the dish directly at Kenjiro's chest.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="raccoon">"Target acquired. Extracting vocal frequencies and currency!"</span>
+            <span class="text-seg" data-char="narrator">the raccoon pilot announced cheerfully.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro opened his mouth to yell again, but his voice was completely gone. He grabbed his throat in a panic, mouthing words that produced no sound. </span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">With Kenjiro muted, the mime confidently strutted over and reached gracefully into Kenjiro's coat pockets. He pulled out the three measly copper coins. The mime stared at the meager loot in his white glove, blinking slowly.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="raccoon">"Scanning..."</span>
+            <span class="text-seg" data-char="narrator">the raccoon pilot whirred, its plush button eyes adjusting focus.</span>
+            <span class="text-seg" data-char="raccoon">"Error. Target's net worth is critically low. He possesses only enough currency for basic transit fare. Conclusion: This traveler is practically broke."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The mime's shoulders slumped. He dropped the three copper coins back into Kenjiro's pocket, patted him sympathetically on the chest, and performed an exaggerated, slow-motion teardrop falling from his painted eye. </span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"How utterly insulting,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun declared indignantly.</span>
+            <span class="text-seg" data-char="kame">"I will not have my companion mocked by a petty thief just because he adheres to a strict travel budget."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Kame-kun's optical sensors flared bright red. He emitted a high-frequency, concentrated digital counter-wave. The invisible sound wave struck the mime's glass jar, shattering it into a hundred sparkling pieces.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Instantly, a chaotic chorus of stolen voices rushed out of the broken glass and zipped back to their rightful owners across the plaza.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"My voice is back!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro gasped, coughing loudly. He pointed at the mime.</span>
+            <span class="text-seg" data-char="kenjiro">"And for the record, I'm just traveling light!"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="raccoon">"Abort! Abort! The turtle is armed!"</span>
+            <span class="text-seg" data-char="narrator">the raccoon shrieked, its plush tail bristling as it scrambled back onto its partner's shoulder.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The mime's eyes widened in sheer terror. He quickly pantomimed throwing a smoke bomb, then aggressively pretended to climb an invisible rope into the sky before giving up and just sprinting cartoonishly down the sunlit avenue beneath the Iron Spire. </span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"It appears crime does not pay,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun noted dryly, watching them flee.</span>
+            <span class="text-seg" data-char="kame">"Especially when one attempts to rob a nomad with zero disposable income."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Yeah, yeah, rub it in,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro laughed, securing his bag over his shoulder.</span>
+            <span class="text-seg" data-char="kenjiro">"Come on. Let's head to the transit station before I'm forced to buy a souvenir."</span>
+        </p>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        let textSegments = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('story-content');
+            textSegments = Array.from(container.querySelectorAll('.text-seg'));
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.max = textSegments.length - 1;
+        });
+
+        function applyCharacterVoice(utterance, character) {
+            const voices = window.speechSynthesis.getVoices();
+            switch(character) {
+                case 'kenjiro':
+                    utterance.pitch = 1.2; 
+                    utterance.rate = 1; 
+                    utterance.volume = 1; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'kame':
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.15; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'ja-JP'; 
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語' || v.lang === 'ja-JP');
+                    if (kameVoice) utterance.voice = kameVoice;
+                    break;
+                    
+                case 'raccoon':
+                    utterance.pitch = 1.8; 
+                    utterance.rate = 1.3; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-US'; 
+                    const raccoonVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Male'));
+                    if (raccoonVoice) utterance.voice = raccoonVoice;
+                    break;
+
+                case 'system':
+                    utterance.pitch = 0.2; 
+                    utterance.rate = 0.9;  
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-GB'; 
+                    break;
+
+                case 'narrator':
+                default:
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.0;
+                    utterance.volume = 0.9; 
+                    utterance.lang = 'en-US'; 
+                    break;
+            }
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('play-toggle-btn');
+            
+            if (synth.speaking) {
+                if (synth.paused) {
+                    synth.resume();
+                    btn.innerText = '❚❚ Pause';
+                } else {
+                    synth.pause();
+                    btn.innerText = '▶ Resume';
+                }
+            } else {
+                playStory(currentIndex);
+                btn.innerText = '❚❚ Pause';
+            }
+        }
+
+        function playStory(startIndex = currentIndex) {
+            synth.cancel(); // Clear queue
+            currentIndex = startIndex;
+            const remainingSegments = textSegments.slice(currentIndex);
+            
+            remainingSegments.forEach((segment) => {
+                const text = segment.innerText.trim();
+                if (!text) return;
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                applyCharacterVoice(utterance, segment.getAttribute('data-char'));
+                
+                utterance.onstart = () => {
+                    currentIndex = textSegments.indexOf(segment);
+                    document.getElementById('progress-bar').value = currentIndex;
+                    document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                    segment.classList.add('speaking');
+                    segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                
+                utterance.onend = () => {
+                    // Reset button if this is the absolute last segment
+                    if (textSegments.indexOf(segment) === textSegments.length - 1) {
+                        document.getElementById('play-toggle-btn').innerText = '▶ Read';
+                    }
+                };
+
+                synth.speak(utterance);
+            });
+        }
+
+        function seekStory(index) {
+            currentIndex = parseInt(index, 10);
+            const btn = document.getElementById('play-toggle-btn');
+            
+            if (synth.speaking && !synth.paused) {
+                synth.cancel();
+                // Brief timeout needed because cancel is asynchronous in some browsers
+                setTimeout(() => {
+                    playStory(currentIndex);
+                    btn.innerText = '❚❚ Pause';
+                }, 50);
+            } else {
+                // Update visuals but wait for user to hit play/resume
+                document.getElementById('progress-bar').value = currentIndex;
+                document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                textSegments[currentIndex].classList.add('speaking');
+                textSegments[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                if (synth.paused) {
+                    synth.cancel();
+                    btn.innerText = '▶ Read';
+                }
+            }
+        }
+        
+        // Ensures voices are loaded before trying to play
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+    </script>
+</body>
+</html>

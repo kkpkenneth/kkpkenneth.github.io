@@ -72,9 +72,10 @@
         display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
     }
 
-    #sound-btn {
-        background: rgba(46, 213, 115, 0.3); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(46, 213, 115, 0.6); color: white; font-size: 1em; padding: 10px 15px;
+    #sound-btn, #reset-btn {
+        cursor: pointer; transition: transform 0.2s; color: white; font-size: 1em; padding: 10px 15px;
     }
+    #sound-btn { background: rgba(46, 213, 115, 0.3); border: 2px solid rgba(46, 213, 115, 0.6); }
     #sound-btn:hover { transform: scale(1.05); background: rgba(46, 213, 115, 0.5); }
 
     #collection-btn {
@@ -82,9 +83,7 @@
     }
     #collection-btn:hover { transform: scale(1.05); }
 
-    #reset-btn {
-        background: rgba(255, 71, 87, 0.3); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255, 71, 87, 0.6); color: white; font-size: 1em; padding: 10px 15px;
-    }
+    #reset-btn { background: rgba(255, 71, 87, 0.3); border: 2px solid rgba(255, 71, 87, 0.6); }
     #reset-btn:hover { transform: scale(1.05); background: rgba(255, 71, 87, 0.5); }
 
     /* Animals/Plants */
@@ -114,15 +113,17 @@
         border: 1px solid rgba(255,255,255,0.3);
     }
 
-    .emoji-art {
-        font-size: 60px;
+    .animal-img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
         user-select: none;
         pointer-events: none;
         filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.4));
     }
 
     .animal.clicked {
-        transform: scale(1.4) !important;
+        transform: scale(1.2) !important;
     }
 
     /* Floating Point Animation */
@@ -186,7 +187,7 @@
         background: rgba(162, 209, 164, 0.15);
         transform: translateY(-3px);
     }
-    .collection-item.locked .emoji-art {
+    .collection-item.locked .animal-img {
         filter: grayscale(100%) brightness(0.3); 
     }
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.95em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
@@ -212,7 +213,7 @@
 
     /* Popups */
     #unlock-popup, #auto-popup, #riddle-modal { z-index: 300; }
-    #popup-visual .emoji-art { font-size: 100px; margin: 20px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    #popup-visual .animal-img { margin: 20px 0; width: 120px; height: 120px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     
     #auto-popup .modal, #riddle-modal .modal { max-width: 500px; }
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));}
@@ -249,6 +250,9 @@
 </div>
 
 <div id="wetland"></div>
+
+<!-- Background Music -->
+<audio id="bgMusic" src="bamboo-flute.mp3" loop></audio>
 
 <!-- Collection Modal -->
 <div id="collection-modal" class="modal-overlay">
@@ -296,6 +300,9 @@
 
 <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const bgMusic = document.getElementById('bgMusic');
+    bgMusic.volume = 0.4; // Set background music volume
+
     let isMuted = false;
 
     function playSynth(freq, type, duration, vol=0.2) {
@@ -326,27 +333,36 @@
     };
 
     // --- Wetland Species Data & Riddles ---
+    // Costs are now scaled gradually based loosely on heartsPerClick efficiency
     const animalData = [
-        { id: 'mudskipper', name: 'Mudskipper', emoji: '🐟', cost: 5, speed: 0.5, heartsPerClick: 1, riddle: "I am an amphibious fish that can 'walk' or skip across exposed mudflats. What am I?", answers: ['mudskipper', 'mud skipper', 'skipper'] },
-        { id: 'fiddler-crab', name: 'Fiddler Crab', emoji: '🦀', cost: 15, speed: 0.2, heartsPerClick: 2, riddle: "The males of my species are easily recognized by one massively oversized claw. What am I?", answers: ['fiddler crab', 'fiddler', 'crab'] },
-        { id: 'pond-heron', name: 'Chinese Pond-Heron', emoji: '🦤', cost: 30, speed: 0.1, heartsPerClick: 3, riddle: "I am a common wading bird often seen standing perfectly still in the water, waiting to strike at passing fish.", answers: ['pond heron', 'heron', 'chinese pond heron'] },
-        { id: 'crocodile', name: 'Saltwater Crocodile', emoji: '🐊', cost: 50, speed: 0.2, heartsPerClick: 5, riddle: "I am the resident celebrity named 'Pui Pui', rescued from the Shan Pui River in 2003.", answers: ['crocodile', 'saltwater crocodile', 'pui pui', 'croc'] },
-        { id: 'spoonbill', name: 'Black-faced Spoonbill', emoji: '🦢', cost: 100, speed: 0.3, heartsPerClick: 8, riddle: "I am a globally endangered winter visitor. I sweep my unique, spatulate bill side-to-side to catch fish.", answers: ['spoonbill', 'black-faced spoonbill', 'black faced spoonbill'] },
-        { id: 'kingfisher', name: 'White-throated Kingfisher', emoji: '🦜', cost: 150, speed: 0.6, heartsPerClick: 10, riddle: "I have a brilliant blue back, chestnut belly, and a heavy red bill. I love perching on branches overlooking the water.", answers: ['kingfisher', 'white-throated kingfisher', 'white throated kingfisher'] },
-        { id: 'keelback', name: 'Checkered Keelback', emoji: '🐍', cost: 250, speed: 0.4, heartsPerClick: 12, riddle: "I am a highly aquatic, non-venomous snake that can hold my breath for 20 minutes while hunting.", answers: ['keelback', 'checkered keelback', 'snake'] },
-        { id: 'gunther-frog', name: 'Günther\'s Frog', emoji: '🐸', cost: 350, speed: 0.1, heartsPerClick: 15, riddle: "I am well-camouflaged, but my distinct call is the soundtrack of the park during humid summer months.", answers: ['gunther\'s frog', 'gunthers frog', 'gunther frog', 'frog'] },
-        { id: 'skink', name: 'Reeves\' Smooth Skink', emoji: '🦎', cost: 500, speed: 0.5, heartsPerClick: 20, riddle: "I am a common lizard with a tan body and black stripes down my sides, darting through the underbrush.", answers: ['skink', 'reeves smooth skink', 'reeves\' smooth skink', 'lizard'] },
-        { id: 'leopard-cat', name: 'Leopard Cat', emoji: '🐆', cost: 750, speed: 0.6, heartsPerClick: 25, riddle: "I am a small, native nocturnal predator with spots, navigating the wooded areas at night.", answers: ['leopard cat', 'cat'] },
-        { id: 'civet', name: 'Small Indian Civet', emoji: '🦝', cost: 1000, speed: 0.4, heartsPerClick: 30, riddle: "I am a small nocturnal mammal with stripes and spots, native to the park's woodlands.", answers: ['civet', 'small indian civet', 'indian civet'] },
-        { id: 'otter', name: 'Eurasian Otter', emoji: '🦦', cost: 1500, speed: 0.5, heartsPerClick: 40, riddle: "I am a semi-aquatic mammal occasionally recorded hunting in the park's wetland network.", answers: ['otter', 'eurasian otter'] },
-        { id: 'mangrove-kandelia', name: 'Kandelia obovata', emoji: '🌿', cost: 2500, speed: 0, heartsPerClick: 50, riddle: "I am a species of 'True Mangrove' tree that provides habitat for crabs. My scientific name starts with 'Kandelia'.", answers: ['kandelia', 'kandelia obovata', 'mangrove'] },
-        { id: 'mangrove-aegiceras', name: 'Aegiceras corniculatum', emoji: '🌱', cost: 4000, speed: 0, heartsPerClick: 70, riddle: "I am a mangrove species known as the Black Mangrove or River Mangrove. My scientific name starts with 'Aegiceras'.", answers: ['aegiceras', 'aegiceras corniculatum', 'black mangrove', 'river mangrove'] },
-        { id: 'fruit-bat', name: 'Short-nosed Fruit Bat', emoji: '🦇', cost: 6000, speed: 0.7, heartsPerClick: 90, riddle: "I am a flying mammal that feeds on fruit and can be found roosting in the trees.", answers: ['bat', 'fruit bat', 'short-nosed fruit bat', 'short nosed fruit bat'] }
+        { id: 'mudskipper', name: 'Mudskipper', img: 'mudskipper.png', cost: 10, speed: 0.5, heartsPerClick: 1, riddle: "I am an amphibious fish that can 'walk' or skip across exposed mudflats. What am I?", answers: ['mudskipper', 'mud skipper', 'skipper'] },
+        { id: 'fiddler-crab', name: 'Fiddler Crab', img: 'fiddler-crab.png', cost: 25, speed: 0.2, heartsPerClick: 2, riddle: "The males of my species are easily recognized by one massively oversized claw. What am I?", answers: ['fiddler crab', 'fiddler', 'crab'] },
+        { id: 'pond-heron', name: 'Pond Heron', img: 'pond-heron.png', cost: 50, speed: 0.1, heartsPerClick: 3, riddle: "I am a common wading bird often seen standing perfectly still in the water.", answers: ['pond heron', 'heron'] },
+        { id: 'gei-wai-shrimp', name: 'Gei Wai Shrimp', img: 'gei-wai-shrimp.png', cost: 80, speed: 0.4, heartsPerClick: 4, riddle: "I am a traditional crustacean harvested in tidal ponds.", answers: ['gei wai shrimp', 'shrimp', 'gei wai'] },
+        { id: 'cattle-egret', name: 'Cattle Egret', img: 'cattle-egret.png', cost: 120, speed: 0.3, heartsPerClick: 5, riddle: "I am a white bird often found near grazing animals.", answers: ['cattle egret', 'egret'] },
+        { id: 'little-egret', name: 'Little Egret', img: 'little-egret.png', cost: 180, speed: 0.4, heartsPerClick: 6, riddle: "I am a small white heron with dark legs and distinct yellow feet.", answers: ['little egret', 'egret'] },
+        { id: 'great-egret', name: 'Great Egret', img: 'great-egret.png', cost: 250, speed: 0.3, heartsPerClick: 7, riddle: "I am a large white heron with a yellow bill and black legs.", answers: ['great egret', 'egret'] },
+        { id: 'black-faced-spoonbill', name: 'Black-faced Spoonbill', img: 'black-faced-spoonbill.png', cost: 350, speed: 0.3, heartsPerClick: 8, riddle: "I am a globally endangered winter visitor with a unique spatulate bill.", answers: ['spoonbill', 'black-faced spoonbill', 'black faced spoonbill'] },
+        { id: 'night-heron', name: 'Night Heron', img: 'night-heron.png', cost: 500, speed: 0.2, heartsPerClick: 9, riddle: "I am a stocky heron that prefers hunting from dusk to dawn.", answers: ['night heron', 'heron'] },
+        { id: 'black-kite', name: 'Black Kite', img: 'black-kite.png', cost: 700, speed: 0.5, heartsPerClick: 10, riddle: "I am a bird of prey that frequently circles above the wetlands.", answers: ['black kite', 'kite'] },
+        { id: 'eurasian-curlew', name: 'Eurasian Curlew', img: 'eurasian-curlew.png', cost: 900, speed: 0.3, heartsPerClick: 11, riddle: "I have a very long, downward-curved bill designed for probing the mud.", answers: ['curlew', 'eurasian curlew'] },
+        { id: 'mangrove-horseshoe-crab', name: 'Mangrove Horseshoe Crab', img: 'mangrove-horseshoe-crab.png', cost: 1200, speed: 0.1, heartsPerClick: 12, riddle: "I am a smaller cousin of the Chinese species, dwelling in muddy estuaries.", answers: ['mangrove horseshoe crab', 'horseshoe crab', 'crab'] },
+        { id: 'chinese-horseshoe-crab', name: 'Chinese Horseshoe Crab', img: 'chinese-horseshoe-crab.png', cost: 1500, speed: 0.1, heartsPerClick: 13, riddle: "I am an ancient marine arthropod native to these waters, with a hard, helmet-like shell.", answers: ['horseshoe crab', 'chinese horseshoe crab', 'crab'] },
+        { id: 'yellow-spotted-keelback', name: 'Yellow-spotted Keelback', img: 'yellow-spotted-keelback.png', cost: 2000, speed: 0.4, heartsPerClick: 15, riddle: "I am a semi-aquatic snake with bright markings on my neck.", answers: ['yellow-spotted keelback', 'yellow spotted keelback', 'keelback', 'snake'] },
+        { id: 'pied-avocet', name: 'Pied Avocet', img: 'pied-avocet.png', cost: 2600, speed: 0.4, heartsPerClick: 18, riddle: "I am a striking black and white wader with an upward-curved bill.", answers: ['pied avocet', 'avocet'] },
+        { id: 'paddy-frog', name: 'Paddy Frog', img: 'paddy-frog.png', cost: 3500, speed: 0.1, heartsPerClick: 22, riddle: "I am an amphibian commonly found in flooded agricultural fields.", answers: ['paddy frog', 'frog'] },
+        { id: 'east-asian-porcupine', name: 'East Asian Porcupine', img: 'east-asian-porcupine.png', cost: 4500, speed: 0.2, heartsPerClick: 27, riddle: "I am a large rodent covered in sharp quills for defense.", answers: ['porcupine', 'east asian porcupine'] },
+        { id: 'reeves-turtle', name: 'Reeves\' Turtle', img: 'reeves-turtle.png', cost: 6000, speed: 0.1, heartsPerClick: 35, riddle: "I am a freshwater reptile often seen basking on logs.", answers: ['reeves turtle', 'turtle', "reeves' turtle"] },
+        { id: 'osprey', name: 'Osprey', img: 'osprey.png', cost: 8000, speed: 0.6, heartsPerClick: 45, riddle: "I am a fish-eating bird of prey that dives feet-first into the water.", answers: ['osprey'] },
+        { id: 'leopard-cat', name: 'Leopard Cat', img: 'leopard-cat.png', cost: 12000, speed: 0.6, heartsPerClick: 60, riddle: "I am a small, spotted nocturnal predator navigating the wooded areas at night.", answers: ['leopard cat', 'cat'] },
+        { id: 'eurasian-otter', name: 'Eurasian Otter', img: 'eurasian-otter.png', cost: 20000, speed: 0.5, heartsPerClick: 85, riddle: "I am a semi-aquatic mammal occasionally recorded hunting in the wetland network.", answers: ['otter', 'eurasian otter'] },
+        { id: 'mangrove', name: 'Mangrove', img: 'mangrove.png', cost: 50000, speed: 0, heartsPerClick: 200, riddle: "I am the foundational tree of this ecosystem, growing directly in saltwater.", answers: ['mangrove', 'tree'] }
     ];
 
-    let hearts = 0;
-    let unlockedIds = ['mudskipper'];
-    let everUnlockedIds = ['mudskipper']; 
+    // Begin with 10 hearts so the first species can be purchased immediately.
+    let hearts = 10;
+    let unlockedIds = [];
+    let everUnlockedIds = []; 
     let activeAnimals = [];
     let pendingAutoPopup = false; 
     let currentRiddleId = null;
@@ -370,11 +386,7 @@
         
         if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
         if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
-        if (savedEverUnlocks !== null) {
-            everUnlockedIds = JSON.parse(savedEverUnlocks);
-        } else {
-            everUnlockedIds = [...new Set(['mudskipper', ...unlockedIds])];
-        }
+        if (savedEverUnlocks !== null) everUnlockedIds = JSON.parse(savedEverUnlocks);
         
         updateUI();
     }
@@ -400,7 +412,7 @@
         
         el.innerHTML = `
             <div class="animal-name">${animalDef.name}</div>
-            <div class="emoji-art">${animalDef.emoji}</div>
+            <img class="animal-img" src="${animalDef.img}" alt="${animalDef.name}">
         `;
         
         let x, y, vx, vy;
@@ -417,7 +429,7 @@
         el.style.left = x + 'px'; el.style.top = y + 'px';
 
         if (vx < 0 && animalDef.speed > 0) {
-            el.querySelector('.emoji-art').style.transform = "scaleX(-1)";
+            el.querySelector('.animal-img').style.transform = "scaleX(-1)";
         }
 
         el.addEventListener('pointerdown', (e) => {
@@ -518,11 +530,11 @@
             if (anim.x <= 0) {
                 anim.x = 0;
                 anim.vx = Math.abs(anim.vx);
-                anim.el.querySelector('.emoji-art').style.transform = "scaleX(1)";
+                anim.el.querySelector('.animal-img').style.transform = "scaleX(1)";
             } else if (anim.x >= window.innerWidth - 100) {
                 anim.x = window.innerWidth - 100;
                 anim.vx = -Math.abs(anim.vx);
-                anim.el.querySelector('.emoji-art').style.transform = "scaleX(-1)";
+                anim.el.querySelector('.animal-img').style.transform = "scaleX(-1)";
             }
 
             if (anim.y <= 0) {
@@ -569,7 +581,7 @@
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
             item.innerHTML = `
-                <div class="emoji-art" style="font-size: 50px; margin-bottom: 10px;">${a.emoji}</div>
+                <img class="animal-img" src="${a.img}" style="width: 50px; height: 50px; margin-bottom: 10px;" alt="${hasBeenUnlocked ? a.name : '???'}">
                 <div class="name-tag">${hasBeenUnlocked ? a.name : '???'} ${countBadge}</div>
                 ${btnHTML}
             `;
@@ -637,7 +649,7 @@
 
             if (isFirstTimeEver) {
                 document.getElementById('collection-modal').style.display = 'none';
-                document.getElementById('popup-visual').innerHTML = `<div class="emoji-art">${animal.emoji}</div>`;
+                document.getElementById('popup-visual').innerHTML = `<img class="animal-img" src="${animal.img}" style="width: 120px; height: 120px;">`;
                 document.getElementById('popup-name').innerText = animal.name;
                 document.getElementById('unlock-popup').style.display = 'flex';
                 sfx.unlock();
@@ -695,10 +707,12 @@
             btn.innerText = '🔇 Muted';
             btn.style.borderColor = 'rgba(255, 165, 0, 0.5)';
             btn.style.background = 'rgba(255, 165, 0, 0.2)';
+            bgMusic.pause();
         } else {
             btn.innerText = '🔊 Sound';
             btn.style.borderColor = 'rgba(46, 213, 115, 0.6)';
             btn.style.background = 'rgba(46, 213, 115, 0.3)';
+            bgMusic.play().catch(e => console.log("Audio play failed:", e));
         }
     });
 
@@ -719,6 +733,11 @@
         document.getElementById('ui-layer').style.display = 'flex';
         
         if(audioCtx.state === 'suspended') audioCtx.resume();
+        
+        // Start background music
+        if (!isMuted) {
+            bgMusic.play().catch(e => console.log("Audio play failed:", e));
+        }
 
         loadProgress();
         

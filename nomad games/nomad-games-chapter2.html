@@ -108,17 +108,6 @@
             background-color: var(--highlight-color);
             color: #ffffff;
         }
-
-        .prompt-block {
-            background-color: #151b2b;
-            padding: 15px;
-            border-left: 4px solid #00ffaa;
-            margin: 20px 0;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 1rem;
-            color: #e2e8f0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
     </style>
 </head>
 <body>
@@ -134,7 +123,7 @@
         <div class="subtitle text-seg" data-char="narrator">Travelers</div>
 
         <p>
-            <span class="text-seg" data-char="narrator">The air in the Green Island night market was thick with the mouth-watering aromas of "small sausage in large sausage" (sticky rice sausage wrapped around a grilled pork sausage) and freshly baked "pepper buns" (crispy dough filled with peppery pork and scallions), as Kame-kun and Kenjiro navigated the bustling stalls. Kame-kun paused at a vendor serving these delicacies, gesturing with a skewer toward the vibrant, shifting crowd.</span>
+            <span class="text-seg" data-char="narrator">The air in the Jade Isle night market was thick with the mouth-watering aromas of "small sausage in large sausage" (sticky rice sausage wrapped around a grilled pork sausage) and freshly baked "pepper buns" (crispy dough filled with peppery pork and scallions), as Kame-kun and Kenjiro navigated the bustling stalls. Kame-kun paused at a vendor serving these delicacies, gesturing with a skewer toward the vibrant, shifting crowd.</span>
         </p>
         
         <p>
@@ -152,7 +141,31 @@
         </p>
 
         <p>
-            <span class="text-seg" data-char="kame">"Think of it this way: Gastro-travelers hunt for culinary authenticity and regional specialties to understand a destination's identity. Eco-travelers hunt for fragile ecosystems to study and protect, while Geo-travelers hunt for remote territories to complete their global map and document their presence in diverse landscapes. Photo-travelers, the 'travelers of light,' hunt for the perfect intersection of time and illumination to capture the visual aesthetics of architecture and scenery. Athlo-travelers hunt for the intensity of competition, whether attending high-stakes matches or participating in local sports. Historio-travelers hunt for the remnants of a bygone era by standing exactly where historical events occurred. Heorto-travelers hunt for the peak of cultural energy, syncing their journeys to immerse themselves in major celebrations and public rituals. Periegeto-travelers hunt for the thrill of remote expeditions or specialized exploration, often utilizing specific skills to navigate their environment. Polito-travelers hunt for an understanding of the systems, governance, and civic identities that shape a destination. Finally, Dromo-travelers hunt for the heartbeat of a region’s transit systems, studying how connectivity and infrastructure shape a culture."</span>
+            <span class="text-seg" data-char="kame">"Think of it this way: Gastro-travelers hunt for culinary authenticity and regional specialties to understand a destination's identity. Flora-travelers hunt for rare blossoms and unique botanical specimens across the world. Eco-travelers hunt for fragile ecosystems to study and protect, while Geo-travelers hunt for remote territories to complete their global map and document their presence in diverse landscapes. Photo-travelers, the 'travelers of light,' hunt for the perfect intersection of time and illumination to capture the visual aesthetics of architecture and scenery. Athlo-travelers hunt for the intensity of competition, whether attending high-stakes matches or participating in local sports. Historio-travelers hunt for the remnants of a bygone era by standing exactly where historical events occurred. Heorto-travelers hunt for the peak of cultural energy, syncing their journeys to immerse themselves in major celebrations and public rituals. Periegeto-travelers hunt for the thrill of remote expeditions or specialized exploration, often utilizing specific skills to navigate their environment. Polito-travelers hunt for an understanding of the systems, governance, and civic identities that shape a destination. Finally, Dromo-travelers hunt for the heartbeat of a region’s transit systems, studying how connectivity and infrastructure shape a culture."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Just as Kame-kun finished outlining the classifications, a warm, friendly voice called out from a neighboring stall overflowing with delicate plum blossoms and fresh herbal infusions.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="meiling">"Ah, a fellow seeker! It is always a delight to run into someone who appreciates the deeper mechanics of the journey."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Kenjiro turned to see a bright, welcoming traveler stepping forward with a friendly smile. As she raised her hand to gesture toward the blossoms, Kenjiro caught a glimpse of a precise numerical tattoo marked neatly on her inner wrist: Traveler 042. Perched comfortably right on her shoulder was a sturdy, plush-sized navigation AI shaped like an Asiatic black bear with a distinct pale crescent mark on its chest.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="bear">"Micro-flora density and botanical resonance within this sector are operating at peak efficiency,"</span>
+            <span class="text-seg" data-char="narrator">the Asiatic black bear AI companion rumbled softly in a deep, reassuring digital tone, its bright optical sensors blinking amiably.</span>
+            <span class="text-seg" data-char="bear">"Though factoring in your caloric intake, companion, an infusion of mountain oolong tea is strongly recommended."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="meiling">"See? Even Ursa knows when it's time for a proper refreshment,"</span>
+            <span class="text-seg" data-char="meiling">Mei-Ling laughed warmly, introducing herself and her companion to Kenjiro and Kame-kun.</span>
+            <span class="text-seg" data-char="meiling">"I'm Mei-Ling, operating as a Flora-traveler. We're tracking down rare floral blooms and studying how native blossoms shape the identity of night markets across the world."</span>
         </p>
 
         <p>
@@ -191,11 +204,25 @@
                     utterance.pitch = 1.0; 
                     utterance.rate = 1.15; 
                     utterance.volume = 1.0; 
-                    utterance.lang = 'jp-JP';
+                    utterance.lang = 'ja-JP';
                     
-                    const kameVoice = voices.find(v => v.name === 'Google 日本語');
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語' || v.lang === 'ja-JP');
                         if (kameVoice) utterance.voice = kameVoice;
                         break;
+
+                case 'meiling':
+                    utterance.pitch = 1.1; 
+                    utterance.rate = 1.05; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'bear':
+                    utterance.pitch = 0.8; 
+                    utterance.rate = 0.95; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-US'; 
+                    break;
 
                 case 'system':
                     utterance.pitch = 0.2; 
@@ -245,6 +272,10 @@
         function stopAudio() {
             synth.cancel();
             document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
         }
     </script>
 </body>

@@ -100,6 +100,17 @@
             background-color: #0097e6;
         }
 
+        .btn-secondary {
+            background-color: #485460;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #575f68;
+        }
+
         .btn-choice {
             background-color: #485460;
             color: #f5f6fa;
@@ -107,6 +118,46 @@
 
         .btn-choice:hover {
             background-color: #575f68;
+        }
+
+        /* Revision Area Styles */
+        .revision-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-height: 50vh;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding-right: 5px;
+        }
+
+        .revision-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .revision-container::-webkit-scrollbar-thumb {
+            background-color: #a4b0be;
+            border-radius: 4px;
+        }
+
+        .color-card {
+            background: #1e272e;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #d2dae2;
+        }
+
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         /* Flash effects for right/wrong */
@@ -128,6 +179,16 @@
             <p>Click the button that matches the <span class="highlight">INK COLOR</span> of the word, not what the word says.</p>
             <p>You have <strong>60 seconds</strong>.</p>
             <button class="btn-primary" id="start-btn">Start Game</button>
+            <button class="btn-secondary" id="revision-btn">Study Colors</button>
+        </div>
+
+        <div id="revision-screen" class="screen">
+            <h1>Color Reference</h1>
+            <p>Learn the HTML colors before you play!</p>
+            <div class="revision-container" id="revision-container">
+                <!-- Color cards injected here via JS -->
+            </div>
+            <button class="btn-primary" id="back-btn">Back to Menu</button>
         </div>
 
         <div id="game-screen" class="screen">
@@ -139,7 +200,8 @@
             <div class="target-word" id="target-word">Ready</div>
             
             <div class="choices-grid" id="choices-grid">
-                </div>
+                <!-- Buttons injected via JS -->
+            </div>
         </div>
 
         <div id="end-screen" class="screen">
@@ -216,7 +278,7 @@
                 { name: 'Dark Khaki', hex: '#BDB76B' },
 
                 // Greens
-                { name: 'Chartreuse', hex: '#7FFF00' }, // Here is your Chartreuse!
+                { name: 'Chartreuse', hex: '#7FFF00' },
                 { name: 'Lawn Green', hex: '#7CFC00' },
                 { name: 'Lime', hex: '#00FF00' },
                 { name: 'Lime Green', hex: '#32CD32' },
@@ -305,6 +367,7 @@
         // DOM Elements
         const screens = {
             start: document.getElementById('start-screen'),
+            revision: document.getElementById('revision-screen'),
             game: document.getElementById('game-screen'),
             end: document.getElementById('end-screen')
         };
@@ -314,6 +377,21 @@
         const choicesGrid = document.getElementById('choices-grid');
         const finalScore = document.getElementById('final-score');
         const assessment = document.getElementById('assessment');
+
+        // Populate Revision Screen
+        function populateRevision() {
+            const container = document.getElementById('revision-container');
+            colors.forEach(color => {
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                card.innerHTML = `
+                    <div class="color-swatch" style="background-color: ${color.hex}"></div>
+                    <div style="text-align: center;">${color.name}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        populateRevision();
 
         // Helper: Get random item from array
         function getRandom(arr) {
@@ -438,6 +516,8 @@
         // Event Listeners
         document.getElementById('start-btn').addEventListener('click', startGame);
         document.getElementById('retry-btn').addEventListener('click', startGame);
+        document.getElementById('revision-btn').addEventListener('click', () => showScreen('revision'));
+        document.getElementById('back-btn').addEventListener('click', () => showScreen('start'));
 
     </script>
 </body>

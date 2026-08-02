@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progressive Typing Game</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #27ae60;
+            --error: #e74c3c;
+            --bg: #ecf0f1;
+            --text: #333;
+            --active-bg: #e8f8f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 650px;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        /* Screens */
+        #start-screen { display: block; }
+        #game-screen, #game-over-screen { display: none; }
+
+        .instructions {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid var(--secondary);
+            margin: 20px 0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Game UI */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+            position: relative;
+        }
+
+        .level-indicator {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Hint & Word Display */
+        .hint {
+            font-size: 0.85rem;
+            color: #8e44ad;
+            min-height: 20px;
+            margin-bottom: 5px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .word-display {
+            font-size: 4rem;
+            font-weight: bold;
+            font-family: monospace;
+            margin: 10px 0 30px 0;
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .word-display span {
+            color: #bdc3c7;
+            padding: 0 5px;
+            border-radius: 4px;
+            transition: all 0.1s ease;
+        }
+
+        /* Letter States */
+        .word-display span.active {
+            color: var(--primary);
+            background-color: var(--active-bg);
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .word-display span.correct {
+            color: var(--secondary);
+        }
+
+        .word-display span.error {
+            color: var(--error);
+            animation: shake 0.2s ease-in-out;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .time-bonus {
+            position: absolute;
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 1.5rem;
+            left: 50%;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        button:hover { background-color: #219a52; }
+        button:active { transform: scale(0.95); }
+
+        .btn-alt { background-color: #8e44ad; }
+        .btn-alt:hover { background-color: #732d91; }
+
+        .btn-quit {
+            background-color: var(--error);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin-top: 0;
+            display: none; /* Hidden by default */
+        }
+        .btn-quit:hover { background-color: #c0392b; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Audio Elements -->
+    <audio id="bg-music" src="pizzicato.mp3" loop preload="auto"></audio>
+
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <h1>Keyboard Master</h1>
+        <div class="instructions">
+            <strong>How to play:</strong>
+            <ul>
+                <li>Type the letters exactly as they appear. No need to press Enter!</li>
+                <li><strong>Level 1</strong> starts with single keyboard learning keys (a, s, d, f...).</li>
+                <li><strong>Levels 2-10</strong> increase word length progressively up to 10 letters.</li>
+                <li><strong>Timed Mode:</strong> Correct words add time to your clock.</li>
+                <li><strong>Practice Mode:</strong> No time limit. Play at your own pace!</li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <button id="start-timed-btn">Timed Mode</button>
+            <button id="start-practice-btn" class="btn-alt">Practice Mode</button>
+        </div>
+    </div>
+
+    <!-- Active Game Screen -->
+    <div id="game-screen">
+        <div class="stats-bar">
+            <div style="position:relative;" id="timer-container" style="flex:1; text-align:left;">
+                Time: <span id="time">15</span><span id="time-unit">s</span>
+            </div>
+            <div style="flex:1; text-align:center;">Score: <span id="score">0</span></div>
+            <div style="flex:1; text-align:right;">
+                <button id="quit-btn" class="btn-quit">End Game</button>
+            </div>
+        </div>
+        <div class="level-indicator">Level <span id="level-display">1</span> - <span id="level-desc">Single Letters</span></div>
+        
+        <div class="hint" id="hint-display"></div>
+        <div class="word-display" id="word-display"></div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen">
+        <h1 id="game-over-title">Time's Up!</h1>
+        <p style="font-size: 1.2rem;">Final Score: <strong id="final-score">0</strong></p>
+        <p id="final-level" style="color: #7f8c8d;"></p>
+        <button id="restart-btn">Main Menu</button>
+    </div>
+
+</div>
+
+<script>
+    // Audio Context for SFX 
+    let audioCtx;
+    
+    function initAudio() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playBeep(freq, type, duration, vol = 0.1) {
+        if (!audioCtx) return;
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = type;
+        oscillator.frequency.value = freq;
+        
+        gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + duration);
+    }
+
+    const sfx = {
+        keyPress: () => playBeep(600, 'sine', 0.1, 0.05),
+        success: () => playBeep(900, 'triangle', 0.2, 0.1),
+        error: () => playBeep(250, 'sawtooth', 0.2, 0.1),
+        levelUp: () => {
+            playBeep(400, 'sine', 0.1, 0.1);
+            setTimeout(() => playBeep(600, 'sine', 0.1, 0.1), 100);
+            setTimeout(() => playBeep(800, 'sine', 0.3, 0.1), 200);
+        }
+    };
+
+    // Huge 50-word Dictionary
+    const dictionary = {
+        1: [
+            { w: "a", h: "Letter A" }, { w: "b", h: "Letter B" }, { w: "c", h: "Letter C" }, { w: "d", h: "Letter D" },
+            { w: "e", h: "Letter E" }, { w: "f", h: "Letter F" }, { w: "g", h: "Letter G" }, { w: "h", h: "Letter H" },
+            { w: "i", h: "Letter I" }, { w: "j", h: "Letter J" }, { w: "k", h: "Letter K" }, { w: "l", h: "Letter L" },
+            { w: "m", h: "Letter M" }, { w: "n", h: "Letter N" }, { w: "o", h: "Letter O" }, { w: "p", h: "Letter P" },
+            { w: "q", h: "Letter Q" }, { w: "r", h: "Letter R" }, { w: "s", h: "Letter S" }, { w: "t", h: "Letter T" },
+            { w: "u", h: "Letter U" }, { w: "v", h: "Letter V" }, { w: "w", h: "Letter W" }, { w: "x", h: "Letter X" },
+            { w: "y", h: "Letter Y" }, { w: "z", h: "Letter Z" },
+            { w: "1", h: "Number 1" }, { w: "2", h: "Number 2" }, { w: "3", h: "Number 3" }, { w: "4", h: "Number 4" },
+            { w: "5", h: "Number 5" }, { w: "6", h: "Number 6" }, { w: "7", h: "Number 7" }, { w: "8", h: "Number 8" },
+            { w: "9", h: "Number 9" }, { w: "0", h: "Number 0" },
+            { w: ";", h: "Semicolon" }, { w: ",", h: "Comma" }, { w: ".", h: "Period" }, { w: "/", h: "Forward Slash" },
+            { w: "'", h: "Apostrophe" }, { w: "[", h: "Left Bracket" }, { w: "]", h: "Right Bracket" }, { w: "-", h: "Dash" },
+            { w: "=", h: "Equals" }, { w: "!", h: "Exclamation" }, { w: "@", h: "At Sign" }, { w: "#", h: "Hash" },
+            { w: "$", h: "Dollar Sign" }, { w: "%", h: "Percent" }
+        ],
+        2: [
+            { w: "aa", h: "Rough lava" }, { w: "ab", h: "Abdominal muscle" }, { w: "ad", h: "Advertisement" }, { w: "ae", h: "One" },
+            { w: "ag", h: "Agriculture" }, { w: "ah", h: "Exclamation" }, { w: "ai", h: "Sloth" }, { w: "al", h: "Indian tree" },
+            { w: "am", h: "I __" }, { w: "an", h: "Article" }, { w: "ar", h: "Letter R" }, { w: "as", h: "Like" },
+            { w: "at", h: "Location" }, { w: "aw", h: "Cute" }, { w: "ax", h: "Tool" }, { w: "ay", h: "Yes" },
+            { w: "ba", h: "Sheep sound" }, { w: "be", h: "Exist" }, { w: "bi", h: "Bisexual" }, { w: "bo", h: "Pal" },
+            { w: "by", h: "Near" }, { w: "da", h: "Father" }, { w: "de", h: "Of" }, { w: "do", h: "Act" },
+            { w: "ed", h: "Education" }, { w: "ef", h: "Letter F" }, { w: "eh", h: "Inquiry" }, { w: "el", h: "Letter L" },
+            { w: "em", h: "Letter M" }, { w: "en", h: "Letter N" }, { w: "er", h: "Hesitation" }, { w: "es", h: "Letter S" },
+            { w: "et", h: "And" }, { w: "ew", h: "Disgust" }, { w: "ex", h: "Former" }, { w: "fa", h: "Note" },
+            { w: "fe", h: "Iron" }, { w: "gi", h: "Martial arts uniform" }, { w: "go", h: "Move" }, { w: "ha", h: "Laugh" },
+            { w: "he", h: "Male" }, { w: "hi", h: "Greeting" }, { w: "hm", h: "Thought" }, { w: "ho", h: "Exclamation" },
+            { w: "id", h: "Identity" }, { w: "if", h: "Condition" }, { w: "in", h: "Inside" }, { w: "is", h: "Be" },
+            { w: "it", h: "Thing" }, { w: "jo", h: "Sweetheart" }, { w: "ka", h: "Soul" }, { w: "ki", h: "Energy" },
+            { w: "la", h: "Note" }, { w: "li", h: "Chinese unit" }, { w: "lo", h: "Look" }, { w: "ma", h: "Mother" },
+            { w: "me", h: "Myself" }, { w: "mi", h: "Note" }, { w: "mm", h: "Agreement" }, { w: "mo", h: "Moment" },
+            { w: "mu", h: "Letter M" }, { w: "my", h: "Mine" }, { w: "na", h: "Not" }, { w: "ne", h: "Born" },
+            { w: "no", h: "Negative" }, { w: "nu", h: "Letter N" }, { w: "od", h: "Hypothetical force" }, { w: "oe", h: "Faroese letter" },
+            { w: "of", h: "From" }, { w: "oh", h: "Exclamation" }, { w: "oi", h: "Greeting" }, { w: "ok", h: "Approved" },
+            { w: "om", h: "Mantra" }, { w: "on", h: "Top" }, { w: "op", h: "Operation" }, { w: "or", h: "Choice" },
+            { w: "os", h: "Bone" }, { w: "ow", h: "Pain" }, { w: "ox", h: "Bovine" }, { w: "oy", h: "Exclamation" },
+            { w: "pa", h: "Father" }, { w: "pe", h: "Letter P" }, { w: "pi", h: "Ratio" }, { w: "po", h: "Potty" },
+            { w: "qi", h: "Life force" }, { w: "re", h: "Regarding" }, { w: "sh", h: "Silence" }, { w: "si", h: "Note" },
+            { w: "so", h: "Very" }, { w: "ta", h: "Thanks" }, { w: "te", h: "Note" }, { w: "ti", h: "Note" },
+            { w: "to", h: "Toward" }, { w: "uh", h: "Hesitation" }, { w: "um", h: "Hesitation" }, { w: "un", h: "One" },
+            { w: "up", h: "Above" }, { w: "us", h: "We" }, { w: "ut", h: "Note" }, { w: "we", h: "Us" },
+            { w: "wo", h: "Without" }, { w: "xi", h: "Letter X" }, { w: "xu", h: "Coin" }, { w: "ya", h: "You" },
+            { w: "ye", h: "You" }, { w: "yo", h: "Greeting" }, { w: "za", h: "Pizza" }
+        ],
+        3: [
+            { w: "cat", h: "Feline pet" }, { w: "dog", h: "Canine pet" }, { w: "sun", h: "Star in our solar system" }, { w: "run", h: "Move fast" },
+            { w: "bat", h: "Flying mammal" }, { w: "hat", h: "Head covering" }, { w: "sky", h: "Atmosphere above" }, { w: "sea", h: "Body of salt water" },
+            { w: "box", h: "Square container" }, { w: "pen", h: "Writing instrument" }, { w: "car", h: "Four-wheeled vehicle" }, { w: "owl", h: "Nocturnal bird" },
+            { w: "map", h: "Diagram of an area" }, { w: "cup", h: "Drinking vessel" }, { w: "ant", h: "Small insect" }, { w: "bug", h: "Creepy crawler" },
+            { w: "cow", h: "Mooing animal" }, { w: "fox", h: "Sly animal" }, { w: "pig", h: "Oinking animal" }, { w: "rat", h: "Rodent" },
+            { w: "toy", h: "Plaything" }, { w: "bus", h: "Public transport" }, { w: "cab", h: "Taxi" }, { w: "jet", h: "Fast airplane" },
+            { w: "van", h: "Large vehicle" }, { w: "art", h: "Creative work" }, { w: "bed", h: "Place to sleep" }, { w: "boy", h: "Young male" },
+            { w: "cop", h: "Police officer" }, { w: "dad", h: "Father" }, { w: "eye", h: "Organ for seeing" }, { w: "ice", h: "Frozen water" },
+            { w: "joy", h: "Happiness" }, { w: "key", h: "Unlocks doors" }, { w: "lip", h: "Part of the mouth" }, { w: "man", h: "Adult male" },
+            { w: "nut", h: "Hard shell seed" }, { w: "oak", h: "Type of tree" }, { w: "pot", h: "Cooking vessel" }, { w: "red", h: "Color of blood" },
+            { w: "arm", h: "Upper limb" }, { w: "ear", h: "Organ for hearing" }, { w: "leg", h: "Lower limb" }, { w: "toe", h: "Digit on foot" },
+            { w: "rib", h: "Chest bone" }, { w: "jaw", h: "Mouth bone" }, { w: "web", h: "Spider's trap" }, { w: "zoo", h: "Animal park" },
+            { w: "zip", h: "Fastener" }, { w: "zap", h: "Electrical sound" }
+        ],
+        4: [
+            { w: "tree", h: "Woody plant" }, { w: "book", h: "Pages bound together" }, { w: "time", h: "Progress of existence" }, { w: "moon", h: "Earth's satellite" },
+            { w: "star", h: "Night sky light" }, { w: "bird", h: "Feathered animal" }, { w: "fish", h: "Aquatic creature" }, { w: "wind", h: "Moving air" },
+            { w: "fire", h: "Combustion" }, { w: "snow", h: "Frozen precipitation" }, { w: "door", h: "Entrance" }, { w: "desk", h: "Working table" },
+            { w: "lamp", h: "Light source" }, { w: "ship", h: "Large boat" }, { w: "boat", h: "Watercraft" }, { w: "bear", h: "Large forest mammal" },
+            { w: "frog", h: "Amphibian" }, { w: "lion", h: "King of the jungle" }, { w: "wolf", h: "Howling canine" }, { w: "duck", h: "Quacking bird" },
+            { w: "rose", h: "Red flower" }, { w: "leaf", h: "Part of a tree" }, { w: "rock", h: "Solid mineral" }, { w: "dirt", h: "Soil" },
+            { w: "sand", h: "Beach material" }, { w: "gold", h: "Precious metal" }, { w: "iron", h: "Strong metal" }, { w: "wood", h: "Lumber" },
+            { w: "coin", h: "Metal money" }, { w: "ring", h: "Finger jewelry" }, { w: "shoe", h: "Footwear" }, { w: "sock", h: "Worn inside shoes" },
+            { w: "coat", h: "Winter clothing" }, { w: "belt", h: "Holds pants up" }, { w: "hand", h: "Has five fingers" }, { w: "foot", h: "Has five toes" },
+            { w: "face", h: "Front of head" }, { w: "nose", h: "Smelling organ" }, { w: "hair", h: "Grows on head" }, { w: "skin", h: "Body covering" },
+            { w: "bone", h: "Skeleton part" }, { w: "soul", h: "Spirit" }, { w: "mind", h: "Brain function" }, { w: "love", h: "Strong affection" },
+            { w: "hope", h: "Optimism" }, { w: "fear", h: "Scared feeling" }, { w: "game", h: "Play activity" }, { w: "play", h: "Have fun" },
+            { w: "work", h: "Job" }, { w: "song", h: "Musical tune" }
+        ],
+        5: [
+            { w: "apple", h: "Red or green fruit" }, { w: "chair", h: "Seat with a back" }, { w: "water", h: "Clear liquid" }, { w: "train", h: "Locomotive" },
+            { w: "cloud", h: "Vapor in the sky" }, { w: "earth", h: "Our planet" }, { w: "heart", h: "Pumping organ" }, { w: "smile", h: "Happy expression" },
+            { w: "bread", h: "Baked dough" }, { w: "music", h: "Organized sound" }, { w: "mouse", h: "Small rodent" }, { w: "clock", h: "Timepiece" },
+            { w: "brain", h: "Thinking organ" }, { w: "plant", h: "Green organism" }, { w: "table", h: "Furniture with flat top" }, { w: "plane", h: "Flying vehicle" },
+            { w: "truck", h: "Large road vehicle" }, { w: "horse", h: "Riding animal" }, { w: "sheep", h: "Woolly animal" }, { w: "tiger", h: "Striped wildcat" },
+            { w: "snake", h: "Slithering reptile" }, { w: "whale", h: "Large ocean mammal" }, { w: "shark", h: "Ocean predator" }, { w: "eagle", h: "Bird of prey" },
+            { w: "raven", h: "Black bird" }, { w: "ghost", h: "Spooky spirit" }, { w: "house", h: "Place to live" }, { w: "glass", h: "Clear material" },
+            { w: "paper", h: "Writing surface" }, { w: "stone", h: "Hard rock" }, { w: "metal", h: "Shiny hard material" }, { w: "grass", h: "Green lawn plant" },
+            { w: "river", h: "Flowing water" }, { w: "ocean", h: "Large sea" }, { w: "beach", h: "Sandy shore" }, { w: "light", h: "Opposite of dark" },
+            { w: "sound", h: "Audio" }, { w: "color", h: "Red, blue, etc." }, { w: "night", h: "When the moon is out" }, { w: "dream", h: "Sleep vision" },
+            { w: "peace", h: "Harmony" }, { w: "truth", h: "Not a lie" }, { w: "happy", h: "Joyful" }, { w: "brave", h: "Courageous" },
+            { w: "smart", h: "Intelligent" }, { w: "quick", h: "Fast" }, { w: "clean", h: "Not dirty" }, { w: "fresh", h: "New and crisp" },
+            { w: "sweet", h: "Sugary" }, { w: "juice", h: "Fruit drink" }
+        ],
+        6: [
+            { w: "planet", h: "Celestial body" }, { w: "forest", h: "Area with trees" }, { w: "guitar", h: "Stringed instrument" }, { w: "castle", h: "Fortified building" },
+            { w: "island", h: "Land surrounded by water" }, { w: "animal", h: "Living creature" }, { w: "rocket", h: "Spacecraft" }, { w: "pencil", h: "Writing tool" },
+            { w: "window", h: "Glass in wall" }, { w: "bridge", h: "Crosses over water" }, { w: "dragon", h: "Mythical fire breather" }, { w: "camera", h: "Takes photos" },
+            { w: "engine", h: "Machine power" }, { w: "galaxy", h: "System of stars" }, { w: "school", h: "Place of learning" }, { w: "church", h: "Place of worship" },
+            { w: "temple", h: "Place of worship" }, { w: "market", h: "Shopping area" }, { w: "street", h: "Paved road" }, { w: "flower", h: "Blooming plant" },
+            { w: "garden", h: "Planted area" }, { w: "nature", h: "Outdoors" }, { w: "winter", h: "Cold season" }, { w: "summer", h: "Hot season" },
+            { w: "spring", h: "Blooming season" }, { w: "autumn", h: "Fall season" }, { w: "monkey", h: "Primate" }, { w: "rabbit", h: "Hopping animal" },
+            { w: "spider", h: "Eight-legged bug" }, { w: "turtle", h: "Reptile with shell" }, { w: "pigeon", h: "City bird" }, { w: "parrot", h: "Talking bird" },
+            { w: "turkey", h: "Thanksgiving bird" }, { w: "lizard", h: "Small reptile" }, { w: "beetle", h: "Hard-shelled insect" }, { w: "orange", h: "Citrus fruit" },
+            { w: "banana", h: "Yellow peel fruit" }, { w: "cherry", h: "Small red fruit" }, { w: "cheese", h: "Dairy product" }, { w: "butter", h: "Used on toast" },
+            { w: "coffee", h: "Morning drink" }, { w: "cookie", h: "Baked treat" }, { w: "silver", h: "Precious metal" }, { w: "bronze", h: "Third place metal" },
+            { w: "copper", h: "Penny metal" }, { w: "purple", h: "Mix of red and blue" }, { w: "yellow", h: "Color of the sun" }, { w: "violet", h: "Purple flower" },
+            { w: "friend", h: "Buddy" }, { w: "family", h: "Relatives" }
+        ],
+        7: [
+            { w: "science", h: "Study of knowledge" }, { w: "journey", h: "Act of traveling" }, { w: "weather", h: "State of atmosphere" }, { w: "diamond", h: "Precious gem" },
+            { w: "student", h: "Learner" }, { w: "teacher", h: "Educator" }, { w: "picture", h: "Visual representation" }, { w: "machine", h: "Mechanical device" },
+            { w: "holiday", h: "Festive day" }, { w: "monster", h: "Scary creature" }, { w: "volcano", h: "Lava mountain" }, { w: "library", h: "Book collection" },
+            { w: "stomach", h: "Belly" }, { w: "battery", h: "Energy storage" }, { w: "country", h: "Nation" }, { w: "history", h: "Past events" },
+            { w: "village", h: "Small town" }, { w: "station", h: "Train stop" }, { w: "airport", h: "Where planes land" }, { w: "morning", h: "Start of the day" },
+            { w: "evening", h: "End of the day" }, { w: "freedom", h: "Liberty" }, { w: "courage", h: "Bravery" }, { w: "justice", h: "Fairness" },
+            { w: "victory", h: "Winning" }, { w: "success", h: "Achievement" }, { w: "problem", h: "Issue to solve" }, { w: "project", h: "Assignment" },
+            { w: "subject", h: "Topic" }, { w: "message", h: "Communication" }, { w: "network", h: "Connected system" }, { w: "website", h: "Internet page" },
+            { w: "account", h: "User profile" }, { w: "privacy", h: "Secrecy" }, { w: "payment", h: "Money transaction" }, { w: "fashion", h: "Clothing style" },
+            { w: "comfort", h: "Cozy feeling" }, { w: "plastic", h: "Synthetic material" }, { w: "crystal", h: "Clear mineral" }, { w: "emerald", h: "Green gem" },
+            { w: "blanket", h: "Bed cover" }, { w: "cushion", h: "Pillow" }, { w: "kitchen", h: "Cooking room" }, { w: "bedroom", h: "Sleeping room" },
+            { w: "balcony", h: "Outdoor ledge" }, { w: "ceiling", h: "Top of a room" }, { w: "stadium", h: "Sports arena" }, { w: "theater", h: "Where movies play" },
+            { w: "concert", h: "Live music event" }, { w: "vehicle", h: "Mode of transport" }
+        ],
+        8: [
+            { w: "mountain", h: "Large natural elevation" }, { w: "universe", h: "All existing matter" }, { w: "dinosaur", h: "Prehistoric reptile" }, { w: "computer", h: "Electronic device" },
+            { w: "elephant", h: "Mammal with a trunk" }, { w: "hospital", h: "Medical facility" }, { w: "keyboard", h: "Typing device" }, { w: "airplane", h: "Flying vehicle" },
+            { w: "calendar", h: "Tracks days" }, { w: "backpack", h: "Bag worn on the back" }, { w: "umbrella", h: "Rain protection" }, { w: "sandwich", h: "Food between bread" },
+            { w: "treasure", h: "Hidden wealth" }, { w: "building", h: "Constructed structure" }, { w: "envelope", h: "Holds a letter" }, { w: "scissors", h: "Cutting tool" },
+            { w: "passport", h: "Travel document" }, { w: "language", h: "Spoken words" }, { w: "festival", h: "Celebration" }, { w: "vacation", h: "Holiday trip" },
+            { w: "champion", h: "Winner" }, { w: "strategy", h: "Plan of action" }, { w: "absolute", h: "Total or complete" }, { w: "together", h: "With each other" },
+            { w: "tomorrow", h: "The next day" }, { w: "strictly", h: "Rigidly" }, { w: "location", h: "Place" }, { w: "software", h: "Computer programs" },
+            { w: "hardware", h: "Physical tech parts" }, { w: "internet", h: "World wide web" }, { w: "password", h: "Secret code" }, { w: "database", h: "Information storage" },
+            { w: "security", h: "Protection" }, { w: "analysis", h: "Detailed examination" }, { w: "research", h: "Investigation" }, { w: "industry", h: "Manufacturing sector" },
+            { w: "business", h: "Commercial enterprise" }, { w: "customer", h: "Buyer" }, { w: "director", h: "Manager" }, { w: "employee", h: "Worker" },
+            { w: "physical", h: "Relating to the body" }, { w: "medicine", h: "Cure for illness" }, { w: "tropical", h: "Hot and humid climate" }, { w: "freezing", h: "Very cold" },
+            { w: "sunlight", h: "Rays from the sun" }, { w: "neighbor", h: "Lives next door" }, { w: "friendly", h: "Kind" }, { w: "strength", h: "Power" },
+            { w: "distance", h: "Space between" }, { w: "shoulder", h: "Body part" }
+        ],
+        9: [
+            { w: "butterfly", h: "Insect with colorful wings" }, { w: "sunflower", h: "Tall yellow flower" }, { w: "telescope", h: "Looks at stars" }, { w: "chocolate", h: "Cocoa treat" },
+            { w: "adventure", h: "Exciting trip" }, { w: "telephone", h: "Calling device" }, { w: "alligator", h: "Swamp reptile" }, { w: "spaceship", h: "Star vehicle" },
+            { w: "bookshelf", h: "Holds reading material" }, { w: "vegetable", h: "Edible plant" }, { w: "xylophone", h: "Mallet instrument" }, { w: "astronaut", h: "Space traveler" },
+            { w: "crocodile", h: "Large reptile" }, { w: "hurricane", h: "Severe storm" }, { w: "knowledge", h: "Information learned" }, { w: "education", h: "Schooling" },
+            { w: "beautiful", h: "Very pretty" }, { w: "challenge", h: "Difficult task" }, { w: "character", h: "Personality or symbol" }, { w: "condition", h: "State of being" },
+            { w: "direction", h: "North, South, East, West" }, { w: "discovery", h: "Finding something new" }, { w: "equipment", h: "Tools and gear" }, { w: "framework", h: "Basic structure" },
+            { w: "furniture", h: "Chairs, tables, beds" }, { w: "geography", h: "Study of land maps" }, { w: "highlight", h: "Best part" }, { w: "important", h: "Crucial" },
+            { w: "jellyfish", h: "Stinging sea creature" }, { w: "landscape", h: "Scenery" }, { w: "machinery", h: "Mechanical equipment" }, { w: "necessary", h: "Required" },
+            { w: "operation", h: "Surgical procedure" }, { w: "parachute", h: "Skydiving canopy" }, { w: "passenger", h: "Traveler" }, { w: "pineapple", h: "Spiky tropical fruit" },
+            { w: "quotation", h: "Repeated words" }, { w: "raspberry", h: "Red berry" }, { w: "situation", h: "Circumstances" }, { w: "somewhere", h: "An unknown place" },
+            { w: "statement", h: "Declaration" }, { w: "structure", h: "Building" }, { w: "tradition", h: "Custom" }, { w: "transport", h: "Moving goods" },
+            { w: "universal", h: "Worldwide" }, { w: "waterfall", h: "Cascading river" }, { w: "wonderful", h: "Amazing" }, { w: "yesterday", h: "The day before today" },
+            { w: "blueprint", h: "Building plan" }, { w: "chemistry", h: "Science of substances" }
+        ],
+        10: [
+            { w: "strawberry", h: "Red sweet fruit with seeds" }, { w: "motorcycle", h: "Two-wheeled vehicle" }, { w: "watermelon", h: "Large fruit with pink flesh" }, { w: "helicopter", h: "Aircraft with rotors" },
+            { w: "basketball", h: "Game played with hoops" }, { w: "restaurant", h: "Place to eat out" }, { w: "television", h: "Watching screen" }, { w: "microscope", h: "Views tiny things" },
+            { w: "earthquake", h: "Ground shaking" }, { w: "lighthouse", h: "Tower with a warning light" }, { w: "woodpecker", h: "Tree-drilling bird" }, { w: "typewriter", h: "Old typing machine" },
+            { w: "chameleon", h: "Color-changing lizard" }, { w: "skyscraper", h: "Very tall building" }, { w: "absolutely", h: "Definitely" }, { w: "background", h: "Behind the main subject" },
+            { w: "blackboard", h: "Chalk writing surface" }, { w: "calculator", h: "Math machine" }, { w: "collection", h: "Group of items" }, { w: "commercial", h: "TV advertisement" },
+            { w: "connection", h: "Link between things" }, { w: "dictionary", h: "Book of definitions" }, { w: "difference", h: "Not the same" }, { w: "difficulty", h: "Hardship" },
+            { w: "discussion", h: "Conversation" }, { w: "experience", h: "Knowledge from doing" }, { w: "expression", h: "Look on a face" }, { w: "generation", h: "People of same age" },
+            { w: "government", h: "Ruling body" }, { w: "greenhouse", h: "Glass building for plants" }, { w: "healthcare", h: "Medical services" }, { w: "photograph", h: "Captured image" },
+            { w: "population", h: "Number of people" }, { w: "production", h: "Manufacturing" }, { w: "skateboard", h: "Board with four wheels" }, { w: "toothbrush", h: "Dental cleaner" },
+            { w: "tournament", h: "Sports competition" }, { w: "university", h: "Higher education" }, { w: "volleyball", h: "Net sport" }, { w: "whiteboard", h: "Dry erase surface" },
+            { w: "wilderness", h: "Wild nature" }, { w: "appreciate", h: "Be thankful for" }, { w: "completely", h: "Entirely" }, { w: "eventually", h: "In the end" },
+            { w: "frequently", h: "Often" }, { w: "incredible", h: "Unbelievable" }, { w: "impossible", h: "Cannot be done" }, { w: "understand", h: "Comprehend" },
+            { w: "literature", h: "Classic books" }, { w: "mysterious", h: "Puzzling" }
+        ]
+    };
+
+    // Game state
+    let isTimedMode = true;
+    let time = 15;
+    let score = 0;
+    let level = 1;
+    let wordsCompletedInLevel = 0;
+    const wordsPerLevel = 50; // Words needed to advance level
+    let isPlaying = false;
+    let timeInterval;
+    
+    let currentWordObj = null;
+    let currentLetterIndex = 0;
+
+    // DOM Elements
+    const bgMusic = document.getElementById('bg-music');
+    const screens = {
+        start: document.getElementById('start-screen'),
+        game: document.getElementById('game-screen'),
+        over: document.getElementById('game-over-screen')
+    };
+    const ui = {
+        time: document.getElementById('time'),
+        timeUnit: document.getElementById('time-unit'),
+        score: document.getElementById('score'),
+        levelNum: document.getElementById('level-display'),
+        levelDesc: document.getElementById('level-desc'),
+        hint: document.getElementById('hint-display'),
+        word: document.getElementById('word-display'),
+        timerContainer: document.getElementById('timer-container'),
+        quitBtn: document.getElementById('quit-btn'),
+        gameOverTitle: document.getElementById('game-over-title')
+    };
+
+    // Event Listeners
+    document.getElementById('start-timed-btn').addEventListener('click', () => startGame(true));
+    document.getElementById('start-practice-btn').addEventListener('click', () => startGame(false));
+    document.getElementById('restart-btn').addEventListener('click', showMainMenu);
+    ui.quitBtn.addEventListener('click', endGame);
+    document.addEventListener('keydown', handleKeyPress);
+
+    function showMainMenu() {
+        screens.over.style.display = 'none';
+        screens.start.style.display = 'block';
+    }
+
+    function startGame(timed) {
+        isTimedMode = timed;
+        initAudio();
+        bgMusic.volume = 0.3;
+        bgMusic.play().catch(e => console.log("Audio play prevented by browser policy"));
+
+        score = 0;
+        level = 1;
+        wordsCompletedInLevel = 0;
+        isPlaying = true;
+        
+        screens.start.style.display = 'none';
+        screens.over.style.display = 'none';
+        screens.game.style.display = 'block';
+        
+        if (isTimedMode) {
+            time = 15;
+            ui.timeUnit.style.display = 'inline';
+            ui.quitBtn.style.display = 'none'; // Only show quit button in practice mode
+            clearInterval(timeInterval);
+            timeInterval = setInterval(countdown, 1000);
+        } else {
+            ui.time.innerHTML = '∞';
+            ui.timeUnit.style.display = 'none';
+            ui.quitBtn.style.display = 'inline-block'; // Let user quit practice mode
+            clearInterval(timeInterval);
+        }
+
+        updateUI();
+        loadNewWord();
+    }
+
+    function loadNewWord() {
+        const wordList = dictionary[level];
+        currentWordObj = wordList[Math.floor(Math.random() * wordList.length)];
+        currentLetterIndex = 0;
+        
+        ui.hint.innerHTML = currentWordObj.h;
+        
+        // Generate letter spans
+        ui.word.innerHTML = '';
+        for (let char of currentWordObj.w) {
+            const span = document.createElement('span');
+            span.innerText = char;
+            ui.word.appendChild(span);
+        }
+        
+        updateActiveLetter();
+    }
+
+    function updateActiveLetter() {
+        Array.from(ui.word.children).forEach((span, index) => {
+            span.classList.remove('active');
+            if (index === currentLetterIndex) span.classList.add('active');
+        });
+    }
+
+    function handleKeyPress(e) {
+        if (!isPlaying) return;
+        if (e.key.length !== 1) return; // Ignore modifier keys
+
+        const expectedChar = currentWordObj.w[currentLetterIndex];
+        const currentSpan = ui.word.children[currentLetterIndex];
+
+        if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
+            // Correct Key
+            sfx.keyPress();
+            currentSpan.classList.remove('active');
+            currentSpan.classList.add('correct');
+            currentLetterIndex++;
+
+            if (currentLetterIndex === currentWordObj.w.length) {
+                handleWordComplete();
+            } else {
+                updateActiveLetter();
+            }
+        } else {
+            // Wrong Key
+            sfx.error();
+            currentSpan.classList.add('error');
+            setTimeout(() => currentSpan.classList.remove('error'), 200);
+        }
+    }
+
+    function handleWordComplete() {
+        score++;
+        wordsCompletedInLevel++;
+        sfx.success();
+        
+        if (isTimedMode) {
+            const timeBonus = 1; 
+            time += timeBonus;
+            showTimeAnimation(timeBonus);
+        }
+        
+        // Level up logic
+        if (wordsCompletedInLevel >= wordsPerLevel && level < 10) {
+            level++;
+            wordsCompletedInLevel = 0;
+            sfx.levelUp();
+        }
+
+        updateUI();
+        loadNewWord();
+    }
+
+    function showTimeAnimation(bonusAmount) {
+        const animEl = document.createElement('div');
+        animEl.className = 'time-bonus';
+        animEl.innerText = `+${bonusAmount}s`;
+        ui.timerContainer.appendChild(animEl);
+        
+        setTimeout(() => animEl.remove(), 1000);
+    }
+
+    function updateUI() {
+        if (isTimedMode) ui.time.innerHTML = time;
+        ui.score.innerHTML = score;
+        ui.levelNum.innerHTML = level;
+        ui.levelDesc.innerHTML = level === 1 ? "Single Letters" : `${level}-Letter Words`;
+    }
+
+    function countdown() {
+        if (!isTimedMode) return;
+        
+        if (time > 0) {
+            time--;
+            ui.time.innerHTML = time;
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        isPlaying = false;
+        clearInterval(timeInterval);
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+        
+        screens.game.style.display = 'none';
+        screens.over.style.display = 'block';
+        
+        ui.gameOverTitle.innerText = isTimedMode ? "Time's Up!" : "Practice Ended";
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-level').innerText = `You reached Level ${level}`;
+    }
+</script>
+
+</body>
+</html>

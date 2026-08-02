@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8-Bit Bird Beaks Grid (50x50)</title>
+    <style>
+        body {
+            background-color: #2c3e50;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h2 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+        .canvas-container {
+            background-color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        canvas {
+            width: 400px;
+            height: 400px;
+            background-color: #ffffff;
+            display: block;
+        }
+        .legend {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #bdc3c7;
+            text-align: center;
+            max-width: 450px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>50×50 Grid • 9 8-Bit Beaks (Top-Left Aligned)</h2>
+    
+    <div class="canvas-container">
+        <!-- 50x50 native canvas resolution scaled up via CSS -->
+        <canvas id="pixelGrid" width="50" height="50"></canvas>
+    </div>
+
+    <div class="legend">
+        1: Cracking | 2: Hooked | 3: Chisel | 4: Flat/Wide | 5: Filtering<br>
+        6: Spearing | 7: Scavenging | 8: Nectar | 9: Pouch
+    </div>
+
+<script>
+    const canvas = document.getElementById('pixelGrid');
+    const ctx = canvas.getContext('2d');
+
+    // Ensure crisp pixel rendering
+    ctx.imageSmoothingEnabled = false;
+
+    // Clear canvas background (White)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 50, 50);
+
+    // Helper function to draw a single 8-bit pixel (flat, no outline, no shadow)
+    function drawPixel(x, y, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
+    }
+
+    // Helper function to draw a sprite matrix starting at (startX, startY)
+    function drawSprite(startX, startY, matrix, color) {
+        for (let r = 0; r < matrix.length; r++) {
+            for (let c = 0; c < matrix[r].length; c++) {
+                if (matrix[r][c] === 1) {
+                    drawPixel(startX + c, startY + r, color);
+                }
+            }
+        }
+    }
+
+    // --- 8-BIT BEAK SPRITE MATRICES (Flat, 5x5 to 8x8 grids) ---
+
+    // 1. Cracking (Short, thick, conical)
+    const b1 = [
+        [0,0,1,1],
+        [0,1,1,1],
+        [1,1,1,1]
+    ];
+
+    // 2. Hooked (Curved predatory tip)
+    const b2 = [
+        [1,1,1,0],
+        [0,0,1,1],
+        [0,0,0,1]
+    ];
+
+    // 3. Chisel (Straight, sharp wood-drilling bill)
+    const b3 = [
+        [1,1,1,1,1],
+        [0,0,0,0,1]
+    ];
+
+    // 4. Flat/Wide (Broad duck bill)
+    const b4 = [
+        [1,1,1,1],
+        [1,1,1,1]
+    ];
+
+    // 5. Filtering (Broad spoon shape with lamellae lines)
+    const b5 = [
+        [1,1,1,1,1],
+        [1,0,1,0,1]
+    ];
+
+    // 6. Spearing (Long, dagger-like fish bill)
+    const b6 = [
+        [1,1,1,1,1,1],
+        [0,0,0,0,0,1]
+    ];
+
+    // 7. Scavenging (Medium, sturdy generalist bill)
+    const b7 = [
+        [1,1,1,0],
+        [0,1,1,1]
+    ];
+
+    // 8. Nectar (Long, ultra-thin curved probe)
+    const b8 = [
+        [1,0,0,0],
+        [0,1,0,0],
+        [0,0,1,1]
+    ];
+
+    // 9. Pouch (Pelican gular pouch structure)
+    const b9 = [
+        [1,1,1,1],
+        [0,1,1,0]
+    ];
+
+    // --- RENDER 9 BEAKS STARTING FROM THE TOP LEFT ---
+    const beakColor = '#e67e22'; // Flat 8-bit orange-yellow tone
+
+    // Row 1 (Top-Left cluster)
+    drawSprite(2, 2, b1, beakColor);   // 1. Cracking
+    drawSprite(12, 2, b2, beakColor);  // 2. Hooked
+    drawSprite(22, 2, b3, beakColor);  // 3. Chisel
+    drawSprite(34, 2, b4, beakColor);  // 4. Flat/Wide
+
+    // Row 2
+    drawSprite(2, 12, b5, beakColor);  // 5. Filtering
+    drawSprite(14, 12, b6, beakColor); // 6. Spearing
+    drawSprite(28, 12, b7, beakColor); // 7. Scavenging
+
+    // Row 3
+    drawSprite(2, 22, b8, beakColor);  // 8. Nectar
+    drawSprite(12, 22, b9, beakColor); // 9. Pouch
+
+</script>
+</body>
+</html>

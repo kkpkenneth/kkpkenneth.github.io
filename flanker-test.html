@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cognitive Flanker Task</title>
+    <title>Flanker Task: 2-Way & 4-Way</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -57,29 +57,43 @@
         }
 
         .stimulus-display {
-            font-family: 'Courier New', Courier, monospace; /* Monospace keeps arrow alignment perfect */
-            font-size: 4.5rem;
-            font-weight: 900;
-            letter-spacing: 5px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 4rem;
             margin: 40px 0;
             color: #f5f6fa;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             user-select: none; 
         }
 
-        /* 2-column grid for left/right controls */
-        .controls-grid {
-            display: grid;
+        /* 2-Way Controls */
+        .controls-grid-2way {
+            display: none; /* Toggled via JS */
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-top: 20px;
         }
 
+        /* 4-Way Controls */
+        .controls-grid-4way {
+            display: none; /* Toggled via JS */
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+            max-width: 320px;
+            margin: 20px auto 0 auto;
+        }
+
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+
         button {
-            font-size: 1.2rem;
-            padding: 15px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
             transition: transform 0.1s, background-color 0.2s;
@@ -88,36 +102,60 @@
         }
 
         button:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
         .btn-primary {
             background-color: #9c88ff;
             color: white;
+            font-size: 1.2rem;
             width: 100%;
-            margin-top: 20px;
+            padding: 15px;
+            margin-top: 15px;
         }
 
         .btn-primary:hover {
             background-color: #8c7ae6;
         }
 
+        .btn-secondary {
+            background-color: #e1b12c;
+            color: white;
+            font-size: 1.2rem;
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #fbc531;
+        }
+
         .btn-control {
             background-color: #00a8ff;
             color: #f5f6fa;
-            font-size: 1.5rem;
-            padding: 20px;
+            font-size: 2rem;
+            padding: 15px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 0 #0097e6;
+        }
+
+        .btn-control:active {
+            box-shadow: 0 0 0 #0097e6;
+            transform: translateY(4px) scale(0.95);
         }
 
         .btn-control:hover {
             background-color: #0097e6;
         }
 
-        /* Keyboard hint styling */
         .key-hint {
             display: block;
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.7);
             margin-top: 5px;
             font-weight: normal;
         }
@@ -150,16 +188,14 @@
             
             <div class="legend">
                 <p style="margin: 0 0 10px 0; color:#f5f6fa;"><strong>The Rules:</strong></p>
-                <p style="margin: 5px 0;">Focus <strong>ONLY</strong> on the <span class="highlight">MIDDLE</span> arrow.</p>
-                <ul style="color: #7f8fa6; padding-left: 20px; margin: 10px 0;">
-                    <li>If it points left ( <strong style="color:white;"><</strong> ), press LEFT.</li>
-                    <li>If it points right ( <strong style="color:white;">></strong> ), press RIGHT.</li>
-                </ul>
-                <p style="margin: 5px 0;">Ignore the outside symbols, even if they point the opposite way!</p>
+                <p style="margin: 5px 0;">Focus <strong>ONLY</strong> on the <span class="highlight">MIDDLE</span> shape.</p>
+                <p style="margin: 5px 0;">Indicate the direction it points. Ignore the outside symbols completely!</p>
+                <p style="margin: 10px 0; color: #00a8ff;"><em>Desktop: Use the Arrow Keys or WASD.<br>Mobile: Use the On-Screen Buttons.</em></p>
             </div>
 
             <p>You have <strong>60 seconds</strong>.</p>
-            <button class="btn-primary" id="start-btn">Start Game</button>
+            <button class="btn-primary" id="start-2-btn">Play 2-Way Mode (Left / Right)</button>
+            <button class="btn-secondary" id="start-4-btn">Play 4-Way Mode (D-Pad)</button>
         </div>
 
         <div id="game-screen" class="screen">
@@ -168,18 +204,29 @@
                 <div id="score-display">Score: 0</div>
             </div>
             
-            <!-- The main stimulus (e.g. <<><< ) -->
-            <div class="stimulus-display" id="stimulus-display">Ready</div>
+            <!-- The main stimulus container -->
+            <div class="stimulus-display" id="stimulus-display">
+                Ready
+            </div>
             
-            <div class="controls-grid">
-                <button class="btn-control" id="btn-left">
+            <!-- 2-Way Controls -->
+            <div class="controls-grid-2way" id="controls-2way">
+                <button class="btn-control" id="btn-left-2">
                     LEFT
-                    <span class="key-hint">(Left Arrow Key)</span>
+                    <span class="key-hint">(Left Arrow)</span>
                 </button>
-                <button class="btn-control" id="btn-right">
+                <button class="btn-control" id="btn-right-2">
                     RIGHT
-                    <span class="key-hint">(Right Arrow Key)</span>
+                    <span class="key-hint">(Right Arrow)</span>
                 </button>
+            </div>
+
+            <!-- 4-Way Controls -->
+            <div class="controls-grid-4way" id="controls-4way">
+                <button class="btn-control btn-up" id="btn-up-4">▲</button>
+                <button class="btn-control btn-left" id="btn-left-4">◀</button>
+                <button class="btn-control btn-down" id="btn-down-4">▼</button>
+                <button class="btn-control btn-right" id="btn-right-4">▶</button>
             </div>
         </div>
 
@@ -189,7 +236,7 @@
             <h2 style="font-size: 3.5rem; color: #9c88ff; margin: 10px 0;" id="final-score">0</h2>
             <p id="accuracy-display"></p>
             <p id="assessment"></p>
-            <button class="btn-primary" id="retry-btn">Play Again</button>
+            <button class="btn-primary" id="menu-btn">Back to Menu</button>
         </div>
 
     </div>
@@ -238,7 +285,8 @@
         let timeLeft = 60;
         let timerId = null;
         let isGameRunning = false;
-        let currentTargetDirection = null; // 'left' or 'right'
+        let currentTargetDirection = null;
+        let currentMode = 2; // 2 or 4
 
         // DOM Elements
         const screens = {
@@ -252,6 +300,8 @@
         const finalScore = document.getElementById('final-score');
         const accuracyDisplay = document.getElementById('accuracy-display');
         const assessment = document.getElementById('assessment');
+        const controls2Way = document.getElementById('controls-2way');
+        const controls4Way = document.getElementById('controls-4way');
 
         // Show specific screen
         function showScreen(screenName) {
@@ -268,34 +318,56 @@
             }, 150);
         }
 
-        // Generate the arrows
+        // Generate the arrows based on the selected mode
         function generateStimulus() {
-            const directions = ['<', '>'];
-            // 3 Types: Congruent (all same), Incongruent (flankers opposite), Neutral (flankers are dashes)
+            let directions, symbols, neutralSymbol;
+
+            if (currentMode === 2) {
+                directions = ['left', 'right'];
+                symbols = { 'left': '<', 'right': '>' };
+                neutralSymbol = '-';
+            } else {
+                directions = ['up', 'down', 'left', 'right'];
+                symbols = { 'up': '▲', 'down': '▼', 'left': '◀', 'right': '▶' };
+                neutralSymbol = '■';
+            }
+            
+            // 3 Types: Congruent, Incongruent (random other direction), Neutral
             const types = ['congruent', 'incongruent', 'neutral'];
             
-            const targetSymbol = directions[Math.floor(Math.random() * directions.length)];
-            currentTargetDirection = targetSymbol === '<' ? 'left' : 'right';
+            currentTargetDirection = directions[Math.floor(Math.random() * directions.length)];
+            const targetSymbol = symbols[currentTargetDirection];
             
-            const oppositeSymbol = targetSymbol === '<' ? '>' : '<';
             const type = types[Math.floor(Math.random() * types.length)];
 
             let flankerSymbol;
             if (type === 'congruent') {
                 flankerSymbol = targetSymbol;
             } else if (type === 'incongruent') {
-                flankerSymbol = oppositeSymbol;
+                // Get a random direction that is NOT the target direction
+                const otherDirections = directions.filter(d => d !== currentTargetDirection);
+                const randomOther = otherDirections[Math.floor(Math.random() * otherDirections.length)];
+                flankerSymbol = symbols[randomOther];
             } else {
-                flankerSymbol = '-';
+                flankerSymbol = neutralSymbol;
             }
 
-            // Create the 5-character string (2 flankers, 1 target, 2 flankers)
-            stimulusDisplay.textContent = `${flankerSymbol}${flankerSymbol}${targetSymbol}${flankerSymbol}${flankerSymbol}`;
+            // Using flex spans ensures the symbols line up perfectly
+            stimulusDisplay.innerHTML = `
+                <span>${flankerSymbol}</span>
+                <span>${flankerSymbol}</span>
+                <span style="color: #9c88ff;">${targetSymbol}</span>
+                <span>${flankerSymbol}</span>
+                <span>${flankerSymbol}</span>
+            `;
         }
 
         // Handle user input
         function handleGuess(guessedDirection) {
             if (!isGameRunning) return;
+
+            // In 2-way mode, ignore up/down entirely
+            if (currentMode === 2 && (guessedDirection === 'up' || guessedDirection === 'down')) return;
 
             attempts++;
 
@@ -322,11 +394,12 @@
         }
 
         // Initialize Game
-        function startGame() {
+        function startGame(mode) {
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
 
+            currentMode = mode;
             score = 0;
             attempts = 0;
             timeLeft = 60;
@@ -335,6 +408,15 @@
             scoreDisplay.textContent = `Score: ${score}`;
             timeDisplay.textContent = `Time: ${timeLeft}s`;
             
+            // Toggle appropriate control UI
+            if (currentMode === 2) {
+                controls2Way.style.display = 'grid';
+                controls4Way.style.display = 'none';
+            } else {
+                controls2Way.style.display = 'none';
+                controls4Way.style.display = 'grid';
+            }
+
             showScreen('game');
             generateStimulus();
             
@@ -357,36 +439,78 @@
             } else if (score >= 40) {
                 assessment.textContent = "Great job! You navigated the interference very well. 🧠";
             } else if (score >= 20) {
-                assessment.textContent = "Good effort, but those flankers definitely slowed you down. 👀";
+                assessment.textContent = "Good effort, but the flankers definitely slowed you down. 👀";
             } else {
                 assessment.textContent = "The flankers got the best of you! Keep practicing to improve your focus. 🌀";
             }
         }
 
+        // Visual click effect for keyboard users
+        function simulateButtonPress(direction) {
+            const suffix = currentMode === 2 ? '2' : '4';
+            const btn = document.getElementById(`btn-${direction}-${suffix}`);
+            if(btn) {
+                btn.style.boxShadow = '0 0 0 #0097e6';
+                btn.style.transform = 'translateY(4px) scale(0.95)';
+                setTimeout(() => {
+                    btn.style.boxShadow = '0 4px 0 #0097e6';
+                    btn.style.transform = 'translateY(0) scale(1)';
+                }, 100);
+            }
+        }
+
         // Event Listeners for UI Buttons
-        document.getElementById('start-btn').addEventListener('click', startGame);
-        document.getElementById('retry-btn').addEventListener('click', startGame);
-        document.getElementById('btn-left').addEventListener('click', () => handleGuess('left'));
-        document.getElementById('btn-right').addEventListener('click', () => handleGuess('right'));
+        document.getElementById('start-2-btn').addEventListener('click', () => startGame(2));
+        document.getElementById('start-4-btn').addEventListener('click', () => startGame(4));
+        document.getElementById('menu-btn').addEventListener('click', () => showScreen('start'));
+        
+        // 2-Way buttons
+        document.getElementById('btn-left-2').addEventListener('pointerdown', (e) => { e.preventDefault(); handleGuess('left'); });
+        document.getElementById('btn-right-2').addEventListener('pointerdown', (e) => { e.preventDefault(); handleGuess('right'); });
+
+        // 4-Way buttons
+        document.getElementById('btn-up-4').addEventListener('pointerdown', (e) => { e.preventDefault(); handleGuess('up'); });
+        document.getElementById('btn-down-4').addEventListener('pointerdown', (e) => { e.preventDefault(); handleGuess('down'); });
+        document.getElementById('btn-left-4').addEventListener('pointerdown', (e) => { e.preventDefault(); handleGuess('left'); });
+        document.getElementById('btn-right-4').addEventListener('pointerdown', (e) => { e.preventDefault(); handleGuess('right'); });
 
         // Event Listeners for Keyboard Support
         window.addEventListener('keydown', (e) => {
             if (!isGameRunning) return;
             
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault(); // Prevent page scrolling
-                handleGuess('left');
-                // Simulate button press effect
-                const btn = document.getElementById('btn-left');
-                btn.style.transform = 'scale(0.95)';
-                setTimeout(() => btn.style.transform = 'scale(1)', 100);
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                handleGuess('right');
-                // Simulate button press effect
-                const btn = document.getElementById('btn-right');
-                btn.style.transform = 'scale(0.95)';
-                setTimeout(() => btn.style.transform = 'scale(1)', 100);
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    if(currentMode === 4) {
+                        handleGuess('up');
+                        simulateButtonPress('up');
+                    }
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    if(currentMode === 4) {
+                        handleGuess('down');
+                        simulateButtonPress('down');
+                    }
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    e.preventDefault();
+                    handleGuess('left');
+                    simulateButtonPress('left');
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    handleGuess('right');
+                    simulateButtonPress('right');
+                    break;
             }
         });
 

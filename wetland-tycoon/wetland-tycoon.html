@@ -212,21 +212,13 @@
     .close-btn:hover { transform: scale(1.05); }
 
     /* Popups */
-    #unlock-popup, #auto-popup, #riddle-modal { z-index: 300; }
+    #unlock-popup, #auto-popup { z-index: 300; }
     #popup-visual .animal-img { margin: 20px 0; width: 120px; height: 120px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     
-    #auto-popup .modal, #riddle-modal .modal { max-width: 500px; }
+    #auto-popup .modal { max-width: 500px; }
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));}
 
-    .riddle-input {
-        padding: 15px; font-size: 1.2em; width: 80%; border-radius: 10px; border: 2px solid #a2d1a4; 
-        background: rgba(255,255,255,0.9); color: #0f2c1c; font-weight: bold; text-align: center; margin-bottom: 10px;
-    }
-    .riddle-input:focus { outline: none; border-color: #2ed573; box-shadow: 0 0 10px rgba(46, 213, 115, 0.5); }
-
     @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-    .shake-anim { animation: shake 0.3s ease-in-out; }
 </style>
 </head>
 <body>
@@ -260,20 +252,6 @@
         <h2>Wetland Catalog</h2>
         <div id="collection-grid"></div>
         <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">Close</button>
-    </div>
-</div>
-
-<!-- Riddle Modal -->
-<div id="riddle-modal" class="modal-overlay">
-    <div class="modal">
-        <h2 style="position: relative; border: none; box-shadow: none;">Solve to Unlock</h2>
-        <p id="riddle-text" style="font-size: 1.3em; margin-bottom: 25px; color: #d1d8e0; line-height: 1.4;"></p>
-        <input type="text" id="riddle-input" class="riddle-input" placeholder="Enter your guess...">
-        <div id="riddle-error" style="color: #ff4757; font-weight: bold; display: none; margin-bottom: 15px; font-size: 1.1em;">Incorrect guess, try again!</div>
-        <br>
-        <button class="buy-btn" onclick="submitRiddle()" style="font-size: 1.2em; padding: 12px 35px; margin-bottom: 10px;">Guess</button>
-        <br>
-        <button class="close-btn" onclick="document.getElementById('riddle-modal').style.display='none'" style="font-size: 1em; padding: 8px 20px;">Cancel</button>
     </div>
 </div>
 
@@ -332,40 +310,51 @@
         }
     };
 
-    // --- Wetland Species Data & Riddles ---
-    // Costs are now scaled gradually based loosely on heartsPerClick efficiency
+    // --- Wetland Species Data ---
     const animalData = [
-        { id: 'mudskipper', name: 'Mudskipper', img: 'mudskipper.png', cost: 10, speed: 0.5, heartsPerClick: 1, riddle: "I am an amphibious fish that can 'walk' or skip across exposed mudflats. What am I?", answers: ['mudskipper', 'mud skipper', 'skipper'] },
-        { id: 'fiddler-crab', name: 'Fiddler Crab', img: 'fiddler-crab.png', cost: 25, speed: 0.2, heartsPerClick: 2, riddle: "The males of my species are easily recognized by one massively oversized claw. What am I?", answers: ['fiddler crab', 'fiddler', 'crab'] },
-        { id: 'pond-heron', name: 'Pond Heron', img: 'pond-heron.png', cost: 50, speed: 0.1, heartsPerClick: 3, riddle: "I am a common wading bird often seen standing perfectly still in the water.", answers: ['pond heron', 'heron'] },
-        { id: 'gei-wai-shrimp', name: 'Gei Wai Shrimp', img: 'gei-wai-shrimp.png', cost: 80, speed: 0.4, heartsPerClick: 4, riddle: "I am a traditional crustacean harvested in tidal ponds.", answers: ['gei wai shrimp', 'shrimp', 'gei wai'] },
-        { id: 'cattle-egret', name: 'Cattle Egret', img: 'cattle-egret.png', cost: 120, speed: 0.3, heartsPerClick: 5, riddle: "I am a white bird often found near grazing animals.", answers: ['cattle egret', 'egret'] },
-        { id: 'little-egret', name: 'Little Egret', img: 'little-egret.png', cost: 180, speed: 0.4, heartsPerClick: 6, riddle: "I am a small white heron with dark legs and distinct yellow feet.", answers: ['little egret', 'egret'] },
-        { id: 'great-egret', name: 'Great Egret', img: 'great-egret.png', cost: 250, speed: 0.3, heartsPerClick: 7, riddle: "I am a large white heron with a yellow bill and black legs.", answers: ['great egret', 'egret'] },
-        { id: 'black-faced-spoonbill', name: 'Black-faced Spoonbill', img: 'black-faced-spoonbill.png', cost: 350, speed: 0.3, heartsPerClick: 8, riddle: "I am a globally endangered winter visitor with a unique spatulate bill.", answers: ['spoonbill', 'black-faced spoonbill', 'black faced spoonbill'] },
-        { id: 'night-heron', name: 'Night Heron', img: 'night-heron.png', cost: 500, speed: 0.2, heartsPerClick: 9, riddle: "I am a stocky heron that prefers hunting from dusk to dawn.", answers: ['night heron', 'heron'] },
-        { id: 'black-kite', name: 'Black Kite', img: 'black-kite.png', cost: 700, speed: 0.5, heartsPerClick: 10, riddle: "I am a bird of prey that frequently circles above the wetlands.", answers: ['black kite', 'kite'] },
-        { id: 'eurasian-curlew', name: 'Eurasian Curlew', img: 'eurasian-curlew.png', cost: 900, speed: 0.3, heartsPerClick: 11, riddle: "I have a very long, downward-curved bill designed for probing the mud.", answers: ['curlew', 'eurasian curlew'] },
-        { id: 'mangrove-horseshoe-crab', name: 'Mangrove Horseshoe Crab', img: 'mangrove-horseshoe-crab.png', cost: 1200, speed: 0.1, heartsPerClick: 12, riddle: "I am a smaller cousin of the Chinese species, dwelling in muddy estuaries.", answers: ['mangrove horseshoe crab', 'horseshoe crab', 'crab'] },
-        { id: 'chinese-horseshoe-crab', name: 'Chinese Horseshoe Crab', img: 'chinese-horseshoe-crab.png', cost: 1500, speed: 0.1, heartsPerClick: 13, riddle: "I am an ancient marine arthropod native to these waters, with a hard, helmet-like shell.", answers: ['horseshoe crab', 'chinese horseshoe crab', 'crab'] },
-        { id: 'yellow-spotted-keelback', name: 'Yellow-spotted Keelback', img: 'yellow-spotted-keelback.png', cost: 2000, speed: 0.4, heartsPerClick: 15, riddle: "I am a semi-aquatic snake with bright markings on my neck.", answers: ['yellow-spotted keelback', 'yellow spotted keelback', 'keelback', 'snake'] },
-        { id: 'pied-avocet', name: 'Pied Avocet', img: 'pied-avocet.png', cost: 2600, speed: 0.4, heartsPerClick: 18, riddle: "I am a striking black and white wader with an upward-curved bill.", answers: ['pied avocet', 'avocet'] },
-        { id: 'paddy-frog', name: 'Paddy Frog', img: 'paddy-frog.png', cost: 3500, speed: 0.1, heartsPerClick: 22, riddle: "I am an amphibian commonly found in flooded agricultural fields.", answers: ['paddy frog', 'frog'] },
-        { id: 'east-asian-porcupine', name: 'East Asian Porcupine', img: 'east-asian-porcupine.png', cost: 4500, speed: 0.2, heartsPerClick: 27, riddle: "I am a large rodent covered in sharp quills for defense.", answers: ['porcupine', 'east asian porcupine'] },
-        { id: 'reeves-turtle', name: 'Reeves\' Turtle', img: 'reeves-turtle.png', cost: 6000, speed: 0.1, heartsPerClick: 35, riddle: "I am a freshwater reptile often seen basking on logs.", answers: ['reeves turtle', 'turtle', "reeves' turtle"] },
-        { id: 'osprey', name: 'Osprey', img: 'osprey.png', cost: 8000, speed: 0.6, heartsPerClick: 45, riddle: "I am a fish-eating bird of prey that dives feet-first into the water.", answers: ['osprey'] },
-        { id: 'leopard-cat', name: 'Leopard Cat', img: 'leopard-cat.png', cost: 12000, speed: 0.6, heartsPerClick: 60, riddle: "I am a small, spotted nocturnal predator navigating the wooded areas at night.", answers: ['leopard cat', 'cat'] },
-        { id: 'eurasian-otter', name: 'Eurasian Otter', img: 'eurasian-otter.png', cost: 20000, speed: 0.5, heartsPerClick: 85, riddle: "I am a semi-aquatic mammal occasionally recorded hunting in the wetland network.", answers: ['otter', 'eurasian otter'] },
-        { id: 'mangrove', name: 'Mangrove', img: 'mangrove.png', cost: 50000, speed: 0, heartsPerClick: 200, riddle: "I am the foundational tree of this ecosystem, growing directly in saltwater.", answers: ['mangrove', 'tree'] }
+        { id: 'mudskipper', name: 'Mudskipper', img: 'mudskipper.png', cost: 10, speed: 0.5, heartsPerClick: 1 },
+        { id: 'leech', name: 'Leech', img: 'leech.png', cost: 15, speed: 0.1, heartsPerClick: 1 },
+        { id: 'fiddler-crab', name: 'Fiddler Crab', img: 'fiddler-crab.png', cost: 25, speed: 0.2, heartsPerClick: 2 },
+        { id: 'dragonfly', name: 'Dragonfly', img: 'dragonfly.png', cost: 35, speed: 0.8, heartsPerClick: 2 },
+        { id: 'pond-heron', name: 'Pond Heron', img: 'pond-heron.png', cost: 50, speed: 0.1, heartsPerClick: 3 },
+        { id: 'tree-sparrow', name: 'Tree Sparrow', img: 'tree-sparrow.png', cost: 60, speed: 0.5, heartsPerClick: 3 },
+        { id: 'gei-wai-shrimp', name: 'Gei Wai Shrimp', img: 'gei-wai-shrimp.png', cost: 80, speed: 0.4, heartsPerClick: 4 },
+        { id: 'spotted-dove', name: 'Spotted Dove', img: 'spotted-dove.png', cost: 100, speed: 0.4, heartsPerClick: 4 },
+        { id: 'cattle-egret', name: 'Cattle Egret', img: 'cattle-egret.png', cost: 120, speed: 0.3, heartsPerClick: 5 },
+        { id: 'common-myna', name: 'Common Myna', img: 'common myna.png', cost: 150, speed: 0.4, heartsPerClick: 5 },
+        { id: 'little-egret', name: 'Little Egret', img: 'little-egret.png', cost: 180, speed: 0.4, heartsPerClick: 6 },
+        { id: 'red-whiskered-bulbul', name: 'Red-whiskered Bulbul', img: 'red-whiskered bulbul.png', cost: 200, speed: 0.5, heartsPerClick: 6 },
+        { id: 'great-egret', name: 'Great Egret', img: 'great-egret.png', cost: 250, speed: 0.3, heartsPerClick: 7 },
+        { id: 'common-kingfisher', name: 'Common Kingfisher', img: 'common-kingfisher.png', cost: 300, speed: 0.7, heartsPerClick: 7 },
+        { id: 'black-faced-spoonbill', name: 'Black-faced Spoonbill', img: 'black-faced-spoonbill.png', cost: 350, speed: 0.3, heartsPerClick: 8 },
+        { id: 'white-throated-kingfisher', name: 'White-throated Kingfisher', img: 'white-throated-kingfisher.png', cost: 400, speed: 0.6, heartsPerClick: 8 },
+        { id: 'night-heron', name: 'Night Heron', img: 'night-heron.png', cost: 500, speed: 0.2, heartsPerClick: 9 },
+        { id: 'pied-kingfisher', name: 'Pied Kingfisher', img: 'pied-kingfisher.png', cost: 600, speed: 0.6, heartsPerClick: 10 },
+        { id: 'black-kite', name: 'Black Kite', img: 'black-kite.png', cost: 700, speed: 0.5, heartsPerClick: 10 },
+        { id: 'eurasian-curlew', name: 'Eurasian Curlew', img: 'eurasian-curlew.png', cost: 900, speed: 0.3, heartsPerClick: 11 },
+        { id: 'water-lily', name: 'Water Lily', img: 'water-lily.png', cost: 1000, speed: 0, heartsPerClick: 12 },
+        { id: 'mangrove-horseshoe-crab', name: 'Mangrove Horseshoe Crab', img: 'mangrove-horseshoe-crab.png', cost: 1200, speed: 0.1, heartsPerClick: 12 },
+        { id: 'chinese-horseshoe-crab', name: 'Chinese Horseshoe Crab', img: 'chinese-horseshoe-crab.png', cost: 1500, speed: 0.1, heartsPerClick: 13 },
+        { id: 'yellow-spotted-keelback', name: 'Yellow-spotted Keelback', img: 'yellow-spotted-keelback.png', cost: 2000, speed: 0.4, heartsPerClick: 15 },
+        { id: 'lotus', name: 'Lotus', img: 'lotus.png', cost: 2500, speed: 0, heartsPerClick: 20 },
+        { id: 'pied-avocet', name: 'Pied Avocet', img: 'pied-avocet.png', cost: 2600, speed: 0.4, heartsPerClick: 18 },
+        { id: 'paddy-frog', name: 'Paddy Frog', img: 'paddy-frog.png', cost: 3500, speed: 0.1, heartsPerClick: 22 },
+        { id: 'east-asian-porcupine', name: 'East Asian Porcupine', img: 'east-asian-porcupine.png', cost: 4500, speed: 0.2, heartsPerClick: 27 },
+        { id: 'screw-pine', name: 'Screw Pine', img: 'screw-pine.png', cost: 5000, speed: 0, heartsPerClick: 30 },
+        { id: 'reeves-turtle', name: 'Reeves\' Turtle', img: 'reeves-turtle.png', cost: 6000, speed: 0.1, heartsPerClick: 35 },
+        { id: 'osprey', name: 'Osprey', img: 'osprey.png', cost: 8000, speed: 0.6, heartsPerClick: 45 },
+        { id: 'leopard-cat', name: 'Leopard Cat', img: 'leopard-cat.png', cost: 12000, speed: 0.6, heartsPerClick: 60 },
+        { id: 'giant-water-lily', name: 'Giant Water Lily', img: 'giant-water-lily.png', cost: 15000, speed: 0, heartsPerClick: 70 },
+        { id: 'eurasian-otter', name: 'Eurasian Otter', img: 'eurasian-otter.png', cost: 20000, speed: 0.5, heartsPerClick: 85 },
+        { id: 'mangrove', name: 'Mangrove', img: 'mangrove.png', cost: 50000, speed: 0, heartsPerClick: 200 },
+        { id: 'saltwater-crocodile', name: 'Saltwater Crocodile', img: 'saltwater-crocodile.png', cost: 100000, speed: 0.2, heartsPerClick: 250 }
     ];
 
-    // Begin with 10 hearts so the first species can be purchased immediately.
     let hearts = 10;
     let unlockedIds = [];
     let everUnlockedIds = []; 
     let activeAnimals = [];
     let pendingAutoPopup = false; 
-    let currentRiddleId = null;
 
     // --- Local Storage ---
     function saveProgress() {
@@ -519,33 +508,58 @@
     }, 1000);
 
     // Animation Loop
-    function animate() {
-        activeAnimals.forEach(anim => {
-            if (anim.isDragging) return; 
-            if (anim.speed === 0) return; 
+    let lastMoveTime = 0;
+    const MOVE_INTERVAL = 2000; // Time in milliseconds between each movement tick (slower interval)
+    const MOVE_MULTIPLIER = 50; // Increased multiplier so the step is noticeable
 
-            anim.x += anim.vx;
-            anim.y += anim.vy;
+    function animate(currentTime) {
+        if (!lastMoveTime) lastMoveTime = currentTime;
 
-            if (anim.x <= 0) {
-                anim.x = 0;
-                anim.vx = Math.abs(anim.vx);
-                anim.el.querySelector('.animal-img').style.transform = "scaleX(1)";
-            } else if (anim.x >= window.innerWidth - 100) {
-                anim.x = window.innerWidth - 100;
-                anim.vx = -Math.abs(anim.vx);
-                anim.el.querySelector('.animal-img').style.transform = "scaleX(-1)";
-            }
+        // Only update positions if the interval has passed
+        if (currentTime - lastMoveTime >= MOVE_INTERVAL) {
+            activeAnimals.forEach(anim => {
+                if (anim.isDragging) return; 
+                if (anim.speed === 0) return; 
 
-            if (anim.y <= 0) {
-                anim.y = 0; anim.vy *= -1;
-            } else if (anim.y >= window.innerHeight - 130) {
-                anim.y = window.innerHeight - 130; anim.vy *= -1;
-            }
+                // Generate a completely random direction angle
+                const randomAngle = Math.random() * Math.PI * 2;
+                
+                // Calculate new velocity vectors based on the random angle and base speed
+                anim.vx = Math.cos(randomAngle) * anim.speed;
+                anim.vy = Math.sin(randomAngle) * anim.speed;
 
-            anim.el.style.left = anim.x + 'px';
-            anim.el.style.top = anim.y + 'px';
-        });
+                // Move by a discrete "chunk"
+                anim.x += anim.vx * MOVE_MULTIPLIER;
+                anim.y += anim.vy * MOVE_MULTIPLIER;
+
+                // Boundary checking (clamp to screen edges)
+                if (anim.x <= 0) {
+                    anim.x = 0;
+                } else if (anim.x >= window.innerWidth - 100) {
+                    anim.x = window.innerWidth - 100;
+                }
+
+                if (anim.y <= 0) {
+                    anim.y = 0; 
+                } else if (anim.y >= window.innerHeight - 130) {
+                    anim.y = window.innerHeight - 130; 
+                }
+
+                // Make sure the image faces the correct direction based on movement
+                if (anim.vx < 0) {
+                    anim.el.querySelector('.animal-img').style.transform = "scaleX(-1)";
+                } else {
+                    anim.el.querySelector('.animal-img').style.transform = "scaleX(1)";
+                }
+
+                // Apply the new position
+                anim.el.style.left = anim.x + 'px';
+                anim.el.style.top = anim.y + 'px';
+            });
+            
+            lastMoveTime = currentTime;
+        }
+
         requestAnimationFrame(animate);
     }
 
@@ -565,9 +579,8 @@
             const canAfford = hearts >= a.cost;
             const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">X</button>` : '';
 
-            // If never unlocked, force riddle. If unlocked before, allow direct recruit.
-            const actionText = hasBeenUnlocked ? 'Recruit' : 'Solve Riddle';
-            const actionFunc = hasBeenUnlocked ? `unlockSpecies('${a.id}')` : `attemptUnlock('${a.id}')`;
+            const actionText = 'Recruit';
+            const actionFunc = `unlockSpecies('${a.id}')`;
 
             const btnHTML = `
                 <div class="btn-group">
@@ -589,44 +602,6 @@
         });
         document.getElementById('collection-modal').style.display = 'flex';
     }
-
-    window.attemptUnlock = function(id) {
-        const animal = animalData.find(a => a.id === id);
-        if (hearts >= animal.cost) {
-            currentRiddleId = id;
-            document.getElementById('riddle-text').innerText = animal.riddle;
-            document.getElementById('riddle-input').value = '';
-            document.getElementById('riddle-error').style.display = 'none';
-            document.getElementById('riddle-input').classList.remove('shake-anim');
-            document.getElementById('riddle-modal').style.display = 'flex';
-            document.getElementById('collection-modal').style.display = 'none';
-            setTimeout(() => document.getElementById('riddle-input').focus(), 100);
-        }
-    };
-
-    window.submitRiddle = function() {
-        const animal = animalData.find(a => a.id === currentRiddleId);
-        const guess = document.getElementById('riddle-input').value.toLowerCase().trim();
-        
-        const isCorrect = animal.answers.some(ans => guess.includes(ans));
-        
-        if (isCorrect) {
-            document.getElementById('riddle-modal').style.display = 'none';
-            unlockSpecies(currentRiddleId);
-        } else {
-            const inputField = document.getElementById('riddle-input');
-            const errorText = document.getElementById('riddle-error');
-            errorText.style.display = 'block';
-            inputField.classList.remove('shake-anim');
-            void inputField.offsetWidth; // trigger reflow
-            inputField.classList.add('shake-anim');
-            sfx.error();
-        }
-    };
-
-    document.getElementById('riddle-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') submitRiddle();
-    });
 
     window.unlockSpecies = function(id) {
         const animal = animalData.find(a => a.id === id);
@@ -693,7 +668,7 @@
     };
 
     // Modal Background Click-to-Close Listeners
-    ['collection-modal', 'unlock-popup', 'auto-popup', 'riddle-modal'].forEach(id => {
+    ['collection-modal', 'unlock-popup', 'auto-popup'].forEach(id => {
         document.getElementById(id).addEventListener('click', (e) => {
             if (e.target.id === id) e.target.style.display = 'none';
         });

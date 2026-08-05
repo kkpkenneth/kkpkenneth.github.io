@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delay Discounting Task</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --primary: #2c3e50;
+            --accent-imm: #3498db;
+            --accent-del: #e74c3c;
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background-color: #34495e;
+        }
+
+        /* Task Screen Styling */
+        #task-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .choice-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .choice-card {
+            flex: 1;
+            padding: 30px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, filter 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-5px);
+            filter: brightness(1.1);
+        }
+
+        #immediate-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        #delayed-card {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .choice-amount {
+            font-size: 2rem;
+        }
+
+        .choice-time {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+
+        /* Results Screen */
+        #results-screen {
+            display: none;
+        }
+
+        .results-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .results-summary p {
+            margin: 8px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Intro Screen -->
+    <div id="intro-screen">
+        <h1>Delay Discounting Task</h1>
+        <p>Welcome! In this task, you will make a series of choices between receiving a smaller amount of money immediately versus a larger amount of money after a specific delay.</p>
+        <p>There are no right or wrong answers. Please choose the option you genuinely prefer for each trial.</p>
+        <button class="btn" onclick="startTask()">Start Task</button>
+    </div>
+
+    <!-- Task Screen -->
+    <div id="task-screen">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p style="margin-bottom: 5px; font-weight: bold; color: #555;">Which do you prefer?</p>
+        
+        <div class="choice-container">
+            <div class="choice-card" id="immediate-card" onclick="makeChoice('immediate')">
+                <span class="choice-time">Now</span>
+                <span class="choice-amount" id="imm-amount">$50</span>
+            </div>
+            <div class="choice-card" id="delayed-card" onclick="makeChoice('delayed')">
+                <span class="choice-time" id="del-time">in 2 weeks</span>
+                <span class="choice-amount" id="del-amount">$100</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen">
+        <h1>Task Complete!</h1>
+        <p>Thank you for completing the evaluation of temporal choice behavior.</p>
+        <div class="results-summary" id="results-summary">
+            <!-- Populated via JS -->
+        </div>
+        <button class="btn" onclick="location.reload()">Restart Task</button>
+    </div>
+</div>
+
+<script>
+    // Standard adjusting-amount delay discounting trial parameters
+    const delayedAmount = 100; // Fixed larger reward ($100)
+    const delays = ["in 1 week", "in 1 month", "in 6 months", "in 1 year"];
+    
+    let currentDelayIndex = 0;
+    let trialInDelay = 0;
+    let immediateAmount = 50; // Starting adjusting value ($50 is half of 100)
+    let stepSize = 25;        // Binary search step size
+    
+    let userChoices = [];
+
+    const introScreen = document.getElementById('intro-screen');
+    const taskScreen = document.getElementById('task-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const immAmountEl = document.getElementById('imm-amount');
+    const delAmountEl = document.getElementById('del-amount');
+    const delTimeEl = document.getElementById('del-time');
+    const progressFill = document.getElementById('progress-fill');
+
+    function startTask() {
+        introScreen.style.display = 'none';
+        taskScreen.style.display = 'block';
+        loadTrial();
+    }
+
+    function loadTrial() {
+        // Update labels
+        immAmountEl.textContent = `$${immediateAmount}`;
+        delAmountEl.textContent = `$${delayedAmount}`;
+        delTimeEl.textContent = delays[currentDelayIndex];
+
+        // Update progress bar (total 4 delays * 4 steps each = 16 trials max)
+        let totalProgress = (currentDelayIndex * 4 + trialInDelay) / 16 * 100;
+        progressFill.style.width = `${totalProgress}%`;
+    }
+
+    function makeChoice(preference) {
+        // Record choice
+        userChoices.push({
+            delay: delays[currentDelayIndex],
+            immediate: immediateAmount,
+            delayed: delayedAmount,
+            choice: preference
+        });
+
+        // Adjust immediate amount based on user choice (Adjustment procedure)
+        stepSize = stepSize / 2;
+        if (stepSize < 1) stepSize = 1; // Minimum floor step
+
+        if (preference === 'immediate') {
+            // User prefers immediate, so immediate amount is too high, lower it
+            immediateAmount -= stepSize;
+        } else {
+            // User prefers delayed, so immediate amount is too low, raise it
+            immediateAmount += stepSize;
+        }
+
+        trialInDelay++;
+
+        // 4 choices per delay block
+        if (trialInDelay >= 4) {
+            currentDelayIndex++;
+            trialInDelay = 0;
+            immediateAmount = 50; // Reset midpoint for next delay duration
+            stepSize = 25;
+        }
+
+        // Check if task is finished
+        if (currentDelayIndex >= delays.length) {
+            showResults();
+        } else {
+            loadTrial();
+        }
+    }
+
+    function showResults() {
+        taskScreen.style.display = 'none';
+        resultsScreen.style.display = 'block';
+
+        let summaryHtml = "<h3>Your Preference Profile:</h3>";
+        summaryHtml += "<p>You completed choices across multiple time horizons.</p>";
+        summaryHtml += "<p><b>Behavioral Tendency:</b> Lower immediate indifference points at longer delays indicate higher <em>patience</em> and greater capacity to delay gratification.</p>";
+        
+        document.getElementById('results-summary').innerHTML = summaryHtml;
+    }
+</script>
+
+</body>
+</html>

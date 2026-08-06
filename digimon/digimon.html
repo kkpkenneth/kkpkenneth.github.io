@@ -115,7 +115,7 @@
         justify-content: center;
         align-items: center;
         z-index: 5;
-        pointer-events: none; /* Let pointer events pass to ocean unless dragging */
+        pointer-events: none; 
         box-shadow: 0 0 20px rgba(180, 0, 255, 0.4);
         transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
     }
@@ -263,9 +263,16 @@
         background: rgba(79, 172, 254, 0.15);
         transform: translateY(-3px);
     }
+    
+    /* Silhouette effect for locked items */
     .collection-item.locked .visual img {
-        filter: brightness(0) opacity(0.2); 
+        filter: brightness(0);
+        opacity: 0.6;
     }
+    .collection-item.locked .name-tag {
+        color: #718093;
+    }
+
     .collection-item .visual { margin-bottom: 10px; height: 70px; display: flex; align-items: center; justify-content: center; }
     .collection-item .visual img { width: auto; image-rendering: pixelated; }
     .collection-item .visual img.is-egg-img { height: 32px; }
@@ -433,9 +440,9 @@
         }
     };
 
-    // --- Digimon Data List ---
+    // --- Digimon Data List (Complete) ---
     const animalData = [
-        // Eggs
+        // ALL 23 EGGS
         { id: 'egg_agumon', name: 'Digi-Egg (Agumon)', img: '01-egg-agumon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'botamon', clickGoal: 5 },
         { id: 'egg_gabumon', name: 'Digi-Egg (Gabumon)', img: '02-egg-gabumon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'punimon', clickGoal: 5 },
         { id: 'egg_biyomon', name: 'Digi-Egg (Biyomon)', img: '03-egg-biyomon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'nyokimon', clickGoal: 5 },
@@ -443,6 +450,22 @@
         { id: 'egg_palmon', name: 'Digi-Egg (Palmon)', img: '05-egg-palmon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'yuramon', clickGoal: 5 },
         { id: 'egg_gomamon', name: 'Digi-Egg (Gomamon)', img: '06-egg-gomamon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'pichimon', clickGoal: 5 },
         { id: 'egg_patamon', name: 'Digi-Egg (Patamon)', img: '07-egg-patamon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'poyomon', clickGoal: 5 },
+        { id: 'egg_salamon', name: 'Digi-Egg (Salamon)', img: '08-egg-salamon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'yukimibotamon', clickGoal: 5 },
+        { id: 'egg_veemon', name: 'Digi-Egg (Veemon)', img: '09-egg-veemon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'chibomon', clickGoal: 5 },
+        { id: 'egg_hawkmon', name: 'Digi-Egg (Hawkmon)', img: '10-egg-hawkmon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'pururumon', clickGoal: 5 },
+        { id: 'egg_armadillomon', name: 'Digi-Egg (Armadillomon)', img: '11-egg-armadillomon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'tsubumon', clickGoal: 5 },
+        { id: 'egg_wormmon', name: 'Digi-Egg (Wormmon)', img: '12-egg-wormmon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'leafmon', clickGoal: 5 },
+        { id: 'egg_guilmon', name: 'Digi-Egg (Guilmon)', img: '13-egg-guilmon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'jyarimon', clickGoal: 5 },
+        { id: 'egg_terriermon', name: 'Digi-Egg (Terriermon)', img: '14-egg-terriermon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'zerimon', clickGoal: 5 },
+        { id: 'egg_renamon', name: 'Digi-Egg (Renamon)', img: '15-egg-renamon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'relemon', clickGoal: 5 },
+        { id: 'egg_16', name: 'Digi-Egg 16', img: '16-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'zurumon', clickGoal: 5 },
+        { id: 'egg_17', name: 'Digi-Egg 17', img: '17-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'pupumon', clickGoal: 5 },
+        { id: 'egg_18', name: 'Digi-Egg 18', img: '18-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'keemon', clickGoal: 5 },
+        { id: 'egg_19', name: 'Digi-Egg 19', img: '19-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'ketomon', clickGoal: 5 },
+        { id: 'egg_20', name: 'Digi-Egg 20', img: '20-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'conomon', clickGoal: 5 },
+        { id: 'egg_21', name: 'Digi-Egg 21', img: '21-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'choromon', clickGoal: 5 },
+        { id: 'egg_22', name: 'Digi-Egg 22', img: '22-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'mokumon', clickGoal: 5 },
+        { id: 'egg_23', name: 'Digi-Egg 23', img: '23-egg.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'kuramon', clickGoal: 5 },
 
         // Fresh
         { id: 'botamon', name: 'Botamon', img: 'Botamon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'koromon', clickGoal: 10 },
@@ -452,6 +475,22 @@
         { id: 'yuramon', name: 'Yuramon', img: 'Yuramon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'tanemon', clickGoal: 10 },
         { id: 'pichimon', name: 'Pichimon', img: 'Pichimon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'bukamon', clickGoal: 10 },
         { id: 'poyomon', name: 'Poyomon', img: 'Poyomon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'tokomon', clickGoal: 10 },
+        { id: 'yukimibotamon', name: 'YukimiBotamon', img: 'YukimiBotamon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'nyaromon', clickGoal: 10 },
+        { id: 'chibomon', name: 'Chibomon', img: 'Chibomon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'demiveemon', clickGoal: 10 },
+        { id: 'pururumon', name: 'Pururumon', img: 'Pururumon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'poromon', clickGoal: 10 },
+        { id: 'tsubumon', name: 'Tsubumon', img: 'Tsubumon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'upamon', clickGoal: 10 },
+        { id: 'leafmon', name: 'Leafmon', img: 'Leafmon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'minomon', clickGoal: 10 },
+        { id: 'jyarimon', name: 'Jyarimon', img: 'Jyarimon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'gigimon', clickGoal: 10 },
+        { id: 'zerimon', name: 'Zerimon', img: 'Zerimon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'gummymon', clickGoal: 10 },
+        { id: 'relemon', name: 'Relemon', img: 'Relemon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'viximon', clickGoal: 10 },
+        { id: 'zurumon', name: 'Zurumon', img: 'Zurumon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'pagumon', clickGoal: 10 },
+        { id: 'pupumon', name: 'Pupumon', img: 'Pupumon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'puttimon', clickGoal: 10 },
+        { id: 'keemon', name: 'Keemon', img: 'Keemon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'yaamon', clickGoal: 10 },
+        { id: 'ketomon', name: 'Ketomon', img: 'Ketomon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'hopmon', clickGoal: 10 },
+        { id: 'conomon', name: 'Conomon', img: 'Conomon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'kokomon', clickGoal: 10 },
+        { id: 'choromon', name: 'Choromon', img: 'Choromon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'kaprimon', clickGoal: 10 },
+        { id: 'mokumon', name: 'Mokumon', img: 'Mokumon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'demimeramon', clickGoal: 10 },
+        { id: 'kuramon', name: 'Kuramon', img: 'Kuramon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'tsumemon', clickGoal: 10 },
 
         // In-Training
         { id: 'koromon', name: 'Koromon', img: 'Koromon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['agumon', 'flamon'], clickGoal: 20 },
@@ -461,14 +500,29 @@
         { id: 'tanemon', name: 'Tanemon', img: 'Tanemon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['palmon', 'mushroommon'], clickGoal: 20 },
         { id: 'bukamon', name: 'Bukamon', img: 'Bukamon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['gomamon', 'penguinmon', 'shakomon', 'betamon'], clickGoal: 20 },
         { id: 'tokomon', name: 'Tokomon', img: 'Tokomon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['patamon', 'bakumon'], clickGoal: 20 },
+        { id: 'nyaromon', name: 'Nyaromon', img: 'Nyaromon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'salamon', clickGoal: 20 },
+        { id: 'demiveemon', name: 'DemiVeemon', img: 'DemiVeemon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'veemon', clickGoal: 20 },
+        { id: 'poromon', name: 'Poromon', img: 'Poromon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'hawkmon', clickGoal: 20 },
+        { id: 'upamon', name: 'Upamon', img: 'Upamon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'armadillomon', clickGoal: 20 },
+        { id: 'minomon', name: 'Minomon', img: 'Minomon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'wormmon', clickGoal: 20 },
+        { id: 'gigimon', name: 'Gigimon', img: 'Gigimon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'guilmon', clickGoal: 20 },
+        { id: 'gummymon', name: 'Gummymon', img: 'Gummymon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'terriermon', clickGoal: 20 },
+        { id: 'viximon', name: 'Viximon', img: 'Viximon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'renamon', clickGoal: 20 },
+        { id: 'pagumon', name: 'Pagumon', img: 'Pagumon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'agumon', clickGoal: 20 },
+        { id: 'puttimon', name: 'Puttimon', img: 'Puttimon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'patamon', clickGoal: 20 },
+        { id: 'yaamon', name: 'Yaamon', img: 'Yaamon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'impmon', clickGoal: 20 },
+        { id: 'hopmon', name: 'Hopmon', img: 'Hopmon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'monodramon', clickGoal: 20 },
+        { id: 'kokomon', name: 'Kokomon', img: 'Kokomon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'lopmon', clickGoal: 20 },
+        { id: 'kaprimon', name: 'Kaprimon', img: 'Kaprimon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'guardromon', clickGoal: 20 },
+        { id: 'demimeramon', name: 'DemiMeramon', img: 'DemiMeramon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'candlemon', clickGoal: 20 },
+        { id: 'tsumemon', name: 'Tsumemon', img: 'Tsumemon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: 'keramon', clickGoal: 20 },
 
-        // Rookies, Champions, Ultimates, Megas (Standard & Branched Lines)
+        // Rookies, Champions, Ultimates, Megas 
         // Agumon Line
         { id: 'agumon', name: 'Agumon', img: 'Agumon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'greymon', clickGoal: 35 },
         { id: 'greymon', name: 'Greymon', img: 'Greymon.png', cost: 200, speed: 0.4, heartsPerClick: 35, next: ['metalgreymon', 'rizegreymon'], clickGoal: 60 },
         { id: 'metalgreymon', name: 'MetalGreymon', img: 'MetalGreymon.png', cost: 1000, speed: 0.5, heartsPerClick: 150, next: 'wargreymon', clickGoal: 100 },
         { id: 'wargreymon', name: 'WarGreymon', img: 'WarGreymon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
-        
         { id: 'rizegreymon', name: 'RizeGreymon', img: 'RizeGreymon.png', cost: 1000, speed: 0.5, heartsPerClick: 150, next: 'shinegreymon', clickGoal: 100 },
         { id: 'shinegreymon', name: 'ShineGreymon', img: 'ShineGreymon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
 
@@ -479,92 +533,175 @@
         { id: 'aldamon', name: 'Aldamon', img: 'Aldamon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Gabumon Line
-        { id: 'gabumon', name: 'Gabumon', img: 'Gabumon.png', cost: 100, speed: 0.5, heartsPerClick: 20, next: 'garurumon', clickGoal: 35 },
-        { id: 'garurumon', name: 'Garurumon', img: 'Garurumon.png', cost: 400, speed: 0.7, heartsPerClick: 70, next: 'weregarurumon', clickGoal: 60 },
-        { id: 'weregarurumon', name: 'WereGarurumon', img: 'WereGarurumon.png', cost: 2000, speed: 0.6, heartsPerClick: 280, next: 'metalgarurumon', clickGoal: 100 },
-        { id: 'metalgarurumon', name: 'MetalGarurumon', img: 'MetalGarurumon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100, next: null, clickGoal: 0 },
+        { id: 'gabumon', name: 'Gabumon', img: 'Gabumon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'garurumon', clickGoal: 35 },
+        { id: 'garurumon', name: 'Garurumon', img: 'Garurumon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'weregarurumon', clickGoal: 60 },
+        { id: 'weregarurumon', name: 'WereGarurumon', img: 'WereGarurumon.png', cost: 1000, speed: 0.6, heartsPerClick: 150, next: 'metalgarurumon', clickGoal: 100 },
+        { id: 'metalgarurumon', name: 'MetalGarurumon', img: 'MetalGarurumon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Elecmon Line
-        { id: 'elecmon', name: 'Elecmon', img: 'Elecmon.png', cost: 100, speed: 0.5, heartsPerClick: 20, next: 'leomon', clickGoal: 35 },
-        { id: 'leomon', name: 'Leomon', img: 'Leomon.png', cost: 400, speed: 0.7, heartsPerClick: 70, next: 'grapleomon', clickGoal: 60 },
-        { id: 'grapleomon', name: 'GrapLeomon', img: 'GrapLeomon.png', cost: 2000, speed: 0.6, heartsPerClick: 280, next: 'bancholeomon', clickGoal: 100 },
-        { id: 'bancholeomon', name: 'BanchoLeomon', img: 'BanchoLeomon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100, next: null, clickGoal: 0 },
+        { id: 'elecmon', name: 'Elecmon', img: 'Elecmon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'leomon', clickGoal: 35 },
+        { id: 'leomon', name: 'Leomon', img: 'Leomon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'grapleomon', clickGoal: 60 },
+        { id: 'grapleomon', name: 'GrapLeomon', img: 'GrapLeomon.png', cost: 1000, speed: 0.6, heartsPerClick: 150, next: 'bancholeomon', clickGoal: 100 },
+        { id: 'bancholeomon', name: 'BanchoLeomon', img: 'BanchoLeomon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Strabimon Line
-        { id: 'strabimon', name: 'Strabimon', img: 'Strabimon.png', cost: 100, speed: 0.5, heartsPerClick: 20, next: 'lobomon', clickGoal: 35 },
-        { id: 'lobomon', name: 'Lobomon', img: 'Lobomon.png', cost: 400, speed: 0.7, heartsPerClick: 70, next: 'kendogarurumon', clickGoal: 60 },
-        { id: 'kendogarurumon', name: 'KendoGarurumon', img: 'KendoGarurumon.png', cost: 2000, speed: 0.6, heartsPerClick: 280, next: 'beowolfmon', clickGoal: 100 },
-        { id: 'beowolfmon', name: 'Beowolfmon', img: 'Beowolfmon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100, next: null, clickGoal: 0 },
+        { id: 'strabimon', name: 'Strabimon', img: 'Strabimon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'lobomon', clickGoal: 35 },
+        { id: 'lobomon', name: 'Lobomon', img: 'Lobomon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'kendogarurumon', clickGoal: 60 },
+        { id: 'kendogarurumon', name: 'KendoGarurumon', img: 'KendoGarurumon.png', cost: 1000, speed: 0.6, heartsPerClick: 150, next: 'beowolfmon', clickGoal: 100 },
+        { id: 'beowolfmon', name: 'Beowolfmon', img: 'Beowolfmon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Biyomon Line
-        { id: 'biyomon', name: 'Biyomon', img: 'Biyomon.png', cost: 250, speed: 0.6, heartsPerClick: 45, next: 'birdramon', clickGoal: 35 },
-        { id: 'birdramon', name: 'Birdramon', img: 'Birdramon.png', cost: 900, speed: 0.8, heartsPerClick: 130, next: 'garudamon', clickGoal: 60 },
-        { id: 'garudamon', name: 'Garudamon', img: 'Garudamon.png', cost: 4500, speed: 0.7, heartsPerClick: 520, next: 'phoenixmon', clickGoal: 100 },
-        { id: 'phoenixmon', name: 'Phoenixmon', img: 'Phoenixmon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400, next: null, clickGoal: 0 },
+        { id: 'biyomon', name: 'Biyomon', img: 'Biyomon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'birdramon', clickGoal: 35 },
+        { id: 'birdramon', name: 'Birdramon', img: 'Birdramon.png', cost: 200, speed: 0.8, heartsPerClick: 35, next: 'garudamon', clickGoal: 60 },
+        { id: 'garudamon', name: 'Garudamon', img: 'Garudamon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'phoenixmon', clickGoal: 100 },
+        { id: 'phoenixmon', name: 'Phoenixmon', img: 'Phoenixmon.png', cost: 5000, speed: 0.8, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Tinkermon Line
-        { id: 'tinkermon', name: 'Tinkermon', img: 'Tinkermon.png', cost: 250, speed: 0.6, heartsPerClick: 45, next: 'kazemon', clickGoal: 35 },
-        { id: 'kazemon', name: 'Kazemon', img: 'Kazemon.png', cost: 900, speed: 0.8, heartsPerClick: 130, next: 'zephyrmon', clickGoal: 60 },
-        { id: 'zephyrmon', name: 'Zephyrmon', img: 'Zephyrmon.png', cost: 4500, speed: 0.7, heartsPerClick: 520, next: 'jetsilphymon', clickGoal: 100 },
-        { id: 'jetsilphymon', name: 'JetSilphymon', img: 'JetSilphymon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400, next: null, clickGoal: 0 },
+        { id: 'tinkermon', name: 'Tinkermon', img: 'Tinkermon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'kazemon', clickGoal: 35 },
+        { id: 'kazemon', name: 'Kazemon', img: 'Kazemon.png', cost: 200, speed: 0.8, heartsPerClick: 35, next: 'zephyrmon', clickGoal: 60 },
+        { id: 'zephyrmon', name: 'Zephyrmon', img: 'Zephyrmon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'jetsilphymon', clickGoal: 100 },
+        { id: 'jetsilphymon', name: 'JetSilphymon', img: 'JetSilphymon.png', cost: 5000, speed: 0.8, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Tentomon Line
-        { id: 'tentomon', name: 'Tentomon', img: 'Tentomon.png', cost: 450, speed: 0.5, heartsPerClick: 80, next: 'kabuterimon', clickGoal: 35 },
-        { id: 'kabuterimon', name: 'Kabuterimon', img: 'Kabuterimon.png', cost: 1600, speed: 0.5, heartsPerClick: 230, next: 'megakabuterimon', clickGoal: 60 },
-        { id: 'megakabuterimon', name: 'MegaKabuterimon', img: 'MegaKabuterimon.png', cost: 8000, speed: 0.5, heartsPerClick: 900, next: 'herculeskabuterimon', clickGoal: 100 },
-        { id: 'herculeskabuterimon', name: 'HerculesKabuterimon', img: 'HerculesKabuterimon.png', cost: 38000, speed: 0.6, heartsPerClick: 4100, next: null, clickGoal: 0 },
+        { id: 'tentomon', name: 'Tentomon', img: 'Tentomon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'kabuterimon', clickGoal: 35 },
+        { id: 'kabuterimon', name: 'Kabuterimon', img: 'Kabuterimon.png', cost: 200, speed: 0.5, heartsPerClick: 35, next: 'megakabuterimon', clickGoal: 60 },
+        { id: 'megakabuterimon', name: 'MegaKabuterimon', img: 'MegaKabuterimon.png', cost: 1000, speed: 0.5, heartsPerClick: 150, next: 'herculeskabuterimon', clickGoal: 100 },
+        { id: 'herculeskabuterimon', name: 'HerculesKabuterimon', img: 'HerculesKabuterimon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
         
         // KoKabuterimon Line
-        { id: 'kokabuterimon', name: 'KoKabuterimon', img: 'KoKabuterimon.png', cost: 450, speed: 0.5, heartsPerClick: 80, next: 'beetlemon', clickGoal: 35 },
-        { id: 'beetlemon', name: 'Beetlemon', img: 'Beetlemon.png', cost: 1600, speed: 0.5, heartsPerClick: 230, next: 'metalkabuterimon', clickGoal: 60 },
-        { id: 'metalkabuterimon', name: 'MetalKabuterimon', img: 'MetalKabuterimon.png', cost: 8000, speed: 0.5, heartsPerClick: 900, next: 'rhinokabuterimon', clickGoal: 100 },
-        { id: 'rhinokabuterimon', name: 'RhinoKabuterimon', img: 'RhinoKabuterimon.png', cost: 38000, speed: 0.6, heartsPerClick: 4100, next: null, clickGoal: 0 },
+        { id: 'kokabuterimon', name: 'KoKabuterimon', img: 'KoKabuterimon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'beetlemon', clickGoal: 35 },
+        { id: 'beetlemon', name: 'Beetlemon', img: 'Beetlemon.png', cost: 200, speed: 0.5, heartsPerClick: 35, next: 'metalkabuterimon', clickGoal: 60 },
+        { id: 'metalkabuterimon', name: 'MetalKabuterimon', img: 'MetalKabuterimon.png', cost: 1000, speed: 0.5, heartsPerClick: 150, next: 'rhinokabuterimon', clickGoal: 100 },
+        { id: 'rhinokabuterimon', name: 'RhinoKabuterimon', img: 'RhinoKabuterimon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Palmon Line
-        { id: 'palmon', name: 'Palmon', img: 'Palmon.png', cost: 220, speed: 0.4, heartsPerClick: 40, next: 'togemon', clickGoal: 35 },
-        { id: 'togemon', name: 'Togemon', img: 'Togemon.png', cost: 800, speed: 0.3, heartsPerClick: 120, next: 'lillymon', clickGoal: 60 },
-        { id: 'lillymon', name: 'Lillymon', img: 'Lillymon.png', cost: 3500, speed: 0.7, heartsPerClick: 420, next: 'rosemon', clickGoal: 100 },
-        { id: 'rosemon', name: 'Rosemon', img: 'Rosemon.png', cost: 18000, speed: 0.6, heartsPerClick: 1900, next: null, clickGoal: 0 },
+        { id: 'palmon', name: 'Palmon', img: 'Palmon.png', cost: 50, speed: 0.4, heartsPerClick: 10, next: 'togemon', clickGoal: 35 },
+        { id: 'togemon', name: 'Togemon', img: 'Togemon.png', cost: 200, speed: 0.3, heartsPerClick: 35, next: 'lillymon', clickGoal: 60 },
+        { id: 'lillymon', name: 'Lillymon', img: 'Lillymon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'rosemon', clickGoal: 100 },
+        { id: 'rosemon', name: 'Rosemon', img: 'Rosemon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
         
         // Mushroommon Line
-        { id: 'mushroommon', name: 'Mushroommon', img: 'Mushroommon.png', cost: 220, speed: 0.4, heartsPerClick: 40, next: 'petaldramon', clickGoal: 35 },
-        { id: 'petaldramon', name: 'Petaldramon', img: 'Petaldramon.png', cost: 800, speed: 0.3, heartsPerClick: 120, next: 'argamon', clickGoal: 60 },
-        { id: 'argamon', name: 'Argamon', img: 'Argamon.png', cost: 3500, speed: 0.7, heartsPerClick: 420, next: null, clickGoal: 100 },
+        { id: 'mushroommon', name: 'Mushroommon', img: 'Mushroommon.png', cost: 50, speed: 0.4, heartsPerClick: 10, next: 'petaldramon', clickGoal: 35 },
+        { id: 'petaldramon', name: 'Petaldramon', img: 'Petaldramon.png', cost: 200, speed: 0.3, heartsPerClick: 35, next: 'argamon', clickGoal: 60 },
+        { id: 'argamon', name: 'Argamon (Ultimate)', img: 'Argamon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'argamonmega', clickGoal: 100 },
+        { id: 'argamonmega', name: 'Argomon (Mega)', img: 'ArgamonMega.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Gomamon Line
-        { id: 'gomamon', name: 'Gomamon', img: 'Gomamon.png', cost: 1100, speed: 0.4, heartsPerClick: 160, next: 'ikkakumon', clickGoal: 35 },
-        { id: 'ikkakumon', name: 'Ikkakumon', img: 'Ikkakumon.png', cost: 5000, speed: 0.4, heartsPerClick: 580, next: 'zudomon', clickGoal: 60 },
-        { id: 'zudomon', name: 'Zudomon', img: 'Zudomon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600, next: 'vikemon', clickGoal: 100 },
-        { id: 'vikemon', name: 'Vikemon', img: 'Vikemon.png', cost: 110000, speed: 0.5, heartsPerClick: 12000, next: null, clickGoal: 0 },
+        { id: 'gomamon', name: 'Gomamon', img: 'Gomamon.png', cost: 50, speed: 0.4, heartsPerClick: 10, next: 'ikkakumon', clickGoal: 35 },
+        { id: 'ikkakumon', name: 'Ikkakumon', img: 'Ikkakumon.png', cost: 200, speed: 0.4, heartsPerClick: 35, next: 'zudomon', clickGoal: 60 },
+        { id: 'zudomon', name: 'Zudomon', img: 'Zudomon.png', cost: 1000, speed: 0.4, heartsPerClick: 150, next: 'vikemon', clickGoal: 100 },
+        { id: 'vikemon', name: 'Vikemon', img: 'Vikemon.png', cost: 5000, speed: 0.5, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Shakomon Line
-        { id: 'shakomon', name: 'Shakomon', img: 'Shakomon.png', cost: 1100, speed: 0.4, heartsPerClick: 160, next: 'lanamon', clickGoal: 35 },
-        { id: 'lanamon', name: 'Lanamon', img: 'Lanamon.png', cost: 5000, speed: 0.4, heartsPerClick: 580, next: 'calmaramon', clickGoal: 60 },
-        { id: 'calmaramon', name: 'Calmaramon', img: 'Calmaramon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600, next: null, clickGoal: 100 },
+        { id: 'shakomon', name: 'Shakomon', img: 'Shakomon.png', cost: 50, speed: 0.4, heartsPerClick: 10, next: 'lanamon', clickGoal: 35 },
+        { id: 'lanamon', name: 'Lanamon', img: 'Lanamon.png', cost: 200, speed: 0.4, heartsPerClick: 35, next: 'calmaramon', clickGoal: 60 },
+        { id: 'calmaramon', name: 'Calmaramon', img: 'Calmaramon.png', cost: 1000, speed: 0.4, heartsPerClick: 150, next: null, clickGoal: 100 },
 
         // Betamon Line
-        { id: 'betamon', name: 'Betamon', img: 'Betamon.png', cost: 1100, speed: 0.4, heartsPerClick: 160, next: 'seadramon', clickGoal: 35 },
-        { id: 'seadramon', name: 'Seadramon', img: 'Seadramon.png', cost: 5000, speed: 0.4, heartsPerClick: 580, next: 'megaseadramon', clickGoal: 60 },
-        { id: 'megaseadramon', name: 'MegaSeadramon', img: 'MegaSeadramon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600, next: 'metalseadramon', clickGoal: 100 },
-        { id: 'metalseadramon', name: 'MetalSeadramon', img: 'MetalSeadramon.png', cost: 110000, speed: 0.5, heartsPerClick: 12000, next: null, clickGoal: 0 },
+        { id: 'betamon', name: 'Betamon', img: 'Betamon.png', cost: 50, speed: 0.4, heartsPerClick: 10, next: 'seadramon', clickGoal: 35 },
+        { id: 'seadramon', name: 'Seadramon', img: 'Seadramon.png', cost: 200, speed: 0.4, heartsPerClick: 35, next: 'megaseadramon', clickGoal: 60 },
+        { id: 'megaseadramon', name: 'MegaSeadramon', img: 'MegaSeadramon.png', cost: 1000, speed: 0.4, heartsPerClick: 150, next: 'metalseadramon', clickGoal: 100 },
+        { id: 'metalseadramon', name: 'MetalSeadramon', img: 'MetalSeadramon.png', cost: 5000, speed: 0.5, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Patamon Line
-        { id: 'patamon', name: 'Patamon', img: 'Patamon.png', cost: 550, speed: 0.6, heartsPerClick: 95, next: 'angemon', clickGoal: 35 },
-        { id: 'angemon', name: 'Angemon', img: 'Angemon.png', cost: 2200, speed: 0.7, heartsPerClick: 270, next: 'magnaangemon', clickGoal: 60 },
-        { id: 'magnaangemon', name: 'MagnaAngemon', img: 'MagnaAngemon.png', cost: 12000, speed: 0.6, heartsPerClick: 1300, next: 'seraphimon', clickGoal: 100 },
-        { id: 'seraphimon', name: 'Seraphimon', img: 'Seraphimon.png', cost: 60000, speed: 0.7, heartsPerClick: 6500, next: null, clickGoal: 0 },
+        { id: 'patamon', name: 'Patamon', img: 'Patamon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'angemon', clickGoal: 35 },
+        { id: 'angemon', name: 'Angemon', img: 'Angemon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'magnaangemon', clickGoal: 60 },
+        { id: 'magnaangemon', name: 'MagnaAngemon', img: 'MagnaAngemon.png', cost: 1000, speed: 0.6, heartsPerClick: 150, next: 'seraphimon', clickGoal: 100 },
+        { id: 'seraphimon', name: 'Seraphimon', img: 'Seraphimon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Bakumon Line
-        { id: 'bakumon', name: 'Bakumon', img: 'Bakumon.png', cost: 550, speed: 0.6, heartsPerClick: 95, next: 'kumamon', clickGoal: 35 },
-        { id: 'kumamon', name: 'Kumamon', img: 'Kumamon.png', cost: 2200, speed: 0.7, heartsPerClick: 270, next: 'korikkakumon', clickGoal: 60 },
-        { id: 'korikkakumon', name: 'Korikkakumon', img: 'Korikkakumon.png', cost: 12000, speed: 0.6, heartsPerClick: 1300, next: 'daipenmon', clickGoal: 100 },
-        { id: 'daipenmon', name: 'Daipenmon', img: 'Daipenmon.png', cost: 60000, speed: 0.7, heartsPerClick: 6500, next: null, clickGoal: 0 },
+        { id: 'bakumon', name: 'Bakumon', img: 'Bakumon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'kumamon', clickGoal: 35 },
+        { id: 'kumamon', name: 'Kumamon', img: 'Kumamon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'korikkakumon', clickGoal: 60 },
+        { id: 'korikkakumon', name: 'Korikkakumon', img: 'Korikkakumon.png', cost: 1000, speed: 0.6, heartsPerClick: 150, next: 'daipenmon', clickGoal: 100 },
+        { id: 'daipenmon', name: 'Daipenmon', img: 'Daipenmon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
 
         // Floramon Line
-        { id: 'floramon', name: 'Floramon', img: 'Floramon.png', cost: 250, speed: 0.6, heartsPerClick: 45, next: 'woodmon', clickGoal: 35 },
-        { id: 'woodmon', name: 'Woodmon', img: 'Woodmon.png', cost: 900, speed: 0.8, heartsPerClick: 130, next: 'cherrymon', clickGoal: 60 },
-        { id: 'cherrymon', name: 'Cherrymon', img: 'Cherrymon.png', cost: 4500, speed: 0.7, heartsPerClick: 520, next: 'puppetmon', clickGoal: 100 },
-        { id: 'puppetmon', name: 'Puppetmon', img: 'Puppetmon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400, next: null, clickGoal: 0 }
+        { id: 'floramon', name: 'Floramon', img: 'Floramon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'woodmon', clickGoal: 35 },
+        { id: 'woodmon', name: 'Woodmon', img: 'Woodmon.png', cost: 200, speed: 0.8, heartsPerClick: 35, next: 'cherrymon', clickGoal: 60 },
+        { id: 'cherrymon', name: 'Cherrymon', img: 'Cherrymon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'puppetmon', clickGoal: 100 },
+        { id: 'puppetmon', name: 'Puppetmon', img: 'Puppetmon.png', cost: 5000, speed: 0.8, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Salamon Line
+        { id: 'salamon', name: 'Salamon', img: 'Salamon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'gatomon', clickGoal: 35 },
+        { id: 'gatomon', name: 'Gatomon', img: 'Gatomon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'angewomon', clickGoal: 60 },
+        { id: 'angewomon', name: 'Angewomon', img: 'Angewomon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'magnadramon', clickGoal: 100 },
+        { id: 'magnadramon', name: 'Magnadramon', img: 'Magnadramon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Veemon Line
+        { id: 'veemon', name: 'Veemon', img: 'Veemon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'exveemon', clickGoal: 35 },
+        { id: 'exveemon', name: 'ExVeemon', img: 'ExVeemon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'paildramon', clickGoal: 60 },
+        { id: 'paildramon', name: 'Paildramon', img: 'Paildramon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'imperialdramon', clickGoal: 100 },
+        { id: 'imperialdramon', name: 'Imperialdramon', img: 'Imperialdramon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Hawkmon Line
+        { id: 'hawkmon', name: 'Hawkmon', img: 'Hawkmon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'aquilamon', clickGoal: 35 },
+        { id: 'aquilamon', name: 'Aquilamon', img: 'Aquilamon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'silphymon', clickGoal: 60 },
+        { id: 'silphymon', name: 'Silphymon', img: 'Silphymon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'valdurmon', clickGoal: 100 },
+        { id: 'valdurmon', name: 'Valdurmon', img: 'Valdurmon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Armadillomon Line
+        { id: 'armadillomon', name: 'Armadillomon', img: 'Armadillomon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'ankylomon', clickGoal: 35 },
+        { id: 'ankylomon', name: 'Ankylomon', img: 'Ankylomon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'shakkoumon', clickGoal: 60 },
+        { id: 'shakkoumon', name: 'Shakkoumon', img: 'Shakkoumon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'vikemon', clickGoal: 100 }, // Shared Vikemon ending
+
+        // Wormmon Line
+        { id: 'wormmon', name: 'Wormmon', img: 'Wormmon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'stingmon', clickGoal: 35 },
+        { id: 'stingmon', name: 'Stingmon', img: 'Stingmon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'grandiskuwagamon', clickGoal: 60 },
+        { id: 'grandiskuwagamon', name: 'GrandisKuwagamon', img: 'GrandisKuwagamon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: null, clickGoal: 100 },
+
+        // Guilmon Line
+        { id: 'guilmon', name: 'Guilmon', img: 'Guilmon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'growlmon', clickGoal: 35 },
+        { id: 'growlmon', name: 'Growlmon', img: 'Growlmon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'wargrowlmon', clickGoal: 60 },
+        { id: 'wargrowlmon', name: 'WarGrowlmon', img: 'WarGrowlmon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'gallantmon', clickGoal: 100 },
+        { id: 'gallantmon', name: 'Gallantmon', img: 'Gallantmon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Terriermon Line
+        { id: 'terriermon', name: 'Terriermon', img: 'Terriermon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'gargomon', clickGoal: 35 },
+        { id: 'gargomon', name: 'Gargomon', img: 'Gargomon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'rapidmon', clickGoal: 60 },
+        { id: 'rapidmon', name: 'Rapidmon', img: 'Rapidmon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'megagargomon', clickGoal: 100 },
+        { id: 'megagargomon', name: 'MegaGargomon', img: 'MegaGargomon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Renamon Line
+        { id: 'renamon', name: 'Renamon', img: 'Renamon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'kyubimon', clickGoal: 35 },
+        { id: 'kyubimon', name: 'Kyubimon', img: 'Kyubimon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'taomon', clickGoal: 60 },
+        { id: 'taomon', name: 'Taomon', img: 'Taomon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'sakuyamon', clickGoal: 100 },
+        { id: 'sakuyamon', name: 'Sakuyamon', img: 'Sakuyamon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Impmon Line
+        { id: 'impmon', name: 'Impmon', img: 'Impmon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'wizardmon', clickGoal: 35 },
+        { id: 'wizardmon', name: 'Wizardmon', img: 'Wizardmon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'baalmon', clickGoal: 60 },
+        { id: 'baalmon', name: 'Baalmon', img: 'Baalmon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'beelzemon', clickGoal: 100 },
+        { id: 'beelzemon', name: 'Beelzemon', img: 'Beelzemon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Monodramon Line
+        { id: 'monodramon', name: 'Monodramon', img: 'Monodramon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'strikedramon', clickGoal: 35 },
+        { id: 'strikedramon', name: 'Strikedramon', img: 'Strikedramon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'cyberdramon', clickGoal: 60 },
+        { id: 'cyberdramon', name: 'Cyberdramon', img: 'Cyberdramon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'justimon', clickGoal: 100 },
+        { id: 'justimon', name: 'Justimon', img: 'Justimon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Lopmon Line
+        { id: 'lopmon', name: 'Lopmon', img: 'Lopmon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'tururiemon', clickGoal: 35 },
+        { id: 'tururiemon', name: 'Tururiemon', img: 'Tururiemon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'antylomon', clickGoal: 60 },
+        { id: 'antylomon', name: 'Antylomon', img: 'Antylomon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'cherubimon', clickGoal: 100 },
+        { id: 'cherubimon', name: 'Cherubimon', img: 'Cherubimon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Guardromon Line (Champion baseline starting from Kaprimon)
+        { id: 'guardromon', name: 'Guardromon', img: 'Guardromon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'andromon', clickGoal: 35 },
+        { id: 'andromon', name: 'Andromon', img: 'Andromon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'hiandromon', clickGoal: 60 },
+        { id: 'hiandromon', name: 'HiAndromon', img: 'HiAndromon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'craniamon', clickGoal: 100 },
+        { id: 'craniamon', name: 'Craniamon', img: 'Craniamon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Candlemon Line
+        { id: 'candlemon', name: 'Candlemon', img: 'Candlemon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'bakemon', clickGoal: 35 },
+        { id: 'bakemon', name: 'Bakemon', img: 'Bakemon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'phantomon', clickGoal: 60 },
+        { id: 'phantomon', name: 'Phantomon', img: 'Phantomon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'piedmon', clickGoal: 100 },
+        { id: 'piedmon', name: 'Piedmon', img: 'Piedmon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Keramon Line
+        { id: 'keramon', name: 'Keramon', img: 'Keramon.png', cost: 50, speed: 0.6, heartsPerClick: 10, next: 'chrysalimon', clickGoal: 35 },
+        { id: 'chrysalimon', name: 'Chrysalimon', img: 'Chrysalimon.png', cost: 200, speed: 0.7, heartsPerClick: 35, next: 'infermon', clickGoal: 60 },
+        { id: 'infermon', name: 'Infermon', img: 'Infermon.png', cost: 1000, speed: 0.7, heartsPerClick: 150, next: 'diaboromon', clickGoal: 100 },
+        { id: 'diaboromon', name: 'Diaboromon', img: 'Diaboromon.png', cost: 5000, speed: 0.7, heartsPerClick: 600, next: null, clickGoal: 0 }
     ];
 
     const eggList = animalData.filter(a => a.id.startsWith('egg_'));
@@ -1003,7 +1140,6 @@
             updateUI();
             saveProgress();
             
-            // Re-render farm to update button disabled states based on new hearts value
             openFarm();
             sfx.bubble();
         }
@@ -1016,19 +1152,20 @@
         animalData.forEach((a) => {
             const count = unlockedIds.filter(id => id === a.id).length;
             const hasBeenUnlocked = everUnlockedIds.includes(a.id);
-            if (!hasBeenUnlocked) return; // Optional: To clean up the archive, only show seen ones, or keep all to tease.
             
             const isUnlocked = count > 0;
             const isEgg = a.id.startsWith('egg_');
             
             const item = document.createElement('div');
-            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
+            // If the Digimon hasn't been unlocked yet, we add the "locked" class to trigger the CSS silhouette 
+            item.className = `collection-item ${hasBeenUnlocked ? '' : 'locked'}`;
 
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
+            // Use "???" for the name if it hasn't been discovered yet
             item.innerHTML = `
                 <div class="visual"><img src="${a.img}" alt="${a.name}" class="${isEgg ? 'is-egg-img' : ''}" onerror="this.src='Agumon.png'"></div>
-                <div class="name-tag">${a.name} ${countBadge}</div>
+                <div class="name-tag">${hasBeenUnlocked ? a.name : '???'} ${countBadge}</div>
             `;
             grid.appendChild(item);
         });

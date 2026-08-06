@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Digital World Tycoon</title>
+<title>Ocean Tycoon</title>
 <style>
     body {
         margin: 0;
-        overflow: hidden;
+        overflow: hidden; /* Fluid layout, no scrollbars */
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #0c091f; 
+        background-color: #00cae9; 
         user-select: none;
     }
 
-    /* The Digital World (Game Container) */
+    /* The Ocean (Game Container) */
     #ocean {
         position: absolute; 
         top: 0; 
         left: 0; 
         width: 100vw; 
         height: 100vh;
-        background: radial-gradient(circle at center, #1b143f 0%, #0c091f 70%, #05030a 100%);
+        background: linear-gradient(to bottom, #00cae9 0%, #005a9c 50%, #001233 100%);
         z-index: 1; 
     }
 
@@ -28,7 +28,7 @@
     #start-screen {
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        background: radial-gradient(circle, #24143a, #100a1d, #05030a);
+        background: radial-gradient(circle, #0f2027, #203a43, #2c5364);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -36,12 +36,11 @@
         z-index: 200;
         color: white;
     }
-    #start-screen h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 0 4px 15px rgba(114, 9, 183, 0.6); color: #00f2fe; }
-    #start-screen p { color: #a29bfe; font-size: 1.1em; }
+    #start-screen h1 { font-size: 2em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     #start-btn {
         padding: 15px 40px; font-size: 1.5em; font-weight: bold;
-        background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #0c091f; border: none; border-radius: 50px;
-        cursor: pointer; box-shadow: 0 4px 20px rgba(0,242,254,0.4);
+        background: #00d2ff; color: #0f2027; border: none; border-radius: 50px;
+        cursor: pointer; box-shadow: 0 4px 15px rgba(0,210,255,0.4);
         transition: transform 0.2s;
     }
     #start-btn:hover { transform: scale(1.1); }
@@ -58,37 +57,22 @@
     }
 
     .hud-box {
-        background: rgba(20, 15, 45, 0.5); backdrop-filter: blur(5px);
-        padding: 15px 25px; border-radius: 15px; border: 2px solid rgba(79, 172, 254, 0.4);
+        background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px);
+        padding: 15px 25px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.5);
         color: white; font-weight: bold; font-size: 1.5em; pointer-events: auto;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
     
     #auto-harvest-box {
-        font-size: 1em; padding: 10px 20px; background: rgba(46, 213, 115, 0.2); border-color: rgba(46, 213, 115, 0.5);
-        display: none;
+        font-size: 1em; padding: 10px 20px; background: rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.6);
+        display: none; /* Hidden until 6 total recruits */
     }
-
-    .btn-column {
-        display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
-    }
-
-    #sound-btn {
-        background: rgba(46, 213, 115, 0.2); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(46, 213, 115, 0.5); color: white; font-size: 1em; padding: 10px 15px;
-    }
-    #sound-btn:hover { transform: scale(1.05); background: rgba(46, 213, 115, 0.4); }
 
     #collection-btn {
-        background: rgba(79, 172, 254, 0.2); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(79, 172, 254, 0.5); color: white;
+        background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: transform 0.2s; border: none; color: white;
     }
-    #collection-btn:hover { transform: scale(1.05); background: rgba(79, 172, 254, 0.4); }
+    #collection-btn:hover { transform: scale(1.05); }
 
-    #reset-btn {
-        background: rgba(255, 71, 87, 0.2); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255, 71, 87, 0.5); color: white; font-size: 1em; padding: 10px 15px;
-    }
-    #reset-btn:hover { transform: scale(1.05); background: rgba(255, 71, 87, 0.4); }
-
-    /* Digimon Sprites */
+    /* Marine Animals */
     .animal {
         position: absolute;
         cursor: grab;
@@ -97,126 +81,116 @@
         flex-direction: column;
         justify-content: center; 
         align-items: center;
-        touch-action: none;
+        touch-action: none; /* Prevents mobile screen scrolling while dragging */
     }
     .animal:active { cursor: grabbing; }
     
     .animal-name {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: bold;
-        color: #00f2fe;
-        background: rgba(10, 8, 25, 0.7);
+        color: #fff;
+        background: rgba(0, 30, 60, 0.6);
         padding: 4px 10px;
         border-radius: 12px;
         margin-bottom: 5px;
         pointer-events: none;
         white-space: nowrap;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-        border: 1px solid rgba(79, 172, 254, 0.3);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
     .animal img {
-        width: 64px; 
-        height: 64px;
-        image-rendering: pixelated;
+        width: 100px; 
+        height: auto;
         pointer-events: none; 
         user-select: none;
-        filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));
     }
     .animal.clicked {
         transform: scale(1.4) !important;
     }
 
-    /* Floating Data Bits Animation */
+    /* Floating Heart Animation */
     .floating-heart {
         position: absolute;
-        color: #00f2fe;
-        font-size: 0.8em;
+        color: #ff4757;
+        font-size: 0.5em;
         font-weight: bold;
         pointer-events: none;
         animation: floatUp 1s ease-out forwards;
         z-index: 50;
-        text-shadow: 0 2px 5px rgba(0,242,254,0.6);
+        text-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     @keyframes floatUp {
         0% { opacity: 1; transform: translateY(0) scale(1); }
-        100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
+        100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
     }
 
-    /* Modals */
+    /* Modals (Glassmorphism Deep Sea Theme Update) */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(5, 3, 10, 0.8); z-index: 100;
+        background: rgba(0,0,0,0.7); z-index: 100;
         display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px);
     }
     
     .modal {
-        background: rgba(15, 12, 35, 0.85); 
-        backdrop-filter: blur(16px); 
+        background: rgba(0, 18, 51, 0.65); /* Semi-transparent */
+        backdrop-filter: blur(16px); /* Heavy blur for glass effect */
         -webkit-backdrop-filter: blur(16px);
-        border-radius: 25px; 
+        border-radius: 25px; /* Highly rounded corners */
         color: white; padding: 30px; 
-        max-width: 900px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(79, 172, 254, 0.1);
-        border: 2px solid rgba(79, 172, 254, 0.4);
+        max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(0, 210, 255, 0.1);
+        border: 2px solid rgba(0, 210, 255, 0.3);
     }
     
+    /* Scrollbar Styling for Modal */
     .modal::-webkit-scrollbar { width: 8px; }
-    .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
-    .modal::-webkit-scrollbar-thumb { background: rgba(79, 172, 254, 0.5); border-radius: 10px; }
+    .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .modal::-webkit-scrollbar-thumb { background: rgba(0, 210, 255, 0.5); border-radius: 10px; }
 
     .modal h2 { 
-        margin-top: -10px; padding-top: 10px; color: #00f2fe; font-size: 2.2em; 
+        margin-top: -10px; padding-top: 10px; color: #00d2ff; font-size: 2.2em; 
         position: sticky; top: 0; 
-        background: #0f1223; 
+        background: transparent; /* Transparent header to match glass effect */
         padding-bottom: 15px; z-index: 2; 
-        border-bottom: 2px solid rgba(79, 172, 254, 0.3);
+        border-bottom: 2px solid rgba(0, 210, 255, 0.3);
         box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
     }
     
     /* Collection Grid */
     #collection-grid {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
     }
     .collection-item {
-        background: rgba(79, 172, 254, 0.05); padding: 15px; border-radius: 15px;
+        background: rgba(0, 210, 255, 0.05); padding: 15px; border-radius: 15px;
         display: flex; flex-direction: column; align-items: center; 
-        border: 1px solid rgba(79, 172, 254, 0.2);
+        border: 1px solid rgba(0, 210, 255, 0.2);
         transition: transform 0.2s, background 0.2s;
     }
     .collection-item:hover {
-        background: rgba(79, 172, 254, 0.15);
+        background: rgba(0, 210, 255, 0.15);
         transform: translateY(-3px);
     }
     .collection-item.locked .visual img {
         filter: brightness(0) opacity(0.2); 
     }
-    .collection-item .visual { margin-bottom: 10px; height: 70px; display: flex; align-items: center; }
-    .collection-item .visual img { max-width: 64px; max-height: 64px; width: 64px; height: 64px; image-rendering: pixelated; }
-    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+    .collection-item .visual { margin-bottom: 10px; }
+    .collection-item .visual img { width: 70px; height: auto; }
+    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.9em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
     .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
     
-    .btn-group {
-        display: flex; gap: 5px; width: 100%; margin-top: auto;
-    }
     .buy-btn {
-        background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; font-size: 0.8em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
+        background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
     }
     .buy-btn:active { transform: scale(0.95); }
-    .buy-btn:disabled { background: rgba(255,255,255,0.08); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
+    .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
     
-    .remove-btn {
-        background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s; flex: 0.3;
-    }
-    .remove-btn:active { transform: scale(0.95); }
-    .remove-btn:hover { filter: brightness(1.1); }
-
-    .close-btn { background: rgba(79, 172, 254, 0.3); color: white; border: 1px solid rgba(79, 172, 254, 0.5); padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; transition: transform 0.2s; margin-top: 10px;}
-    .close-btn:hover { transform: scale(1.05); background: rgba(79, 172, 254, 0.5); }
+    .close-btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4); transition: transform 0.2s; margin-top: 10px;}
+    .close-btn:hover { transform: scale(1.05); }
 
     /* Popups */
     #unlock-popup, #auto-popup { z-index: 300; }
-    .visual img { width: 64px; height: 64px; image-rendering: pixelated; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .visual img { width: 150px; height: auto; margin: 20px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     
     #auto-popup .modal { max-width: 500px; }
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -227,21 +201,17 @@
 <body>
 
 <div id="start-screen">
-    <h1>🌐 Digital World Tycoon</h1>
-    <p>Tap & Collect Data Bits. Grow your partner Digimon from In-Training to Mega!</p>
-    <button id="start-btn">Enter Network</button>
+    <h1>🌊 Ocean Tycoon</h1>
+    <p>Grow your reef. Tap & Drag animals for hearts.</p>
+    <button id="start-btn">Dive In</button>
 </div>
 
 <div id="ui-layer">
     <div class="hud-column">
-        <div class="hud-box">💾 <span id="heart-count">0</span> Data</div>
+        <div class="hud-box">❤️ <span id="heart-count">0</span></div>
         <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
     </div>
-    <div class="btn-column">
-        <button id="collection-btn" class="hud-box">📖 Digivices</button>
-        <button id="sound-btn" class="hud-box">🔊 Sound</button>
-        <button id="reset-btn" class="hud-box">⚠️ Reset</button>
-    </div>
+    <button id="collection-btn" class="hud-box">📖 Collection</button>
 </div>
 
 <div id="ocean"></div>
@@ -249,7 +219,7 @@
 <!-- Collection Modal -->
 <div id="collection-modal" class="modal-overlay">
     <div class="modal">
-        <h2>Digimon Archive</h2>
+        <h2>Marine Collection</h2>
         <div id="collection-grid"></div>
         <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">Close</button>
     </div>
@@ -258,21 +228,21 @@
 <!-- Unlock Popup Modal -->
 <div id="unlock-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden; max-height: 400px;">
-        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">Digivolution Achieved!</h2>
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">New Marine Life!</h2>
         <div id="popup-visual" class="visual"></div>
-        <h3 id="popup-name" style="margin-top: 0; font-size: 1.5em; color: white;">Koromon</h3>
-        <button class="close-btn" onclick="closeUnlockPopup()">Fantastic!</button>
+        <h3 id="popup-name" style="margin-top: 0; font-size: 1.5em; color: white;">Clownfish</h3>
+        <button class="close-btn" onclick="document.getElementById('unlock-popup').style.display='none'">Awesome!</button>
     </div>
 </div>
 
 <!-- Auto-Harvest Unlocked Popup -->
 <div id="auto-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden; max-height: 400px;">
-        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #2ed573;">Network Expansion!</h2>
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #2ed573;">System Upgrade!</h2>
         <div class="gear-icon">⚙️</div>
-        <h3 style="margin-top: 0; font-size: 1.5em; color: white;">Automated Data Mining Active</h3>
-        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your connected Digimon network is now harvesting data automatically every second!</p>
-        <button class="close-btn" onclick="document.getElementById('auto-popup').style.display='none'">Keep Exploring</button>
+        <h3 style="margin-top: 0; font-size: 1.5em; color: white;">Auto-Harvest Activated</h3>
+        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your thriving reef is now collecting hearts automatically every second!</p>
+        <button class="close-btn" onclick="document.getElementById('auto-popup').style.display='none'">Keep Growing</button>
     </div>
 </div>
 
@@ -280,10 +250,11 @@
     // --- Audio Context & Synth ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    let isMuted = false;
+    const bgm = new Audio("lo-fi-aquatic.mp3");
+    bgm.loop = true;
+    bgm.volume = 0.4;
 
     function playSynth(freq, type, duration, vol=0.2) {
-        if (isMuted) return;
         if(audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -298,90 +269,78 @@
     }
 
     const sfx = {
-        bubble: () => playSynth(700 + Math.random()*250, 'sine', 0.1, 0.08),
+        bubble: () => playSynth(600 + Math.random()*200, 'sine', 0.1, 0.1),
         unlock: () => {
-            playSynth(523.25, 'triangle', 0.2, 0.2); // C5
-            setTimeout(() => playSynth(659.25, 'triangle', 0.2, 0.2), 150); // E5
-            setTimeout(() => playSynth(783.99, 'triangle', 0.2, 0.2), 300); // G5
-            setTimeout(() => playSynth(1046.50, 'triangle', 0.4, 0.2), 450); // C6
+            playSynth(440, 'triangle', 0.2, 0.2);
+            setTimeout(() => playSynth(554, 'triangle', 0.2, 0.2), 150);
+            setTimeout(() => playSynth(659, 'triangle', 0.4, 0.2), 300);
         }
     };
 
-    // --- Main 8 Digimon Data (In-Training to Mega using UI asset mappings) ---
+    // --- Complete 50-Animal Game Data ---
     const animalData = [
-        // --- Tai & Agumon Line ---
-        { id: 'botamon', name: 'Botamon', img: 'UI_Partner_Botamon.png', cost: 5, speed: 0.3, heartsPerClick: 1 },
-        { id: 'koromon', name: 'Koromon', img: 'UI_Partner_Koromon.png', cost: 15, speed: 0.4, heartsPerClick: 3 },
-        { id: 'agumon', name: 'Agumon', img: 'UI_Partner_Agumon.png', cost: 50, speed: 0.5, heartsPerClick: 10 },
-        { id: 'greymon', name: 'Greymon', img: 'UI_Partner_Greymon.png', cost: 200, speed: 0.4, heartsPerClick: 35 },
-        { id: 'metalgreymon', name: 'MetalGreymon', img: 'UI_Partner_MetalGreymon.png', cost: 1000, speed: 0.5, heartsPerClick: 150 },
-        { id: 'wargreymon', name: 'WarGreymon', img: 'UI_Supporter_WarGreymon.png', cost: 5000, speed: 0.6, heartsPerClick: 600 },
-
-        // --- Matt & Gabumon Line ---
-        { id: 'punimon', name: 'Punimon', img: 'UI_Partner_Punimon.png', cost: 10, speed: 0.3, heartsPerClick: 2 },
-        { id: 'tsunomon', name: 'Tsunomon', img: 'UI_Partner_Tsunomon.png', cost: 30, speed: 0.4, heartsPerClick: 6 },
-        { id: 'gabumon', name: 'Gabumon', img: 'UI_Partner_Gabumon.png', cost: 100, speed: 0.5, heartsPerClick: 20 },
-        { id: 'garurumon', name: 'Garurumon', img: 'UI_Partner_Garurumon.png', cost: 400, speed: 0.7, heartsPerClick: 70 },
-        { id: 'weregarurumon', name: 'WereGarurumon', img: 'UI_Supporter_WereGarurumon.png', cost: 2000, speed: 0.6, heartsPerClick: 280 },
-        { id: 'metalgarurumon', name: 'MetalGarurumon', img: 'UI_Supporter_MetalGarurumon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100 },
-
-        // --- Sora & Biyomon Line ---
-        { id: 'nyokimon', name: 'Nyokimon', img: 'UI_Partner_Nyokimon.png', cost: 20, speed: 0.2, heartsPerClick: 4 },
-        { id: 'yokomon', name: 'Yokomon', img: 'UI_Partner_Yokomon.png', cost: 75, speed: 0.4, heartsPerClick: 15 },
-        { id: 'biyomon', name: 'Biyomon', img: 'UI_Partner_Biyomon.png', cost: 250, speed: 0.6, heartsPerClick: 45 },
-        { id: 'birdramon', name: 'Birdramon', img: 'UI_Partner_Birdramon.png', cost: 900, speed: 0.8, heartsPerClick: 130 },
-        { id: 'garudamon', name: 'Garudamon', img: 'UI_Partner_Garudamon.png', cost: 4500, speed: 0.7, heartsPerClick: 520 },
-        { id: 'phoenixmon', name: 'Hououmon', img: 'UI_Partner_Phoenixmon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400 },
-
-        // --- Izzy & Tentomon Line ---
-        { id: 'zurumon', name: 'Zurumon', img: 'UI_Partner_Zurumon.png', cost: 35, speed: 0.3, heartsPerClick: 7 },
-        { id: 'pagumon', name: 'Pagumon', img: 'UI_Partner_Pagumon.png', cost: 120, speed: 0.4, heartsPerClick: 25 },
-        { id: 'tentomon', name: 'Tentomon', img: 'UI_Partner_Tentomon.png', cost: 450, speed: 0.5, heartsPerClick: 80 },
-        { id: 'kabuterimon', name: 'Kabuterimon', img: 'UI_Partner_Kabuterimon.png', cost: 1600, speed: 0.5, heartsPerClick: 230 },
-        { id: 'metalkabuterimon', name: 'MegaKabuterimon', img: 'UI_Supporter_MegaKabuterimon.png', cost: 8000, speed: 0.5, heartsPerClick: 900 },
-        { id: 'herculeskabuterimon', name: 'HerculesKabuterimon', img: 'UI_Partner_HerculesKabuterimon.png', cost: 38000, speed: 0.6, heartsPerClick: 4100 },
-
-        // --- Mimi & Palmon Line ---
-        { id: 'tanemon', name: 'Tanemon', img: 'UI_Partner_Tanemon.png', cost: 60, speed: 0.2, heartsPerClick: 12 },
-        { id: 'palmon', name: 'Palmon', img: 'UI_Partner_Palmon.png', cost: 220, speed: 0.4, heartsPerClick: 40 },
-        { id: 'togemon', name: 'Togemon', img: 'UI_Partner_Togemon.png', cost: 800, speed: 0.3, heartsPerClick: 120 },
-        { id: 'lilimon', name: 'Lilimon', img: 'UI_Partner_Lillymon.png', cost: 3500, speed: 0.7, heartsPerClick: 420 },
-        { id: 'rosemon', name: 'Rosemon', img: 'UI_Partner_Rosemon.png', cost: 18000, speed: 0.6, heartsPerClick: 1900 },
-
-        // --- Joe & Gomamon Line ---
-        { id: 'pichimon', name: 'Pichimon', img: 'UI_Partner_Pichimon.png', cost: 90, speed: 0.4, heartsPerClick: 18 },
-        { id: 'bukamon', name: 'Bukamon', img: 'UI_Partner_Bukamon.png', cost: 320, speed: 0.5, heartsPerClick: 55 },
-        { id: 'gomamon', name: 'Gomamon', img: 'UI_Partner_Gomamon.png', cost: 1100, speed: 0.4, heartsPerClick: 160 },
-        { id: 'ikhakumon', name: 'Ikkakumon', img: 'UI_Partner_Ikkakumon.png', cost: 5000, speed: 0.4, heartsPerClick: 580 },
-        { id: 'zudomon', name: 'Zudomon', img: 'UI_Supporter_Zudomon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600 },
-        { id: 'vikemon', name: 'Vikemon', img: 'UI_Partner_Vikemon.png', cost: 110000, speed: 0.5, heartsPerClick: 12000 },
-
-        // --- T.K. & Patamon Line ---
-        { id: 'tokomon', name: 'Tokomon', img: 'UI_Partner_Tokomon.png', cost: 150, speed: 0.5, heartsPerClick: 25 },
-        { id: 'patamon', name: 'Patamon', img: 'UI_Partner_Patamon.png', cost: 550, speed: 0.6, heartsPerClick: 95 },
-        { id: 'angemon', name: 'Angemon', img: 'UI_Partner_Angemon.png', cost: 2200, speed: 0.7, heartsPerClick: 270 },
-        { id: 'magnaangemon', name: 'MagnaAngemon', img: 'UI_Partner_MagnaAngemon.png', cost: 12000, speed: 0.6, heartsPerClick: 1300 },
-        { id: 'seraphimon', name: 'Seraphimon', img: 'UI_Partner_Seraphimon.png', cost: 60000, speed: 0.7, heartsPerClick: 6500 },
-
-        // --- Kari & Gatomon Line ---
-        { id: 'salamon', name: 'Salamon', img: 'UI_Partner_Salamon.png', cost: 300, speed: 0.5, heartsPerClick: 50 },
-        { id: 'gatomon', name: 'Gatomon', img: 'UI_Partner_Gatomon.png', cost: 1300, speed: 0.6, heartsPerClick: 190 },
-        { id: 'angewomon', name: 'Angewomon', img: 'UI_Partner_Angewomon.png', cost: 7000, speed: 0.7, heartsPerClick: 800 },
-        { id: 'ophanimon', name: 'Ophanimon', img: 'UI_Partner_Magnadramon.png', cost: 35000, speed: 0.7, heartsPerClick: 3800 }
+        { id: 'clownfish', name: 'Clownfish', img: 'clownfish.png', cost: 5, speed: 0.5, heartsPerClick: 1 },
+        { id: 'sponge', name: 'Sponge', img: 'sponge.png', cost: 10, speed: 0, heartsPerClick: 2 },
+        { id: 'coral', name: 'Coral', img: 'coral.png', cost: 20, speed: 0, heartsPerClick: 3 },
+        { id: 'seastar', name: 'Sea Star', img: 'seastar.png', cost: 35, speed: 0.05, heartsPerClick: 4 },
+        { id: 'sea-anemone', name: 'Sea Anemone', img: 'sea-anemone.png', cost: 50, speed: 0, heartsPerClick: 5 },
+        { id: 'shrimp', name: 'Shrimp', img: 'shrimp.png', cost: 75, speed: 0.4, heartsPerClick: 6 },
+        { id: 'crab', name: 'Crab', img: 'crab.png', cost: 100, speed: 0.2, heartsPerClick: 8 },
+        { id: 'sea-cucumber', name: 'Sea Cucumber', img: 'sea-cucumber.png', cost: 150, speed: 0.05, heartsPerClick: 10 },
+        { id: 'giant-clam', name: 'Giant Clam', img: 'giant-clam.png', cost: 200, speed: 0, heartsPerClick: 12 },
+        { id: 'seahorse', name: 'Seahorse', img: 'seahorse.png', cost: 250, speed: 0.2, heartsPerClick: 15 },
+        { id: 'blue-tang', name: 'Blue Tang', img: 'blue-tang.png', cost: 350, speed: 0.5, heartsPerClick: 20 },
+        { id: 'angelfish', name: 'Angelfish', img: 'angelfish.png', cost: 500, speed: 0.5, heartsPerClick: 25 },
+        { id: 'pufferfish', name: 'Porcupinefish', img: 'pufferfish.png', cost: 750, speed: 0.3, heartsPerClick: 30 },
+        { id: 'lionfish', name: 'Lionfish', img: 'lionfish.png', cost: 1000, speed: 0.3, heartsPerClick: 35 },
+        { id: 'stonefish', name: 'Stonefish', img: 'stonefish.png', cost: 1250, speed: 0.1, heartsPerClick: 40 },
+        { id: 'lobster', name: 'Lobster', img: 'lobster.png', cost: 1500, speed: 0.2, heartsPerClick: 50 },
+        { id: 'cuttlefish', name: 'Cuttlefish', img: 'cuttlefish.png', cost: 2000, speed: 0.4, heartsPerClick: 60 },
+        { id: 'squid', name: 'Squid', img: 'squid.png', cost: 2500, speed: 0.5, heartsPerClick: 70 },
+        { id: 'seajelly', name: 'Sea Jelly', img: 'seajelly.png', cost: 3000, speed: 0.2, heartsPerClick: 80 },
+        { id: 'flying-fish', name: 'Flying Fish', img: 'flying-fish.png', cost: 4000, speed: 0.7, heartsPerClick: 90 },
+        { id: 'barracuda', name: 'Barracuda', img: 'barracuda.png', cost: 5000, speed: 0.6, heartsPerClick: 100 },
+        { id: 'moray-eel', name: 'Moray Eel', img: 'moray-eel.png', cost: 6500, speed: 0.4, heartsPerClick: 120 },
+        { id: 'electric-eel', name: 'Electric Eel', img: 'electric-eel.png', cost: 8000, speed: 0.4, heartsPerClick: 140 },
+        { id: 'stingray', name: 'Stingray', img: 'stingray.png', cost: 10000, speed: 0.5, heartsPerClick: 160 },
+        { id: 'manta-ray', name: 'Manta Ray', img: 'manta-ray.png', cost: 12500, speed: 0.6, heartsPerClick: 180 },
+        { id: 'octopus', name: 'Octopus', img: 'octopus.png', cost: 15000, speed: 0.3, heartsPerClick: 200 },
+        { id: 'hawksbill-sea-turtle', name: 'Hawksbill Turtle', img: 'hawksbill-sea-turtle.png', cost: 20000, speed: 0.3, heartsPerClick: 250 },
+        { id: 'green-sea-turtle', name: 'Green Sea Turtle', img: 'green-sea-turtle.png', cost: 25000, speed: 0.3, heartsPerClick: 300 },
+        { id: 'leatherback', name: 'Leatherback', img: 'leatherback.png', cost: 30000, speed: 0.3, heartsPerClick: 350 },
+        { id: 'sea-otter', name: 'Sea Otter', img: 'sea-otter.png', cost: 40000, speed: 0.4, heartsPerClick: 400 },
+        { id: 'seal', name: 'Seal', img: 'seal.png', cost: 50000, speed: 0.4, heartsPerClick: 500 },
+        { id: 'sea-lion', name: 'Sea Lion', img: 'sea-lion.png', cost: 60000, speed: 0.4, heartsPerClick: 600 },
+        { id: 'walrus', name: 'Walrus', img: 'walrus.png', cost: 75000, speed: 0.3, heartsPerClick: 700 },
+        { id: 'dugong', name: 'Dugong', img: 'dugong.png', cost: 90000, speed: 0.2, heartsPerClick: 800 },
+        { id: 'manatee', name: 'Manatee', img: 'manatee.png', cost: 100000, speed: 0.2, heartsPerClick: 900 },
+        { id: 'dolphin', name: 'Dolphin', img: 'dolphin.png', cost: 125000, speed: 0.6, heartsPerClick: 1000 },
+        { id: 'porpoise', name: 'Porpoise', img: 'porpoise.png', cost: 150000, speed: 0.6, heartsPerClick: 1200 },
+        { id: 'narwhal', name: 'Narwhal', img: 'narwhal.png', cost: 175000, speed: 0.5, heartsPerClick: 1400 },
+        { id: 'swordfish', name: 'Swordfish', img: 'swordfish.png', cost: 200000, speed: 0.8, heartsPerClick: 1600 },
+        { id: 'anglerfish', name: 'Anglerfish', img: 'anglerfish.png', cost: 250000, speed: 0.3, heartsPerClick: 1800 },
+        { id: 'dragonfish', name: 'Dragonfish', img: 'dragonfish.png', cost: 300000, speed: 0.3, heartsPerClick: 2000 },
+        { id: 'hammerhead-shark', name: 'Hammerhead Shark', img: 'hammerhead-shark.png', cost: 400000, speed: 0.5, heartsPerClick: 2500 },
+        { id: 'tiger-shark', name: 'Tiger Shark', img: 'tiger-shark.png', cost: 500000, speed: 0.5, heartsPerClick: 3000 },
+        { id: 'great-white-shark', name: 'Great White Shark', img: 'great-white-shark.png', cost: 600000, speed: 0.5, heartsPerClick: 3500 },
+        { id: 'whale-shark', name: 'Whale Shark', img: 'whale-shark.png', cost: 750000, speed: 0.2, heartsPerClick: 4500 },
+        { id: 'beluga-whale', name: 'Beluga Whale', img: 'beluga-whale.png', cost: 1000000, speed: 0.4, heartsPerClick: 6000 },
+        { id: 'orca', name: 'Orca', img: 'orca.png', cost: 1500000, speed: 0.6, heartsPerClick: 8000 },
+        { id: 'sperm-whale', name: 'Sperm Whale', img: 'sperm-whale.png', cost: 2500000, speed: 0.3, heartsPerClick: 12000 },
+        { id: 'giant-squid', name: 'Giant Squid', img: 'giant-squid.png', cost: 5000000, speed: 0.4, heartsPerClick: 25000 },
+        { id: 'blue-whale', name: 'Blue Whale', img: 'blue-whale.png', cost: 10000000, speed: 0.2, heartsPerClick: 50000 }
     ];
 
     let hearts = 0;
-    let unlockedIds = ['botamon']; 
-    let everUnlockedIds = ['botamon']; 
+    let unlockedIds = ['clownfish']; 
     let activeAnimals = [];
-    let pendingAutoPopup = false; 
 
     // --- Local Storage Management ---
     function saveProgress() {
-        localStorage.setItem("digiHearts", hearts);
-        localStorage.setItem("digiUnlocks", JSON.stringify(unlockedIds));
-        localStorage.setItem("digiEverUnlocks", JSON.stringify(everUnlockedIds));
+        localStorage.setItem("oceanHearts", hearts);
+        localStorage.setItem("oceanUnlocks", JSON.stringify(unlockedIds));
         
+        // Save current positions and velocities
         const animalStates = activeAnimals.map(anim => ({
             id: anim.id,
             x: anim.x,
@@ -389,22 +348,15 @@
             vx: anim.vx,
             vy: anim.vy
         }));
-        localStorage.setItem("digiAnimalStates", JSON.stringify(animalStates));
+        localStorage.setItem("oceanAnimalStates", JSON.stringify(animalStates));
     }
 
     function loadProgress() {
-        const savedHearts = localStorage.getItem("digiHearts");
-        const savedUnlocks = localStorage.getItem("digiUnlocks");
-        const savedEverUnlocks = localStorage.getItem("digiEverUnlocks");
+        const savedHearts = localStorage.getItem("oceanHearts");
+        const savedUnlocks = localStorage.getItem("oceanUnlocks");
         
         if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
         if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
-        
-        if (savedEverUnlocks !== null) {
-            everUnlockedIds = JSON.parse(savedEverUnlocks);
-        } else {
-            everUnlockedIds = [...new Set(['botamon', ...unlockedIds])];
-        }
         
         updateUI();
     }
@@ -413,6 +365,7 @@
     function updateUI() {
         document.getElementById('heart-count').innerText = hearts.toLocaleString();
         
+        // Auto Harvest Display Logic
         const autoBox = document.getElementById('auto-harvest-box');
         if (activeAnimals.length >= 6) {
             autoBox.style.display = 'block';
@@ -428,6 +381,7 @@
         const el = document.createElement('div');
         el.className = 'animal';
         
+        // Add Name Tag and Image
         el.innerHTML = `
             <div class="animal-name">${animalDef.name}</div>
             <img src="${animalDef.img}" alt="${animalDef.name}">
@@ -435,6 +389,7 @@
         
         let x, y, vx, vy;
         
+        // Load saved state coordinates if available, otherwise spawn randomly
         if (savedState) {
             x = savedState.x;
             y = savedState.y;
@@ -450,10 +405,12 @@
         el.style.left = x + 'px';
         el.style.top = y + 'px';
 
+        // Keep image orientation consistent with loaded velocity
         if (vx < 0 && animalDef.speed > 0) {
             el.querySelector('img').style.transform = "scaleX(-1)";
         }
 
+        // Pointer Down Event (Click / Start Drag)
         el.addEventListener('pointerdown', (e) => {
             e.preventDefault(); 
             
@@ -465,14 +422,16 @@
             el.classList.add('clicked');
             setTimeout(() => el.classList.remove('clicked'), 200);
 
+            // Floating Heart
             const floatHeart = document.createElement('div');
             floatHeart.className = 'floating-heart';
-            floatHeart.innerText = `+${animalDef.heartsPerClick.toLocaleString()} 💾`;
+            floatHeart.innerText = `+${animalDef.heartsPerClick} ❤️`;
             floatHeart.style.left = e.clientX + 'px';
             floatHeart.style.top = (e.clientY - 5) + 'px';
             ocean.appendChild(floatHeart);
             setTimeout(() => floatHeart.remove(), 1000);
 
+            // Start Dragging Setup
             let animObj = activeAnimals.find(a => a.el === el);
             if (animObj) {
                 animObj.isDragging = true;
@@ -482,6 +441,7 @@
             }
         });
 
+        // Pointer Move Event (Dragging)
         el.addEventListener('pointermove', (e) => {
             let animObj = activeAnimals.find(a => a.el === el);
             if (animObj && animObj.isDragging) {
@@ -492,6 +452,7 @@
             }
         });
 
+        // Pointer Up / Cancel Event (Release Drag)
         const endDrag = (e) => {
             let animObj = activeAnimals.find(a => a.el === el);
             if (animObj) {
@@ -514,7 +475,7 @@
         });
     }
 
-    // Auto Harvest Loop
+    // Auto Harvest Loop (Runs every 1 second)
     setInterval(() => {
         if (activeAnimals.length >= 6) {
             let heartsPerSecond = 0;
@@ -524,9 +485,10 @@
                 if (anim.heartsPerClick > 0) {
                     heartsPerSecond += anim.heartsPerClick;
                     
+                    // Spawn visual hearts for auto collection
                     const floatHeart = document.createElement('div');
                     floatHeart.className = 'floating-heart';
-                    floatHeart.innerText = `+${anim.heartsPerClick.toLocaleString()} 💾`;
+                    floatHeart.innerText = `+${anim.heartsPerClick} ❤️`;
                     
                     const offsetX = (Math.random() * 40) - 10;
                     floatHeart.style.left = (anim.x + 30 + offsetX) + 'px';
@@ -543,6 +505,7 @@
             }
         }
         
+        // Auto-save the game (including positions!) every 1 second
         saveProgress();
         
     }, 1000);
@@ -556,6 +519,7 @@
             anim.x += anim.vx;
             anim.y += anim.vy;
 
+            // Strict boundary rules to keep animals inside screen
             if (anim.x <= 0) {
                 anim.x = 0;
                 anim.vx = Math.abs(anim.vx);
@@ -580,37 +544,29 @@
         requestAnimationFrame(animate);
     }
 
-    // --- UI Modals & Logic ---
+    // --- UI Modals ---
     function openCollection() {
         const grid = document.getElementById('collection-grid');
         grid.innerHTML = '';
         
         animalData.forEach((a) => {
             const count = unlockedIds.filter(id => id === a.id).length;
-            const hasBeenUnlocked = everUnlockedIds.includes(a.id);
             const isUnlocked = count > 0;
             
             const item = document.createElement('div');
-            item.className = `collection-item ${hasBeenUnlocked ? '' : 'locked'}`;
+            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
             
             const canAfford = hearts >= a.cost;
             
-            const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">X</button>` : '';
-
-            const btnHTML = `
-                <div class="btn-group">
-                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
-                        ${hasBeenUnlocked ? 'Digitize' : 'Scan'}<br>(${a.cost.toLocaleString()} 💾)
-                    </button>
-                    ${removeBtnHTML}
-                </div>
-            `;
+            const btnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
+                                ${isUnlocked ? 'Recruit More' : 'Unlock'}<br>(${a.cost.toLocaleString()} ❤️)
+                             </button>`;
 
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
             item.innerHTML = `
                 <div class="visual"><img src="${a.img}" alt="${a.name}"></div>
-                <div class="name-tag">${hasBeenUnlocked ? a.name : '???'} ${countBadge}</div>
+                <div class="name-tag">${isUnlocked ? a.name : '???'} ${countBadge}</div>
                 ${btnHTML}
             `;
             grid.appendChild(item);
@@ -622,14 +578,11 @@
         const animal = animalData.find(a => a.id === id);
         
         if (hearts >= animal.cost) {
-            const isFirstTimeEver = !everUnlockedIds.includes(id);
+            const isFirstTime = !unlockedIds.includes(id);
             const wasBelowThreshold = activeAnimals.length < 6;
             
             hearts -= animal.cost;
             unlockedIds.push(id);
-            if (isFirstTimeEver) {
-                everUnlockedIds.push(id);
-            }
             
             spawnAnimal(animal);
             updateUI();
@@ -637,21 +590,17 @@
             openCollection(); 
             
             if (wasBelowThreshold && activeAnimals.length >= 6) {
-                pendingAutoPopup = true;
-            }
-
-            if (isFirstTimeEver) {
+                document.getElementById('collection-modal').style.display = 'none';
+                document.getElementById('unlock-popup').style.display = 'none'; 
+                document.getElementById('auto-popup').style.display = 'flex';
+                sfx.unlock();
+            } 
+            else if (isFirstTime) {
                 document.getElementById('collection-modal').style.display = 'none';
                 document.getElementById('popup-visual').innerHTML = `<img src="${animal.img}" alt="${animal.name}">`;
                 document.getElementById('popup-name').innerText = animal.name;
                 document.getElementById('unlock-popup').style.display = 'flex';
                 sfx.unlock();
-            } 
-            else if (pendingAutoPopup) {
-                document.getElementById('collection-modal').style.display = 'none';
-                document.getElementById('auto-popup').style.display = 'flex';
-                sfx.unlock();
-                pendingAutoPopup = false; 
             } 
             else {
                 sfx.bubble();
@@ -659,34 +608,7 @@
         }
     };
 
-    window.removeAnimal = function(id) {
-        const unlockIndex = unlockedIds.indexOf(id);
-        if (unlockIndex > -1) {
-            unlockedIds.splice(unlockIndex, 1);
-        }
-        
-        const activeIndex = activeAnimals.findIndex(a => a.id === id);
-        if (activeIndex > -1) {
-            activeAnimals[activeIndex].el.remove();
-            activeAnimals.splice(activeIndex, 1);
-        }
-
-        updateUI();
-        saveProgress();
-        openCollection(); 
-        sfx.bubble();
-    };
-
-    window.closeUnlockPopup = function() {
-        document.getElementById('unlock-popup').style.display = 'none';
-        
-        if (pendingAutoPopup) {
-            document.getElementById('auto-popup').style.display = 'flex';
-            sfx.unlock();
-            pendingAutoPopup = false;
-        }
-    };
-
+    // Modal Background Click-to-Close Listeners
     document.getElementById('collection-modal').addEventListener('click', (e) => {
         if (e.target.id === 'collection-modal') {
             e.target.style.display = 'none';
@@ -695,7 +617,7 @@
 
     document.getElementById('unlock-popup').addEventListener('click', (e) => {
         if (e.target.id === 'unlock-popup') {
-            closeUnlockPopup();
+            e.target.style.display = 'none';
         }
     });
     
@@ -705,43 +627,18 @@
         }
     });
 
-    // Sound Toggle Logic
-    document.getElementById('sound-btn').addEventListener('click', () => {
-        isMuted = !isMuted; 
-        
-        const btn = document.getElementById('sound-btn');
-        if (isMuted) {
-            btn.innerText = '🔇 Muted';
-            btn.style.borderColor = 'rgba(255, 165, 0, 0.5)';
-            btn.style.background = 'rgba(255, 165, 0, 0.2)';
-        } else {
-            btn.innerText = '🔊 Sound';
-            btn.style.borderColor = 'rgba(46, 213, 115, 0.5)';
-            btn.style.background = 'rgba(46, 213, 115, 0.2)';
-        }
-    });
-
-    // Reset Button Logic
-    document.getElementById('reset-btn').addEventListener('click', () => {
-        if (confirm("Are you sure you want to format the network? All Digimon progress will be permanently lost.")) {
-            localStorage.removeItem("digiHearts");
-            localStorage.removeItem("digiUnlocks");
-            localStorage.removeItem("digiEverUnlocks");
-            localStorage.removeItem("digiAnimalStates");
-            location.reload(); 
-        }
-    });
-
     // --- Init ---
     document.getElementById('start-btn').addEventListener('click', () => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('ui-layer').style.display = 'flex';
         
         if(audioCtx.state === 'suspended') audioCtx.resume();
+        bgm.play().catch(e => console.log("BGM play failed:", e));
 
         loadProgress();
         
-        const savedStatesJSON = localStorage.getItem("digiAnimalStates");
+        // Safely map saved positions, or fallback to default spawn logic
+        const savedStatesJSON = localStorage.getItem("oceanAnimalStates");
         let loadedFromState = false;
         
         if (savedStatesJSON) {

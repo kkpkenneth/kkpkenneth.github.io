@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DASS-21 評估</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #007aff;
+            --bg: #f2f2f7;
+            --card-bg: #ffffff;
+            --text: #1c1c1e;
+            --subtext: #8e8e93;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            min-height: 520px;
+            justify-content: space-between;
+        }
+
+        /* Progress Bar */
+        .progress-header {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--subtext);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-bg {
+            background: #e5e5ea;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: var(--accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question View */
+        .question-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question-num {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--text);
+            margin-bottom: 30px;
+            min-height: 70px;
+        }
+
+        /* Big Touch-Friendly Slider */
+        .slider-box {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            border: 1px solid #e5e5ea;
+        }
+
+        .slider-val-tag {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            background: #e1f0ff;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: #d1d1d6;
+            outline: none;
+            margin: 15px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+        }
+
+        .slider-ticks {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--subtext);
+            padding: 0 6px;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.7;
+        }
+
+        .btn-prev {
+            background: #e5e5ea;
+            color: var(--text);
+        }
+
+        .btn-next {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Result View */
+        #result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .score-card {
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e5e5ea;
+        }
+
+        .score-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .score-val {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .sev-normal { background: #34c759; }
+        .sev-mild { background: #ffcc00; color: #000; }
+        .sev-moderate { background: #ff9500; }
+        .sev-severe { background: #ff3b30; }
+        .sev-extremely-severe { background: #af52de; }
+
+        .btn-restart {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <!-- 問卷畫面 -->
+    <div id="quiz-screen" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+        <div class="progress-header">
+            <div class="progress-text">
+                <span>填寫進度</span>
+                <span id="progress-label">1 / 21</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="question-body">
+            <div class="question-num" id="q-num">第 1 題</div>
+            <div class="question-text" id="q-text">加載中...</div>
+
+            <div class="slider-box">
+                <div class="slider-val-tag" id="slider-val-label">0 - 不適用</div>
+                <input type="range" id="q-slider" min="0" max="3" value="0" step="1" oninput="handleSliderChange(this.value)">
+                <div class="slider-ticks">
+                    <span>0</span>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" id="btn-prev" onclick="prevQuestion()" disabled style="opacity: 0.5;">上一題</button>
+            <button class="btn btn-next" id="btn-next" onclick="nextQuestion()">下一題</button>
+        </div>
+    </div>
+
+    <!-- 結果畫面 -->
+    <div id="result-screen">
+        <h2 class="result-title">評估結果報告</h2>
+        
+        <div class="score-card">
+            <div style="text-align: left;">
+                <div class="score-title">抑鬱 (Depression)</div>
+                <div id="dep-sev" class="severity-badge">--</div>
+            </div>
+            <div class="score-val" id="dep-score">0 分</div>
+        </div>
+
+        <div class="score-card">
+            <div style="text-align: left;">
+                <div class="score-title">焦慮 (Anxiety)</div>
+                <div id="anx-sev" class="severity-badge">--</div>
+            </div>
+            <div class="score-val" id="anx-score">0 分</div>
+        </div>
+
+        <div class="score-card">
+            <div style="text-align: left;">
+                <div class="score-title">壓力 (Stress)</div>
+                <div id="str-sev" class="severity-badge">--</div>
+            </div>
+            <div class="score-val" id="str-score">0 分</div>
+        </div>
+
+        <p style="font-size: 0.8rem; color: var(--subtext); margin-top: 15px; text-align: left;">
+            *註：得分計算方式為各量表題號得分加總後乘 2（滿分 42 分）。本測試僅供個人評估參考，不可代替專業醫療診斷。
+        </p>
+
+        <button class="btn btn-restart" onclick="restartQuiz()">重新測試</button>
+    </div>
+</div>
+
+<script>
+// 依據您的要求劃分題號：
+// 抑鬱 (D): 3, 5, 10, 13, 16, 17, 21
+// 焦慮 (A): 2, 4, 7, 9, 15, 19, 20
+// 壓力 (S): 1, 6, 8, 11, 12, 14, 18
+const questions = [
+    { id: 1, text: "我覺得很難讓自己安靜下來", type: "S" },
+    { id: 2, text: "我感到口乾", type: "A" },
+    { id: 3, text: "我好像不能再有任何愉快、舒暢的感覺", type: "D" },
+    { id: 4, text: "我感到呼吸困難（例如不是做運動時也感到氣促或透不過氣來）", type: "A" },
+    { id: 5, text: "我感到很難自動去開始工作", type: "D" },
+    { id: 6, text: "我對事情往往作出過敏反應", type: "S" },
+    { id: 7, text: "我感到顫抖（例如手震）", type: "A" },
+    { id: 8, text: "我覺得自己消耗很多精神", type: "S" },
+    { id: 9, text: "我憂慮一些令自己恐慌或出醜的場合", type: "A" },
+    { id: 10, text: "我覺得自己對將來沒有甚麼可盼望", type: "D" },
+    { id: 11, text: "我感到忐忑不安", type: "S" },
+    { id: 12, text: "我感到很難放鬆自己", type: "S" },
+    { id: 13, text: "我感到憂鬱沮喪", type: "D" },
+    { id: 14, text: "我無法容忍任何阻礙我繼續工作的事情", type: "S" },
+    { id: 15, text: "我感到快要恐慌了", type: "A" },
+    { id: 16, text: "我對任何事也不能熱衷", type: "D" },
+    { id: 17, text: "我覺得自己不怎麼配做人", type: "D" },
+    { id: 18, text: "我發覺自己很容易被觸怒", type: "S" },
+    { id: 19, text: "我察覺自己在沒有明顯的體力勞動時，也感到心律不正常", type: "A" },
+    { id: 20, text: "我無緣無故地感到害怕", type: "A" },
+    { id: 21, text: "我感到生命毫無意義", type: "D" }
+];
+
+const scaleLabels = [
+    "0 - 不適用",
+    "1 - 頗適用 / 間中適用",
+    "2 - 很適用 / 經常適用",
+    "3 - 最適用 / 常常適用"
+];
+
+let currentIndex = 0;
+let userAnswers = new Array(questions.length).fill(0);
+
+function loadQuestion() {
+    const q = questions[currentIndex];
+    
+    // 更新進度條與題號
+    document.getElementById('progress-label').innerText = `${currentIndex + 1} / ${questions.length}`;
+    document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+    document.getElementById('q-num').innerText = `第 ${currentIndex + 1} 題`;
+    document.getElementById('q-text').innerText = q.text;
+
+    // 載入當前選擇的數值
+    const currentVal = userAnswers[currentIndex];
+    const slider = document.getElementById('q-slider');
+    slider.value = currentVal;
+    document.getElementById('slider-val-label').innerText = scaleLabels[currentVal];
+
+    // 控制按鈕狀態
+    const prevBtn = document.getElementById('btn-prev');
+    const nextBtn = document.getElementById('btn-next');
+
+    if (currentIndex === 0) {
+        prevBtn.disabled = true;
+        prevBtn.style.opacity = "0.5";
+    } else {
+        prevBtn.disabled = false;
+        prevBtn.style.opacity = "1";
+    }
+
+    if (currentIndex === questions.length - 1) {
+        nextBtn.innerText = "查看結果";
+    } else {
+        nextBtn.innerText = "下一題";
+    }
+}
+
+function handleSliderChange(val) {
+    userAnswers[currentIndex] = parseInt(val);
+    document.getElementById('slider-val-label').innerText = scaleLabels[val];
+}
+
+function nextQuestion() {
+    if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function prevQuestion() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        loadQuestion();
+    }
+}
+
+function showResults() {
+    let raw = { D: 0, A: 0, S: 0 };
+    
+    // 計算各自題號的加總得分
+    questions.forEach((q, idx) => {
+        raw[q.type] += userAnswers[idx];
+    });
+
+    // 依據規則：各分量表總和 × 2
+    const finalScores = {
+        D: raw.D * 2,
+        A: raw.A * 2,
+        S: raw.S * 2
+    };
+
+    updateResultUI('dep', finalScores.D, getSeverity(finalScores.D, 'D'));
+    updateResultUI('anx', finalScores.A, getSeverity(finalScores.A, 'A'));
+    updateResultUI('str', finalScores.S, getSeverity(finalScores.S, 'S'));
+
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+}
+
+function getSeverity(score, type) {
+    if (type === 'D') {
+        if (score <= 9) return { text: "正常 (Normal)", class: "sev-normal" };
+        if (score <= 13) return { text: "輕微 (Mild)", class: "sev-mild" };
+        if (score <= 20) return { text: "中度 (Moderate)", class: "sev-moderate" };
+        if (score <= 27) return { text: "嚴重 (Severe)", class: "sev-severe" };
+        return { text: "極嚴重 (Extremely Severe)", class: "sev-extremely-severe" };
+    }
+    if (type === 'A') {
+        if (score <= 7) return { text: "正常 (Normal)", class: "sev-normal" };
+        if (score <= 9) return { text: "輕微 (Mild)", class: "sev-mild" };
+        if (score <= 14) return { text: "中度 (Moderate)", class: "sev-moderate" };
+        if (score <= 19) return { text: "嚴重 (Severe)", class: "sev-severe" };
+        return { text: "極嚴重 (Extremely Severe)", class: "sev-extremely-severe" };          
+    }
+    if (type === 'S') {
+        if (score <= 14) return { text: "正常 (Normal)", class: "sev-normal" };
+        if (score <= 18) return { text: "輕微 (Mild)", class: "sev-mild" };
+        if (score <= 25) return { text: "中度 (Moderate)", class: "sev-moderate" };
+        if (score <= 33) return { text: "嚴重 (Severe)", class: "sev-severe" };
+        return { text: "極嚴重 (Extremely Severe)", class: "sev-extremely-severe" };
+    }
+}
+
+function updateResultUI(prefix, score, severity) {
+    document.getElementById(`${prefix}-score`).innerText = `${score} 分`;
+    const sevEl = document.getElementById(`${prefix}-sev`);
+    sevEl.innerText = severity.text;
+    sevEl.className = `severity-badge ${severity.class}`;
+}
+
+function restartQuiz() {
+    currentIndex = 0;
+    userAnswers.fill(0);
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'flex';
+    loadQuestion();
+}
+
+window.onload = loadQuestion;
+</script>
+
+</body>
+</html>

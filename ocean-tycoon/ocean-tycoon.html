@@ -116,8 +116,9 @@
     }
 
     .animal img {
-        width: 90px; 
-        height: auto;
+        width: 64px; 
+        height: 64px;
+        image-rendering: pixelated;
         pointer-events: none; 
         user-select: none;
         filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));
@@ -191,7 +192,7 @@
         filter: brightness(0) opacity(0.2); 
     }
     .collection-item .visual { margin-bottom: 10px; height: 70px; display: flex; align-items: center; }
-    .collection-item .visual img { max-width: 70px; max-height: 70px; width: auto; height: auto; }
+    .collection-item .visual img { max-width: 64px; max-height: 64px; width: 64px; height: 64px; image-rendering: pixelated; }
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
     .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
     
@@ -215,7 +216,7 @@
 
     /* Popups */
     #unlock-popup, #auto-popup { z-index: 300; }
-    .visual img { width: 120px; height: auto; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .visual img { width: 64px; height: 64px; image-rendering: pixelated; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     
     #auto-popup .modal { max-width: 500px; }
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -306,67 +307,67 @@
         }
     };
 
-    // --- Complete Main 8 Digimon Data (In-Training to Mega) ---
+    // --- Main 8 Digimon Data (In-Training to Mega using UI asset mappings) ---
     const animalData = [
-        // --- Agumon Line ---
-        { id: 'botamon', name: 'Botamon', img: 'https://wikimon.net/images/thumb/7/70/Botamon.jpg/120px-Botamon.jpg', cost: 5, speed: 0.3, heartsPerClick: 1 },
-        { id: 'koromon', name: 'Koromon', img: 'https://wikimon.net/images/thumb/6/67/Koromon_digicards.jpg/120px-Koromon_digicards.jpg', cost: 15, speed: 0.4, heartsPerClick: 3 },
-        { id: 'agumon', name: 'Agumon', img: 'https://wikimon.net/images/thumb/b/b2/Agumon.jpg/120px-Agumon.jpg', cost: 50, speed: 0.5, heartsPerClick: 10 },
-        { id: 'greymon', name: 'Greymon', img: 'https://wikimon.net/images/thumb/b/bd/Greymon.jpg/120px-Greymon.jpg', cost: 200, speed: 0.4, heartsPerClick: 35 },
-        { id: 'metalgreymon', name: 'MetalGreymon', img: 'https://wikimon.net/images/thumb/1/13/Metalgreymon.jpg/120px-Metalgreymon.jpg', cost: 1000, speed: 0.5, heartsPerClick: 150 },
-        { id: 'wargreymon', name: 'WarGreymon', img: 'https://wikimon.net/images/thumb/8/87/Wargreymon.jpg/120px-Wargreymon.jpg', cost: 5000, speed: 0.6, heartsPerClick: 600 },
+        // --- Tai & Agumon Line ---
+        { id: 'botamon', name: 'Botamon', img: 'UI_Partner_Botamon.png', cost: 5, speed: 0.3, heartsPerClick: 1 },
+        { id: 'koromon', name: 'Koromon', img: 'UI_Partner_Koromon.png', cost: 15, speed: 0.4, heartsPerClick: 3 },
+        { id: 'agumon', name: 'Agumon', img: 'UI_Partner_Agumon.png', cost: 50, speed: 0.5, heartsPerClick: 10 },
+        { id: 'greymon', name: 'Greymon', img: 'UI_Partner_Greymon.png', cost: 200, speed: 0.4, heartsPerClick: 35 },
+        { id: 'metalgreymon', name: 'MetalGreymon', img: 'UI_Partner_MetalGreymon.png', cost: 1000, speed: 0.5, heartsPerClick: 150 },
+        { id: 'wargreymon', name: 'WarGreymon', img: 'UI_Supporter_WarGreymon.png', cost: 5000, speed: 0.6, heartsPerClick: 600 },
 
-        // --- Gabumon Line ---
-        { id: 'punimon', name: 'Punimon', img: 'https://wikimon.net/images/thumb/4/46/Punimon.jpg/120px-Punimon.jpg', cost: 10, speed: 0.3, heartsPerClick: 2 },
-        { id: 'tsunomon', name: 'Tsunomon', img: 'https://wikimon.net/images/thumb/b/b2/Tsunomon.jpg/120px-Tsunomon.jpg', cost: 30, speed: 0.4, heartsPerClick: 6 },
-        { id: 'gabumon', name: 'Gabumon', img: 'https://wikimon.net/images/thumb/6/6c/Gabumon.jpg/120px-Gabumon.jpg', cost: 100, speed: 0.5, heartsPerClick: 20 },
-        { id: 'garurumon', name: 'Garurumon', img: 'https://wikimon.net/images/thumb/5/53/Garurumon.jpg/120px-Garurumon.jpg', cost: 400, speed: 0.7, heartsPerClick: 70 },
-        { id: 'weregarurumon', name: 'WereGarurumon', img: 'https://wikimon.net/images/thumb/6/6f/Weregarurumon.jpg/120px-Weregarurumon.jpg', cost: 2000, speed: 0.6, heartsPerClick: 280 },
-        { id: 'metalgarurumon', name: 'MetalGarurumon', img: 'https://wikimon.net/images/thumb/6/69/Metalgarurumon.jpg/120px-Metalgarurumon.jpg', cost: 10000, speed: 0.7, heartsPerClick: 1100 },
+        // --- Matt & Gabumon Line ---
+        { id: 'punimon', name: 'Punimon', img: 'UI_Partner_Punimon.png', cost: 10, speed: 0.3, heartsPerClick: 2 },
+        { id: 'tsunomon', name: 'Tsunomon', img: 'UI_Partner_Tsunomon.png', cost: 30, speed: 0.4, heartsPerClick: 6 },
+        { id: 'gabumon', name: 'Gabumon', img: 'UI_Partner_Gabumon.png', cost: 100, speed: 0.5, heartsPerClick: 20 },
+        { id: 'garurumon', name: 'Garurumon', img: 'UI_Partner_Garurumon.png', cost: 400, speed: 0.7, heartsPerClick: 70 },
+        { id: 'weregarurumon', name: 'WereGarurumon', img: 'UI_Supporter_WereGarurumon.png', cost: 2000, speed: 0.6, heartsPerClick: 280 },
+        { id: 'metalgarurumon', name: 'MetalGarurumon', img: 'UI_Supporter_MetalGarurumon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100 },
 
-        // --- Biyomon Line ---
-        { id: 'nyokimon', name: 'Nyokimon', img: 'https://wikimon.net/images/thumb/7/7b/Nyokimon.jpg/120px-Nyokimon.jpg', cost: 20, speed: 0.2, heartsPerClick: 4 },
-        { id: 'yokomon', name: 'Yokomon', img: 'https://wikimon.net/images/thumb/4/4f/Pyocomon.jpg/120px-Pyocomon.jpg', cost: 75, speed: 0.4, heartsPerClick: 15 },
-        { id: 'biyomon', name: 'Biyomon', img: 'https://wikimon.net/images/thumb/8/89/Biyomon.jpg/120px-Biyomon.jpg', cost: 250, speed: 0.6, heartsPerClick: 45 },
-        { id: 'birdramon', name: 'Birdramon', img: 'https://wikimon.net/images/thumb/2/23/Birdramon.jpg/120px-Birdramon.jpg', cost: 900, speed: 0.8, heartsPerClick: 130 },
-        { id: 'garudamon', name: 'Garudamon', img: 'https://wikimon.net/images/thumb/f/fa/Garudamon.jpg/120px-Garudamon.jpg', cost: 4500, speed: 0.7, heartsPerClick: 520 },
-        { id: 'phoenixmon', name: 'Hououmon', img: 'https://wikimon.net/images/thumb/7/7c/Hououmon.jpg/120px-Hououmon.jpg', cost: 22000, speed: 0.8, heartsPerClick: 2400 },
+        // --- Sora & Biyomon Line ---
+        { id: 'nyokimon', name: 'Nyokimon', img: 'UI_Partner_Nyokimon.png', cost: 20, speed: 0.2, heartsPerClick: 4 },
+        { id: 'yokomon', name: 'Yokomon', img: 'UI_Partner_Yokomon.png', cost: 75, speed: 0.4, heartsPerClick: 15 },
+        { id: 'biyomon', name: 'Biyomon', img: 'UI_Partner_Biyomon.png', cost: 250, speed: 0.6, heartsPerClick: 45 },
+        { id: 'birdramon', name: 'Birdramon', img: 'UI_Partner_Birdramon.png', cost: 900, speed: 0.8, heartsPerClick: 130 },
+        { id: 'garudamon', name: 'Garudamon', img: 'UI_Partner_Garudamon.png', cost: 4500, speed: 0.7, heartsPerClick: 520 },
+        { id: 'phoenixmon', name: 'Hououmon', img: 'UI_Partner_Phoenixmon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400 },
 
-        // --- Tentomon Line ---
-        { id: 'zurumon', name: 'Zurumon', img: 'https://wikimon.net/images/thumb/d/df/Zurumon.jpg/120px-Zurumon.jpg', cost: 35, speed: 0.3, heartsPerClick: 7 },
-        { id: 'pagumon', name: 'Pagumon', img: 'https://wikimon.net/images/thumb/f/f6/Pagumon.jpg/120px-Pagumon.jpg', cost: 120, speed: 0.4, heartsPerClick: 25 },
-        { id: 'tentomon', name: 'Tentomon', img: 'https://wikimon.net/images/thumb/8/82/Tentomon.jpg/120px-Tentomon.jpg', cost: 450, speed: 0.5, heartsPerClick: 80 },
-        { id: 'kabuterimon', name: 'Kabuterimon', img: 'https://wikimon.net/images/thumb/a/a2/Kabuterimon.jpg/120px-Kabuterimon.jpg', cost: 1600, speed: 0.5, heartsPerClick: 230 },
-        { id: 'metalkabuterimon', name: 'MegaKabuterimon', img: 'https://wikimon.net/images/thumb/e/e0/Atlurkabuterimon_red.jpg/120px-Atlurkabuterimon_red.jpg', cost: 8000, speed: 0.5, heartsPerClick: 900 },
-        { id: 'herculeskabuterimon', name: 'HerculesKabuterimon', img: 'https://wikimon.net/images/thumb/a/a7/Herculeskabuterimon.jpg/120px-Herculeskabuterimon.jpg', cost: 38000, speed: 0.6, heartsPerClick: 4100 },
+        // --- Izzy & Tentomon Line ---
+        { id: 'zurumon', name: 'Zurumon', img: 'UI_Partner_Zurumon.png', cost: 35, speed: 0.3, heartsPerClick: 7 },
+        { id: 'pagumon', name: 'Pagumon', img: 'UI_Partner_Pagumon.png', cost: 120, speed: 0.4, heartsPerClick: 25 },
+        { id: 'tentomon', name: 'Tentomon', img: 'UI_Partner_Tentomon.png', cost: 450, speed: 0.5, heartsPerClick: 80 },
+        { id: 'kabuterimon', name: 'Kabuterimon', img: 'UI_Partner_Kabuterimon.png', cost: 1600, speed: 0.5, heartsPerClick: 230 },
+        { id: 'metalkabuterimon', name: 'MegaKabuterimon', img: 'UI_Supporter_MegaKabuterimon.png', cost: 8000, speed: 0.5, heartsPerClick: 900 },
+        { id: 'herculeskabuterimon', name: 'HerculesKabuterimon', img: 'UI_Partner_HerculesKabuterimon.png', cost: 38000, speed: 0.6, heartsPerClick: 4100 },
 
-        // --- Palmon Line ---
-        { id: 'tanemon', name: 'Tanemon', img: 'https://wikimon.net/images/thumb/a/a8/Tanemon.jpg/120px-Tanemon.jpg', cost: 60, speed: 0.2, heartsPerClick: 12 },
-        { id: 'palmon', name: 'Palmon', img: 'https://wikimon.net/images/thumb/3/36/Palmon.jpg/120px-Palmon.jpg', cost: 220, speed: 0.4, heartsPerClick: 40 },
-        { id: 'togemon', name: 'Togemon', img: 'https://wikimon.net/images/thumb/e/e8/Togemon.jpg/120px-Togemon.jpg', cost: 800, speed: 0.3, heartsPerClick: 120 },
-        { id: 'lilimon', name: 'Lilimon', img: 'https://wikimon.net/images/thumb/d/dc/Lilimon.jpg/120px-Lilimon.jpg', cost: 3500, speed: 0.7, heartsPerClick: 420 },
-        { id: 'rosemon', name: 'Rosemon', img: 'https://wikimon.net/images/thumb/9/91/Rosemon.jpg/120px-Rosemon.jpg', cost: 18000, speed: 0.6, heartsPerClick: 1900 },
+        // --- Mimi & Palmon Line ---
+        { id: 'tanemon', name: 'Tanemon', img: 'UI_Partner_Tanemon.png', cost: 60, speed: 0.2, heartsPerClick: 12 },
+        { id: 'palmon', name: 'Palmon', img: 'UI_Partner_Palmon.png', cost: 220, speed: 0.4, heartsPerClick: 40 },
+        { id: 'togemon', name: 'Togemon', img: 'UI_Partner_Togemon.png', cost: 800, speed: 0.3, heartsPerClick: 120 },
+        { id: 'lilimon', name: 'Lilimon', img: 'UI_Partner_Lillymon.png', cost: 3500, speed: 0.7, heartsPerClick: 420 },
+        { id: 'rosemon', name: 'Rosemon', img: 'UI_Partner_Rosemon.png', cost: 18000, speed: 0.6, heartsPerClick: 1900 },
 
-        // --- Gomamon Line ---
-        { id: 'pichimon', name: 'Pichimon', img: 'https://wikimon.net/images/thumb/8/87/Pichimon.jpg/120px-Pichimon.jpg', cost: 90, speed: 0.4, heartsPerClick: 18 },
-        { id: 'bukamon', name: 'Bukamon', img: 'https://wikimon.net/images/thumb/0/07/Bukamon.jpg/120px-Bukamon.jpg', cost: 320, speed: 0.5, heartsPerClick: 55 },
-        { id: 'gomamon', name: 'Gomamon', img: 'https://wikimon.net/images/thumb/5/50/Gomamon.jpg/120px-Gomamon.jpg', cost: 1100, speed: 0.4, heartsPerClick: 160 },
-        { id: 'ikhakumon', name: 'Ikkakumon', img: 'https://wikimon.net/images/thumb/4/4b/Ikkakumon.jpg/120px-Ikkakumon.jpg', cost: 5000, speed: 0.4, heartsPerClick: 580 },
-        { id: 'zudomon', name: 'Zudomon', img: 'https://wikimon.net/images/thumb/0/0a/Zudomon.jpg/120px-Zudomon.jpg', cost: 24000, speed: 0.4, heartsPerClick: 2600 },
-        { id: 'vikemon', name: 'Vikemon', img: 'https://wikimon.net/images/thumb/5/52/Vikemon.jpg/120px-Vikemon.jpg', cost: 110000, speed: 0.5, heartsPerClick: 12000 },
+        // --- Joe & Gomamon Line ---
+        { id: 'pichimon', name: 'Pichimon', img: 'UI_Partner_Pichimon.png', cost: 90, speed: 0.4, heartsPerClick: 18 },
+        { id: 'bukamon', name: 'Bukamon', img: 'UI_Partner_Bukamon.png', cost: 320, speed: 0.5, heartsPerClick: 55 },
+        { id: 'gomamon', name: 'Gomamon', img: 'UI_Partner_Gomamon.png', cost: 1100, speed: 0.4, heartsPerClick: 160 },
+        { id: 'ikhakumon', name: 'Ikkakumon', img: 'UI_Partner_Ikkakumon.png', cost: 5000, speed: 0.4, heartsPerClick: 580 },
+        { id: 'zudomon', name: 'Zudomon', img: 'UI_Supporter_Zudomon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600 },
+        { id: 'vikemon', name: 'Vikemon', img: 'UI_Partner_Vikemon.png', cost: 110000, speed: 0.5, heartsPerClick: 12000 },
 
-        // --- Patamon Line ---
-        { id: 'tokomon', name: 'Tokomon', img: 'https://wikimon.net/images/thumb/5/5b/Tokomon.jpg/120px-Tokomon.jpg', cost: 150, speed: 0.5, heartsPerClick: 25 },
-        { id: 'patamon', name: 'Patamon', img: 'https://wikimon.net/images/thumb/1/1b/Patamon.jpg/120px-Patamon.jpg', cost: 550, speed: 0.6, heartsPerClick: 95 },
-        { id: 'angemon', name: 'Angemon', img: 'https://wikimon.net/images/thumb/2/23/Angemon.jpg/120px-Angemon.jpg', cost: 2200, speed: 0.7, heartsPerClick: 270 },
-        { id: 'magnaangemon', name: 'MagnaAngemon', img: 'https://wikimon.net/images/thumb/2/24/Holyangemon.jpg/120px-Holyangemon.jpg', cost: 12000, speed: 0.6, heartsPerClick: 1300 },
-        { id: 'seraphimon', name: 'Seraphimon', img: 'https://wikimon.net/images/thumb/1/1d/Seraphimon.jpg/120px-Seraphimon.jpg', cost: 60000, speed: 0.7, heartsPerClick: 6500 },
+        // --- T.K. & Patamon Line ---
+        { id: 'tokomon', name: 'Tokomon', img: 'UI_Partner_Tokomon.png', cost: 150, speed: 0.5, heartsPerClick: 25 },
+        { id: 'patamon', name: 'Patamon', img: 'UI_Partner_Patamon.png', cost: 550, speed: 0.6, heartsPerClick: 95 },
+        { id: 'angemon', name: 'Angemon', img: 'UI_Partner_Angemon.png', cost: 2200, speed: 0.7, heartsPerClick: 270 },
+        { id: 'magnaangemon', name: 'MagnaAngemon', img: 'UI_Partner_MagnaAngemon.png', cost: 12000, speed: 0.6, heartsPerClick: 1300 },
+        { id: 'seraphimon', name: 'Seraphimon', img: 'UI_Partner_Seraphimon.png', cost: 60000, speed: 0.7, heartsPerClick: 6500 },
 
-        // --- Gatomon Line ---
-        { id: 'salamon', name: 'Salamon', img: 'https://wikimon.net/images/thumb/9/91/Plotmon.jpg/120px-Plotmon.jpg', cost: 300, speed: 0.5, heartsPerClick: 50 },
-        { id: 'gatomon', name: 'Gatomon', img: 'https://wikimon.net/images/thumb/8/8c/Tailmon.jpg/120px-Tailmon.jpg', cost: 1300, speed: 0.6, heartsPerClick: 190 },
-        { id: 'angewomon', name: 'Angewomon', img: 'https://wikimon.net/images/thumb/8/8c/Angewomon.jpg/120px-Angewomon.jpg', cost: 7000, speed: 0.7, heartsPerClick: 800 },
-        { id: 'ophanimon', name: 'Ophanimon', img: 'https://wikimon.net/images/thumb/e/e0/Ofanimon.jpg/120px-Ofanimon.jpg', cost: 35000, speed: 0.7, heartsPerClick: 3800 }
+        // --- Kari & Gatomon Line ---
+        { id: 'salamon', name: 'Salamon', img: 'UI_Partner_Salamon.png', cost: 300, speed: 0.5, heartsPerClick: 50 },
+        { id: 'gatomon', name: 'Gatomon', img: 'UI_Partner_Gatomon.png', cost: 1300, speed: 0.6, heartsPerClick: 190 },
+        { id: 'angewomon', name: 'Angewomon', img: 'UI_Partner_Angewomon.png', cost: 7000, speed: 0.7, heartsPerClick: 800 },
+        { id: 'ophanimon', name: 'Ophanimon', img: 'UI_Partner_Magnadramon.png', cost: 35000, speed: 0.7, heartsPerClick: 3800 }
     ];
 
     let hearts = 0;

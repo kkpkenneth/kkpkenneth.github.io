@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital World Tycoon</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #0c091f; 
+        user-select: none;
+    }
+
+    /* The Digital World (Game Container) */
+    #ocean {
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh;
+        background: url('world-map.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1; 
+    }
+
+    /* Dark Overlay */
+    #ocean::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(12, 9, 31, 0.65);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Start Screen */
+    #start-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: radial-gradient(circle, #24143a, #100a1d, #05030a);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 200;
+        color: white;
+    }
+    #start-screen h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 0 4px 15px rgba(114, 9, 183, 0.6); color: #00f2fe; }
+    #start-screen p { color: #a29bfe; font-size: 1.1em; }
+    #start-btn {
+        padding: 15px 40px; font-size: 1.5em; font-weight: bold;
+        background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #0c091f; border: none; border-radius: 50px;
+        cursor: pointer; box-shadow: 0 4px 20px rgba(0,242,254,0.4);
+        transition: transform 0.2s;
+    }
+    #start-btn:hover { transform: scale(1.1); }
+
+    /* UI Overlay */
+    #ui-layer {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
+        display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    
+    .hud-column {
+        display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .hud-box {
+        background: rgba(20, 15, 45, 0.75); backdrop-filter: blur(5px);
+        padding: 15px 25px; border-radius: 15px; border: 2px solid rgba(79, 172, 254, 0.4);
+        color: white; font-weight: bold; font-size: 1.5em; pointer-events: auto;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    
+    #auto-harvest-box {
+        font-size: 1em; padding: 10px 20px; background: rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.5);
+        display: none;
+    }
+
+    .btn-column {
+        display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+    }
+
+    /* Buttons */
+    .action-btn {
+        cursor: pointer; transition: transform 0.2s; color: white; border: 2px solid;
+    }
+    .action-btn:hover { transform: scale(1.05); }
+
+    #farm-btn { background: rgba(255, 159, 67, 0.3); border-color: rgba(255, 159, 67, 0.5); }
+    #farm-btn:hover { background: rgba(255, 159, 67, 0.5); }
+
+    #collection-btn { background: rgba(79, 172, 254, 0.3); border-color: rgba(79, 172, 254, 0.5); }
+    #collection-btn:hover { background: rgba(79, 172, 254, 0.5); }
+
+    #sound-btn { background: rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.5); font-size: 1em; padding: 10px 15px; }
+    #sound-btn:hover { background: rgba(46, 213, 115, 0.5); }
+
+    #reset-btn { background: rgba(255, 71, 87, 0.3); border-color: rgba(255, 71, 87, 0.5); font-size: 1em; padding: 10px 15px; }
+    #reset-btn:hover { background: rgba(255, 71, 87, 0.5); }
+
+    /* Black Hole for Deletion */
+    #black-hole {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, #000 0%, #1f0230 40%, #46066b 80%, transparent 100%);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 5;
+        pointer-events: none; /* Let pointer events pass to ocean unless dragging */
+        box-shadow: 0 0 20px rgba(180, 0, 255, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    #black-hole::after {
+        content: '🌌';
+        font-size: 2.5em;
+        animation: spinRotate 6s linear infinite;
+    }
+    #black-hole.active {
+        transform: scale(1.4);
+        box-shadow: 0 0 40px rgba(255, 50, 100, 0.9);
+        background: radial-gradient(circle, #000 0%, #4a0319 40%, #870529 80%, transparent 100%);
+    }
+    @keyframes spinRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Digimon Sprites & Eggs */
+    .animal {
+        position: absolute;
+        cursor: grab;
+        display: flex; 
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center;
+        touch-action: none;
+        z-index: 6;
+        transform-origin: bottom center;
+    }
+    .animal:active { cursor: grabbing; }
+    
+    .animal-name {
+        font-size: 13px;
+        font-weight: bold;
+        color: #00f2fe;
+        background: rgba(10, 8, 25, 0.85);
+        padding: 4px 10px;
+        border-radius: 12px;
+        margin-bottom: 5px;
+        pointer-events: none;
+        white-space: nowrap;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        border: 1px solid rgba(79, 172, 254, 0.3);
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .animal:hover .animal-name {
+        opacity: 1;
+    }
+
+    .animal img {
+        width: auto;
+        image-rendering: pixelated;
+        pointer-events: none; 
+        user-select: none;
+        filter: drop-shadow(0 5px 8px rgba(0,0,0,0.8));
+    }
+
+    .animal.is-egg img {
+        height: 32px;
+    }
+
+    /* Evolution Badge Pulse */
+    @keyframes pulseGlow {
+        0% { transform: scale(1); filter: drop-shadow(0 0 2px #ff4757); }
+        50% { transform: scale(1.1); filter: drop-shadow(0 0 10px #ff4757); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 2px #ff4757); }
+    }
+    .evolve-ready-badge {
+        position: absolute;
+        top: -12px;
+        right: -10px;
+        background: linear-gradient(135deg, #ff4757, #ff6b81);
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        padding: 3px 6px;
+        border-radius: 8px;
+        border: 1px solid white;
+        pointer-events: none;
+        animation: pulseGlow 1s infinite;
+        z-index: 5;
+    }
+
+    /* Floating Data Bits Animation */
+    .floating-heart {
+        position: absolute;
+        color: #00f2fe;
+        font-size: 0.8em;
+        font-weight: bold;
+        pointer-events: none;
+        animation: floatUp 1s ease-out forwards;
+        z-index: 50;
+        text-shadow: 0 2px 5px rgba(0,242,254,0.6);
+    }
+    @keyframes floatUp {
+        0% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
+    }
+
+    /* Modals */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(5, 3, 10, 0.85); z-index: 100;
+        display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px);
+    }
+    
+    .modal {
+        background: rgba(15, 12, 35, 0.9); 
+        backdrop-filter: blur(16px); 
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 25px; 
+        color: white; padding: 30px; 
+        max-width: 900px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(79, 172, 254, 0.1);
+        border: 2px solid rgba(79, 172, 254, 0.4);
+    }
+    
+    .modal::-webkit-scrollbar { width: 8px; }
+    .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
+    .modal::-webkit-scrollbar-thumb { background: rgba(79, 172, 254, 0.5); border-radius: 10px; }
+
+    .modal h2 { 
+        margin-top: -10px; padding-top: 10px; color: #00f2fe; font-size: 2.2em; 
+        position: sticky; top: 0; 
+        background: #0f1223; 
+        padding-bottom: 15px; z-index: 2; 
+        border-bottom: 2px solid rgba(79, 172, 254, 0.3);
+        box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
+    }
+    
+    /* Collection/Farm Grid */
+    .grid-container {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
+    }
+    .collection-item {
+        background: rgba(79, 172, 254, 0.05); padding: 15px; border-radius: 15px;
+        display: flex; flex-direction: column; align-items: center; 
+        border: 1px solid rgba(79, 172, 254, 0.2);
+        transition: transform 0.2s, background 0.2s;
+    }
+    .collection-item:hover {
+        background: rgba(79, 172, 254, 0.15);
+        transform: translateY(-3px);
+    }
+    .collection-item.locked .visual img {
+        filter: brightness(0) opacity(0.2); 
+    }
+    .collection-item .visual { margin-bottom: 10px; height: 70px; display: flex; align-items: center; justify-content: center; }
+    .collection-item .visual img { width: auto; image-rendering: pixelated; }
+    .collection-item .visual img.is-egg-img { height: 32px; }
+    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+    .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
+    
+    .btn-group { display: flex; gap: 5px; width: 100%; margin-top: auto; }
+    
+    .buy-btn {
+        background: linear-gradient(180deg, #ff9f43, #ff7b1c); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 159, 67, 0.3); transition: transform 0.1s; width: 100%;
+    }
+    .buy-btn:active { transform: scale(0.95); }
+    .buy-btn:hover:not(:disabled) { filter: brightness(1.1); }
+    .buy-btn:disabled { background: rgba(255,255,255,0.08); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
+
+    .close-btn { background: rgba(79, 172, 254, 0.3); color: white; border: 1px solid rgba(79, 172, 254, 0.5); padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; transition: transform 0.2s; margin-top: 10px;}
+    .close-btn:hover { transform: scale(1.05); background: rgba(79, 172, 254, 0.5); }
+
+    /* Popups */
+    #unlock-popup, #auto-popup, #evolution-modal { z-index: 300; }
+    .visual img { width: auto; image-rendering: pixelated; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    
+    #auto-popup .modal, #evolution-modal .modal { max-width: 500px; }
+    .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+    .branch-option {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(79, 172, 254, 0.3);
+        border-radius: 15px;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+    .branch-option:hover {
+        transform: scale(1.05);
+        background: rgba(79, 172, 254, 0.2);
+        border-color: rgba(79, 172, 254, 0.8);
+    }
+    .branch-option p {
+        margin: 5px 0 0 0;
+        font-weight: bold;
+    }
+
+    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+    <h1>🌐 Digital World Tycoon</h1>
+    <p>Explore the World Map, Tap & Collect Data Bits, and Build your Digimon Network!</p>
+    <button id="start-btn">Enter Network</button>
+</div>
+
+<div id="ui-layer">
+    <div class="hud-column">
+        <div class="hud-box">💾 <span id="heart-count">0</span> Data</div>
+        <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
+    </div>
+    <div class="btn-column">
+        <button id="farm-btn" class="hud-box action-btn">🥚 Farm</button>
+        <button id="collection-btn" class="hud-box action-btn">📖 Digivices</button>
+        <button id="sound-btn" class="hud-box action-btn">🔊 Sound</button>
+        <button id="reset-btn" class="hud-box action-btn">⚠️ Reset</button>
+    </div>
+</div>
+
+<div id="black-hole"></div>
+<div id="ocean"></div>
+
+<!-- Farm Modal -->
+<div id="farm-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>Digi-Farm</h2>
+        <div id="farm-grid" class="grid-container"></div>
+        <button class="close-btn" onclick="document.getElementById('farm-modal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<!-- Collection Modal -->
+<div id="collection-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>Digimon Archive</h2>
+        <div id="collection-grid" class="grid-container"></div>
+        <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<!-- Unlock Popup Modal -->
+<div id="unlock-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 400px;">
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">Digivolution Achieved!</h2>
+        <div id="popup-visual" class="visual"></div>
+        <h3 id="popup-name" style="margin-top: 0; font-size: 1.5em; color: white;">Koromon</h3>
+        <button class="close-btn" onclick="closeUnlockPopup()">Fantastic!</button>
+    </div>
+</div>
+
+<!-- Evolution Modal Popup -->
+<div id="evolution-modal" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 550px;">
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #ff4757;">Evolution Ready!</h2>
+        <h3 id="evolution-title" style="margin-top: 10px; font-size: 1.3em; color: white;">Ready to Digivolve!</h3>
+        <p style="font-size: 1em; color: #d1d8e0; margin-bottom: 10px;">Your partner has gathered enough energy to ascend!</p>
+        
+        <div id="evolution-visual" class="visual" style="display:flex; justify-content:center; flex-wrap:wrap;"></div>
+        
+        <div style="margin-top: 20px;">
+            <button id="evolution-action-btn" class="close-btn" style="background: linear-gradient(135deg, #ff4757, #ff6b81); border: none;">✨ Digivolve Now!</button>
+            <button class="close-btn" style="margin-left: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('evolution-modal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Auto-Harvest Unlocked Popup -->
+<div id="auto-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 400px;">
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #2ed573;">Network Expansion!</h2>
+        <div class="gear-icon">⚙️</div>
+        <h3 style="margin-top: 0; font-size: 1.5em; color: white;">Automated Data Mining Active</h3>
+        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your connected Digimon network is now harvesting data automatically across the world map every second!</p>
+        <button class="close-btn" onclick="document.getElementById('auto-popup').style.display='none'">Keep Exploring</button>
+    </div>
+</div>
+
+<script>
+    // --- Audio Context & Synth ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isMuted = false;
+
+    function playSynth(freq, type, duration, vol=0.2) {
+        if (isMuted) return;
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sfx = {
+        bubble: () => playSynth(700 + Math.random()*250, 'sine', 0.1, 0.08),
+        delete: () => {
+            playSynth(150, 'sawtooth', 0.3, 0.2);
+            setTimeout(() => playSynth(100, 'square', 0.4, 0.2), 100);
+        },
+        unlock: () => {
+            playSynth(523.25, 'triangle', 0.2, 0.2); 
+            setTimeout(() => playSynth(659.25, 'triangle', 0.2, 0.2), 150); 
+            setTimeout(() => playSynth(783.99, 'triangle', 0.2, 0.2), 300); 
+            setTimeout(() => playSynth(1046.50, 'triangle', 0.4, 0.2), 450); 
+        },
+        evolve: () => {
+            playSynth(300, 'sawtooth', 0.15, 0.15);
+            setTimeout(() => playSynth(450, 'sawtooth', 0.15, 0.15), 100);
+            setTimeout(() => playSynth(600, 'sawtooth', 0.15, 0.15), 200);
+            setTimeout(() => playSynth(900, 'triangle', 0.4, 0.25), 300);
+        }
+    };
+
+    // --- Digimon Data List ---
+    const animalData = [
+        // Eggs
+        { id: 'egg_agumon', name: 'Digi-Egg (Agumon)', img: '01-egg-agumon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'botamon', clickGoal: 5 },
+        { id: 'egg_gabumon', name: 'Digi-Egg (Gabumon)', img: '02-egg-gabumon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'punimon', clickGoal: 5 },
+        { id: 'egg_biyomon', name: 'Digi-Egg (Biyomon)', img: '03-egg-biyomon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'nyokimon', clickGoal: 5 },
+        { id: 'egg_tentomon', name: 'Digi-Egg (Tentomon)', img: '04-egg-tentomon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'pabumon', clickGoal: 5 },
+        { id: 'egg_palmon', name: 'Digi-Egg (Palmon)', img: '05-egg-palmon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'yuramon', clickGoal: 5 },
+        { id: 'egg_gomamon', name: 'Digi-Egg (Gomamon)', img: '06-egg-gomamon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'pichimon', clickGoal: 5 },
+        { id: 'egg_patamon', name: 'Digi-Egg (Patamon)', img: '07-egg-patamon.png', cost: 100, speed: 0, heartsPerClick: 1, next: 'poyomon', clickGoal: 5 },
+
+        // Fresh
+        { id: 'botamon', name: 'Botamon', img: 'Botamon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'koromon', clickGoal: 10 },
+        { id: 'punimon', name: 'Punimon', img: 'Punimon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'tsunomon', clickGoal: 10 },
+        { id: 'nyokimon', name: 'Nyokimon', img: 'Nyokimon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'yokomon', clickGoal: 10 },
+        { id: 'pabumon', name: 'Pabumon', img: 'Pabumon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'motimon', clickGoal: 10 },
+        { id: 'yuramon', name: 'Yuramon', img: 'Yuramon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'tanemon', clickGoal: 10 },
+        { id: 'pichimon', name: 'Pichimon', img: 'Pichimon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'bukamon', clickGoal: 10 },
+        { id: 'poyomon', name: 'Poyomon', img: 'Poyomon.png', cost: 10, speed: 0.3, heartsPerClick: 2, next: 'tokomon', clickGoal: 10 },
+
+        // In-Training
+        { id: 'koromon', name: 'Koromon', img: 'Koromon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['agumon', 'flamon'], clickGoal: 20 },
+        { id: 'tsunomon', name: 'Tsunomon', img: 'Tsunomon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['gabumon', 'elecmon', 'strabimon'], clickGoal: 20 },
+        { id: 'yokomon', name: 'Yokomon', img: 'Yokomon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['biyomon', 'tinkermon', 'floramon'], clickGoal: 20 },
+        { id: 'motimon', name: 'Motimon', img: 'Motimon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['tentomon', 'kokabuterimon'], clickGoal: 20 },
+        { id: 'tanemon', name: 'Tanemon', img: 'Tanemon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['palmon', 'mushroommon'], clickGoal: 20 },
+        { id: 'bukamon', name: 'Bukamon', img: 'Bukamon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['gomamon', 'penguinmon', 'shakomon', 'betamon'], clickGoal: 20 },
+        { id: 'tokomon', name: 'Tokomon', img: 'Tokomon.png', cost: 20, speed: 0.4, heartsPerClick: 4, next: ['patamon', 'bakumon'], clickGoal: 20 },
+
+        // Rookies, Champions, Ultimates, Megas (Standard & Branched Lines)
+        // Agumon Line
+        { id: 'agumon', name: 'Agumon', img: 'Agumon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'greymon', clickGoal: 35 },
+        { id: 'greymon', name: 'Greymon', img: 'Greymon.png', cost: 200, speed: 0.4, heartsPerClick: 35, next: ['metalgreymon', 'rizegreymon'], clickGoal: 60 },
+        { id: 'metalgreymon', name: 'MetalGreymon', img: 'MetalGreymon.png', cost: 1000, speed: 0.5, heartsPerClick: 150, next: 'wargreymon', clickGoal: 100 },
+        { id: 'wargreymon', name: 'WarGreymon', img: 'WarGreymon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
+        
+        { id: 'rizegreymon', name: 'RizeGreymon', img: 'RizeGreymon.png', cost: 1000, speed: 0.5, heartsPerClick: 150, next: 'shinegreymon', clickGoal: 100 },
+        { id: 'shinegreymon', name: 'ShineGreymon', img: 'ShineGreymon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Flamon Line
+        { id: 'flamon', name: 'Flamon', img: 'Flamon.png', cost: 50, speed: 0.5, heartsPerClick: 10, next: 'agnimon', clickGoal: 35 },
+        { id: 'agnimon', name: 'Agnimon', img: 'Agnimon.png', cost: 200, speed: 0.4, heartsPerClick: 35, next: 'burninggreymon', clickGoal: 60 },
+        { id: 'burninggreymon', name: 'BurningGreymon', img: 'BurningGreymon.png', cost: 1000, speed: 0.5, heartsPerClick: 150, next: 'aldamon', clickGoal: 100 },
+        { id: 'aldamon', name: 'Aldamon', img: 'Aldamon.png', cost: 5000, speed: 0.6, heartsPerClick: 600, next: null, clickGoal: 0 },
+
+        // Gabumon Line
+        { id: 'gabumon', name: 'Gabumon', img: 'Gabumon.png', cost: 100, speed: 0.5, heartsPerClick: 20, next: 'garurumon', clickGoal: 35 },
+        { id: 'garurumon', name: 'Garurumon', img: 'Garurumon.png', cost: 400, speed: 0.7, heartsPerClick: 70, next: 'weregarurumon', clickGoal: 60 },
+        { id: 'weregarurumon', name: 'WereGarurumon', img: 'WereGarurumon.png', cost: 2000, speed: 0.6, heartsPerClick: 280, next: 'metalgarurumon', clickGoal: 100 },
+        { id: 'metalgarurumon', name: 'MetalGarurumon', img: 'MetalGarurumon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100, next: null, clickGoal: 0 },
+
+        // Elecmon Line
+        { id: 'elecmon', name: 'Elecmon', img: 'Elecmon.png', cost: 100, speed: 0.5, heartsPerClick: 20, next: 'leomon', clickGoal: 35 },
+        { id: 'leomon', name: 'Leomon', img: 'Leomon.png', cost: 400, speed: 0.7, heartsPerClick: 70, next: 'grapleomon', clickGoal: 60 },
+        { id: 'grapleomon', name: 'GrapLeomon', img: 'GrapLeomon.png', cost: 2000, speed: 0.6, heartsPerClick: 280, next: 'bancholeomon', clickGoal: 100 },
+        { id: 'bancholeomon', name: 'BanchoLeomon', img: 'BanchoLeomon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100, next: null, clickGoal: 0 },
+
+        // Strabimon Line
+        { id: 'strabimon', name: 'Strabimon', img: 'Strabimon.png', cost: 100, speed: 0.5, heartsPerClick: 20, next: 'lobomon', clickGoal: 35 },
+        { id: 'lobomon', name: 'Lobomon', img: 'Lobomon.png', cost: 400, speed: 0.7, heartsPerClick: 70, next: 'kendogarurumon', clickGoal: 60 },
+        { id: 'kendogarurumon', name: 'KendoGarurumon', img: 'KendoGarurumon.png', cost: 2000, speed: 0.6, heartsPerClick: 280, next: 'beowolfmon', clickGoal: 100 },
+        { id: 'beowolfmon', name: 'Beowolfmon', img: 'Beowolfmon.png', cost: 10000, speed: 0.7, heartsPerClick: 1100, next: null, clickGoal: 0 },
+
+        // Biyomon Line
+        { id: 'biyomon', name: 'Biyomon', img: 'Biyomon.png', cost: 250, speed: 0.6, heartsPerClick: 45, next: 'birdramon', clickGoal: 35 },
+        { id: 'birdramon', name: 'Birdramon', img: 'Birdramon.png', cost: 900, speed: 0.8, heartsPerClick: 130, next: 'garudamon', clickGoal: 60 },
+        { id: 'garudamon', name: 'Garudamon', img: 'Garudamon.png', cost: 4500, speed: 0.7, heartsPerClick: 520, next: 'phoenixmon', clickGoal: 100 },
+        { id: 'phoenixmon', name: 'Phoenixmon', img: 'Phoenixmon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400, next: null, clickGoal: 0 },
+
+        // Tinkermon Line
+        { id: 'tinkermon', name: 'Tinkermon', img: 'Tinkermon.png', cost: 250, speed: 0.6, heartsPerClick: 45, next: 'kazemon', clickGoal: 35 },
+        { id: 'kazemon', name: 'Kazemon', img: 'Kazemon.png', cost: 900, speed: 0.8, heartsPerClick: 130, next: 'zephyrmon', clickGoal: 60 },
+        { id: 'zephyrmon', name: 'Zephyrmon', img: 'Zephyrmon.png', cost: 4500, speed: 0.7, heartsPerClick: 520, next: 'jetsilphymon', clickGoal: 100 },
+        { id: 'jetsilphymon', name: 'JetSilphymon', img: 'JetSilphymon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400, next: null, clickGoal: 0 },
+
+        // Tentomon Line
+        { id: 'tentomon', name: 'Tentomon', img: 'Tentomon.png', cost: 450, speed: 0.5, heartsPerClick: 80, next: 'kabuterimon', clickGoal: 35 },
+        { id: 'kabuterimon', name: 'Kabuterimon', img: 'Kabuterimon.png', cost: 1600, speed: 0.5, heartsPerClick: 230, next: 'megakabuterimon', clickGoal: 60 },
+        { id: 'megakabuterimon', name: 'MegaKabuterimon', img: 'MegaKabuterimon.png', cost: 8000, speed: 0.5, heartsPerClick: 900, next: 'herculeskabuterimon', clickGoal: 100 },
+        { id: 'herculeskabuterimon', name: 'HerculesKabuterimon', img: 'HerculesKabuterimon.png', cost: 38000, speed: 0.6, heartsPerClick: 4100, next: null, clickGoal: 0 },
+        
+        // KoKabuterimon Line
+        { id: 'kokabuterimon', name: 'KoKabuterimon', img: 'KoKabuterimon.png', cost: 450, speed: 0.5, heartsPerClick: 80, next: 'beetlemon', clickGoal: 35 },
+        { id: 'beetlemon', name: 'Beetlemon', img: 'Beetlemon.png', cost: 1600, speed: 0.5, heartsPerClick: 230, next: 'metalkabuterimon', clickGoal: 60 },
+        { id: 'metalkabuterimon', name: 'MetalKabuterimon', img: 'MetalKabuterimon.png', cost: 8000, speed: 0.5, heartsPerClick: 900, next: 'rhinokabuterimon', clickGoal: 100 },
+        { id: 'rhinokabuterimon', name: 'RhinoKabuterimon', img: 'RhinoKabuterimon.png', cost: 38000, speed: 0.6, heartsPerClick: 4100, next: null, clickGoal: 0 },
+
+        // Palmon Line
+        { id: 'palmon', name: 'Palmon', img: 'Palmon.png', cost: 220, speed: 0.4, heartsPerClick: 40, next: 'togemon', clickGoal: 35 },
+        { id: 'togemon', name: 'Togemon', img: 'Togemon.png', cost: 800, speed: 0.3, heartsPerClick: 120, next: 'lillymon', clickGoal: 60 },
+        { id: 'lillymon', name: 'Lillymon', img: 'Lillymon.png', cost: 3500, speed: 0.7, heartsPerClick: 420, next: 'rosemon', clickGoal: 100 },
+        { id: 'rosemon', name: 'Rosemon', img: 'Rosemon.png', cost: 18000, speed: 0.6, heartsPerClick: 1900, next: null, clickGoal: 0 },
+        
+        // Mushroommon Line
+        { id: 'mushroommon', name: 'Mushroommon', img: 'Mushroommon.png', cost: 220, speed: 0.4, heartsPerClick: 40, next: 'petaldramon', clickGoal: 35 },
+        { id: 'petaldramon', name: 'Petaldramon', img: 'Petaldramon.png', cost: 800, speed: 0.3, heartsPerClick: 120, next: 'argamon', clickGoal: 60 },
+        { id: 'argamon', name: 'Argamon', img: 'Argamon.png', cost: 3500, speed: 0.7, heartsPerClick: 420, next: null, clickGoal: 100 },
+
+        // Gomamon Line
+        { id: 'gomamon', name: 'Gomamon', img: 'Gomamon.png', cost: 1100, speed: 0.4, heartsPerClick: 160, next: 'ikkakumon', clickGoal: 35 },
+        { id: 'ikkakumon', name: 'Ikkakumon', img: 'Ikkakumon.png', cost: 5000, speed: 0.4, heartsPerClick: 580, next: 'zudomon', clickGoal: 60 },
+        { id: 'zudomon', name: 'Zudomon', img: 'Zudomon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600, next: 'vikemon', clickGoal: 100 },
+        { id: 'vikemon', name: 'Vikemon', img: 'Vikemon.png', cost: 110000, speed: 0.5, heartsPerClick: 12000, next: null, clickGoal: 0 },
+
+        // Shakomon Line
+        { id: 'shakomon', name: 'Shakomon', img: 'Shakomon.png', cost: 1100, speed: 0.4, heartsPerClick: 160, next: 'lanamon', clickGoal: 35 },
+        { id: 'lanamon', name: 'Lanamon', img: 'Lanamon.png', cost: 5000, speed: 0.4, heartsPerClick: 580, next: 'calmaramon', clickGoal: 60 },
+        { id: 'calmaramon', name: 'Calmaramon', img: 'Calmaramon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600, next: null, clickGoal: 100 },
+
+        // Betamon Line
+        { id: 'betamon', name: 'Betamon', img: 'Betamon.png', cost: 1100, speed: 0.4, heartsPerClick: 160, next: 'seadramon', clickGoal: 35 },
+        { id: 'seadramon', name: 'Seadramon', img: 'Seadramon.png', cost: 5000, speed: 0.4, heartsPerClick: 580, next: 'megaseadramon', clickGoal: 60 },
+        { id: 'megaseadramon', name: 'MegaSeadramon', img: 'MegaSeadramon.png', cost: 24000, speed: 0.4, heartsPerClick: 2600, next: 'metalseadramon', clickGoal: 100 },
+        { id: 'metalseadramon', name: 'MetalSeadramon', img: 'MetalSeadramon.png', cost: 110000, speed: 0.5, heartsPerClick: 12000, next: null, clickGoal: 0 },
+
+        // Patamon Line
+        { id: 'patamon', name: 'Patamon', img: 'Patamon.png', cost: 550, speed: 0.6, heartsPerClick: 95, next: 'angemon', clickGoal: 35 },
+        { id: 'angemon', name: 'Angemon', img: 'Angemon.png', cost: 2200, speed: 0.7, heartsPerClick: 270, next: 'magnaangemon', clickGoal: 60 },
+        { id: 'magnaangemon', name: 'MagnaAngemon', img: 'MagnaAngemon.png', cost: 12000, speed: 0.6, heartsPerClick: 1300, next: 'seraphimon', clickGoal: 100 },
+        { id: 'seraphimon', name: 'Seraphimon', img: 'Seraphimon.png', cost: 60000, speed: 0.7, heartsPerClick: 6500, next: null, clickGoal: 0 },
+
+        // Bakumon Line
+        { id: 'bakumon', name: 'Bakumon', img: 'Bakumon.png', cost: 550, speed: 0.6, heartsPerClick: 95, next: 'kumamon', clickGoal: 35 },
+        { id: 'kumamon', name: 'Kumamon', img: 'Kumamon.png', cost: 2200, speed: 0.7, heartsPerClick: 270, next: 'korikkakumon', clickGoal: 60 },
+        { id: 'korikkakumon', name: 'Korikkakumon', img: 'Korikkakumon.png', cost: 12000, speed: 0.6, heartsPerClick: 1300, next: 'daipenmon', clickGoal: 100 },
+        { id: 'daipenmon', name: 'Daipenmon', img: 'Daipenmon.png', cost: 60000, speed: 0.7, heartsPerClick: 6500, next: null, clickGoal: 0 },
+
+        // Floramon Line
+        { id: 'floramon', name: 'Floramon', img: 'Floramon.png', cost: 250, speed: 0.6, heartsPerClick: 45, next: 'woodmon', clickGoal: 35 },
+        { id: 'woodmon', name: 'Woodmon', img: 'Woodmon.png', cost: 900, speed: 0.8, heartsPerClick: 130, next: 'cherrymon', clickGoal: 60 },
+        { id: 'cherrymon', name: 'Cherrymon', img: 'Cherrymon.png', cost: 4500, speed: 0.7, heartsPerClick: 520, next: 'puppetmon', clickGoal: 100 },
+        { id: 'puppetmon', name: 'Puppetmon', img: 'Puppetmon.png', cost: 22000, speed: 0.8, heartsPerClick: 2400, next: null, clickGoal: 0 }
+    ];
+
+    const eggList = animalData.filter(a => a.id.startsWith('egg_'));
+    const randomEgg = eggList[Math.floor(Math.random() * eggList.length)];
+
+    let hearts = 0;
+    let unlockedIds = [randomEgg.id]; 
+    let everUnlockedIds = [randomEgg.id]; 
+    let activeAnimals = [];
+    let pendingAutoPopup = false; 
+    let selectedAnimalForEvolution = null;
+    let currentlySelectedPathId = null;
+
+    // --- Local Storage Management ---
+    function saveProgress() {
+        localStorage.setItem("digiHearts", hearts);
+        localStorage.setItem("digiUnlocks", JSON.stringify(unlockedIds));
+        localStorage.setItem("digiEverUnlocks", JSON.stringify(everUnlockedIds));
+        
+        const animalStates = activeAnimals.map(anim => ({
+            id: anim.id,
+            x: anim.x,
+            y: anim.y,
+            vx: anim.vx,
+            vy: anim.vy,
+            clicks: anim.clicks
+        }));
+        localStorage.setItem("digiAnimalStates", JSON.stringify(animalStates));
+    }
+
+    function loadProgress() {
+        const savedHearts = localStorage.getItem("digiHearts");
+        const savedUnlocks = localStorage.getItem("digiUnlocks");
+        const savedEverUnlocks = localStorage.getItem("digiEverUnlocks");
+        
+        if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
+        if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
+        
+        if (savedEverUnlocks !== null) {
+            everUnlockedIds = JSON.parse(savedEverUnlocks);
+        } else {
+            everUnlockedIds = [...new Set([randomEgg.id, ...unlockedIds])];
+        }
+        
+        updateUI();
+    }
+
+    // --- Game Logic ---
+    function updateUI() {
+        document.getElementById('heart-count').innerText = hearts.toLocaleString();
+        
+        const autoBox = document.getElementById('auto-harvest-box');
+        if (activeAnimals.length >= 6) {
+            autoBox.style.display = 'block';
+            let heartsPerSecond = activeAnimals.reduce((sum, anim) => sum + anim.heartsPerClick, 0);
+            document.getElementById('auto-rate').innerText = heartsPerSecond.toLocaleString();
+        } else {
+            autoBox.style.display = 'none';
+        }
+    }
+
+    function spawnAnimal(animalDef, savedState = null) {
+        const ocean = document.getElementById('ocean');
+        const el = document.createElement('div');
+        const isEgg = animalDef.id.startsWith('egg_');
+        el.className = `animal ${isEgg ? 'is-egg' : ''}`;
+        
+        el.innerHTML = `
+            <div class="animal-name">${animalDef.name}</div>
+            <img src="${animalDef.img}" alt="${animalDef.name}" class="${isEgg ? 'is-egg-img' : ''}" onerror="this.src='Agumon.png'">
+        `;
+        
+        let x, y, vx, vy, clicks = savedState ? savedState.clicks || 0 : 0;
+        
+        if (savedState) {
+            x = savedState.x;
+            y = savedState.y;
+            vx = savedState.vx;
+            vy = savedState.vy;
+        } else {
+            if (animalDef.speed === 0 && activeAnimals.length === 0) {
+                x = (window.innerWidth / 2) - 50;
+                y = (window.innerHeight / 2) - 50;
+            } else {
+                x = Math.random() * (window.innerWidth - 100);
+                y = Math.random() * (window.innerHeight - 130);
+            }
+            vx = animalDef.speed; 
+            vy = (Math.random() > 0.5 ? 1 : -1) * animalDef.speed;
+        }
+
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        const animObj = { 
+            id: animalDef.id, 
+            el, x, y, vx, vy, 
+            speed: animalDef.speed, 
+            isDragging: false,
+            heartsPerClick: animalDef.heartsPerClick,
+            clicks: clicks,
+            squishPhase: Math.random() * Math.PI * 2 
+        };
+
+        el.addEventListener('pointerdown', (e) => {
+            e.preventDefault(); 
+            
+            sfx.bubble();
+            hearts += animalDef.heartsPerClick;
+            animObj.clicks++;
+            updateUI();
+            saveProgress();
+
+            // Click squash & stretch effect
+            const imgEl = el.querySelector('img');
+            imgEl.style.transform = `scale(1.3, 0.7)`;
+            setTimeout(() => {
+                imgEl.style.transform = `scale(1, 1)`;
+            }, 150);
+
+            const floatHeart = document.createElement('div');
+            floatHeart.className = 'floating-heart';
+            floatHeart.innerText = `+${animalDef.heartsPerClick.toLocaleString()} 💾`;
+            floatHeart.style.left = e.clientX + 'px';
+            floatHeart.style.top = (e.clientY - 5) + 'px';
+            ocean.appendChild(floatHeart);
+            setTimeout(() => floatHeart.remove(), 1000);
+
+            // Check Evolution Trigger
+            const currentDef = animalData.find(a => a.id === animObj.id);
+            if (currentDef && currentDef.next && animObj.clicks >= currentDef.clickGoal) {
+                triggerEvolutionPrompt(animObj);
+            }
+
+            animObj.isDragging = true;
+            el.setPointerCapture(e.pointerId);
+            animObj.offsetX = e.clientX - animObj.x;
+            animObj.offsetY = e.clientY - animObj.y;
+        });
+
+        el.addEventListener('pointermove', (e) => {
+            if (animObj.isDragging) {
+                animObj.x = e.clientX - animObj.offsetX;
+                animObj.y = e.clientY - animObj.offsetY;
+                el.style.left = animObj.x + 'px';
+                el.style.top = animObj.y + 'px';
+
+                // Check Black Hole interaction
+                const bh = document.getElementById('black-hole');
+                const rect = bh.getBoundingClientRect();
+                
+                if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                    e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                    bh.classList.add('active');
+                } else {
+                    bh.classList.remove('active');
+                }
+            }
+        });
+
+        const endDrag = (e) => {
+            if (animObj.isDragging) {
+                animObj.isDragging = false;
+                el.releasePointerCapture(e.pointerId);
+
+                const bh = document.getElementById('black-hole');
+                const rect = bh.getBoundingClientRect();
+                bh.classList.remove('active');
+
+                // If dropped inside black hole, delete Digimon
+                if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                    e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                    window.removeAnimalObj(animObj);
+                }
+            }
+        };
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+
+        ocean.appendChild(el);
+        activeAnimals.push(animObj);
+        
+        checkEvolutionBadge(animObj);
+    }
+
+    function checkEvolutionBadge(animObj) {
+        const currentDef = animalData.find(a => a.id === animObj.id);
+        const existingBadge = animObj.el.querySelector('.evolve-ready-badge');
+        
+        if (currentDef && currentDef.next && animObj.clicks >= currentDef.clickGoal) {
+            if (!existingBadge) {
+                const badge = document.createElement('div');
+                badge.className = 'evolve-ready-badge';
+                badge.innerText = '⭐ EVOLVE!';
+                animObj.el.appendChild(badge);
+            }
+        } else if (existingBadge) {
+            existingBadge.remove();
+        }
+    }
+
+    function triggerEvolutionPrompt(animObj) {
+        selectedAnimalForEvolution = animObj;
+        const currentDef = animalData.find(a => a.id === animObj.id);
+        
+        const nextIds = Array.isArray(currentDef.next) ? currentDef.next : [currentDef.next];
+        const nextDefs = nextIds.map(id => animalData.find(a => a.id === id)).filter(Boolean);
+        
+        if (nextDefs.length === 0) return;
+
+        let visualHTML = '';
+        nextDefs.forEach((nextDef) => {
+            const isEgg = nextDef.id.startsWith('egg_');
+            visualHTML += `
+                <div class="branch-option" id="branch-opt-${nextDef.id}" onclick="selectEvolutionPath('${nextDef.id}')">
+                    <img src="${nextDef.img}" alt="${nextDef.name}" class="${isEgg ? 'is-egg-img' : ''}" style="height: 60px; object-fit: contain;" onerror="this.src='Agumon.png'">
+                    <p>${nextDef.name}</p>
+                </div>
+            `;
+        });
+        
+        document.getElementById('evolution-visual').innerHTML = visualHTML;
+
+        const actionBtn = document.getElementById('evolution-action-btn');
+        if(nextDefs.length > 1) {
+             document.getElementById('evolution-title').innerText = `${currentDef.name} is evolving! Choose a path:`;
+             actionBtn.style.display = 'none'; 
+             currentlySelectedPathId = null;
+        } else {
+             document.getElementById('evolution-title').innerText = `${currentDef.name} ➔ ${nextDefs[0].name}!`;
+             actionBtn.style.display = 'inline-block';
+             actionBtn.innerText = '✨ Digivolve Now!';
+             actionBtn.setAttribute('onclick', `executeEvolution('${nextDefs[0].id}')`);
+        }
+
+        document.getElementById('evolution-modal').style.display = 'flex';
+        sfx.unlock();
+    }
+
+    window.selectEvolutionPath = function(id) {
+        currentlySelectedPathId = id;
+        
+        document.querySelectorAll('.branch-option').forEach(el => {
+            el.style.borderColor = 'rgba(79, 172, 254, 0.3)';
+            el.style.background = 'rgba(255, 255, 255, 0.05)';
+        });
+        const selected = document.getElementById(`branch-opt-${id}`);
+        selected.style.borderColor = '#ff4757';
+        selected.style.background = 'rgba(255, 71, 87, 0.15)';
+
+        const actionBtn = document.getElementById('evolution-action-btn');
+        actionBtn.style.display = 'inline-block';
+        actionBtn.innerText = `✨ Digivolve to ${animalData.find(a => a.id === id).name}!`;
+        actionBtn.setAttribute('onclick', `executeEvolution('${id}')`);
+    }
+
+    window.executeEvolution = function(forcedNextId = null) {
+        if (!selectedAnimalForEvolution) return;
+        
+        const animObj = selectedAnimalForEvolution;
+        const currentDef = animalData.find(a => a.id === animObj.id);
+        
+        let targetId = forcedNextId;
+        if (!targetId) {
+             const nextIds = Array.isArray(currentDef.next) ? currentDef.next : [currentDef.next];
+             targetId = nextIds[0];
+        }
+
+        const nextDef = animalData.find(a => a.id === targetId);
+        if (!nextDef) return;
+
+        animObj.id = nextDef.id;
+        animObj.heartsPerClick = nextDef.heartsPerClick;
+        animObj.speed = nextDef.speed;
+        animObj.vx = (animObj.vx >= 0 ? 1 : -1) * nextDef.speed;
+        animObj.vy = (animObj.vy >= 0 ? 1 : -1) * nextDef.speed;
+        animObj.clicks = 0; 
+
+        const isEgg = nextDef.id.startsWith('egg_');
+        animObj.el.className = `animal ${isEgg ? 'is-egg' : ''}`;
+        animObj.el.querySelector('.animal-name').innerText = nextDef.name;
+        
+        const imgTag = animObj.el.querySelector('img');
+        imgTag.src = nextDef.img;
+        imgTag.className = isEgg ? 'is-egg-img' : '';
+        imgTag.onerror = function() { this.src='Agumon.png'; }; 
+        
+        const badge = animObj.el.querySelector('.evolve-ready-badge');
+        if (badge) badge.remove();
+
+        unlockedIds.push(nextDef.id);
+        if (!everUnlockedIds.includes(nextDef.id)) {
+            everUnlockedIds.push(nextDef.id);
+        }
+
+        document.getElementById('evolution-modal').style.display = 'none';
+        sfx.evolve();
+        updateUI();
+        saveProgress();
+        selectedAnimalForEvolution = null;
+        currentlySelectedPathId = null;
+    };
+
+    window.removeAnimalObj = function(animObj) {
+        // Remove from DOM
+        animObj.el.remove();
+        
+        // Remove from active tracking
+        const activeIndex = activeAnimals.indexOf(animObj);
+        if (activeIndex > -1) {
+            activeAnimals.splice(activeIndex, 1);
+        }
+        
+        // Remove a single instance from unlockedIds
+        const unlockIndex = unlockedIds.indexOf(animObj.id);
+        if (unlockIndex > -1) {
+            unlockedIds.splice(unlockIndex, 1);
+        }
+        
+        updateUI();
+        saveProgress();
+        sfx.delete();
+    };
+
+    // Auto Harvest Loop
+    setInterval(() => {
+        if (activeAnimals.length >= 6) {
+            let heartsPerSecond = 0;
+            const ocean = document.getElementById('ocean');
+            
+            activeAnimals.forEach(anim => {
+                if (anim.heartsPerClick > 0) {
+                    heartsPerSecond += anim.heartsPerClick;
+                    
+                    const floatHeart = document.createElement('div');
+                    floatHeart.className = 'floating-heart';
+                    floatHeart.innerText = `+${anim.heartsPerClick.toLocaleString()} 💾`;
+                    
+                    const offsetX = (Math.random() * 40) - 10;
+                    floatHeart.style.left = (anim.x + 30 + offsetX) + 'px';
+                    floatHeart.style.top = (anim.y + 10) + 'px';
+                    
+                    ocean.appendChild(floatHeart);
+                    setTimeout(() => floatHeart.remove(), 1000);
+                }
+            });
+            
+            if (heartsPerSecond > 0) {
+                hearts += heartsPerSecond;
+                updateUI();
+            }
+        }
+        saveProgress();
+    }, 1000);
+
+    // Animation Loop
+    function animate() {
+        const time = performance.now() * 0.008; 
+
+        activeAnimals.forEach(anim => {
+            const imgEl = anim.el.querySelector('img');
+
+            if (!anim.isDragging && anim.speed > 0) {
+                anim.x += anim.vx;
+                anim.y += anim.vy;
+
+                if (anim.x <= 0) {
+                    anim.x = 0;
+                    anim.vx = Math.abs(anim.vx);
+                } else if (anim.x >= window.innerWidth - 100) {
+                    anim.x = window.innerWidth - 100;
+                    anim.vx = -Math.abs(anim.vx);
+                }
+
+                if (anim.y <= 0) {
+                    anim.y = 0;
+                    anim.vy *= -1;
+                } else if (anim.y >= window.innerHeight - 130) {
+                    anim.y = window.innerHeight - 130;
+                    anim.vy *= -1;
+                }
+
+                anim.el.style.left = anim.x + 'px';
+                anim.el.style.top = anim.y + 'px';
+
+                const squishCycle = Math.sin(time * 3 + anim.squishPhase);
+                const stretchX = 1 + squishCycle * 0.12;
+                const stretchY = 1 - squishCycle * 0.12;
+                const facingDir = anim.vx < 0 ? -1 : 1;
+
+                imgEl.style.transform = `scaleX(${facingDir * stretchX}) scaleY(${stretchY})`;
+            } else if (anim.speed === 0) {
+                const breathCycle = Math.sin(time * 2 + anim.squishPhase);
+                const stretchX = 1 + breathCycle * 0.04;
+                const stretchY = 1 - breathCycle * 0.04;
+                imgEl.style.transform = `scaleX(${stretchX}) scaleY(${stretchY})`;
+            }
+        });
+        requestAnimationFrame(animate);
+    }
+
+    // --- UI Modals & Logic ---
+    function openFarm() {
+        const grid = document.getElementById('farm-grid');
+        grid.innerHTML = '';
+        
+        const eggs = animalData.filter(a => a.id.startsWith('egg_'));
+        
+        eggs.forEach((egg) => {
+            const item = document.createElement('div');
+            item.className = `collection-item`;
+            const canAfford = hearts >= egg.cost;
+            
+            item.innerHTML = `
+                <div class="visual"><img src="${egg.img}" alt="${egg.name}" class="is-egg-img" onerror="this.src='Agumon.png'"></div>
+                <div class="name-tag">${egg.name}</div>
+                <div class="btn-group">
+                    <button class="buy-btn" ${!canAfford ? 'disabled' : ''} onclick="buyEgg('${egg.id}')">Buy (${egg.cost} 💾)</button>
+                </div>
+            `;
+            grid.appendChild(item);
+        });
+        
+        document.getElementById('farm-modal').style.display = 'flex';
+    }
+
+    window.buyEgg = function(id) {
+        const eggDef = animalData.find(a => a.id === id);
+        if (hearts >= eggDef.cost) {
+            hearts -= eggDef.cost;
+            unlockedIds.push(eggDef.id);
+            if (!everUnlockedIds.includes(eggDef.id)) everUnlockedIds.push(eggDef.id);
+            
+            spawnAnimal(eggDef);
+            updateUI();
+            saveProgress();
+            
+            // Re-render farm to update button disabled states based on new hearts value
+            openFarm();
+            sfx.bubble();
+        }
+    };
+
+    function openCollection() {
+        const grid = document.getElementById('collection-grid');
+        grid.innerHTML = '';
+        
+        animalData.forEach((a) => {
+            const count = unlockedIds.filter(id => id === a.id).length;
+            const hasBeenUnlocked = everUnlockedIds.includes(a.id);
+            if (!hasBeenUnlocked) return; // Optional: To clean up the archive, only show seen ones, or keep all to tease.
+            
+            const isUnlocked = count > 0;
+            const isEgg = a.id.startsWith('egg_');
+            
+            const item = document.createElement('div');
+            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
+
+            const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
+
+            item.innerHTML = `
+                <div class="visual"><img src="${a.img}" alt="${a.name}" class="${isEgg ? 'is-egg-img' : ''}" onerror="this.src='Agumon.png'"></div>
+                <div class="name-tag">${a.name} ${countBadge}</div>
+            `;
+            grid.appendChild(item);
+        });
+        document.getElementById('collection-modal').style.display = 'flex';
+    }
+
+    window.closeUnlockPopup = function() {
+        document.getElementById('unlock-popup').style.display = 'none';
+        if (pendingAutoPopup) {
+            document.getElementById('auto-popup').style.display = 'flex';
+            sfx.unlock();
+            pendingAutoPopup = false;
+        }
+    };
+
+    document.getElementById('farm-btn').addEventListener('click', openFarm);
+    document.getElementById('collection-btn').addEventListener('click', openCollection);
+
+    // Modal Close Triggers
+    const modals = ['collection-modal', 'farm-modal', 'unlock-popup', 'auto-popup'];
+    modals.forEach(id => {
+        document.getElementById(id).addEventListener('click', (e) => {
+            if (e.target.id === id) {
+                if (id === 'unlock-popup') closeUnlockPopup();
+                else e.target.style.display = 'none';
+            }
+        });
+    });
+
+    // Sound Toggle Logic
+    document.getElementById('sound-btn').addEventListener('click', () => {
+        isMuted = !isMuted; 
+        const btn = document.getElementById('sound-btn');
+        if (isMuted) {
+            btn.innerText = '🔇 Muted';
+            btn.style.borderColor = 'rgba(255, 165, 0, 0.5)';
+            btn.style.background = 'rgba(255, 165, 0, 0.2)';
+        } else {
+            btn.innerText = '🔊 Sound';
+            btn.style.borderColor = 'rgba(46, 213, 115, 0.5)';
+            btn.style.background = 'rgba(46, 213, 115, 0.2)';
+        }
+    });
+
+    // Reset Button Logic
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm("Are you sure you want to format the network? All Digimon progress will be permanently lost.")) {
+            localStorage.removeItem("digiHearts");
+            localStorage.removeItem("digiUnlocks");
+            localStorage.removeItem("digiEverUnlocks");
+            localStorage.removeItem("digiAnimalStates");
+            location.reload(); 
+        }
+    });
+
+    // --- Init ---
+    document.getElementById('start-btn').addEventListener('click', () => {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('ui-layer').style.display = 'flex';
+        
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+
+        loadProgress();
+        
+        const savedStatesJSON = localStorage.getItem("digiAnimalStates");
+        let loadedFromState = false;
+        
+        if (savedStatesJSON) {
+            const savedStates = JSON.parse(savedStatesJSON);
+            if (savedStates.length === unlockedIds.length) {
+                savedStates.forEach(state => {
+                    const animal = animalData.find(a => a.id === state.id);
+                    if(animal) spawnAnimal(animal, state);
+                });
+                loadedFromState = true;
+            }
+        }
+        
+        if (!loadedFromState) {
+            unlockedIds.forEach(id => {
+                const animal = animalData.find(a => a.id === id);
+                if(animal) spawnAnimal(animal);
+            });
+        }
+
+        updateUI();
+        requestAnimationFrame(animate);
+    });
+
+</script>
+</body>
+</html>

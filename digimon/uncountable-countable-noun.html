@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Questions: Countable & Uncountable Nouns Quiz</title>
+    <style>
+        :root {
+            --primary: #16a085;
+            --primary-hover: #1abc9c;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --gray: #bdc3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--white);
+            max-width: 850px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 25px 20px 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quiz-header h2 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+            color: #ecf0f1;
+        }
+
+        .grammar-rules {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            border-right: 4px solid var(--primary);
+        }
+
+        .grammar-rules span {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.2);
+            height: 6px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-body {
+            padding: 40px 30px;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .question-text span.blank {
+            display: inline-block;
+            min-width: 60px;
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+            padding: 0 5px;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #e8f8f5;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 28px;
+        }
+
+        .feedback.success { color: var(--success); }
+        .feedback.error { color: var(--danger); }
+
+        .quiz-footer {
+            padding: 20px 30px;
+            background-color: var(--light);
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .next-btn {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .next-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 50px 30px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .results-msg {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .restart-btn {
+            background-color: var(--success);
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-area">
+            <div class="quiz-header">
+                <h2>Countable & Uncountable Nouns</h2>
+                
+                <!-- Grammar Reference Rules -->
+                <div class="grammar-rules">
+                    <span>Countable Nouns:</span> Can be singular or plural (car, cars). Use <i>many</i>, <i>a few</i>, <i>a/an</i>.<br>
+                    <span>Uncountable Nouns:</span> Cannot be counted directly and are usually singular (water, advice). Use <i>much</i>, <i>a little</i>, <i>some</i>. Never use <i>a/an</i> directly.<br>
+                    <span>Common Uncountables:</span> Information, luggage, furniture, homework, research, bread, news.
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div class="question-meta">
+                    <span id="question-counter">Question 1 of 100</span>
+                    <span id="score-counter">Score: 0</span>
+                </div>
+                
+                <div class="question-text" id="question-text">
+                    <!-- Question injected via JS -->
+                </div>
+
+                <div class="options-grid" id="options-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question &rarr;</button>
+            </div>
+        </div>
+
+        <div class="results-container" id="results-area">
+            <h2>Quiz Complete!</h2>
+            <div class="results-score" id="final-score">0 / 100</div>
+            <div class="results-msg" id="final-msg">Great effort!</div>
+            <button class="restart-btn" onclick="startQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const blankLine = "&nbsp;&nbsp;&nbsp;&nbsp;";
+
+        // 100 Questions
+        const rawQuestions = [
+            // PART 1: Much vs Many
+            { q: `How <span class='blank'>${blankLine}</span> time do we have left?`, options: ["much", "many", "few", "a lot"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> books did you read this year?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `I don't have <span class='blank'>${blankLine}</span> money in my wallet.`, options: ["many", "much", "few", "several"], a: "much" },
+            { q: `There aren't <span class='blank'>${blankLine}</span> people at the party.`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `How <span class='blank'>${blankLine}</span> water should I drink a day?`, options: ["many", "much", "few", "number"], a: "much" },
+            { q: `She doesn't have <span class='blank'>${blankLine}</span> friends in this city.`, options: ["much", "many", "little", "some"], a: "many" },
+            { q: `How <span class='blank'>${blankLine}</span> sugar do you want in your coffee?`, options: ["many", "much", "few", "several"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> times have I told you to clean up?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `There is too <span class='blank'>${blankLine}</span> traffic on the highway.`, options: ["many", "much", "few", "number"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> brothers and sisters do you have?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `We didn't buy <span class='blank'>${blankLine}</span> food at the supermarket.`, options: ["many", "much", "few", "several"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> coins are in your pocket?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `He doesn't have <span class='blank'>${blankLine}</span> experience in this field.`, options: ["many", "much", "few", "number"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> languages do you speak?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `There isn't <span class='blank'>${blankLine}</span> space in this tiny room.`, options: ["many", "much", "few", "several"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> ideas did your team come up with?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `She didn't give me <span class='blank'>${blankLine}</span> information.`, options: ["many", "much", "few", "number"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> mistakes did I make on the test?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `I don't listen to <span class='blank'>${blankLine}</span> music while studying.`, options: ["many", "much", "few", "several"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> pages are in this chapter?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `There isn't <span class='blank'>${blankLine}</span> rain in the desert.`, options: ["many", "much", "few", "number"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> chairs do we need for the guests?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `We don't have <span class='blank'>${blankLine}</span> luggage with us.`, options: ["many", "much", "few", "several"], a: "much" },
+            { q: `How <span class='blank'>${blankLine}</span> computers are currently broken?`, options: ["much", "many", "little", "amount"], a: "many" },
+            { q: `I haven't got <span class='blank'>${blankLine}</span> homework today.`, options: ["many", "much", "few", "number"], a: "much" },
+
+            // PART 2: A few vs A little
+            { q: `I have <span class='blank'>${blankLine}</span> friends coming over later.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Add <span class='blank'>${blankLine}</span> salt to the soup.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `She needs <span class='blank'>${blankLine}</span> days to think about it.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Just <span class='blank'>${blankLine}</span> patience is required to solve this.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `I found <span class='blank'>${blankLine}</span> coins under the couch cushion.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `We only have <span class='blank'>${blankLine}</span> milk left in the fridge.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `Let's sing <span class='blank'>${blankLine}</span> songs around the campfire.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Can you give me <span class='blank'>${blankLine}</span> help with this box?`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `There are <span class='blank'>${blankLine}</span> apples left in the fruit bowl.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Put <span class='blank'>${blankLine}</span> oil in the pan before cooking.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `I asked the teacher <span class='blank'>${blankLine}</span> questions.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `She has <span class='blank'>${blankLine}</span> confidence in her abilities.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `Only <span class='blank'>${blankLine}</span> people know the truth about him.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Give it <span class='blank'>${blankLine}</span> thought before you make a decision.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `We took <span class='blank'>${blankLine}</span> photos on our trip to Rome.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `I just need <span class='blank'>${blankLine}</span> advice right now.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `He bought <span class='blank'>${blankLine}</span> shirts at the mall.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Make sure you leave <span class='blank'>${blankLine}</span> room for dessert.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `There are <span class='blank'>${blankLine}</span> exceptions to this rule.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `I have <span class='blank'>${blankLine}</span> knowledge of French.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `Let's play <span class='blank'>${blankLine}</span> games before bedtime.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Add <span class='blank'>${blankLine}</span> sugar to the tea to sweeten it.`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `She wrote <span class='blank'>${blankLine}</span> letters to her grandmother.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+            { q: `Can I have <span class='blank'>${blankLine}</span> water, please?`, options: ["a few", "a little", "many", "number"], a: "a little" },
+            { q: `We saw <span class='blank'>${blankLine}</span> rare birds in the tree.`, options: ["a little", "a few", "much", "amount"], a: "a few" },
+
+            // PART 3: Correct Noun Forms (Typical uncountable errors)
+            { q: `She gave me some excellent <span class='blank'>${blankLine}</span>.`, options: ["advices", "advice", "advise", "advises"], a: "advice" },
+            { q: `I need to buy some new <span class='blank'>${blankLine}</span> for the living room.`, options: ["furnitures", "furniture", "furnishing", "furniture's"], a: "furniture" },
+            { q: `The <span class='blank'>${blankLine}</span> is very bad today.`, options: ["weathers", "weather", "weather's", "a weather"], a: "weather" },
+            { q: `Where are my reading <span class='blank'>${blankLine}</span>?`, options: ["glass", "glasses", "glass's", "a glass"], a: "glasses" },
+            { q: `The <span class='blank'>${blankLine}</span> in this city is terrible.`, options: ["traffics", "traffic", "a traffic", "traffic's"], a: "traffic" },
+            { q: `Please pack your <span class='blank'>${blankLine}</span> into the trunk.`, options: ["luggages", "luggage", "a luggage", "luggage's"], a: "luggage" },
+            { q: `I have a lot of <span class='blank'>${blankLine}</span> to do today.`, options: ["works", "work", "a work", "work's"], a: "work" },
+            { q: `Look at all that <span class='blank'>${blankLine}</span> on the street.`, options: ["garbages", "garbage", "a garbage", "garbage's"], a: "garbage" },
+            { q: `He has a lot of <span class='blank'>${blankLine}</span> about history.`, options: ["knowledges", "knowledge", "a knowledge", "knowledge's"], a: "knowledge" },
+            { q: `We need to buy more <span class='blank'>${blankLine}</span> for the gym.`, options: ["equipments", "equipment", "an equipment", "equipment's"], a: "equipment" },
+            { q: `The <span class='blank'>${blankLine}</span> in the garden is growing fast.`, options: ["grasses", "grass", "a grass", "grass's"], a: "grass" },
+            { q: `Could you pass the <span class='blank'>${blankLine}</span>?`, options: ["salts", "salt", "a salt", "salt's"], a: "salt" },
+            { q: `I really like your new <span class='blank'>${blankLine}</span>.`, options: ["jean", "jeans", "a jean", "jean's"], a: "jeans" },
+            { q: `The <span class='blank'>${blankLine}</span> is falling softly outside.`, options: ["snows", "snow", "a snow", "snow's"], a: "snow" },
+            { q: `She has beautiful long, dark <span class='blank'>${blankLine}</span>.`, options: ["hairs", "hair", "a hair", "hair's"], a: "hair" },
+            { q: `Can you give me some <span class='blank'>${blankLine}</span> about the hotel?`, options: ["informations", "information", "an information", "information's"], a: "information" },
+            { q: `They made a lot of <span class='blank'>${blankLine}</span> on the project.`, options: ["progresses", "progress", "a progress", "progress's"], a: "progress" },
+            { q: `Do the police have the <span class='blank'>${blankLine}</span>?`, options: ["evidences", "evidence", "an evidence", "evidence's"], a: "evidence" },
+            { q: `The <span class='blank'>${blankLine}</span> are playing outside.`, options: ["childs", "children", "childrens", "child"], a: "children" },
+            { q: `I need a pair of <span class='blank'>${blankLine}</span> to cut this paper.`, options: ["scissor", "scissors", "a scissor", "scissor's"], a: "scissors" },
+            { q: `The <span class='blank'>${blankLine}</span> in the mountains is beautiful.`, options: ["sceneries", "scenery", "a scenery", "scenery's"], a: "scenery" },
+            { q: `He threw away all the <span class='blank'>${blankLine}</span>.`, options: ["rubbishes", "rubbish", "a rubbish", "rubbish's"], a: "rubbish" },
+            { q: `I bought fresh <span class='blank'>${blankLine}</span> from the bakery.`, options: ["breads", "bread", "a bread", "bread's"], a: "bread" },
+            { q: `She does a lot of <span class='blank'>${blankLine}</span> at the laboratory.`, options: ["researches", "research", "a research", "research's"], a: "research" },
+            { q: `The <span class='blank'>${blankLine}</span> arrived in the mail today.`, options: ["newses", "news", "a news", "new"], a: "news" },
+
+            // PART 4: Subject-Verb Agreement & Measurement Words
+            { q: `The news <span class='blank'>${blankLine}</span> surprisingly good today.`, options: ["are", "is", "were", "have"], a: "is" },
+            { q: `Mathematics <span class='blank'>${blankLine}</span> my favorite subject.`, options: ["are", "is", "were", "be"], a: "is" },
+            { q: `Your trousers <span class='blank'>${blankLine}</span> dirty.`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `Physics <span class='blank'>${blankLine}</span> a difficult subject for many.`, options: ["are", "is", "were", "be"], a: "is" },
+            { q: `The police <span class='blank'>${blankLine}</span> looking for the suspect.`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `A large amount of <span class='blank'>${blankLine}</span> was wasted on the project.`, options: ["dollars", "coins", "money", "bills"], a: "money" },
+            { q: `A large number of <span class='blank'>${blankLine}</span> were absent today.`, options: ["student", "students", "child", "person"], a: "students" },
+            { q: `How many <span class='blank'>${blankLine}</span> did you buy at the bakery?`, options: ["breads", "loaf of bread", "loaves of bread", "bread"], a: "loaves of bread" },
+            { q: `Can I have a <span class='blank'>${blankLine}</span> of water?`, options: ["glasses", "glass", "water", "waters"], a: "glass" },
+            { q: `Those cattle <span class='blank'>${blankLine}</span> eating grass in the field.`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `There <span class='blank'>${blankLine}</span> a lot of dust in this old room.`, options: ["are", "is", "were", "have"], a: "is" },
+            { q: `Where <span class='blank'>${blankLine}</span> the binoculars?`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `I need two <span class='blank'>${blankLine}</span> of paper to write this down.`, options: ["piece", "pieces", "papers", "paper"], a: "pieces" },
+            { q: `She gave me a <span class='blank'>${blankLine}</span> of advice.`, options: ["piece", "pieces", "advices", "word"], a: "piece" },
+            { q: `Did you hear that <span class='blank'>${blankLine}</span> outside?`, options: ["noises", "noise", "musics", "equipments"], a: "noise" },
+            { q: `There <span class='blank'>${blankLine}</span> some milk left in the fridge.`, options: ["are", "is", "were", "have"], a: "is" },
+            { q: `There <span class='blank'>${blankLine}</span> some people waiting for you.`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `This furniture <span class='blank'>${blankLine}</span> very old and fragile.`, options: ["are", "is", "were", "have"], a: "is" },
+            { q: `The scissors <span class='blank'>${blankLine}</span> on the teacher's desk.`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `Ethics <span class='blank'>${blankLine}</span> the study of moral principles.`, options: ["are", "is", "were", "be"], a: "is" },
+            { q: `Gymnastics <span class='blank'>${blankLine}</span> a great sport for flexibility.`, options: ["are", "is", "were", "have"], a: "is" },
+            { q: `My belongings <span class='blank'>${blankLine}</span> locked in the car trunk.`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `Accommodation <span class='blank'>${blankLine}</span> expensive in this big city.`, options: ["are", "is", "were", "have"], a: "is" },
+            { q: `The stairs <span class='blank'>${blankLine}</span> very steep in that house.`, options: ["is", "are", "was", "has"], a: "are" },
+            { q: `Water <span class='blank'>${blankLine}</span> essential for all human life.`, options: ["are", "is", "were", "have"], a: "is" }
+        ];
+
+        let currentIndex = 0;
+        let currentScore = 0;
+
+        const questionTextEl = document.getElementById('question-text');
+        const optionsGridEl = document.getElementById('options-grid');
+        const nextBtnEl = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        
+        const quizAreaEl = document.getElementById('quiz-area');
+        const resultsAreaEl = document.getElementById('results-area');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalMsgEl = document.getElementById('final-msg');
+
+        // Helper: Shuffle Array (Fisher-Yates)
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            currentIndex = 0;
+            currentScore = 0;
+            quizAreaEl.style.display = 'block';
+            resultsAreaEl.style.display = 'none';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Reset UI
+            feedbackEl.innerText = "";
+            feedbackEl.className = "feedback";
+            nextBtnEl.style.display = "none";
+            optionsGridEl.innerHTML = "";
+
+            const qData = rawQuestions[currentIndex];
+            questionTextEl.innerHTML = qData.q;
+            questionCounterEl.innerText = `Question ${currentIndex + 1} of ${rawQuestions.length}`;
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            progressBarEl.style.width = `${(currentIndex / rawQuestions.length) * 100}%`;
+
+            let shuffledOptions = shuffle([...qData.options]);
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(opt, btn, qData.a);
+                optionsGridEl.appendChild(btn);
+            });
+        }
+
+        function selectOption(selected, btnEl, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            const blankEl = document.querySelector('.blank');
+
+            if (selected === correct) {
+                btnEl.classList.add('correct');
+                feedbackEl.innerText = "Correct! Well done.";
+                feedbackEl.className = "feedback success";
+                currentScore++;
+                
+                blankEl.innerText = correct;
+                blankEl.style.color = '#2ecc71';
+                blankEl.style.borderColor = '#2ecc71';
+            } else {
+                btnEl.classList.add('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct answer was: ${correct}`;
+                feedbackEl.className = "feedback error";
+                
+                allBtns.forEach(btn => {
+                    if (btn.innerText === correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+
+                blankEl.innerText = correct;
+                blankEl.style.color = '#e74c3c';
+                blankEl.style.borderColor = '#e74c3c';
+            }
+
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            
+            if (currentIndex === rawQuestions.length - 1) {
+                nextBtnEl.innerHTML = "See Results &rarr;";
+            } else {
+                nextBtnEl.innerHTML = "Next Question &rarr;";
+            }
+            
+            nextBtnEl.style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < rawQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizAreaEl.style.display = 'none';
+            resultsAreaEl.style.display = 'block';
+            
+            finalScoreEl.innerText = `${currentScore} / ${rawQuestions.length}`;
+            
+            const percentage = (currentScore / rawQuestions.length) * 100;
+            if (percentage === 100) {
+                finalMsgEl.innerText = "Perfect! You've mastered countable and uncountable nouns!";
+            } else if (percentage >= 80) {
+                finalMsgEl.innerText = "Excellent job! You have a great grasp of these noun rules.";
+            } else if (percentage >= 60) {
+                finalMsgEl.innerText = "Good effort! Keep practicing to master the tricky exceptions.";
+            } else {
+                finalMsgEl.innerText = "Keep studying! Reviewing the grammar rules list will help.";
+            }
+        }
+
+        // Init
+        startQuiz();
+    </script>
+</body>
+</html>

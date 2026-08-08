@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Advanced Verbs: Cantonese to English Quiz</title>
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --primary-hover: #9b59b6;
+            --secondary: #e67e22;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --dark: #2c3e50;
+            --light: #fdfefe;
+            --white: #ffffff;
+            --gray: #bdc3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--white);
+            max-width: 800px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quiz-header h2 {
+            margin-bottom: 10px;
+            font-size: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .settings-bar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .settings-bar label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.3);
+            height: 6px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-body {
+            padding: 40px 30px;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .vocab-display {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .chinese-word {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tts-btn-large {
+            background: none;
+            border: 2px solid var(--gray);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tts-btn-large:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .chinese-word { font-size: 3.5rem; }
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #f5eef8;
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .tts-btn-small {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn.correct .tts-btn-small,
+        .option-btn.incorrect .tts-btn-small {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .tts-btn-small:hover {
+            background: rgba(0,0,0,0.15);
+            transform: scale(1.1);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 25px;
+            min-height: 30px;
+        }
+
+        .feedback.success { color: var(--success); }
+        .feedback.error { color: var(--danger); }
+
+        .quiz-footer {
+            padding: 20px 30px;
+            background-color: var(--light);
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .next-btn, .start-btn {
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            padding: 12px 35px;
+            font-size: 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .next-btn { display: none; }
+        .next-btn:hover, .start-btn:hover { background-color: #d35400; }
+
+        #start-screen {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        #start-screen p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 50px 30px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        
+        <!-- Start Screen (To require user gesture for Audio API) -->
+        <div id="start-screen">
+            <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 15px;">100 Advanced Verbs</h1>
+            <h2>Cantonese &rarr; English</h2>
+            <p>Test your knowledge of high-level academic and professional verbs.</p>
+            <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Interactive Quiz Area -->
+        <div id="quiz-area" style="display: none;">
+            <div class="quiz-header">
+                <h2>Advanced Vocabulary Challenge</h2>
+                <div class="settings-bar">
+                    <label>
+                        <input type="checkbox" id="auto-tts" checked>
+                        Auto-play Cantonese word on new question
+                    </label>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div class="question-meta">
+                    <span id="question-counter">Question 1 of 100</span>
+                    <span id="score-counter">Score: 0</span>
+                </div>
+                
+                <div class="vocab-display">
+                    <div class="chinese-word">
+                        <span id="target-word">載入中...</span>
+                        <button class="tts-btn-large" id="main-tts-btn" title="Listen to Cantonese">🔊</button>
+                    </div>
+                </div>
+
+                <div class="options-grid" id="options-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Word &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Results Area -->
+        <div class="results-container" id="results-area">
+            <h2 style="font-size: 2.5rem;">Quiz Complete!</h2>
+            <div class="results-score" id="final-score">0 / 100</div>
+            <p style="font-size: 1.2rem; margin-bottom: 30px; color: #555;" id="final-msg">Great effort!</p>
+            <button class="start-btn" onclick="location.reload()">Restart Quiz</button>
+        </div>
+
+    </div>
+
+    <script>
+        // 100 Advanced Verb Vocabulary List (Traditional Chinese characters)
+        const vocabList = [
+            { zh: "拖延", en: "Procrastinate" }, { zh: "捏造", en: "Fabricate" }, { zh: "審視", en: "Scrutinize" }, { zh: "緩解", en: "Alleviate" }, { zh: "惡化", en: "Exacerbate" },
+            { zh: "波動", en: "Fluctuate" }, { zh: "恐嚇", en: "Intimidate" }, { zh: "操縱", en: "Manipulate" }, { zh: "推測", en: "Speculate" }, { zh: "闡述", en: "Articulate" },
+            { zh: "鞏固", en: "Consolidate" }, { zh: "根除", en: "Eradicate" }, { zh: "羞辱", en: "Humiliate" }, { zh: "實施", en: "Implement" }, { zh: "危及", en: "Jeopardize" },
+            { zh: "消滅", en: "Obliterate" }, { zh: "放棄", en: "Relinquish" }, { zh: "補貼", en: "Subsidize" }, { zh: "終止", en: "Terminate" }, { zh: "削弱", en: "Undermine" },
+            { zh: "疏遠", en: "Alienate" }, { zh: "困惑", en: "Baffle" }, { zh: "脅迫", en: "Coerce" }, { zh: "偏離", en: "Deviate" }, { zh: "效仿", en: "Emulate" },
+            { zh: "激勵", en: "Galvanize" }, { zh: "阻礙", en: "Hinder" }, { zh: "煽動", en: "Instigate" }, { zh: "哀悼", en: "Lament" }, { zh: "培育", en: "Nurture" },
+            { zh: "掩蓋", en: "Obscure" }, { zh: "滲透", en: "Permeate" }, { zh: "平息", en: "Quell" }, { zh: "扼殺", en: "Stifle" }, { zh: "阻撓", en: "Thwart" },
+            { zh: "渴望", en: "Yearn" }, { zh: "憎惡", en: "Abhor" }, { zh: "縱容", en: "Condone" }, { zh: "消耗", en: "Deplete" }, { zh: "磨練", en: "Hone" },
+            { zh: "沉浸", en: "Immerse" }, { zh: "痛恨", en: "Loathe" }, { zh: "排斥", en: "Ostracize" }, { zh: "揮霍", en: "Squander" }, { zh: "玷污", en: "Tarnish" },
+            { zh: "篡奪", en: "Usurp" }, { zh: "猶豫", en: "Vacillate" }, { zh: "驅逐", en: "Banish" }, { zh: "解讀", en: "Decipher" }, { zh: "引出", en: "Elicit" },
+            { zh: "藐視", en: "Flout" }, { zh: "騷擾", en: "Harass" }, { zh: "引誘", en: "Lure" }, { zh: "演變", en: "Morph" }, { zh: "策劃", en: "Orchestrate" },
+            { zh: "掠奪", en: "Plunder" }, { zh: "重申", en: "Reiterate" }, { zh: "傳播", en: "Disseminate" }, { zh: "培養", en: "Foster" }, { zh: "赦免", en: "Absolve" },
+            { zh: "屈服", en: "Capitulate" }, { zh: "退讓", en: "Concede" }, { zh: "譴責", en: "Condemn" }, { zh: "潤飾", en: "Embellish" }, { zh: "剝削", en: "Exploit" },
+            { zh: "挫敗", en: "Frustrate" }, { zh: "介入", en: "Intervene" }, { zh: "威脅", en: "Menace" }, { zh: "擴散", en: "Proliferate" }, { zh: "撤銷", en: "Revoke" },
+            { zh: "隔離", en: "Segregate" }, { zh: "壓制", en: "Suppress" }, { zh: "貶低", en: "Belittle" }, { zh: "撫慰", en: "Conciliate" }, { zh: "避開", en: "Evade" },
+            { zh: "惹怒", en: "Exasperate" }, { zh: "偽造", en: "Forge" }, { zh: "妨礙", en: "Impede" }, { zh: "激怒", en: "Provoke" }, { zh: "報復", en: "Retaliate" },
+            { zh: "欺騙", en: "Deceive" }, { zh: "剝奪", en: "Deprive" }, { zh: "逃避", en: "Elude" }, { zh: "阻絕", en: "Forestall" }, { zh: "牽連", en: "Implicate" },
+            { zh: "使畏縮", en: "Daunt" }, { zh: "安撫", en: "Mollify" }, { zh: "震怒", en: "Infuriate" }, { zh: "減輕", en: "Mitigate" }, { zh: "支配", en: "Dominate" },
+            { zh: "指控", en: "Denounce" }, { zh: "隱藏", en: "Conceal" }, { zh: "強迫", en: "Compel" }, { zh: "評估", en: "Assess" }, { zh: "假定", en: "Assume" },
+            { zh: "獲得", en: "Acquire" }, { zh: "驗證", en: "Verify" }, { zh: "分配", en: "Allocate" }, { zh: "修改", en: "Modify" }, { zh: "澄清", en: "Clarify" }
+        ];
+
+        let quizSequence = [];
+        let currentIndex = 0;
+        let currentScore = 0;
+
+        const targetWordEl = document.getElementById('target-word');
+        const mainTtsBtn = document.getElementById('main-tts-btn');
+        const optionsGridEl = document.getElementById('options-grid');
+        const nextBtnEl = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        const autoTtsCheckbox = document.getElementById('auto-tts');
+
+        // Text-to-Speech Engine
+        const synth = window.speechSynthesis;
+
+        function speak(text, lang) {
+            // Cancel any ongoing speech to avoid overlapping
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang; // 'zh-HK' for Cantonese, 'en-US' for English
+            utterance.rate = 0.9;  // Slightly slower for learning
+            synth.speak(utterance);
+        }
+
+        function shuffle(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        // Generate exactly 4 options (1 correct, 3 random incorrect)
+        function generateOptions(correctAnswer) {
+            let allEnglishWords = vocabList.map(v => v.en);
+            let incorrectPool = allEnglishWords.filter(en => en !== correctAnswer);
+            shuffle(incorrectPool);
+            
+            let options = [correctAnswer, incorrectPool[0], incorrectPool[1], incorrectPool[2]];
+            return shuffle(options);
+        }
+
+        function startQuiz() {
+            // Unlock audio context on first user click
+            speak("", "en-US");
+
+            // Prepare the 100 questions sequence (shuffled)
+            quizSequence = shuffle([...vocabList]);
+            
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'block';
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Reset UI
+            feedbackEl.innerText = "";
+            feedbackEl.className = "feedback";
+            nextBtnEl.style.display = "none";
+            optionsGridEl.innerHTML = "";
+
+            const qData = quizSequence[currentIndex];
+            
+            // Set Chinese Word
+            targetWordEl.innerText = qData.zh;
+            // Using zh-HK ensures the TTS uses a Cantonese voice profile
+            mainTtsBtn.onclick = () => speak(qData.zh, 'zh-HK');
+
+            // Auto-play Cantonese Audio if checked
+            if (autoTtsCheckbox.checked) {
+                speak(qData.zh, 'zh-HK');
+            }
+
+            // Update Meta info
+            questionCounterEl.innerText = `Question ${currentIndex + 1} of ${quizSequence.length}`;
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            progressBarEl.style.width = `${(currentIndex / quizSequence.length) * 100}%`;
+
+            // Generate & Render English Buttons
+            const currentOptions = generateOptions(qData.en);
+
+            currentOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                
+                // Add Word Text
+                const textSpan = document.createElement('span');
+                textSpan.innerText = opt;
+                btn.appendChild(textSpan);
+
+                // Add TTS Speaker icon for the english word
+                const ttsSmallBtn = document.createElement('button');
+                ttsSmallBtn.className = 'tts-btn-small';
+                ttsSmallBtn.innerText = '🔊';
+                ttsSmallBtn.title = "Listen to English";
+                ttsSmallBtn.onclick = (e) => {
+                    e.stopPropagation(); // Prevent the main button click event
+                    speak(opt, 'en-US');
+                };
+                btn.appendChild(ttsSmallBtn);
+
+                // Handle Answer Selection
+                btn.onclick = () => selectOption(opt, btn, qData.en);
+                
+                optionsGridEl.appendChild(btn);
+            });
+        }
+
+        function selectOption(selected, btnEl, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            // Disable all buttons immediately after selection
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selected === correct) {
+                btnEl.classList.add('correct');
+                feedbackEl.innerText = "Correct! (正確)";
+                feedbackEl.className = "feedback success";
+                currentScore++;
+            } else {
+                btnEl.classList.add('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct answer is: ${correct}`;
+                feedbackEl.className = "feedback error";
+                
+                // Highlight the correct answer
+                allBtns.forEach(btn => {
+                    if (btn.querySelector('span').innerText === correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            
+            if (currentIndex === quizSequence.length - 1) {
+                nextBtnEl.innerHTML = "See Results &rarr;";
+            } else {
+                nextBtnEl.innerHTML = "Next Word &rarr;";
+            }
+            
+            nextBtnEl.style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < quizSequence.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-area').style.display = 'none';
+            document.getElementById('results-area').style.display = 'block';
+            
+            document.getElementById('final-score').innerText = `${currentScore} / ${quizSequence.length}`;
+            
+            const msgEl = document.getElementById('final-msg');
+            const percentage = (currentScore / quizSequence.length) * 100;
+            
+            if (percentage >= 90) {
+                msgEl.innerText = "Outstanding! You have mastered these advanced Cantonese verbs!";
+            } else if (percentage >= 70) {
+                msgEl.innerText = "Great job! Your academic vocabulary is very strong.";
+            } else if (percentage >= 50) {
+                msgEl.innerText = "Good effort. Keep practicing to memorize the tricky ones.";
+            } else {
+                msgEl.innerText = "Keep studying! Use the audio buttons to help you internalize the meanings.";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Parts of Speech Quiz</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-hover: #2980b9;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --gray: #bdc3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--white);
+            max-width: 800px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.2);
+            height: 6px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-body {
+            padding: 40px 30px;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .question-text b {
+            color: var(--primary);
+            font-size: 1.7rem;
+            text-decoration: underline;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #ebf5fb;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 28px;
+        }
+
+        .feedback.success { color: var(--success); }
+        .feedback.error { color: var(--danger); }
+
+        .quiz-footer {
+            padding: 20px 30px;
+            background-color: var(--light);
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .next-btn {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .next-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 50px 30px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .results-msg {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .restart-btn {
+            background-color: var(--success);
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        
+        <!-- Interactive Quiz Area -->
+        <div id="quiz-area">
+            <div class="quiz-header">
+                <h2>Parts of Speech Challenge</h2>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div class="question-meta">
+                    <span id="question-counter">Question 1 of 100</span>
+                    <span id="score-counter">Score: 0</span>
+                </div>
+                
+                <div class="question-text" id="question-text">
+                    Loading question...
+                </div>
+
+                <div class="options-grid" id="options-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Results Area -->
+        <div class="results-container" id="results-area">
+            <h2>Quiz Complete!</h2>
+            <div class="results-score" id="final-score">0 / 100</div>
+            <div class="results-msg" id="final-msg">Great effort!</div>
+            <button class="restart-btn" onclick="startQuiz()">Restart Quiz</button>
+        </div>
+
+    </div>
+
+    <script>
+        const allPartsOfSpeech = ["Noun", "Pronoun", "Verb", "Adjective", "Adverb", "Preposition", "Conjunction", "Interjection", "Determiner"];
+
+        const rawQuestions = [
+            { q: "The <b>sun</b> is bright.", a: "Noun" },
+            { q: "<b>She</b> walked home.", a: "Pronoun" },
+            { q: "They <b>jumped</b> over the puddle.", a: "Verb" },
+            { q: "It is a <b>beautiful</b> day.", a: "Adjective" },
+            { q: "He runs <b>quickly</b>.", a: "Adverb" },
+            { q: "The cat is <b>under</b> the table.", a: "Preposition" },
+            { q: "I like apples <b>and</b> oranges.", a: "Conjunction" },
+            { q: "<b>Wow</b>, that is amazing!", a: "Interjection" },
+            { q: "Can you pass me <b>that</b> book?", a: "Determiner" },
+            { q: "A <b>dog</b> barked loudly.", a: "Noun" },
+            { q: "<b>We</b> won the championship game.", a: "Pronoun" },
+            { q: "He <b>reads</b> books every night.", a: "Verb" },
+            { q: "The <b>blue</b> sky looks vast.", a: "Adjective" },
+            { q: "They walked <b>slowly</b> through the park.", a: "Adverb" },
+            { q: "Look <b>at</b> the moon!", a: "Preposition" },
+            { q: "Would you like coffee <b>or</b> tea?", a: "Conjunction" },
+            { q: "<b>Alas</b>, the treasure is gone.", a: "Interjection" },
+            { q: "<b>The</b> bird sang a beautiful tune.", a: "Determiner" },
+            { q: "I love listening to <b>music</b>.", a: "Noun" },
+            { q: "<b>They</b> are my best friends.", a: "Pronoun" },
+            { q: "She <b>writes</b> poetry in her journal.", a: "Verb" },
+            { q: "It was a very <b>happy</b> child.", a: "Adjective" },
+            { q: "He drove the car <b>carefully</b>.", a: "Adverb" },
+            { q: "Let's walk <b>through</b> the forest.", a: "Preposition" },
+            { q: "I am tired <b>because</b> I worked late.", a: "Conjunction" },
+            { q: "<b>Hurrah</b>, we finally did it!", a: "Interjection" },
+            { q: "Give me <b>some</b> water, please.", a: "Determiner" },
+            { q: "I want a large slice of <b>pizza</b>.", a: "Noun" },
+            { q: "<b>I</b> am waiting right here.", a: "Pronoun" },
+            { q: "The old clock <b>ticks</b> loudly.", a: "Verb" },
+            { q: "There was a <b>loud</b> noise outside.", a: "Adjective" },
+            { q: "She answered the question <b>correctly</b>.", a: "Adverb" },
+            { q: "Your keys are <b>in</b> the box.", a: "Preposition" },
+            { q: "He is very smart <b>yet</b> quite lazy.", a: "Conjunction" },
+            { q: "<b>Hey</b>, look over here!", a: "Interjection" },
+            { q: "<b>Many</b> people came to the festival.", a: "Determiner" },
+            { q: "My <b>computer</b> crashed yesterday.", a: "Noun" },
+            { q: "<b>It</b> is raining heavily.", a: "Pronoun" },
+            { q: "They <b>built</b> a massive house.", a: "Verb" },
+            { q: "Can you lift this <b>heavy</b> box?", a: "Adjective" },
+            { q: "The choir sings incredibly <b>well</b>.", a: "Adverb" },
+            { q: "The plane flew <b>above</b> the thick clouds.", a: "Preposition" },
+            { q: "Neither Tom <b>nor</b> Jerry was there.", a: "Conjunction" },
+            { q: "<b>Oops</b>, I dropped the glass.", a: "Interjection" },
+            { q: "<b>Those</b> shoes belong to me.", a: "Determiner" },
+            { q: "The <b>mountain</b> is incredibly steep.", a: "Noun" },
+            { q: "<b>You</b> are very welcome.", a: "Pronoun" },
+            { q: "We <b>ate</b> a huge dinner.", a: "Verb" },
+            { q: "Be careful with that <b>sharp</b> knife.", a: "Adjective" },
+            { q: "She arrived to the meeting <b>early</b>.", a: "Adverb" },
+            { q: "Please stand <b>behind</b> the yellow line.", a: "Preposition" },
+            { q: "I will go to the store <b>if</b> you go.", a: "Conjunction" },
+            { q: "<b>Ah</b>, I finally understand the math problem.", a: "Interjection" },
+            { q: "<b>Every</b> student passed the final exam.", a: "Determiner" },
+            { q: "Would you like to drink some <b>tea</b>?", a: "Noun" },
+            { q: "<b>Who</b> is knocking at the door?", a: "Pronoun" },
+            { q: "The cold winter wind <b>blows</b> constantly.", a: "Verb" },
+            { q: "That is a remarkably <b>clever</b> dog.", a: "Adjective" },
+            { q: "He left for his vacation <b>yesterday</b>.", a: "Adverb" },
+            { q: "Walk <b>beside</b> me so we don't get separated.", a: "Preposition" },
+            { q: "I was exhausted, <b>so</b> I went to sleep.", a: "Conjunction" },
+            { q: "<b>Bravo</b>, that was a spectacular performance!", a: "Interjection" },
+            { q: "<b>My</b> phone battery is completely dead.", a: "Determiner" },
+            { q: "The Pacific <b>ocean</b> is very deep.", a: "Noun" },
+            { q: "<b>Everyone</b> cheered for the winning team.", a: "Pronoun" },
+            { q: "She <b>painted</b> a beautiful landscape picture.", a: "Verb" },
+            { q: "This is a very <b>sweet</b> apple.", a: "Adjective" },
+            { q: "The troops are marching <b>forward</b>.", a: "Adverb" },
+            { q: "Please carry these boxes <b>down</b> the stairs.", a: "Preposition" },
+            { q: "I studied <b>until</b> I fell asleep at my desk.", a: "Conjunction" },
+            { q: "<b>Uh-oh</b>, I think I made a mistake.", a: "Interjection" },
+            { q: "<b>This</b> laptop processes data very fast.", a: "Determiner" },
+            { q: "I went to the mall to buy a new <b>shirt</b>.", a: "Noun" },
+            { q: "<b>Someone</b> called the house while you were out.", a: "Pronoun" },
+            { q: "The mechanic easily <b>fixed</b> the broken car.", a: "Verb" },
+            { q: "He was afraid to enter the <b>dark</b> room.", a: "Adjective" },
+            { q: "She spoke very <b>loudly</b> into the microphone.", a: "Adverb" },
+            { q: "Look <b>up</b> the definition in the dictionary.", a: "Preposition" },
+            { q: "<b>Although</b> it rained, we still played the match.", a: "Conjunction" },
+            { q: "<b>Yikes</b>, that was a really close call!", a: "Interjection" },
+            { q: "<b>Which</b> car belongs to your brother?", a: "Determiner" },
+            { q: "New York is the <b>city</b> that never sleeps.", a: "Noun" },
+            { q: "<b>Anybody</b> can learn how to cook with practice.", a: "Pronoun" },
+            { q: "They <b>swim</b> in the pool every single morning.", a: "Verb" },
+            { q: "A <b>warm</b> breeze blew through the open window.", a: "Adjective" },
+            { q: "My grandfather <b>never</b> complains about the weather.", a: "Adverb" },
+            { q: "Come over here and sit <b>with</b> us.", a: "Preposition" },
+            { q: "The old man was poor <b>yet</b> incredibly happy.", a: "Conjunction" },
+            { q: "<b>Ew</b>, that leftover food smells gross!", a: "Interjection" },
+            { q: "<b>A</b> stray cat meowed outside my door.", a: "Determiner" },
+            { q: "The pine <b>forest</b> is very thick and green.", a: "Noun" },
+            { q: "<b>Nobody</b> knows the answer to that riddle.", a: "Pronoun" },
+            { q: "We <b>traveled</b> far across the country last summer.", a: "Verb" },
+            { q: "She wore a beautiful <b>golden</b> ring on her finger.", a: "Adjective" },
+            { q: "The star student smiled <b>brightly</b> at the teacher.", a: "Adverb" },
+            { q: "You need to drive <b>past</b> the bank to find the store.", a: "Preposition" },
+            { q: "<b>Since</b> you asked so nicely, I will help you.", a: "Conjunction" },
+            { q: "<b>Phew</b>, we finally made it to the finish line!", a: "Interjection" },
+            { q: "<b>Your</b> keys are right here on the counter.", a: "Determiner" },
+            { q: "This is the final question at the <b>end</b> of the quiz.", a: "Noun" }
+        ];
+
+        let currentIndex = 0;
+        let currentScore = 0;
+        let currentOptions = [];
+
+        const questionTextEl = document.getElementById('question-text');
+        const optionsGridEl = document.getElementById('options-grid');
+        const nextBtnEl = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        
+        const quizAreaEl = document.getElementById('quiz-area');
+        const resultsAreaEl = document.getElementById('results-area');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalMsgEl = document.getElementById('final-msg');
+
+        // Helper: Shuffle Array
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Generate 4 dynamic options containing the correct answer
+        function generateOptions(correctAnswer) {
+            let options = [correctAnswer];
+            let available = allPartsOfSpeech.filter(pos => pos !== correctAnswer);
+            shuffle(available);
+            options.push(available[0], available[1], available[2]);
+            return shuffle(options);
+        }
+
+        function startQuiz() {
+            currentIndex = 0;
+            currentScore = 0;
+            quizAreaEl.style.display = 'block';
+            resultsAreaEl.style.display = 'none';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Reset UI
+            feedbackEl.innerText = "";
+            feedbackEl.className = "feedback";
+            nextBtnEl.style.display = "none";
+            optionsGridEl.innerHTML = "";
+
+            // Load Data
+            const qData = rawQuestions[currentIndex];
+            questionTextEl.innerHTML = qData.q;
+            questionCounterEl.innerText = `Question ${currentIndex + 1} of ${rawQuestions.length}`;
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            progressBarEl.style.width = `${(currentIndex / rawQuestions.length) * 100}%`;
+
+            currentOptions = generateOptions(qData.a);
+
+            // Render Buttons
+            currentOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(opt, btn, qData.a);
+                optionsGridEl.appendChild(btn);
+            });
+        }
+
+        function selectOption(selected, btnEl, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            // Disable all buttons after selection
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selected === correct) {
+                btnEl.classList.add('correct');
+                feedbackEl.innerText = "Correct! Well done.";
+                feedbackEl.className = "feedback success";
+                currentScore++;
+            } else {
+                btnEl.classList.add('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct answer was: ${correct}`;
+                feedbackEl.className = "feedback error";
+                
+                // Highlight the correct answer
+                allBtns.forEach(btn => {
+                    if (btn.innerText === correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            nextBtnEl.style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < rawQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizAreaEl.style.display = 'none';
+            resultsAreaEl.style.display = 'block';
+            
+            finalScoreEl.innerText = `${currentScore} / ${rawQuestions.length}`;
+            
+            const percentage = (currentScore / rawQuestions.length) * 100;
+            if (percentage === 100) {
+                finalMsgEl.innerText = "Perfect! You are a grammar master.";
+            } else if (percentage >= 80) {
+                finalMsgEl.innerText = "Excellent job! You have a great grasp of parts of speech.";
+            } else if (percentage >= 60) {
+                finalMsgEl.innerText = "Good effort! Keep practicing to master them completely.";
+            } else {
+                finalMsgEl.innerText = "Keep studying! Reviewing the definitions will help you improve.";
+            }
+        }
+
+        // Initialize quiz on load
+        startQuiz();
+    </script>
+</body>
+</html>

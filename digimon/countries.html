@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Countries: Cantonese to English Quiz with Analytics</title>
+    <style>
+        :root {
+            --primary: #2980b9;
+            --primary-hover: #2471a3;
+            --secondary: #27ae60;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #fdfefe;
+            --white: #ffffff;
+            --gray: #bdc3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ecf0f1;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--white);
+            max-width: 850px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quiz-header h2 {
+            margin-bottom: 10px;
+            font-size: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .settings-bar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .settings-bar label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.3);
+            height: 6px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-body {
+            padding: 40px 30px;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .vocab-display {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .country-word {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .hint-text {
+            font-size: 1.2rem;
+            color: #d35400;
+            font-weight: bold;
+            background: #fdf2e9;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid #edbb99;
+        }
+
+        .tts-btn-large {
+            background: none;
+            border: 2px solid var(--gray);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tts-btn-large:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .country-word { font-size: 3rem; }
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #ebf5fb;
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .tts-btn-small {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn.correct .tts-btn-small,
+        .option-btn.incorrect .tts-btn-small {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .tts-btn-small:hover {
+            background: rgba(0,0,0,0.15);
+            transform: scale(1.1);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 25px;
+            min-height: 30px;
+        }
+
+        .feedback.success { color: var(--success); }
+        .feedback.error { color: var(--danger); }
+
+        .quiz-footer {
+            padding: 20px 30px;
+            background-color: var(--light);
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .next-btn, .start-btn {
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            padding: 12px 35px;
+            font-size: 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .next-btn { display: none; }
+        .next-btn:hover, .start-btn:hover { background-color: #219a52; }
+
+        #start-screen {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        #start-screen p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 40px 30px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .analytics-container {
+            background-color: #f4f6f7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--gray);
+        }
+
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .analytics-table th, .analytics-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .analytics-table th {
+            background-color: var(--dark);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .correct-row { color: var(--success); font-weight: bold; }
+        .incorrect-row { color: var(--danger); font-weight: bold; }
+
+        .stats-summary {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 15px;">World Countries Quiz</h1>
+            <h2>Traditional Chinese &rarr; English</h2>
+            <p>Can you identify all 197 countries by their Chinese names? Your speed and accuracy will be tracked!</p>
+            <button class="start-btn" onclick="startQuiz()">Start the Global Tour</button>
+        </div>
+
+        <!-- Interactive Quiz Area -->
+        <div id="quiz-area" style="display: none;">
+            <div class="quiz-header">
+                <h2>Global Geography Challenge</h2>
+                <div class="settings-bar">
+                    <label>
+                        <input type="checkbox" id="auto-tts" checked>
+                        Auto-play Cantonese word on new question
+                    </label>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div class="question-meta">
+                    <span id="question-counter">Question 1 of 197</span>
+                    <span id="score-counter">Score: 0</span>
+                </div>
+                
+                <div class="vocab-display">
+                    <div class="country-word">
+                        <span id="target-country">載入中...</span>
+                        <button class="tts-btn-large" id="main-tts-btn" title="Listen to Cantonese">🔊</button>
+                    </div>
+                    <div class="hint-text" id="target-hint">Hint: Loading...</div>
+                </div>
+
+                <div class="options-grid" id="options-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Country &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Results Area -->
+        <div class="results-container" id="results-area">
+            <h2 style="font-size: 2.5rem;">Global Tour Complete!</h2>
+            <div class="results-score" id="final-score">0 / 197</div>
+            <p style="font-size: 1.2rem; color: #555;" id="final-msg">Analytics Report:</p>
+            
+            <div id="analytics-area"></div>
+
+            <button class="start-btn" onclick="location.reload()">Restart Global Tour</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Array of 197 Countries with Traditional Chinese and Geographical Hints
+        const countryList = [
+            { c: "Afghanistan", zh: "阿富汗", h: "Landlocked country in Asia" },
+            { c: "Albania", zh: "阿爾巴尼亞", h: "Coastal country in Europe" },
+            { c: "Algeria", zh: "阿爾及利亞", h: "Coastal country in Africa" },
+            { c: "Andorra", zh: "安道爾", h: "Landlocked country in Europe" },
+            { c: "Angola", zh: "安哥拉", h: "Coastal country in Africa" },
+            { c: "Antigua and Barbuda", zh: "安提瓜和巴布達", h: "Island nation in North America" },
+            { c: "Argentina", zh: "阿根廷", h: "Coastal country in South America" },
+            { c: "Armenia", zh: "亞美尼亞", h: "Landlocked country in Asia" },
+            { c: "Australia", zh: "澳洲", h: "Continental island nation in Oceania" },
+            { c: "Austria", zh: "奧地利", h: "Landlocked country in Europe" },
+            { c: "Azerbaijan", zh: "阿塞拜疆", h: "Landlocked country in Asia" },
+            { c: "Bahamas", zh: "巴哈馬", h: "Island nation in North America" },
+            { c: "Bahrain", zh: "巴林", h: "Island nation in Asia" },
+            { c: "Bangladesh", zh: "孟加拉", h: "Coastal country in Asia" },
+            { c: "Barbados", zh: "巴巴多斯", h: "Island nation in North America" },
+            { c: "Belarus", zh: "白俄羅斯", h: "Landlocked country in Europe" },
+            { c: "Belgium", zh: "比利時", h: "Coastal country in Europe" },
+            { c: "Belize", zh: "伯利茲", h: "Coastal country in North America" },
+            { c: "Benin", zh: "貝寧", h: "Coastal country in Africa" },
+            { c: "Bhutan", zh: "不丹", h: "Landlocked country in Asia" },
+            { c: "Bolivia", zh: "玻利維亞", h: "Landlocked country in South America" },
+            { c: "Bosnia and Herzegovina", zh: "波斯尼亞和黑塞哥維那", h: "Coastal country in Europe" },
+            { c: "Botswana", zh: "博茨瓦納", h: "Landlocked country in Africa" },
+            { c: "Brazil", zh: "巴西", h: "Coastal country in South America" },
+            { c: "Brunei", zh: "汶萊", h: "Coastal country in Asia" },
+            { c: "Bulgaria", zh: "保加利亞", h: "Coastal country in Europe" },
+            { c: "Burkina Faso", zh: "布基納法索", h: "Landlocked country in Africa" },
+            { c: "Burundi", zh: "布隆迪", h: "Landlocked country in Africa" },
+            { c: "Cabo Verde", zh: "佛得角", h: "Island nation in Africa" },
+            { c: "Cambodia", zh: "柬埔寨", h: "Coastal country in Asia" },
+            { c: "Cameroon", zh: "喀麥隆", h: "Coastal country in Africa" },
+            { c: "Canada", zh: "加拿大", h: "Coastal country in North America" },
+            { c: "Central African Republic", zh: "中非共和國", h: "Landlocked country in Africa" },
+            { c: "Chad", zh: "乍得", h: "Landlocked country in Africa" },
+            { c: "Chile", zh: "智利", h: "Coastal country in South America" },
+            { c: "China", zh: "中國", h: "Coastal country in Asia" },
+            { c: "Colombia", zh: "哥倫比亞", h: "Coastal country in South America" },
+            { c: "Comoros", zh: "科摩羅", h: "Island nation in Africa" },
+            { c: "Congo (Brazzaville)", zh: "剛果共和國", h: "Coastal country in Africa" },
+            { c: "Costa Rica", zh: "哥斯達黎加", h: "Coastal country in North America" },
+            { c: "Croatia", zh: "克羅地亞", h: "Coastal country in Europe" },
+            { c: "Cuba", zh: "古巴", h: "Island nation in North America" },
+            { c: "Cyprus", zh: "塞浦路斯", h: "Island nation in Europe / Asia" },
+            { c: "Czechia", zh: "捷克", h: "Landlocked country in Europe" },
+            { c: "Democratic Republic of the Congo", zh: "剛果民主共和國", h: "Coastal country in Africa" },
+            { c: "Denmark", zh: "丹麥", h: "Coastal country in Europe" },
+            { c: "Djibouti", zh: "吉布提", h: "Coastal country in Africa" },
+            { c: "Dominica", zh: "多米尼克", h: "Island nation in North America" },
+            { c: "Dominican Republic", zh: "多米尼加共和國", h: "Island nation in North America" },
+            { c: "Ecuador", zh: "厄瓜多爾", h: "Coastal country in South America" },
+            { c: "Egypt", zh: "埃及", h: "Coastal country in Africa" },
+            { c: "El Salvador", zh: "薩爾瓦多", h: "Coastal country in North America" },
+            { c: "Equatorial Guinea", zh: "赤道幾內亞", h: "Coastal country in Africa" },
+            { c: "Eritrea", zh: "厄立特里亞", h: "Coastal country in Africa" },
+            { c: "Estonia", zh: "愛沙尼亞", h: "Coastal country in Europe" },
+            { c: "Eswatini", zh: "斯威士蘭", h: "Landlocked country in Africa" },
+            { c: "Ethiopia", zh: "埃塞俄比亞", h: "Landlocked country in Africa" },
+            { c: "Fiji", zh: "斐濟", h: "Island nation in Oceania" },
+            { c: "Finland", zh: "芬蘭", h: "Coastal country in Europe" },
+            { c: "France", zh: "法國", h: "Coastal country in Europe" },
+            { c: "Gabon", zh: "加蓬", h: "Coastal country in Africa" },
+            { c: "Gambia", zh: "岡比亞", h: "Coastal country in Africa" },
+            { c: "Georgia", zh: "格魯吉亞", h: "Coastal country in Asia / Europe" },
+            { c: "Germany", zh: "德國", h: "Coastal country in Europe" },
+            { c: "Ghana", zh: "加納", h: "Coastal country in Africa" },
+            { c: "Greece", zh: "希臘", h: "Coastal country in Europe" },
+            { c: "Grenada", zh: "格林納達", h: "Island nation in North America" },
+            { c: "Guatemala", zh: "危地馬拉", h: "Coastal country in North America" },
+            { c: "Guinea", zh: "幾內亞", h: "Coastal country in Africa" },
+            { c: "Guinea-Bissau", zh: "幾內亞比紹", h: "Coastal country in Africa" },
+            { c: "Guyana", zh: "圭亞那", h: "Coastal country in South America" },
+            { c: "Haiti", zh: "海地", h: "Island nation in North America" },
+            { c: "Honduras", zh: "洪都拉斯", h: "Coastal country in North America" },
+            { c: "Hungary", zh: "匈牙利", h: "Landlocked country in Europe" },
+            { c: "Iceland", zh: "冰島", h: "Island nation in Europe" },
+            { c: "India", zh: "印度", h: "Coastal country in Asia" },
+            { c: "Indonesia", zh: "印尼", h: "Island nation in Asia" },
+            { c: "Iran", zh: "伊朗", h: "Coastal country in Asia" },
+            { c: "Iraq", zh: "伊拉克", h: "Coastal country in Asia" },
+            { c: "Ireland", zh: "愛爾蘭", h: "Island nation in Europe" },
+            { c: "Israel", zh: "以色列", h: "Coastal country in Asia" },
+            { c: "Italy", zh: "意大利", h: "Coastal country in Europe" },
+            { c: "Ivory Coast", zh: "科特迪瓦", h: "Coastal country in Africa" },
+            { c: "Jamaica", zh: "牙買加", h: "Island nation in North America" },
+            { c: "Japan", zh: "日本", h: "Island nation in Asia" },
+            { c: "Jordan", zh: "約旦", h: "Coastal country in Asia" },
+            { c: "Kazakhstan", zh: "哈薩克斯坦", h: "Landlocked country in Asia" },
+            { c: "Kenya", zh: "肯雅", h: "Coastal country in Africa" },
+            { c: "Kiribati", zh: "基里巴斯", h: "Island nation in Oceania" },
+            { c: "Kosovo", zh: "科索沃", h: "Landlocked country in Europe" },
+            { c: "Kuwait", zh: "科威特", h: "Coastal country in Asia" },
+            { c: "Kyrgyzstan", zh: "吉爾吉斯斯坦", h: "Landlocked country in Asia" },
+            { c: "Laos", zh: "老撾", h: "Landlocked country in Asia" },
+            { c: "Latvia", zh: "拉脫維亞", h: "Coastal country in Europe" },
+            { c: "Lebanon", zh: "黎巴嫩", h: "Coastal country in Asia" },
+            { c: "Lesotho", zh: "萊索托", h: "Landlocked country in Africa" },
+            { c: "Liberia", zh: "利比里亞", h: "Coastal country in Africa" },
+            { c: "Libya", zh: "利比亞", h: "Coastal country in Africa" },
+            { c: "Liechtenstein", zh: "列支敦士登", h: "Landlocked country in Europe" },
+            { c: "Lithuania", zh: "立陶宛", h: "Coastal country in Europe" },
+            { c: "Luxembourg", zh: "盧森堡", h: "Landlocked country in Europe" },
+            { c: "Madagascar", zh: "馬達加斯加", h: "Island nation in Africa" },
+            { c: "Malawi", zh: "馬拉維", h: "Landlocked country in Africa" },
+            { c: "Malaysia", zh: "馬來西亞", h: "Coastal country in Asia" },
+            { c: "Maldives", zh: "馬爾代夫", h: "Island nation in Asia" },
+            { c: "Mali", zh: "馬里", h: "Landlocked country in Africa" },
+            { c: "Malta", zh: "馬耳他", h: "Island nation in Europe" },
+            { c: "Marshall Islands", zh: "馬紹爾群島", h: "Island nation in Oceania" },
+            { c: "Mauritania", zh: "毛里塔尼亞", h: "Coastal country in Africa" },
+            { c: "Mauritius", zh: "毛里求斯", h: "Island nation in Africa" },
+            { c: "Mexico", zh: "墨西哥", h: "Coastal country in North America" },
+            { c: "Micronesia", zh: "密克羅尼西亞", h: "Island nation in Oceania" },
+            { c: "Moldova", zh: "摩爾多瓦", h: "Landlocked country in Europe" },
+            { c: "Monaco", zh: "摩納哥", h: "Coastal country in Europe" },
+            { c: "Mongolia", zh: "蒙古", h: "Landlocked country in Asia" },
+            { c: "Montenegro", zh: "黑山", h: "Coastal country in Europe" },
+            { c: "Morocco", zh: "摩洛哥", h: "Coastal country in Africa" },
+            { c: "Mozambique", zh: "莫桑比克", h: "Coastal country in Africa" },
+            { c: "Myanmar", zh: "緬甸", h: "Coastal country in Asia" },
+            { c: "Namibia", zh: "納米比亞", h: "Coastal country in Africa" },
+            { c: "Nauru", zh: "瑙魯", h: "Island nation in Oceania" },
+            { c: "Nepal", zh: "尼泊爾", h: "Landlocked country in Asia" },
+            { c: "Netherlands", zh: "荷蘭", h: "Coastal country in Europe" },
+            { c: "New Zealand", zh: "紐西蘭", h: "Island nation in Oceania" },
+            { c: "Nicaragua", zh: "尼加拉瓜", h: "Coastal country in North America" },
+            { c: "Niger", zh: "尼日爾", h: "Landlocked country in Africa" },
+            { c: "Nigeria", zh: "尼日利亞", h: "Coastal country in Africa" },
+            { c: "North Korea", zh: "北韓", h: "Coastal country in Asia" },
+            { c: "North Macedonia", zh: "北馬其頓", h: "Landlocked country in Europe" },
+            { c: "Norway", zh: "挪威", h: "Coastal country in Europe" },
+            { c: "Oman", zh: "阿曼", h: "Coastal country in Asia" },
+            { c: "Pakistan", zh: "巴基斯坦", h: "Coastal country in Asia" },
+            { c: "Palau", zh: "帛琉", h: "Island nation in Oceania" },
+            { c: "Palestine", zh: "巴勒斯坦", h: "Coastal country in Asia" },
+            { c: "Panama", zh: "巴拿馬", h: "Coastal country in North America" },
+            { c: "Papua New Guinea", zh: "巴布亞新幾內亞", h: "Island nation in Oceania" },
+            { c: "Paraguay", zh: "巴拉圭", h: "Landlocked country in South America" },
+            { c: "Peru", zh: "秘魯", h: "Coastal country in South America" },
+            { c: "Philippines", zh: "菲律賓", h: "Island nation in Asia" },
+            { c: "Poland", zh: "波蘭", h: "Coastal country in Europe" },
+            { c: "Portugal", zh: "葡萄牙", h: "Coastal country in Europe" },
+            { c: "Qatar", zh: "卡塔爾", h: "Coastal country in Asia" },
+            { c: "Romania", zh: "羅馬尼亞", h: "Coastal country in Europe" },
+            { c: "Russia", zh: "俄羅斯", h: "Coastal country in Europe / Asia" },
+            { c: "Rwanda", zh: "盧旺達", h: "Landlocked country in Africa" },
+            { c: "Saint Kitts and Nevis", zh: "聖基茨和尼維斯", h: "Island nation in North America" },
+            { c: "Saint Lucia", zh: "聖盧西亞", h: "Island nation in North America" },
+            { c: "Saint Vincent and the Grenadines", zh: "聖文森特和格林納丁斯", h: "Island nation in North America" },
+            { c: "Samoa", zh: "薩摩亞", h: "Island nation in Oceania" },
+            { c: "San Marino", zh: "聖馬力諾", h: "Landlocked country in Europe" },
+            { c: "Sao Tome and Principe", zh: "聖多美和普林西比", h: "Island nation in Africa" },
+            { c: "Saudi Arabia", zh: "沙特阿拉伯", h: "Coastal country in Asia" },
+            { c: "Senegal", zh: "塞內加爾", h: "Coastal country in Africa" },
+            { c: "Serbia", zh: "塞爾維亞", h: "Landlocked country in Europe" },
+            { c: "Seychelles", zh: "塞舌爾", h: "Island nation in Africa" },
+            { c: "Sierra Leone", zh: "塞拉利昂", h: "Coastal country in Africa" },
+            { c: "Singapore", zh: "新加坡", h: "Island nation in Asia" },
+            { c: "Slovakia", zh: "斯洛伐克", h: "Landlocked country in Europe" },
+            { c: "Slovenia", zh: "斯洛文尼亞", h: "Coastal country in Europe" },
+            { c: "Solomon Islands", zh: "所羅門群島", h: "Island nation in Oceania" },
+            { c: "Somalia", zh: "索馬里", h: "Coastal country in Africa" },
+            { c: "South Africa", zh: "南非", h: "Coastal country in Africa" },
+            { c: "South Korea", zh: "南韓", h: "Coastal country in Asia" },
+            { c: "South Sudan", zh: "南蘇丹", h: "Landlocked country in Africa" },
+            { c: "Spain", zh: "西班牙", h: "Coastal country in Europe" },
+            { c: "Sri Lanka", zh: "斯里蘭卡", h: "Island nation in Asia" },
+            { c: "Sudan", zh: "蘇丹", h: "Coastal country in Africa" },
+            { c: "Suriname", zh: "蘇里南", h: "Coastal country in South America" },
+            { c: "Sweden", zh: "瑞典", h: "Coastal country in Europe" },
+            { c: "Switzerland", zh: "瑞士", h: "Landlocked country in Europe" },
+            { c: "Syria", zh: "敘利亞", h: "Coastal country in Asia" },
+            { c: "Taiwan", zh: "台灣", h: "Island nation in Asia" },
+            { c: "Tajikistan", zh: "塔吉克斯坦", h: "Landlocked country in Asia" },
+            { c: "Tanzania", zh: "坦桑尼亞", h: "Coastal country in Africa" },
+            { c: "Thailand", zh: "泰國", h: "Coastal country in Asia" },
+            { c: "Timor-Leste", zh: "東帝汶", h: "Island nation in Asia" },
+            { c: "Togo", zh: "多哥", h: "Coastal country in Africa" },
+            { c: "Tonga", zh: "湯加", h: "Island nation in Oceania" },
+            { c: "Trinidad and Tobago", zh: "特立尼達和多巴哥", h: "Island nation in North / South America" },
+            { c: "Tunisia", zh: "突尼斯", h: "Coastal country in Africa" },
+            { c: "Turkey", zh: "土耳其", h: "Coastal country in Europe / Asia" },
+            { c: "Turkmenistan", zh: "土庫曼斯坦", h: "Landlocked country in Asia" },
+            { c: "Tuvalu", zh: "圖瓦盧", h: "Island nation in Oceania" },
+            { c: "Uganda", zh: "烏干達", h: "Landlocked country in Africa" },
+            { c: "Ukraine", zh: "烏克蘭", h: "Coastal country in Europe" },
+            { c: "United Arab Emirates", zh: "阿拉伯聯合酋長國", h: "Coastal country in Asia" },
+            { c: "United Kingdom", zh: "英國", h: "Island nation in Europe" },
+            { c: "United States", zh: "美國", h: "Coastal country in North America" },
+            { c: "Uruguay", zh: "烏拉圭", h: "Coastal country in South America" },
+            { c: "Uzbekistan", zh: "烏茲別克斯坦", h: "Landlocked country in Asia" },
+            { c: "Vanuatu", zh: "瓦努阿圖", h: "Island nation in Oceania" },
+            { c: "Vatican City", zh: "梵蒂岡", h: "Landlocked country in Europe" },
+            { c: "Venezuela", zh: "委內瑞拉", h: "Coastal country in South America" },
+            { c: "Vietnam", zh: "越南", h: "Coastal country in Asia" },
+            { c: "Yemen", zh: "也門", h: "Coastal country in Asia" },
+            { c: "Zambia", zh: "贊比亞", h: "Landlocked country in Africa" },
+            { c: "Zimbabwe", zh: "津巴布韋", h: "Landlocked country in Africa" }
+        ];
+
+        let quizSequence = [];
+        let currentIndex = 0;
+        let currentScore = 0;
+        let questionStartTime = 0;
+        let analyticsData = [];
+
+        const targetCountryEl = document.getElementById('target-country');
+        const targetHintEl = document.getElementById('target-hint');
+        const mainTtsBtn = document.getElementById('main-tts-btn');
+        const optionsGridEl = document.getElementById('options-grid');
+        const nextBtnEl = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        const autoTtsCheckbox = document.getElementById('auto-tts');
+
+        const synth = window.speechSynthesis;
+
+        function speak(text, lang = 'zh-HK') {
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.95; 
+            synth.speak(utterance);
+        }
+
+        function shuffle(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function generateOptions(correctAnswer) {
+            let allCountries = countryList.map(v => v.c);
+            let incorrectPool = allCountries.filter(c => c !== correctAnswer);
+            shuffle(incorrectPool);
+            
+            let options = [correctAnswer, incorrectPool[0], incorrectPool[1], incorrectPool[2]];
+            return shuffle(options);
+        }
+
+        function startQuiz() {
+            speak("", "en-US"); // Unlock Audio Context
+            quizSequence = shuffle([...countryList]);
+            analyticsData = []; // Reset analytics
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            feedbackEl.innerText = "";
+            feedbackEl.className = "feedback";
+            nextBtnEl.style.display = "none";
+            optionsGridEl.innerHTML = "";
+
+            const qData = quizSequence[currentIndex];
+            
+            targetCountryEl.innerText = qData.zh;
+            targetHintEl.innerText = `Hint: ${qData.h}`;
+            
+            mainTtsBtn.onclick = () => speak(qData.zh, 'zh-HK');
+
+            if (autoTtsCheckbox.checked) {
+                speak(qData.zh, 'zh-HK');
+            }
+
+            questionCounterEl.innerText = `Question ${currentIndex + 1} of ${quizSequence.length}`;
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            progressBarEl.style.width = `${(currentIndex / quizSequence.length) * 100}%`;
+
+            const currentOptions = generateOptions(qData.c);
+
+            currentOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                
+                const textSpan = document.createElement('span');
+                textSpan.innerText = opt;
+                btn.appendChild(textSpan);
+
+                const ttsSmallBtn = document.createElement('button');
+                ttsSmallBtn.className = 'tts-btn-small';
+                ttsSmallBtn.innerText = '🔊';
+                ttsSmallBtn.title = "Listen to Country";
+                ttsSmallBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    speak(opt, 'en-US');
+                };
+                btn.appendChild(ttsSmallBtn);
+
+                btn.onclick = () => selectOption(opt, btn, qData.c);
+                optionsGridEl.appendChild(btn);
+            });
+
+            // Start timer for this question
+            questionStartTime = Date.now();
+        }
+
+        function selectOption(selected, btnEl, correct) {
+            // Calculate time taken
+            const timeTaken = (Date.now() - questionStartTime) / 1000;
+            const qData = quizSequence[currentIndex];
+            
+            const isCorrect = (selected === correct);
+
+            // Record Analytics
+            analyticsData.push({
+                zh: qData.zh,
+                en: qData.c,
+                time: timeTaken,
+                isCorrect: isCorrect
+            });
+
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                btnEl.classList.add('correct');
+                feedbackEl.innerText = `Correct! (正確) - ${timeTaken.toFixed(1)}s`;
+                feedbackEl.className = "feedback success";
+                currentScore++;
+            } else {
+                btnEl.classList.add('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct country is: ${correct}`;
+                feedbackEl.className = "feedback error";
+                
+                allBtns.forEach(btn => {
+                    if (btn.querySelector('span').innerText === correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            
+            if (currentIndex === quizSequence.length - 1) {
+                nextBtnEl.innerHTML = "See Final Results &rarr;";
+            } else {
+                nextBtnEl.innerHTML = "Next Country &rarr;";
+            }
+            
+            nextBtnEl.style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < quizSequence.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-area').style.display = 'none';
+            document.getElementById('results-area').style.display = 'block';
+            document.getElementById('final-score').innerText = `${currentScore} / ${quizSequence.length}`;
+            
+            // Calculate Percentages
+            const percentageCorrect = (currentScore / quizSequence.length) * 100;
+            const percentageWrong = 100 - percentageCorrect;
+            
+            // Build Analytics Table
+            // Sort by time taken (shortest to longest)
+            analyticsData.sort((a, b) => a.time - b.time);
+
+            let analyticsHTML = `
+                <div class="stats-summary">
+                    <div style="color: var(--success); font-size: 1.5rem; font-weight: bold;">Correct: ${percentageCorrect.toFixed(1)}%</div>
+                    <div style="color: var(--danger); font-size: 1.5rem; font-weight: bold;">Wrong: ${percentageWrong.toFixed(1)}%</div>
+                </div>
+                <div class="analytics-container">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Country (Chinese)</th>
+                                <th>Country (English)</th>
+                                <th>Time Taken</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            analyticsData.forEach(item => {
+                const rowClass = item.isCorrect ? 'correct-row' : 'incorrect-row';
+                const resultText = item.isCorrect ? '✓ Correct' : '✗ Wrong';
+                
+                analyticsHTML += `
+                    <tr class="${rowClass}">
+                        <td>${item.zh}</td>
+                        <td>${item.en}</td>
+                        <td>${item.time.toFixed(2)} s</td>
+                        <td>${resultText}</td>
+                    </tr>
+                `;
+            });
+
+            analyticsHTML += `</tbody></table></div>`;
+            document.getElementById('analytics-area').innerHTML = analyticsHTML;
+        }
+    </script>
+</body>
+</html>

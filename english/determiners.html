@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Questions: Determiners Master Quiz</title>
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --primary-hover: #9b59b6;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --gray: #bdc3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--white);
+            max-width: 850px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 25px 20px 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quiz-header h2 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+            color: #ecf0f1;
+        }
+
+        .determiner-list {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            border-right: 4px solid var(--primary);
+        }
+
+        .determiner-list span {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.2);
+            height: 6px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-body {
+            padding: 40px 30px;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        /* Cleaned up the blank styling for a single solid line */
+        .question-text span.blank {
+            display: inline-block;
+            min-width: 60px;
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+            padding: 0 5px;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #f4ecf7;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 28px;
+        }
+
+        .feedback.success { color: var(--success); }
+        .feedback.error { color: var(--danger); }
+
+        .quiz-footer {
+            padding: 20px 30px;
+            background-color: var(--light);
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .next-btn {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .next-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 50px 30px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .results-msg {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .restart-btn {
+            background-color: var(--success);
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-area">
+            <div class="quiz-header">
+                <h2>Determiners Master Quiz</h2>
+                
+                <!-- Full Categorized List of Determiners -->
+                <div class="determiner-list">
+                    <span>Articles:</span> a, an, the <br>
+                    <span>Demonstratives:</span> this, that, these, those <br>
+                    <span>Possessives:</span> my, your, his, her, its, our, their <br>
+                    <span>Quantifiers:</span> some, any, many, much, few, little, several, a lot of <br>
+                    <span>Distributives & Others:</span> each, every, all, both, half, either, neither, another, other <br>
+                    <span>Interrogatives:</span> which, what, whose
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div class="question-meta">
+                    <span id="question-counter">Question 1 of 100</span>
+                    <span id="score-counter">Score: 0</span>
+                </div>
+                
+                <div class="question-text" id="question-text">
+                    <!-- Question injected via JS -->
+                </div>
+
+                <div class="options-grid" id="options-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question &rarr;</button>
+            </div>
+        </div>
+
+        <div class="results-container" id="results-area">
+            <h2>Quiz Complete!</h2>
+            <div class="results-score" id="final-score">0 / 100</div>
+            <div class="results-msg" id="final-msg">Great effort!</div>
+            <button class="restart-btn" onclick="startQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // Use non-breaking spaces for the blank so the CSS border-bottom handles the line perfectly
+        const blankLine = "&nbsp;&nbsp;&nbsp;&nbsp;";
+
+        const rawQuestions = [
+            // ARTICLES (A, An, The)
+            { q: `Can you pass me <span class='blank'>${blankLine}</span> salt, please?`, options: ["a", "an", "the", "some"], a: "the" },
+            { q: `I need <span class='blank'>${blankLine}</span> umbrella because it's raining.`, options: ["a", "an", "the", "many"], a: "an" },
+            { q: `She is reading <span class='blank'>${blankLine}</span> interesting book.`, options: ["a", "an", "the", "this"], a: "an" },
+            { q: `<span class='blank'>${blankLine}</span> sun rises in the east.`, options: ["A", "An", "The", "Some"], a: "The" },
+            { q: `He is <span class='blank'>${blankLine}</span> honest man.`, options: ["a", "an", "the", "that"], a: "an" },
+            { q: `I bought <span class='blank'>${blankLine}</span> new car yesterday.`, options: ["a", "an", "the", "these"], a: "a" },
+            { q: `Where is <span class='blank'>${blankLine}</span> nearest hospital?`, options: ["a", "an", "the", "any"], a: "the" },
+            { q: `It takes <span class='blank'>${blankLine}</span> hour to get there.`, options: ["a", "an", "the", "much"], a: "an" },
+            { q: `They live in <span class='blank'>${blankLine}</span> old house.`, options: ["a", "an", "the", "those"], a: "an" },
+            { q: `I saw <span class='blank'>${blankLine}</span> dog chasing a cat.`, options: ["a", "an", "the", "all"], a: "a" },
+            { q: `Do you have <span class='blank'>${blankLine}</span> pen I could borrow?`, options: ["a", "an", "the", "few"], a: "a" },
+            { q: `She wore <span class='blank'>${blankLine}</span> elegant dress to the party.`, options: ["a", "an", "the", "some"], a: "an" },
+            { q: `Look at <span class='blank'>${blankLine}</span> moon! It's so bright tonight.`, options: ["a", "an", "the", "this"], a: "the" },
+            { q: `We stayed at <span class='blank'>${blankLine}</span> hotel you recommended.`, options: ["a", "an", "the", "any"], a: "the" },
+            { q: `He goes to work at <span class='blank'>${blankLine}</span> university.`, options: ["a", "an", "the", "much"], a: "a" },
+            
+            // DEMONSTRATIVES (This, That, These, Those)
+            { q: `<span class='blank'>${blankLine}</span> apple I am holding is very sweet.`, options: ["This", "That", "These", "Those"], a: "This" },
+            { q: `Look at <span class='blank'>${blankLine}</span> birds flying in the sky over there.`, options: ["this", "that", "these", "those"], a: "those" },
+            { q: `I really like <span class='blank'>${blankLine}</span> shoes you are wearing.`, options: ["this", "that", "these", "those"], a: "those" },
+            { q: `<span class='blank'>${blankLine}</span> books on my desk are for you.`, options: ["This", "That", "These", "Those"], a: "These" },
+            { q: `Can you see <span class='blank'>${blankLine}</span> building across the street?`, options: ["this", "that", "these", "those"], a: "that" },
+            { q: `<span class='blank'>${blankLine}</span> pizza we ate last night was amazing.`, options: ["This", "That", "These", "Those"], a: "That" },
+            { q: `Are <span class='blank'>${blankLine}</span> your keys here on the table?`, options: ["this", "that", "these", "those"], a: "these" },
+            { q: `I don't like <span class='blank'>${blankLine}</span> idea at all.`, options: ["this", "that", "these", "those"], a: "this" },
+            { q: `<span class='blank'>${blankLine}</span> days, everything is so expensive.`, options: ["This", "That", "These", "Those"], a: "These" },
+            { q: `Do you remember <span class='blank'>${blankLine}</span> times we had at camp?`, options: ["this", "that", "these", "those"], a: "those" },
+
+            // QUANTIFIERS (Some, Any, Much, Many, A lot of, Few, Little)
+            { q: `I don't have <span class='blank'>${blankLine}</span> money left.`, options: ["some", "any", "many", "few"], a: "any" },
+            { q: `Would you like <span class='blank'>${blankLine}</span> coffee?`, options: ["some", "any", "many", "few"], a: "some" },
+            { q: `There aren't <span class='blank'>${blankLine}</span> apples in the basket.`, options: ["much", "many", "some", "little"], a: "many" },
+            { q: `How <span class='blank'>${blankLine}</span> time do we have left?`, options: ["many", "much", "few", "any"], a: "much" },
+            { q: `She has <span class='blank'>${blankLine}</span> close friends she trusts completely.`, options: ["a few", "a little", "much", "any"], a: "a few" },
+            { q: `I need <span class='blank'>${blankLine}</span> help with this math problem.`, options: ["many", "a few", "some", "any"], a: "some" },
+            { q: `We have very <span class='blank'>${blankLine}</span> milk left in the fridge.`, options: ["few", "little", "many", "some"], a: "little" },
+            { q: `Did you buy <span class='blank'>${blankLine}</span> souvenirs on your trip?`, options: ["some", "any", "much", "little"], a: "any" },
+            { q: `There are <span class='blank'>${blankLine}</span> cars on the road today.`, options: ["much", "a lot of", "any", "little"], a: "a lot of" },
+            { q: `I have <span class='blank'>${blankLine}</span> patience for bad manners.`, options: ["no", "any", "few", "many"], a: "no" },
+            { q: `Are there <span class='blank'>${blankLine}</span> questions before we begin?`, options: ["some", "any", "much", "little"], a: "any" },
+            { q: `He drank too <span class='blank'>${blankLine}</span> water and felt sick.`, options: ["many", "much", "few", "any"], a: "much" },
+            { q: `She bought <span class='blank'>${blankLine}</span> new clothes for the trip.`, options: ["some", "any", "much", "a"], a: "some" },
+            { q: `There is <span class='blank'>${blankLine}</span> chance we will win now.`, options: ["few", "little", "many", "some"], a: "little" },
+            { q: `I read <span class='blank'>${blankLine}</span> interesting articles online.`, options: ["several", "much", "any", "a little"], a: "several" },
+
+            // POSSESSIVES (My, Your, His, Her, Its, Our, Their)
+            { q: `I forgot to bring <span class='blank'>${blankLine}</span> jacket today.`, options: ["my", "mine", "me", "I"], a: "my" },
+            { q: `Is this <span class='blank'>${blankLine}</span> backpack on the floor?`, options: ["you", "your", "yours", "yourself"], a: "your" },
+            { q: `She washed <span class='blank'>${blankLine}</span> hands before dinner.`, options: ["she", "hers", "her", "herself"], a: "her" },
+            { q: `The dog wagged <span class='blank'>${blankLine}</span> tail happily.`, options: ["it's", "its", "it", "his"], a: "its" },
+            { q: `They parked <span class='blank'>${blankLine}</span> car in the garage.`, options: ["there", "they're", "their", "theirs"], a: "their" },
+            { q: `We need to finish <span class='blank'>${blankLine}</span> project by tomorrow.`, options: ["we", "us", "our", "ours"], a: "our" },
+            { q: `John lost <span class='blank'>${blankLine}</span> wallet at the mall.`, options: ["he", "him", "his", "he's"], a: "his" },
+            { q: `The company updated <span class='blank'>${blankLine}</span> privacy policy.`, options: ["it's", "its", "their", "there"], a: "its" },
+            { q: `Mary and <span class='blank'>${blankLine}</span> sister look very alike.`, options: ["hers", "her", "she", "their"], a: "her" },
+            { q: `Can I use <span class='blank'>${blankLine}</span> phone to make a call?`, options: ["your", "yours", "you", "you're"], a: "your" },
+
+            // DISTRIBUTIVES & OTHERS (Each, Every, All, Both, Half, Either, Neither)
+            { q: `<span class='blank'>${blankLine}</span> student was given a textbook.`, options: ["Each", "All", "Both", "Many"], a: "Each" },
+            { q: `I agree with <span class='blank'>${blankLine}</span> word you just said.`, options: ["each", "every", "all", "some"], a: "every" },
+            { q: `<span class='blank'>${blankLine}</span> of my parents are doctors.`, options: ["All", "Both", "Each", "Every"], a: "Both" },
+            { q: `You can take <span class='blank'>${blankLine}</span> train; they both go to the city.`, options: ["either", "neither", "all", "both"], a: "either" },
+            { q: `<span class='blank'>${blankLine}</span> option is acceptable to me; I don't like them.`, options: ["Either", "Neither", "Both", "All"], a: "Neither" },
+            { q: `She ate <span class='blank'>${blankLine}</span> of the cake by herself.`, options: ["half", "every", "each", "both"], a: "half" },
+            { q: `<span class='blank'>${blankLine}</span> children love playing games.`, options: ["All", "Every", "Each", "Much"], a: "All" },
+            { q: `I have read <span class='blank'>${blankLine}</span> book in this library.`, options: ["every", "all", "both", "many"], a: "every" },
+            { q: `<span class='blank'>${blankLine}</span> side of the street has tall trees.`, options: ["Each", "All", "Both", "Some"], a: "Each" },
+            { q: `They <span class='blank'>${blankLine}</span> agreed to the new terms.`, options: ["all", "every", "each", "neither"], a: "all" },
+
+            // MIXED CHALLENGE 1 (51-75)
+            { q: `Do you have <span class='blank'>${blankLine}</span> idea what time it is?`, options: ["any", "some", "many", "an"], a: "any" },
+            { q: `There is <span class='blank'>${blankLine}</span> spider on the ceiling!`, options: ["a", "an", "the", "some"], a: "a" },
+            { q: `We need <span class='blank'>${blankLine}</span> more chairs for the guests.`, options: ["some", "any", "much", "little"], a: "some" },
+            { q: `I don't watch <span class='blank'>${blankLine}</span> television these days.`, options: ["much", "many", "some", "a"], a: "much" },
+            { q: `Can you hand me <span class='blank'>${blankLine}</span> towel over there?`, options: ["that", "this", "these", "those"], a: "that" },
+            { q: `She has <span class='blank'>${blankLine}</span> incredible talent for music.`, options: ["a", "an", "the", "some"], a: "an" },
+            { q: `I haven't heard from them in <span class='blank'>${blankLine}</span> days.`, options: ["several", "much", "any", "little"], a: "several" },
+            { q: `<span class='blank'>${blankLine}</span> computers in the lab are broken.`, options: ["Some", "Any", "Much", "Every"], a: "Some" },
+            { q: `Are <span class='blank'>${blankLine}</span> your glasses on the floor?`, options: ["these", "this", "that", "much"], a: "these" },
+            { q: `He ate <span class='blank'>${blankLine}</span> entire pizza by himself.`, options: ["the", "a", "an", "some"], a: "the" },
+            { q: `I need to buy <span class='blank'>${blankLine}</span> uniform for work.`, options: ["a", "an", "the", "some"], a: "a" },
+            { q: `We don't have <span class='blank'>${blankLine}</span> information about the event.`, options: ["any", "many", "few", "a"], a: "any" },
+            { q: `<span class='blank'>${blankLine}</span> person in the room started clapping.`, options: ["Every", "All", "Both", "Many"], a: "Every" },
+            { q: `I have <span class='blank'>${blankLine}</span> doubt that she will win.`, options: ["no", "any", "a", "many"], a: "no" },
+            { q: `Can I have <span class='blank'>${blankLine}</span> piece of cake?`, options: ["another", "other", "any", "some"], a: "another" },
+            { q: `Look at <span class='blank'>${blankLine}</span> beautiful flowers!`, options: ["those", "that", "this", "much"], a: "those" },
+            { q: `She put <span class='blank'>${blankLine}</span> books back on the shelf.`, options: ["her", "hers", "she", "any"], a: "her" },
+            { q: `I saw him just <span class='blank'>${blankLine}</span> few minutes ago.`, options: ["a", "an", "the", "some"], a: "a" },
+            { q: `We need <span class='blank'>${blankLine}</span> flour to bake the bread.`, options: ["some", "many", "few", "any"], a: "some" },
+            { q: `He showed <span class='blank'>${blankLine}</span> interest in the project.`, options: ["little", "few", "many", "a"], a: "little" },
+            { q: `Please turn off <span class='blank'>${blankLine}</span> lights when you leave.`, options: ["the", "a", "an", "some"], a: "the" },
+            { q: `<span class='blank'>${blankLine}</span> man sitting next to me was asleep.`, options: ["The", "A", "An", "Some"], a: "The" },
+            { q: `Do you like <span class='blank'>${blankLine}</span> new song playing on the radio?`, options: ["this", "these", "those", "a"], a: "this" },
+            { q: `He has <span class='blank'>${blankLine}</span> brothers and sisters.`, options: ["no", "any", "much", "little"], a: "no" },
+            { q: `I have <span class='blank'>${blankLine}</span> homework to do tonight.`, options: ["a lot of", "many", "few", "an"], a: "a lot of" },
+
+            // MIXED CHALLENGE 2 (76-100)
+            { q: `She didn't make <span class='blank'>${blankLine}</span> mistakes on the test.`, options: ["any", "some", "much", "a"], a: "any" },
+            { q: `He is <span class='blank'>${blankLine}</span> European citizen.`, options: ["a", "an", "the", "some"], a: "a" }, 
+            { q: `We waited for <span class='blank'>${blankLine}</span> hour in the cold.`, options: ["an", "a", "the", "some"], a: "an" },
+            { q: `I need <span class='blank'>${blankLine}</span> time to think about it.`, options: ["more", "many", "few", "a"], a: "more" },
+            { q: `<span class='blank'>${blankLine}</span> boy in the class got a prize.`, options: ["Each", "All", "Both", "Many"], a: "Each" },
+            { q: `There are <span class='blank'>${blankLine}</span> reasons why I can't go.`, options: ["several", "much", "any", "little"], a: "several" },
+            { q: `Could you pass me <span class='blank'>${blankLine}</span> water?`, options: ["some", "any", "many", "few"], a: "some" },
+            { q: `<span class='blank'>${blankLine}</span> dog is very friendly.`, options: ["Our", "Ours", "We", "Us"], a: "Our" },
+            { q: `I didn't bring <span class='blank'>${blankLine}</span> luggage with me.`, options: ["much", "many", "a few", "an"], a: "much" },
+            { q: `She was <span class='blank'>${blankLine}</span> first person to arrive.`, options: ["the", "a", "an", "some"], a: "the" },
+            { q: `Do you have <span class='blank'>${blankLine}</span> siblings?`, options: ["any", "some", "much", "a"], a: "any" },
+            { q: `They painted <span class='blank'>${blankLine}</span> house blue.`, options: ["their", "there", "they're", "theirs"], a: "their" },
+            { q: `He earns <span class='blank'>${blankLine}</span> thousand dollars a week.`, options: ["a", "an", "the", "some"], a: "a" },
+            { q: `<span class='blank'>${blankLine}</span> students are waiting outside.`, options: ["Some", "Any", "Much", "Every"], a: "Some" },
+            { q: `Are you going to eat <span class='blank'>${blankLine}</span> whole pizza?`, options: ["that", "those", "these", "a"], a: "that" },
+            { q: `We don't have <span class='blank'>${blankLine}</span> eggs left for breakfast.`, options: ["any", "some", "much", "a"], a: "any" },
+            { q: `<span class='blank'>${blankLine}</span> of the twins have blonde hair.`, options: ["Both", "All", "Every", "Each"], a: "Both" },
+            { q: `I have <span class='blank'>${blankLine}</span> uncle who lives in Spain.`, options: ["an", "a", "the", "some"], a: "an" },
+            { q: `She has <span class='blank'>${blankLine}</span> friends in this city.`, options: ["few", "little", "much", "any"], a: "few" },
+            { q: `Please give me <span class='blank'>${blankLine}</span> chance.`, options: ["another", "other", "any", "few"], a: "another" },
+            { q: `I only have <span class='blank'>${blankLine}</span> little money left.`, options: ["a", "an", "the", "some"], a: "a" },
+            { q: `<span class='blank'>${blankLine}</span> sun is shining brightly today.`, options: ["The", "A", "An", "Some"], a: "The" },
+            { q: `There is <span class='blank'>${blankLine}</span> milk in the fridge.`, options: ["some", "any", "many", "few"], a: "some" },
+            { q: `I didn't understand <span class='blank'>${blankLine}</span> word he said.`, options: ["a", "an", "the", "some"], a: "a" },
+            { q: `<span class='blank'>${blankLine}</span> final question is the hardest.`, options: ["This", "These", "Those", "An"], a: "This" }
+        ];
+
+        let currentIndex = 0;
+        let currentScore = 0;
+        
+        const questionTextEl = document.getElementById('question-text');
+        const optionsGridEl = document.getElementById('options-grid');
+        const nextBtnEl = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        
+        const quizAreaEl = document.getElementById('quiz-area');
+        const resultsAreaEl = document.getElementById('results-area');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalMsgEl = document.getElementById('final-msg');
+
+        // Helper: Shuffle Array (Fisher-Yates) to randomize button positions
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            currentIndex = 0;
+            currentScore = 0;
+            quizAreaEl.style.display = 'block';
+            resultsAreaEl.style.display = 'none';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Reset UI for the new question
+            feedbackEl.innerText = "";
+            feedbackEl.className = "feedback";
+            nextBtnEl.style.display = "none";
+            optionsGridEl.innerHTML = "";
+
+            // Load Data
+            const qData = rawQuestions[currentIndex];
+            questionTextEl.innerHTML = qData.q;
+            questionCounterEl.innerText = `Question ${currentIndex + 1} of ${rawQuestions.length}`;
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            progressBarEl.style.width = `${(currentIndex / rawQuestions.length) * 100}%`;
+
+            // Randomize the placement of the predefined options
+            let shuffledOptions = shuffle([...qData.options]);
+
+            // Render Buttons
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(opt, btn, qData.a);
+                optionsGridEl.appendChild(btn);
+            });
+        }
+
+        function selectOption(selected, btnEl, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            // Disable all buttons immediately after selection
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selected === correct) {
+                btnEl.classList.add('correct');
+                feedbackEl.innerText = "Correct! Well done.";
+                feedbackEl.className = "feedback success";
+                currentScore++;
+                
+                // Fill in the blank visually
+                const blankEl = document.querySelector('.blank');
+                blankEl.innerText = correct;
+                blankEl.style.color = '#2ecc71';
+                blankEl.style.borderColor = '#2ecc71';
+            } else {
+                btnEl.classList.add('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct answer was: ${correct}`;
+                feedbackEl.className = "feedback error";
+                
+                // Highlight the correct answer
+                allBtns.forEach(btn => {
+                    if (btn.innerText === correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+
+                // Fill in the blank visually with correct answer
+                const blankEl = document.querySelector('.blank');
+                blankEl.innerText = correct;
+                blankEl.style.color = '#e74c3c';
+                blankEl.style.borderColor = '#e74c3c';
+            }
+
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            
+            // Change button text if it's the last question
+            if (currentIndex === rawQuestions.length - 1) {
+                nextBtnEl.innerHTML = "See Results &rarr;";
+            } else {
+                nextBtnEl.innerHTML = "Next Question &rarr;";
+            }
+            
+            nextBtnEl.style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < rawQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizAreaEl.style.display = 'none';
+            resultsAreaEl.style.display = 'block';
+            
+            finalScoreEl.innerText = `${currentScore} / ${rawQuestions.length}`;
+            
+            const percentage = (currentScore / rawQuestions.length) * 100;
+            if (percentage === 100) {
+                finalMsgEl.innerText = "Perfect! You are a master of determiners and articles.";
+            } else if (percentage >= 80) {
+                finalMsgEl.innerText = "Excellent job! You have a great grasp of these rules.";
+            } else if (percentage >= 60) {
+                finalMsgEl.innerText = "Good effort! Keep practicing to master the tricky exceptions.";
+            } else {
+                finalMsgEl.innerText = "Keep studying! Reviewing the rules for articles and quantifiers will help.";
+            }
+        }
+
+        // Initialize quiz on load
+        startQuiz();
+    </script>
+</body>
+</html>

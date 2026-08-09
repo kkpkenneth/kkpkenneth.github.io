@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Spinning Wheel with Sound</title>
+    <style>
+        :root {
+            --primary: #2d3436;
+            --secondary: #6c5ce7;
+            --bg-color: #f1f2f6;
+            --text-dark: #2d3436;
+            --text-light: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            background-color: var(--text-light);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Left Panel - Inputs */
+        .input-panel {
+            padding: 40px;
+            background: #ffffff;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #dfe6e9;
+            z-index: 2;
+        }
+
+        h1 {
+            color: var(--secondary);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            color: #636e72;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            resize: none;
+            transition: border-color 0.3s;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        button {
+            background-color: var(--secondary);
+            color: var(--text-light);
+            border: none;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background-color: #5b4bc4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #b2bec3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Right Panel - Wheel */
+        .wheel-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f5f6fa, #dfe6e9);
+            position: relative;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* The Pointer (Moved to Top) */
+        .pointer {
+            position: absolute;
+            top: -20px; /* Pulled slightly outside the canvas on the top */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; 
+            height: 0; 
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #d63031; /* Pointing downwards */
+            z-index: 10;
+            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4));
+            transition: transform 0.05s ease-out;
+        }
+
+        /* Center Pin */
+        .center-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background: #ffffff;
+            border: 5px solid var(--primary);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Winner Announcement */
+        .winner-display {
+            margin-top: 30px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary);
+            min-height: 40px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .winner-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Confetti Elements */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 800px) {
+            .container {
+                flex-direction: column;
+            }
+            .input-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #dfe6e9;
+                padding: 20px;
+            }
+            textarea {
+                min-height: 120px;
+            }
+            .wheel-wrapper {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Input Section -->
+        <div class="input-panel">
+            <h1>Spin & Win</h1>
+            <p class="subtitle">Sound ON! 🔊 The wheel updates automatically.</p>
+            
+            <textarea id="participantsList" placeholder="Alice&#10;Bob&#10;Charlie&#10;David">Alice
+Bob
+Charlie
+David
+Eve
+Frank
+Grace
+Henry</textarea>
+            
+            <button id="spinBtn" onclick="startSpin()">Spin the Wheel</button>
+        </div>
+
+        <!-- Wheel Section -->
+        <div class="wheel-panel" id="wheelPanel">
+            <div class="wheel-wrapper">
+                <canvas id="wheelCanvas" width="800" height="800"></canvas>
+                <div class="pointer" id="pointer"></div>
+                <div class="center-pin"></div>
+            </div>
+            <div class="winner-display" id="winnerDisplay">Winner: <span></span>!</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const participantsInput = document.getElementById('participantsList');
+        const spinBtn = document.getElementById('spinBtn');
+        const winnerDisplay = document.getElementById('winnerDisplay');
+        const wheelPanel = document.getElementById('wheelPanel');
+        const pointer = document.getElementById('pointer');
+
+        // Audio Context for Sound Effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTickSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+            
+            // Tiny animation bump on the pointer
+            pointer.style.transform = `translateX(-50%) rotate(-10deg)`;
+            setTimeout(() => { pointer.style.transform = `translateX(-50%) rotate(0deg)`; }, 50);
+        }
+
+        function playWinSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 (Arpeggio)
+            notes.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.5);
+                }, i * 100);
+            });
+        }
+
+        const colors = [
+            '#FF5733', '#3498DB', '#F1C40F', '#2ECC71', 
+            '#9B59B6', '#E67E22', '#1ABC9C', '#E74C3C', 
+            '#34495E', '#D35400', '#8E44AD', '#27AE60'
+        ];
+
+        let participants = [];
+        let currentAngle = 0;
+        let isSpinning = false;
+        let animationFrameId;
+        let lastActiveSlice = -1; // Track which slice is under the pointer
+
+        function updateParticipants() {
+            if (isSpinning) return;
+            const raw = participantsInput.value;
+            participants = raw.split(/[\n,]+/).map(n => n.trim()).filter(n => n !== '');
+            
+            if (participants.length === 0) {
+                participants = ['Add Players'];
+            }
+            
+            drawWheel();
+        }
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = centerX;
+            const sliceAngle = (2 * Math.PI) / participants.length;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < participants.length; i++) {
+                const startAngle = currentAngle + i * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+
+                // Draw Slice
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+
+                // Draw Border
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                // Draw Text
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#ffffff";
+                
+                const fontSize = participants.length > 20 ? 18 : (participants.length > 10 ? 24 : 32);
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                
+                ctx.shadowColor = "rgba(0,0,0,0.3)";
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+
+                ctx.fillText(participants[i], radius - 30, 0, radius - 80);
+                ctx.restore();
+            }
+        }
+
+        function startSpin() {
+            if (participants.length <= 1 && participants[0] === 'Add Players') {
+                alert("Please add some names first!");
+                return;
+            }
+
+            if (isSpinning) return;
+
+            // Resume audio context inside user gesture
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+            participantsInput.disabled = true;
+            winnerDisplay.classList.remove('show');
+
+            let startTime = null;
+            const spinDuration = 5500; // 5.5 seconds
+            const startAngle = currentAngle;
+            
+            // Random offset + 10 extra rotations
+            const randomOffset = Math.random() * Math.PI * 2;
+            const targetAngle = startAngle + randomOffset + (Math.PI * 2 * 10); 
+            const sliceAngle = (2 * Math.PI) / participants.length;
+
+            function animate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                let progress = elapsed / spinDuration;
+
+                if (progress > 1) progress = 1;
+
+                // Cubic ease-out
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentAngle = startAngle + (targetAngle - startAngle) * easeOut;
+
+                drawWheel();
+
+                // Determine which slice is currently under the TOP pointer (270 degrees or 1.5 * PI)
+                // Normalize the current angle to positive
+                let normalizedAngle = ((1.5 * Math.PI - currentAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+                let activeSlice = Math.floor(normalizedAngle / sliceAngle);
+
+                // If the slice under the pointer changes, play the tick sound
+                if (activeSlice !== lastActiveSlice) {
+                    lastActiveSlice = activeSlice;
+                    playTickSound();
+                }
+
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    finishSpin();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function finishSpin() {
+            isSpinning = false;
+            spinBtn.disabled = false;
+            participantsInput.disabled = false;
+
+            const sliceAngle = (2 * Math.PI) / participants.length;
+            
+            // Calculate final winner based on the TOP pointer
+            let normalizedAngle = ((1.5 * Math.PI - currentAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+            let winningIndex = Math.floor(normalizedAngle / sliceAngle);
+            
+            if (winningIndex === participants.length) winningIndex = 0;
+
+            const winner = participants[winningIndex];
+
+            // Show Winner and Play Sound
+            winnerDisplay.innerHTML = `🎉 Winner: <span style="color: #d63031;">${winner}</span> 🎉`;
+            winnerDisplay.classList.add('show');
+            
+            playWinSound();
+            shootConfetti();
+        }
+
+        // Confetti Effect
+        function shootConfetti() {
+            const confettiColors = ['#fdcb6e', '#0984e3', '#00b894', '#d63031', '#e84393', '#6c5ce7'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                confetti.style.left = '50%';
+                confetti.style.top = '50%';
+                
+                wheelPanel.appendChild(confetti);
+
+                const tx = (Math.random() - 0.5) * 600;
+                const ty = (Math.random() - 0.5) * 600 - 150;
+                const rot = Math.random() * 1080;
+
+                confetti.animate([
+                    { transform: `translate(-50%, -50%) rotate(0deg) scale(1)`, opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(0)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 1500 + 1200,
+                    easing: 'cubic-bezier(.37,0,.63,1)',
+                    fill: 'forwards'
+                });
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        // Event Listeners
+        participantsInput.addEventListener('input', updateParticipants);
+
+        // Initial setup
+        updateParticipants();
+
+    </script>
+</body>
+</html>

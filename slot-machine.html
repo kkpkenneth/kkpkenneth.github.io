@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Emoji Slots - 5 Lines</title>
+    <style>
+        :root {
+            --bg-color: #111;
+            --machine-bg: #222;
+            --slot-bg: #fff;
+            --primary: #ff007f;
+            --secondary: #00f2fe;
+            --accent: #f1c40f;
+            --text-light: #fff;
+            --win-glow: #2ecc71;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 0, 127, 0.1), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 242, 254, 0.1), transparent 25%);
+        }
+
+        .machine-container {
+            background-color: var(--machine-bg);
+            border: 4px solid var(--primary);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 0 20px rgba(255, 0, 127, 0.5),
+                inset 0 0 20px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--text-light);
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+
+        .credits { color: var(--accent); }
+        
+        .cost {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Slots 5x3 Layout */
+        .slots-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            background: #000;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #444;
+            box-shadow: inset 0 0 30px rgba(0,0,0,1);
+        }
+
+        /* SVG Overlay for drawing win lines (straight and diagonal) */
+        #win-lines-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .win-line {
+            fill: none;
+            stroke: var(--win-glow);
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            filter: drop-shadow(0 0 10px var(--win-glow));
+            animation: drawLine 0.6s ease-out forwards;
+        }
+
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .reel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .slot {
+            width: 85px;
+            height: 85px;
+            background-color: var(--slot-bg);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.2rem;
+            box-shadow: 
+                inset 0 5px 10px rgba(0,0,0,0.4),
+                inset 0 -5px 10px rgba(0,0,0,0.2),
+                0 0 10px rgba(255,255,255,0.1);
+            border: 2px solid #ccc;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .slot.win-highlight {
+            background-color: #e8f8f5;
+            border-color: var(--win-glow);
+            box-shadow: 
+                0 0 20px var(--win-glow),
+                inset 0 0 15px var(--win-glow);
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        /* Animation class for blur effect during spin */
+        .spinning .emoji {
+            animation: verticalBlur 0.1s infinite linear;
+            filter: blur(2px);
+        }
+
+        @keyframes verticalBlur {
+            0% { transform: translateY(-15px); }
+            100% { transform: translateY(15px); }
+        }
+
+        .emoji {
+            display: inline-block;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+
+        .message {
+            height: 40px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .win-text {
+            color: var(--win-glow);
+            text-shadow: 0 0 10px var(--win-glow);
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        .jackpot-text {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+            font-size: 1.8rem;
+            animation: pulse 0.3s infinite alternate;
+        }
+
+        .lose-text {
+            color: var(--danger);
+            text-shadow: 0 0 10px var(--danger);
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        button.spin-btn {
+            background: linear-gradient(45deg, #ff007f, #7928ca);
+            color: var(--text-light);
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 0, 127, 0.4);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        button.spin-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 25px rgba(255, 0, 127, 0.6);
+        }
+
+        button.spin-btn:active:not(:disabled) {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 0 5px 10px rgba(255, 0, 127, 0.4);
+        }
+
+        button.spin-btn:disabled {
+            background: linear-gradient(45deg, #555, #333);
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            border-color: #444;
+        }
+
+        @media (max-width: 600px) {
+            .slot { width: 50px; height: 50px; font-size: 1.8rem; border-width: 1px;}
+            .slots-container { gap: 6px; padding: 10px; }
+            .reel { gap: 6px; }
+            h1 { font-size: 1.5rem; }
+            button.spin-btn { font-size: 1.2rem; padding: 12px 30px; }
+            .stats { font-size: 1rem; }
+            .message { font-size: 1rem; }
+            .win-line { stroke-width: 6; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="machine-container">
+        <h1>🎰 Neon Slots - 5 Lines 🎰</h1>
+        
+        <div class="stats">
+            <div class="credits">Credits: <span id="creditDisplay">500</span></div>
+            <div class="cost">Cost: 50 / Spin</div>
+        </div>
+
+        <div class="slots-container" id="slotsContainer">
+            <svg id="win-lines-svg"></svg>
+            <!-- Reel 1 -->
+            <div class="reel" id="reel1">
+                <div class="slot" id="r0-0"><span class="emoji">🍒</span></div>
+                <div class="slot" id="r0-1"><span class="emoji">🍋</span></div>
+                <div class="slot" id="r0-2"><span class="emoji">🍉</span></div>
+            </div>
+            <!-- Reel 2 -->
+            <div class="reel" id="reel2">
+                <div class="slot" id="r1-0"><span class="emoji">🍇</span></div>
+                <div class="slot" id="r1-1"><span class="emoji">🔔</span></div>
+                <div class="slot" id="r1-2"><span class="emoji">💎</span></div>
+            </div>
+            <!-- Reel 3 -->
+            <div class="reel" id="reel3">
+                <div class="slot" id="r2-0"><span class="emoji">💰</span></div>
+                <div class="slot" id="r2-1"><span class="emoji">🍒</span></div>
+                <div class="slot" id="r2-2"><span class="emoji">🍋</span></div>
+            </div>
+            <!-- Reel 4 -->
+            <div class="reel" id="reel4">
+                <div class="slot" id="r3-0"><span class="emoji">🍉</span></div>
+                <div class="slot" id="r3-1"><span class="emoji">🍇</span></div>
+                <div class="slot" id="r3-2"><span class="emoji">🔔</span></div>
+            </div>
+            <!-- Reel 5 -->
+            <div class="reel" id="reel5">
+                <div class="slot" id="r4-0"><span class="emoji">💎</span></div>
+                <div class="slot" id="r4-1"><span class="emoji">💰</span></div>
+                <div class="slot" id="r4-2"><span class="emoji">🍒</span></div>
+            </div>
+        </div>
+
+        <div class="message" id="message">5 Paylines Active! Press SPIN!</div>
+
+        <button class="spin-btn" id="spinBtn" onclick="spin()">Spin!</button>
+    </div>
+
+    <script>
+        // Game Constants
+        const emojis = ['🍒', '🍋', '🍉', '🍇', '🔔', '💎', '💰'];
+        const spinCost = 50; 
+        const reward3 = 20;   // 3 of a kind
+        const reward4 = 100;  // 4 of a kind
+        const reward5 = 500;  // 5 of a kind (Jackpot)
+
+        // 5 Winning Paylines (Format: array of row indices for each of the 5 columns)
+        const paylines = [
+            [0, 0, 0, 0, 0], // Top Horizontal
+            [1, 1, 1, 1, 1], // Middle Horizontal
+            [2, 2, 2, 2, 2], // Bottom Horizontal
+            [0, 1, 2, 1, 0], // "V" Shape Diagonal (Top -> Bottom -> Top)
+            [2, 1, 0, 1, 2]  // Inverted "V" Shape Diagonal (Bottom -> Top -> Bottom)
+        ];
+
+        // DOM Elements (Structured as reels[columnIndex][rowIndex])
+        const reels = [
+            [document.getElementById('r0-0'), document.getElementById('r0-1'), document.getElementById('r0-2')],
+            [document.getElementById('r1-0'), document.getElementById('r1-1'), document.getElementById('r1-2')],
+            [document.getElementById('r2-0'), document.getElementById('r2-1'), document.getElementById('r2-2')],
+            [document.getElementById('r3-0'), document.getElementById('r3-1'), document.getElementById('r3-2')],
+            [document.getElementById('r4-0'), document.getElementById('r4-1'), document.getElementById('r4-2')]
+        ];
+        
+        const creditDisplay = document.getElementById('creditDisplay');
+        const messageDisplay = document.getElementById('message');
+        const spinBtn = document.getElementById('spinBtn');
+        const slotsContainer = document.getElementById('slotsContainer');
+        const winLinesSvg = document.getElementById('win-lines-svg');
+
+        // Game State
+        let credits = 500;
+        let isSpinning = false;
+
+        // Audio Context (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let spinOscillator = null;
+
+        // Sound Engine
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function startSpinSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            spinOscillator = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            spinOscillator.type = 'sawtooth';
+            spinOscillator.frequency.setValueAtTime(100, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            spinOscillator.connect(gain);
+            gain.connect(audioCtx.destination);
+            spinOscillator.start();
+        }
+
+        function stopSpinSound() {
+            if (spinOscillator) {
+                spinOscillator.stop();
+                spinOscillator = null;
+            }
+        }
+
+        function playStopSound() {
+            playTone(150, 'square', 0.2, 0.2);
+            setTimeout(() => playTone(100, 'square', 0.2, 0.2), 50);
+        }
+
+        function playWinSound(jackpot = false) {
+            if (jackpot) {
+                const notes = [440, 523.25, 659.25, 880, 1046.50, 1318.51, 1760, 2093]; 
+                notes.forEach((freq, i) => {
+                    setTimeout(() => playTone(freq, 'square', 0.5, 0.15), i * 80);
+                });
+            } else {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; 
+                notes.forEach((freq, i) => {
+                    setTimeout(() => playTone(freq, 'triangle', 0.4, 0.15), i * 120);
+                });
+            }
+        }
+
+        function playLoseSound() {
+            playTone(200, 'sawtooth', 0.3, 0.1);
+            setTimeout(() => playTone(150, 'sawtooth', 0.5, 0.1), 200);
+        }
+
+        function getRandomEmoji() {
+            return emojis[Math.floor(Math.random() * emojis.length)];
+        }
+
+        function clearBoard() {
+            for (let c = 0; c < 5; c++) {
+                for (let r = 0; r < 3; r++) {
+                    reels[c][r].classList.remove('win-highlight');
+                }
+            }
+            winLinesSvg.innerHTML = ''; // Clear existing SVG lines
+        }
+
+        // Draw an animated SVG Polyline tracing the exact coordinates of the win
+        function drawPayline(winningCoords) {
+            const containerRect = slotsContainer.getBoundingClientRect();
+            
+            // Map the slot coordinates to X,Y points relative to the SVG container
+            const points = winningCoords.map(coord => {
+                const slot = reels[coord.col][coord.row].getBoundingClientRect();
+                const x = (slot.left - containerRect.left) + (slot.width / 2);
+                const y = (slot.top - containerRect.top) + (slot.height / 2);
+                return `${x},${y}`;
+            }).join(" ");
+
+            const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+            polyline.setAttribute("points", points);
+            polyline.setAttribute("class", "win-line");
+
+            winLinesSvg.appendChild(polyline);
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            if (credits < spinCost) {
+                messageDisplay.innerText = "Not enough credits!";
+                messageDisplay.className = "message lose-text";
+                playLoseSound();
+                return;
+            }
+
+            clearBoard();
+
+            credits -= spinCost;
+            creditDisplay.innerText = credits;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            messageDisplay.innerText = "Spinning...";
+            messageDisplay.className = "message";
+
+            startSpinSound();
+
+            const intervals = [];
+            const finalResults = [[], [], [], [], []];
+
+            // Spin each reel (columns 0 to 4)
+            for (let c = 0; c < 5; c++) {
+                reels[c].forEach(slot => slot.classList.add('spinning'));
+                
+                intervals[c] = setInterval(() => {
+                    for (let r = 0; r < 3; r++) {
+                        reels[c][r].querySelector('.emoji').innerText = getRandomEmoji();
+                    }
+                }, 50);
+            }
+
+            // Stop reels sequentially (every 400ms)
+            for (let c = 0; c < 5; c++) {
+                setTimeout(() => {
+                    clearInterval(intervals[c]);
+                    reels[c].forEach(slot => slot.classList.remove('spinning'));
+                    
+                    for (let r = 0; r < 3; r++) {
+                        const finalEmoji = getRandomEmoji();
+                        reels[c][r].querySelector('.emoji').innerText = finalEmoji;
+                        finalResults[c][r] = finalEmoji;
+                    }
+
+                    playStopSound();
+
+                    // Evaluate board after the last reel stops
+                    if (c === 4) {
+                        stopSpinSound();
+                        checkWin(finalResults);
+                    }
+                }, 800 + (c * 400));
+            }
+        }
+
+        function checkWin(results) {
+            isSpinning = false;
+            spinBtn.disabled = false;
+
+            let totalWin = 0;
+            let isJackpot = false;
+
+            // Check all defined paylines (Rows + Diagonals)
+            paylines.forEach(payline => {
+                let maxRun = 1;
+                let runStart = 0;
+                let currentRun = 1;
+                let currentStart = 0;
+
+                for (let c = 1; c < 5; c++) {
+                    // Check if current slot in payline matches previous slot in payline
+                    if (results[c][payline[c]] === results[c - 1][payline[c - 1]]) {
+                        currentRun++;
+                        if (currentRun > maxRun) {
+                            maxRun = currentRun;
+                            runStart = currentStart;
+                        }
+                    } else {
+                        currentRun = 1;
+                        currentStart = c;
+                    }
+                }
+
+                // Payout and highlight if 3 or more match in a row on this payline
+                if (maxRun >= 3) {
+                    if (maxRun === 5) { totalWin += reward5; isJackpot = true; }
+                    else if (maxRun === 4) { totalWin += reward4; }
+                    else if (maxRun === 3) { totalWin += reward3; }
+
+                    const winningCoords = [];
+                    for (let c = runStart; c < runStart + maxRun; c++) {
+                        const r = payline[c];
+                        reels[c][r].classList.add('win-highlight');
+                        winningCoords.push({ col: c, row: r });
+                    }
+
+                    // Draw the polyline traversing this specific run
+                    drawPayline(winningCoords);
+                }
+            });
+
+            if (totalWin > 0) {
+                credits += totalWin;
+                if (isJackpot) {
+                    messageDisplay.innerText = `MULTI-LINE JACKPOT! +${totalWin} CREDITS`;
+                    messageDisplay.className = "message jackpot-text";
+                    playWinSound(true);
+                } else {
+                    messageDisplay.innerText = `WINNER! +${totalWin} CREDITS`;
+                    messageDisplay.className = "message win-text";
+                    playWinSound(false);
+                }
+            } else {
+                messageDisplay.innerText = "TRY AGAIN!";
+                messageDisplay.className = "message lose-text";
+                playLoseSound();
+            }
+
+            creditDisplay.innerText = credits;
+        }
+
+        // Adjust SVG on window resize to keep lines accurate
+        window.addEventListener('resize', () => {
+            if (!isSpinning && winLinesSvg.innerHTML !== '') {
+                winLinesSvg.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>

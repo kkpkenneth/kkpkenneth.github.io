@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Spinning Wheel with Sound</title>
+    <title>Lucky Spinning Wheel - Reverse Action</title>
     <style>
         :root {
             --primary: #2d3436;
@@ -142,10 +142,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        /* The Pointer (Moved to Top) */
+        /* The Pointer (Top Position) */
         .pointer {
             position: absolute;
-            top: -20px; /* Pulled slightly outside the canvas on the top */
+            top: -20px; 
             left: 50%;
             transform: translateX(-50%);
             width: 0; 
@@ -375,6 +375,15 @@ Henry</textarea>
             }
         }
 
+        // Custom Easing Functions for the Multi-Phase Spin
+        function easeInOutSine(x) {
+            return -(Math.cos(Math.PI * x) - 1) / 2;
+        }
+        
+        function easeOutQuad(x) {
+            return 1 - (1 - x) * (1 - x);
+        }
+
         function startSpin() {
             if (participants.length <= 1 && participants[0] === 'Add Players') {
                 alert("Please add some names first!");
@@ -392,13 +401,16 @@ Henry</textarea>
             winnerDisplay.classList.remove('show');
 
             let startTime = null;
-            const spinDuration = 5500; // 5.5 seconds
-            const startAngle = currentAngle;
-            
-            // Random offset + 10 extra rotations
-            const randomOffset = Math.random() * Math.PI * 2;
-            const targetAngle = startAngle + randomOffset + (Math.PI * 2 * 10); 
+            const spinDuration = 8000; // Total duration increased to 8 seconds for the complex animation
             const sliceAngle = (2 * Math.PI) / participants.length;
+            
+            const startAngle = currentAngle;
+            const randomOffset = Math.random() * Math.PI * 2;
+            
+            // Define the 3 animation targets
+            const finalTargetAngle = startAngle + randomOffset + (Math.PI * 2 * 12); // 12 net spins forward
+            const overshootAngle = finalTargetAngle + (Math.PI * 2 * 2);             // Overshoot by 2 spins forward
+            const undershootAngle = finalTargetAngle - (Math.PI * 2 * 1.5);          // Undershoot by 1.5 spins backwards
 
             function animate(timestamp) {
                 if (!startTime) startTime = timestamp;
@@ -407,18 +419,30 @@ Henry</textarea>
 
                 if (progress > 1) progress = 1;
 
-                // Cubic ease-out
-                const easeOut = 1 - Math.pow(1 - progress, 3);
-                currentAngle = startAngle + (targetAngle - startAngle) * easeOut;
+                // Phase 1: Rapidly spin forward to the Overshoot mark (0% to 50% of time)
+                if (progress < 0.5) {
+                    let p = progress / 0.5; // normalize time mapping
+                    currentAngle = startAngle + (overshootAngle - startAngle) * easeInOutSine(p);
+                } 
+                // Phase 2: Reverse direction and spin backwards to the Undershoot mark (50% to 75% of time)
+                else if (progress < 0.75) {
+                    let p = (progress - 0.5) / 0.25; 
+                    currentAngle = overshootAngle + (undershootAngle - overshootAngle) * easeInOutSine(p);
+                } 
+                // Phase 3: Creep forward to final target and ease out to a stop (75% to 100% of time)
+                else {
+                    let p = (progress - 0.75) / 0.25;
+                    currentAngle = undershootAngle + (finalTargetAngle - undershootAngle) * easeOutQuad(p);
+                }
 
                 drawWheel();
 
                 // Determine which slice is currently under the TOP pointer (270 degrees or 1.5 * PI)
-                // Normalize the current angle to positive
+                // We use modular math so that negative tracking (backwards spin) triggers properly
                 let normalizedAngle = ((1.5 * Math.PI - currentAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
                 let activeSlice = Math.floor(normalizedAngle / sliceAngle);
 
-                // If the slice under the pointer changes, play the tick sound
+                // Play tick sound whenever a new slice passes the top pointer
                 if (activeSlice !== lastActiveSlice) {
                     lastActiveSlice = activeSlice;
                     playTickSound();

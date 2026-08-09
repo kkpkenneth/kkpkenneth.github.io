@@ -51,17 +51,19 @@
 
         .controls {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             margin-bottom: 20px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         button {
             background: transparent;
             border: 2px solid var(--accent-color);
             color: var(--accent-color);
-            padding: 8px 20px;
-            font-size: 1rem;
+            padding: 8px 15px;
+            font-size: 0.9rem;
             font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
@@ -73,6 +75,14 @@
             background: var(--accent-color);
             color: var(--bg-color);
             box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* Style for the active toggle button */
+        button.active-toggle {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 20px #fff;
         }
 
         #moves {
@@ -193,6 +203,7 @@
 
     <div class="controls">
         <button onclick="shuffleGrid()">Shuffle</button>
+        <button id="toggleBtn" onclick="toggleSolution()" style="border-color: #f1c40f; color: #f1c40f;">Show Solution</button>
         <button onclick="solveGrid()" style="border-color: #ff007f; color: #ff007f;">Solve</button>
         <div id="moves">Moves: 0</div>
     </div>
@@ -212,11 +223,13 @@
         const movesDisplay = document.getElementById('moves');
         const winOverlay = document.getElementById('win-overlay');
         const winMessage = document.getElementById('win-message');
+        const toggleBtn = document.getElementById('toggleBtn');
 
         let cells = []; 
         let selectedCell = null;
         let moves = 0;
         let isGameActive = true;
+        let isShowingSolution = false;
 
         // Generates a color involving ALL hues across the X axis, and lightness across the Y axis
         function calculateColor(x, y) {
@@ -240,6 +253,13 @@
             cell.element.style.top = `${coords.y * 5}%`;
         }
 
+        // Moves a cell specifically to its true target (used for peeking)
+        function positionCellAtTarget(cell) {
+            const coords = getCoords(cell.id);
+            cell.element.style.left = `${coords.x * 5}%`;
+            cell.element.style.top = `${coords.y * 5}%`;
+        }
+
         // Initialize the board
         function initGame() {
             board.innerHTML = '';
@@ -247,7 +267,11 @@
             moves = 0;
             movesDisplay.innerText = `Moves: 0`;
             isGameActive = true;
+            isShowingSolution = false;
             selectedCell = null;
+            
+            toggleBtn.innerText = "Show Solution";
+            toggleBtn.classList.remove('active-toggle');
             winOverlay.classList.remove('active');
 
             for (let i = 0; i < TOTAL_CELLS; i++) {
@@ -280,8 +304,38 @@
             setTimeout(shuffleGrid, 500);
         }
 
+        // Toggles the correct answer view without ending the game
+        function toggleSolution() {
+            if (!isGameActive) return;
+
+            isShowingSolution = !isShowingSolution;
+
+            if (isShowingSolution) {
+                // Showing solution
+                toggleBtn.innerText = "Hide Solution";
+                toggleBtn.classList.add('active-toggle');
+                
+                // Deselect any active cell
+                if (selectedCell) {
+                    selectedCell.element.classList.remove('selected');
+                    selectedCell = null;
+                }
+
+                // Send cells to their final targets
+                cells.forEach(c => positionCellAtTarget(c));
+            } else {
+                // Hiding solution (restoring game state)
+                toggleBtn.innerText = "Show Solution";
+                toggleBtn.classList.remove('active-toggle');
+
+                // Return cells to their current shuffled positions
+                cells.forEach(c => updateCellDOMPosition(c));
+            }
+        }
+
         function handleCellClick(clickedCell) {
-            if (!isGameActive || clickedCell.isLocked) return;
+            // Block clicks if the game is over, the cell is locked, or the solution is currently being peeked
+            if (!isGameActive || clickedCell.isLocked || isShowingSolution) return;
 
             // Select first cell
             if (!selectedCell) {
@@ -324,6 +378,8 @@
         }
 
         function shuffleGrid() {
+            if (isShowingSolution) toggleSolution(); // Reset toggle if active
+            
             if (selectedCell) {
                 selectedCell.element.classList.remove('selected');
                 selectedCell = null;
@@ -351,6 +407,7 @@
 
         function solveGrid() {
             if (!isGameActive) return;
+            if (isShowingSolution) toggleSolution(); // Reset toggle if active
             
             if (selectedCell) {
                 selectedCell.element.classList.remove('selected');

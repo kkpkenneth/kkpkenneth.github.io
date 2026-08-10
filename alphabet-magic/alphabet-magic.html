@@ -172,7 +172,7 @@
 
     <div id="start-screen" class="overlay">
         <h1>Spellcaster</h1>
-        <p style="font-size: 1.2rem; max-width: 600px;">Trace the magic letter to attack the mythical beasts from A to Z! Faster traces deal stronger magical damage.</p>
+        <p style="font-size: 1.2rem; max-width: 600px;">Connect the glowing nodes in the correct sequence to attack the mythical beasts! Faster tracing deals more damage.</p>
         <div class="btn-container">
             <button onclick="startGame('M')">🧙‍♂️ Sorcerer</button>
             <button onclick="startGame('F')">🧙‍♀️ Witch</button>
@@ -207,6 +207,14 @@
     const monsterNameTxt = document.getElementById('monster-name');
     const levelDisplay = document.getElementById('level-display');
     const bgMusic = document.getElementById('bg-music');
+
+    // Load voices early to ensure they are ready by the time a user traces
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
+        };
+    }
 
     // Web Audio API Sound Effects Synthesizer
     let audioCtx;
@@ -252,18 +260,42 @@
             const osc = playTone(100, 'square', 0.2, 0.2);
             osc.frequency.exponentialRampToValueAtTime(20, now + 0.1);
         } else if (effect === 'levelUp') {
-            playTone(440, 'sine', 0.3, 0.1); // A4
-            setTimeout(() => playTone(554.37, 'sine', 0.3, 0.1), 100); // C#5
-            setTimeout(() => playTone(659.25, 'sine', 0.6, 0.1), 200); // E5
-        } else if (effect === 'error') {
-            playTone(120, 'sawtooth', 0.3, 0.2);
+            playTone(440, 'sine', 0.3, 0.1); 
+            setTimeout(() => playTone(554.37, 'sine', 0.3, 0.1), 100); 
+            setTimeout(() => playTone(659.25, 'sine', 0.6, 0.1), 200); 
         } else if (effect === 'gameOver') {
             playTone(200, 'sawtooth', 1.0, 0.3);
             setTimeout(() => playTone(150, 'sawtooth', 1.5, 0.3), 300);
         }
     }
 
-    // Canvas sizing
+    // Pronounce Letter function using Web Speech API with South Asian / Pakistani accent
+    function pronounceLetter(letter) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(letter);
+            const voices = window.speechSynthesis.getVoices();
+            
+            // Look for Pakistani English or Urdu
+            let targetVoice = voices.find(voice => voice.lang === 'en-PK' || voice.lang === 'ur-PK');
+            
+            // Fallback to Indian English (closest South Asian match commonly found in all browsers)
+            if (!targetVoice) {
+                targetVoice = voices.find(voice => voice.lang.startsWith('en-IN') || voice.lang === 'hi-IN');
+            }
+
+            if (targetVoice) {
+                utterance.voice = targetVoice;
+            } else {
+                // If the voice list hasn't loaded yet, default the language code hint
+                utterance.lang = 'en-IN';
+            }
+
+            utterance.rate = 0.85; 
+            utterance.pitch = 1.1; 
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
     let width, height;
     function resize() {
         width = canvas.width = canvas.offsetWidth;
@@ -272,34 +304,34 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // Data: 5x5 Grid paths for letters (0 to 4)
+    // Redesigned Paths: Array of individual strokes for proper sequential tracing
     const letterPaths = {
-        'A': [[0,4], [2,0], [4,4], [3,2], [1,2]],
-        'B': [[0,0], [0,4], [0,0], [3,0], [4,1], [3,2], [0,2], [3,2], [4,3], [3,4], [0,4]],
-        'C': [[4,0], [1,0], [0,1], [0,3], [1,4], [4,4]],
-        'D': [[0,0], [0,4], [0,0], [3,0], [4,2], [3,4], [0,4]],
-        'E': [[4,0], [0,0], [0,2], [3,2], [0,2], [0,4], [4,4]],
-        'F': [[4,0], [0,0], [0,4], [0,2], [3,2]],
-        'G': [[4,0], [1,0], [0,1], [0,3], [1,4], [4,4], [4,2], [2,2]],
-        'H': [[0,0], [0,4], [0,2], [4,2], [4,0], [4,4]],
-        'I': [[1,0], [3,0], [2,0], [2,4], [1,4], [3,4]],
-        'J': [[0,0], [4,0], [2,0], [2,4], [0,2]],
-        'K': [[0,0], [0,4], [0,2], [4,0], [0,2], [4,4]],
-        'L': [[0,0], [0,4], [4,4]],
-        'M': [[0,4], [0,0], [2,2], [4,0], [4,4]],
-        'N': [[0,4], [0,0], [4,4], [4,0]],
-        'O': [[2,0], [0,1], [0,3], [2,4], [4,3], [4,1], [2,0]],
-        'P': [[0,4], [0,0], [3,0], [4,1], [3,2], [0,2]],
-        'Q': [[2,0], [0,1], [0,3], [2,4], [4,3], [4,1], [2,0], [2,2], [4,4]],
-        'R': [[0,4], [0,0], [3,0], [4,1], [3,2], [0,2], [4,4]],
-        'S': [[4,0], [1,0], [0,1], [1,2], [3,2], [4,3], [3,4], [0,4]],
-        'T': [[0,0], [4,0], [2,0], [2,4]],
-        'U': [[0,0], [0,3], [1,4], [3,4], [4,3], [4,0]],
-        'V': [[0,0], [2,4], [4,0]],
-        'W': [[0,0], [1,4], [2,2], [3,4], [4,0]],
-        'X': [[0,0], [4,4], [2,2], [4,0], [0,4]],
-        'Y': [[0,0], [2,2], [4,0], [2,2], [2,4]],
-        'Z': [[0,0], [4,0], [0,4], [4,4]]
+        'A': [ [[2,0], [0,4]], [[2,0], [4,4]], [[1,2], [3,2]] ],
+        'B': [ [[0,0], [0,4]], [[0,0], [3,0], [4,1], [3,2], [0,2]], [[0,2], [3,2], [4,3], [3,4], [0,4]] ],
+        'C': [ [[4,0], [1,0], [0,1], [0,3], [1,4], [4,4]] ],
+        'D': [ [[0,0], [0,4]], [[0,0], [3,0], [4,2], [3,4], [0,4]] ],
+        'E': [ [[0,0], [0,4]], [[0,0], [4,0]], [[0,2], [3,2]], [[0,4], [4,4]] ],
+        'F': [ [[0,0], [0,4]], [[0,0], [4,0]], [[0,2], [3,2]] ],
+        'G': [ [[4,0], [1,0], [0,1], [0,3], [1,4], [4,4], [4,2], [2,2]] ],
+        'H': [ [[0,0], [0,4]], [[4,0], [4,4]], [[0,2], [4,2]] ],
+        'I': [ [[2,0], [2,4]], [[1,0], [3,0]], [[1,4], [3,4]] ],
+        'J': [ [[4,0], [4,3], [3,4], [1,4], [0,3]] ],
+        'K': [ [[0,0], [0,4]], [[4,0], [0,2]], [[0,2], [4,4]] ],
+        'L': [ [[0,0], [0,4], [4,4]] ],
+        'M': [ [[0,4], [0,0], [2,2], [4,0], [4,4]] ],
+        'N': [ [[0,4], [0,0], [4,4], [4,0]] ],
+        'O': [ [[2,0], [0,1], [0,3], [2,4], [4,3], [4,1], [2,0]] ],
+        'P': [ [[0,0], [0,4]], [[0,0], [3,0], [4,1], [3,2], [0,2]] ],
+        'Q': [ [[2,0], [0,1], [0,3], [2,4], [4,3], [4,1], [2,0]], [[2,2], [4,4]] ],
+        'R': [ [[0,0], [0,4]], [[0,0], [3,0], [4,1], [3,2], [0,2]], [[0,2], [4,4]] ],
+        'S': [ [[4,0], [1,0], [0,1], [1,2], [3,2], [4,3], [3,4], [0,4]] ],
+        'T': [ [[2,0], [2,4]], [[0,0], [4,0]] ],
+        'U': [ [[0,0], [0,3], [1,4], [3,4], [4,3], [4,0]] ],
+        'V': [ [[0,0], [2,4], [4,0]] ],
+        'W': [ [[0,0], [1,4], [2,2], [3,4], [4,0]] ],
+        'X': [ [[0,0], [4,4]], [[4,0], [0,4]] ],
+        'Y': [ [[0,0], [2,2]], [[4,0], [2,2], [2,4]] ],
+        'Z': [ [[0,0], [4,0], [0,4], [4,4]] ]
     };
 
     const monsters = [
@@ -338,12 +370,16 @@
     let monster = { ...monsters[0], hp: 100, maxHp: 100, attackTimer: 3000, maxTimer: 3000, x: 700, y: 300 };
     let lastTime = 0;
     
-    // Tracing System
-    let tracePoints = []; 
+    // Multi-Stroke Tracing System
+    let tracePoints = []; // Flat array of sequential targets
+    let intendedStrokes = []; // Nested arrays for visual rendering
     let currentTargetPoint = 0;
-    let isTracing = false;
-    let playerTraceLine = [];
+    
+    let isDrawing = false;
+    let playerTraceLines = []; // Array of drawn strokes
+    let currentTraceLine = []; // The current active drawn stroke
     let traceStartTime = 0;
+    
     const TRACE_BOX_SIZE = 250;
     const TOLERANCE = 45; 
 
@@ -353,7 +389,7 @@
     let particles = [];
 
     function startGame(charType) {
-        initAudio(); // Initialize SFX context
+        initAudio(); 
         
         player.type = charType;
         player.icon = charType === 'M' ? '🧙‍♂️' : '🧙‍♀️';
@@ -361,7 +397,6 @@
         startScreen.classList.add('hidden');
         uiLayer.classList.remove('hidden');
         
-        // Start Audio Playback
         bgMusic.volume = 0.5;
         bgMusic.play().catch(e => console.log("Audio play failed:", e));
 
@@ -402,25 +437,34 @@
     }
 
     function buildTracePoints(letter) {
-        const path = letterPaths[letter] || letterPaths['A'];
+        const strokes = letterPaths[letter] || letterPaths['A'];
         tracePoints = [];
+        intendedStrokes = [];
+        
         const boxX = (width / 2) - (TRACE_BOX_SIZE / 2);
         const boxY = (height / 2) - (TRACE_BOX_SIZE / 2) + 20;
 
-        for (let pt of path) {
-            tracePoints.push({
-                x: boxX + (pt[0] / 4) * TRACE_BOX_SIZE,
-                y: boxY + (pt[1] / 4) * TRACE_BOX_SIZE
-            });
+        for (let stroke of strokes) {
+            let strokePts = [];
+            for (let pt of stroke) {
+                const mappedPt = {
+                    x: boxX + (pt[0] / 4) * TRACE_BOX_SIZE,
+                    y: boxY + (pt[1] / 4) * TRACE_BOX_SIZE
+                };
+                strokePts.push(mappedPt);
+                tracePoints.push(mappedPt);
+            }
+            intendedStrokes.push(strokePts);
         }
-        resetTrace();
+        fullResetTrace();
     }
 
-    function resetTrace() {
-        isTracing = false;
+    function fullResetTrace() {
         currentTargetPoint = 0;
-        playerTraceLine = [];
+        playerTraceLines = [];
+        currentTraceLine = [];
         traceStartTime = 0;
+        isDrawing = false;
     }
 
     function updateHealthBars() {
@@ -440,50 +484,66 @@
 
     function handlePointerDown(e) {
         if (gameState !== 'PLAYING') return;
+        isDrawing = true;
         const pos = getPointerPos(e);
-        checkTraceProgress(pos, true);
+        
+        currentTraceLine = [pos];
+        playerTraceLines.push(currentTraceLine);
+        
+        // Start trace timer only when hitting the first node
+        if (currentTargetPoint === 0 && traceStartTime === 0) {
+            traceStartTime = performance.now();
+        }
+        
+        checkTraceProgress(pos);
     }
 
     function handlePointerMove(e) {
-        if (!isTracing || gameState !== 'PLAYING') return;
+        if (gameState !== 'PLAYING' || !isDrawing) return;
         e.preventDefault();
-        const pos = getPointerPos(e);
-        playerTraceLine.push(pos);
-        checkTraceProgress(pos, false);
+        
+        if (currentTraceLine.length > 0) {
+            const pos = getPointerPos(e);
+            currentTraceLine.push(pos);
+            checkTraceProgress(pos);
+        }
     }
 
     function handlePointerUp(e) {
-        if (!isTracing || gameState !== 'PLAYING') return;
-        resetTrace();
-        playSoundEffect('error'); // Play broken trace sound
-        addFloatingText("Trace Broken", width/2, height/2 - 100, '#ff4b4b');
+        if (gameState !== 'PLAYING') return;
+        isDrawing = false;
+        currentTraceLine = []; // Concludes the visual line, but sequence remains active!
     }
 
-    function checkTraceProgress(pos, isStart) {
+    function checkTraceProgress(pos) {
         if (currentTargetPoint >= tracePoints.length) return;
         
-        const target = tracePoints[currentTargetPoint];
-        const dist = Math.hypot(pos.x - target.x, pos.y - target.y);
+        let target = tracePoints[currentTargetPoint];
+        let dist = Math.hypot(pos.x - target.x, pos.y - target.y);
         
-        if (dist < TOLERANCE) {
-            if (currentTargetPoint === 0 && isStart) {
-                isTracing = true;
-                traceStartTime = performance.now();
-                playerTraceLine = [pos];
+        // Use a loop to automatically advance if points overlap (e.g. at corners)
+        while (dist < TOLERANCE && currentTargetPoint < tracePoints.length) {
+            currentTargetPoint++;
+            
+            // Audio pop for successfully hitting a node
+            if (audioCtx) {
+                playTone(800 + (currentTargetPoint * 50), 'sine', 0.1, 0.05);
             }
             
-            if (isTracing) {
-                currentTargetPoint++;
-                if (currentTargetPoint >= tracePoints.length) {
-                    finishTrace();
-                }
+            if (currentTargetPoint >= tracePoints.length) {
+                finishTrace();
+                break;
             }
+            
+            target = tracePoints[currentTargetPoint];
+            dist = Math.hypot(pos.x - target.x, pos.y - target.y);
         }
     }
 
     function finishTrace() {
         const timeTaken = performance.now() - traceStartTime;
-        const idealTime = tracePoints.length * 200 + 200; 
+        // Increased ideal time to account for lifting mouse/finger between strokes
+        const idealTime = tracePoints.length * 250 + 400; 
         
         let multiplier = idealTime / timeTaken;
         multiplier = Math.max(0.5, Math.min(multiplier, 2.5)); 
@@ -497,7 +557,8 @@
 
         addFloatingText(rating, width/2, height/2 - 50, color);
         
-        playSoundEffect('playerShoot'); // Play player attack sound
+        playSoundEffect('playerShoot'); 
+        pronounceLetter(monster.letter); // Speak the letter when spell is cast!
 
         projectiles.push({
             x: player.x + 40, y: player.y, 
@@ -508,7 +569,7 @@
             color: '#4facfe'
         });
 
-        resetTrace();
+        fullResetTrace();
     }
 
     function addFloatingText(text, x, y, color) {
@@ -551,7 +612,7 @@
         if (monster.attackTimer <= 0) {
             monster.attackTimer = monster.maxTimer;
             
-            playSoundEffect('monsterShoot'); // Play monster attack sound
+            playSoundEffect('monsterShoot'); 
 
             const mDamage = Math.floor(10 + (level * 3));
             projectiles.push({
@@ -573,7 +634,7 @@
             if (dist < p.speed * dt) {
                 spawnParticles(p.targetX, p.targetY, p.color);
                 addFloatingText("-" + p.damage, p.targetX, p.targetY - 50, p.color);
-                playSoundEffect('hit'); // Play hit sound
+                playSoundEffect('hit'); 
                 
                 if (p.isPlayer) {
                     monster.hp -= p.damage;
@@ -587,7 +648,7 @@
                         gameState = 'END';
                         uiLayer.classList.add('hidden');
                         gameOverScreen.classList.remove('hidden');
-                        playSoundEffect('gameOver'); // Play game over sound
+                        playSoundEffect('gameOver'); 
                     }
                 }
                 updateHealthBars();
@@ -620,7 +681,7 @@
     function levelUp() {
         level++;
         player.hp = Math.min(player.maxHp, player.hp + (player.maxHp * 0.3)); 
-        playSoundEffect('levelUp'); // Play level up sound
+        playSoundEffect('levelUp'); 
         loadLevel(level);
         addFloatingText("LEVEL CLEAR!", width/2, height/2 - 120, '#56ab2f');
     }
@@ -689,44 +750,54 @@
         ctx.fillRect(boxX, boxY, TRACE_BOX_SIZE, TRACE_BOX_SIZE);
         ctx.strokeRect(boxX, boxY, TRACE_BOX_SIZE, TRACE_BOX_SIZE);
 
-        if (tracePoints.length === 0) return;
+        if (intendedStrokes.length === 0) return;
 
-        ctx.beginPath();
-        ctx.moveTo(tracePoints[0].x, tracePoints[0].y);
-        for (let i = 1; i < tracePoints.length; i++) {
-            ctx.lineTo(tracePoints[i].x, tracePoints[i].y);
-        }
+        // Draw intended strokes outline
         ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
         ctx.lineWidth = 15;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
-        ctx.stroke();
-
-        if (playerTraceLine.length > 1) {
+        for (let stroke of intendedStrokes) {
+            if (stroke.length < 2) continue;
             ctx.beginPath();
-            ctx.moveTo(playerTraceLine[0].x, playerTraceLine[0].y);
-            for (let i = 1; i < playerTraceLine.length; i++) {
-                ctx.lineTo(playerTraceLine[i].x, playerTraceLine[i].y);
+            ctx.moveTo(stroke[0].x, stroke[0].y);
+            for (let i = 1; i < stroke.length; i++) {
+                ctx.lineTo(stroke[i].x, stroke[i].y);
             }
-            ctx.strokeStyle = "#c9a5ff";
-            ctx.lineWidth = 6;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "#8e2de2";
             ctx.stroke();
-            ctx.shadowBlur = 0;
         }
 
+        // Draw Player Trace lines (Supports broken strokes)
+        ctx.strokeStyle = "#c9a5ff";
+        ctx.lineWidth = 6;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#8e2de2";
+        for (let line of playerTraceLines) {
+            if (line.length < 2) continue;
+            ctx.beginPath();
+            ctx.moveTo(line[0].x, line[0].y);
+            for (let i = 1; i < line.length; i++) {
+                ctx.lineTo(line[i].x, line[i].y);
+            }
+            ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+
+        // Draw Sequence Checkpoints
         for (let i = 0; i < tracePoints.length; i++) {
             ctx.beginPath();
             ctx.arc(tracePoints[i].x, tracePoints[i].y, 10, 0, Math.PI * 2);
             
             if (i < currentTargetPoint) {
+                // Completed points
                 ctx.fillStyle = "#56ab2f"; 
             } else if (i === currentTargetPoint) {
+                // Next target point
                 ctx.fillStyle = "#ffb75e";
                 ctx.shadowBlur = 15;
                 ctx.shadowColor = "#ffb75e";
             } else {
+                // Future points
                 ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
             }
             ctx.fill();

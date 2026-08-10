@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cantonese Ingredient Master 🥢🛒</title>
+    <style>
+        :root {
+            --primary: #d97706;
+            --primary-hover: #b45309;
+            --bg: #fffbeb;
+            --card-bg: #ffffff;
+            --text: #78350f;
+            --success: #15803d;
+            --error: #b91c1c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(120, 53, 15, 0.1);
+            border: 2px solid #fde68a;
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        p {
+            color: #92400e;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .question-box {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 1.2rem 0;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .tts-btn {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            color: #92400e;
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: transform 0.1s;
+        }
+
+        .tts-btn:hover {
+            transform: scale(1.05);
+            background: #fde68a;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .option-btn {
+            background-color: #fef3c7;
+            color: var(--text);
+            border: 2px solid #fde68a;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fde68a;
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success) !important;
+            color: white !important;
+            border-color: var(--success) !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--error) !important;
+            color: white !important;
+            border-color: var(--error) !important;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+
+        #feedback-container {
+            margin-top: 1rem;
+            min-height: 4rem;
+        }
+
+        #feedback {
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        #explanation {
+            font-size: 0.88rem;
+            color: #78350f;
+            line-height: 1.35;
+        }
+
+        .next-btn {
+            margin-top: 1rem;
+            background-color: #78350f;
+        }
+
+        .next-btn:hover {
+            background-color: #451a03;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Starting Screen -->
+        <div id="start-screen">
+            <h1>Cantonese Ingredient Master 🥢🛒</h1>
+            <p>Test your knowledge across 100 common everyday Cantonese ingredients, meats, vegetables, and kitchen staples with text-to-speech pronunciations!</p>
+            <button class="btn" onclick="startQuiz()">Start Ingredient Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="stats">
+                <span id="question-counter">Question 1/15</span>
+                <span id="score-counter">Score: 0</span>
+            </div>
+            <button class="tts-btn" onclick="speakCantonese()" title="Listen to Cantonese Name">🔊 Hear Pronunciation</button>
+            <div id="question-box" class="question-box">Question text goes here</div>
+            <div id="options-container" class="options-grid"></div>
+            <div id="feedback-container">
+                <div id="feedback"></div>
+                <div id="explanation"></div>
+            </div>
+            <button id="next-btn" class="btn next-btn hidden" onclick="loadNextQuestion()">Next Ingredient</button>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="hidden">
+            <h1>Market Run Complete! 🛒🥳</h1>
+            <p id="final-score-text">You finished the quiz successfully.</p>
+            <button class="btn" onclick="resetQuiz()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API Sound Effects
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+
+            if (type === 'correct') {
+                playTone(523.25, 0.1, 0);     // C5
+                playTone(659.25, 0.15, 0.1);  // E5
+            } else if (type === 'incorrect') {
+                playTone(200, 0.2, 0, 'sawtooth');
+                playTone(150, 0.2, 0.1, 'sawtooth');
+            } else if (type === 'complete') {
+                playTone(523.25, 0.1, 0);     // C5
+                playTone(659.25, 0.1, 0.1);   // E5
+                playTone(783.99, 0.1, 0.2);   // G5
+                playTone(1046.50, 0.3, 0.3);  // C6
+            }
+        }
+
+        function playTone(freq, duration, delay, waveType = 'sine') {
+            setTimeout(() => {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = waveType;
+                osc.frequency.value = freq;
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }, delay * 1000);
+        }
+
+        // Text-to-Speech Helper for Cantonese (zh-HK) - Pronounce Chinese word only once
+        function speakCantonese() {
+            if ('speechSynthesis' in window && currentQuestionData) {
+                window.speechSynthesis.cancel();
+                const textToSpeak = currentQuestionData.chinese;
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'zh-HK';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // 100 Normal Everyday Cantonese Ingredients Database
+        const ingredientDatabase = [
+            // Proteins & Meats
+            { chinese: "豬肉", jyutping: "zyu1 juk6", name: "Pork", desc: "Everyday fresh pork meat used in countless stir-fries and soups." },
+            { chinese: "瘦肉", jyutping: "sau3 juk6", name: "Lean Pork", desc: "Lean pork cuts commonly used for mincing or boiling in congee and soups." },
+            { chinese: "排骨", jyutping: "paai4 gwat1", name: "Pork Spareribs", desc: "Juicy pork rib sections popular for steaming with black beans or braising." },
+            { chinese: "五花肉", jyutping: "ng5 faa1 juk6", name: "Pork Belly", desc: "Layered fatty and lean pork belly used for braising and roasting." },
+            { chinese: "牛肉", jyutping: "ngau4 juk6", name: "Beef", desc: "Fresh beef slices velveted with cornstarch for tender stir-fries." },
+            { chinese: "牛腩", jyutping: "ngau4 naam5", name: "Beef Brisket", desc: "Rich beef cut slow-cooked in spiced stews and noodle soups." },
+            { chinese: "雞", jyutping: "gai1", name: "Chicken", desc: "Poultry staple used for poaching, roasting, and stir-frying." },
+            { chinese: "雞翼", jyutping: "gai1 jik6", name: "Chicken Wings", desc: "Tender chicken wings popular for braising or deep-frying." },
+            { chinese: "雞胸肉", jyutping: "gai1 hung1 juk6", name: "Chicken Breast", desc: "Lean chicken breast meat." },
+            { chinese: "鴨", jyutping: "aap3", name: "Duck", desc: "Rich poultry used for roasting and braising." },
+            { chinese: "鮮蝦", jyutping: "sin1 haa1", name: "Fresh Shrimp / Prawns", desc: "Sweet, succulent crustaceans used in dim sum and stir-fries." },
+            { chinese: "魚", jyutping: "jyu4", name: "Fish", desc: "Fresh fish commonly steamed whole with ginger and scallions." },
+            { chinese: "鯇魚", jyutping: "waan6 jyu4", name: "Grass Carp", desc: "Freshwater fish commonly cut into steaks for steaming or hot pots." },
+            { chinese: "石斑", jyutping: "sek6 baan1", name: "Grouper", desc: "Delicate marine fish prized for banquet-style whole steaming." },
+            { chinese: "魷魚", jyutping: "jau2 jyu4", name: "Squid", desc: "Tender cephalopod scored and stir-fried or deep-fried." },
+            { chinese: "蜆", jyutping: "hin2", name: "Clams", desc: "Fresh saltwater clams tossed into quick stir-fries or soups." },
+            { chinese: "蟹", jyutping: "haai5", name: "Crab", desc: "Sweet crab meat enjoyed steamed or wok-fried with garlic and ginger." },
+            { chinese: "雞蛋", jyutping: "gai1 daan2", name: "Chicken Eggs", desc: "Everyday eggs used for scrambling, frying, and steaming." },
+            { chinese: "鴨蛋", jyutping: "aap3 daan2", name: "Duck Eggs", desc: "Rich eggs with larger, creamier yolks." },
+
+            // Vegetables & Greens
+            { chinese: "菜心", jyutping: "coi3 sam1", name: "Choy Sum", desc: "Sweet green leafy vegetable with tender yellow flower stalks." },
+            { chinese: "芥蘭", jyutping: "gaai3 laan2", name: "Gai Lan (Chinese Broccoli)", desc: "Crisp, thick-stemmed dark green vegetable." },
+            { chinese: "生菜", jyutping: "sang1 coi3", name: "Lettuce", desc: "Crisp leafy lettuce often blanched or served with oyster sauce." },
+            { chinese: "白菜", jyutping: "baak6 coi3", name: "Napa Cabbage / Bok Choy", desc: "Tender white-stemmed leafy cabbage used in soups and stir-fries." },
+            { chinese: "通菜", jyutping: "tung1 coi3", name: "Water Spinach", desc: "Hollow-stemmed green vegetable perfect for garlic stir-fries." },
+            { chinese: "菠菜", jyutping: "bo1 coi3", name: "Spinach", desc: "Nutritious dark green leafy vegetable." },
+            { chinese: "西洋菜", jyutping: "sai1 joeng4 coi3", name: "Watercress", desc: "Peppery green leafy vegetable staple for nourishing soups." },
+            { chinese: "唐生菜", jyutping: "tong4 sang1 coi3", name: "Cantonese Lettuce", desc: "Crisp variety of lettuce used in quick hot dishes." },
+            { chinese: "番茄", jyutping: "faan1 ke-2", name: "Tomato", desc: "Juicy red fruit used in stir-fries with scrambled eggs or soups." },
+            { chinese: "薯仔", jyutping: "syu4 zai2", name: "Potato", desc: "Starchy root vegetable used in hearty home-style stews." },
+            { chinese: "紅蘿蔔", jyutping: "hung4 lo4 baak6", name: "Carrot", desc: "Sweet orange root vegetable used in soups and braises." },
+            { chinese: "白蘿蔔", jyutping: "baak6 lo4 baak6", name: "Daikon Radish", desc: "Mild white root vegetable that absorbs broths wonderfully." },
+            { chinese: "黃瓜", jyutping: "wong4 gwaa1", name: "Cucumber", desc: "Crisp hydrating green vegetable." },
+            { chinese: "絲瓜", jyutping: "si1 gwaa1", name: "Sponge Gourd", desc: "Tender ridge gourd used in stir-fries and soups." },
+            { chinese: "冬瓜", jyutping: "dung1 gwaa1", name: "Winter Melon", desc: "Mild green melon used for cooling soups." },
+            { chinese: "苦瓜", jyutping: "loeng4 gwaa1", name: "Bitter Melon", desc: "Distinctive bumpy melon with a healthy bitter flavor." },
+            { chinese: "茄子", jyutping: "ke2 zi2", name: "Eggplant", desc: "Soft purple vegetable perfect for claypots and stir-fries." },
+            { chinese: "四季豆", jyutping: "sei3 gwai3 dau6", name: "Green Beans / String Beans", desc: "Crisp green pods wok-fried with garlic and minced pork." },
+            { chinese: "粟米", jyutping: "suk1 mai5", name: "Corn / Sweet Corn", desc: "Sweet yellow corn kernels used in soups and egg drop dishes." },
+            { chinese: "南瓜", jyutping: "naam4 gwaa1", name: "Pumpkin / Squash", desc: "Sweet orange squash used in comforting home dishes." },
+
+            // Aromatics & Spices
+            { chinese: "生薑", jyutping: "saang1 goeng1", name: "Fresh Ginger", desc: "Spicy aromatic root essential for neutralizing meat odors." },
+            { chinese: "蒜頭", jyutping: "syun3 tau4", name: "Garlic", desc: "Pungent cloves used as the base aromatic for wok cooking." },
+            { chinese: "蔥", jyutping: "cung1", name: "Scallion / Green Onion", desc: "Fresh green onions for aromatic fragrance and garnish." },
+            { chinese: "紅辣椒", jyutping: "hung4 laat6 ziu1", name: "Red Chili Pepper", desc: "Fresh red pepper for color and heat." },
+            { chinese: "洋蔥", jyutping: "joeng4 cung1", name: "Onion", desc: "Sweet bulb vegetable used in stir-fries." },
+            { chinese: "芫荽", jyutping: "jyun4 seoi1", name: "Cilantro / Coriander", desc: "Fresh herb used extensively for garnishing soups and dishes." },
+            { chinese: "韭菜", jyutping: "jau2 coi3", name: "Garlic Chives", desc: "Flat green chives with a mild garlic flavor." },
+            { chinese: "芹菜", jyutping: "kam4 coi3", name: "Celery", desc: "Crunchy stalks used for aromatic stir-fries." },
+            { chinese: "白胡椒粉", jyutping: "baak6 wu4 ziu1 fan2", name: "White Pepper", desc: "Ground white pepper for gentle warming spice." },
+            { chinese: "八角", jyutping: "baat3 gok3", name: "Star Anise", desc: "Aromatic seed pods used in braising liquids." },
+
+            // Tofu, Beans & Soy Products
+            { chinese: "豆腐", jyutping: "dau6 fu6", name: "Tofu / Bean Curd", desc: "Soft or firm protein blocks made from soybeans." },
+            { chinese: "油豆腐", jyutping: "jau4 dau6 fu6", name: "Tofu Puffs", desc: "Golden fried spongy tofu cubes." },
+            { chinese: "腐竹", jyutping: "fu6 zuk1", name: "Bean Curd Skin", desc: "Dried protein sheets from soy milk." },
+            { chinese: "豆漿", jyutping: "dau6 zoeng1", name: "Soy Milk", desc: "Nourishing fresh soybean beverage." },
+            { chinese: "豆芽", jyutping: "dau6 ngaa4", name: "Bean Sprouts", desc: "Crunchy sprouted mung beans." },
+            { chinese: "紅豆", jyutping: "hung4 dau2", name: "Red Beans / Adzuki Beans", desc: "Small red beans for sweet soups and desserts." },
+            { chinese: "綠豆", jyutping: "luk6 dau2", name: "Mung Beans", desc: "Small green beans used in cooling sweet soups." },
+            { chinese: "花生", jyutping: "faa1 sang1", name: "Peanuts", desc: "Crunchy nuts used in soups and braises." },
+            { chinese: "芝麻", jyutping: "zi1 maa4", name: "Sesame Seeds", desc: "Toasted seeds used for nutty aroma and garnish." },
+
+            // Pantry Sauces & Condiments
+            { chinese: "生抽", jyutping: "saang1 cau1", name: "Light Soy Sauce", desc: "Everyday salty liquid seasoning." },
+            { chinese: "老抽", jyutping: "lou5 cau1", name: "Dark Soy Sauce", desc: "Aged dark soy sauce for rich color." },
+            { chinese: "蠔油", jyutping: "hou4 jau4", name: "Oyster Sauce", desc: "Rich umami sauce made from oyster extracts." },
+            { chinese: "鹽", jyutping: "jim4", name: "Salt", desc: "Basic mineral seasoning." },
+            { chinese: "糖", jyutping: "tong4", name: "Sugar", desc: "Sweetener used to balance savory dishes." },
+            { chinese: "白米醋", jyutping: "baak6 mai5 cou3", name: "Rice Vinegar", desc: "Clean sharp vinegar." },
+            { chinese: "芝麻油", jyutping: "zi1 maa4 jau4", name: "Sesame Oil", desc: "Fragrant oil used for finishing dishes." },
+            { chinese: "花生油", jyutping: "faa1 sang1 jau4", name: "Peanut Oil", desc: "High-heat cooking oil for the wok." },
+            { chinese: "粟粉", jyutping: "suk1 fan2", name: "Cornstarch", desc: "Starch for thickening gravies and tenderizing meat." },
+            { chinese: "紹興酒", jyutping: "siu6 hing1 zau2", name: "Cooking Wine (Shaoxing)", desc: "Aromatic rice wine for removing meat odors." },
+
+            // Grains, Noodles & Carbs
+            { chinese: "白飯", jyutping: "baak6 faan6", name: "Steamed White Rice", desc: "The ultimate staple accompaniment to every meal." },
+            { chinese: "糯米", jyutping: "no6 mai5", name: "Glutinous Rice / Sticky Rice", desc: "Sticky rice used for dim sum and festive dishes." },
+            { chinese: "米粉", jyutping: "mai5 fan2", name: "Rice Vermicelli / Rice Noodles", desc: "Thin dried rice noodles." },
+            { chinese: "河粉", jyutping: "ho4 fan2", name: "Ho Fun (Flat Rice Noodles)", desc: "Wide flat fresh rice noodles." },
+            { chinese: "麵", jyutping: "min6", name: "Wheat Noodles / Egg Noodles", desc: "Springy noodles used in soups and stir-fries." },
+            { chinese: "意粉", jyutping: "ji3 fan2", name: "Spaghetti / Pasta", desc: "Western pasta commonly adapted in HK cafes." },
+            { chinese: "麵包", jyutping: "min6 baau1", name: "Bread", desc: "Soft white loaf bread used for cafe sandwiches." },
+            { chinese: "快熟麵", jyutping: "faai3 suk6 min6", name: "Instant Noodles", desc: "Quick convenience noodles." },
+
+            // Dried Goods & Soup Ingredients
+            { chinese: "冬菇", jyutping: "dong1 gu1", name: "Dried Shiitake Mushrooms", desc: "Earthy dried mushrooms packed with umami." },
+            { chinese: "木耳", jyutping: "muk6 ji5", name: "Black Wood Ear Fungus", desc: "Crunchy edible tree mushroom." },
+            { chinese: "紅枣", jyutping: "hung4 zou2", name: "Red Dates / Jujubes", desc: "Sweet dried dates for herbal soups." },
+            { chinese: "枸杞", jyutping: "gau2 kei2", name: "Goji Berries", desc: "Nutritious sweet red berries." },
+            { chinese: "陳皮", jyutping: "can4 pei4", name: "Dried Mandarin Peel", desc: "Aged citrus peel for fragrance." },
+            { chinese: "鹹蛋", jyutping: "haam4 daan2", name: "Salted Egg", desc: "Preserved duck egg with a savory yolk." },
+            { chinese: "皮蛋", jyutping: "pei4 daan2", name: "Century Egg", desc: "Preserved gelatinous dark egg." },
+            { chinese: "蝦米", jyutping: "haa1 mai5", name: "Dried Shrimp", desc: "Dehydrated tiny shrimp for savory depth." },
+            { chinese: "鹹魚", jyutping: "haam4 jyu4", name: "Salted Fish", desc: "Pungent preserved fish flavoring." },
+
+            // Fruits & Extras
+            { chinese: "蘋果", jyutping: "ping4 gwo2", name: "Apple", desc: "Fresh crisp fruit." },
+            { chinese: "橙", jyutping: "caang2", name: "Orange", desc: "Juicy citrus fruit." },
+            { chinese: "香蕉", jyutping: "hoeng1 ziu1", name: "Banana", desc: "Soft sweet tropical fruit." },
+            { chinese: "木瓜", jyutping: "muk6 gwaa1", name: "Papaya", desc: "Sweet tropical fruit used in soups and desserts." },
+            { chinese: "西瓜", jyutping: "sai1 gwaa1", name: "Watermelon", desc: "Refreshing cooling melon." },
+            { chinese: "檸檬", jyutping: "ning4 mung4", name: "Lemon", desc: "Citrus fruit used for drinks and sauces." },
+            { chinese: "青檸", jyutping: "ceng1 ning4", name: "Lime", desc: "Tart green citrus." },
+            { chinese: "菠蘿", jyutping: "bo1 lo4", name: "Pineapple", desc: "Sweet tropical fruit." },
+            { chinese: "芒果", jyutping: "mong4 gwo2", name: "Mango", desc: "Sweet yellow tropical fruit." },
+            { chinese: "冰", jyutping: "bing1", name: "Ice", desc: "Ice cubes for chilled drinks." },
+            { chinese: "水", jyutping: "seoi2", name: "Water", desc: "Essential cooking and drinking liquid." },
+            { chinese: "牛奶", jyutping: "ngau4 naai5", name: "Milk", desc: "Fresh dairy milk." },
+            { chinese: "煉奶", jyutping: "lin6 naai5", name: "Condensed Milk", desc: "Sweet thick milk used in milk tea and toast." },
+            { chinese: "淡奶", jyutping: "daam6 naai5", name: "Evaporated Milk", desc: "Rich unsweetened canned milk for HK milk tea." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+        let currentQuestionData = null;
+        const totalQuestionsPerGame = 15;
+
+        function startQuiz() {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            questions = [...ingredientDatabase].sort(() => Math.random() - 0.5).slice(0, totalQuestionsPerGame);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endQuiz();
+                return;
+            }
+
+            currentQuestionData = questions[currentQuestionIndex];
+            document.getElementById('question-box').innerText = `What is this Cantonese ingredient?\n(${currentQuestionData.chinese} — ${currentQuestionData.jyutping})`;
+            document.getElementById('question-counter').innerText = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+            document.getElementById('score-counter').innerText = `Score: ${score}`;
+            document.getElementById('feedback').innerText = '';
+            document.getElementById('explanation').innerText = '';
+            document.getElementById('next-btn').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            optionsContainer.style.pointerEvents = "auto";
+
+            let wrongOptions = ingredientDatabase
+                .filter(item => item.name !== currentQuestionData.name)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3)
+                .map(item => item.name);
+
+            let options = [...wrongOptions, currentQuestionData.name].sort(() => Math.random() - 0.5);
+
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = option;
+                btn.onclick = () => selectAnswer(btn, option, currentQuestionData.name, currentQuestionData.desc);
+                optionsContainer.appendChild(btn);
+            });
+
+            setTimeout(speakCantonese, 300);
+        }
+
+        function selectAnswer(button, selected, correct, description) {
+            const optionsContainer = document.getElementById('options-container');
+            const buttons = optionsContainer.getElementsByTagName('button');
+            
+            optionsContainer.style.pointerEvents = "none";
+
+            for (let btn of buttons) {
+                if (btn.innerText === correct) {
+                    btn.classList.add('correct');
+                }
+            }
+
+            const feedbackEl = document.getElementById('feedback');
+            const explanationEl = document.getElementById('explanation');
+
+            if (selected === correct) {
+                score++;
+                button.classList.add('correct');
+                playSound('correct');
+                feedbackEl.innerText = "Correct! 🥢 Excellent market knowledge.";
+                feedbackEl.style.color = "var(--success)";
+            } else {
+                button.classList.add('incorrect');
+                playSound('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct answer is: ${correct}`;
+                feedbackEl.style.color = "var(--error)";
+            }
+
+            explanationEl.innerText = description;
+            document.getElementById('score-counter').innerText = `Score: ${score}`;
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function endQuiz() {
+            playSound('complete');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score-text').innerText = `Amazing work! You scored ${score} out of ${questions.length} on your ingredient market run.`;
+        }
+
+        function resetQuiz() {
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

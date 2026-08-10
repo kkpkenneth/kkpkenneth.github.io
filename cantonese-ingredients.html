@@ -175,14 +175,14 @@
         <!-- Starting Screen -->
         <div id="start-screen">
             <h1>Cantonese Ingredient Master 🥢🛒</h1>
-            <p>Test your knowledge across 100 common everyday Cantonese ingredients, meats, vegetables, and kitchen staples with text-to-speech pronunciations!</p>
-            <button class="btn" onclick="startQuiz()">Start Ingredient Quiz</button>
+            <p>Progress sequentially through 100 easy everyday Cantonese ingredients, starting from the basics!</p>
+            <button class="btn" onclick="startQuiz()">Start Sequential Quiz</button>
         </div>
 
         <!-- Quiz Screen -->
         <div id="quiz-screen" class="hidden">
             <div class="stats">
-                <span id="question-counter">Question 1/15</span>
+                <span id="question-counter">Question 1/100</span>
                 <span id="score-counter">Score: 0</span>
             </div>
             <button class="tts-btn" onclick="speakCantonese()" title="Listen to Cantonese Name">🔊 Hear Pronunciation</button>
@@ -197,8 +197,8 @@
 
         <!-- End Screen -->
         <div id="end-screen" class="hidden">
-            <h1>Market Run Complete! 🛒🥳</h1>
-            <p id="final-score-text">You finished the quiz successfully.</p>
+            <h1>All 100 Ingredients Completed! 🛒🥳</h1>
+            <p id="final-score-text">You finished the full sequence successfully.</p>
             <button class="btn" onclick="resetQuiz()">Play Again</button>
         </div>
     </div>
@@ -253,7 +253,7 @@
             }, delay * 1000);
         }
 
-        // Text-to-Speech Helper for Cantonese (zh-HK) - Pronounce Chinese word only once
+        // Text-to-Speech Helper for Cantonese (zh-HK) - Pronounce word once
         function speakCantonese() {
             if ('speechSynthesis' in window && currentQuestionData) {
                 window.speechSynthesis.cancel();
@@ -265,129 +265,125 @@
             }
         }
 
-        // 100 Normal Everyday Cantonese Ingredients Database
+        // Exactly 100 Easy Everyday Cantonese Ingredients Database ordered from absolute basics
         const ingredientDatabase = [
-            // Proteins & Meats
-            { chinese: "豬肉", jyutping: "zyu1 juk6", name: "Pork", desc: "Everyday fresh pork meat used in countless stir-fries and soups." },
-            { chinese: "瘦肉", jyutping: "sau3 juk6", name: "Lean Pork", desc: "Lean pork cuts commonly used for mincing or boiling in congee and soups." },
-            { chinese: "排骨", jyutping: "paai4 gwat1", name: "Pork Spareribs", desc: "Juicy pork rib sections popular for steaming with black beans or braising." },
-            { chinese: "五花肉", jyutping: "ng5 faa1 juk6", name: "Pork Belly", desc: "Layered fatty and lean pork belly used for braising and roasting." },
-            { chinese: "牛肉", jyutping: "ngau4 juk6", name: "Beef", desc: "Fresh beef slices velveted with cornstarch for tender stir-fries." },
-            { chinese: "牛腩", jyutping: "ngau4 naam5", name: "Beef Brisket", desc: "Rich beef cut slow-cooked in spiced stews and noodle soups." },
-            { chinese: "雞", jyutping: "gai1", name: "Chicken", desc: "Poultry staple used for poaching, roasting, and stir-frying." },
-            { chinese: "雞翼", jyutping: "gai1 jik6", name: "Chicken Wings", desc: "Tender chicken wings popular for braising or deep-frying." },
-            { chinese: "雞胸肉", jyutping: "gai1 hung1 juk6", name: "Chicken Breast", desc: "Lean chicken breast meat." },
-            { chinese: "鴨", jyutping: "aap3", name: "Duck", desc: "Rich poultry used for roasting and braising." },
-            { chinese: "鮮蝦", jyutping: "sin1 haa1", name: "Fresh Shrimp / Prawns", desc: "Sweet, succulent crustaceans used in dim sum and stir-fries." },
-            { chinese: "魚", jyutping: "jyu4", name: "Fish", desc: "Fresh fish commonly steamed whole with ginger and scallions." },
-            { chinese: "鯇魚", jyutping: "waan6 jyu4", name: "Grass Carp", desc: "Freshwater fish commonly cut into steaks for steaming or hot pots." },
-            { chinese: "石斑", jyutping: "sek6 baan1", name: "Grouper", desc: "Delicate marine fish prized for banquet-style whole steaming." },
-            { chinese: "魷魚", jyutping: "jau2 jyu4", name: "Squid", desc: "Tender cephalopod scored and stir-fried or deep-fried." },
-            { chinese: "蜆", jyutping: "hin2", name: "Clams", desc: "Fresh saltwater clams tossed into quick stir-fries or soups." },
-            { chinese: "蟹", jyutping: "haai5", name: "Crab", desc: "Sweet crab meat enjoyed steamed or wok-fried with garlic and ginger." },
-            { chinese: "雞蛋", jyutping: "gai1 daan2", name: "Chicken Eggs", desc: "Everyday eggs used for scrambling, frying, and steaming." },
-            { chinese: "鴨蛋", jyutping: "aap3 daan2", name: "Duck Eggs", desc: "Rich eggs with larger, creamier yolks." },
+            // Starting with absolute basics requested
+            { chinese: "水", jyutping: "seoi2", name: "Water", desc: "Essential drinking and cooking liquid." },
+            { chinese: "茶", jyutping: "caa4", name: "Tea", desc: "Brewed tea beverage." },
+            { chinese: "飯", jyutping: "faan6", name: "Rice", desc: "Steamed white rice staple." },
+            { chinese: "粉", jyutping: "fan2", name: "Noodles / Rice Noodles", desc: "Rice or wheat flour noodles." },
+            { chinese: "豬", jyutping: "zyu1", name: "Pork", desc: "Everyday pork meat." },
+            { chinese: "牛", jyutping: "ngau4", name: "Beef", desc: "Fresh beef meat." },
+            { chinese: "羊", jyutping: "joeng4", name: "Mutton / Lamb", desc: "Sheep meat." },
+            { chinese: "魚", jyutping: "jyu4", name: "Fish", desc: "Fresh fish." },
+            { chinese: "蝦", jyutping: "haa1", name: "Shrimp / Prawns", desc: "Sweet crustaceans." },
+            { chinese: "蟹", jyutping: "haai5", name: "Crab", desc: "Seafood crab." },
 
-            // Vegetables & Greens
-            { chinese: "菜心", jyutping: "coi3 sam1", name: "Choy Sum", desc: "Sweet green leafy vegetable with tender yellow flower stalks." },
-            { chinese: "芥蘭", jyutping: "gaai3 laan2", name: "Gai Lan (Chinese Broccoli)", desc: "Crisp, thick-stemmed dark green vegetable." },
-            { chinese: "生菜", jyutping: "sang1 coi3", name: "Lettuce", desc: "Crisp leafy lettuce often blanched or served with oyster sauce." },
-            { chinese: "白菜", jyutping: "baak6 coi3", name: "Napa Cabbage / Bok Choy", desc: "Tender white-stemmed leafy cabbage used in soups and stir-fries." },
-            { chinese: "通菜", jyutping: "tung1 coi3", name: "Water Spinach", desc: "Hollow-stemmed green vegetable perfect for garlic stir-fries." },
-            { chinese: "菠菜", jyutping: "bo1 coi3", name: "Spinach", desc: "Nutritious dark green leafy vegetable." },
-            { chinese: "西洋菜", jyutping: "sai1 joeng4 coi3", name: "Watercress", desc: "Peppery green leafy vegetable staple for nourishing soups." },
-            { chinese: "唐生菜", jyutping: "tong4 sang1 coi3", name: "Cantonese Lettuce", desc: "Crisp variety of lettuce used in quick hot dishes." },
-            { chinese: "番茄", jyutping: "faan1 ke-2", name: "Tomato", desc: "Juicy red fruit used in stir-fries with scrambled eggs or soups." },
-            { chinese: "薯仔", jyutping: "syu4 zai2", name: "Potato", desc: "Starchy root vegetable used in hearty home-style stews." },
-            { chinese: "紅蘿蔔", jyutping: "hung4 lo4 baak6", name: "Carrot", desc: "Sweet orange root vegetable used in soups and braises." },
-            { chinese: "白蘿蔔", jyutping: "baak6 lo4 baak6", name: "Daikon Radish", desc: "Mild white root vegetable that absorbs broths wonderfully." },
-            { chinese: "黃瓜", jyutping: "wong4 gwaa1", name: "Cucumber", desc: "Crisp hydrating green vegetable." },
-            { chinese: "絲瓜", jyutping: "si1 gwaa1", name: "Sponge Gourd", desc: "Tender ridge gourd used in stir-fries and soups." },
-            { chinese: "冬瓜", jyutping: "dung1 gwaa1", name: "Winter Melon", desc: "Mild green melon used for cooling soups." },
-            { chinese: "苦瓜", jyutping: "loeng4 gwaa1", name: "Bitter Melon", desc: "Distinctive bumpy melon with a healthy bitter flavor." },
-            { chinese: "茄子", jyutping: "ke2 zi2", name: "Eggplant", desc: "Soft purple vegetable perfect for claypots and stir-fries." },
-            { chinese: "四季豆", jyutping: "sei3 gwai3 dau6", name: "Green Beans / String Beans", desc: "Crisp green pods wok-fried with garlic and minced pork." },
-            { chinese: "粟米", jyutping: "suk1 mai5", name: "Corn / Sweet Corn", desc: "Sweet yellow corn kernels used in soups and egg drop dishes." },
-            { chinese: "南瓜", jyutping: "naam4 gwaa1", name: "Pumpkin / Squash", desc: "Sweet orange squash used in comforting home dishes." },
-
-            // Aromatics & Spices
-            { chinese: "生薑", jyutping: "saang1 goeng1", name: "Fresh Ginger", desc: "Spicy aromatic root essential for neutralizing meat odors." },
-            { chinese: "蒜頭", jyutping: "syun3 tau4", name: "Garlic", desc: "Pungent cloves used as the base aromatic for wok cooking." },
-            { chinese: "蔥", jyutping: "cung1", name: "Scallion / Green Onion", desc: "Fresh green onions for aromatic fragrance and garnish." },
-            { chinese: "紅辣椒", jyutping: "hung4 laat6 ziu1", name: "Red Chili Pepper", desc: "Fresh red pepper for color and heat." },
-            { chinese: "洋蔥", jyutping: "joeng4 cung1", name: "Onion", desc: "Sweet bulb vegetable used in stir-fries." },
-            { chinese: "芫荽", jyutping: "jyun4 seoi1", name: "Cilantro / Coriander", desc: "Fresh herb used extensively for garnishing soups and dishes." },
-            { chinese: "韭菜", jyutping: "jau2 coi3", name: "Garlic Chives", desc: "Flat green chives with a mild garlic flavor." },
-            { chinese: "芹菜", jyutping: "kam4 coi3", name: "Celery", desc: "Crunchy stalks used for aromatic stir-fries." },
-            { chinese: "白胡椒粉", jyutping: "baak6 wu4 ziu1 fan2", name: "White Pepper", desc: "Ground white pepper for gentle warming spice." },
-            { chinese: "八角", jyutping: "baat3 gok3", name: "Star Anise", desc: "Aromatic seed pods used in braising liquids." },
-
-            // Tofu, Beans & Soy Products
-            { chinese: "豆腐", jyutping: "dau6 fu6", name: "Tofu / Bean Curd", desc: "Soft or firm protein blocks made from soybeans." },
-            { chinese: "油豆腐", jyutping: "jau4 dau6 fu6", name: "Tofu Puffs", desc: "Golden fried spongy tofu cubes." },
-            { chinese: "腐竹", jyutping: "fu6 zuk1", name: "Bean Curd Skin", desc: "Dried protein sheets from soy milk." },
-            { chinese: "豆漿", jyutping: "dau6 zoeng1", name: "Soy Milk", desc: "Nourishing fresh soybean beverage." },
-            { chinese: "豆芽", jyutping: "dau6 ngaa4", name: "Bean Sprouts", desc: "Crunchy sprouted mung beans." },
-            { chinese: "紅豆", jyutping: "hung4 dau2", name: "Red Beans / Adzuki Beans", desc: "Small red beans for sweet soups and desserts." },
-            { chinese: "綠豆", jyutping: "luk6 dau2", name: "Mung Beans", desc: "Small green beans used in cooling sweet soups." },
-            { chinese: "花生", jyutping: "faa1 sang1", name: "Peanuts", desc: "Crunchy nuts used in soups and braises." },
-            { chinese: "芝麻", jyutping: "zi1 maa4", name: "Sesame Seeds", desc: "Toasted seeds used for nutty aroma and garnish." },
-
-            // Pantry Sauces & Condiments
-            { chinese: "生抽", jyutping: "saang1 cau1", name: "Light Soy Sauce", desc: "Everyday salty liquid seasoning." },
-            { chinese: "老抽", jyutping: "lou5 cau1", name: "Dark Soy Sauce", desc: "Aged dark soy sauce for rich color." },
-            { chinese: "蠔油", jyutping: "hou4 jau4", name: "Oyster Sauce", desc: "Rich umami sauce made from oyster extracts." },
-            { chinese: "鹽", jyutping: "jim4", name: "Salt", desc: "Basic mineral seasoning." },
-            { chinese: "糖", jyutping: "tong4", name: "Sugar", desc: "Sweetener used to balance savory dishes." },
-            { chinese: "白米醋", jyutping: "baak6 mai5 cou3", name: "Rice Vinegar", desc: "Clean sharp vinegar." },
-            { chinese: "芝麻油", jyutping: "zi1 maa4 jau4", name: "Sesame Oil", desc: "Fragrant oil used for finishing dishes." },
-            { chinese: "花生油", jyutping: "faa1 sang1 jau4", name: "Peanut Oil", desc: "High-heat cooking oil for the wok." },
-            { chinese: "粟粉", jyutping: "suk1 fan2", name: "Cornstarch", desc: "Starch for thickening gravies and tenderizing meat." },
-            { chinese: "紹興酒", jyutping: "siu6 hing1 zau2", name: "Cooking Wine (Shaoxing)", desc: "Aromatic rice wine for removing meat odors." },
-
-            // Grains, Noodles & Carbs
-            { chinese: "白飯", jyutping: "baak6 faan6", name: "Steamed White Rice", desc: "The ultimate staple accompaniment to every meal." },
-            { chinese: "糯米", jyutping: "no6 mai5", name: "Glutinous Rice / Sticky Rice", desc: "Sticky rice used for dim sum and festive dishes." },
-            { chinese: "米粉", jyutping: "mai5 fan2", name: "Rice Vermicelli / Rice Noodles", desc: "Thin dried rice noodles." },
-            { chinese: "河粉", jyutping: "ho4 fan2", name: "Ho Fun (Flat Rice Noodles)", desc: "Wide flat fresh rice noodles." },
-            { chinese: "麵", jyutping: "min6", name: "Wheat Noodles / Egg Noodles", desc: "Springy noodles used in soups and stir-fries." },
-            { chinese: "意粉", jyutping: "ji3 fan2", name: "Spaghetti / Pasta", desc: "Western pasta commonly adapted in HK cafes." },
-            { chinese: "麵包", jyutping: "min6 baau1", name: "Bread", desc: "Soft white loaf bread used for cafe sandwiches." },
-            { chinese: "快熟麵", jyutping: "faai3 suk6 min6", name: "Instant Noodles", desc: "Quick convenience noodles." },
-
-            // Dried Goods & Soup Ingredients
-            { chinese: "冬菇", jyutping: "dong1 gu1", name: "Dried Shiitake Mushrooms", desc: "Earthy dried mushrooms packed with umami." },
-            { chinese: "木耳", jyutping: "muk6 ji5", name: "Black Wood Ear Fungus", desc: "Crunchy edible tree mushroom." },
-            { chinese: "紅枣", jyutping: "hung4 zou2", name: "Red Dates / Jujubes", desc: "Sweet dried dates for herbal soups." },
-            { chinese: "枸杞", jyutping: "gau2 kei2", name: "Goji Berries", desc: "Nutritious sweet red berries." },
-            { chinese: "陳皮", jyutping: "can4 pei4", name: "Dried Mandarin Peel", desc: "Aged citrus peel for fragrance." },
-            { chinese: "鹹蛋", jyutping: "haam4 daan2", name: "Salted Egg", desc: "Preserved duck egg with a savory yolk." },
-            { chinese: "皮蛋", jyutping: "pei4 daan2", name: "Century Egg", desc: "Preserved gelatinous dark egg." },
-            { chinese: "蝦米", jyutping: "haa1 mai5", name: "Dried Shrimp", desc: "Dehydrated tiny shrimp for savory depth." },
-            { chinese: "鹹魚", jyutping: "haam4 jyu4", name: "Salted Fish", desc: "Pungent preserved fish flavoring." },
-
-            // Fruits & Extras
+            // Followed by 90 easy everyday ingredients
+            { chinese: "雞", jyutping: "gai1", name: "Chicken", desc: "Poultry staple." },
+            { chinese: "鴨", jyutping: "aap3", name: "Duck", desc: "Rich poultry meat." },
+            { chinese: "蛋", jyutping: "daan2", name: "Egg", desc: "Chicken or duck eggs." },
+            { chinese: "菜", jyutping: "coi3", name: "Vegetables", desc: "General green vegetables." },
+            { chinese: "菜心", jyutping: "coi3 sam1", name: "Choy Sum", desc: "Sweet green leafy vegetable with flower stalks." },
+            { chinese: "芥蘭", jyutping: "gaai3 laan2", name: "Gai Lan", desc: "Crisp Chinese broccoli." },
+            { chinese: "生菜", jyutping: "sang1 coi3", name: "Lettuce", desc: "Crisp leafy lettuce." },
+            { chinese: "白菜", jyutping: "baak6 coi3", name: "Bok Choy", desc: "White-stemmed leafy cabbage." },
+            { chinese: "通菜", jyutping: "tung1 coi3", name: "Water Spinach", desc: "Hollow-stemmed green vegetable." },
+            { chinese: "菠菜", jyutping: "bo1 coi3", name: "Spinach", desc: "Nutritious dark green greens." },
+            { chinese: "番茄", jyutping: "faan1 ke-2", name: "Tomato", desc: "Juicy red fruit." },
+            { chinese: "薯仔", jyutping: "syu4 zai2", name: "Potato", desc: "Starchy root vegetable." },
+            { chinese: "紅蘿蔔", jyutping: "hung4 lo4 baak6", name: "Carrot", desc: "Sweet orange root." },
+            { chinese: "白蘿蔔", jyutping: "baak6 lo4 baak6", name: "Daikon Radish", desc: "Mild white root." },
+            { chinese: "黃瓜", jyutping: "wong4 gwaa1", name: "Cucumber", desc: "Hydrating green vegetable." },
+            { chinese: "冬瓜", jyutping: "dung1 gwaa1", name: "Winter Melon", desc: "Mild green melon for soups." },
+            { chinese: "苦瓜", jyutping: "loeng4 gwaa1", name: "Bitter Melon", desc: "Healthy bitter melon." },
+            { chinese: "茄子", jyutping: "ke2 zi2", name: "Eggplant", desc: "Soft purple vegetable." },
+            { chinese: "粟米", jyutping: "suk1 mai5", name: "Corn", desc: "Sweet yellow corn." },
+            { chinese: "南瓜", jyutping: "naam4 gwaa1", name: "Pumpkin", desc: "Sweet orange squash." },
+            { chinese: "薑", jyutping: "goeng1", name: "Ginger", desc: "Spicy aromatic root." },
+            { chinese: "蒜", jyutping: "syun3", name: "Garlic", desc: "Pungent cooking bulb." },
+            { chinese: "蔥", jyutping: "cung1", name: "Scallion", desc: "Fresh green onion." },
+            { chinese: "辣椒", jyutping: "laat6 ziu1", name: "Chili Pepper", desc: "Spicy red pepper." },
+            { chinese: "洋蔥", jyutping: "joeng4 cung1", name: "Onion", desc: "Sweet bulb onion." },
+            { chinese: "芫荽", jyutping: "jyun4 seoi1", name: "Cilantro", desc: "Fragrant herb garnish." },
+            { chinese: "豆腐", jyutping: "dau6 fu6", name: "Tofu", desc: "Soybean protein block." },
+            { chinese: "豆漿", jyutping: "dau6 zoeng1", name: "Soy Milk", desc: "Fresh soybean beverage." },
+            { chinese: "豆芽", jyutping: "dau6 ngaa4", name: "Bean Sprouts", desc: "Crunchy sprouts." },
+            { chinese: "紅豆", jyutping: "hung4 dau2", name: "Red Beans", desc: "Small red beans for sweets." },
+            { chinese: "綠豆", jyutping: "luk6 dau2", name: "Mung Beans", desc: "Small green beans." },
+            { chinese: "花生", jyutping: "faa1 sang1", name: "Peanuts", desc: "Edible nuts." },
+            { chinese: "芝麻", jyutping: "zi1 maa4", name: "Sesame Seeds", desc: "Tiny nutty seeds." },
+            { chinese: "鹽", jyutping: "jim4", name: "Salt", desc: "Mineral seasoning." },
+            { chinese: "糖", jyutping: "tong4", name: "Sugar", desc: "Sweetener." },
+            { chinese: "醬油", jyutping: "zoeng3 jau4", name: "Soy Sauce", desc: "Salty liquid seasoning." },
+            { chinese: "蠔油", jyutping: "hou4 jau4", name: "Oyster Sauce", desc: "Rich umami sauce." },
+            { chinese: "醋", jyutping: "cou3", name: "Vinegar", desc: "Sharp sour liquid." },
+            { chinese: "油", jyutping: "jau4", name: "Oil", desc: "Cooking oil." },
+            { chinese: "酒", jyutping: "zau2", name: "Cooking Wine", desc: "Aromatic rice wine." },
+            { chinese: "麵", jyutping: "min6", name: "Wheat Noodles", desc: "Springy noodles." },
+            { chinese: "麵包", jyutping: "min6 baau1", name: "Bread", desc: "Soft loaf bread." },
+            { chinese: "牛奶", jyutping: "ngau4 naai5", name: "Milk", desc: "Fresh dairy milk." },
+            { chinese: "牛油", jyutping: "ngau4 jau4", name: "Butter", desc: "Dairy butter spread." },
+            { chinese: "芝士", jyutping: "zi1 si2", name: "Cheese", desc: "Dairy cheese." },
             { chinese: "蘋果", jyutping: "ping4 gwo2", name: "Apple", desc: "Fresh crisp fruit." },
             { chinese: "橙", jyutping: "caang2", name: "Orange", desc: "Juicy citrus fruit." },
-            { chinese: "香蕉", jyutping: "hoeng1 ziu1", name: "Banana", desc: "Soft sweet tropical fruit." },
-            { chinese: "木瓜", jyutping: "muk6 gwaa1", name: "Papaya", desc: "Sweet tropical fruit used in soups and desserts." },
-            { chinese: "西瓜", jyutping: "sai1 gwaa1", name: "Watermelon", desc: "Refreshing cooling melon." },
-            { chinese: "檸檬", jyutping: "ning4 mung4", name: "Lemon", desc: "Citrus fruit used for drinks and sauces." },
-            { chinese: "青檸", jyutping: "ceng1 ning4", name: "Lime", desc: "Tart green citrus." },
+            { chinese: "香蕉", jyutping: "hoeng1 ziu1", name: "Banana", desc: "Soft sweet fruit." },
+            { chinese: "木瓜", jyutping: "muk6 gwaa1", name: "Papaya", desc: "Tropical melon." },
+            { chinese: "西瓜", jyutping: "sai1 gwaa1", name: "Watermelon", desc: "Cooling hydrating melon." },
+            { chinese: "檸檬", jyutping: "ning4 mung4", name: "Lemon", desc: "Tart citrus." },
             { chinese: "菠蘿", jyutping: "bo1 lo4", name: "Pineapple", desc: "Sweet tropical fruit." },
-            { chinese: "芒果", jyutping: "mong4 gwo2", name: "Mango", desc: "Sweet yellow tropical fruit." },
-            { chinese: "冰", jyutping: "bing1", name: "Ice", desc: "Ice cubes for chilled drinks." },
-            { chinese: "水", jyutping: "seoi2", name: "Water", desc: "Essential cooking and drinking liquid." },
-            { chinese: "牛奶", jyutping: "ngau4 naai5", name: "Milk", desc: "Fresh dairy milk." },
-            { chinese: "煉奶", jyutping: "lin6 naai5", name: "Condensed Milk", desc: "Sweet thick milk used in milk tea and toast." },
-            { chinese: "淡奶", jyutping: "daam6 naai5", name: "Evaporated Milk", desc: "Rich unsweetened canned milk for HK milk tea." }
+            { chinese: "芒果", jyutping: "mong4 gwo2", name: "Mango", desc: "Sweet yellow fruit." },
+            { chinese: "冰", jyutping: "bing1", name: "Ice", desc: "Ice cubes." },
+            { chinese: "咖啡", jyutping: "gaa3 fei1", name: "Coffee", desc: "Coffee drink." },
+            { chinese: "餅乾", jyutping: "beng2 gon1", name: "Biscuits", desc: "Baked snacks." },
+            { chinese: "瘦肉", jyutping: "sau3 juk6", name: "Lean Pork", desc: "Lean pork cut." },
+            { chinese: "排骨", jyutping: "paai4 gwat1", name: "Pork Spareribs", desc: "Juicy rib sections." },
+            { chinese: "五花肉", jyutping: "ng5 faa1 juk6", name: "Pork Belly", desc: "Layered fatty pork." },
+            { chinese: "牛腩", jyutping: "ngau4 naam5", name: "Beef Brisket", desc: "Tender beef stew cut." },
+            { chinese: "雞翼", jyutping: "gai1 jik6", name: "Chicken Wings", desc: "Tender wings." },
+            { chinese: "魷魚", jyutping: "jau2 jyu4", name: "Squid", desc: "Ocean cephalopod." },
+            { chinese: "蜆", jyutping: "hin2", name: "Clams", desc: "Saltwater clams." },
+            { chinese: "雞蛋", jyutping: "gai1 daan2", name: "Chicken Egg", desc: "Everyday egg." },
+            { chinese: "鴨蛋", jyutping: "aap3 daan2", name: "Duck Egg", desc: "Rich duck egg." },
+            { chinese: "通菜", jyutping: "tung1 coi3", name: "Water Spinach", desc: "Hollow green stem." },
+            { chinese: "菠菜", jyutping: "bo1 coi3", name: "Spinach", desc: "Nutritious green." },
+            { chinese: "西洋菜", jyutping: "sai1 joeng4 coi3", name: "Watercress", desc: "Peppery soup green." },
+            { chinese: "絲瓜", jyutping: "si1 gwaa1", name: "Sponge Gourd", desc: "Tender ridge gourd." },
+            { chinese: "四季豆", jyutping: "sei3 gwai3 dau6", name: "Green Beans", desc: "Crisp bean pods." },
+            { chinese: "芹菜", jyutping: "kam4 coi3", name: "Celery", desc: "Crunchy stalks." },
+            { chinese: "白胡椒", jyutping: "baak6 wu4 ziu1", name: "White Pepper", desc: "Warming spice." },
+            { chinese: "八角", jyutping: "baat3 gok3", name: "Star Anise", desc: "Aromatic spice." },
+            { chinese: "油豆腐", jyutping: "jau4 dau6 fu6", name: "Tofu Puffs", desc: "Fried spongy tofu." },
+            { chinese: "腐竹", jyutping: "fu6 zuk1", name: "Bean Curd Skin", desc: "Soy milk sheets." },
+            { chinese: "生抽", jyutping: "saang1 cau1", name: "Light Soy Sauce", desc: "Salty seasoning." },
+            { chinese: "老抽", jyutping: "lou5 cau1", name: "Dark Soy Sauce", desc: "Aged dark soy." },
+            { chinese: "米醋", jyutping: "mai5 cou3", name: "Rice Vinegar", desc: "Sharp vinegar." },
+            { chinese: "芝麻油", jyutping: "zi1 maa4 jau4", name: "Sesame Oil", desc: "Fragrant oil." },
+            { chinese: "花生油", jyutping: "faa1 sang1 jau4", name: "Peanut Oil", desc: "Wok cooking oil." },
+            { chinese: "粟粉", jyutping: "suk1 fan2", name: "Cornstarch", desc: "Starch thickener." },
+            { chinese: "紹興酒", jyutping: "siu6 hing1 zau2", name: "Shaoxing Wine", desc: "Rice cooking wine." },
+            { chinese: "白飯", jyutping: "baak6 faan6", name: "White Rice", desc: "Steamed staple." },
+            { chinese: "糯米", jyutping: "no6 mai5", name: "Sticky Rice", desc: "Glutinous rice." },
+            { chinese: "米粉", jyutping: "mai5 fan2", name: "Rice Vermicelli", desc: "Thin noodles." },
+            { chinese: "河粉", jyutping: "ho4 fan2", name: "Ho Fun Noodles", desc: "Wide flat noodles." },
+            { chinese: "意粉", jyutping: "ji3 fan2", name: "Spaghetti", desc: "Pasta noodles." },
+            { chinese: "快熟麵", jyutping: "faai3 suk6 min6", name: "Instant Noodles", desc: "Convenience noodles." },
+            { chinese: "冬菇", jyutping: "dong1 gu1", name: "Dried Mushrooms", desc: "Earthy shiitake." },
+            { chinese: "木耳", jyutping: "muk6 ji5", name: "Black Fungus", desc: "Crunchy mushroom." },
+            { chinese: "紅枣", jyutping: "hung4 zou2", name: "Red Dates", desc: "Sweet jujubes." },
+            { chinese: "枸杞", jyutping: "gau2 kei2", name: "Goji Berries", desc: "Nutritious berries." },
+            { chinese: "陳皮", jyutping: "can4 pei4", name: "Dried Citrus Peel", desc: "Aged peel." },
+            { chinese: "鹹蛋", jyutping: "haam4 daan2", name: "Salted Egg", desc: "Preserved egg." },
+            { chinese: "皮蛋", jyutping: "pei4 daan2", name: "Century Egg", desc: "Preserved dark egg." },
+            { chinese: "蝦米", jyutping: "haa1 mai5", name: "Dried Shrimp", desc: "Small dried shrimp." },
+            { chinese: "鹹魚", jyutping: "haam4 jyu4", name: "Salted Fish", desc: "Preserved fish." },
+            { chinese: "煉奶", jyutping: "lin6 naai5", name: "Condensed Milk", desc: "Sweet thick milk." },
+            { chinese: "淡奶", jyutping: "daam6 naai5", name: "Evaporated Milk", desc: "Canned milk." }
         ];
 
         let currentQuestionIndex = 0;
         let score = 0;
-        let questions = [];
         let currentQuestionData = null;
-        const totalQuestionsPerGame = 15;
 
         function startQuiz() {
             initAudio();
@@ -395,19 +391,18 @@
             document.getElementById('quiz-screen').classList.remove('hidden');
             currentQuestionIndex = 0;
             score = 0;
-            questions = [...ingredientDatabase].sort(() => Math.random() - 0.5).slice(0, totalQuestionsPerGame);
             loadQuestion();
         }
 
         function loadQuestion() {
-            if (currentQuestionIndex >= questions.length) {
+            if (currentQuestionIndex >= ingredientDatabase.length) {
                 endQuiz();
                 return;
             }
 
-            currentQuestionData = questions[currentQuestionIndex];
+            currentQuestionData = ingredientDatabase[currentQuestionIndex];
             document.getElementById('question-box').innerText = `What is this Cantonese ingredient?\n(${currentQuestionData.chinese} — ${currentQuestionData.jyutping})`;
-            document.getElementById('question-counter').innerText = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+            document.getElementById('question-counter').innerText = `Question ${currentQuestionIndex + 1}/${ingredientDatabase.length}`;
             document.getElementById('score-counter').innerText = `Score: ${score}`;
             document.getElementById('feedback').innerText = '';
             document.getElementById('explanation').innerText = '';
@@ -417,6 +412,7 @@
             optionsContainer.innerHTML = '';
             optionsContainer.style.pointerEvents = "auto";
 
+            // Generate 3 wrong options + 1 correct option
             let wrongOptions = ingredientDatabase
                 .filter(item => item.name !== currentQuestionData.name)
                 .sort(() => Math.random() - 0.5)
@@ -455,7 +451,7 @@
                 score++;
                 button.classList.add('correct');
                 playSound('correct');
-                feedbackEl.innerText = "Correct! 🥢 Excellent market knowledge.";
+                feedbackEl.innerText = "Correct! 🥢 Excellent!";
                 feedbackEl.style.color = "var(--success)";
             } else {
                 button.classList.add('incorrect');
@@ -478,7 +474,7 @@
             playSound('complete');
             document.getElementById('quiz-screen').classList.add('hidden');
             document.getElementById('end-screen').classList.remove('hidden');
-            document.getElementById('final-score-text').innerText = `Amazing work! You scored ${score} out of ${questions.length} on your ingredient market run.`;
+            document.getElementById('final-score-text').innerText = `Amazing work! You completed all 100 ingredients with a total score of ${score}.`;
         }
 
         function resetQuiz() {

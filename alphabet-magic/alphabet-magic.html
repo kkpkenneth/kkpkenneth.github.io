@@ -73,8 +73,37 @@
 
     .btn-container {
         display: flex;
-        gap: 20px;
+        gap: 30px;
         margin-top: 30px;
+    }
+
+    .char-btn {
+        background: rgba(74, 0, 224, 0.3);
+        border: 2px solid #c9a5ff;
+        color: white;
+        font-size: 1.2rem;
+        padding: 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .char-btn img {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+    }
+
+    .char-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px #c9a5ff;
+        background: rgba(142, 45, 226, 0.5);
     }
 
     button {
@@ -174,8 +203,14 @@
         <h1>Spellcaster</h1>
         <p style="font-size: 1.2rem; max-width: 600px;">Connect the glowing nodes in the correct sequence to attack the mythical beasts! Faster tracing deals more damage.</p>
         <div class="btn-container">
-            <button onclick="startGame('M')">🧙‍♂️ Sorcerer</button>
-            <button onclick="startGame('F')">🧙‍♀️ Witch</button>
+            <button class="char-btn" onclick="startGame('M')">
+                <img src="wizard-1.png" alt="Sorcerer">
+                Sorcerer
+            </button>
+            <button class="char-btn" onclick="startGame('F')">
+                <img src="witch-1.png" alt="Witch">
+                Witch
+            </button>
         </div>
     </div>
 
@@ -208,7 +243,37 @@
     const levelDisplay = document.getElementById('level-display');
     const bgMusic = document.getElementById('bg-music');
 
-    // Load voices early to ensure they are ready by the time a user traces
+    // Sprite Loading for Sorcerer
+    const wizardSprites = {
+        idle: new Image(),
+        prep: new Image(),
+        cast: new Image(),
+        recover: new Image()
+    };
+    wizardSprites.idle.src = 'wizard-1.png';
+    wizardSprites.prep.src = 'wizard-2.png';
+    wizardSprites.cast.src = 'wizard-3.png';
+    wizardSprites.recover.src = 'wizard-4.png';
+    
+    const wizardSpellImg = new Image();
+    wizardSpellImg.src = 'wizard-spell.png';
+
+    // Sprite Loading for Witch
+    const witchSprites = {
+        idle: new Image(),
+        prep: new Image(),
+        cast: new Image(),
+        recover: new Image()
+    };
+    witchSprites.idle.src = 'witch-1.png';
+    witchSprites.prep.src = 'witch-2.png';
+    witchSprites.cast.src = 'witch-3.png';
+    witchSprites.recover.src = 'witch-4.png';
+    
+    const witchSpellImg = new Image();
+    witchSpellImg.src = 'witch-spell.png';
+
+    // Load voices early
     if ('speechSynthesis' in window) {
         window.speechSynthesis.getVoices();
         window.speechSynthesis.onvoiceschanged = function() {
@@ -269,26 +334,19 @@
         }
     }
 
-    // Pronounce Letter function using Web Speech API with South Asian / Pakistani accent
+    // Pronounce Letter function
     function pronounceLetter(letter) {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(letter);
             const voices = window.speechSynthesis.getVoices();
             
-            // Look for Pakistani English or Urdu
             let targetVoice = voices.find(voice => voice.lang === 'en-PK' || voice.lang === 'ur-PK');
-            
-            // Fallback to Indian English (closest South Asian match commonly found in all browsers)
             if (!targetVoice) {
                 targetVoice = voices.find(voice => voice.lang.startsWith('en-IN') || voice.lang === 'hi-IN');
             }
 
-            if (targetVoice) {
-                utterance.voice = targetVoice;
-            } else {
-                // If the voice list hasn't loaded yet, default the language code hint
-                utterance.lang = 'en-IN';
-            }
+            if (targetVoice) utterance.voice = targetVoice;
+            else utterance.lang = 'en-IN';
 
             utterance.rate = 0.85; 
             utterance.pitch = 1.1; 
@@ -304,7 +362,7 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // Redesigned Paths: Array of individual strokes for proper sequential tracing
+    // Redesigned Paths
     const letterPaths = {
         'A': [ [[2,0], [0,4]], [[2,0], [4,4]], [[1,2], [3,2]] ],
         'B': [ [[0,0], [0,4]], [[0,0], [3,0], [4,1], [3,2], [0,2]], [[0,2], [3,2], [4,3], [3,4], [0,4]] ],
@@ -366,18 +424,18 @@
     // Game State
     let gameState = 'START'; 
     let level = 0;
-    let player = { type: 'M', icon: '🧙‍♂️', hp: 300, maxHp: 300, baseDamage: 40, x: 100, y: 300 };
+    let player = { type: 'M', hp: 300, maxHp: 300, baseDamage: 40, x: 100, y: 300, state: 'idle', stateTimer: 0 };
     let monster = { ...monsters[0], hp: 100, maxHp: 100, attackTimer: 3000, maxTimer: 3000, x: 700, y: 300 };
     let lastTime = 0;
     
     // Multi-Stroke Tracing System
-    let tracePoints = []; // Flat array of sequential targets
-    let intendedStrokes = []; // Nested arrays for visual rendering
+    let tracePoints = []; 
+    let intendedStrokes = []; 
     let currentTargetPoint = 0;
     
     let isDrawing = false;
-    let playerTraceLines = []; // Array of drawn strokes
-    let currentTraceLine = []; // The current active drawn stroke
+    let playerTraceLines = []; 
+    let currentTraceLine = []; 
     let traceStartTime = 0;
     
     const TRACE_BOX_SIZE = 250;
@@ -392,7 +450,9 @@
         initAudio(); 
         
         player.type = charType;
-        player.icon = charType === 'M' ? '🧙‍♂️' : '🧙‍♀️';
+        player.state = 'idle';
+        player.stateTimer = 0;
+        
         playerNameTxt.innerText = charType === 'M' ? 'Sorcerer' : 'Witch';
         startScreen.classList.add('hidden');
         uiLayer.classList.remove('hidden');
@@ -490,7 +550,6 @@
         currentTraceLine = [pos];
         playerTraceLines.push(currentTraceLine);
         
-        // Start trace timer only when hitting the first node
         if (currentTargetPoint === 0 && traceStartTime === 0) {
             traceStartTime = performance.now();
         }
@@ -512,7 +571,7 @@
     function handlePointerUp(e) {
         if (gameState !== 'PLAYING') return;
         isDrawing = false;
-        currentTraceLine = []; // Concludes the visual line, but sequence remains active!
+        currentTraceLine = []; 
     }
 
     function checkTraceProgress(pos) {
@@ -521,11 +580,9 @@
         let target = tracePoints[currentTargetPoint];
         let dist = Math.hypot(pos.x - target.x, pos.y - target.y);
         
-        // Use a loop to automatically advance if points overlap (e.g. at corners)
         while (dist < TOLERANCE && currentTargetPoint < tracePoints.length) {
             currentTargetPoint++;
             
-            // Audio pop for successfully hitting a node
             if (audioCtx) {
                 playTone(800 + (currentTargetPoint * 50), 'sine', 0.1, 0.05);
             }
@@ -542,7 +599,6 @@
 
     function finishTrace() {
         const timeTaken = performance.now() - traceStartTime;
-        // Increased ideal time to account for lifting mouse/finger between strokes
         const idealTime = tracePoints.length * 250 + 400; 
         
         let multiplier = idealTime / timeTaken;
@@ -558,7 +614,11 @@
         addFloatingText(rating, width/2, height/2 - 50, color);
         
         playSoundEffect('playerShoot'); 
-        pronounceLetter(monster.letter); // Speak the letter when spell is cast!
+        pronounceLetter(monster.letter); 
+
+        // Trigger Cast Animation State
+        player.state = 'cast';
+        player.stateTimer = 250;
 
         projectiles.push({
             x: player.x + 40, y: player.y, 
@@ -608,6 +668,22 @@
     }
 
     function update(dt) {
+        // Player Animation State Logic
+        if (player.stateTimer > 0) {
+            player.stateTimer -= dt * 1000;
+            if (player.stateTimer <= 0) {
+                if (player.state === 'cast') {
+                    player.state = 'recover';
+                    player.stateTimer = 250;
+                } else if (player.state === 'recover') {
+                    player.state = isDrawing ? 'prep' : 'idle';
+                }
+            }
+        } else {
+            player.state = isDrawing ? 'prep' : 'idle';
+        }
+
+        // Monster Attack Logic
         monster.attackTimer -= dt * 1000;
         if (monster.attackTimer <= 0) {
             monster.attackTimer = monster.maxTimer;
@@ -625,6 +701,7 @@
             });
         }
 
+        // Projectile Updates
         for (let i = projectiles.length - 1; i >= 0; i--) {
             let p = projectiles[i];
             const dx = p.targetX - p.x;
@@ -689,36 +766,57 @@
     function draw() {
         ctx.clearRect(0, 0, width, height);
 
-        ctx.font = "80px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        // Draw Player Character
         const pScale = 1 + Math.sin(performance.now() / 300) * 0.03;
         ctx.save();
         ctx.translate(player.x, player.y);
         ctx.scale(pScale, pScale);
-        ctx.fillText(player.icon, 0, 0);
+
+        let activeSprites = player.type === 'M' ? wizardSprites : witchSprites;
+        let img = activeSprites[player.state];
+        if (img && img.complete) {
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        }
         ctx.restore();
 
+        // Draw Monster
         const mScale = 1 + Math.sin(performance.now() / 400 + 1) * 0.05;
         ctx.save();
         ctx.translate(monster.x, monster.y);
         ctx.scale(mScale, mScale);
+        ctx.font = "80px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.fillText(monster.icon, 0, 0);
         ctx.restore();
 
         drawTracingArea();
 
+        // Draw Projectiles
         for (let p of projectiles) {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
-            ctx.fillStyle = p.color;
-            ctx.fill();
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = p.color;
-            ctx.fill();
-            ctx.shadowBlur = 0;
+            if (p.isPlayer) {
+                let spellImg = player.type === 'M' ? wizardSpellImg : witchSpellImg;
+                if (spellImg.complete && spellImg.width > 0) {
+                    ctx.drawImage(spellImg, p.x - spellImg.width / 2, p.y - spellImg.height / 2);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                }
+            } else {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
         }
 
+        // Draw Particles
         for (let p of particles) {
             ctx.globalAlpha = Math.max(0, p.life);
             ctx.beginPath();
@@ -728,6 +826,7 @@
             ctx.globalAlpha = 1;
         }
 
+        // Draw Floating Text
         ctx.font = "bold 24px 'Nunito', sans-serif";
         for (let ft of floatTexts) {
             ctx.globalAlpha = Math.max(0, ft.life);
@@ -752,7 +851,6 @@
 
         if (intendedStrokes.length === 0) return;
 
-        // Draw intended strokes outline
         ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
         ctx.lineWidth = 15;
         ctx.lineJoin = "round";
@@ -767,7 +865,6 @@
             ctx.stroke();
         }
 
-        // Draw Player Trace lines (Supports broken strokes)
         ctx.strokeStyle = "#c9a5ff";
         ctx.lineWidth = 6;
         ctx.shadowBlur = 10;
@@ -783,21 +880,17 @@
         }
         ctx.shadowBlur = 0;
 
-        // Draw Sequence Checkpoints
         for (let i = 0; i < tracePoints.length; i++) {
             ctx.beginPath();
             ctx.arc(tracePoints[i].x, tracePoints[i].y, 10, 0, Math.PI * 2);
             
             if (i < currentTargetPoint) {
-                // Completed points
                 ctx.fillStyle = "#56ab2f"; 
             } else if (i === currentTargetPoint) {
-                // Next target point
                 ctx.fillStyle = "#ffb75e";
                 ctx.shadowBlur = 15;
                 ctx.shadowColor = "#ffb75e";
             } else {
-                // Future points
                 ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
             }
             ctx.fill();

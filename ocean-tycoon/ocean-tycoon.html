@@ -22,6 +22,7 @@
         height: 100vh;
         background: linear-gradient(to bottom, #00cae9 0%, #005a9c 50%, #001233 100%);
         z-index: 1; 
+        overflow: hidden; /* Prevent animals from causing overflow/shrinking background */
     }
 
     /* Start Screen */
@@ -396,8 +397,8 @@
             vx = savedState.vx;
             vy = savedState.vy;
         } else {
-            x = Math.random() * (window.innerWidth - 100);
-            y = Math.random() * (window.innerHeight - 130);
+            x = Math.random() * (window.innerWidth - 120);
+            y = Math.random() * (window.innerHeight - 150);
             vx = animalDef.speed; 
             vy = (Math.random() > 0.5 ? 1 : -1) * animalDef.speed;
         }
@@ -447,6 +448,11 @@
             if (animObj && animObj.isDragging) {
                 animObj.x = e.clientX - animObj.offsetX;
                 animObj.y = e.clientY - animObj.offsetY;
+                
+                // Keep dragged element within window bounds so it doesn't get lost
+                animObj.x = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, animObj.x));
+                animObj.y = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, animObj.y));
+
                 el.style.left = animObj.x + 'px';
                 el.style.top = animObj.y + 'px';
             }
@@ -457,7 +463,9 @@
             let animObj = activeAnimals.find(a => a.el === el);
             if (animObj) {
                 animObj.isDragging = false;
-                el.releasePointerCapture(e.pointerId);
+                try {
+                    el.releasePointerCapture(e.pointerId);
+                } catch (err) {}
             }
         };
 
@@ -512,30 +520,37 @@
 
     // Animation Loop
     function animate() {
+        const maxX = window.innerWidth;
+        const maxY = window.innerHeight;
+
         activeAnimals.forEach(anim => {
             if (anim.isDragging) return; 
             if (anim.speed === 0) return; 
 
+            // Update bounding dimensions dynamically in case of window resizes
+            const elWidth = anim.el.offsetWidth || 100;
+            const elHeight = anim.el.offsetHeight || 130;
+
             anim.x += anim.vx;
             anim.y += anim.vy;
 
-            // Strict boundary rules to keep animals inside screen
+            // Strict boundary checks using element dimensions to ensure they stay safely within the viewport
             if (anim.x <= 0) {
                 anim.x = 0;
                 anim.vx = Math.abs(anim.vx);
                 anim.el.querySelector('img').style.transform = "scaleX(1)";
-            } else if (anim.x >= window.innerWidth - 100) {
-                anim.x = window.innerWidth - 100;
+            } else if (anim.x >= maxX - elWidth) {
+                anim.x = maxX - elWidth;
                 anim.vx = -Math.abs(anim.vx);
                 anim.el.querySelector('img').style.transform = "scaleX(-1)";
             }
 
             if (anim.y <= 0) {
                 anim.y = 0;
-                anim.vy *= -1;
-            } else if (anim.y >= window.innerHeight - 130) {
-                anim.y = window.innerHeight - 130;
-                anim.vy *= -1;
+                anim.vy = Math.abs(anim.vy);
+            } else if (anim.y >= maxY - elHeight) {
+                anim.y = maxY - elHeight;
+                anim.vy = -Math.abs(anim.vy);
             }
 
             anim.el.style.left = anim.x + 'px';

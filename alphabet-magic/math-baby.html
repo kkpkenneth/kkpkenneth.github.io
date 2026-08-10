@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Baby</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 2.2rem;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .question-box {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 1.5rem 0;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+
+        #feedback {
+            font-weight: 600;
+            height: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .correct { color: var(--success); }
+        .incorrect { color: var(--error); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Starting Screen -->
+        <div id="start-screen">
+            <h1>Math Baby 👶🔢</h1>
+            <p>Progress from systematic addition tables all the way to random challenges!</p>
+            <button class="btn" onclick="startQuiz('numbers')">Play with Numbers 🔢</button>
+            <button class="btn btn-secondary" onclick="startQuiz('emojis')">Play with Emojis 🍎</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="stats">
+                <span id="stage-indicator">Level 1</span>
+                <span id="score-counter">Score: 0</span>
+            </div>
+            <div id="question-box" class="question-box">1 + 1 = ?</div>
+            <form id="answer-form" onsubmit="submitAnswer(event)">
+                <input type="number" id="user-answer" autocomplete="off" autofocus required>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+            <div id="feedback"></div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="hidden">
+            <h1>Quiz Complete! 🎉</h1>
+            <p id="final-score-text">You finished all levels successfully.</p>
+            <button class="btn" onclick="resetQuiz()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API Sound Synthesizer
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+
+            if (type === 'correct') {
+                playTone(523.25, 0.1, 0);     // C5
+                playTone(659.25, 0.15, 0.1);  // E5
+            } else if (type === 'incorrect') {
+                playTone(200, 0.2, 0, 'sawtooth');
+                playTone(150, 0.2, 0.1, 'sawtooth');
+            } else if (type === 'complete') {
+                playTone(523.25, 0.1, 0);     // C5
+                playTone(659.25, 0.1, 0.1);   // E5
+                playTone(783.99, 0.1, 0.2);   // G5
+                playTone(1046.50, 0.3, 0.3);  // C6
+            }
+        }
+
+        function playTone(freq, duration, delay, waveType = 'sine') {
+            setTimeout(() => {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = waveType;
+                osc.frequency.value = freq;
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }, delay * 1000);
+        }
+
+        // Quiz Logic
+        let gameMode = 'numbers'; // 'numbers' or 'emojis'
+        let currentStage = 1;
+        let score = 0;
+        let currentPairIndex = 0;
+        let pairs = [];
+        let currentQuestion = {};
+        let currentQuestionEmoji = '🍎';
+        const emojiPool = ['🍎', '🍌', '⭐', '🐱', '⚽', '🚀', '🍬', '🐶', '🍕', '🎈'];
+
+        function getRandomEmoji() {
+            return emojiPool[Math.floor(Math.random() * emojiPool.length)];
+        }
+
+        function startQuiz(mode) {
+            initAudio();
+            gameMode = mode;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentStage = 1;
+            score = 0;
+            loadStage();
+        }
+
+        function loadStage() {
+            currentPairIndex = 0;
+            pairs = generatePairsForStage(currentStage);
+            nextQuestion();
+        }
+
+        function generatePairsForStage(stage) {
+            let generated = [];
+            if (gameMode === 'numbers') {
+                if (stage === 1) {
+                    for (let b = 1; b <= 9; b++) generated.push({ a: 0, b: b });
+                } else if (stage === 2) {
+                    for (let b = 1; b <= 9; b++) generated.push({ a: 1, b: b });
+                } else if (stage === 3) {
+                    for (let b = 1; b <= 8; b++) generated.push({ a: 2, b: b });
+                } else if (stage === 4) {
+                    for (let i = 1; i <= 9; i++) generated.push({ a: 1, b: i });
+                    for (let i = 1; i <= 8; i++) generated.push({ a: 2, b: i });
+                    for (let i = 1; i <= 7; i++) generated.push({ a: 3, b: i });
+                    generated.sort(() => Math.random() - 0.5);
+                } else if (stage === 5) {
+                    for (let i = 0; i < 10; i++) {
+                        let a = Math.floor(Math.random() * 10);
+                        let b = Math.floor(Math.random() * 10);
+                        generated.push({ a: a, b: b });
+                    }
+                }
+            } else {
+                if (stage === 1) {
+                    for (let b = 1; b <= 9; b++) generated.push({ a: 1, b: b });
+                } else if (stage === 2) {
+                    for (let b = 1; b <= 8; b++) generated.push({ a: 2, b: b });
+                } else if (stage === 3) {
+                    for (let i = 1; i <= 9; i++) generated.push({ a: 1, b: i });
+                    for (let i = 1; i <= 8; i++) generated.push({ a: 2, b: i });
+                    for (let i = 1; i <= 7; i++) generated.push({ a: 3, b: i });
+                    generated.sort(() => Math.random() - 0.5);
+                } else if (stage === 4) {
+                    for (let i = 0; i < 10; i++) {
+                        let a = Math.floor(Math.random() * 10);
+                        let b = Math.floor(Math.random() * 10);
+                        generated.push({ a: a, b: b });
+                    }
+                }
+            }
+            return generated;
+        }
+
+        function formatOperand(num, emoji) {
+            if (gameMode === 'numbers' || num === 0) {
+                return num;
+            }
+            return emoji.repeat(num);
+        }
+
+        function nextQuestion() {
+            const maxStages = gameMode === 'numbers' ? 5 : 4;
+            if (currentPairIndex >= pairs.length) {
+                currentStage++;
+                if (currentStage > maxStages) {
+                    endQuiz();
+                    return;
+                }
+                loadStage();
+                return;
+            }
+
+            currentQuestion = pairs[currentPairIndex];
+            currentQuestionEmoji = getRandomEmoji();
+
+            const displayA = formatOperand(currentQuestion.a, currentQuestionEmoji);
+            const displayB = formatOperand(currentQuestion.b, currentQuestionEmoji);
+
+            document.getElementById('question-box').innerHTML = `${displayA} + ${displayB} = ?`;
+            document.getElementById('stage-indicator').innerText = `Level ${currentStage}`;
+            document.getElementById('score-counter').innerText = `Score: ${score}`;
+            document.getElementById('user-answer').value = '';
+            document.getElementById('feedback').innerText = '';
+            document.getElementById('user-answer').focus();
+        }
+
+        function submitAnswer(event) {
+            event.preventDefault();
+            const userAnswer = parseInt(document.getElementById('user-answer').value);
+            const correctAnswer = currentQuestion.a + currentQuestion.b;
+            const feedbackEl = document.getElementById('feedback');
+            const displayA = formatOperand(currentQuestion.a, currentQuestionEmoji);
+            const displayB = formatOperand(currentQuestion.b, currentQuestionEmoji);
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                playSound('correct');
+                feedbackEl.innerText = "Correct! Great job.";
+                feedbackEl.className = "correct";
+                currentPairIndex++;
+                setTimeout(nextQuestion, 600);
+            } else {
+                playSound('incorrect');
+                feedbackEl.innerText = `Incorrect. ${displayA} + ${displayB} = ${correctAnswer}`;
+                feedbackEl.className = "incorrect";
+                currentPairIndex++;
+                setTimeout(nextQuestion, 1200);
+            }
+        }
+
+        function endQuiz() {
+            playSound('complete');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score-text').innerText = `Amazing work! You finished all levels with a total score of ${score}.`;
+        }
+
+        function resetQuiz() {
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

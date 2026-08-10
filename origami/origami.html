@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Art of Origami | A Soothing Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Soothing, elegant color palette */
+            --bg-color: #f7f5f0;       
+            --card-bg: #ffffff;
+            --text-primary: #3c3c3c;   
+            --text-secondary: #7a7a7a; 
+            --accent-color: #b5c1b4;   
+            --accent-hover: #9eac9d;
+            --border-color: #e6e4de;
+            --correct-color: #d4e1d3;  
+            --wrong-color: #e8d0d0;    
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Lato', sans-serif;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .audio-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .audio-controls:hover {
+            background-color: var(--card-bg);
+            border-color: var(--accent-color);
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 650px;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 25px;
+            left: 30px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            display: none; 
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* Screens */
+        #start-screen { display: block; }
+        #quiz-content { display: none; }
+        #result-container { display: none; }
+
+        .intro-text {
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            padding: 0 20px;
+        }
+
+        #question-text {
+            font-size: 1.2rem;
+            font-weight: 400;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: var(--bg-color);
+            border-color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .option-btn:focus { outline: none; }
+        .option-btn:disabled { cursor: default; }
+
+        .option-btn.correct {
+            background-color: var(--correct-color);
+            border-color: #a3c2a0;
+            color: #2e4a2b;
+            font-weight: 700;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-color);
+            border-color: #c9a5a5;
+            color: #5c3030;
+        }
+
+        /* Explanation Box */
+        #explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .explanation-title {
+            font-weight: 700;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--accent-hover);
+        }
+
+        #progress-text {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        .score-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .action-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-family: 'Lato', sans-serif;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.next-btn {
+            display: none;
+            margin: 20px auto 0 auto;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Music Audio Tag (Still requires the actual file to be present) -->
+    <audio id="bgm" src="traditional-japanese.mp3" loop></audio>
+
+    <button class="audio-controls" id="audio-toggle" onclick="toggleAudio()" title="Toggle Background Music">
+        🔇
+    </button>
+
+    <div class="quiz-container">
+        <div class="score-display" id="live-score">Score: 0 / 20</div>
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="fade-in">
+            <h1>The Art of Origami</h1>
+            <div class="subtitle">A gentle journey through paper folding</div>
+            <p class="intro-text">
+                Welcome to a quiet exploration of geometry, precision, and patience. Prepare yourself for twenty questions covering the rich history, fundamental bases, and intricate techniques of this ancient Japanese art form.
+            </p>
+            <button class="action-btn" onclick="startQuiz()">Begin Journey</button>
+        </div>
+
+        <!-- Quiz Content -->
+        <div id="quiz-content">
+            <h1 style="font-size: 2rem;">The Art of Origami</h1>
+            <div class="subtitle" style="margin-bottom: 20px; font-size: 1rem;">A gentle journey through paper folding</div>
+
+            <div id="question-text" class="fade-in">Question goes here...</div>
+            <div class="options-grid" id="options-container">
+                <!-- Options injected via JS -->
+            </div>
+            
+            <div id="explanation-box" class="fade-in">
+                <div class="explanation-title" id="explanation-title">Insight</div>
+                <div id="explanation-text">Explanation goes here.</div>
+            </div>
+
+            <button class="action-btn next-btn" id="next-btn" onclick="nextQuestion()">Next Fold</button>
+
+            <div id="progress-text">Question 1 of 20</div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-container" class="fade-in">
+            <h1>The Art of Origami</h1>
+            <div class="score-text" id="final-score">You scored 0 out of 20.</div>
+            <p id="result-message" style="margin-bottom: 30px; line-height: 1.8; color: var(--text-secondary);"></p>
+            <button class="action-btn" onclick="restartQuiz()">Fold Again</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "The Japanese word 'origami' translates exactly to what in English?", options: ["Paper magic", "Folding paper", "Art of paper", "Crane spirit"], correct: 1, explanation: "The word derives from the Japanese words 'ori' (meaning folding) and 'kami' (meaning paper)." },
+            { question: "Which elegant bird is considered the most iconic traditional origami model and a symbol of peace?", options: ["The Swan", "The Owl", "The Crane", "The Dove"], correct: 2, explanation: "The paper crane (orizuru) is deeply tied to Japanese culture, representing peace, hope, and healing, famously associated with the story of Sadako Sasaki." },
+            { question: "Which fundamental fold involves folding the paper toward you, creating a shape resembling a 'V' or a ditch?", options: ["Mountain Fold", "Valley Fold", "Reverse Fold", "Crimp Fold"], correct: 1, explanation: "A valley fold forms a trough or a 'V' shape, as the paper is folded towards you and the crease rests at the bottom." },
+            { question: "Conversely, which basic fold is created by folding the paper away from you, forming an inverted 'V' or a peak?", options: ["Valley Fold", "Squash Fold", "Mountain Fold", "Pleat Fold"], correct: 2, explanation: "A mountain fold creates a ridge or peak, forming an inverted 'V' as the paper is folded away from you." },
+            { question: "What is the name of the technique where paper is folded, unfolded, and folded again to create a preparatory guideline?", options: ["Pre-creasing", "Ghost folding", "Scoring", "Mapping"], correct: 0, explanation: "Pre-creasing builds structural memory in the paper, creating essential guidelines that make subsequent complex folds much easier and more precise." },
+            { question: "Which fold involves opening a flap and flattening it evenly, frequently used to create symmetrical shapes like the frog base?", options: ["Rabbit Ear Fold", "Squash Fold", "Sink Fold", "Petal Fold"], correct: 1, explanation: "A squash fold involves prying open a closed flap of paper and pressing it flat symmetrically, often used to transition between different structural bases." },
+            { question: "Which technique requires pushing a point inside between the layers of the paper, commonly used to fashion a bird's beak or a head?", options: ["Inside Reverse Fold", "Outside Reverse Fold", "Pleat Fold", "Crimp Fold"], correct: 0, explanation: "By pushing the tip of the paper inward between its own layers, you invert the fold completely—perfect for forming limbs, beaks, or animal heads." },
+            { question: "Which advanced fold wraps a flap around the outside of a model, altering the direction of a point?", options: ["Inside Reverse Fold", "Outside Reverse Fold", "Sink Fold", "Rabbit Ear Fold"], correct: 1, explanation: "Unlike the inside reverse, the outside reverse fold turns the paper inside out by wrapping the outer layers around the outside of the model." },
+            { question: "Which fold pinches a corner in half to create a slender, new flap that resembles an animal's appendage?", options: ["Petal Fold", "Squash Fold", "Rabbit Ear Fold", "Pleat Fold"], correct: 2, explanation: "The rabbit ear fold narrows a flap by folding three intersecting creases simultaneously, resulting in a long, ear-like point." },
+            { question: "Famously used in the traditional crane, which fold lifts a point up and flattens the sides inward to form an elongated diamond?", options: ["Petal Fold", "Crimp Fold", "Sink Fold", "Squash Fold"], correct: 0, explanation: "The petal fold is famously the key step in creating the Bird Base, lifting a flat point up and collapsing the sides into an elongated diamond." },
+            { question: "In strict, traditional origami, which of the following practices is inherently avoided?", options: ["Using square paper", "Folding diagonally", "Making creases", "Cutting the paper"], correct: 3, explanation: "Pure traditional origami relies strictly on folding a single sheet of square paper. Cutting is instead associated with the related art of 'kirigami'." },
+            { question: "What technique uses a combination of a mountain and a valley fold to zig-zag or step the paper, often used for animal legs?", options: ["Sink Fold", "Crimp Fold", "Rabbit Ear Fold", "Pleat Fold"], correct: 1, explanation: "A crimp fold essentially offsets a section of the paper, using adjacent mountain and valley creases to create joints like knees, elbows, or snouts." },
+            { question: "Which basic origami base resembles a diamond and is formed by folding two adjacent edges to the center diagonal line?", options: ["Preliminary Base", "Waterbomb Base", "Kite Base", "Bird Base"], correct: 2, explanation: "The Kite Base is one of the simplest starting points in origami, resembling the shape of a traditional flying kite." },
+            { question: "Which classic base is formed into an isosceles right triangle with four flaps, often used to create inflatable models?", options: ["Waterbomb Base", "Preliminary Base", "Bird Base", "Frog Base"], correct: 0, explanation: "Also known as the Balloon Base, the Waterbomb Base has four triangular flaps and is the starting point for traditional inflatable paper balloons." },
+            { question: "Which fundamental base is a simple square with four distinct flaps, formed by alternating two valley and two mountain folds?", options: ["Kite Base", "Frog Base", "Waterbomb Base", "Preliminary Base"], correct: 3, explanation: "Also known as the Square Base, it relies on two diagonal valley folds and two horizontal/vertical mountain folds intersecting at the center." },
+            { question: "Which base is built upon the Preliminary Base and requires two precise Petal Folds?", options: ["Bird Base", "Frog Base", "Kite Base", "Waterbomb Base"], correct: 0, explanation: "The Bird Base is essential for folding the classic crane and builds directly upon the square Preliminary Base using two petal folds." },
+            { question: "What is a series of alternating mountain and valley folds, often used to create an accordion-like texture or leaves?", options: ["Sink Fold", "Crimp Fold", "Pleat Fold", "Reverse Fold"], correct: 2, explanation: "Pleat folding cascades multiple mountain and valley folds sequentially to create accordion-like ripples, texture, or tiered shapes." },
+            { question: "What complex maneuver involves pushing a point of paper completely inside the model, blunting a point without opening the structure?", options: ["Squash Fold", "Sink Fold", "Inside Reverse Fold", "Crimp Fold"], correct: 1, explanation: "A sink fold is an advanced and delicate technique used to cleanly flatten or blunt a closed point by pushing it completely inside the model." },
+            { question: "Which complex base builds upon the Preliminary Base using four Squash Folds and four Petal Folds?", options: ["Bird Base", "Frog Base", "Waterbomb Base", "Kite Base"], correct: 1, explanation: "The Frog Base is highly complex, transforming the Preliminary Base into an intricate octagonal shape with eight distinct, usable flaps." },
+            { question: "Akira Yoshizawa, known as the grandmaster of origami, is universally famous for creating what?", options: ["The world's largest paper crane", "The standard system of folding symbols and diagrams", "The first origami machine", "Water-resistant paper"], correct: 1, explanation: "Yoshizawa revolutionized the art form in the 20th century by developing the standard system of dotted and dashed lines (the Yoshizawa-Randlett system) still used in diagrams today." }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let isAudioPlaying = false;
+        
+        // Audio Context setup (for synthesized sound effects)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        // DOM Elements
+        const startScreenEl = document.getElementById("start-screen");
+        const quizContentEl = document.getElementById("quiz-content");
+        const resultContainerEl = document.getElementById("result-container");
+        const questionEl = document.getElementById("question-text");
+        const optionsEl = document.getElementById("options-container");
+        const progressEl = document.getElementById("progress-text");
+        const liveScoreEl = document.getElementById("live-score");
+        const finalScoreEl = document.getElementById("final-score");
+        const resultMessageEl = document.getElementById("result-message");
+        const explanationBoxEl = document.getElementById("explanation-box");
+        const explanationTitleEl = document.getElementById("explanation-title");
+        const explanationTextEl = document.getElementById("explanation-text");
+        const nextBtnEl = document.getElementById("next-btn");
+        const toggleBtn = document.getElementById("audio-toggle");
+        const bgm = document.getElementById("bgm");
+
+        //background music volume
+        bgm.volume = 0.5; 
+
+        // Sound Synthesis Functions
+        function playSynth(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+
+            if (type === 'hover') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gainNode.gain.setValueAtTime(0.02, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } 
+            else if (type === 'click') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } 
+            else if (type === 'correct') {
+                // Play a quick, pleasant arpeggio (C5, E5, G5)
+                const notes = [523.25, 659.25, 783.99]; 
+                notes.forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'sine';
+                    o.frequency.value = freq;
+                    
+                    const time = now + (i * 0.1);
+                    g.gain.setValueAtTime(0, time);
+                    g.gain.linearRampToValueAtTime(0.1, time + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+                    
+                    o.start(time);
+                    o.stop(time + 0.4);
+                });
+            } 
+            else if (type === 'incorrect') {
+                // Low, slightly discordant thud
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        function startQuiz() {
+            playSynth('click');
+            startScreenEl.style.display = "none";
+            quizContentEl.style.display = "block";
+            liveScoreEl.style.display = "block";
+            
+            if (!isAudioPlaying) {
+                toggleAudio();
+            }
+
+            loadQuestion();
+        }
+
+        function toggleAudio() {
+            playSynth('click');
+            if (isAudioPlaying) {
+                bgm.pause();
+                toggleBtn.innerHTML = "🔇";
+                toggleBtn.style.color = "var(--text-secondary)";
+            } else {
+                bgm.play().catch(e => console.log("Ensure traditional-japanese.mp3 is present in your folder."));
+                toggleBtn.innerHTML = "♪";
+                toggleBtn.style.color = "var(--accent-color)";
+            }
+            isAudioPlaying = !isAudioPlaying;
+        }
+
+        function loadQuestion() {
+            explanationBoxEl.style.display = "none";
+            nextBtnEl.style.display = "none";
+            
+            questionEl.classList.remove("fade-in");
+            optionsEl.classList.remove("fade-in");
+            void questionEl.offsetWidth; 
+            questionEl.classList.add("fade-in");
+            optionsEl.classList.add("fade-in");
+
+            const currentQuizData = quizData[currentQuestion];
+            questionEl.innerText = currentQuizData.question;
+            progressEl.innerText = `Question ${currentQuestion + 1} of ${quizData.length}`;
+            liveScoreEl.innerText = `Score: ${score} / ${quizData.length}`;
+
+            optionsEl.innerHTML = "";
+            currentQuizData.options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                button.classList.add("option-btn");
+                
+                button.addEventListener('mouseenter', () => playSynth('hover'));
+                button.onclick = () => selectOption(index, button);
+                
+                optionsEl.appendChild(button);
+            });
+        }
+
+        function selectOption(selectedIndex, btnElement) {
+            playSynth('click');
+
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            const currentQuizData = quizData[currentQuestion];
+            const isCorrect = (selectedIndex === currentQuizData.correct);
+            
+            if (isCorrect) {
+                score++;
+                setTimeout(() => playSynth('correct'), 100);
+                btnElement.classList.add('correct');
+                liveScoreEl.innerText = `Score: ${score} / ${quizData.length}`;
+                explanationTitleEl.innerText = "Correct! 🌿";
+                explanationTitleEl.style.color = "#4d7a48";
+            } else {
+                setTimeout(() => playSynth('incorrect'), 100);
+                btnElement.classList.add('wrong');
+                allButtons[currentQuizData.correct].classList.add('correct');
+                explanationTitleEl.innerText = "Not quite. 🍂";
+                explanationTitleEl.style.color = "#8a5c5c";
+            }
+
+            explanationTextEl.innerText = currentQuizData.explanation;
+            
+            explanationBoxEl.classList.remove("fade-in");
+            void explanationBoxEl.offsetWidth;
+            explanationBoxEl.style.display = "block";
+            explanationBoxEl.classList.add("fade-in");
+
+            nextBtnEl.style.display = "block";
+            nextBtnEl.classList.add("fade-in");
+        }
+
+        function nextQuestion() {
+            playSynth('click');
+            currentQuestion++;
+            
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizContentEl.style.display = "none";
+            liveScoreEl.style.display = "none";
+            resultContainerEl.style.display = "block";
+            
+            finalScoreEl.innerText = `You scored ${score} out of ${quizData.length}.`;
+            
+            let message = "";
+            if (score === quizData.length) {
+                message = "Absolute perfection. You possess the patience, precision, and deep understanding of a true origami master.";
+            } else if (score >= 15) {
+                message = "Beautifully done. You have a graceful understanding of the intricate folds and history of this art.";
+            } else if (score >= 10) {
+                message = "A commendable effort. Like a complex fold, mastery takes time and delicate practice.";
+            } else {
+                message = "Every crease is a learning experience. Return to the fundamental bases, and may your next attempts be ever more precise.";
+            }
+            resultMessageEl.innerText = message;
+        }
+
+        function restartQuiz() {
+            playSynth('click');
+            currentQuestion = 0;
+            score = 0;
+            resultContainerEl.style.display = "none";
+            quizContentEl.style.display = "block";
+            liveScoreEl.style.display = "block";
+            loadQuestion();
+        }
+    </script>
+</body>
+</html>

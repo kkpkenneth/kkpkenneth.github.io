@@ -11,17 +11,20 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            justify-content: center; /* Vertically centers everything on the phone */
+            align-items: center;     /* Horizontally centers everything */
+            min-height: 100dvh;      /* Uses dynamic viewport height to fit mobile screens perfectly */
             margin: 0;
             padding: 10px;
-            overflow-x: hidden;
+            box-sizing: border-box;
+            overflow: hidden;        /* Prevents accidental scrolling */
             user-select: none;
             -webkit-user-select: none;
-            touch-action: none; /* Prevents pull-to-refresh and zooming */
+            touch-action: none;      /* Prevents pull-to-refresh and zooming */
         }
 
         h1 {
-            margin: 10px 0;
+            margin: 0 0 15px 0;
             text-transform: uppercase;
             letter-spacing: 2px;
             font-size: 1.5rem;
@@ -36,7 +39,9 @@
             background: radial-gradient(circle at center, #1f2833 0%, #0b0c10 100%);
             width: 100%;
             max-width: 800px;
-            aspect-ratio: 4 / 3; /* Maintains the 800x600 ratio */
+            /* Ensures it scales down to fit horizontally or vertically without breaking */
+            max-height: calc(100dvh - 80px); 
+            aspect-ratio: 4 / 3; 
             overflow: hidden;
         }
 
@@ -512,7 +517,7 @@
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // Number the active dot ONLY, showing the current step number in the sequence
+                // Number the active dot ONLY
                 if (index === progress && state === 'PLAYING') {
                     ctx.font = "12px 'Segoe UI', monospace";
                     ctx.textAlign = "center";

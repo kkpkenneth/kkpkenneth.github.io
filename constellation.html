@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Starlight Tracer</title>
+    <style>
+        body {
+            background-color: #0b0c10;
+            color: #66fcf1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 10px;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none; /* Prevents pull-to-refresh and zooming */
+        }
+
+        h1 {
+            margin: 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+            text-align: center;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 30px rgba(102, 252, 241, 0.15);
+            border-radius: 10px;
+            background: radial-gradient(circle at center, #1f2833 0%, #0b0c10 100%);
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 4 / 3; /* Maintains the 800x600 ratio */
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #45a29e;
+            border-radius: 10px;
+            cursor: crosshair;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            pointer-events: none;
+            text-shadow: 1px 1px 3px #000;
+            z-index: 5;
+        }
+
+        #ui-layer h2 { margin: 0 0 2px 0; font-size: 1.2rem; }
+        #ui-layer h3 { margin: 0 0 5px 0; font-size: 1rem; color: #45a29e; letter-spacing: 1px; text-transform: uppercase; }
+        #ui-layer p { margin: 0; font-size: 0.85rem; color: #c5c6c7; }
+
+        /* Panels / Overlays */
+        .overlay-panel {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 12, 16, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .overlay-panel.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #start-screen {
+            background: #0b0c10;
+            z-index: 20;
+        }
+
+        .overlay-panel h2 {
+            font-size: 1.8rem; margin-bottom: 5px;
+            text-shadow: 0 0 15px #66fcf1;
+        }
+
+        .overlay-panel h4 {
+            font-size: 1rem; margin-top: 0; color: #45a29e;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .overlay-panel p {
+            font-size: 1rem; color: #c5c6c7;
+            max-width: 600px; line-height: 1.4; margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex; 
+            gap: 15px; 
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Buttons */
+        button {
+            background-color: #45a29e; color: #0b0c10;
+            border: none; padding: 12px 20px;
+            font-size: 1rem; font-weight: bold; border-radius: 5px;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s ease; margin: 5px;
+            touch-action: manipulation; /* Optimizes touch responsiveness */
+        }
+
+        button:hover, button:active {
+            background-color: #66fcf1;
+            box-shadow: 0 0 15px rgba(102, 252, 241, 0.6);
+            transform: scale(1.02);
+        }
+        
+        .secondary-btn {
+            background-color: transparent;
+            color: #45a29e;
+            border: 2px solid #45a29e;
+        }
+        
+        .secondary-btn:hover, .secondary-btn:active {
+            background-color: rgba(69, 162, 158, 0.2);
+            color: #66fcf1;
+        }
+
+        /* Quiz Specific Styles */
+        #quiz-options {
+            display: flex; flex-direction: column; gap: 10px; margin-top: 15px;
+            width: 100%; max-width: 300px;
+        }
+        .quiz-btn { width: 100%; padding: 12px; font-size: 0.95rem; margin: 0; }
+        
+        .wrong-shake {
+            animation: shake 0.4s;
+            background-color: #ff4757 !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.6) !important;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media (max-height: 500px) {
+            .overlay-panel p { margin-bottom: 5px; font-size: 0.85rem; }
+            .overlay-panel h2 { font-size: 1.4rem; }
+            button { padding: 8px 15px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Starlight Tracer</h1>
+
+    <div id="game-container">
+        <!-- Internal resolution remains 800x600 for coordinate mapping -->
+        <canvas id="skyCanvas" width="800" height="600"></canvas>
+        
+        <div id="ui-layer">
+            <h2 id="level-indicator">Level 1 / 88</h2>
+            <h3 id="mode-title">Mystery Constellation</h3>
+            <p id="instruction-text">Click the active flashing star to trace.</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="overlay-panel active">
+            <h2>Starlight Tracer</h2>
+            <p>Select your journey.</p>
+            <div class="button-group">
+                <button id="mode-trace-btn">Tracing Mode</button>
+                <button id="mode-quiz-btn">Quiz Mode</button>
+            </div>
+            <p style="font-size: 0.85rem; margin-top: 20px;">
+                <strong>Tracing:</strong> Relax and trace known constellations.<br>
+                <strong>Quiz:</strong> Trace mystery shapes, then test your knowledge.
+            </p>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-overlay" class="overlay-panel">
+            <h2>Constellation Complete!</h2>
+            <p>Which constellation did you just trace?</p>
+            <div id="quiz-options"></div>
+        </div>
+
+        <!-- Information Screen -->
+        <div id="info-overlay" class="overlay-panel">
+            <h2 id="constellation-name">Name</h2>
+            <h4 id="constellation-type">Type</h4>
+            <p id="completion-msg">Message</p>
+            <div class="button-group">
+                <button id="menu-btn" class="secondary-btn">Menu</button>
+                <button id="next-btn">Next Star</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Context Setup
+        let audioCtx;
+        const cMajorScale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]; // C4 to C5
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playStarNote(index) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            const octaveShift = Math.floor(index / 8);
+            const baseFreq = cMajorScale[index % 8];
+            const finalFreq = baseFreq * Math.pow(2, octaveShift);
+
+            osc.type = 'sine';
+            osc.frequency.value = finalFreq;
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); 
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function playFeedbackChord(isCorrect) {
+            if (!audioCtx) return;
+            const frequencies = isCorrect ? [261.63, 329.63, 392.00] : [150, 160]; 
+            
+            frequencies.forEach(freq => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = isCorrect ? 'triangle' : 'sawtooth';
+                osc.frequency.value = freq;
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (isCorrect ? 1.5 : 0.5));
+                osc.stop(audioCtx.currentTime + 2);
+            });
+        }
+
+        // Canvas Setup
+        const canvas = document.getElementById('skyCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elements
+        const levelIndicator = document.getElementById('level-indicator');
+        const modeTitle = document.getElementById('mode-title');
+        const startScreen = document.getElementById('start-screen');
+        const quizOverlay = document.getElementById('quiz-overlay');
+        const infoOverlay = document.getElementById('info-overlay');
+        const quizOptionsContainer = document.getElementById('quiz-options');
+        
+        // Buttons
+        const modeTraceBtn = document.getElementById('mode-trace-btn');
+        const modeQuizBtn = document.getElementById('mode-quiz-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const menuBtn = document.getElementById('menu-btn');
+
+        // Game State
+        let currentLevel = 0;
+        let progress = 0; 
+        let mouseX = 0;
+        let mouseY = 0;
+        let state = 'START'; 
+        let gameMode = 'TRACE';
+        let bgStars = [];
+
+        // 88 Modern Constellations Database (Compact Format)
+        const rawConstellations = [
+            { n: "Ursa Major", t: "Ursa Major Family", d: "The Great Bear, featuring the famous Big Dipper asterism. A cornerstone of northern navigation.", s: [[680,150], [580,220], [480,260], [370,290], [310,430], [160,390], [200,250], [370,290]] },
+            { n: "Orion", t: "Orion Family", d: "The Hunter. One of the most recognizable constellations, containing the bright stars Rigel and Betelgeuse.", s: [[400,150], [350,250], [450,250], [370,350], [400,350], [430,350], [330,480], [470,480]] },
+            { n: "Cassiopeia", t: "Perseus Family", d: "The Seated Queen. Forms a distinct 'W' shape in the northern sky.", s: [[150,220], [280,400], [420,240], [580,430], [720,180]] },
+            { n: "Crux", t: "Hercules Family", d: "The Southern Cross. The smallest but one of the most famous constellations, used for southern navigation.", s: [[400,150], [300,300], [500,300], [400,500]] },
+            { n: "Scorpius", t: "Zodiac Family", d: "The Scorpion. Features a sweeping hook shape and the bright red supergiant star Antares.", s: [[600,150], [550,250], [480,300], [450,400], [480,500], [550,550], [620,500], [600,450]] },
+            { n: "Cygnus", t: "Hercules Family", d: "The Swan. Flies southward along the Milky Way, forming the Northern Cross.", s: [[400,500], [400,350], [400,150], [400,350], [200,300], [400,350], [600,300]] },
+            { n: "Taurus", t: "Zodiac Family", d: "The Bull. Home to the Pleiades and Hyades star clusters.", s: [[250,200], [350,300], [450,300], [550,200], [450,300], [500,450]] },
+            { n: "Leo", t: "Zodiac Family", d: "The Lion. Identified by the 'sickle' asterism that forms the lion's head and mane.", s: [[600,400], [500,450], [400,400], [450,300], [550,250], [650,250], [600,350]] },
+            { n: "Canis Major", t: "Orion Family", d: "The Great Dog. Contains Sirius, the brightest star in the night sky.", s: [[300,200], [400,300], [500,350], [450,450], [550,500], [350,400], [250,450]] },
+            { n: "Pegasus", t: "Perseus Family", d: "The Winged Horse. Best known for the Great Square of Pegasus asterism.", s: [[300,200], [500,200], [500,400], [300,400], [300,200], [150,300], [200,450]] },
+            { n: "Lyra", t: "Hercules Family", d: "The Lyre. Represents a musical instrument and holds the brilliant star Vega.", s: [[400,150], [350,250], [450,250], [420,350], [380,350], [350,250]] },
+            { n: "Aquila", t: "Hercules Family", d: "The Eagle. Carried the thunderbolts of Jupiter in Greco-Roman mythology.", s: [[400,200], [300,300], [500,300], [400,400], [400,500]] },
+            { n: "Virgo", t: "Zodiac Family", d: "The Virgin. The second-largest constellation in the sky, containing the star Spica.", s: [[200,250], [350,300], [450,400], [550,350], [650,450], [700,350]] },
+            { n: "Gemini", t: "Zodiac Family", d: "The Twins. Represents Castor and Pollux from Greek mythology.", s: [[300,200], [350,400], [400,450], [350,400], [450,200], [400,400]] },
+            { n: "Centaurus", t: "Hercules Family", d: "The Centaur. A large southern constellation containing Alpha Centauri.", s: [[250,250], [350,300], [450,200], [500,350], [400,450], [300,400]] },
+            { n: "Bootes", t: "Ursa Major Family", d: "The Herdsman. Shaped like a kite, featuring the bright orange star Arcturus.", s: [[400,500], [350,350], [300,250], [400,150], [500,250], [450,350], [400,500]] },
+            { n: "Sagittarius", t: "Zodiac Family", d: "The Archer. Points its arrow toward the center of the Milky Way.", s: [[250,400], [350,300], [450,350], [400,450], [300,500], [350,300], [500,250]] },
+            { n: "Aries", t: "Zodiac Family", d: "The Ram. A relatively small, distinct line of three main stars.", s: [[300,400], [400,350], [500,250], [600,200]] },
+            { n: "Andromeda", t: "Perseus Family", d: "The Chained Maiden. Contains the Andromeda Galaxy, our closest spiral galaxy neighbor.", s: [[200,400], [300,350], [400,300], [500,250], [600,200]] },
+            { n: "Draco", t: "Ursa Major Family", d: "The Dragon. Winds its long tail between the two bears in the northern sky.", s: [[250,150], [300,200], [250,250], [350,300], [450,250], [550,300], [600,400], [550,500]] },
+            { n: "Libra", t: "Zodiac Family", d: "The Scales. The only zodiac constellation representing an inanimate object.", s: [[300,300], [400,200], [500,300], [400,400], [300,300]] },
+            { n: "Cancer", t: "Zodiac Family", d: "The Crab. The dimmest of the zodiac constellations, holding the Beehive Cluster.", s: [[350,350], [400,250], [450,350], [550,400], [450,350], [400,450]] },
+            { n: "Capricornus", t: "Zodiac Family", d: "The Sea-Goat. A mythical creature that is half-goat, half-fish.", s: [[200,200], [350,300], [500,350], [650,300], [550,200], [400,150], [200,200]] },
+            { n: "Aquarius", t: "Zodiac Family", d: "The Water Bearer. Represents a man pouring water from a jar.", s: [[250,250], [350,200], [450,250], [400,350], [300,450], [500,500]] },
+            { n: "Pisces", t: "Zodiac Family", d: "The Fishes. Two fish tied together by a cosmic cord.", s: [[200,400], [300,450], [400,400], [450,300], [400,200], [500,150], [600,200]] },
+            { n: "Auriga", t: "Perseus Family", d: "The Charioteer. A prominent pentagon shape containing the star Capella.", s: [[400,150], [500,250], [450,400], [350,400], [300,250], [400,150]] },
+            { n: "Perseus", t: "Perseus Family", d: "The Hero. Famous for the Perseid meteor shower and the 'Demon Star' Algol.", s: [[400,150], [350,250], [250,350], [350,250], [450,350], [550,450]] },
+            { n: "Hercules", t: "Hercules Family", d: "The Strongman. Notable for its central 'Keystone' asterism.", s: [[350,250], [450,250], [480,350], [320,350], [350,250], [250,150], [320,350], [250,500], [480,350], [550,500]] },
+            { n: "Ophiuchus", t: "Hercules Family", d: "The Serpent Bearer. The often-forgotten '13th sign' of the zodiac path.", s: [[400,200], [300,300], [350,450], [450,450], [500,300], [400,200]] },
+            { n: "Serpens", t: "Hercules Family", d: "The Serpent. Unique because it is split into two halves separated by Ophiuchus.", s: [[200,300], [250,250], [300,350], [350,300], [600,300], [650,250], [700,350]] },
+            { n: "Cetus", t: "Perseus Family", d: "The Sea Monster. Represents the beast slain by Perseus to save Andromeda.", s: [[200,300], [300,250], [400,300], [500,200], [600,250], [650,350], [550,400]] },
+            { n: "Eridanus", t: "Heavenly Waters Family", d: "The River. A long, winding constellation ending at the bright star Achernar.", s: [[200,150], [300,250], [250,350], [400,450], [350,550]] },
+            { n: "Lepus", t: "Orion Family", d: "The Hare. Sits crouched beneath the feet of Orion the Hunter.", s: [[300,300], [400,250], [500,300], [450,400], [350,400], [300,300]] },
+            { n: "Canis Minor", t: "Orion Family", d: "The Little Dog. Contains only two bright stars, including Procyon.", s: [[350,300], [450,300]] },
+            { n: "Monoceros", t: "Orion Family", d: "The Unicorn. A faint constellation located on the celestial equator.", s: [[300,350], [400,300], [500,350], [600,450]] },
+            { n: "Hydra", t: "Hercules Family", d: "The Water Snake. The largest and longest of all 88 constellations.", s: [[150,200], [250,150], [350,250], [450,350], [550,300], [650,400], [750,350]] },
+            { n: "Crater", t: "Hercules Family", d: "The Cup. Represents the goblet of Apollo resting on Hydra's back.", s: [[350,250], [450,250], [400,350], [350,250]] },
+            { n: "Corvus", t: "Hercules Family", d: "The Crow. A distinct quadrilateral shape perched upon Hydra.", s: [[350,300], [450,250], [500,350], [400,400], [350,300]] },
+            { n: "Carina", t: "Heavenly Waters Family", d: "The Keel. Once part of the giant ancient constellation Argo Navis.", s: [[250,400], [400,350], [550,400], [450,500], [300,500]] },
+            { n: "Puppis", t: "Heavenly Waters Family", d: "The Poop Deck. Represents the stern of the mythical ship Argo Navis.", s: [[300,200], [400,250], [450,350], [350,450], [250,350]] },
+            { n: "Vela", t: "Heavenly Waters Family", d: "The Sails. Part of the dismantled ship Argo Navis.", s: [[350,250], [450,200], [500,350], [400,400], [350,250]] },
+            { n: "Pyxis", t: "Heavenly Waters Family", d: "The Mariner's Compass. Guides the way for the ship Argo Navis.", s: [[400,250], [400,350], [450,400]] },
+            { n: "Columba", t: "Heavenly Waters Family", d: "The Dove. Represents the dove sent out by Noah, or the dove of the Argonauts.", s: [[300,350], [400,300], [500,350], [400,450], [300,350]] },
+            { n: "Delphinus", t: "Heavenly Waters Family", d: "The Dolphin. A small but distinct diamond shape known as 'Job's Coffin'.", s: [[400,250], [450,200], [500,250], [450,300], [400,250], [350,350]] },
+            { n: "Equuleus", t: "Heavenly Waters Family", d: "The Little Horse. The second-smallest constellation in the night sky.", s: [[350,250], [450,250], [400,350], [350,250]] },
+            { n: "Piscis Austrinus", t: "Heavenly Waters Family", d: "The Southern Fish. Contains the solitary bright star Fomalhaut.", s: [[300,350], [400,300], [500,350], [450,450], [350,450], [300,350]] },
+            { n: "Grus", t: "Bayer Family", d: "The Crane. A prominent southern bird constellation.", s: [[350,200], [450,250], [400,350], [450,450], [300,350]] },
+            { n: "Phoenix", t: "Bayer Family", d: "The Phoenix. Represents the mythical bird of rebirth.", s: [[350,300], [450,200], [550,300], [450,450], [350,300]] },
+            { n: "Tucana", t: "Bayer Family", d: "The Toucan. Home to the Small Magellanic Cloud.", s: [[350,350], [400,250], [500,300], [450,450], [350,350]] },
+            { n: "Pavo", t: "Bayer Family", d: "The Peacock. A brightly plumed southern bird.", s: [[400,200], [450,300], [550,350], [450,450], [350,350], [400,200]] },
+            { n: "Apus", t: "Bayer Family", d: "The Bird of Paradise. Found near the southern celestial pole.", s: [[350,350], [450,300], [500,400], [400,450]] },
+            { n: "Chamaeleon", t: "Bayer Family", d: "The Chameleon. A tiny southern constellation near the pole.", s: [[350,300], [450,300], [400,400], [300,350]] },
+            { n: "Musca", t: "Bayer Family", d: "The Fly. Situated just south of the Southern Cross.", s: [[350,250], [450,250], [500,350], [400,400], [300,350], [350,250]] },
+            { n: "Volans", t: "Bayer Family", d: "The Flying Fish. Often depicted escaping from Dorado.", s: [[300,300], [400,250], [500,350], [400,450]] },
+            { n: "Dorado", t: "Bayer Family", d: "The Dolphinfish. Contains most of the Large Magellanic Cloud.", s: [[350,250], [450,350], [550,300], [400,450]] },
+            { n: "Hydrus", t: "Bayer Family", d: "The Male Water Snake. Located deep in the southern sky.", s: [[350,350], [450,250], [550,400]] },
+            { n: "Indus", t: "Bayer Family", d: "The Indian. Represents indigenous peoples of the Americas or Asia.", s: [[400,250], [450,350], [500,450], [350,400]] },
+            { n: "Triangulum", t: "Perseus Family", d: "The Triangle. A small northern constellation containing the Triangulum Galaxy.", s: [[300,300], [450,250], [400,400], [300,300]] },
+            { n: "Triangulum Australe", t: "Hercules Family", d: "The Southern Triangle. An equilateral triangle in the southern sky.", s: [[400,250], [500,400], [300,400], [400,250]] },
+            { n: "Ara", t: "Hercules Family", d: "The Altar. Said to be the altar where the gods made alliances.", s: [[350,250], [450,250], [500,350], [400,450], [300,350], [350,250]] },
+            { n: "Corona Australis", t: "Hercules Family", d: "The Southern Crown. A distinctive curve of stars beneath Sagittarius.", s: [[300,350], [350,250], [450,250], [500,350]] },
+            { n: "Corona Borealis", t: "Ursa Major Family", d: "The Northern Crown. A semi-circle representing the crown of Ariadne.", s: [[250,300], [300,200], [400,150], [500,200], [550,300]] },
+            { n: "Lupus", t: "Hercules Family", d: "The Wolf. Often depicted being pierced by the Centaur's spear.", s: [[300,250], [400,200], [500,300], [450,450], [350,400], [300,250]] },
+            { n: "Norma", t: "La Caille Family", d: "The Carpenter's Square. A small group of stars near Scorpius.", s: [[350,300], [450,300], [450,400]] },
+            { n: "Circinus", t: "La Caille Family", d: "The Compasses. Represents a drafting compass used for geometry.", s: [[400,250], [450,400], [350,400]] },
+            { n: "Telescopium", t: "La Caille Family", d: "The Telescope. Introduced by Nicolas Louis de Lacaille in the 18th century.", s: [[350,250], [500,300], [400,450]] },
+            { n: "Microscopium", t: "La Caille Family", d: "The Microscope. A faint constellation in the southern hemisphere.", s: [[350,300], [450,350], [400,450], [350,300]] },
+            { n: "Sculptor", t: "La Caille Family", d: "The Sculptor. Originally named the Sculptor's Studio.", s: [[350,250], [450,350], [550,300]] },
+            { n: "Fornax", t: "La Caille Family", d: "The Furnace. Represents a chemical furnace used by chemists.", s: [[300,300], [450,250], [400,450]] },
+            { n: "Horologium", t: "La Caille Family", d: "The Pendulum Clock. One of Lacaille's scientific instruments.", s: [[400,200], [450,300], [450,450], [350,500]] },
+            { n: "Caelum", t: "La Caille Family", d: "The Chisel. An incredibly faint constellation representing an engraver's tool.", s: [[350,250], [450,300], [400,400]] },
+            { n: "Pictor", t: "La Caille Family", d: "The Painter's Easel. Located near the bright star Canopus.", s: [[350,350], [450,250], [500,400]] },
+            { n: "Antlia", t: "La Caille Family", d: "The Air Pump. Represents a scientific vacuum pump.", s: [[300,300], [400,250], [500,350], [400,400]] },
+            { n: "Reticulum", t: "La Caille Family", d: "The Reticle. Represents the crosshairs of an eyepiece.", s: [[350,250], [450,250], [450,350], [350,350], [350,250]] },
+            { n: "Octans", t: "La Caille Family", d: "The Octant. Contains the current South Celestial Pole.", s: [[400,250], [500,350], [300,350]] },
+            { n: "Mensa", t: "La Caille Family", d: "Table Mountain. The faintest constellation, named after a mountain in South Africa.", s: [[300,300], [500,300], [450,400], [350,400], [300,300]] },
+            { n: "Camelopardalis", t: "Ursa Major Family", d: "The Giraffe. A large but faint constellation in the northern sky.", s: [[350,200], [450,150], [500,300], [450,450], [350,400]] },
+            { n: "Lynx", t: "Ursa Major Family", d: "The Lynx. Named because you'd need the eyes of a lynx to see it.", s: [[250,200], [350,250], [450,350], [550,450]] },
+            { n: "Leo Minor", t: "Ursa Major Family", d: "The Little Lion. Situated between Leo and Ursa Major.", s: [[350,300], [450,250], [500,350]] },
+            { n: "Canes Venatici", t: "Ursa Major Family", d: "The Hunting Dog. Held by Bootes to chase the Great Bear.", s: [[350,300], [450,400]] },
+            { n: "Coma Berenices", t: "Ursa Major Family", d: "Berenice's Hair. A beautiful star cluster forming the hair of an Egyptian Queen.", s: [[350,250], [450,300], [400,400]] },
+            { n: "Scutum", t: "Hercules Family", d: "The Shield. Represents the shield of Polish King John III Sobieski.", s: [[350,250], [450,250], [400,400], [350,250]] },
+            { n: "Sagitta", t: "Hercules Family", d: "The Arrow. The third-smallest constellation, flying through the Milky Way.", s: [[250,350], [550,250], [500,200], [550,250], [500,300]] },
+            { n: "Vulpecula", t: "Hercules Family", d: "The Fox. Contains the Dumbbell Nebula, the first planetary nebula discovered.", s: [[300,300], [400,250], [500,300]] },
+            { n: "Sextans", t: "Hercules Family", d: "The Sextant. An astronomical measuring instrument on the celestial equator.", s: [[350,250], [450,350], [300,400]] },
+            { n: "Lacerta", t: "Perseus Family", d: "The Lizard. A zigzag shape sometimes called the 'Little Cassiopeia'.", s: [[400,150], [450,250], [350,350], [450,450], [400,550]] },
+            { n: "Cepheus", t: "Perseus Family", d: "The King. Resembles a house with a steep roof in the northern sky.", s: [[350,450], [450,450], [500,300], [400,150], [300,300], [350,450]] },
+            { n: "Ursa Minor", t: "Ursa Major Family", d: "The Little Bear. Home to Polaris, the North Star.", s: [[550,200], [450,250], [350,300], [300,400], [200,350], [250,250], [350,300]] }
+        ];
+
+        const levels = rawConstellations.map(c => ({
+            name: c.n, type: c.t, message: c.d, stars: c.s.map(pt => ({x: pt[0], y: pt[1]}))
+        }));
+
+        // Utilities
+        function shuffleArray(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function generateBackgroundStars() {
+            bgStars = [];
+            for (let i = 0; i < 150; i++) {
+                bgStars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5,
+                    alpha: Math.random()
+                });
+            }
+        }
+
+        // Coordinate scaling to map touch/mouse on a responsive canvas to internal 800x600 resolution
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        // Core Mechanics
+        function loadLevel(index) {
+            currentLevel = index;
+            progress = 0;
+            state = 'PLAYING';
+            
+            levelIndicator.innerText = (gameMode === 'TRACE' ? 'Tracing Mode' : 'Quiz Mode') + ` - Level ${index + 1} / ${levels.length}`;
+            modeTitle.innerText = gameMode === 'TRACE' ? `Tracing: ${levels[currentLevel].name}` : 'Tracing: Mystery Constellation';
+            
+            quizOverlay.classList.remove('active');
+            infoOverlay.classList.remove('active');
+            
+            generateBackgroundStars();
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Background Stars
+            bgStars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.fill();
+            });
+
+            const levelData = levels[currentLevel];
+            
+            // Constellation Lines
+            ctx.beginPath();
+            for (let i = 0; i < progress; i++) {
+                const s = levelData.stars[i];
+                if (i === 0) ctx.moveTo(s.x, s.y);
+                else ctx.lineTo(s.x, s.y);
+            }
+            ctx.strokeStyle = '#66fcf1';
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Tracing Line (to mouse)
+            if (progress > 0 && state === 'PLAYING') {
+                const prevStar = levelData.stars[progress - 1];
+                ctx.beginPath();
+                ctx.moveTo(prevStar.x, prevStar.y);
+                ctx.lineTo(mouseX, mouseY);
+                ctx.strokeStyle = 'rgba(102, 252, 241, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([10, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Stars and Numbers
+            levelData.stars.forEach((star, index) => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, 6, 0, Math.PI * 2);
+                
+                if (index < progress) {
+                    ctx.fillStyle = '#45a29e';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#66fcf1';
+                } else if (index === progress && state === 'PLAYING') {
+                    const pulse = Math.sin(Date.now() / 150) * 3;
+                    ctx.arc(star.x, star.y, 6 + pulse, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#ffffff';
+                } else {
+                    ctx.fillStyle = '#c5c6c7';
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Number the active dot ONLY, showing the current step number in the sequence
+                if (index === progress && state === 'PLAYING') {
+                    ctx.font = "12px 'Segoe UI', monospace";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    const numX = star.x + 18;
+                    const numY = star.y - 18;
+                    
+                    ctx.fillStyle = "rgba(11, 12, 16, 0.6)";
+                    ctx.beginPath();
+                    ctx.arc(numX, numY, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#66fcf1";
+                    
+                    // The number displayed reflects the step we are on (1 for the first dot, 2 for the second dot, etc.)
+                    ctx.fillText(progress + 1, numX, numY);
+                }
+            });
+
+            requestAnimationFrame(render);
+        }
+
+        // Interactions (Mouse and Touch)
+        const moveHandler = (e) => {
+            if (e.cancelable) e.preventDefault(); // Prevent scrolling on mobile
+            const pos = getPointerPos(e);
+            mouseX = pos.x;
+            mouseY = pos.y;
+        };
+
+        canvas.addEventListener('mousemove', moveHandler);
+        canvas.addEventListener('touchmove', moveHandler, { passive: false });
+
+        const downHandler = (e) => {
+            if (e.cancelable) e.preventDefault();
+            if (state !== 'PLAYING') return;
+
+            const pos = getPointerPos(e);
+            
+            const targetStar = levels[currentLevel].stars[progress];
+            const dist = Math.hypot(pos.x - targetStar.x, pos.y - targetStar.y);
+
+            // Only register clicks if the user explicitly clicks the correct active target star
+            if (dist < 35) {
+                playStarNote(progress);
+                progress++; // The number will automatically increment when progress increments
+                
+                if (progress === levels[currentLevel].stars.length) {
+                    state = gameMode === 'TRACE' ? 'INFO' : 'QUIZ';
+                    
+                    if (gameMode === 'TRACE') {
+                        setTimeout(showInfoScreen, 500); 
+                    } else {
+                        setTimeout(showQuizScreen, 500); 
+                    }
+                }
+            }
+        };
+
+        canvas.addEventListener('mousedown', downHandler);
+        canvas.addEventListener('touchstart', downHandler, { passive: false });
+
+        // Quiz Logic
+        function showQuizScreen() {
+            quizOptionsContainer.innerHTML = '';
+            const correctName = levels[currentLevel].name;
+            
+            // Gather 3 wrong answers
+            let options = [correctName];
+            while (options.length < 4) {
+                let randomConstellation = levels[Math.floor(Math.random() * levels.length)].name;
+                if (!options.includes(randomConstellation)) {
+                    options.push(randomConstellation);
+                }
+            }
+            
+            options = shuffleArray(options);
+
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-btn';
+                btn.innerText = option;
+                btn.onclick = () => handleQuizAnswer(option === correctName, btn);
+                quizOptionsContainer.appendChild(btn);
+            });
+
+            quizOverlay.classList.add('active');
+        }
+
+        function handleQuizAnswer(isCorrect, btn) {
+            if (isCorrect) {
+                playFeedbackChord(true);
+                quizOverlay.classList.remove('active');
+                showInfoScreen();
+            } else {
+                playFeedbackChord(false);
+                btn.classList.add('wrong-shake');
+                setTimeout(() => btn.classList.remove('wrong-shake'), 400);
+            }
+        }
+
+        // Information Screen
+        function showInfoScreen() {
+            state = 'INFO';
+            const levelData = levels[currentLevel];
+            document.getElementById('constellation-name').innerText = levelData.name;
+            document.getElementById('constellation-type').innerText = levelData.type;
+            document.getElementById('completion-msg').innerText = levelData.message;
+            
+            nextBtn.innerText = (currentLevel === levels.length - 1) ? "Start Over" : "Next Star";
+            infoOverlay.classList.add('active');
+        }
+
+        // Button Event Listeners
+        modeTraceBtn.addEventListener('click', () => {
+            initAudio(); 
+            gameMode = 'TRACE';
+            startScreen.classList.remove('active');
+            loadLevel(0);
+        });
+
+        modeQuizBtn.addEventListener('click', () => {
+            initAudio(); 
+            gameMode = 'QUIZ';
+            startScreen.classList.remove('active');
+            loadLevel(0);
+        });
+
+        menuBtn.addEventListener('click', () => {
+            infoOverlay.classList.remove('active');
+            startScreen.classList.add('active');
+            state = 'START';
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentLevel === levels.length - 1) {
+                loadLevel(0);
+            } else {
+                loadLevel(currentLevel + 1);
+            }
+        });
+
+        // Initial setup (background rendering only)
+        generateBackgroundStars();
+        render();
+    </script>
+</body>
+</html>

@@ -19,7 +19,8 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
-        touch-action: none;
+        width: 100vw;
+        touch-action: none; /* Prevents pull-to-refresh and zooming */
     }
 
     #game-container {
@@ -27,7 +28,7 @@
         width: 100%;
         max-width: 900px;
         height: 100%;
-        max-height: 600px;
+        max-height: 800px;
         background: rgba(0, 0, 0, 0.4);
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
         border: 2px solid #5a4b81;
@@ -48,10 +49,12 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background: rgba(15, 12, 41, 0.9);
+        background: rgba(15, 12, 41, 0.95);
         z-index: 10;
         text-align: center;
         transition: opacity 0.3s;
+        padding: 20px;
+        box-sizing: border-box;
     }
 
     .hidden {
@@ -169,6 +172,56 @@
         font-size: 1.5rem;
         color: gold;
         text-shadow: 0 0 5px orange;
+        text-align: center;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2rem;
+        }
+
+        .btn-container {
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .char-btn {
+            padding: 15px;
+            font-size: 1rem;
+        }
+
+        .char-btn img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .health-bar-container {
+            width: 120px;
+            top: 10px;
+        }
+
+        #player-ui { left: 10px; }
+        #monster-ui { right: 10px; }
+
+        .name-tag {
+            font-size: 0.9rem;
+        }
+
+        .health-bar-fill {
+            height: 12px;
+        }
+
+        #level-display {
+            font-size: 1.2rem;
+            top: 10px;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        #start-screen p {
+            font-size: 1rem !important;
+        }
     }
 </style>
 </head>
@@ -204,11 +257,11 @@
         <p style="font-size: 1.2rem; max-width: 600px;">Connect the glowing nodes in the correct sequence to attack the mythical beasts! Faster tracing deals more damage.</p>
         <div class="btn-container">
             <button class="char-btn" onclick="startGame('M')">
-                <img src="wizard-1.png" alt="Sorcerer">
+                <img src="wizard-1.png" alt="Sorcerer" onerror="this.style.display='none'">
                 Sorcerer
             </button>
             <button class="char-btn" onclick="startGame('F')">
-                <img src="witch-1.png" alt="Witch">
+                <img src="witch-1.png" alt="Witch" onerror="this.style.display='none'">
                 Witch
             </button>
         </div>
@@ -346,7 +399,7 @@
             }
 
             if (targetVoice) utterance.voice = targetVoice;
-            else utterance.lang = 'en-IN';
+            else utterance.lang = 'en-US';
 
             utterance.rate = 0.85; 
             utterance.pitch = 1.1; 
@@ -355,9 +408,17 @@
     }
 
     let width, height;
+    let traceBoxSize = 250;
+    
     function resize() {
         width = canvas.width = canvas.offsetWidth;
         height = canvas.height = canvas.offsetHeight;
+        // Dynamically scale trace box to fit on mobile
+        traceBoxSize = Math.min(250, Math.min(width, height) * 0.7);
+        
+        if(gameState === 'PLAYING') {
+            buildTracePoints(monster.letter);
+        }
     }
     window.addEventListener('resize', resize);
     resize();
@@ -438,7 +499,6 @@
     let currentTraceLine = []; 
     let traceStartTime = 0;
     
-    const TRACE_BOX_SIZE = 250;
     const TOLERANCE = 45; 
 
     // Entities
@@ -501,15 +561,17 @@
         tracePoints = [];
         intendedStrokes = [];
         
-        const boxX = (width / 2) - (TRACE_BOX_SIZE / 2);
-        const boxY = (height / 2) - (TRACE_BOX_SIZE / 2) + 20;
+        const boxX = (width / 2) - (traceBoxSize / 2);
+        // Shift box down on mobile so it doesn't overlap characters at the top
+        const isPortrait = height > width;
+        const boxY = (height / 2) - (traceBoxSize / 2) + (isPortrait ? height * 0.15 : 20);
 
         for (let stroke of strokes) {
             let strokePts = [];
             for (let pt of stroke) {
                 const mappedPt = {
-                    x: boxX + (pt[0] / 4) * TRACE_BOX_SIZE,
-                    y: boxY + (pt[1] / 4) * TRACE_BOX_SIZE
+                    x: boxX + (pt[0] / 4) * traceBoxSize,
+                    y: boxY + (pt[1] / 4) * traceBoxSize
                 };
                 strokePts.push(mappedPt);
                 tracePoints.push(mappedPt);
@@ -749,10 +811,19 @@
             if (particles[i].life <= 0) particles.splice(i, 1);
         }
         
-        player.x = width * 0.15;
-        player.y = height * 0.55;
-        monster.x = width * 0.85;
-        monster.y = height * 0.55;
+        // Responsive Character Positioning
+        const isPortrait = height > width;
+        if (isPortrait) {
+            player.x = width * 0.25;
+            player.y = height * 0.20;
+            monster.x = width * 0.75;
+            monster.y = height * 0.20;
+        } else {
+            player.x = width * 0.15;
+            player.y = height * 0.55;
+            monster.x = width * 0.85;
+            monster.y = height * 0.55;
+        }
     }
 
     function levelUp() {
@@ -774,13 +845,21 @@
 
         let activeSprites = player.type === 'M' ? wizardSprites : witchSprites;
         let img = activeSprites[player.state];
-        if (img && img.complete) {
+        if (img && img.complete && img.width > 0) {
             ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        } else {
+            // Fallback shape if images aren't loaded
+            ctx.fillStyle = player.type === 'M' ? '#8e2de2' : '#c9a5ff';
+            ctx.fillRect(-25, -40, 50, 80);
         }
         ctx.restore();
 
         // Draw Monster
-        const mScale = 1 + Math.sin(performance.now() / 400 + 1) * 0.05;
+        const isPortrait = height > width;
+        // Scale monster down slightly on mobile so it doesn't overlap UI
+        const mBaseScale = isPortrait ? 0.7 : 1; 
+        const mScale = mBaseScale + Math.sin(performance.now() / 400 + 1) * 0.05;
+        
         ctx.save();
         ctx.translate(monster.x, monster.y);
         ctx.scale(mScale, mScale);
@@ -840,19 +919,20 @@
     }
 
     function drawTracingArea() {
-        const boxX = (width / 2) - (TRACE_BOX_SIZE / 2);
-        const boxY = (height / 2) - (TRACE_BOX_SIZE / 2) + 20;
+        const boxX = (width / 2) - (traceBoxSize / 2);
+        const isPortrait = height > width;
+        const boxY = (height / 2) - (traceBoxSize / 2) + (isPortrait ? height * 0.15 : 20);
 
         ctx.fillStyle = "rgba(0,0,0,0.5)";
         ctx.strokeStyle = "#5a4b81";
         ctx.lineWidth = 2;
-        ctx.fillRect(boxX, boxY, TRACE_BOX_SIZE, TRACE_BOX_SIZE);
-        ctx.strokeRect(boxX, boxY, TRACE_BOX_SIZE, TRACE_BOX_SIZE);
+        ctx.fillRect(boxX, boxY, traceBoxSize, traceBoxSize);
+        ctx.strokeRect(boxX, boxY, traceBoxSize, traceBoxSize);
 
         if (intendedStrokes.length === 0) return;
 
         ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-        ctx.lineWidth = 15;
+        ctx.lineWidth = traceBoxSize * 0.06; // Responsive line width
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
         for (let stroke of intendedStrokes) {
@@ -866,7 +946,7 @@
         }
 
         ctx.strokeStyle = "#c9a5ff";
-        ctx.lineWidth = 6;
+        ctx.lineWidth = traceBoxSize * 0.024; // Responsive line width
         ctx.shadowBlur = 10;
         ctx.shadowColor = "#8e2de2";
         for (let line of playerTraceLines) {
@@ -882,7 +962,7 @@
 
         for (let i = 0; i < tracePoints.length; i++) {
             ctx.beginPath();
-            ctx.arc(tracePoints[i].x, tracePoints[i].y, 10, 0, Math.PI * 2);
+            ctx.arc(tracePoints[i].x, tracePoints[i].y, traceBoxSize * 0.04, 0, Math.PI * 2);
             
             if (i < currentTargetPoint) {
                 ctx.fillStyle = "#56ab2f"; 

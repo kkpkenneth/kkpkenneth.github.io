@@ -180,12 +180,21 @@
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.9em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
     .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
     
+    .btn-group {
+        display: flex; flex-direction: column; gap: 5px; width: 100%;
+    }
+
     .buy-btn {
         background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
     }
     .buy-btn:active { transform: scale(0.95); }
     .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
     
+    .remove-btn {
+        background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s;
+    }
+    .remove-btn:active { transform: scale(0.95); }
+
     .close-btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4); transition: transform 0.2s; margin-top: 10px;}
     .close-btn:hover { transform: scale(1.05); }
 
@@ -278,7 +287,7 @@
         }
     };
 
-    // --- Complete 50-Animal Game Data ---
+    // --- Complete 51-Animal Game Data ---
     const animalData = [
         { id: 'clownfish', name: 'Clownfish', img: 'clownfish.png', cost: 5, speed: 0.5, heartsPerClick: 1 },
         { id: 'sponge', name: 'Sponge', img: 'sponge.png', cost: 10, speed: 0, heartsPerClick: 2 },
@@ -329,7 +338,8 @@
         { id: 'orca', name: 'Orca', img: 'orca.png', cost: 1500000, speed: 0.6, heartsPerClick: 8000 },
         { id: 'sperm-whale', name: 'Sperm Whale', img: 'sperm-whale.png', cost: 2500000, speed: 0.3, heartsPerClick: 12000 },
         { id: 'giant-squid', name: 'Giant Squid', img: 'giant-squid.png', cost: 5000000, speed: 0.4, heartsPerClick: 25000 },
-        { id: 'blue-whale', name: 'Blue Whale', img: 'blue-whale.png', cost: 10000000, speed: 0.2, heartsPerClick: 50000 }
+        { id: 'blue-whale', name: 'Blue Whale', img: 'blue-whale.png', cost: 10000000, speed: 0.2, heartsPerClick: 50000 },
+        { id: 'goldfish', name: 'Goldfish', img: 'goldfish.png', cost: 100000000, speed: 0.4, heartsPerClick: 100000 }
     ];
 
     let hearts = 0;
@@ -573,16 +583,21 @@
             
             const canAfford = hearts >= a.cost;
             
-            const btnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
+            const buyBtnHTML = `<button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="recruit('${a.id}')">
                                 ${isUnlocked ? 'Recruit More' : 'Unlock'}<br>(${a.cost.toLocaleString()} ❤️)
                              </button>`;
+                             
+            const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">Remove</button>` : '';
 
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
             item.innerHTML = `
                 <div class="visual"><img src="${a.img}" alt="${a.name}"></div>
                 <div class="name-tag">${isUnlocked ? a.name : '???'} ${countBadge}</div>
-                ${btnHTML}
+                <div class="btn-group">
+                    ${buyBtnHTML}
+                    ${removeBtnHTML}
+                </div>
             `;
             grid.appendChild(item);
         });
@@ -621,6 +636,25 @@
                 sfx.bubble();
             }
         }
+    };
+
+    window.removeAnimal = function(id) {
+        const unlockIndex = unlockedIds.indexOf(id);
+        if (unlockIndex > -1) {
+            unlockedIds.splice(unlockIndex, 1);
+        }
+
+        const activeIndex = activeAnimals.findIndex(a => a.id === id);
+        if (activeIndex > -1) {
+            const anim = activeAnimals[activeIndex];
+            anim.el.remove(); 
+            activeAnimals.splice(activeIndex, 1); 
+        }
+
+        sfx.bubble();
+        updateUI();
+        saveProgress();
+        openCollection(); 
     };
 
     // Modal Background Click-to-Close Listeners

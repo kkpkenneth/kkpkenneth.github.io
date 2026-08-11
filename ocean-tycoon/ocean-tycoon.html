@@ -68,10 +68,10 @@
         display: none; /* Hidden until 6 total recruits */
     }
 
-    #collection-btn {
-        background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: transform 0.2s; border: none; color: white;
+    .action-btn {
+        background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.5); color: white;
     }
-    #collection-btn:hover { transform: scale(1.05); }
+    .action-btn:hover { transform: scale(1.05); }
 
     /* Marine Animals */
     .animal {
@@ -152,7 +152,7 @@
     .modal h2 { 
         margin-top: -10px; padding-top: 10px; color: #00d2ff; font-size: 2.2em; 
         position: sticky; top: 0; 
-        background: transparent; /* Transparent header to match glass effect */
+        background: transparent; 
         padding-bottom: 15px; z-index: 2; 
         border-bottom: 2px solid rgba(0, 210, 255, 0.3);
         box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
@@ -181,17 +181,18 @@
     .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
     
     .btn-group {
-        display: flex; flex-direction: column; gap: 5px; width: 100%;
+        display: flex; flex-direction: row; gap: 5px; width: 100%; align-items: stretch;
     }
 
     .buy-btn {
-        background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
+        flex-grow: 1;
+        background: linear-gradient(180deg, #2ed573, #27ae60); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); transition: transform 0.1s;
     }
     .buy-btn:active { transform: scale(0.95); }
     .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
     
     .remove-btn {
-        background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s;
+        background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8em; width: 25px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s;
     }
     .remove-btn:active { transform: scale(0.95); }
 
@@ -221,7 +222,12 @@
         <div class="hud-box">❤️ <span id="heart-count">0</span></div>
         <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
     </div>
-    <button id="collection-btn" class="hud-box">📖 Collection</button>
+    
+    <div class="hud-column" style="align-items: flex-end;">
+        <button id="collection-btn" class="hud-box action-btn">📖 Collection</button>
+        <button id="save-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px;">💾 Save</button>
+        <button id="reset-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px; background: rgba(255, 71, 87, 0.3); border-color: rgba(255, 71, 87, 0.6);">⚠️ Reset</button>
+    </div>
 </div>
 
 <div id="ocean"></div>
@@ -345,6 +351,34 @@
     let hearts = 0;
     let unlockedIds = ['clownfish']; 
     let activeAnimals = [];
+
+    // --- Cheatcode Listener ---
+    let cheatBuffer = "";
+    document.addEventListener("keydown", (e) => {
+        cheatBuffer += e.key.toLowerCase();
+        if (cheatBuffer.length > 20) cheatBuffer = cheatBuffer.substring(cheatBuffer.length - 20);
+        
+        if (cheatBuffer.includes("goldfish")) {
+            cheatBuffer = ""; // Reset buffer
+            const goldfishDef = animalData.find(a => a.id === 'goldfish');
+            if (goldfishDef) {
+                unlockedIds.push('goldfish');
+                spawnAnimal(goldfishDef);
+                updateUI();
+                saveProgress();
+                sfx.unlock();
+                
+                // Show notification if modal isn't open
+                if (document.getElementById('collection-modal').style.display !== 'flex') {
+                    document.getElementById('popup-visual').innerHTML = `<img src="${goldfishDef.img}" alt="${goldfishDef.name}">`;
+                    document.getElementById('popup-name').innerText = "Cheat Activated: Goldfish!";
+                    document.getElementById('unlock-popup').style.display = 'flex';
+                } else {
+                    openCollection();
+                }
+            }
+        }
+    });
 
     // --- Local Storage Management ---
     function saveProgress() {
@@ -575,6 +609,11 @@
         grid.innerHTML = '';
         
         animalData.forEach((a) => {
+            // Hide goldfish entirely unless unlocked via cheat code
+            if (a.id === 'goldfish' && !unlockedIds.includes('goldfish')) {
+                return;
+            }
+
             const count = unlockedIds.filter(id => id === a.id).length;
             const isUnlocked = count > 0;
             
@@ -587,7 +626,7 @@
                                 ${isUnlocked ? 'Recruit More' : 'Unlock'}<br>(${a.cost.toLocaleString()} ❤️)
                              </button>`;
                              
-            const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">Remove</button>` : '';
+            const removeBtnHTML = isUnlocked ? `<button class="remove-btn" title="Remove one" onclick="removeAnimal('${a.id}')">✖</button>` : '';
 
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
 
@@ -657,6 +696,43 @@
         openCollection(); 
     };
 
+    // --- Core UI Listeners ---
+    document.getElementById('collection-btn').addEventListener('click', openCollection);
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+        saveProgress();
+        const btn = document.getElementById('save-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "✅ Saved!";
+        sfx.bubble();
+        setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm("Are you sure you want to reset all progress? This cannot be undone.")) {
+            // Clear local storage
+            localStorage.removeItem("oceanHearts");
+            localStorage.removeItem("oceanUnlocks");
+            localStorage.removeItem("oceanAnimalStates");
+
+            // Reset variables
+            hearts = 0;
+            unlockedIds = ['clownfish'];
+
+            // Clear ocean DOM
+            activeAnimals.forEach(a => a.el.remove());
+            activeAnimals = [];
+
+            // Respawn default
+            const clownfish = animalData.find(a => a.id === 'clownfish');
+            spawnAnimal(clownfish);
+
+            // Update UI
+            updateUI();
+            sfx.bubble();
+        }
+    });
+
     // Modal Background Click-to-Close Listeners
     document.getElementById('collection-modal').addEventListener('click', (e) => {
         if (e.target.id === 'collection-modal') {
@@ -711,8 +787,6 @@
         updateUI();
         requestAnimationFrame(animate);
     });
-
-    document.getElementById('collection-btn').addEventListener('click', openCollection);
 
 </script>
 </body>

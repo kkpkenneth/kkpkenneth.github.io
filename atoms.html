@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Atomic Bonds - 118 Elements</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap');
+
+        :root {
+            --bg-color: #0b0c10;
+            --panel-bg: rgba(11, 12, 16, 0.95);
+            --primary: #66fcf1;
+            --secondary: #45a29e;
+            --text-light: #c5c6c7;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary);
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 600px;
+            max-height: 900px;
+            box-shadow: 0 0 40px rgba(102, 252, 241, 0.1);
+            background: radial-gradient(circle at center, #1f2833 0%, #0b0c10 100%);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
+        }
+
+        /* UI Overlays */
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            pointer-events: none;
+            text-shadow: 0 2px 4px #000;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #target-compound {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin: 0;
+            color: #fff;
+            text-shadow: 0 0 15px var(--primary);
+            letter-spacing: 2px;
+        }
+
+        #instruction {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--panel-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .overlay h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        .overlay h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        .overlay p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 400px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 15px 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+            touch-action: manipulation;
+        }
+
+        button:hover, button:active {
+            background: var(--primary);
+            color: #0b0c10;
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.6);
+            transform: scale(1.05);
+        }
+
+        #level-indicator {
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            font-size: 1.1rem;
+            color: var(--secondary);
+            font-weight: bold;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="ui-layer" style="opacity: 0;">
+            <h2 id="target-compound">H₂</h2>
+            <p id="instruction">Drag atoms together to form valid bonds.</p>
+        </div>
+        
+        <div id="level-indicator" style="opacity: 0;">Level 1 / 118</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="overlay active">
+            <h1>Atomic Bonds</h1>
+            <p>Journey through the periodic table from Atomic Number 1 to 118.<br><br>Hover over (or tap and hold) drifting elements to identify them. Connect them correctly to forge essential compounds.</p>
+            <button id="start-btn">Synthesize</button>
+        </div>
+
+        <!-- Win Overlay -->
+        <div id="win-overlay" class="overlay">
+            <h2 id="compound-title">Hydrogen Gas</h2>
+            <h1 id="compound-formula">H₂</h1>
+            <p id="compound-desc">Atomic No. 1: Hydrogen. Two hydrogen atoms bonded together.</p>
+            <button id="next-btn">Next Element</button>
+        </div>
+    </div>
+
+    <script>
+        // Color mapping based on chemical groups
+        function getElementColor(z) {
+            if ([1,6,7,8,9,15,16,17,34,35,53].includes(z)) return '#ff4757'; // Reactive Nonmetals
+            if ([2,10,18,36,54,86,118].includes(z)) return '#70a1ff'; // Noble Gases
+            if ([3,11,19,37,55,87].includes(z)) return '#ffa502'; // Alkali Metals
+            if ([4,12,20,38,56,88].includes(z)) return '#eccc68'; // Alkaline Earth
+            if ([5,14,32,33,51,52,84].includes(z)) return '#1dd1a1'; // Metalloids
+            if (z >= 57 && z <= 71) return '#ff7f50'; // Lanthanides
+            if (z >= 89 && z <= 103) return '#ff6b81'; // Actinides
+            if ((z >= 21 && z <= 30) || (z >= 39 && z <= 48) || (z >= 72 && z <= 80) || (z >= 104 && z <= 112)) return '#5352ed'; // Transition Metals
+            return '#a4b0be'; // Post-transition / Unknown
+        }
+
+        // Comprehensive 118 Elements Database
+        // Format: [Z, Symbol, Name, Formula, CompoundName, Description, AtomsArray, AllowedBonds, MaxBonds]
+        const rawLevels = [
+            [1, "H", "Hydrogen", "H₂", "Hydrogen Gas", "Atomic No. 1: Hydrogen. The lightest element. Two hydrogen atoms bond to form the most abundant gas in the universe.", ["H","H"], ["H-H"], {"H":1}],
+            [2, "He", "Helium", "He₂", "Helium Dimer", "Atomic No. 2: Helium. A highly inert noble gas. Under extreme laboratory conditions, it forms a fragile, temporary excimer molecule.", ["He","He"], ["He-He"], {"He":1}],
+            [3, "Li", "Lithium", "LiCl", "Lithium Chloride", "Atomic No. 3: Lithium. A simple ionic salt formed by reactive lithium and chlorine, used to produce lithium metal.", ["Li","Cl"], ["Li-Cl"], {"Li":1,"Cl":1}],
+            [4, "Be", "Beryllium", "BeF₂", "Beryllium Fluoride", "Atomic No. 4: Beryllium. A highly toxic, glass-like solid used in nuclear reactors and biochemistry.", ["Be","F","F"], ["Be-F"], {"Be":2,"F":1}],
+            [5, "B", "Boron", "BF₃", "Boron Trifluoride", "Atomic No. 5: Boron. A pungent, toxic gas widely used as a Lewis acid catalyst in organic synthesis.", ["B","F","F","F"], ["B-F"], {"B":3,"F":1}],
+            [6, "C", "Carbon", "CH₄", "Methane", "Atomic No. 6: Carbon. The simplest hydrocarbon. Carbon forms four strong covalent bonds with hydrogen.", ["C","H","H","H","H"], ["C-H"], {"C":4,"H":1}],
+            [7, "N", "Nitrogen", "NH₃", "Ammonia", "Atomic No. 7: Nitrogen. A pungent gas essential for global agriculture. Nitrogen bonds with three hydrogens.", ["N","H","H","H"], ["N-H"], {"N":3,"H":1}],
+            [8, "O", "Oxygen", "H₂O", "Water", "Atomic No. 8: Oxygen. Two hydrogen atoms and one oxygen atom. The universal solvent essential for all life.", ["H","H","O"], ["H-O"], {"H":1,"O":2}],
+            [9, "F", "Fluorine", "HF", "Hydrogen Fluoride", "Atomic No. 9: Fluorine. A highly reactive and corrosive gas that forms hydrofluoric acid in water.", ["H","F"], ["H-F"], {"H":1,"F":1}],
+            [10, "Ne", "Neon", "Ne₂", "Neon Dimer", "Atomic No. 10: Neon. Famously inert, but under extreme low temperatures, it can form a very weak van der Waals dimer.", ["Ne","Ne"], ["Ne-Ne"], {"Ne":1}],
+            [11, "Na", "Sodium", "NaCl", "Sodium Chloride", "Atomic No. 11: Sodium. Common table salt. Formed by a strong ionic bond between sodium and chlorine.", ["Na","Cl"], ["Na-Cl"], {"Na":1,"Cl":1}],
+            [12, "Mg", "Magnesium", "MgO", "Magnesium Oxide", "Atomic No. 12: Magnesium. A solid white mineral widely used in antacids, electrical insulators, and fireproofing.", ["Mg","O"], ["Mg-O"], {"Mg":1,"O":1}],
+            [13, "Al", "Aluminum", "AlCl₃", "Aluminum Chloride", "Atomic No. 13: Aluminum. A key compound in industrial chemistry, frequently used as a catalyst.", ["Al","Cl","Cl","Cl"], ["Al-Cl"], {"Al":3,"Cl":1}],
+            [14, "Si", "Silicon", "SiH₄", "Silane", "Atomic No. 14: Silicon. The silicon analogue of methane. A pyrophoric gas that catches fire spontaneously in air.", ["Si","H","H","H","H"], ["Si-H"], {"Si":4,"H":1}],
+            [15, "P", "Phosphorus", "PH₃", "Phosphine", "Atomic No. 15: Phosphorus. A highly toxic, flammable gas with a distinctive odor of garlic or rotting fish.", ["P","H","H","H"], ["P-H"], {"P":3,"H":1}],
+            [16, "S", "Sulfur", "H₂S", "Hydrogen Sulfide", "Atomic No. 16: Sulfur. A colorless gas known for its hazardous toxicity and foul odor of rotten eggs.", ["H","H","S"], ["H-S"], {"H":1,"S":2}],
+            [17, "Cl", "Chlorine", "Cl₂", "Chlorine Gas", "Atomic No. 17: Chlorine. A yellow-green diatomic gas that is highly reactive and historically used for sanitation.", ["Cl","Cl"], ["Cl-Cl"], {"Cl":1}],
+            [18, "Ar", "Argon", "Ar₂", "Argon Dimer", "Atomic No. 18: Argon. An inert noble gas that can form a weakly bound molecule at near absolute zero.", ["Ar","Ar"], ["Ar-Ar"], {"Ar":1}],
+            [19, "K", "Potassium", "KCl", "Potassium Chloride", "Atomic No. 19: Potassium. A metal halide salt used in agriculture and medicine to treat low blood potassium.", ["K","Cl"], ["K-Cl"], {"K":1,"Cl":1}],
+            [20, "Ca", "Calcium", "CaO", "Calcium Oxide", "Atomic No. 20: Calcium. Known as quicklime, it is heavily used in making porcelain, glass, and cement.", ["Ca","O"], ["Ca-O"], {"Ca":1,"O":1}],
+            [21, "Sc", "Scandium", "ScCl₃", "Scandium Chloride", "Atomic No. 21: Scandium. An ionic compound used in high-intensity metal halide lamps and optical coatings.", ["Sc","Cl","Cl","Cl"], ["Sc-Cl"], {"Sc":3,"Cl":1}],
+            [22, "Ti", "Titanium", "TiO₂", "Titanium Dioxide", "Atomic No. 22: Titanium. A bright white pigment naturally found in minerals, used in paints and sunscreens.", ["Ti","O","O"], ["Ti-O"], {"Ti":2,"O":1}],
+            [23, "V", "Vanadium", "VO₂", "Vanadium Dioxide", "Atomic No. 23: Vanadium. A thermochromic material whose electrical resistance changes, used in smart windows.", ["V","O","O"], ["V-O"], {"V":2,"O":1}],
+            [24, "Cr", "Chromium", "CrO₃", "Chromium Trioxide", "Atomic No. 24: Chromium. A powerful, toxic oxidizing agent primarily used in chrome plating.", ["Cr","O","O","O"], ["Cr-O"], {"Cr":3,"O":1}],
+            [25, "Mn", "Manganese", "MnO₂", "Manganese Dioxide", "Atomic No. 25: Manganese. A blackish solid occurring naturally as pyrolusite, used heavily in dry-cell batteries.", ["Mn","O","O"], ["Mn-O"], {"Mn":2,"O":1}],
+            [26, "Fe", "Iron", "FeCl₃", "Iron(III) Chloride", "Atomic No. 26: Iron. A dark compound widely used in sewage treatment and drinking water production.", ["Fe","Cl","Cl","Cl"], ["Fe-Cl"], {"Fe":3,"Cl":1}],
+            [27, "Co", "Cobalt", "CoCl₂", "Cobalt Chloride", "Atomic No. 27: Cobalt. A fascinating compound that changes color from sky-blue to pink when hydrated.", ["Co","Cl","Cl"], ["Co-Cl"], {"Co":2,"Cl":1}],
+            [28, "Ni", "Nickel", "NiCl₂", "Nickel Chloride", "Atomic No. 28: Nickel. A water-soluble green salt used primarily for electroplating nickel onto other metals.", ["Ni","Cl","Cl"], ["Ni-Cl"], {"Ni":2,"Cl":1}],
+            [29, "Cu", "Copper", "CuO", "Copper(II) Oxide", "Atomic No. 29: Copper. A black solid used as a pigment in ceramics and as a p-type semiconductor.", ["Cu","O"], ["Cu-O"], {"Cu":1,"O":1}],
+            [30, "Zn", "Zinc", "ZnO", "Zinc Oxide", "Atomic No. 30: Zinc. An insoluble white powder added to plastics, ceramics, glass, rubbers, and sunscreens.", ["Zn","O"], ["Zn-O"], {"Zn":1,"O":1}],
+            [31, "Ga", "Gallium", "GaCl₃", "Gallium Trichloride", "Atomic No. 31: Gallium. A colorless solid used as a precursor to form other important gallium compounds.", ["Ga","Cl","Cl","Cl"], ["Ga-Cl"], {"Ga":3,"Cl":1}],
+            [32, "Ge", "Germanium", "GeH₄", "Germane", "Atomic No. 32: Germanium. A highly flammable, toxic gas utilized in the semiconductor industry.", ["Ge","H","H","H","H"], ["Ge-H"], {"Ge":4,"H":1}],
+            [33, "As", "Arsenic", "AsH₃", "Arsine", "Atomic No. 33: Arsenic. An extremely toxic, flammable gas used in microelectronics and semiconductor doping.", ["As","H","H","H"], ["As-H"], {"As":3,"H":1}],
+            [34, "Se", "Selenium", "H₂Se", "Hydrogen Selenide", "Atomic No. 34: Selenium. A highly toxic, smelly gas formed by selenium and hydrogen.", ["H","H","Se"], ["H-Se"], {"H":1,"Se":2}],
+            [35, "Br", "Bromine", "Br₂", "Bromine Gas", "Atomic No. 35: Bromine. A fuming red-brown liquid at room temperature that forms a diatomic molecule.", ["Br","Br"], ["Br-Br"], {"Br":1}],
+            [36, "Kr", "Krypton", "KrF₂", "Krypton Difluoride", "Atomic No. 36: Krypton. The first discovered compound of krypton, existing as a volatile colorless solid.", ["Kr","F","F"], ["Kr-F"], {"Kr":2,"F":1}],
+            [37, "Rb", "Rubidium", "RbCl", "Rubidium Chloride", "Atomic No. 37: Rubidium. A simple halide salt frequently used as a biomarker in biochemical research.", ["Rb","Cl"], ["Rb-Cl"], {"Rb":1,"Cl":1}],
+            [38, "Sr", "Strontium", "SrO", "Strontium Oxide", "Atomic No. 38: Strontium. A white solid created by burning strontium in oxygen, once used in cathode ray tubes.", ["Sr","O"], ["Sr-O"], {"Sr":1,"O":1}],
+            [39, "Y", "Yttrium", "YCl₃", "Yttrium Chloride", "Atomic No. 39: Yttrium. A compound commonly used in materials science to create high-temperature superconductors.", ["Y","Cl","Cl","Cl"], ["Y-Cl"], {"Y":3,"Cl":1}],
+            [40, "Zr", "Zirconium", "ZrO₂", "Zirconium Dioxide", "Atomic No. 40: Zirconium. A tough crystalline oxide used in dental crowns and diamond simulants.", ["Zr","O","O"], ["Zr-O"], {"Zr":2,"O":1}],
+            [41, "Nb", "Niobium", "NbO", "Niobium Monoxide", "Atomic No. 41: Niobium. A metallic solid exhibiting superconductivity at extremely low temperatures.", ["Nb","O"], ["Nb-O"], {"Nb":1,"O":1}],
+            [42, "Mo", "Molybdenum", "MoO₃", "Molybdenum Trioxide", "Atomic No. 42: Molybdenum. A compound used primarily as a catalyst in the petroleum industry.", ["Mo","O","O","O"], ["Mo-O"], {"Mo":3,"O":1}],
+            [43, "Tc", "Technetium", "TcO₂", "Technetium Dioxide", "Atomic No. 43: Technetium. A radioactive oxide of the first artificially produced element in history.", ["Tc","O","O"], ["Tc-O"], {"Tc":2,"O":1}],
+            [44, "Ru", "Ruthenium", "RuO₄", "Ruthenium Tetroxide", "Atomic No. 44: Ruthenium. A volatile, toxic yellow liquid used as a staining agent in electron microscopy.", ["Ru","O","O","O","O"], ["Ru-O"], {"Ru":4,"O":1}],
+            [45, "Rh", "Rhodium", "RhCl₃", "Rhodium Trichloride", "Atomic No. 45: Rhodium. A dark red solid used to prepare complex homogeneous catalysts.", ["Rh","Cl","Cl","Cl"], ["Rh-Cl"], {"Rh":3,"Cl":1}],
+            [46, "Pd", "Palladium", "PdCl₂", "Palladium Chloride", "Atomic No. 46: Palladium. A common starting material for palladium chemistry and automotive catalysts.", ["Pd","Cl","Cl"], ["Pd-Cl"], {"Pd":2,"Cl":1}],
+            [47, "Ag", "Silver", "AgCl", "Silver Chloride", "Atomic No. 47: Silver. A white crystalline solid highly sensitive to light, historically used in photography.", ["Ag","Cl"], ["Ag-Cl"], {"Ag":1,"Cl":1}],
+            [48, "Cd", "Cadmium", "CdS", "Cadmium Sulfide", "Atomic No. 48: Cadmium. A bright yellow solid historically used as a vibrant pigment in art.", ["Cd","S"], ["Cd-S"], {"Cd":1,"S":1}],
+            [49, "In", "Indium", "InCl₃", "Indium Trichloride", "Atomic No. 49: Indium. A colorless salt used in the synthesis of indium tin oxide for touchscreens.", ["In","Cl","Cl","Cl"], ["In-Cl"], {"In":3,"Cl":1}],
+            [50, "Sn", "Tin", "SnO₂", "Tin Dioxide", "Atomic No. 50: Tin. The main ore of tin, used in gas sensors and transparent conducting electrodes.", ["Sn","O","O"], ["Sn-O"], {"Sn":2,"O":1}],
+            [51, "Sb", "Antimony", "SbH₃", "Stibine", "Atomic No. 51: Antimony. A foul-smelling, highly toxic gas used in the semiconductor industry.", ["Sb","H","H","H"], ["Sb-H"], {"Sb":3,"H":1}],
+            [52, "Te", "Tellurium", "H₂Te", "Hydrogen Telluride", "Atomic No. 52: Tellurium. An unstable, highly toxic gas smelling of decaying garlic.", ["H","H","Te"], ["H-Te"], {"H":1,"Te":2}],
+            [53, "I", "Iodine", "I₂", "Iodine Gas", "Atomic No. 53: Iodine. A purple-black nonmetallic solid that sublimates into a violet gas.", ["I","I"], ["I-I"], {"I":1}],
+            [54, "Xe", "Xenon", "XeF₂", "Xenon Difluoride", "Atomic No. 54: Xenon. One of the few stable noble gas compounds, acting as a powerful fluorinating agent.", ["Xe","F","F"], ["Xe-F"], {"Xe":2,"F":1}],
+            [55, "Cs", "Cesium", "CsCl", "Cesium Chloride", "Atomic No. 55: Cesium. An ionic compound widely used in ultracentrifugation of DNA.", ["Cs","Cl"], ["Cs-Cl"], {"Cs":1,"Cl":1}],
+            [56, "Ba", "Barium", "BaO", "Barium Oxide", "Atomic No. 56: Barium. A white hygroscopic solid used in coating optical crown glass.", ["Ba","O"], ["Ba-O"], {"Ba":1,"O":1}],
+            [57, "La", "Lanthanum", "LaCl₃", "Lanthanum Chloride", "Atomic No. 57: Lanthanum. Used in water treatment and as a catalyst in cracking petroleum.", ["La","Cl","Cl","Cl"], ["La-Cl"], {"La":3,"Cl":1}],
+            [58, "Ce", "Cerium", "CeO₂", "Cerium Dioxide", "Atomic No. 58: Cerium. A pale yellow-white powder used widely as a glass-polishing agent.", ["Ce","O","O"], ["Ce-O"], {"Ce":2,"O":1}],
+            [59, "Pr", "Praseodymium", "PrCl₃", "Praseodymium Chloride", "Atomic No. 59: Praseodymium. A green compound used to color glass and enamels.", ["Pr","Cl","Cl","Cl"], ["Pr-Cl"], {"Pr":3,"Cl":1}],
+            [60, "Nd", "Neodymium", "NdCl₃", "Neodymium Chloride", "Atomic No. 60: Neodymium. Used to produce some of the most powerful permanent magnets in the world.", ["Nd","Cl","Cl","Cl"], ["Nd-Cl"], {"Nd":3,"Cl":1}],
+            [61, "Pm", "Promethium", "PmCl₃", "Promethium Chloride", "Atomic No. 61: Promethium. A highly radioactive compound of a predominantly artificial element.", ["Pm","Cl","Cl","Cl"], ["Pm-Cl"], {"Pm":3,"Cl":1}],
+            [62, "Sm", "Samarium", "SmCl₃", "Samarium Chloride", "Atomic No. 62: Samarium. A pale yellow solid used in the preparation of samarium-cobalt magnets.", ["Sm","Cl","Cl","Cl"], ["Sm-Cl"], {"Sm":3,"Cl":1}],
+            [63, "Eu", "Europium", "EuCl₂", "Europium Dichloride", "Atomic No. 63: Europium. A strongly luminescent compound used to create blue and red phosphors.", ["Eu","Cl","Cl"], ["Eu-Cl"], {"Eu":2,"Cl":1}],
+            [64, "Gd", "Gadolinium", "GdCl₃", "Gadolinium Chloride", "Atomic No. 64: Gadolinium. Used in MRI contrast agents to enhance medical imaging.", ["Gd","Cl","Cl","Cl"], ["Gd-Cl"], {"Gd":3,"Cl":1}],
+            [65, "Tb", "Terbium", "TbCl₃", "Terbium Chloride", "Atomic No. 65: Terbium. Employed in solid-state devices and as a green phosphor in displays.", ["Tb","Cl","Cl","Cl"], ["Tb-Cl"], {"Tb":3,"Cl":1}],
+            [66, "Dy", "Dysprosium", "DyCl₃", "Dysprosium Chloride", "Atomic No. 66: Dysprosium. Used in making special laser materials and commercial lighting.", ["Dy","Cl","Cl","Cl"], ["Dy-Cl"], {"Dy":3,"Cl":1}],
+            [67, "Ho", "Holmium", "HoCl₃", "Holmium Chloride", "Atomic No. 67: Holmium. Exhibits some of the highest magnetic strengths of any element.", ["Ho","Cl","Cl","Cl"], ["Ho-Cl"], {"Ho":3,"Cl":1}],
+            [68, "Er", "Erbium", "ErCl₃", "Erbium Chloride", "Atomic No. 68: Erbium. A pinkish compound utilized in optical fiber amplifiers for the internet.", ["Er","Cl","Cl","Cl"], ["Er-Cl"], {"Er":3,"Cl":1}],
+            [69, "Tm", "Thulium", "TmCl₃", "Thulium Chloride", "Atomic No. 69: Thulium. The least abundant rare earth metal, used in portable X-ray devices.", ["Tm","Cl","Cl","Cl"], ["Tm-Cl"], {"Tm":3,"Cl":1}],
+            [70, "Yb", "Ytterbium", "YbCl₂", "Ytterbium Dichloride", "Atomic No. 70: Ytterbium. A green solid that acts as a strong reducing agent in chemistry.", ["Yb","Cl","Cl"], ["Yb-Cl"], {"Yb":2,"Cl":1}],
+            [71, "Lu", "Lutetium", "LuCl₃", "Lutetium Chloride", "Atomic No. 71: Lutetium. The densest and hardest lanthanide, used in specialized phosphors.", ["Lu","Cl","Cl","Cl"], ["Lu-Cl"], {"Lu":3,"Cl":1}],
+            [72, "Hf", "Hafnium", "HfO₂", "Hafnium Dioxide", "Atomic No. 72: Hafnium. An electrical insulator used heavily in modern microchips.", ["Hf","O","O"], ["Hf-O"], {"Hf":2,"O":1}],
+            [73, "Ta", "Tantalum", "TaO₂", "Tantalum Dioxide", "Atomic No. 73: Tantalum. Highly resistant to corrosion, widely used in electronic capacitors.", ["Ta","O","O"], ["Ta-O"], {"Ta":2,"O":1}],
+            [74, "W", "Tungsten", "WO₃", "Tungsten Trioxide", "Atomic No. 74: Tungsten. A yellow powder used to manufacture x-ray screen phosphors and fireproofing.", ["W","O","O","O"], ["W-O"], {"W":3,"O":1}],
+            [75, "Re", "Rhenium", "ReO₂", "Rhenium Dioxide", "Atomic No. 75: Rhenium. A grey-black compound of one of the rarest elements in the Earth's crust.", ["Re","O","O"], ["Re-O"], {"Re":2,"O":1}],
+            [76, "Os", "Osmium", "OsO₄", "Osmium Tetroxide", "Atomic No. 76: Osmium. A highly toxic, volatile solid used for staining tissues in microscopy.", ["Os","O","O","O","O"], ["Os-O"], {"Os":4,"O":1}],
+            [77, "Ir", "Iridium", "IrCl₃", "Iridium Trichloride", "Atomic No. 77: Iridium. A vital precursor for industrial catalysts and exceptionally corrosion-resistant.", ["Ir","Cl","Cl","Cl"], ["Ir-Cl"], {"Ir":3,"Cl":1}],
+            [78, "Pt", "Platinum", "PtCl₂", "Platinum Dichloride", "Atomic No. 78: Platinum. A precious metal compound extensively used as a catalyst.", ["Pt","Cl","Cl"], ["Pt-Cl"], {"Pt":2,"Cl":1}],
+            [79, "Au", "Gold", "AuCl", "Gold(I) Chloride", "Atomic No. 79: Gold. A rare yellow solid compound of gold, used in specialized chemistry.", ["Au","Cl"], ["Au-Cl"], {"Au":1,"Cl":1}],
+            [80, "Hg", "Mercury", "HgO", "Mercury(II) Oxide", "Atomic No. 80: Mercury. A toxic red or yellow powder historically used in dry cell batteries.", ["Hg","O"], ["Hg-O"], {"Hg":1,"O":1}],
+            [81, "Tl", "Thallium", "TlCl", "Thallium(I) Chloride", "Atomic No. 81: Thallium. A highly toxic salt once used in rat poisons and insecticides.", ["Tl","Cl"], ["Tl-Cl"], {"Tl":1,"Cl":1}],
+            [82, "Pb", "Lead", "PbO", "Lead(II) Oxide", "Atomic No. 82: Lead. An amphoteric oxide historically heavily used in lead glass and ceramics.", ["Pb","O"], ["Pb-O"], {"Pb":1,"O":1}],
+            [83, "Bi", "Bismuth", "BiH₃", "Bismuthine", "Atomic No. 83: Bismuth. The heaviest analogue of ammonia, an unstable and highly toxic gas.", ["Bi","H","H","H"], ["Bi-H"], {"Bi":3,"H":1}],
+            [84, "Po", "Polonium", "PoH₂", "Hydrogen Polonide", "Atomic No. 84: Polonium. A volatile and intensely radioactive liquid compound.", ["H","H","Po"], ["H-Po"], {"H":1,"Po":2}],
+            [85, "At", "Astatine", "HAt", "Hydrogen Astatide", "Atomic No. 85: Astatine. A highly radioactive compound of the rarest naturally occurring element.", ["H","At"], ["H-At"], {"H":1,"At":1}],
+            [86, "Rn", "Radon", "RnF₂", "Radon Difluoride", "Atomic No. 86: Radon. A radioactive noble gas compound synthesized under extreme conditions.", ["Rn","F","F"], ["Rn-F"], {"Rn":2,"F":1}],
+            [87, "Fr", "Francium", "FrCl", "Francium Chloride", "Atomic No. 87: Francium. A theoretical ionic salt of the most unstable and reactive alkali metal.", ["Fr","Cl"], ["Fr-Cl"], {"Fr":1,"Cl":1}],
+            [88, "Ra", "Radium", "RaO", "Radium Oxide", "Atomic No. 88: Radium. A highly radioactive compound that glows in the dark.", ["Ra","O"], ["Ra-O"], {"Ra":1,"O":1}],
+            [89, "Ac", "Actinium", "AcCl₃", "Actinium Chloride", "Atomic No. 89: Actinium. An intensely radioactive compound that glows with a pale blue light.", ["Ac","Cl","Cl","Cl"], ["Ac-Cl"], {"Ac":3,"Cl":1}],
+            [90, "Th", "Thorium", "ThO₂", "Thorium Dioxide", "Atomic No. 90: Thorium. Possesses the highest melting point of any known oxide.", ["Th","O","O"], ["Th-O"], {"Th":2,"O":1}],
+            [91, "Pa", "Protactinium", "PaO₂", "Protactinium Dioxide", "Atomic No. 91: Protactinium. A rare, highly radioactive black oxide solid.", ["Pa","O","O"], ["Pa-O"], {"Pa":2,"O":1}],
+            [92, "U", "Uranium", "UO₂", "Uranium Dioxide", "Atomic No. 92: Uranium. The primary radioactive fuel compound utilized in nuclear power plants.", ["U","O","O"], ["U-O"], {"U":2,"O":1}],
+            [93, "Np", "Neptunium", "NpO₂", "Neptunium Dioxide", "Atomic No. 93: Neptunium. A radioactive olive-green solid heavily utilized in nuclear research.", ["Np","O","O"], ["Np-O"], {"Np":2,"O":1}],
+            [94, "Pu", "Plutonium", "PuO₂", "Plutonium Dioxide", "Atomic No. 94: Plutonium. A radioactive compound utilized in thermoelectric generators for deep space missions.", ["Pu","O","O"], ["Pu-O"], {"Pu":2,"O":1}],
+            [95, "Am", "Americium", "AmCl₃", "Americium Chloride", "Atomic No. 95: Americium. A pink radioactive compound whose parent element is used in smoke detectors.", ["Am","Cl","Cl","Cl"], ["Am-Cl"], {"Am":3,"Cl":1}],
+            [96, "Cm", "Curium", "CmCl₃", "Curium Chloride", "Atomic No. 96: Curium. A fiercely radioactive salt that glows in the dark due to self-heating.", ["Cm","Cl","Cl","Cl"], ["Cm-Cl"], {"Cm":3,"Cl":1}],
+            [97, "Bk", "Berkelium", "BkCl₃", "Berkelium Chloride", "Atomic No. 97: Berkelium. A synthetic, intensely radioactive green solid.", ["Bk","Cl","Cl","Cl"], ["Bk-Cl"], {"Bk":3,"Cl":1}],
+            [98, "Cf", "Californium", "CfCl₃", "Californium Chloride", "Atomic No. 98: Californium. An extremely expensive synthetic radioactive compound.", ["Cf","Cl","Cl","Cl"], ["Cf-Cl"], {"Cf":3,"Cl":1}],
+            [99, "Es", "Einsteinium", "EsCl₃", "Einsteinium Chloride", "Atomic No. 99: Einsteinium. A synthetic element named after Albert Einstein, exhibiting intense radiation.", ["Es","Cl","Cl","Cl"], ["Es-Cl"], {"Es":3,"Cl":1}],
+            [100, "Fm", "Fermium", "FmCl₃", "Fermium Chloride", "Atomic No. 100: Fermium. The heaviest element that can be formed by neutron bombardment of lighter elements.", ["Fm","Cl","Cl","Cl"], ["Fm-Cl"], {"Fm":3,"Cl":1}],
+            [101, "Md", "Mendelevium", "MdCl₃", "Mendelevium Chloride", "Atomic No. 101: Mendelevium. A synthetic element named after Dmitri Mendeleev, creator of the periodic table.", ["Md","Cl","Cl","Cl"], ["Md-Cl"], {"Md":3,"Cl":1}],
+            [102, "No", "Nobelium", "NoCl₂", "Nobelium Dichloride", "Atomic No. 102: Nobelium. An artificial element named in honor of Alfred Nobel.", ["No","Cl","Cl"], ["No-Cl"], {"No":2,"Cl":1}],
+            [103, "Lr", "Lawrencium", "LrCl₃", "Lawrencium Chloride", "Atomic No. 103: Lawrencium. The final element of the actinide series.", ["Lr","Cl","Cl","Cl"], ["Lr-Cl"], {"Lr":3,"Cl":1}],
+            [104, "Rf", "Rutherfordium", "RfCl₄", "Rutherfordium Tetrachloride", "Atomic No. 104: Rutherfordium. The first superheavy transactinide element.", ["Rf","Cl","Cl","Cl","Cl"], ["Rf-Cl"], {"Rf":4,"Cl":1}],
+            [105, "Db", "Dubnium", "DbCl₅", "Dubnium Pentachloride", "Atomic No. 105: Dubnium. A highly radioactive synthetic element.", ["Db","Cl","Cl","Cl","Cl","Cl"], ["Db-Cl"], {"Db":5,"Cl":1}],
+            [106, "Sg", "Seaborgium", "SgO₃", "Seaborgium Trioxide", "Atomic No. 106: Seaborgium. A superheavy element named after nuclear chemist Glenn T. Seaborg.", ["Sg","O","O","O"], ["Sg-O"], {"Sg":3,"O":1}],
+            [107, "Bh", "Bohrium", "BhCl₃", "Bohrium Trichloride", "Atomic No. 107: Bohrium. A superheavy synthetic element named after physicist Niels Bohr.", ["Bh","Cl","Cl","Cl"], ["Bh-Cl"], {"Bh":3,"Cl":1}],
+            [108, "Hs", "Hassium", "HsO₄", "Hassium Tetroxide", "Atomic No. 108: Hassium. Known to form a highly volatile tetroxide similar to osmium.", ["Hs","O","O","O","O"], ["Hs-O"], {"Hs":4,"O":1}],
+            [109, "Mt", "Meitnerium", "MtCl₃", "Meitnerium Trichloride", "Atomic No. 109: Meitnerium. A theoretical superheavy compound, named after physicist Lise Meitner.", ["Mt","Cl","Cl","Cl"], ["Mt-Cl"], {"Mt":3,"Cl":1}],
+            [110, "Ds", "Darmstadtium", "DsCl₂", "Darmstadtium Dichloride", "Atomic No. 110: Darmstadtium. A superheavy element first synthesized in Darmstadt, Germany.", ["Ds","Cl","Cl"], ["Ds-Cl"], {"Ds":2,"Cl":1}],
+            [111, "Rg", "Roentgenium", "RgCl", "Roentgenium Chloride", "Atomic No. 111: Roentgenium. A superheavy synthetic element named after the discoverer of X-rays.", ["Rg","Cl"], ["Rg-Cl"], {"Rg":1,"Cl":1}],
+            [112, "Cn", "Copernicium", "CnCl₂", "Copernicium Dichloride", "Atomic No. 112: Copernicium. A volatile superheavy element showing properties similar to a noble gas.", ["Cn","Cl","Cl"], ["Cn-Cl"], {"Cn":2,"Cl":1}],
+            [113, "Nh", "Nihonium", "NhCl", "Nihonium Chloride", "Atomic No. 113: Nihonium. A highly radioactive superheavy element first synthesized in Japan.", ["Nh","Cl"], ["Nh-Cl"], {"Nh":1,"Cl":1}],
+            [114, "Fl", "Flerovium", "FlF₂", "Flerovium Difluoride", "Atomic No. 114: Flerovium. A superheavy element predicted to behave somewhat like a noble gas.", ["Fl","F","F"], ["Fl-F"], {"Fl":2,"F":1}],
+            [115, "Mc", "Moscovium", "McCl", "Moscovium Chloride", "Atomic No. 115: Moscovium. A synthetic superheavy element named after the Moscow region.", ["Mc","Cl"], ["Mc-Cl"], {"Mc":1,"Cl":1}],
+            [116, "Lv", "Livermorium", "LvF₂", "Livermorium Difluoride", "Atomic No. 116: Livermorium. A highly radioactive superheavy element.", ["Lv","F","F"], ["Lv-F"], {"Lv":2,"F":1}],
+            [117, "Ts", "Tennessine", "HTs", "Hydrogen Tennesside", "Atomic No. 117: Tennessine. The second-heaviest known element, predicted to form a hydrogen halide.", ["H","Ts"], ["H-Ts"], {"H":1,"Ts":1}],
+            [118, "Og", "Oganesson", "OgF₂", "Oganesson Difluoride", "Atomic No. 118: Oganesson. The heaviest known element on the periodic table, predicted to be a solid semiconductor.", ["Og","F","F"], ["Og-F"], {"Og":2,"F":1}]
+        ];
+
+        const symbolToName = { "Cl": "Chlorine", "O": "Oxygen", "F": "Fluorine", "H": "Hydrogen" };
+
+        const formattedLevels = rawLevels.map(data => {
+            const z = data[0];
+            const sym = data[1];
+            symbolToName[sym] = data[2];
+
+            let colors = {};
+            data[6].forEach(atom => {
+                if (atom === "H") colors[atom] = "#ffffff";
+                else if (atom === "O") colors[atom] = "#ff4757";
+                else if (atom === "F") colors[atom] = "#9ae5cc";
+                else if (atom === "Cl") colors[atom] = "#1dd1a1";
+                else if (atom === "S") colors[atom] = "#f1c40f";
+                else colors[atom] = getElementColor(z);
+            });
+
+            return {
+                z: z,
+                sym: sym,
+                formula: data[3],
+                name: data[4],
+                desc: data[5],
+                atoms: data[6],
+                allowed: data[7],
+                maxBonds: data[8],
+                colors: colors
+            };
+        });
+
+        // Engine Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const uiLayer = document.getElementById('ui-layer');
+        const levelInd = document.getElementById('level-indicator');
+        const startScreen = document.getElementById('start-screen');
+        const winOverlay = document.getElementById('win-overlay');
+
+        let width, height;
+        let currentLevel = 0;
+        let nodes = [];
+        let links = [];
+        let draggedNode = null;
+        let hoveredNode = null;
+        let isLevelComplete = false;
+        let pointer = { x: 0, y: 0, isDown: false };
+
+        // Audio Context Setup
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSynth(freq, type = 'sine', duration = 0.2, volume = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const sfx = {
+            grab: () => playSynth(300, 'triangle', 0.1, 0.05),
+            snap: () => {
+                playSynth(800, 'sine', 0.1, 0.1);
+                setTimeout(() => playSynth(1200, 'sine', 0.2, 0.1), 50);
+            },
+            error: () => playSynth(150, 'square', 0.15, 0.05),
+            win: () => {
+                const notes = [440, 554.37, 659.25, 880]; 
+                notes.forEach((freq, i) => {
+                    setTimeout(() => playSynth(freq, 'sine', 0.4, 0.15), i * 150);
+                });
+            }
+        };
+
+        // Resize Handling
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            width = canvas.width;
+            height = canvas.height;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            width /= window.devicePixelRatio;
+            height /= window.devicePixelRatio;
+        }
+        window.addEventListener('resize', resize);
+
+        // Core Mechanics
+        function startLevel(index) {
+            currentLevel = index;
+            const data = formattedLevels[currentLevel];
+            
+            document.getElementById('target-compound').innerText = data.formula;
+            levelInd.innerText = `Level ${currentLevel + 1} / 118 (${data.name.split(' ')[0]})`;
+            
+            uiLayer.style.opacity = 1;
+            levelInd.style.opacity = 1;
+            winOverlay.classList.remove('active');
+            
+            nodes = [];
+            links = [];
+            isLevelComplete = false;
+            draggedNode = null;
+            hoveredNode = null;
+
+            const radius = width < 400 ? 25 : 35;
+
+            // Spawn Atoms
+            data.atoms.forEach((symbol, i) => {
+                nodes.push({
+                    id: i,
+                    element: symbol,
+                    x: Math.random() * (width - radius * 2) + radius,
+                    y: Math.random() * (height - radius * 2) + radius,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    radius: radius,
+                    color: data.colors[symbol] || '#ffffff'
+                });
+            });
+        }
+
+        function isValidBond(n1, n2) {
+            if (links.length >= nodes.length - 1) return false;
+            
+            const data = formattedLevels[currentLevel];
+            const pair1 = n1.element + "-" + n2.element;
+            const pair2 = n2.element + "-" + n1.element;
+            
+            if (!data.allowed.includes(pair1) && !data.allowed.includes(pair2)) {
+                return false; 
+            }
+            
+            let bondsN1 = links.filter(l => l.nodeA === n1 || l.nodeB === n1).length;
+            let bondsN2 = links.filter(l => l.nodeA === n2 || l.nodeB === n2).length;
+            
+            if (bondsN1 >= data.maxBonds[n1.element] || bondsN2 >= data.maxBonds[n2.element]) {
+                return false; 
+            }
+            
+            return true;
+        }
+
+        function linkExists(n1, n2) {
+            return links.some(l => (l.nodeA === n1 && l.nodeB === n2) || (l.nodeA === n2 && l.nodeB === n1));
+        }
+
+        // Game Loop
+        function update() {
+            nodes.forEach(n => {
+                if (n !== draggedNode) {
+                    n.x += n.vx;
+                    n.y += n.vy;
+                    
+                    n.vx += (Math.random() - 0.5) * 0.1;
+                    n.vy += (Math.random() - 0.5) * 0.1;
+                    n.vx *= 0.98;
+                    n.vy *= 0.98;
+                } else {
+                    n.x = pointer.x;
+                    n.y = pointer.y;
+                    n.vx = 0;
+                    n.vy = 0;
+                }
+
+                // Wall bounds
+                if (n.x < n.radius) { n.x = n.radius; n.vx *= -0.8; }
+                if (n.x > width - n.radius) { n.x = width - n.radius; n.vx *= -0.8; }
+                if (n.y < n.radius) { n.y = n.radius; n.vy *= -0.8; }
+                if (n.y > height - n.radius) { n.y = height - n.radius; n.vy *= -0.8; }
+            });
+
+            // Physics Relaxation
+            const iterations = 3;
+            for (let i = 0; i < iterations; i++) {
+                links.forEach(link => {
+                    let dx = link.nodeB.x - link.nodeA.x;
+                    let dy = link.nodeB.y - link.nodeA.y;
+                    let dist = Math.hypot(dx, dy);
+                    if (dist === 0) return;
+                    let diff = link.targetDist - dist;
+                    let percent = (diff / dist) / 2;
+                    let offsetX = dx * percent * 0.5;
+                    let offsetY = dy * percent * 0.5;
+                    
+                    if (link.nodeA !== draggedNode) {
+                        link.nodeA.x -= offsetX;
+                        link.nodeA.y -= offsetY;
+                    }
+                    if (link.nodeB !== draggedNode) {
+                        link.nodeB.x += offsetX;
+                        link.nodeB.y += offsetY;
+                    }
+                });
+
+                // Soft Collisions
+                for (let a = 0; a < nodes.length; a++) {
+                    for (let b = a + 1; b < nodes.length; b++) {
+                        let n1 = nodes[a];
+                        let n2 = nodes[b];
+                        let dx = n2.x - n1.x;
+                        let dy = n2.y - n1.y;
+                        let dist = Math.hypot(dx, dy);
+                        let minDist = n1.radius + n2.radius + 5; 
+                        
+                        if (dist < minDist && dist > 0) {
+                            let overlap = minDist - dist;
+                            let nx = dx / dist;
+                            let ny = dy / dist;
+                            
+                            let f = overlap * 0.5;
+                            if (n1 !== draggedNode) {
+                                n1.x -= nx * f;
+                                n1.y -= ny * f;
+                            }
+                            if (n2 !== draggedNode) {
+                                n2.x += nx * f;
+                                n2.y += ny * f;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw Links
+            ctx.lineWidth = 6;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(102, 252, 241, 0.8)';
+            ctx.strokeStyle = 'rgba(102, 252, 241, 0.9)';
+            
+            links.forEach(link => {
+                ctx.beginPath();
+                ctx.moveTo(link.nodeA.x, link.nodeA.y);
+                ctx.lineTo(link.nodeB.x, link.nodeB.y);
+                ctx.stroke();
+            });
+            ctx.shadowBlur = 0;
+
+            // Draw Nodes
+            nodes.forEach(n => {
+                let gradient = ctx.createRadialGradient(n.x, n.y, n.radius * 0.2, n.x, n.y, n.radius);
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(0.6, n.color);
+                gradient.addColorStop(1, 'rgba(0,0,0,0.5)');
+
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                
+                let isHovered = (hoveredNode === n || draggedNode === n);
+
+                if (isHovered) {
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = n.color;
+                } else {
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = '#000';
+                }
+                
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.stroke();
+
+                ctx.fillStyle = '#0b0c10';
+                let fontSize = n.element.length === 1 ? n.radius * 1.1 : n.radius * 0.8;
+                ctx.font = `bold ${fontSize}px 'Orbitron', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(n.element, n.x, n.y + 2);
+            });
+
+            // Draw Hover Tooltip
+            let displayNode = hoveredNode || draggedNode;
+            if (displayNode && !isLevelComplete) {
+                let text = symbolToName[displayNode.element] || displayNode.element;
+                ctx.font = "bold 16px 'Rajdhani', sans-serif";
+                let textWidth = ctx.measureText(text).width;
+                let padX = 12, padY = 8;
+                let boxW = textWidth + padX * 2;
+                let boxH = 16 + padY * 2;
+                let boxX = displayNode.x;
+                let boxY = displayNode.y - displayNode.radius - boxH/2 - 10;
+
+                // Clamp tooltip
+                if (boxX - boxW/2 < 10) boxX = boxW/2 + 10;
+                if (boxX + boxW/2 > width - 10) boxX = width - boxW/2 - 10;
+                if (boxY - boxH/2 < 10) boxY = displayNode.y + displayNode.radius + boxH/2 + 10;
+
+                ctx.fillStyle = 'rgba(11, 12, 16, 0.9)';
+                ctx.strokeStyle = '#66fcf1';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect ? ctx.roundRect(boxX - boxW/2, boxY - boxH/2, boxW, boxH, 5) : ctx.rect(boxX - boxW/2, boxY - boxH/2, boxW, boxH);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, boxX, boxY + 1);
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Pointer Events
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (width / rect.width),
+                y: (clientY - rect.top) * (height / rect.height)
+            };
+        }
+
+        function handlePointerDown(e) {
+            if(isLevelComplete) return;
+            pointer.isDown = true;
+            const pos = getPointerPos(e);
+            pointer.x = pos.x;
+            pointer.y = pos.y;
+
+            let closest = null;
+            let minDist = Infinity;
+            nodes.forEach(n => {
+                let dist = Math.hypot(n.x - pos.x, n.y - pos.y);
+                if (dist < n.radius * 1.5 && dist < minDist) {
+                    closest = n;
+                    minDist = dist;
+                }
+            });
+
+            if (closest) {
+                draggedNode = closest;
+                hoveredNode = null; 
+                sfx.grab();
+            }
+        }
+
+        function handlePointerMove(e) {
+            const pos = getPointerPos(e);
+            
+            // Hover logic
+            hoveredNode = null;
+            if (!pointer.isDown && !isLevelComplete) {
+                for (let n of nodes) {
+                    let dist = Math.hypot(n.x - pos.x, n.y - pos.y);
+                    if (dist <= n.radius) {
+                        hoveredNode = n;
+                        break;
+                    }
+                }
+            }
+
+            if (pointer.isDown) {
+                if (e.cancelable) e.preventDefault(); // Prevent scroll
+                pointer.x = pos.x;
+                pointer.y = pos.y;
+            }
+        }
+
+        function handlePointerUp(e) {
+            pointer.isDown = false;
+            if (draggedNode && !isLevelComplete) {
+                let snapped = false;
+                let invalidAttempt = false;
+                let rejectNode = null;
+
+                nodes.forEach(n => {
+                    if (n !== draggedNode && !linkExists(n, draggedNode)) {
+                        let dist = Math.hypot(n.x - draggedNode.x, n.y - draggedNode.y);
+                        if (dist < n.radius + draggedNode.radius + 30) {
+                            if (isValidBond(draggedNode, n)) {
+                                links.push({
+                                    nodeA: draggedNode, 
+                                    nodeB: n, 
+                                    targetDist: n.radius + draggedNode.radius + 20
+                                });
+                                snapped = true;
+                            } else {
+                                invalidAttempt = true;
+                                rejectNode = n;
+                            }
+                        }
+                    }
+                });
+
+                if (snapped) {
+                    sfx.snap();
+                    
+                    if (links.length === nodes.length - 1) {
+                        isLevelComplete = true;
+                        sfx.win();
+                        
+                        setTimeout(() => {
+                            const data = formattedLevels[currentLevel];
+                            document.getElementById('compound-title').innerText = data.name;
+                            document.getElementById('compound-formula').innerText = data.formula;
+                            document.getElementById('compound-desc').innerText = data.desc;
+                            
+                            if(currentLevel === formattedLevels.length - 1) {
+                                document.getElementById('next-btn').innerText = "Restart Journey";
+                            } else {
+                                document.getElementById('next-btn').innerText = "Next Element";
+                            }
+                            
+                            winOverlay.classList.add('active');
+                        }, 1000); 
+                    }
+                } else if (invalidAttempt && rejectNode) {
+                    sfx.error();
+                    let dx = draggedNode.x - rejectNode.x;
+                    let dy = draggedNode.y - rejectNode.y;
+                    let dist = Math.hypot(dx, dy) || 1;
+                    draggedNode.vx = (dx / dist) * 15;
+                    draggedNode.vy = (dy / dist) * 15;
+                }
+            }
+            draggedNode = null;
+        }
+
+        canvas.addEventListener('mousedown', handlePointerDown);
+        window.addEventListener('mousemove', handlePointerMove, {passive: false});
+        window.addEventListener('mouseup', handlePointerUp);
+        
+        canvas.addEventListener('touchstart', handlePointerDown, {passive: false});
+        window.addEventListener('touchmove', handlePointerMove, {passive: false});
+        window.addEventListener('touchend', handlePointerUp);
+
+        // Buttons
+        document.getElementById('start-btn').addEventListener('click', () => {
+            initAudio();
+            startScreen.classList.remove('active');
+            resize();
+            startLevel(0);
+            loop();
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if(currentLevel >= formattedLevels.length - 1) {
+                startLevel(0); 
+            } else {
+                startLevel(currentLevel + 1);
+            }
+        });
+
+        // Init layout
+        resize();
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AquaDirector Tycoon</title>
+    <title>Reef Fish</title>
     <style>
         body {
             margin: 0;
@@ -73,6 +73,23 @@
         #sound-btn, #save-btn, #reset-btn { font-size: 1em; padding: 10px 15px; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
         #sound-btn:hover, #save-btn:hover { background: rgba(255,255,255,0.2); }
         #reset-btn:hover { background: rgba(255, 71, 87, 0.3); border-color: #ff4757; color: #ff4757; }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 600px) {
+            #ui-layer { padding: 10px; }
+            .hud-column { gap: 6px; }
+            .btn-column { gap: 6px; }
+            
+            /* Shrink RP display and top-level action buttons on phones */
+            #rp-count-box {
+                font-size: 1em;
+                padding: 10px 15px;
+            }
+            #research-btn, #guide-btn {
+                font-size: 1em;
+                padding: 10px 15px;
+            }
+        }
 
         /* Swimming Fish Sprites */
         .fish-sprite {
@@ -215,19 +232,56 @@
         }
         .btn-speak:hover { transform: scale(1.05); }
 
+        /* Mobile Adjustments (Phones) */
+        @media (max-width: 600px) {
+            #start-screen h1 { font-size: 2.1em; }
+            #start-screen p { font-size: 1em; padding: 0 10px; }
+            #start-btn { font-size: 1.1em; padding: 12px 28px; }
+
+            #ui-layer { padding: 8px; }
+            .hud-column { gap: 4px; }
+            .btn-column { gap: 4px; }
+
+            /* Consistently smaller sizing for all HUD components and action buttons */
+            .hud-box, 
+            #rp-count-box,
+            .action-btn {
+                font-size: 0.75em;
+                padding: 6px 10px;
+                min-width: 100px;
+                border-radius: 6px;
+            }
+
+            #auto-harvest-box {
+                font-size: 0.7em;
+                padding: 5px 8px;
+            }
+
+            /* Optional: Make modals slightly more compact on mobile screens */
+            .modal {
+                padding: 15px;
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .modal h2 {
+                font-size: 1.6em;
+            }
+        }
+
     </style>
 </head>
 <body>
 
 <div id="start-screen">
-    <h1>AquaDirector Tycoon</h1>
+    <h1>Reef Fish</h1>
     <p>Construct a thriving pelagic environment. Decode the taxonomy of 91 fish families.</p>
     <button id="start-btn">Commence Dive</button>
 </div>
 
 <div id="ui-layer">
     <div class="hud-column">
-        <div class="hud-box">🧬 <span id="rp-count">0</span> RP</div>
+        <div class="hud-box" id="rp-count-box">🧬 <span id="rp-count">0</span> RP</div>
         <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
     </div>
     <div class="btn-column">
@@ -774,7 +828,6 @@
     window.addEventListener('keydown', function(e) {
         cheatBuffer += e.key.toLowerCase();
         
-        // Expanded the buffer size to account for longer cheats
         if (cheatBuffer.length > 20) {
             cheatBuffer = cheatBuffer.slice(-20);
         }
@@ -815,11 +868,9 @@
         // --- New "execute" Cheat Code ---
         if (cheatBuffer.endsWith('execute')) {
             fishData.forEach(function(f) {
-                // Replace "dae" at the end of the name with "mon" (case-insensitive)
                 f.name = f.name.replace(/dae$/i, 'mon');
             });
             
-            // Update any currently active/swimming fish name tags in the ocean
             activeFish.forEach(function(fObj) {
                 const fishDef = fishData.find(function(d) { return d.id === fObj.id; });
                 const nameTag = fObj.el.querySelector('.fish-name-tag');
@@ -828,15 +879,12 @@
                 }
             });
 
-            // Re-render open modals immediately to reflect the new names
             if (document.getElementById('research-modal').style.display === 'flex') {
                 openResearch();
             }
             if (document.getElementById('guide-modal').style.display === 'flex') {
                 if (document.getElementById('detail-view').style.display === 'flex') {
-                    // Update currently open detail view
                     const currentIdName = document.getElementById('detail-name').innerText;
-                    // Attempt to locate and refresh the same fish
                     const updatedFish = fishData.find(f => f.name.toLowerCase() === currentIdName.toLowerCase().replace(/dae$/, 'mon'));
                     if (updatedFish) showDetail(updatedFish);
                 } else {
@@ -844,7 +892,6 @@
                 }
             }
 
-            // Provide visual/audio feedback for the cheat
             sfx.unlock();
             const ocean = document.getElementById('ocean');
             const floatAlert = document.createElement('div');

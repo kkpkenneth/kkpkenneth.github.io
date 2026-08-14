@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Etymology Master Quiz - Full Bank</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --border: #e2e8f0;
+            --success: #059669;
+            --error: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            width: 100%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--card-bg);
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        #start-screen {
+            text-align: center;
+        }
+
+        #start-screen p {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border);
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            background-color: var(--card-bg);
+            transform: translateY(-1px);
+        }
+
+        .option-btn.correct {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .option-btn.incorrect {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .feedback-area {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .feedback-area.active {
+            display: block;
+        }
+
+        .next-btn {
+            background-color: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            float: right;
+        }
+
+        .next-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        #results-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 15px 0;
+        }
+
+        #results-screen p {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div class="container">
+        <header>
+            <h1>Full Bank Root Words <span>Master Quiz</span></h1>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span id="themeIcon">☀️</span> <span id="themeText">Light</span>
+            </button>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="card">
+            <h2>Complete Etymological Challenge</h2>
+            <p>Every single root from the comprehensive table will be tested across this full session, complete with synthesized sound effects and detailed explanations!</p>
+            <button class="btn-primary" onclick="startQuiz()">Start Full Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="card hidden">
+            <div class="quiz-header">
+                <span id="question-counter">Question 1 of N</span>
+                <span id="score-keeper">Score: 0</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="question-text" id="questionText">Loading question...</div>
+            <div class="options-grid" id="optionsContainer"></div>
+            <div class="feedback-area" id="feedbackArea"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="card">
+            <h2>Full Quiz Completed!</h2>
+            <div class="score-display" id="finalScore">0/0</div>
+            <p id="resultMessage">Great effort!</p>
+            <button class="btn-primary" onclick="startQuiz()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+
+            if (type === 'click') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'correct') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const st = now + (i * 0.07);
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.12, st);
+                    gain.gain.exponentialRampToValueAtTime(0.001, st + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(st);
+                    osc.stop(st + 0.25);
+                });
+            } else if (type === 'incorrect') {
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc1.type = 'sawtooth';
+                osc2.type = 'sawtooth';
+                osc1.frequency.value = 120;
+                osc2.frequency.value = 127;
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(ctx.destination);
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.3);
+                osc2.stop(now + 0.3);
+            } else if (type === 'complete') {
+                [440, 554.37, 659.25, 880].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const st = now + (i * 0.12);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.15, st);
+                    gain.gain.exponentialRampToValueAtTime(0.001, st + 0.4);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(st);
+                    osc.stop(st + 0.4);
+                });
+            }
+        }
+
+        const expandedRootDatabase = [
+            { root: "Bio", meaning: "Life", origin: "Greek", examples: "Biology, biography, biosphere" },
+            { root: "Chron", meaning: "Time", origin: "Greek", examples: "Chronology, chronic, synchronize" },
+            { root: "Terra / Geo", meaning: "Earth", origin: "Latin / Greek", examples: "Terrarium, geography, geology" },
+            { root: "Hydro", meaning: "Water", origin: "Greek", examples: "Hydrogen, hydrant, hydrophobic" },
+            { root: "Astr", meaning: "Star", origin: "Greek", examples: "Astronomy, astronaut, aster" },
+            { root: "Psych", meaning: "Mind / Soul", origin: "Greek", examples: "Psychology, psychiatry, psyche" },
+            { root: "Photo / Luc", meaning: "Light", origin: "Greek / Latin", examples: "Photograph, lucid, illuminate" },
+            { root: "Therm", meaning: "Heat", origin: "Greek", examples: "Thermostat, thermal, thermometer" },
+            { root: "Poli", meaning: "City", origin: "Greek", examples: "Metropolis, police, politics" },
+            { root: "Ped / Pod", meaning: "Foot", origin: "Greek / Latin", examples: "Pedal, podiatrist, pedestrian" },
+            { root: "Cheir", meaning: "Hand", origin: "Greek", examples: "Chiropractor, chiromancy" },
+            { root: "Biblio", meaning: "Book", origin: "Greek", examples: "Bibliography, bible, bibliophile" },
+            { root: "Onym", meaning: "Name", origin: "Greek", examples: "Pseudonym, anonymous, synonym" },
+            { root: "Log", meaning: "Word / Speech", origin: "Greek", examples: "Dialogue, prologue, logic" },
+            { root: "Neo", meaning: "New", origin: "Greek", examples: "Neolithic, neon, neophyte" },
+            { root: "Micro", meaning: "Small", origin: "Greek", examples: "Microscope, microbe, microwave" },
+            { root: "Macro / Mega", meaning: "Large / Great", origin: "Greek", examples: "Megaphone, macrocosm" },
+            { root: "Poly", meaning: "Many", origin: "Greek", examples: "Polygon, polytheism" },
+            { root: "Pan", meaning: "All", origin: "Greek", examples: "Panorama, pandemic, panacea" },
+            { root: "Auto", meaning: "Self", origin: "Greek", examples: "Autograph, automatic, autobiography" },
+            { root: "Hetero", meaning: "Other", origin: "Greek", examples: "Heterogeneous, heterosexual" },
+            { root: "Homo", meaning: "Same", origin: "Greek", examples: "Homogeneous, homophone, homonym" },
+            { root: "Caco", meaning: "Bad / Evil", origin: "Greek", examples: "Cacophony, cacography" },
+            { root: "Eu", meaning: "Good / Well", origin: "Greek", examples: "Eulogy, euphoria, eukaryote" },
+            { root: "Eco", meaning: "Building / House / Environment", origin: "Greek", examples: "Ecology, economy, ecosystem" },
+            { root: "Akantha", meaning: "Thorn / Spine", origin: "Greek", examples: "Acanthuridae, acanthite" },
+            { root: "Oura", meaning: "Tail", origin: "Greek", examples: "Acanthuridae, gymnuridae" },
+            { root: "Antenna", meaning: "Yardarm / Feeler", origin: "Latin", examples: "Antennariidae, antenna" },
+            { root: "Apistos", meaning: "Unbelievable / Treacherous", origin: "Greek", examples: "Apistidae" },
+            { root: "Aplos", meaning: "Simple", origin: "Greek", examples: "Aploactinidae" },
+            { root: "Actis", meaning: "Ray", origin: "Greek", examples: "Aploactinidae, actin" },
+            { root: "Pogon", meaning: "Beard", origin: "Greek", examples: "Apogonidae" },
+            { root: "Atherina", meaning: "Prickly / Silverside fish", origin: "Greek", examples: "Atherinidae" },
+            { root: "Aulos", meaning: "Flute / Pipe", origin: "Greek", examples: "Aulostomidae" },
+            { root: "Stoma", meaning: "Mouth", origin: "Greek", examples: "Aulostomidae, stomata" },
+            { root: "Balista", meaning: "Ballista catapult", origin: "Latin", examples: "Balistidae, ballista" },
+            { root: "Belone", meaning: "Needle", origin: "Greek", examples: "Belonidae, belemnite" },
+            { root: "Blennos", meaning: "Mucus / Slime", origin: "Greek", examples: "Blenniidae, blenny" },
+            { root: "Caesius", meaning: "Bluish-grey", origin: "Latin", examples: "Caesionidae" },
+            { root: "Kentron", meaning: "Spiny / Spur / Sting", origin: "Greek", examples: "Centrolophidae, monocentridae" },
+            { root: "Lophos", meaning: "Crest", origin: "Greek", examples: "Centrolophidae" },
+            { root: "Chaino", meaning: "To gape", origin: "Greek", examples: "Chaenopsidae" },
+            { root: "Opsis", meaning: "Appearance", origin: "Greek", examples: "Chaenopsidae, synopsis" },
+            { root: "Chaite", meaning: "Hair", origin: "Greek", examples: "Chaetodontidae" },
+            { root: "Odous", meaning: "Tooth", origin: "Greek", examples: "Chaetodontidae, diodontidae, synodontidae" },
+            { root: "Chanos", meaning: "Gaping mouth", origin: "Latin", examples: "Chanidae" },
+            { root: "Cirrus", meaning: "Curl / Tendril", origin: "Latin", examples: "Cirrhitidae, cirrus clouds" },
+            { root: "Kyon", meaning: "Dog", origin: "Greek", examples: "Cynoglossidae, cynic" },
+            { root: "Glossa", meaning: "Tongue", origin: "Greek", examples: "Cynoglossidae, glossary" },
+            { root: "Daktylos", meaning: "Finger", origin: "Greek", examples: "Dactylopteridae, dactyl" },
+            { root: "Pteron", meaning: "Wing / Fin", origin: "Greek", examples: "Dactylopteridae, helicopter" },
+            { root: "Dasys", meaning: "Rough / Shaggy", origin: "Greek", examples: "Dasyatidae" },
+            { root: "Batos", meaning: "Thorn / Ray", origin: "Greek", examples: "Dasyatidae" },
+            { root: "Di-", meaning: "Two", origin: "Greek", examples: "Diodontidae, dioxide" },
+            { root: "Echein", meaning: "To hold back", origin: "Greek", examples: "Echeneidae" },
+            { root: "Naus", meaning: "Ship", origin: "Greek", examples: "Echeneidae, astronaut" },
+            { root: "Ephippion", meaning: "Saddle", origin: "Greek", examples: "Ephippidae" },
+            { root: "Epinephelos", meaning: "Cloudy / Overcast", origin: "Greek", examples: "Epinephelidae" },
+            { root: "Fistula", meaning: "Pipe / Flute", origin: "Latin", examples: "Fistulariidae, fistula" },
+            { root: "Gerros", meaning: "Wickerwork shield", origin: "Greek", examples: "Gerreidae" },
+            { root: "Gobius", meaning: "Gudgeon / Loach", origin: "Latin", examples: "Gobiidae, goby" },
+            { root: "Gramma", meaning: "Line / Writing", origin: "Greek", examples: "Grammistidae, telegram" },
+            { root: "Gymnos", meaning: "Naked", origin: "Greek", examples: "Gymnuridae, gymnasium" },
+            { root: "Haema", meaning: "Blood", origin: "Greek", examples: "Haemulidae, hematology" },
+            { root: "Hemi", meaning: "Half", origin: "Greek", examples: "Hemiramphidae, hemisphere" },
+            { root: "Rhamphos", meaning: "Beak", origin: "Greek", examples: "Hemiramphidae" },
+            { root: "Holos", meaning: "Whole", origin: "Greek", examples: "Holocentridae, holistic" },
+            { root: "Kyphos", meaning: "Bent / Humpbacked", origin: "Greek", examples: "Kyphosidae" },
+            { root: "Labrum", meaning: "Lip", origin: "Latin", examples: "Labridae, labial" },
+            { root: "Latris", meaning: "Servant / Attendant", origin: "Greek", examples: "Latridae" },
+            { root: "Leios", meaning: "Smooth", origin: "Greek", examples: "Leiognathidae, liopropomatidae" },
+            { root: "Gnathos", meaning: "Jaw", origin: "Greek", examples: "Leiognathidae, oplegnathidae" },
+            { root: "Propoma", meaning: "Front cover / Operculum", origin: "Greek", examples: "Liopropomatidae" },
+            { root: "Lobos", meaning: "Lobe", origin: "Greek", examples: "Lobotidae, lobe" },
+            { root: "Desmos", meaning: "Bundle / Bond", origin: "Greek", examples: "Microdesmidae, desmosome" },
+            { root: "Monos", meaning: "Single", origin: "Greek", examples: "Monacanthidae, monopoly" },
+            { root: "Mugil", meaning: "Mullet", origin: "Latin", examples: "Mugilidae" },
+            { root: "Mullus", meaning: "Red mullet", origin: "Latin", examples: "Mullidae" },
+            { root: "Murena", meaning: "Lamprey / Eel", origin: "Greek", examples: "Muraenidae, moray" },
+            { root: "Nema", meaning: "Thread", origin: "Greek", examples: "Nemipteridae, nematode" },
+            { root: "Ophis", meaning: "Snake", origin: "Greek", examples: "Ophichthidae, ophiuchus" },
+            { root: "Ichthys", meaning: "Fish", origin: "Greek", examples: "Ophichthidae, ichthyology" },
+            { root: "Hoplon", meaning: "Weapon", origin: "Greek", examples: "Oplegnathidae, hoplite" },
+            { root: "Ostrakon", meaning: "Shell / Potsherd", origin: "Greek", examples: "Ostraciidae, oyster" },
+            { root: "Pemphix", meaning: "Bubble / Blister", origin: "Greek", examples: "Pempheridae" },
+            { root: "Pinguis", meaning: "Fat", origin: "Latin", examples: "Pinguipedidae, pinguicula" },
+            { root: "Platys", meaning: "Flat", origin: "Greek", examples: "Platycephalidae, platypus" },
+            { root: "Kephale", meaning: "Head", origin: "Greek", examples: "Platycephalidae, encephalitis" },
+            { root: "Plotos", meaning: "Floating / Swimming", origin: "Greek", examples: "Plotosidae" },
+            { root: "Polys", meaning: "Many", origin: "Greek", examples: "Polynemidae, polygon" },
+            { root: "Poma", meaning: "Cover / Operculum", origin: "Greek", examples: "Pomacanthidae, pomacentridae" },
+            { root: "Acron", meaning: "Top / Edge", origin: "Greek", examples: "Pomacentridae, acronym" },
+            { root: "Prion", meaning: "Saw", origin: "Greek", examples: "Priacanthidae, prion" },
+            { root: "Rhachis", meaning: "Spine", origin: "Greek", examples: "Rachycentridae, rachis" },
+            { root: "Raia", meaning: "Ray / Skate", origin: "Latin", examples: "Rajidae, ray" },
+            { root: "Skatos", meaning: "Dung", origin: "Greek", examples: "Scatophagidae, scatology" },
+            { root: "Phagein", meaning: "To eat", origin: "Greek", examples: "Scatophagidae, sarcophagus" },
+            { root: "Scomber", meaning: "Mackerel", origin: "Latin", examples: "Scombridae" },
+            { root: "Skorpios", meaning: "Scorpion", origin: "Greek", examples: "Scorpaenidae, scorpion" },
+            { root: "Sebastos", meaning: "Venerable / Majestic", origin: "Greek", examples: "Sebastidae" },
+            { root: "Solea", meaning: "Sandal / Sole of foot", origin: "Latin", examples: "Soleidae, sole" },
+            { root: "Solen", meaning: "Pipe / Tube", origin: "Greek", examples: "Solenostomidae, solenoid" },
+            { root: "Tetra", meaning: "Four", origin: "Greek", examples: "Tetraodontidae, tetrarogidae, tetagon" },
+            { root: "Rhoge", meaning: "Notch / Split", origin: "Greek", examples: "Tetrarogidae" },
+            { root: "Thrix", meaning: "Hair", origin: "Greek", examples: "Trichonotidae, trichosis" },
+            { root: "Noton", meaning: "Back", origin: "Greek", examples: "Trichonotidae, notable" },
+            { root: "Tri", meaning: "Three", origin: "Greek", examples: "Tripterygiidae, triangle" },
+            { root: "Pteryx", meaning: "Fin / Wing", origin: "Greek", examples: "Tripterygiidae, archaeopteryx" },
+            { root: "Zanklon", meaning: "Sickle", origin: "Greek", examples: "Zanclidae" }
+        ];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            getAudioContext();
+            playSound('click');
+            score = 0;
+            currentIndex = 0;
+            
+            // Include ALL items in every quiz run, shuffled completely
+            const shuffledPool = shuffleArray([...expandedRootDatabase]);
+            currentQuestions = shuffledPool.map(item => {
+                const type = Math.floor(Math.random() * 2);
+                let qText, correctAns, wrongField;
+
+                if (type === 0) {
+                    qText = `What is the meaning of the root: "<strong>${item.root}</strong>"? (${item.origin} origin)`;
+                    correctAns = item.meaning;
+                    wrongField = 'meaning';
+                } else {
+                    qText = `Which root corresponds to the meaning: "<strong>${item.meaning}</strong>"?`;
+                    correctAns = item.root;
+                    wrongField = 'root';
+                }
+
+                let others = expandedRootDatabase.filter(r => r[wrongField] !== correctAns);
+                others = shuffleArray(others);
+                let wrongOptions = others.slice(0, 3).map(r => r[wrongField]);
+                let options = shuffleArray([correctAns, ...wrongOptions]);
+
+                return {
+                    question: qText,
+                    answer: correctAns,
+                    rootItem: item,
+                    options: options
+                };
+            });
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = currentQuestions[currentIndex];
+            document.getElementById('question-counter').innerText = `Question ${currentIndex + 1} of ${currentQuestions.length}`;
+            document.getElementById('score-keeper').innerText = `Score: ${score}`;
+            document.getElementById('progressBar').style.width = `${((currentIndex) / currentQuestions.length) * 100}%`;
+            document.getElementById('questionText').innerHTML = q.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            const feedbackArea = document.getElementById('feedbackArea');
+            feedbackArea.innerHTML = '';
+            feedbackArea.classList.remove('active');
+            document.getElementById('nextBtn').style.display = 'none';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(btn, opt, q);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(button, selected, q) {
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(btn => btn.disabled = true);
+
+            const feedbackArea = document.getElementById('feedbackArea');
+            const explanationHTML = `
+                <strong>Explanation:</strong> The root <strong>${q.rootItem.root}</strong> (${q.rootItem.origin}) means <strong>${q.rootItem.meaning}</strong>.<br>
+                <strong>Examples:</strong> ${q.rootItem.examples}.
+            `;
+
+            if (selected === q.answer) {
+                button.classList.add('correct');
+                feedbackArea.innerHTML = `<span style="color: var(--success); font-weight: bold;">Correct! Well done.</span><br><br>` + explanationHTML;
+                playSound('correct');
+                score++;
+                document.getElementById('score-keeper').innerText = `Score: ${score}`;
+            } else {
+                button.classList.add('incorrect');
+                feedbackArea.innerHTML = `<span style="color: var(--error); font-weight: bold;">Incorrect. The correct answer was: <strong>${q.answer}</strong></span><br><br>` + explanationHTML;
+                playSound('incorrect');
+                options.forEach(btn => {
+                    if (btn.innerText === q.answer) btn.classList.add('correct');
+                });
+            }
+
+            feedbackArea.classList.add('active');
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentIndex++;
+            if (currentIndex < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            playSound('complete');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            const resultsScreen = document.getElementById('results-screen');
+            resultsScreen.style.display = 'block';
+            
+            const total = currentQuestions.length;
+            document.getElementById('finalScore').innerText = `${score} / ${total}`;
+            
+            let msg = "Great effort!";
+            const percentage = (score / total) * 100;
+            if (percentage === 100) msg = "Flawless! You conquered every single root in the complete database!";
+            else if (percentage >= 80) msg = "Fantastic job! You have an exceptional grasp of the full root database.";
+            else if (percentage >= 50) msg = "Good effort! Keep reviewing the list to master all the roots.";
+            else msg = "Keep practicing! Etymology takes repetition to fully master.";
+            
+            document.getElementById('resultMessage').innerText = msg;
+        }
+
+        function toggleTheme() {
+            playSound('click');
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.innerText = '🌙';
+                themeText.innerText = 'Dark';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.innerText = '☀️';
+                themeText.innerText = 'Light';
+            }
+        }
+    </script>
+</body>
+</html>

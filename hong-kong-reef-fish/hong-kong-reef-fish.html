@@ -235,13 +235,13 @@
         <button id="guide-btn" class="hud-box action-btn">📖 Compendium</button>
         <button id="sound-btn" class="hud-box action-btn">🔊 Sound</button>
         <button id="save-btn" class="hud-box action-btn">💾 Save</button>
-        <button id="reset-btn" class="hud-box action-btn">⚠️ Format</button>
+        <button id="reset-btn" class="hud-box action-btn">⚠️ Reset</button>
     </div>
 </div>
 
 <div id="ocean"></div>
 
-<!-- Research Modal (Unlock new fish) -->
+<!-- Research Modal -->
 <div id="research-modal" class="modal-overlay">
     <div class="modal">
         <h2>Research Facility</h2>
@@ -251,15 +251,13 @@
     </div>
 </div>
 
-<!-- Compendium Modal (Guide & TTS) -->
+<!-- Compendium Modal -->
 <div id="guide-modal" class="modal-overlay">
     <div class="modal">
         <h2 id="guide-title">Taxonomic Compendium</h2>
         
-        <!-- Grid View -->
         <div id="guide-grid" class="grid-container"></div>
         
-        <!-- Detail View -->
         <div id="detail-view">
             <h3 id="detail-name" style="color: #fff; font-size: 1.6em; margin: 0;">Family</h3>
             <div id="detail-common" style="color: #8892b0; font-style: italic; margin-top: 5px;">Common Name</div>
@@ -290,9 +288,9 @@
 </div>
 
 <script>
-    // --- Audio Context & Synth ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let isMuted = false;
+    let bgmInterval = null;
 
     function playSynth(freq, type, duration, vol=0.2) {
         if (isMuted) return;
@@ -309,16 +307,57 @@
         osc.stop(audioCtx.currentTime + duration);
     }
 
+    function startWateryBGM() {
+        if (bgmInterval) return;
+        const chordPool = [
+            [130.81, 196.00, 261.63, 392.00], 
+            [146.83, 220.00, 293.66, 440.00], 
+            [164.81, 246.94, 329.63, 493.88], 
+            [174.61, 261.63, 349.23, 523.25]  
+        ];
+
+        bgmInterval = setInterval(function() {
+            if (isMuted) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+
+            const chord = chordPool[Math.floor(Math.random() * chordPool.length)];
+            chord.forEach(function(freq, index) {
+                setTimeout(function() {
+                    if (isMuted) return;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+
+                    osc.type = 'sine'; 
+                    osc.frequency.setValueAtTime(freq + (Math.random() * 2 - 1), audioCtx.currentTime);
+
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(450, audioCtx.currentTime);
+
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 1.5);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 4.0);
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 4.0);
+                }, index * 400);
+            });
+        }, 5000); 
+    }
+
     const sfx = {
-        bubble: () => playSynth(400 + Math.random()*200, 'sine', 0.1, 0.1),
-        unlock: () => {
+        bubble: function() { playSynth(400 + Math.random()*200, 'sine', 0.1, 0.1); },
+        unlock: function() {
             playSynth(523.25, 'triangle', 0.2, 0.1); 
-            setTimeout(() => playSynth(659.25, 'triangle', 0.2, 0.1), 150); 
-            setTimeout(() => playSynth(783.99, 'triangle', 0.4, 0.1), 300); 
+            setTimeout(function() { playSynth(659.25, 'triangle', 0.2, 0.1); }, 150); 
+            setTimeout(function() { playSynth(783.99, 'triangle', 0.4, 0.1); }, 300); 
         }
     };
 
-    // --- Fish Database (All 91 Families with full scientific breakdowns) ---
     const rawData = [
         { name: "acanthuridae", common: "Tangs, Surgeonfishes, Unicornfishes", morph: "Compressed oval body, small mouth, single continuous dorsal fin, and movable scalpel-like spines on the caudal peduncle.", diag: "Distinguished from similar herbivorous reef families (like Kyphosidae or Pomacanthidae) strictly by the presence of the razor-sharp caudal peduncle spine.", etym: "Derived from Greek 'akantha' (thorn) and 'oura' (tail), referencing the scalpel weapon." },
         { name: "ambassidae", common: "Asiatic Glassfishes", morph: "Semi-transparent body showing internal organs, two dorsal fins, deeply forked caudal fin, and often a translucent frame.", diag: "Separated from other transparent coastal species by serrations on the preopercular margin and distinct dorsal spine counts.", etym: "Derived from French common name 'ambasse', or Latin roots indicating transparent forms." },
@@ -413,14 +452,14 @@
         { name: "zanclidae", common: "Moorish Idol", morph: "Deeply compressed disk body, tubular snout with bristly teeth, highly elongated trailing filament on dorsal fin.", diag: "Separated from Chaetodontidae and Acanthuridae by the sickle-shaped dorsal filament and lack of peduncle spines.", etym: "Derived from Greek 'zanklon' (sickle), referencing the curved dorsal fin." }
     ];
 
-    const fishData = rawData.map((item, index) => {
+    const fishData = rawData.map(function(item, index) {
         const idNum = index + 1;
         const capitalized = item.name.charAt(0).toUpperCase() + item.name.slice(1);
         return {
             id: idNum,
             name: capitalized,
             common: item.common,
-            file: `${idNum}-${item.name}.png`,
+            file: idNum + '-' + item.name + '.png',
             cost: idNum * 20, 
             speed: Math.random() * 0.6 + 0.2, 
             etymology: item.etym,
@@ -440,9 +479,9 @@
         localStorage.setItem("aquaRp", rp);
         localStorage.setItem("aquaUnlocks", JSON.stringify(unlockedIds));
         
-        const fishStates = activeFish.map(f => ({
-            id: f.id, x: f.x, y: f.y, vx: f.vx, vy: f.vy
-        }));
+        const fishStates = activeFish.map(function(f) {
+            return { id: f.id, x: f.x, y: f.y, vx: f.vx, vy: f.vy };
+        });
         localStorage.setItem("aquaFishStates", JSON.stringify(fishStates));
     }
 
@@ -471,91 +510,88 @@
         const ocean = document.getElementById('ocean');
         const el = document.createElement('div');
         el.className = 'fish-sprite';
-        el.innerHTML = `
-            <div class="fish-name-tag">${fishDef.name} (${fishDef.common.split(',')[0]})</div>
-            <img src="${fishDef.file}" alt="${fishDef.name}">
-        `;
+        el.innerHTML = '<div class="fish-name-tag">' + fishDef.name + ' (' + fishDef.common.split(',')[0] + ')</div><img src="' + fishDef.file + '" alt="' + fishDef.name + '">';
 
-        const img = el.querySelector('img');
-        img.onload = () => {
-            const width = img.clientWidth || 100;
-            const height = img.clientHeight || 80;
+        const width = 100;
+        const height = 80;
 
-            let x, y, vx, vy;
-            if (savedState) {
-                x = savedState.x; y = savedState.y; vx = savedState.vx; vy = savedState.vy;
-            } else {
-                x = Math.max(0, Math.min(Math.random() * window.innerWidth, window.innerWidth - width));
-                y = Math.max(0, Math.min(Math.random() * window.innerHeight, window.innerHeight - height));
-                vx = fishDef.speed * (Math.random() > 0.5 ? 1 : -1);
-                vy = (Math.random() - 0.5) * fishDef.speed;
-            }
+        let x, y, vx, vy;
+        if (savedState) {
+            x = savedState.x; 
+            y = savedState.y; 
+            vx = savedState.vx; 
+            vy = savedState.vy;
+        } else {
+            x = Math.max(0, Math.min(Math.random() * window.innerWidth, window.innerWidth - width));
+            y = Math.max(0, Math.min(Math.random() * window.innerHeight, window.innerHeight - height));
+            vx = fishDef.speed * (Math.random() > 0.5 ? 1 : -1);
+            vy = (Math.random() - 0.5) * fishDef.speed;
+        }
 
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
 
-            const fishObj = { 
-                id: fishDef.id, 
-                el, x, y, vx, vy, 
-                isDragging: false, 
-                width, height
-            };
-
-            el.addEventListener('pointerdown', (e) => {
-                e.preventDefault();
-                sfx.bubble();
-                rp += 5; 
-                updateUI();
-                saveProgress();
-
-                const floatRp = document.createElement('div');
-                floatRp.className = 'floating-rp';
-                floatRp.innerText = '+5 RP';
-                floatRp.style.left = e.clientX + 'px';
-                floatRp.style.top = (e.clientY - 20) + 'px';
-                ocean.appendChild(floatRp);
-                setTimeout(() => floatRp.remove(), 1200);
-
-                fishObj.isDragging = true;
-                el.setPointerCapture(e.pointerId);
-                fishObj.offsetX = e.clientX - fishObj.x;
-                fishObj.offsetY = e.clientY - fishObj.y;
-                el.style.zIndex = 100;
-            });
-
-            el.addEventListener('pointermove', (e) => {
-                if (fishObj.isDragging) {
-                    let newX = e.clientX - fishObj.offsetX;
-                    let newY = e.clientY - fishObj.offsetY;
-                    
-                    newX = Math.max(0, Math.min(newX, window.innerWidth - fishObj.width));
-                    newY = Math.max(0, Math.min(newY, window.innerHeight - fishObj.height));
-
-                    fishObj.x = newX;
-                    fishObj.y = newY;
-                    el.style.left = fishObj.x + 'px';
-                    el.style.top = fishObj.y + 'px';
-                }
-            });
-
-            const endDrag = (e) => {
-                if (fishObj.isDragging) {
-                    fishObj.isDragging = false;
-                    el.releasePointerCapture(e.pointerId);
-                    el.style.zIndex = 6;
-                }
-            };
-
-            el.addEventListener('pointerup', endDrag);
-            el.addEventListener('pointercancel', endDrag);
-
-            ocean.appendChild(el);
-            activeFish.push(fishObj);
+        const fishObj = { 
+            id: fishDef.id, 
+            el: el, x: x, y: y, vx: vx, vy: vy, 
+            isDragging: false, 
+            width: width, height: height
         };
+
+        el.addEventListener('pointerdown', function(e) {
+            e.preventDefault();
+            sfx.bubble();
+            rp += 5; 
+            updateUI();
+            saveProgress();
+
+            const floatRp = document.createElement('div');
+            floatRp.className = 'floating-rp';
+            floatRp.innerText = '+5 RP';
+            floatRp.style.left = e.clientX + 'px';
+            floatRp.style.top = (e.clientY - 20) + 'px';
+            ocean.appendChild(floatRp);
+            setTimeout(function() { floatRp.remove(); }, 1200);
+
+            fishObj.isDragging = true;
+            el.setPointerCapture(e.pointerId);
+            fishObj.offsetX = e.clientX - fishObj.x;
+            fishObj.offsetY = e.clientY - fishObj.y;
+            el.style.zIndex = 100;
+        });
+
+        el.addEventListener('pointermove', function(e) {
+            if (fishObj.isDragging) {
+                let newX = e.clientX - fishObj.offsetX;
+                let newY = e.clientY - fishObj.offsetY;
+                
+                newX = Math.max(0, Math.min(newX, window.innerWidth - fishObj.width));
+                newY = Math.max(0, Math.min(newY, window.innerHeight - fishObj.height));
+
+                fishObj.x = newX;
+                fishObj.y = newY;
+                el.style.left = fishObj.x + 'px';
+                el.style.top = fishObj.y + 'px';
+            }
+        });
+
+        const endDrag = function(e) {
+            if (fishObj.isDragging) {
+                fishObj.isDragging = false;
+                el.releasePointerCapture(e.pointerId);
+                el.style.zIndex = 6;
+            }
+        };
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+
+        ocean.appendChild(el);
+        activeFish.push(fishObj);
     }
 
     function animateOcean() {
-        activeFish.forEach(f => {
+        activeFish.forEach(function(f) {
             if (!f.isDragging && f.width) {
                 f.x += f.vx * 0.3;
                 f.y += f.vy * 0.3;
@@ -572,7 +608,6 @@
                 f.el.style.left = f.x + 'px';
                 f.el.style.top = f.y + 'px';
 
-                // Face the direction it is moving
                 const img = f.el.querySelector('img');
                 if (img) {
                     img.style.transform = f.vx > 0 ? 'scaleX(-1)' : 'scaleX(1)';
@@ -587,26 +622,21 @@
         const grid = document.getElementById('research-grid');
         grid.innerHTML = '';
         
-        fishData.forEach((f) => {
+        fishData.forEach(function(f) {
             if (unlockedIds.includes(f.id)) return; 
 
             const item = document.createElement('div');
             item.className = 'collection-item';
             const canAfford = rp >= f.cost;
             
-            item.innerHTML = `
-                <div class="visual"><img src="${f.file}" alt="Locked"></div>
-                <div class="name-tag">${f.name}</div>
-                <div style="font-size: 0.75em; color: #8892b0; margin-bottom: 5px;">${f.common}</div>
-                <button class="buy-btn" ${!canAfford ? 'disabled' : ''} onclick="unlockFish(${f.id})">Sequence (${f.cost} RP)</button>
-            `;
+            item.innerHTML = '<div class="visual"><img src="' + f.file + '" alt="Locked"></div><div class="name-tag">' + f.name + '</div><div style="font-size: 0.75em; color: #8892b0; margin-bottom: 5px;">' + f.common + '</div><button class="buy-btn" ' + (!canAfford ? 'disabled' : '') + ' onclick="unlockFish(' + f.id + ')">Sequence (' + f.cost + ' RP)</button>';
             grid.appendChild(item);
         });
         document.getElementById('research-modal').style.display = 'flex';
     }
 
     window.unlockFish = function(id) {
-        const fDef = fishData.find(f => f.id === id);
+        const fDef = fishData.find(function(f) { return f.id === id; });
         if (rp >= fDef.cost) {
             rp -= fDef.cost;
             unlockedIds.push(fDef.id);
@@ -627,19 +657,15 @@
         const grid = document.getElementById('guide-grid');
         grid.innerHTML = '';
         
-        fishData.forEach((f) => {
+        fishData.forEach(function(f) {
             const isUnlocked = unlockedIds.includes(f.id);
             const item = document.createElement('div');
-            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
+            item.className = 'collection-item ' + (isUnlocked ? '' : 'locked');
             
-            item.innerHTML = `
-                <div class="visual"><img src="${f.file}" alt="${f.name}"></div>
-                <div class="name-tag">${isUnlocked ? f.name : 'Unknown Family'}</div>
-                <div style="font-size: 0.75em; color: #8892b0;">${isUnlocked ? f.common : '???'}</div>
-            `;
+            item.innerHTML = '<div class="visual"><img src="' + f.file + '" alt="' + f.name + '"></div><div class="name-tag">' + (isUnlocked ? f.name : 'Unknown Family') + '</div><div style="font-size: 0.75em; color: #8892b0;">' + (isUnlocked ? f.common : '???') + '</div>';
             
             if(isUnlocked) {
-                item.onclick = () => showDetail(f);
+                item.onclick = function() { showDetail(f); };
             }
             grid.appendChild(item);
         });
@@ -670,7 +696,7 @@
     };
 
     // Global Modal Close (Clicking outside modal window)
-    window.onclick = (e) => {
+    window.onclick = function(e) {
         if (e.target.classList.contains('modal-overlay')) {
             closeModals();
         }
@@ -683,7 +709,7 @@
     };
 
     // --- Text to Speech (Japanese Accent) ---
-    document.getElementById('speak-btn').addEventListener('click', () => {
+    document.getElementById('speak-btn').addEventListener('click', function() {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel(); 
             const utterance = new SpeechSynthesisUtterance(currentTextToRead);
@@ -692,9 +718,9 @@
             utterance.lang = 'ja-JP';
 
             const voices = window.speechSynthesis.getVoices();
-            const japaneseVoice = voices.find(voice => 
-                voice.lang === 'ja-JP' || voice.lang === 'ja_JP' || voice.name.includes('Japanese')
-            );
+            const japaneseVoice = voices.find(function(voice) { 
+                return voice.lang === 'ja-JP' || voice.lang === 'ja_JP' || voice.name.includes('Japanese');
+            });
             
             if (japaneseVoice) utterance.voice = japaneseVoice;
 
@@ -705,36 +731,36 @@
     });
 
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
     }
 
     // --- Buttons ---
     document.getElementById('research-btn').addEventListener('click', openResearch);
     document.getElementById('guide-btn').addEventListener('click', openGuide);
 
-    document.getElementById('sound-btn').addEventListener('click', () => {
+    document.getElementById('sound-btn').addEventListener('click', function() {
         isMuted = !isMuted;
         const btn = document.getElementById('sound-btn');
         btn.innerText = isMuted ? '🔇 Muted' : '🔊 Sound';
     });
 
-    document.getElementById('save-btn').addEventListener('click', () => {
+    document.getElementById('save-btn').addEventListener('click', function() {
         saveProgress();
         const btn = document.getElementById('save-btn');
         btn.innerText = '✅ Saved!';
         sfx.bubble();
-        setTimeout(() => btn.innerText = '💾 Save', 1000);
+        setTimeout(function() { btn.innerText = '💾 Save'; }, 1000);
     });
 
-    document.getElementById('reset-btn').addEventListener('click', () => {
-        if (confirm("Format Network? All research will be lost.")) {
+    document.getElementById('reset-btn').addEventListener('click', function() {
+        if (confirm("Reset Game? All progress and research will be lost.")) {
             localStorage.clear();
             location.reload();
         }
     });
 
     // Auto Harvest Loop
-    setInterval(() => {
+    setInterval(function() {
         if (unlockedIds.length > 1) {
             rp += (unlockedIds.length * 2); 
             updateUI();
@@ -742,24 +768,119 @@
         }
     }, 1000);
 
+    // --- Cheat Code Logic ---
+    let cheatBuffer = '';
+
+    window.addEventListener('keydown', function(e) {
+        cheatBuffer += e.key.toLowerCase();
+        
+        // Expanded the buffer size to account for longer cheats
+        if (cheatBuffer.length > 20) {
+            cheatBuffer = cheatBuffer.slice(-20);
+        }
+        
+        if (cheatBuffer.endsWith('phish')) {
+            let unlockedCount = 0;
+            fishData.forEach(function(f) {
+                if (!unlockedIds.includes(f.id)) {
+                    unlockedIds.push(f.id);
+                    spawnFish(f);
+                    unlockedCount++;
+                }
+            });
+            
+            if (unlockedCount > 0) {
+                sfx.unlock();
+                updateUI();
+                saveProgress();
+                
+                const ocean = document.getElementById('ocean');
+                const floatAlert = document.createElement('div');
+                floatAlert.className = 'floating-rp';
+                floatAlert.innerText = 'ALL FISH UNLOCKED!';
+                floatAlert.style.left = (window.innerWidth / 2) + 'px';
+                floatAlert.style.top = (window.innerHeight / 2) + 'px';
+                floatAlert.style.transform = 'translateX(-50%)';
+                floatAlert.style.fontSize = '2em';
+                ocean.appendChild(floatAlert);
+                setTimeout(function() { floatAlert.remove(); }, 3000);
+                
+                if (document.getElementById('research-modal').style.display === 'flex') {
+                    openResearch();
+                }
+            }
+            cheatBuffer = ''; 
+        }
+
+        // --- New "execute" Cheat Code ---
+        if (cheatBuffer.endsWith('execute')) {
+            fishData.forEach(function(f) {
+                // Replace "dae" at the end of the name with "mon" (case-insensitive)
+                f.name = f.name.replace(/dae$/i, 'mon');
+            });
+            
+            // Update any currently active/swimming fish name tags in the ocean
+            activeFish.forEach(function(fObj) {
+                const fishDef = fishData.find(function(d) { return d.id === fObj.id; });
+                const nameTag = fObj.el.querySelector('.fish-name-tag');
+                if (nameTag && fishDef) {
+                    nameTag.innerText = fishDef.name + ' (' + fishDef.common.split(',')[0] + ')';
+                }
+            });
+
+            // Re-render open modals immediately to reflect the new names
+            if (document.getElementById('research-modal').style.display === 'flex') {
+                openResearch();
+            }
+            if (document.getElementById('guide-modal').style.display === 'flex') {
+                if (document.getElementById('detail-view').style.display === 'flex') {
+                    // Update currently open detail view
+                    const currentIdName = document.getElementById('detail-name').innerText;
+                    // Attempt to locate and refresh the same fish
+                    const updatedFish = fishData.find(f => f.name.toLowerCase() === currentIdName.toLowerCase().replace(/dae$/, 'mon'));
+                    if (updatedFish) showDetail(updatedFish);
+                } else {
+                    openGuide();
+                }
+            }
+
+            // Provide visual/audio feedback for the cheat
+            sfx.unlock();
+            const ocean = document.getElementById('ocean');
+            const floatAlert = document.createElement('div');
+            floatAlert.className = 'floating-rp';
+            floatAlert.innerText = 'DIGITAL EVOLUTION';
+            floatAlert.style.left = (window.innerWidth / 2) + 'px';
+            floatAlert.style.top = (window.innerHeight / 2) + 'px';
+            floatAlert.style.transform = 'translateX(-50%)';
+            floatAlert.style.fontSize = '2em';
+            ocean.appendChild(floatAlert);
+            setTimeout(function() { floatAlert.remove(); }, 3000);
+            
+            cheatBuffer = ''; 
+        }
+    });
+
     // --- Initialization ---
-    document.getElementById('start-btn').addEventListener('click', () => {
+    document.getElementById('start-btn').addEventListener('click', function() {
         document.getElementById('start-screen').style.display = 'none';
         if(audioCtx.state === 'suspended') audioCtx.resume();
         
+        startWateryBGM();
+
         loadProgress();
 
         const savedStatesJSON = localStorage.getItem("aquaFishStates");
         if (savedStatesJSON && JSON.parse(savedStatesJSON).length > 0) {
             const savedStates = JSON.parse(savedStatesJSON);
-            savedStates.forEach(state => {
-                const fish = fishData.find(f => f.id === state.id);
+            savedStates.forEach(function(state) {
+                const fish = fishData.find(function(f) { return f.id === state.id; });
                 if(fish) spawnFish(fish, state);
             });
         } else {
             if (unlockedIds.length === 0) unlockedIds = [1];
-            unlockedIds.forEach(id => {
-                const fish = fishData.find(f => f.id === id);
+            unlockedIds.forEach(function(id) {
+                const fish = fishData.find(function(f) { return f.id === id; });
                 if(fish) spawnFish(fish);
             });
         }

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tenses</title>
+    <style>
+        :root {
+            --primary: #37474F;
+            --accent: #455A64;
+            --present-bg: #E8F5E9;
+            --present-border: #81C784;
+            --present-text: #1B5E20;
+            --past-bg: #FFF3E0;
+            --past-border: #FFB74D;
+            --past-text: #E65100;
+            --future-bg: #E1F5FE;
+            --future-border: #4FC3F7;
+            --future-text: #01579B;
+            --light: #F4F6F8;
+            --dark: #263238;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #app-container {
+            width: 100%;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Start Screen Styling */
+        #start-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #37474F, #263238);
+            color: white;
+            min-height: 100vh;
+        }
+
+        #start-screen h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        #start-screen p {
+            font-size: 1.2rem;
+            color: #CFD8DC;
+            margin-bottom: 30px;
+        }
+
+        .btn-start {
+            background-color: #00897B;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .btn-start:hover {
+            background-color: #00796B;
+            transform: scale(1.05);
+        }
+
+        /* Main Dashboard Styling */
+        .app-header {
+            background: linear-gradient(135deg, #37474F, #263238);
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .app-header h1 { 
+            font-size: 2.2rem; 
+            margin: 0; 
+            color: white; 
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #B0BEC5;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+
+        .content-area {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            gap: 25px;
+        }
+
+        .tenses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .tense-card {
+            background-color: white;
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--dark);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            border-left: 5px solid transparent;
+        }
+
+        .tense-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+
+        .card-present {
+            background-color: var(--present-bg);
+            border-left-color: var(--present-border);
+        }
+        .card-present:hover { border-color: var(--present-text); }
+
+        .card-past {
+            background-color: var(--past-bg);
+            border-left-color: var(--past-border);
+        }
+        .card-past:hover { border-color: var(--past-text); }
+
+        .card-future {
+            background-color: var(--future-bg);
+            border-left-color: var(--future-border);
+        }
+        .card-future:hover { border-color: var(--future-text); }
+
+        .card-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .tense-title { 
+            font-weight: 700; 
+            font-size: 1.05rem; 
+            color: #263238;
+        }
+
+        .formula { 
+            font-size: 0.8rem; 
+            color: #455A64; 
+            font-family: monospace; 
+            background: rgba(255, 255, 255, 0.7);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        .badge { 
+            font-size: 0.65rem; 
+            padding: 3px 8px; 
+            border-radius: 20px; 
+            color: white; 
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-present { background-color: #2E7D32; }
+        .badge-past { background-color: #E65100; }
+        .badge-future { background-color: #0288D1; }
+
+        .explanation {
+            font-size: 0.85rem;
+            color: #37474F;
+            background: #ECEFF1;
+            padding: 18px 20px;
+            border-radius: 12px;
+            line-height: 1.5;
+            border: 1px solid #CFD8DC;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .explanation strong {
+            color: #263238;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Start Screen for Sound Initialization -->
+        <div id="start-screen" class="screen active">
+            <h1>English Tenses</h1>
+            <p>Click below to enable sound effects and speech synthesis!</p>
+            <button class="btn-start" onclick="startApp()">Start Learning 🔊</button>
+        </div>
+
+        <!-- Main Hub Screen -->
+        <div id="main-screen" class="screen">
+            <div class="app-header">
+                <h1>English Tenses</h1>
+                <p class="subtitle">Hover to listen & preview formulas • Click to practice</p>
+            </div>
+
+            <div class="content-area">
+                <div class="tenses-grid">
+                    <!-- Present Tenses -->
+                    <a href="1-present-simple.html" class="tense-card card-present" onmouseenter="handleHover('Present Simple')">
+                        <div class="card-header"><span class="tense-title">Present Simple</span><span class="badge badge-present">Present</span></div>
+                        <span class="formula">Subject + Base Verb (-s/-es)</span>
+                    </a>
+                    <a href="4-present-continous.html" class="tense-card card-present" onmouseenter="handleHover('Present Continuous')">
+                        <div class="card-header"><span class="tense-title">Present Continuous</span><span class="badge badge-present">Present</span></div>
+                        <span class="formula">Subject + am/is/are + Present Participle</span>
+                    </a>
+                    <a href="5-present-perfect.html" class="tense-card card-present" onmouseenter="handleHover('Present Perfect')">
+                        <div class="card-header"><span class="tense-title">Present Perfect</span><span class="badge badge-present">Present</span></div>
+                        <span class="formula">Subject + have/has + Past Participle</span>
+                    </a>
+                    <a href="8-present-perfect-continuous.html" class="tense-card card-present" onmouseenter="handleHover('Present Perfect Continuous')">
+                        <div class="card-header"><span class="tense-title">Present Perfect Continuous</span><span class="badge badge-present">Present</span></div>
+                        <span class="formula">Subject + have/has been + Present Participle</span>
+                    </a>
+
+                    <!-- Past Tenses -->
+                    <a href="2-past-simple.html" class="tense-card card-past" onmouseenter="handleHover('Past Simple')">
+                        <div class="card-header"><span class="tense-title">Past Simple</span><span class="badge badge-past">Past</span></div>
+                        <span class="formula">Subject + Past Verb</span>
+                    </a>
+                    <a href="6-past-continous.html" class="tense-card card-past" onmouseenter="handleHover('Past Continuous')">
+                        <div class="card-header"><span class="tense-title">Past Continuous</span><span class="badge badge-past">Past</span></div>
+                        <span class="formula">Subject + was/were + Present Participle</span>
+                    </a>
+                    <a href="7-past-perfect.html" class="tense-card card-past" onmouseenter="handleHover('Past Perfect')">
+                        <div class="card-header"><span class="tense-title">Past Perfect</span><span class="badge badge-past">Past</span></div>
+                        <span class="formula">Subject + had + Past Participle</span>
+                    </a>
+                    <a href="9-past-perfect-continuous.html" class="tense-card card-past" onmouseenter="handleHover('Past Perfect Continuous')">
+                        <div class="card-header"><span class="tense-title">Past Perfect Continuous</span><span class="badge badge-past">Past</span></div>
+                        <span class="formula">Subject + had been + Present Participle</span>
+                    </a>
+
+                    <!-- Future Tenses -->
+                    <a href="3-future-simple.html" class="tense-card card-future" onmouseenter="handleHover('Future Simple')">
+                        <div class="card-header"><span class="tense-title">Future Simple</span><span class="badge badge-future">Future</span></div>
+                        <span class="formula">Subject + will + Base Verb</span>
+                    </a>
+                    <a href="10-future-continuous.html" class="tense-card card-future" onmouseenter="handleHover('Future Continuous')">
+                        <div class="card-header"><span class="tense-title">Future Continuous</span><span class="badge badge-future">Future</span></div>
+                        <span class="formula">Subject + will be + Present Participle</span>
+                    </a>
+                    <a href="11-future-perfect.html" class="tense-card card-future" onmouseenter="handleHover('Future Perfect')">
+                        <div class="card-header"><span class="tense-title">Future Perfect</span><span class="badge badge-future">Future</span></div>
+                        <span class="formula">Subject + will have + Past Participle</span>
+                    </a>
+                    <a href="12-future-perfect-continuous.html" class="tense-card card-future" onmouseenter="handleHover('Future Perfect Continuous')">
+                        <div class="card-header"><span class="tense-title">Future Perfect Continuous</span><span class="badge badge-future">Future</span></div>
+                        <span class="formula">Subject + will have been + Present Participle</span>
+                    </a>
+                </div>
+
+                <div class="explanation">
+                    <strong>KEY GRAMMAR TERMS:</strong>
+                    <div>• <strong>Present Participle:</strong> Verb ending in <em>-ing</em> (e.g., <em>running</em>, <em>studying</em>).</div>
+                    <div>• <strong>Past Participle:</strong> Verb ending in <em>-ed</em> or its irregular form (e.g., <em>walked</em>, <em>eaten</em>, <em>seen</em>).</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let audioCtx;
+
+        function startApp() {
+            // Initialize AudioContext on user gesture to comply with browser audio policies
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            // Switch screens
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('main-screen').classList.add('active');
+        }
+
+        function playHoverTone() {
+            try {
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+                
+                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch (e) {}
+        }
+
+        function handleHover(text) {
+            playHoverTone();
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+    </script>
+</body>
+</html>

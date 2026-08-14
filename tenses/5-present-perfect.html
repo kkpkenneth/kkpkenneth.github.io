@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Present Perfect Challenge</title>
+    <style>
+        :root {
+            --primary: #558B2F; /* Olive Green */
+            --primary-dark: #33691E;
+            --success: #7CB342; /* Bright Olive */
+            --success-dark: #558B2F;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #F1F8E9; /* Light olive tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Present Perfect Tense</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Present Perfect
+        const rules = {
+            1: {
+                title: "Level 1: I / You / We / They",
+                text: "Use 'have' + the verb with '-ed' at the end! Look for signal words like 'recently', 'already', or 'so far'."
+            },
+            2: {
+                title: "Level 2: He / She / It",
+                text: "For a single person or thing (He, She, It), use 'has' instead of 'have' + the verb with '-ed' at the end. Keep looking for those signal words!"
+            },
+            3: {
+                title: "Level 3: Irregular Verbs!",
+                text: "Watch out! Many verbs do not end in '-ed'. You have to memorize these special forms (like eaten, seen, gone, won). They still need have/has and a signal word!"
+            },
+            4: {
+                title: "Level 4: Saying 'No'",
+                text: "To make it negative, add 'not' after have or has (have not, has not). You will often see the signal word 'yet' at the end of negative sentences."
+            },
+            5: {
+                title: "Level 5: Asking Questions",
+                text: "To ask a question, start the sentence with 'Have' or 'Has'. Signal words like 'yet' and 'ever' are very common in questions!"
+            },
+            6: {
+                title: "Level 6: Tricky Signal Words",
+                text: "Signal words like 'just', 'already', 'ever', and 'never' go right between have/has and the action word. Let us test your knowledge on where they belong!"
+            }
+        };
+
+        // 100 Questions Database for Present Perfect (Every sentence has a signal word! No Contractions!)
+        const qData = [
+            // Level 1: I/You/We/They + have + Regular V-ed (1-16)
+            [1, "I ___ the door already.", "have opened", "has opened"],
+            [1, "We ___ the game recently.", "have finished", "has finished"],
+            [1, "You ___ a lot so far today.", "have worked", "has worked"],
+            [1, "They ___ the house recently.", "have cleaned", "has cleaned"],
+            [1, "I ___ my hands already.", "have washed", "has washed"],
+            [1, "We ___ the movie lately.", "have watched", "has watched"],
+            [1, "You ___ to the teacher recently.", "have listened", "has listened"],
+            [1, "They ___ the piano so far.", "have played", "has played"],
+            [1, "I ___ the room recently.", "have painted", "has painted"],
+            [1, "We ___ the box already.", "have moved", "has moved"],
+            [1, "You ___ very hard so far.", "have tried", "has tried"],
+            [1, "They ___ late recently.", "have arrived", "has arrived"],
+            [1, "I ___ around the world already.", "have traveled", "has traveled"],
+            [1, "We ___ the window recently.", "have closed", "has closed"],
+            [1, "You ___ it all already.", "have explained", "has explained"],
+            [1, "They ___ the mountain lately.", "have climbed", "has climbed"],
+
+            // Level 2: He/She/It + has + Regular V-ed (17-33)
+            [2, "He ___ a new car recently.", "has purchased", "have purchased"],
+            [2, "She ___ the flowers already.", "has watered", "have watered"],
+            [2, "It ___ raining recently.", "has stopped", "have stopped"],
+            [2, "He ___ the question already.", "has answered", "have answered"],
+            [2, "She ___ all day so far.", "has studied", "have studied"],
+            [2, "It ___ a lot lately.", "has rained", "have rained"],
+            [2, "He ___ the TV recently.", "has fixed", "have fixed"],
+            [2, "She ___ him to the party already.", "has invited", "have invited"],
+            [2, "It ___ over recently.", "has rolled", "have rolled"],
+            [2, "He ___ in London since 2020.", "has lived", "have lived"],
+            [2, "She ___ me down recently.", "has calmed", "have calmed"],
+            [2, "It ___ out perfectly so far.", "has worked", "have worked"],
+            [2, "He ___ a great meal already.", "has cooked", "have cooked"],
+            [2, "She ___ to help recently.", "has decided", "have decided"],
+            [2, "It ___ to bark lately.", "has started", "have started"],
+            [2, "He ___ the ball already.", "has passed", "have passed"],
+            [2, "She ___ my dress already.", "has ruined", "have ruined"],
+
+            // Level 3: Irregular Verbs (34-50)
+            [3, "I ___ my keys recently.", "have lost", "have losed"],
+            [3, "She ___ all the water already.", "has drunk", "has drinked"],
+            [3, "They ___ to Japan recently.", "have gone", "have goed"],
+            [3, "He ___ a new book lately.", "has written", "has writed"],
+            [3, "We ___ a big bird recently.", "have seen", "have seed"],
+            [3, "You ___ breakfast already.", "have eaten", "have eated"],
+            [3, "The dog ___ my shoe recently.", "has bitten", "has bited"],
+            [3, "I ___ the champion since yesterday.", "have become", "have becomed"],
+            [3, "She ___ a beautiful picture already.", "has drawn", "has drawed"],
+            [3, "They ___ the race recently.", "have won", "have winned"],
+            [3, "He ___ his leg recently.", "has broken", "has breaked"],
+            [3, "We ___ the bell already.", "have rung", "have ringed"],
+            [3, "You ___ asleep lately.", "have fallen", "have falled"],
+            [3, "I ___ a horse already.", "have ridden", "have rided"],
+            [3, "She ___ her purse recently.", "has found", "has finded"],
+            [3, "They ___ a car recently.", "have bought", "have buyed"],
+            [3, "He ___ in the sea already.", "has swum", "has swimmed"],
+
+            // Level 4: Negatives (have not / has not) (51-67)
+            [4, "I ___ my homework yet.", "have not finished", "has not finished"],
+            [4, "She ___ the email yet.", "has not sent", "have not sent"],
+            [4, "We ___ that movie yet.", "have not seen", "has not seen"],
+            [4, "He ___ the bill yet.", "has not paid", "have not paid"],
+            [4, "They ___ yet.", "have not arrived", "has not arrived"],
+            [4, "You ___ your room lately.", "have not cleaned", "has not cleaned"],
+            [4, "It ___ raining yet.", "has not stopped", "have not stopped"],
+            [4, "I ___ the answer yet.", "have not found", "has not found"],
+            [4, "She ___ breakfast yet.", "has not eaten", "have not eaten"],
+            [4, "We ___ to Paris so far.", "have not been", "has not been"],
+            [4, "He ___ a word yet.", "has not spoken", "have not spoken"],
+            [4, "They ___ the truth yet.", "have not told", "has not told"],
+            [4, "You ___ enough water today.", "have not drunk", "has not drunk"],
+            [4, "It ___ well lately.", "has not worked", "have not worked"],
+            [4, "I ___ my mind yet.", "have not changed", "has not changed"],
+            [4, "She ___ her book lately.", "has not read", "have not read"],
+            [4, "We ___ any fish so far.", "have not caught", "has not caught"],
+
+            // Level 5: Questions (Have / Has ...) (68-84)
+            [5, "___ you seen my phone recently?", "Have", "Has"],
+            [5, "___ she called yet?", "Has", "Have"],
+            [5, "___ they left the building yet?", "Have", "Has"],
+            [5, "___ he found a job yet?", "Has", "Have"],
+            [5, "___ we met before?", "Have", "Has"],
+            [5, "___ it stopped snowing yet?", "Has", "Have"],
+            [5, "___ you eaten lunch yet?", "Have", "Has"],
+            [5, "___ she finished the test yet?", "Has", "Have"],
+            [5, "___ they bought the tickets yet?", "Have", "Has"],
+            [5, "___ he read this book lately?", "Has", "Have"],
+            [5, "___ you heard the news recently?", "Have", "Has"],
+            [5, "___ we won the game yet?", "Have", "Has"],
+            [5, "___ she locked the door already?", "Has", "Have"],
+            [5, "___ they lost the map recently?", "Have", "Has"],
+            [5, "___ he broken his arm lately?", "Has", "Have"],
+            [5, "___ it been a good day so far?", "Has", "Have"],
+            [5, "___ you written the letter yet?", "Have", "Has"],
+
+            // Level 6: Already, Yet, Just, Ever, Never (85-100)
+            [6, "I have ___ finished my work.", "already", "yet"],
+            [6, "Have you ___ been to Italy?", "ever", "never"],
+            [6, "She has ___ eaten a bug.", "never", "ever"],
+            [6, "They have not arrived ___.", "yet", "just"],
+            [6, "He has ___ left the house.", "just", "yet"],
+            [6, "We have ___ seen that movie.", "already", "yet"],
+            [6, "Has he finished his food ___?", "yet", "already"],
+            [6, "I have ___ spoken to a king.", "never", "ever"],
+            [6, "Have they ___ flown in a plane?", "ever", "never"],
+            [6, "The train has ___ departed!", "just", "yet"],
+            [6, "She has not told me ___.", "yet", "just"],
+            [6, "We have ___ paid the bill.", "already", "yet"],
+            [6, "Have you ___ seen a ghost?", "ever", "never"],
+            [6, "He has ___ won a race.", "never", "ever"],
+            [6, "I have ___ woken up.", "just", "yet"],
+            [6, "They have not replied ___.", "yet", "already"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

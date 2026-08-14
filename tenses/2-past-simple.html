@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Past Simple Challenge</title>
+    <style>
+        :root {
+            --primary: #E65100; /* Deep Pumpkin Orange */
+            --primary-dark: #BF360C;
+            --success: #FB8C00; /* Amber Orange */
+            --success-dark: #EF6C00;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #FFF3E0; /* Light orange tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Past Simple Tense</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Past Simple 
+        const rules = {
+            1: {
+                title: "Level 1: The '-ed' Rule",
+                text: "To talk about the past, we usually just add '-ed' to the end of the action word! Look for signal words like 'yesterday' or 'last week'."
+            },
+            2: {
+                title: "Level 2: Spelling Rules!",
+                text: "If a word ends in 'e', just add 'd'. If it ends in 'y' (like cry), change 'y' to 'i' and add '-ed'. If it is a short word ending in a consonant, double the last letter!"
+            },
+            3: {
+                title: "Level 3: Rule Breakers!",
+                text: "Some words do not follow the rules at all. You just have to memorize these irregular words, like 'go' changing to 'went' and 'see' changing to 'saw'."
+            },
+            4: {
+                title: "Level 4: Was and Were",
+                text: "The word 'be' is special! Use 'was' for I, He, She, It. Use 'were' for You, We, They. Again, watch out for past time hints like 'in 2010' or 'ago'."
+            },
+            5: {
+                title: "Level 5: Saying 'No'",
+                text: "To make a negative past action, use 'did not' and the NORMAL base word. Do not put '-ed' on it! For the 'be' word, use 'was not' or 'were not'."
+            },
+            6: {
+                title: "Level 6: Asking Questions",
+                text: "To ask a question in the past, start with 'Did' and use the normal base word. Or, start with 'Was' or 'Were' for 'be' questions!"
+            }
+        };
+
+        // 100 Questions Database for Past Simple - Every sentence has a past time signal word!
+        const qData = [
+            // Level 1: Regular verbs + ed (1-16)
+            [1, "I ___ football yesterday.", "played", "play"],
+            [1, "She ___ the car last week.", "washed", "wash"],
+            [1, "We ___ a comedy movie on TV last night.", "watched", "watch"],
+            [1, "They ___ to the music yesterday.", "listened", "listen"],
+            [1, "He ___ over the wall two hours ago.", "jumped", "jump"],
+            [1, "You ___ the window last night.", "opened", "open"],
+            [1, "I ___ my friend yesterday.", "helped", "help"],
+            [1, "She ___ a lot at the zoo last weekend.", "walked", "walk"],
+            [1, "We ___ the walls blue in 2020.", "painted", "paint"],
+            [1, "The dog ___ loudly last night.", "barked", "bark"],
+            [1, "He ___ the question yesterday morning.", "asked", "ask"],
+            [1, "They ___ hard on the project last month.", "worked", "work"],
+            [1, "I ___ the doors two days ago.", "locked", "lock"],
+            [1, "She ___ my hand yesterday.", "pulled", "pull"],
+            [1, "We ___ a lot during the movie last night.", "talked", "talk"],
+            [1, "He ___ the snow from the car this morning.", "brushed", "brush"],
+
+            // Level 2: Spelling Rules (17-33)
+            [2, "She ___ a cake yesterday.", "baked", "bakeed"],
+            [2, "The car ___ at the red light a minute ago.", "stopped", "stoped"],
+            [2, "He ___ hard for the test last week.", "studied", "studyed"],
+            [2, "The baby ___ all night yesterday.", "cried", "cryed"],
+            [2, "They ___ a big trip last year.", "planned", "planed"],
+            [2, "She ___ at the funny joke yesterday.", "smiled", "smileed"],
+            [2, "I ___ my bag heavily yesterday.", "dropped", "droped"],
+            [2, "We ___ our hands at the concert last night.", "clapped", "claped"],
+            [2, "He ___ his new shoes last month.", "loved", "loveed"],
+            [2, "The thief ___ the bank in 1999.", "robbed", "robed"],
+            [2, "She ___ a new language last year.", "tried", "tryed"],
+            [2, "They ___ into the new house two weeks ago.", "moved", "moveed"],
+            [2, "I ___ all my clothes yesterday morning.", "dried", "dryed"],
+            [2, "He ___ his mother last night.", "hugged", "huged"],
+            [2, "She ___ the door tightly a moment ago.", "closed", "closeed"],
+            [2, "The bird ___ its wings a second ago.", "flapped", "flaped"],
+            [2, "They ___ on the ice last winter.", "slipped", "sliped"],
+
+            // Level 3: Irregular Verbs (34-50)
+            [3, "I ___ to the store yesterday.", "went", "goed"],
+            [3, "She ___ a bird in the tree last weekend.", "saw", "seed"],
+            [3, "We ___ pizza for dinner last night.", "ate", "eated"],
+            [3, "He ___ my keys on the table yesterday.", "found", "finded"],
+            [3, "They ___ a great time last summer.", "had", "haved"],
+            [3, "I ___ my homework two hours ago.", "did", "doed"],
+            [3, "She ___ a song yesterday evening.", "sang", "singed"],
+            [3, "He ___ a book last night.", "read", "readed"],
+            [3, "We ___ to sleep early last Monday.", "went", "goed"],
+            [3, "They ___ a new car in 2022.", "bought", "buyed"],
+            [3, "The glass ___ on the floor a minute ago.", "broke", "breaked"],
+            [3, "I ___ him a gift last week.", "gave", "gived"],
+            [3, "She ___ the race last year.", "won", "winned"],
+            [3, "He ___ the ball yesterday morning.", "caught", "catched"],
+            [3, "We ___ in the pool last weekend.", "swam", "swimmed"],
+            [3, "They ___ home quickly last night.", "ran", "runned"],
+            [3, "I ___ the answer yesterday.", "knew", "knowed"],
+
+            // Level 4: Was and Were (51-67)
+            [4, "I ___ tired yesterday.", "was", "were"],
+            [4, "You ___ very happy last week.", "were", "was"],
+            [4, "He ___ at school yesterday morning.", "was", "were"],
+            [4, "She ___ a good student in 2015.", "was", "were"],
+            [4, "It ___ cold last night.", "was", "were"],
+            [4, "We ___ late for the movie yesterday.", "were", "was"],
+            [4, "They ___ in the garden two hours ago.", "were", "was"],
+            [4, "The dog ___ hungry yesterday morning.", "was", "were"],
+            [4, "My friends ___ at the park last weekend.", "were", "was"],
+            [4, "The apples ___ sweet last year.", "were", "was"],
+            [4, "I ___ born in 1990.", "was", "were"],
+            [4, "He ___ my best friend in high school.", "was", "were"],
+            [4, "The books ___ on the table a minute ago.", "were", "was"],
+            [4, "She ___ a doctor ten years ago.", "was", "were"],
+            [4, "You ___ right about that yesterday.", "were", "was"],
+            [4, "The weather ___ perfect last Sunday.", "was", "were"],
+            [4, "We ___ very excited last night.", "were", "was"],
+
+            // Level 5: Negatives (No contractions) (68-84)
+            [5, "I ___ the movie last night.", "did not like", "did not liked"],
+            [5, "She ___ to school yesterday.", "did not go", "did not went"],
+            [5, "They ___ dinner two hours ago.", "did not eat", "did not ate"],
+            [5, "He ___ my friend in 2010.", "was not", "were not"],
+            [5, "We ___ late yesterday morning.", "were not", "was not"],
+            [5, "You ___ me last week.", "did not call", "did not called"],
+            [5, "It ___ rain yesterday.", "did not", "was not"],
+            [5, "I ___ angry last night.", "was not", "did not"],
+            [5, "She ___ the answer yesterday.", "did not know", "did not knew"],
+            [5, "They ___ the game last year.", "did not win", "did not won"],
+            [5, "He ___ happy yesterday evening.", "was not", "were not"],
+            [5, "We ___ the tickets two days ago.", "did not buy", "did not bought"],
+            [5, "The cat ___ sleep last night.", "did not", "was not"],
+            [5, "You ___ there last weekend.", "were not", "was not"],
+            [5, "I ___ breakfast yesterday morning.", "did not have", "did not had"],
+            [5, "She ___ well last week.", "did not feel", "did not felt"],
+            [5, "They ___ tired last night.", "were not", "did not"],
+
+            // Level 6: Questions (85-100)
+            [6, "___ you see the bird yesterday?", "Did", "Was"],
+            [6, "___ he go home last night?", "Did", "Were"],
+            [6, "___ they at the park last weekend?", "Were", "Did"],
+            [6, "___ she a teacher in 2020?", "Was", "Did"],
+            [6, "What ___ you do last summer?", "did", "were"],
+            [6, "Where ___ they go last night?", "did", "was"],
+            [6, "Why ___ she sad yesterday?", "was", "did"],
+            [6, "When ___ the train arrive yesterday?", "did", "was"],
+            [6, "___ it cold yesterday?", "Was", "Did"],
+            [6, "___ we win the game last year?", "Did", "Were"],
+            [6, "Who ___ you see last week?", "did", "were"],
+            [6, "How ___ the food last night?", "was", "did"],
+            [6, "___ the dogs bark yesterday morning?", "Did", "Were"],
+            [6, "___ you understand the lesson last week?", "Did", "Was"],
+            [6, "Why ___ you angry yesterday?", "were", "did"],
+            [6, "Where ___ he find it last month?", "did", "was"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

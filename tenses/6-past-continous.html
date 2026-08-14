@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Past Continuous Challenge</title>
+    <style>
+        :root {
+            --primary: #D84315; /* Burnt Orange */
+            --primary-dark: #BF360C;
+            --success: #F57C00; /* Gold Orange */
+            --success-dark: #E65100;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #FBE9E7; /* Light terracotta tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #CFD8DC;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            color: var(--dark) !important; /* Better contrast for amber */
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            color: var(--dark);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(38, 50, 56, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #546E7A;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Past Continuous Tense</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Past Continuous
+        const rules = {
+            1: {
+                title: "Level 1: I, He, She, It",
+                text: "To talk about an ongoing action in the past, use 'was' + the verb with '-ing'! Look for signal words like 'at 8 PM yesterday' or 'all night'."
+            },
+            2: {
+                title: "Level 2: You, We, They",
+                text: "For plural subjects and 'You', use 'were' + the verb with '-ing'. Keep looking for those specific past time clues!"
+            },
+            3: {
+                title: "Level 3: Spelling Rules!",
+                text: "Watch out! If a verb ends in 'e' (like make), drop the 'e' (making). If it ends in a short vowel + consonant (like run), double the consonant (running)."
+            },
+            4: {
+                title: "Level 4: When & While",
+                text: "We often use Past Continuous for a long action that gets interrupted by a short action. Look for the signal words 'when' or 'while' linking two events!"
+            },
+            5: {
+                title: "Level 5: Saying 'No'",
+                text: "To make it negative, add 'not' after the helper verb! We are using 'was not' and 'were not' today. Remember, no contractions!"
+            },
+            6: {
+                title: "Level 6: Asking Questions",
+                text: "To ask a question in the Past Continuous, swap the subject and the helper verb! Start the sentence with 'Was' or 'Were'."
+            }
+        };
+
+        // 100 Questions Database for Past Continuous (Every sentence has a signal word! No Contractions!)
+        const qData = [
+            // Level 1: I/He/She/It + was + V-ing (1-16)
+            [1, "I ___ TV at 8 PM yesterday.", "was watching", "were watching"],
+            [1, "He ___ soccer all afternoon yesterday.", "was playing", "were playing"],
+            [1, "She ___ a book at midnight.", "was reading", "were reading"],
+            [1, "It ___ heavily all night.", "was raining", "were raining"],
+            [1, "I ___ my dinner at that exact moment.", "was eating", "were eating"],
+            [1, "He ___ to music when I arrived.", "was listening", "were listening"],
+            [1, "She ___ in the park at 7 AM today.", "was running", "were running"],
+            [1, "The dog ___ loudly all morning.", "was barking", "were barking"],
+            [1, "I ___ for the bus at 9 AM.", "was waiting", "were waiting"],
+            [1, "He ___ his car yesterday afternoon.", "was washing", "were washing"],
+            [1, "She ___ on her project all day yesterday.", "was working", "were working"],
+            [1, "It ___ dark at 6 PM.", "was getting", "were getting"],
+            [1, "I ___ on the phone at that time.", "was talking", "were talking"],
+            [1, "He ___ deeply at 3 AM.", "was sleeping", "were sleeping"],
+            [1, "She ___ to school at 8 in the morning.", "was walking", "were walking"],
+            [1, "I ___ about you at that very moment!", "was thinking", "were thinking"],
+
+            // Level 2: You/We/They + were + V-ing (17-33)
+            [2, "They ___ football at 5 PM yesterday.", "were playing", "was playing"],
+            [2, "We ___ hard all last week.", "were studying", "was studying"],
+            [2, "You ___ very fast when I saw you.", "were driving", "was driving"],
+            [2, "The children ___ all afternoon.", "were swimming", "was swimming"],
+            [2, "My parents ___ dinner at 7 PM.", "were cooking", "was cooking"],
+            [2, "We ___ for you at that moment.", "were looking", "was looking"],
+            [2, "They ___ around the world last year.", "were traveling", "was traveling"],
+            [2, "You ___ loudly during the movie.", "were talking", "was talking"],
+            [2, "The birds ___ beautifully this morning.", "were singing", "was singing"],
+            [2, "We ___ the house all day Saturday.", "were cleaning", "was cleaning"],
+            [2, "They ___ a house across the street last month.", "were building", "was building"],
+            [2, "You ___ when the teacher called your name.", "were laughing", "was laughing"],
+            [2, "The boys ___ video games all night.", "were playing", "was playing"],
+            [2, "We ___ a great time at the party yesterday.", "were having", "was having"],
+            [2, "They ___ for the train at 8 AM.", "were waiting", "was waiting"],
+            [2, "You ___ at the funny clown at that moment.", "were smiling", "was smiling"],
+            [2, "We ___ our hands during the concert.", "were clapping", "was clapping"],
+
+            // Level 3: Spelling rules (V-ing) (34-50)
+            [3, "She was ___ a cake at 4 PM yesterday.", "making", "makeing"],
+            [3, "He was ___ in the marathon last Sunday.", "running", "runing"],
+            [3, "We were ___ a meeting at 10 AM.", "having", "haveing"],
+            [3, "They were ___ in the sea all afternoon.", "swimming", "swiming"],
+            [3, "I was ___ on the chair at that moment.", "sitting", "siting"],
+            [3, "She was ___ a letter when he walked in.", "writing", "writeing"],
+            [3, "The dog was ___ the stick yesterday morning.", "getting", "geting"],
+            [3, "They were ___ over at 8 PM.", "coming", "comeing"],
+            [3, "He was ___ a photo at that exact second.", "taking", "takeing"],
+            [3, "We were ___ carefully on the ice yesterday.", "stepping", "steping"],
+            [3, "She was ___ the door when it locked.", "closing", "closeing"],
+            [3, "They were ___ the match at halftime.", "winning", "wining"],
+            [3, "I was ___ my bag down at that moment.", "putting", "puting"],
+            [3, "He was ___ to work at 8 AM.", "driving", "driveing"],
+            [3, "The chef was ___ vegetables all morning.", "cutting", "cuting"],
+            [3, "She was ___ gracefully during the show.", "dancing", "danceing"],
+            [3, "We were ___ the city at midnight.", "leaving", "leaveing"],
+
+            // Level 4: When & While (Interrupted actions) (51-67)
+            [4, "I ___ a book when the phone rang.", "was reading", "read"],
+            [4, "While she ___, the dog ran away.", "was sleeping", "slept"],
+            [4, "They ___ soccer when it started to rain.", "were playing", "played"],
+            [4, "He broke his leg while he ___ in the mountains.", "was skiing", "skied"],
+            [4, "We ___ dinner when the lights went out.", "were eating", "ate"],
+            [4, "You ___ when I knocked on the door.", "were studying", "studied"],
+            [4, "The teacher walked in while the students ___.", "were talking", "talked"],
+            [4, "I saw an accident while I ___ to work.", "was driving", "drove"],
+            [4, "She ___ a shower when the alarm sounded.", "was taking", "took"],
+            [4, "While they ___, they found a lost wallet.", "were walking", "walked"],
+            [4, "He found a coin while he ___ the garden.", "was digging", "dug"],
+            [4, "We ___ TV when we heard a loud noise.", "were watching", "watched"],
+            [4, "The baby woke up while the mother ___.", "was cleaning", "cleaned"],
+            [4, "I burned my hand while I ___ dinner.", "was cooking", "cooked"],
+            [4, "They lost their camera while they ___.", "were traveling", "traveled"],
+            [4, "While you ___, someone stole your bag.", "were looking away", "looked away"],
+            [4, "She met him while she ___ in Paris.", "was living", "lived"],
+
+            // Level 5: Negatives (was not / were not) (68-84)
+            [5, "I ___ listening when she told the secret.", "was not", "were not"],
+            [5, "She ___ doing her homework at 8 PM.", "was not", "were not"],
+            [5, "They ___ playing soccer when it rained.", "were not", "was not"],
+            [5, "We ___ watching TV all night.", "were not", "was not"],
+            [5, "He ___ wearing a hat at the time.", "was not", "were not"],
+            [5, "You ___ looking at me when I waved.", "were not", "was not"],
+            [5, "It ___ raining at 9 AM yesterday.", "was not", "were not"],
+            [5, "The cat ___ sleeping when the dog barked.", "was not", "were not"],
+            [5, "I ___ going to the store at that moment.", "was not", "were not"],
+            [5, "My friends ___ coming over yesterday.", "were not", "was not"],
+            [5, "The machine ___ working all morning.", "was not", "were not"],
+            [5, "We ___ leaving when you arrived.", "were not", "was not"],
+            [5, "He ___ feeling well yesterday afternoon.", "was not", "were not"],
+            [5, "You ___ telling the truth at that moment.", "were not", "was not"],
+            [5, "I ___ eating the cake when you walked in!", "was not", "were not"],
+            [5, "They ___ standing up during the anthem.", "were not", "was not"],
+            [5, "She ___ laughing at the joke yesterday.", "was not", "were not"],
+
+            // Level 6: Questions (Was/Were) (85-100)
+            [6, "___ listening to the teacher at 10 AM?", "Were you", "You were"],
+            [6, "What ___ doing when the power went out?", "was he", "he was"],
+            [6, "___ raining outside at midnight?", "Was it", "It was"],
+            [6, "Where ___ going at 7 PM yesterday?", "were they", "they were"],
+            [6, "___ she playing the piano all afternoon?", "Was", "Were"],
+            [6, "Why ___ crying when I saw him?", "was the baby", "the baby was"],
+            [6, "Who ___ talking to at that moment?", "were you", "you were"],
+            [6, "___ they coming to the party last night?", "Were", "Was"],
+            [6, "What ___ making for dinner at 6 PM?", "was she", "she was"],
+            [6, "___ I reading too fast yesterday?", "Was", "Were"],
+            [6, "Where ___ hiding when the game started?", "were we", "we were"],
+            [6, "___ your brother sleeping at 9 AM?", "Was", "Were"],
+            [6, "Why ___ laughing during the movie?", "were they", "they were"],
+            [6, "What ___ watching on TV last night?", "were you", "you were"],
+            [6, "___ the dog barking all morning?", "Was", "Were"],
+            [6, "How ___ feeling yesterday afternoon?", "were you", "you were"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Present Perfect Continuous Challenge</title>
+    <style>
+        :root {
+            --primary: #33691E; /* Deep Sage */
+            --primary-dark: #1B5E20;
+            --success: #689F38; /* Seafoam Green */
+            --success-dark: #33691E;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #F9FBE7; /* Light sage tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #C5CAE9;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(55, 71, 79, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #78909C;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Present Perfect Continuous</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Present Perfect Continuous
+        const rules = {
+            1: {
+                title: "Level 1: I / You / We / They",
+                text: "Use 'have been' + verb with '-ing' to show an action that started in the past and continues now. Look for signal words like 'for' or 'since'."
+            },
+            2: {
+                title: "Level 2: He / She / It",
+                text: "For a single person or thing (He, She, It), use 'has been' + verb with '-ing'. Keep looking for duration signal words like 'all day' or 'since morning'."
+            },
+            3: {
+                title: "Level 3: For versus Since",
+                text: "Use 'for' with a length of time (for three hours). Use 'since' with a starting point in time (since 2 days ago)."
+            },
+            4: {
+                title: "Level 4: Saying 'No'",
+                text: "To make a negative statement, add 'not' after have or has (have not been, has not been). Remember, no contractions are allowed!"
+            },
+            5: {
+                title: "Level 5: Asking Questions",
+                text: "To ask a question, start the sentence with 'Have' or 'Has', followed by the subject and then 'been + verb-ing'."
+            },
+            6: {
+                title: "Level 6: WH- Questions",
+                text: "Start with a WH- word (What, How long), then add 'have' or 'has', the subject, 'been', and the '-ing' action word!"
+            }
+        };
+
+        // 100 Questions Database for Present Perfect Continuous (Every sentence has a signal word! No Contractions!)
+        const qData = [
+            // Level 1: I/You/We/They + have been + V-ing (1-16)
+            [1, "I ___ studying for three hours.", "have been", "has been"],
+            [1, "We ___ waiting for the bus since morning.", "have been", "has been"],
+            [1, "You ___ working here for five years.", "have been", "has been"],
+            [1, "They ___ playing soccer all afternoon.", "have been", "has been"],
+            [1, "I ___ reading this book for a week.", "have been", "has been"],
+            [1, "We ___ living in this city since 2010.", "have been", "has been"],
+            [1, "You ___ practicing the piano for hours.", "have been", "has been"],
+            [1, "They ___ cleaning the house all morning.", "have been", "has been"],
+            [1, "I ___ trying to solve this puzzle for ages.", "have been", "has been"],
+            [1, "We ___ talking about you for a long time.", "have been", "has been"],
+            [1, "You ___ running since 5 AM.", "have been", "has been"],
+            [1, "They ___ painting the fence all day.", "have been", "has been"],
+            [1, "I ___ cooking dinner for two hours.", "have been", "has been"],
+            [1, "We ___ traveling around Europe for months.", "have been", "has been"],
+            [1, "You ___ listening to music all night.", "have been", "has been"],
+            [1, "They ___ working hard since dawn.", "have been", "has been"],
+
+            // Level 2: He/She/It + has been + V-ing (17-33)
+            [2, "He ___ working here since last year.", "has been", "have been"],
+            [2, "She ___ sleeping for ten hours straight.", "has been", "have been"],
+            [2, "It ___ raining heavily all day.", "has been", "have been"],
+            [2, "He ___ studying math for two hours.", "has been", "have been"],
+            [2, "She ___ practicing yoga since morning.", "has been", "have been"],
+            [2, "It ___ snowing outside all night.", "has been", "have been"],
+            [2, "He ___ fixing his car for a week.", "has been", "have been"],
+            [2, "She ___ writing a novel for months.", "has been", "have been"],
+            [2, "The dog ___ barking for an hour.", "has been", "have been"],
+            [2, "He ___ teaching at this school since 2015.", "has been", "have been"],
+            [2, "She ___ crying since she heard the news.", "has been", "have been"],
+            [2, "It ___ acting strange all morning.", "has been", "have been"],
+            [2, "He ___ jogging in the park for an hour.", "has been", "have been"],
+            [2, "She ___ saving money for a trip all year.", "has been", "have been"],
+            [2, "The baby ___ sleeping peacefully for hours.", "has been", "have been"],
+            [2, "He ___ wearing that jacket all week.", "has been", "have been"],
+            [2, "She ___ cleaning her room since noon.", "has been", "have been"],
+
+            // Level 3: For versus Since (34-50)
+            [3, "I have been working here ___ 2018.", "since", "for"],
+            [3, "She has been sleeping ___ ten hours.", "for", "since"],
+            [3, "We have been waiting ___ two days.", "for", "since"],
+            [3, "They have been playing golf ___ morning.", "since", "for"],
+            [3, "He has been studying ___ three hours.", "for", "since"],
+            [3, "It has been raining ___ Tuesday.", "since", "for"],
+            [3, "You have been driving ___ five hours.", "for", "since"],
+            [3, "I have been living here ___ a long time.", "for", "since"],
+            [3, "She has been cooking ___ 5 PM.", "since", "for"],
+            [3, "They have been arguing ___ twenty minutes.", "for", "since"],
+            [3, "He has been running ___ sunrise.", "since", "for"],
+            [3, "We have been traveling ___ a month.", "for", "since"],
+            [3, "The phone has been ringing ___ ten minutes.", "for", "since"],
+            [3, "She has been crying ___ she lost her keys.", "since", "for"],
+            [3, "I have been reading this ___ ages.", "for", "since"],
+            [3, "They have been building this ___ last year.", "since", "for"],
+            [3, "He has been practicing ___ childhood.", "since", "for"],
+
+            // Level 4: Negatives (have not been / has not been) (51-67)
+            [4, "I ___ sleeping well lately.", "have not been", "has not been"],
+            [4, "She ___ feeling well for days.", "has not been", "have not been"],
+            [4, "They ___ paying attention all morning.", "have not been", "has not been"],
+            [4, "He ___ studying hard recently.", "has not been", "have not been"],
+            [4, "We ___ practicing for a long time.", "have not been", "has not been"],
+            [4, "You ___ taking your medicine properly.", "have not been", "has not been"],
+            [4, "It ___ raining much lately.", "has not been", "have not been"],
+            [4, "I ___ eating junk food for months.", "have not been", "has not been"],
+            [4, "She ___ answering my calls all week.", "has not been", "have not been"],
+            [4, "They ___ working here since last month.", "have not been", "has not been"],
+            [4, "He ___ exercising regularly recently.", "has not been", "have not been"],
+            [4, "We ___ getting any sleep lately.", "have not been", "has not been"],
+            [4, "You ___ trying your best all day.", "have not been", "has not been"],
+            [4, "The car ___ running right recently.", "has not been", "have not been"],
+            [4, "I ___ smoking for two years.", "have not been", "has not been"],
+            [4, "She ___ complaining all week.", "has not been", "have not been"],
+            [4, "They ___ treating us well lately.", "have not been", "has not been"],
+
+            // Level 5: Questions (Have / Has ... been) (68-84)
+            [5, "___ you been waiting long?", "Have", "Has"],
+            [5, "___ she been crying all morning?", "Has", "Have"],
+            [5, "___ they been playing soccer for hours?", "Have", "Has"],
+            [5, "___ he been working here since 2010?", "Has", "Have"],
+            [5, "___ we been driving in the right direction?", "Have", "Has"],
+            [5, "___ it been raining all day?", "Has", "Have"],
+            [5, "___ you been sleeping well recently?", "Have", "Has"],
+            [5, "___ she been practicing the piano?", "Has", "Have"],
+            [5, "___ they been living here for years?", "Have", "Has"],
+            [5, "___ he been studying all night?", "Has", "Have"],
+            [5, "___ you been feeling okay lately?", "Have", "Has"],
+            [5, "___ we been making progress so far?", "Have", "Has"],
+            [5, "___ she been cooking for hours?", "Has", "Have"],
+            [5, "___ they been arguing all day?", "Has", "Have"],
+            [5, "___ he been running since dawn?", "Has", "Have"],
+            [5, "___ it been acting strange lately?", "Has", "Have"],
+            [5, "___ you been keeping a secret?", "Have", "Has"],
+
+            // Level 6: WH- Questions (85-100)
+            [6, "How long ___ you been waiting here?", "have", "has"],
+            [6, "What ___ she been doing all afternoon?", "has", "have"],
+            [6, "Where ___ they been living since 2015?", "have", "has"],
+            [6, "Why ___ he been crying for an hour?", "has", "have"],
+            [6, "How long ___ we been driving?", "have", "has"],
+            [6, "Who ___ you been talking to all night?", "have", "has"],
+            [6, "What ___ you been reading lately?", "have", "has"],
+            [6, "Where ___ she been working for five years?", "has", "have"],
+            [6, "How long ___ it been raining?", "has", "have"],
+            [6, "Why ___ they been arguing since morning?", "have", "has"],
+            [6, "What ___ he been building all month?", "has", "have"],
+            [6, "Who ___ she been helping recently?", "has", "have"],
+            [6, "How long ___ you been feeling this way?", "have", "has"],
+            [6, "Where ___ you been staying all week?", "have", "has"],
+            [6, "What ___ they been eating for breakfast?", "have", "has"],
+            [6, "Why ___ you been avoiding me lately?", "have", "has"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

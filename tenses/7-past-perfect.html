@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Past Perfect Challenge</title>
+    <style>
+        :root {
+            --primary: #BF360C; /* Rust */
+            --primary-dark: #870000;
+            --success: #FF7043; /* Tangerine */
+            --success-dark: #F4511E;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #FBEAEB; /* Light rust tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #C5CAE9;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(55, 71, 79, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #78909C;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Past Perfect Tense</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Past Perfect
+        const rules = {
+            1: {
+                title: "Level 1: The 'Had' Formula",
+                text: "Use 'had' + past participle verb for an action that happened before another action in the past. It works for EVERY pronoun (I, You, We, They, He, She, It)."
+            },
+            2: {
+                title: "Level 2: Regular vs Irregular",
+                text: "Just like present perfect, watch out for irregular past participles (like eaten, seen, gone, written) instead of simple -ed endings."
+            },
+            3: {
+                title: "Level 3: Two Past Actions",
+                text: "We use Past Perfect to show which past action happened *first*. Look for clues like 'by the time', 'before', or 'after'."
+            },
+            4: {
+                title: "Level 4: Saying 'No'",
+                text: "To make a negative past perfect sentence, add 'not' after 'had' (had not). Remember, no contractions are allowed!"
+            },
+            5: {
+                title: "Level 5: Asking Questions",
+                text: "To ask a question in the past perfect, move 'Had' to the very beginning of the sentence before the subject."
+            },
+            6: {
+                title: "Level 6: Signal Words",
+                text: "Words like 'already', 'just', 'never', and 'by the time' are great indicators of the past perfect tense. Let us test your mastery!"
+            }
+        };
+
+        // 100 Questions Database for Past Perfect (Every sentence has a signal word! No Contractions!)
+        const qData = [
+            // Level 1: Regular Verbs with 'had' (1-16)
+            [1, "I ___ the door before he arrived.", "had opened", "has opened"],
+            [1, "She ___ her homework before the teacher asked.", "had finished", "has finished"],
+            [1, "They ___ the house before guests came.", "had cleaned", "has cleaned"],
+            [1, "He ___ the car before it started to rain.", "had washed", "has washed"],
+            [1, "We ___ the movie before you mentioned it.", "had watched", "has watched"],
+            [1, "You ___ the window before the wind blew.", "had opened", "has opened"],
+            [1, "It ___ raining by the time we left.", "had stopped", "has stopped"],
+            [1, "I ___ the report before the meeting began.", "had printed", "has printed"],
+            [1, "She ___ the email before he called.", "had sent", "has sent"],
+            [1, "They ___ the tickets before the show sold out.", "had bought", "has bought"],
+            [1, "He ___ his shoes before stepping outside.", "had tied", "has tied"],
+            [1, "We ___ our lunch before the bell rang.", "had eaten", "has eaten"],
+            [1, "You ___ your keys before leaving the house.", "had found", "has found"],
+            [1, "The train ___ departed by the time we reached the station.", "had already", "has already"],
+            [1, "I ___ the book before watching the film.", "had read", "has read"],
+            [1, "She ___ the plants before the sun came out.", "had watered", "has watered"],
+
+            // Level 2: Irregular Participles (17-33)
+            [2, "I ___ my keys before I found them in the car.", "had lost", "had losed"],
+            [2, "She ___ all the water before running the race.", "had drunk", "had drinked"],
+            [2, "They ___ to Japan before moving to London.", "had gone", "had goed"],
+            [2, "He ___ a book before he became famous.", "had written", "had writed"],
+            [2, "We ___ that bird before our trip to Africa.", "had seen", "had seed"],
+            [2, "You ___ breakfast before the meeting started.", "had eaten", "had eated"],
+            [2, "The dog ___ my shoe before I woke up.", "had bitten", "had bited"],
+            [2, "I ___ a doctor before changing my career.", "had become", "had becomed"],
+            [2, "She ___ a picture before the lights went out.", "had drawn", "had drawed"],
+            [2, "They ___ the match before the penalty shootout.", "had won", "had winned"],
+            [2, "He ___ his arm before playing basketball.", "had broken", "had breaked"],
+            [2, "We ___ the bell before the teacher entered.", "had rung", "had ringed"],
+            [2, "You ___ asleep before the movie ended.", "had fallen", "had falled"],
+            [2, "I ___ a horse before visiting the ranch.", "had ridden", "had rided"],
+            [2, "She ___ her purse before looking in the bag.", "had found", "had finded"],
+            [2, "They ___ a house before prices went up.", "had bought", "had buyed"],
+            [2, "He ___ across the lake before night fell.", "had swum", "had swimmed"],
+
+            // Level 3: Before / After / By the time (34-50)
+            [3, "By the time he arrived, we ___ dinner.", "had finished", "finished"],
+            [3, "She ___ the test before the timer ran out.", "had passed", "passed"],
+            [3, "After the storm ___, we went outside.", "had passed", "passed"],
+            [3, "They ___ the city before the war started.", "had left", "left"],
+            [3, "I recognized him because I ___ him before.", "had met", "met"],
+            [3, "When she opened the box, someone ___ it.", "had stolen", "stole"],
+            [3, "He ___ his homework by the time his mom came home.", "had done", "did"],
+            [3, "We ___ the house before the sun set.", "had reached", "reached"],
+            [3, "By the time the police arrived, the thief ___.", "had escaped", "escaped"],
+            [3, "She ___ never seen snow before she moved north.", "had", "has"],
+            [3, "They realized they ___ made a huge mistake.", "had", "have"],
+            [3, "Before the lights went out, I ___ saved my file.", "had", "have"],
+            [3, "He ___ already eaten when I offered him food.", "had", "has"],
+            [3, "By the time we woke up, it ___ stopped snowing.", "had", "has"],
+            [3, "She ___ locked the door before walking away.", "had", "has"],
+            [3, "They ___ finished the project before the deadline.", "had", "have"],
+            [3, "I knew the truth because she ___ told me.", "had", "has"],
+
+            // Level 4: Negatives (had not) (51-67)
+            [4, "I ___ seen anything like it before that day.", "had not", "have not"],
+            [4, "She ___ finished her essay when the bell rang.", "had not", "has not"],
+            [4, "They ___ traveled abroad before last year.", "had not", "have not"],
+            [4, "He ___ eaten sushi prior to yesterday.", "had not", "has not"],
+            [4, "We ___ met him before the conference.", "had not", "have not"],
+            [4, "You ___ locked the door when we left.", "had not", "have not"],
+            [4, "It ___ rained for months before it poured.", "had not", "has not"],
+            [4, "I ___ heard that song before tonight.", "had not", "have not"],
+            [4, "She ___ spoken to him since the argument.", "had not", "has not"],
+            [4, "They ___ paid the rent before the notice came.", "had not", "have not"],
+            [4, "He ___ studied hard enough before the exam.", "had not", "has not"],
+            [4, "We ___ seen such a beautiful sunset before.", "had not", "have not"],
+            [4, "You ___ told me about the changes yet.", "had not", "have not"],
+            [4, "The car ___ started until he fixed the engine.", "had not", "has not"],
+            [4, "I ___ slept well before the interview.", "had not", "have not"],
+            [4, "She ___ tasted wine prior to the dinner.", "had not", "has not"],
+            [4, "They ___ expected such a warm welcome.", "had not", "have not"],
+
+            // Level 5: Questions (Had ...) (68-84)
+            [5, "___ you eaten before you got on the plane?", "Had", "Have"],
+            [5, "___ she finished her work when you called?", "Had", "Has"],
+            [5, "___ they left before the rain started?", "Had", "Have"],
+            [5, "___ he found his keys before looking there?", "Had", "Has"],
+            [5, "___ we met before that day?", "Had", "Have"],
+            [5, "___ it stopped snowing before you woke up?", "Had", "Has"],
+            [5, "___ you heard the news prior to the meeting?", "Had", "Have"],
+            [5, "___ she locked the back door before sleeping?", "Had", "Has"],
+            [5, "___ they bought tickets before the show sold out?", "Had", "Have"],
+            [5, "___ he read the book before watching the movie?", "Had", "Has"],
+            [5, "___ you visited Paris before your trip last year?", "Had", "Have"],
+            [5, "___ we won a game before that match?", "Had", "Have"],
+            [5, "___ she spoken to him before the event?", "Had", "Has"],
+            [5, "___ they lost the map before asking for help?", "Had", "Have"],
+            [5, "___ he broken his arm before joining the team?", "Had", "Has"],
+            [5, "___ it been a good day before the storm hit?", "Had", "Has"],
+            [5, "___ you written the letter before he arrived?", "Had", "Have"],
+
+            // Level 6: Signal Words (Already, Just, Never, By) (85-100)
+            [6, "I had ___ finished my work when he walked in.", "already", "yet"],
+            [6, "Had you ___ been to London before 2020?", "ever", "never"],
+            [6, "She had ___ eaten sushi before she went to Japan.", "never", "ever"],
+            [6, "They had not arrived ___ when the show started.", "yet", "just"],
+            [6, "He had ___ left the house when I called.", "just", "yet"],
+            [6, "We had ___ seen that movie before last night.", "already", "yet"],
+            [6, "Had he finished his food ___ when you arrived?", "yet", "already"],
+            [6, "I had ___ spoken to a king before that day.", "never", "ever"],
+            [6, "Had they ___ flown in a plane prior to last year?", "ever", "never"],
+            [6, "The train had ___ departed when we reached the track.", "just", "yet"],
+            [6, "She had not told me the truth ___.", "yet", "just"],
+            [6, "We had ___ paid the bill before the waiter returned.", "already", "yet"],
+            [6, "Had you ___ seen a ghost before last Halloween?", "ever", "never"],
+            [6, "He had ___ won a race before joining this team.", "never", "ever"],
+            [6, "I had ___ woken up when the alarm rang.", "just", "yet"],
+            [6, "They had not replied to the letter ___.", "yet", "already"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

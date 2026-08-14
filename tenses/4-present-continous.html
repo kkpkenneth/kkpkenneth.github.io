@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Present Continuous Challenge</title>
+    <style>
+        :root {
+            --primary: #00897B; /* Emerald Green */
+            --primary-dark: #004D40;
+            --success: #26A69A; /* Light Green-Teal */
+            --success-dark: #00695C;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #E0F2F1; /* Light mint tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(45, 52, 54, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Present Continuous Tense</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Present Continuous
+        const rules = {
+            1: {
+                title: "Level 1: I am...",
+                text: "Look for signal words like 'now', 'right now', or 'today'! Use the pronoun 'I' followed by 'am' + the verb with '-ing'."
+            },
+            2: {
+                title: "Level 2: He/She/It is...",
+                text: "Words like 'Look!' or 'Listen!' tell you it is happening right now! For a single person or thing (He, She, It), use 'is' + the verb with '-ing'."
+            },
+            3: {
+                title: "Level 3: You/We/They are...",
+                text: "Look for clues like 'currently' or 'at the moment'. For plural subjects and 'You', use 'are' + the verb with '-ing'."
+            },
+            4: {
+                title: "Level 4: Spelling Rules!",
+                text: "Watch out! If a verb ends in 'e' (like make), drop the 'e' (making). If it ends in a short vowel + consonant (like run), double the consonant (running)."
+            },
+            5: {
+                title: "Level 5: Saying 'No'",
+                text: "To make it negative, just add 'not' after the helper verb! (am not, is not, are not)."
+            },
+            6: {
+                title: "Level 6: Asking Questions",
+                text: "To ask a question, swap the subject and the helper verb! Instead of 'You are', ask 'Are you?'"
+            }
+        };
+
+        // 100 Questions Database for Present Continuous (Every sentence has a signal word!)
+        const qData = [
+            // Level 1: I + am + V-ing (1-16)
+            [1, "I ___ an apple right now.", "am eating", "is eating"],
+            [1, "Listen! I ___ to music.", "am listening", "are listening"],
+            [1, "I ___ TV at the moment.", "am watching", "are watching"],
+            [1, "I ___ for my keys now.", "am looking", "is looking"],
+            [1, "I ___ my car today.", "am washing", "are washing"],
+            [1, "I ___ a letter currently.", "am writing", "is writing"],
+            [1, "Look! I ___ to school.", "am walking", "are walking"],
+            [1, "I ___ on a project right now.", "am working", "is working"],
+            [1, "I ___ English at this moment.", "am studying", "are studying"],
+            [1, "I ___ dinner today.", "am cooking", "is cooking"],
+            [1, "I ___ my teeth right now.", "am brushing", "are brushing"],
+            [1, "I ___ my friend currently.", "am helping", "is helping"],
+            [1, "I ___ on the phone at the moment.", "am talking", "are talking"],
+            [1, "I ___ the house today.", "am cleaning", "is cleaning"],
+            [1, "I ___ a game now.", "am playing", "are playing"],
+            [1, "I ___ a great time at this party.", "am having", "is having"],
+
+            // Level 2: He, She, It + is + V-ing (17-33)
+            [2, "He ___ in the garden right now.", "is working", "am working"],
+            [2, "She ___ to the radio at the moment.", "is listening", "are listening"],
+            [2, "Look! It ___ outside.", "is raining", "are raining"],
+            [2, "The dog ___ loudly now.", "is barking", "are barking"],
+            [2, "My dad ___ a car currently.", "is driving", "am driving"],
+            [2, "She ___ a blue shirt today.", "is wearing", "are wearing"],
+            [2, "He ___ in his bed right now.", "is sleeping", "are sleeping"],
+            [2, "It ___ darker at this moment.", "is getting", "am getting"],
+            [2, "The cat ___ its face now.", "is washing", "are washing"],
+            [2, "My brother ___ a book today.", "is reading", "are reading"],
+            [2, "Listen! She ___ a song.", "is singing", "are singing"],
+            [2, "The baby ___ right now.", "is crying", "are crying"],
+            [2, "He ___ water at the moment.", "is drinking", "are drinking"],
+            [2, "It ___ currently.", "is snowing", "are snowing"],
+            [2, "Look! The bird ___ over there.", "is flying", "are flying"],
+            [2, "She ___ pictures today.", "is drawing", "am drawing"],
+            [2, "He ___ the window right now.", "is opening", "are opening"],
+
+            // Level 3: You, We, They + are + V-ing (34-50)
+            [3, "They ___ soccer right now.", "are playing", "is playing"],
+            [3, "We ___ a movie at the moment.", "are watching", "is watching"],
+            [3, "Look! You ___ very fast!", "are running", "is running"],
+            [3, "The children ___ at the park today.", "are playing", "is playing"],
+            [3, "My friends ___ over currently.", "are coming", "is coming"],
+            [3, "We ___ on the sofa now.", "are sitting", "is sitting"],
+            [3, "They ___ the dishes at this moment.", "are washing", "is washing"],
+            [3, "You ___ beautifully tonight.", "are dancing", "is dancing"],
+            [3, "Listen! The birds ___ in the trees.", "are singing", "is singing"],
+            [3, "We ___ to Paris today.", "are traveling", "is traveling"],
+            [3, "They ___ to us right now.", "are talking", "is talking"],
+            [3, "You ___ a lot of noise at the moment!", "are making", "is making"],
+            [3, "My parents ___ dinner currently.", "are cooking", "is cooking"],
+            [3, "We ___ for the bus now.", "are waiting", "is waiting"],
+            [3, "They ___ a new house this year.", "are building", "is building"],
+            [3, "You ___ too loud right now!", "are speaking", "is speaking"],
+            [3, "Look! The boys ___ in the pool.", "are swimming", "is swimming"],
+
+            // Level 4: Spelling rules (51-67)
+            [4, "She is ___ a cake right now.", "making", "makeing"],
+            [4, "He is ___ in the race at the moment.", "running", "runing"],
+            [4, "We are ___ a great time today!", "having", "haveing"],
+            [4, "They are ___ in the sea now.", "swimming", "swiming"],
+            [4, "I am ___ on the chair currently.", "sitting", "siting"],
+            [4, "She is ___ a letter right now.", "writing", "writeing"],
+            [4, "The dog is ___ the ball at this moment.", "getting", "geting"],
+            [4, "Are you ___ with us today?", "coming", "comeing"],
+            [4, "He is ___ a photo now.", "taking", "takeing"],
+            [4, "We are ___ on the floor currently.", "stepping", "steping"],
+            [4, "She is ___ the door right now.", "closing", "closeing"],
+            [4, "They are ___ the game at the moment.", "winning", "wining"],
+            [4, "I am ___ my bag down now.", "putting", "puting"],
+            [4, "He is ___ the car today.", "driving", "driveing"],
+            [4, "Are you ___ the vegetables currently?", "cutting", "cuting"],
+            [4, "She is ___ to music right now.", "dancing", "danceing"],
+            [4, "We are ___ the house at this moment.", "leaving", "leaveing"],
+
+            // Level 5: Negatives (68-84)
+            [5, "I ___ listening to you right now.", "am not", "is not"],
+            [5, "She ___ doing her homework at the moment.", "is not", "are not"],
+            [5, "They ___ playing soccer today.", "are not", "is not"],
+            [5, "We ___ watching TV right now.", "are not", "is not"],
+            [5, "He ___ wearing a hat currently.", "is not", "are not"],
+            [5, "You ___ looking at me now.", "are not", "is not"],
+            [5, "It ___ raining at this moment.", "is not", "are not"],
+            [5, "The cat ___ sleeping today.", "is not", "are not"],
+            [5, "I ___ going to the store right now.", "am not", "are not"],
+            [5, "My friends ___ coming over tonight.", "are not", "is not"],
+            [5, "The machine ___ working currently.", "is not", "are not"],
+            [5, "We ___ leaving at this moment.", "are not", "is not"],
+            [5, "He ___ feeling well today.", "is not", "are not"],
+            [5, "You ___ telling the truth now.", "are not", "is not"],
+            [5, "I ___ eating that right now!", "am not", "is not"],
+            [5, "They ___ standing up at the moment.", "are not", "is not"],
+            [5, "She ___ laughing at the joke currently.", "is not", "are not"],
+
+            // Level 6: Questions (85-100)
+            [6, "___ listening to the teacher right now?", "Are you", "You are"],
+            [6, "What ___ doing at the moment?", "is he", "he is"],
+            [6, "___ raining outside now?", "Is it", "It is"],
+            [6, "Where ___ going today?", "are they", "they are"],
+            [6, "___ she playing the piano currently?", "Is", "Are"],
+            [6, "Why ___ crying right now?", "is the baby", "the baby is"],
+            [6, "Who ___ talking to at this moment?", "are you", "you are"],
+            [6, "___ they coming to the party tonight?", "Are", "Is"],
+            [6, "What ___ making for dinner today?", "is she", "she is"],
+            [6, "___ I reading too fast now?", "Am", "Are"],
+            [6, "Where ___ hiding at the moment?", "are we", "we are"],
+            [6, "___ your brother sleeping right now?", "Is", "Are"],
+            [6, "Why ___ laughing currently?", "are they", "they are"],
+            [6, "What ___ watching on TV tonight?", "are you", "you are"],
+            [6, "___ the dog barking at this moment?", "Is", "Are"],
+            [6, "How ___ feeling today?", "are you", "you are"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

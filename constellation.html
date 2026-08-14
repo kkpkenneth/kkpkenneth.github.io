@@ -11,16 +11,16 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Vertically centers everything on the phone */
-            align-items: center;     /* Horizontally centers everything */
-            min-height: 100dvh;      /* Uses dynamic viewport height to fit mobile screens perfectly */
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
             margin: 0;
             padding: 10px;
             box-sizing: border-box;
-            overflow: hidden;        /* Prevents accidental scrolling */
+            overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
-            touch-action: none;      /* Prevents pull-to-refresh and zooming */
+            touch-action: none;
         }
 
         h1 {
@@ -39,7 +39,6 @@
             background: radial-gradient(circle at center, #1f2833 0%, #0b0c10 100%);
             width: 100%;
             max-width: 800px;
-            /* Ensures it scales down to fit horizontally or vertically without breaking */
             max-height: calc(100dvh - 80px); 
             aspect-ratio: 4 / 3; 
             overflow: hidden;
@@ -98,6 +97,11 @@
             z-index: 20;
         }
 
+        #level-select-screen {
+            background: rgba(11, 12, 16, 0.98);
+            z-index: 15;
+        }
+
         .overlay-panel h2 {
             font-size: 1.8rem; margin-bottom: 5px;
             text-shadow: 0 0 15px #66fcf1;
@@ -121,6 +125,51 @@
             justify-content: center;
         }
 
+        /* Level Grid */
+        #level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 8px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(31, 40, 51, 0.5);
+            border-radius: 8px;
+            border: 1px solid #45a29e;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .level-btn {
+            background-color: #1f2833;
+            color: #66fcf1;
+            border: 1px solid #45a29e;
+            padding: 8px 5px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .level-btn:hover, .level-btn:active {
+            background-color: #45a29e;
+            color: #0b0c10;
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+            transform: scale(1.05);
+        }
+
+        .level-btn.completed {
+            border-color: #66fcf1;
+            background-color: rgba(69, 162, 158, 0.25);
+        }
+
         /* Buttons */
         button {
             background-color: #45a29e; color: #0b0c10;
@@ -128,7 +177,7 @@
             font-size: 1rem; font-weight: bold; border-radius: 5px;
             cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
             transition: all 0.2s ease; margin: 5px;
-            touch-action: manipulation; /* Optimizes touch responsiveness */
+            touch-action: manipulation;
         }
 
         button:hover, button:active {
@@ -174,6 +223,7 @@
             .overlay-panel p { margin-bottom: 5px; font-size: 0.85rem; }
             .overlay-panel h2 { font-size: 1.4rem; }
             button { padding: 8px 15px; font-size: 0.85rem; }
+            #level-grid { max-height: 150px; }
         }
     </style>
 </head>
@@ -205,6 +255,16 @@
             </p>
         </div>
 
+        <!-- Level Select Screen -->
+        <div id="level-select-screen" class="overlay-panel">
+            <h2 id="level-select-title">Select Constellation</h2>
+            <p>Choose a level to play or continue your journey.</p>
+            <div id="level-grid"></div>
+            <div class="button-group">
+                <button id="level-select-back-btn" class="secondary-btn">Back to Menu</button>
+            </div>
+        </div>
+
         <!-- Quiz Screen -->
         <div id="quiz-overlay" class="overlay-panel">
             <h2>Constellation Complete!</h2>
@@ -218,8 +278,8 @@
             <h4 id="constellation-type">Type</h4>
             <p id="completion-msg">Message</p>
             <div class="button-group">
-                <button id="menu-btn" class="secondary-btn">Menu</button>
-                <button id="next-btn">Next Star</button>
+                <button id="menu-btn" class="secondary-btn">Constellations</button>
+                <button id="next-btn">Next Constellation</button>
             </div>
         </div>
     </div>
@@ -257,6 +317,27 @@
             osc.stop(audioCtx.currentTime + 0.5);
         }
 
+        function playCompletionArpeggio() {
+            if (!audioCtx) return;
+            const arpeggioNotes = [261.63, 329.63, 392.00, 523.25, 659.25];
+            arpeggioNotes.forEach((freq, i) => {
+                const startTime = audioCtx.currentTime + (i * 0.08);
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(startTime);
+                gain.gain.setValueAtTime(0.12, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.4);
+                osc.stop(startTime + 0.4);
+            });
+        }
+
         function playFeedbackChord(isCorrect) {
             if (!audioCtx) return;
             const frequencies = isCorrect ? [261.63, 329.63, 392.00] : [150, 160]; 
@@ -286,6 +367,8 @@
         const levelIndicator = document.getElementById('level-indicator');
         const modeTitle = document.getElementById('mode-title');
         const startScreen = document.getElementById('start-screen');
+        const levelSelectScreen = document.getElementById('level-select-screen');
+        const levelGrid = document.getElementById('level-grid');
         const quizOverlay = document.getElementById('quiz-overlay');
         const infoOverlay = document.getElementById('info-overlay');
         const quizOptionsContainer = document.getElementById('quiz-options');
@@ -293,10 +376,11 @@
         // Buttons
         const modeTraceBtn = document.getElementById('mode-trace-btn');
         const modeQuizBtn = document.getElementById('mode-quiz-btn');
+        const levelSelectBackBtn = document.getElementById('level-select-back-btn');
         const nextBtn = document.getElementById('next-btn');
         const menuBtn = document.getElementById('menu-btn');
 
-        // Game State
+        // Game State & Storage
         let currentLevel = 0;
         let progress = 0; 
         let mouseX = 0;
@@ -304,6 +388,39 @@
         let state = 'START'; 
         let gameMode = 'TRACE';
         let bgStars = [];
+
+        // Save data structure
+        let saveData = {
+            traceCompleted: [],
+            quizCompleted: []
+        };
+
+        function loadSaveData() {
+            try {
+                const data = localStorage.getItem('starlight_tracer_save');
+                if (data) {
+                    saveData = JSON.parse(data);
+                }
+            } catch (e) {
+                console.error("Could not load save data", e);
+            }
+        }
+
+        function writeSaveData() {
+            try {
+                localStorage.setItem('starlight_tracer_save', JSON.stringify(saveData));
+            } catch (e) {
+                console.error("Could not save data", e);
+            }
+        }
+
+        function markCurrentLevelCompleted() {
+            const list = gameMode === 'TRACE' ? saveData.traceCompleted : saveData.quizCompleted;
+            if (!list.includes(currentLevel)) {
+                list.push(currentLevel);
+                writeSaveData();
+            }
+        }
 
         // 88 Modern Constellations Database (Compact Format)
         const rawConstellations = [
@@ -426,7 +543,6 @@
             }
         }
 
-        // Coordinate scaling to map touch/mouse on a responsive canvas to internal 800x600 resolution
         function getPointerPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -441,6 +557,31 @@
             };
         }
 
+        // Screen Management
+        function showLevelSelectScreen() {
+            state = 'LEVEL_SELECT';
+            levelGrid.innerHTML = '';
+            document.getElementById('level-select-title').innerText = gameMode === 'TRACE' ? 'Tracing Mode - Levels' : 'Quiz Mode - Levels';
+
+            levels.forEach((lvl, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                
+                const completedList = gameMode === 'TRACE' ? saveData.traceCompleted : saveData.quizCompleted;
+                const isCompleted = completedList.includes(index);
+                if (isCompleted) btn.classList.add('completed');
+
+                btn.innerHTML = `<strong>#${index + 1}</strong><span style="font-size: 0.7rem; opacity: 0.8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">${lvl.name}</span>`;
+                btn.onclick = () => {
+                    levelSelectScreen.classList.remove('active');
+                    loadLevel(index);
+                };
+                levelGrid.appendChild(btn);
+            });
+
+            levelSelectScreen.classList.add('active');
+        }
+
         // Core Mechanics
         function loadLevel(index) {
             currentLevel = index;
@@ -452,6 +593,7 @@
             
             quizOverlay.classList.remove('active');
             infoOverlay.classList.remove('active');
+            levelSelectScreen.classList.remove('active');
             
             generateBackgroundStars();
         }
@@ -459,7 +601,6 @@
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Background Stars
             bgStars.forEach(star => {
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
@@ -469,7 +610,6 @@
 
             const levelData = levels[currentLevel];
             
-            // Constellation Lines
             ctx.beginPath();
             for (let i = 0; i < progress; i++) {
                 const s = levelData.stars[i];
@@ -482,7 +622,6 @@
             ctx.lineCap = 'round';
             ctx.stroke();
 
-            // Tracing Line (to mouse)
             if (progress > 0 && state === 'PLAYING') {
                 const prevStar = levelData.stars[progress - 1];
                 ctx.beginPath();
@@ -495,7 +634,6 @@
                 ctx.setLineDash([]);
             }
 
-            // Stars and Numbers
             levelData.stars.forEach((star, index) => {
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, 6, 0, Math.PI * 2);
@@ -517,7 +655,6 @@
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // Number the active dot ONLY
                 if (index === progress && state === 'PLAYING') {
                     ctx.font = "12px 'Segoe UI', monospace";
                     ctx.textAlign = "center";
@@ -531,7 +668,6 @@
                     ctx.fill();
                     ctx.fillStyle = "#66fcf1";
                     
-                    // The number displayed reflects the step we are on (1 for the first dot, 2 for the second dot, etc.)
                     ctx.fillText(progress + 1, numX, numY);
                 }
             });
@@ -539,9 +675,9 @@
             requestAnimationFrame(render);
         }
 
-        // Interactions (Mouse and Touch)
+        // Interactions
         const moveHandler = (e) => {
-            if (e.cancelable) e.preventDefault(); // Prevent scrolling on mobile
+            if (e.cancelable) e.preventDefault();
             const pos = getPointerPos(e);
             mouseX = pos.x;
             mouseY = pos.y;
@@ -555,16 +691,15 @@
             if (state !== 'PLAYING') return;
 
             const pos = getPointerPos(e);
-            
             const targetStar = levels[currentLevel].stars[progress];
             const dist = Math.hypot(pos.x - targetStar.x, pos.y - targetStar.y);
 
-            // Only register clicks if the user explicitly clicks the correct active target star
             if (dist < 35) {
-                playStarNote(progress);
-                progress++; // The number will automatically increment when progress increments
+                progress++;
                 
                 if (progress === levels[currentLevel].stars.length) {
+                    playCompletionArpeggio();
+                    markCurrentLevelCompleted();
                     state = gameMode === 'TRACE' ? 'INFO' : 'QUIZ';
                     
                     if (gameMode === 'TRACE') {
@@ -572,6 +707,8 @@
                     } else {
                         setTimeout(showQuizScreen, 500); 
                     }
+                } else {
+                    playStarNote(progress - 1);
                 }
             }
         };
@@ -584,7 +721,6 @@
             quizOptionsContainer.innerHTML = '';
             const correctName = levels[currentLevel].name;
             
-            // Gather 3 wrong answers
             let options = [correctName];
             while (options.length < 4) {
                 let randomConstellation = levels[Math.floor(Math.random() * levels.length)].name;
@@ -626,7 +762,7 @@
             document.getElementById('constellation-type').innerText = levelData.type;
             document.getElementById('completion-msg').innerText = levelData.message;
             
-            nextBtn.innerText = (currentLevel === levels.length - 1) ? "Start Over" : "Next Star";
+            nextBtn.innerText = (currentLevel === levels.length - 1) ? "Start Over" : "Next Constellation";
             infoOverlay.classList.add('active');
         }
 
@@ -635,31 +771,38 @@
             initAudio(); 
             gameMode = 'TRACE';
             startScreen.classList.remove('active');
-            loadLevel(0);
+            showLevelSelectScreen();
         });
 
         modeQuizBtn.addEventListener('click', () => {
             initAudio(); 
             gameMode = 'QUIZ';
             startScreen.classList.remove('active');
-            loadLevel(0);
+            showLevelSelectScreen();
         });
 
-        menuBtn.addEventListener('click', () => {
-            infoOverlay.classList.remove('active');
+        levelSelectBackBtn.addEventListener('click', () => {
+            levelSelectScreen.classList.remove('active');
             startScreen.classList.add('active');
             state = 'START';
         });
 
+        menuBtn.addEventListener('click', () => {
+            infoOverlay.classList.remove('active');
+            showLevelSelectScreen();
+        });
+
         nextBtn.addEventListener('click', () => {
             if (currentLevel === levels.length - 1) {
-                loadLevel(0);
+                infoOverlay.classList.remove('active');
+                showLevelSelectScreen();
             } else {
                 loadLevel(currentLevel + 1);
             }
         });
 
-        // Initial setup (background rendering only)
+        // Initialize
+        loadSaveData();
         generateBackgroundStars();
         render();
     </script>

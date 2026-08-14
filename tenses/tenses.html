@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tenses</title>
+    <title>Tenses Hub</title>
     <style>
         :root {
-            --primary: #37474F;
-            --accent: #455A64;
-            --present-bg: #E8F5E9;
-            --present-border: #81C784;
-            --present-text: #1B5E20;
-            --past-bg: #FFF3E0;
-            --past-border: #FFB74D;
-            --past-text: #E65100;
-            --future-bg: #E1F5FE;
-            --future-border: #4FC3F7;
-            --future-text: #01579B;
-            --light: #F4F6F8;
+            /* Deep Indigo Blue Palette */
+            --primary: slategray; 
+            --primary-dark: #1A237E;
+            --success: #0288D1; 
+            --success-dark: #01579B;
             --dark: #263238;
+            --light: #E8EAF6; 
+            
+            /* Category Badges */
+            --present: #2E7D32;
+            --past: #E65100;
+            --future: #0288D1;
         }
 
         body {
@@ -29,149 +28,181 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            min-height: 100vh;
+            align-items: center;
+            height: 100vh; /* Locks the body height */
+            overflow: hidden; /* Prevents the whole browser window from scrolling */
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        #app-container {
-            width: 100%;
-            background: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        .screen {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
-        /* Start Screen Styling */
+        /* --------------------------------------
+           FULL SCREEN START OVERLAY
+        --------------------------------------- */
         #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: slategray; /* Slate Gray Background */
+            color: white;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, #37474F, #263238);
-            color: white;
-            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #start-screen.active {
+            display: flex;
+            animation: fadeIn 0.4s ease;
         }
 
         #start-screen h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
-            letter-spacing: 3px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         #start-screen p {
             font-size: 1.2rem;
-            color: #CFD8DC;
+            line-height: 1.5;
+            color: #f8f9fa;
             margin-bottom: 30px;
         }
 
         .btn-start {
-            background-color: #00897B;
+            background-color: var(--success);
             color: white;
             border: none;
-            padding: 18px 40px;
-            font-size: 1.3rem;
+            border-radius: 12px;
+            padding: 20px 40px;
+            font-size: 1.5rem;
             font-weight: bold;
-            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 0 var(--success-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
         }
 
-        .btn-start:hover {
-            background-color: #00796B;
-            transform: scale(1.05);
+        .btn-start:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 transparent;
         }
 
-        /* Main Dashboard Styling */
+        /* --------------------------------------
+           STRICT RIGID APP CONTAINER
+        --------------------------------------- */
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            height: 100vh; /* Fills screen on mobile */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden; /* Absolutely prevents anything from breaking the container shape */
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                height: 85vh; /* Fixed height on computer screens */
+                border-radius: 20px;
+            }
+        }
+
+        /* Fixed App Header */
         .app-header {
-            background: linear-gradient(135deg, #37474F, #263238);
-            padding: 30px 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 18px 0;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            flex-shrink: 0; /* Prevents header from collapsing */
         }
 
-        .app-header h1 { 
-            font-size: 2.2rem; 
-            margin: 0; 
-            color: white; 
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 800;
+        /* Scrollable Content Area */
+        .content-area {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto; /* ALL scrolling happens inside this box */
+            display: flex;
+            flex-direction: column;
+            
+            /* Firefox: hide by default */
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+
+        /* Show scrollbar in Firefox when scrolling or hovering */
+        .content-area.is-scrolling,
+        .content-area:hover {
+            scrollbar-color: #CFD8DC transparent;
+        }
+
+        /* WebKit Custom Scrollbar (Chrome, Safari, Edge) */
+        .content-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .content-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .content-area::-webkit-scrollbar-thumb {
+            background: transparent; /* Hidden by default */
+            border-radius: 10px;
+        }
+        
+        /* Show scrollbar thumb in WebKit when scrolling or hovering */
+        .content-area.is-scrolling::-webkit-scrollbar-thumb,
+        .content-area:hover::-webkit-scrollbar-thumb {
+            background: #CFD8DC;
         }
 
         .subtitle {
-            color: #B0BEC5;
-            font-size: 0.95rem;
-            margin-top: 8px;
-            margin-bottom: 0;
+            text-align: center;
+            color: #78909C;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
-        .content-area {
-            padding: 25px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
-            gap: 25px;
-        }
-
-        .tenses-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
+        /* Tactile Cards */
         .tense-card {
             background-color: white;
-            border-radius: 14px;
-            padding: 16px 20px;
+            border: 2px solid #CFD8DC;
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             text-decoration: none;
             color: var(--dark);
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            border-left: 5px solid transparent;
+            box-shadow: 0 4px 0 #CFD8DC;
+            transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
+            flex-shrink: 0;
+        }
+
+        .tense-card:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 transparent;
         }
 
         .tense-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            border-color: var(--primary);
         }
-
-        .card-present {
-            background-color: var(--present-bg);
-            border-left-color: var(--present-border);
-        }
-        .card-present:hover { border-color: var(--present-text); }
-
-        .card-past {
-            background-color: var(--past-bg);
-            border-left-color: var(--past-border);
-        }
-        .card-past:hover { border-color: var(--past-text); }
-
-        .card-future {
-            background-color: var(--future-bg);
-            border-left-color: var(--future-border);
-        }
-        .card-future:hover { border-color: var(--future-text); }
 
         .card-header { 
             display: flex; 
@@ -181,143 +212,135 @@
 
         .tense-title { 
             font-weight: 700; 
-            font-size: 1.05rem; 
-            color: #263238;
+            font-size: 1.1rem; 
         }
 
         .formula { 
             font-size: 0.8rem; 
-            color: #455A64; 
+            color: #555; 
+            background: #F1F3F4; 
+            padding: 4px 8px; 
+            border-radius: 6px; 
             font-family: monospace; 
-            background: rgba(255, 255, 255, 0.7);
-            padding: 4px 8px;
-            border-radius: 6px;
-            display: inline-block;
-            align-self: flex-start;
+            align-self: flex-start; 
         }
 
         .badge { 
-            font-size: 0.65rem; 
+            font-size: 0.7rem; 
             padding: 3px 8px; 
             border-radius: 20px; 
             color: white; 
             text-transform: uppercase;
-            font-weight: 700;
+            font-weight: bold;
             letter-spacing: 0.5px;
         }
 
-        .badge-present { background-color: #2E7D32; }
-        .badge-past { background-color: #E65100; }
-        .badge-future { background-color: #0288D1; }
+        .badge-present { background-color: var(--present); }
+        .badge-past { background-color: var(--past); }
+        .badge-future { background-color: var(--future); }
 
         .explanation {
             font-size: 0.85rem;
-            color: #37474F;
-            background: #ECEFF1;
-            padding: 18px 20px;
-            border-radius: 12px;
-            line-height: 1.5;
-            border: 1px solid #CFD8DC;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            color: #555;
+            background: #F1F3F4;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            border: 1px dashed #B0BEC5;
+            flex-shrink: 0;
         }
 
-        .explanation strong {
-            color: #263238;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
+    <!-- Full Screen Start Overlay -->
+    <div id="start-screen" class="active">
+        <h1>English Tenses</h1>
+        <p>Master all 12 tenses.<br>Click below to enable sound effects and start!</p>
+        <button class="btn-start" onclick="startApp()">Enter 🔊</button>
+    </div>
+
+    <!-- Main App Container -->
     <div id="app-container">
         
-        <!-- Start Screen for Sound Initialization -->
-        <div id="start-screen" class="screen active">
-            <h1>English Tenses</h1>
-            <p>Click below to enable sound effects and speech synthesis!</p>
-            <button class="btn-start" onclick="startApp()">Start Learning 🔊</button>
-        </div>
+        <!-- Persistent Header -->
+        <div class="app-header">Tenses</div>
 
-        <!-- Main Hub Screen -->
-        <div id="main-screen" class="screen">
-            <div class="app-header">
-                <h1>English Tenses</h1>
-                <p class="subtitle">Hover to listen & preview formulas • Click to practice</p>
+        <!-- Scrollable List Area -->
+        <div class="content-area" id="main-content">
+            
+            <p class="subtitle">Hover to listen • Click to practice</p>
+
+            <a href="1-present-simple.html" class="tense-card" onmouseenter="handleHover('Present Simple')">
+                <div class="card-header"><span class="tense-title">Present Simple</span><span class="badge badge-present">Present</span></div>
+                <span class="formula">Subject + Base Verb (-s/-es)</span>
+            </a>
+            <a href="2-past-simple.html" class="tense-card" onmouseenter="handleHover('Past Simple')">
+                <div class="card-header"><span class="tense-title">Past Simple</span><span class="badge badge-past">Past</span></div>
+                <span class="formula">Subject + Past Verb</span>
+            </a>
+            <a href="3-future-simple.html" class="tense-card" onmouseenter="handleHover('Future Simple')">
+                <div class="card-header"><span class="tense-title">Future Simple</span><span class="badge badge-future">Future</span></div>
+                <span class="formula">Subject + will + Base Verb</span>
+            </a>
+            <a href="4-present-continous.html" class="tense-card" onmouseenter="handleHover('Present Continuous')">
+                <div class="card-header"><span class="tense-title">Present Continuous</span><span class="badge badge-present">Present</span></div>
+                <span class="formula">Subject + am/is/are + Present Participle</span>
+            </a>
+            <a href="5-present-perfect.html" class="tense-card" onmouseenter="handleHover('Present Perfect')">
+                <div class="card-header"><span class="tense-title">Present Perfect</span><span class="badge badge-present">Present</span></div>
+                <span class="formula">Subject + have/has + Past Participle</span>
+            </a>
+            <a href="6-past-continous.html" class="tense-card" onmouseenter="handleHover('Past Continuous')">
+                <div class="card-header"><span class="tense-title">Past Continuous</span><span class="badge badge-past">Past</span></div>
+                <span class="formula">Subject + was/were + Present Participle</span>
+            </a>
+            <a href="7-past-perfect.html" class="tense-card" onmouseenter="handleHover('Past Perfect')">
+                <div class="card-header"><span class="tense-title">Past Perfect</span><span class="badge badge-past">Past</span></div>
+                <span class="formula">Subject + had + Past Participle</span>
+            </a>
+            <a href="8-present-perfect-continuous.html" class="tense-card" onmouseenter="handleHover('Present Perfect Continuous')">
+                <div class="card-header"><span class="tense-title">Present Perfect Continuous</span><span class="badge badge-present">Present</span></div>
+                <span class="formula">Subject + have/has been + Present Participle</span>
+            </a>
+            <a href="9-past-perfect-continuous.html" class="tense-card" onmouseenter="handleHover('Past Perfect Continuous')">
+                <div class="card-header"><span class="tense-title">Past Perfect Continuous</span><span class="badge badge-past">Past</span></div>
+                <span class="formula">Subject + had been + Present Participle</span>
+            </a>
+            <a href="10-future-continuous.html" class="tense-card" onmouseenter="handleHover('Future Continuous')">
+                <div class="card-header"><span class="tense-title">Future Continuous</span><span class="badge badge-future">Future</span></div>
+                <span class="formula">Subject + will be + Present Participle</span>
+            </a>
+            <a href="11-future-perfect.html" class="tense-card" onmouseenter="handleHover('Future Perfect')">
+                <div class="card-header"><span class="tense-title">Future Perfect</span><span class="badge badge-future">Future</span></div>
+                <span class="formula">Subject + will have + Past Participle</span>
+            </a>
+            <a href="12-future-perfect-continuous.html" class="tense-card" onmouseenter="handleHover('Future Perfect Continuous')">
+                <div class="card-header"><span class="tense-title">Future Perfect Continuous</span><span class="badge badge-future">Future</span></div>
+                <span class="formula">Subject + will have been + Present Participle</span>
+            </a>
+
+            <div class="explanation">
+                <strong>KEY TERMS:</strong><br>
+                • <strong>Present Participle:</strong> Verb + <em>-ing</em><br>
+                • <strong>Past Participle:</strong> Verb + <em>-ed</em> or irregular form
             </div>
-
-            <div class="content-area">
-                <div class="tenses-grid">
-                    <!-- Present Tenses -->
-                    <a href="1-present-simple.html" class="tense-card card-present" onmouseenter="handleHover('Present Simple')">
-                        <div class="card-header"><span class="tense-title">Present Simple</span><span class="badge badge-present">Present</span></div>
-                        <span class="formula">Subject + Base Verb (-s/-es)</span>
-                    </a>
-                    <a href="4-present-continous.html" class="tense-card card-present" onmouseenter="handleHover('Present Continuous')">
-                        <div class="card-header"><span class="tense-title">Present Continuous</span><span class="badge badge-present">Present</span></div>
-                        <span class="formula">Subject + am/is/are + Present Participle</span>
-                    </a>
-                    <a href="5-present-perfect.html" class="tense-card card-present" onmouseenter="handleHover('Present Perfect')">
-                        <div class="card-header"><span class="tense-title">Present Perfect</span><span class="badge badge-present">Present</span></div>
-                        <span class="formula">Subject + have/has + Past Participle</span>
-                    </a>
-                    <a href="8-present-perfect-continuous.html" class="tense-card card-present" onmouseenter="handleHover('Present Perfect Continuous')">
-                        <div class="card-header"><span class="tense-title">Present Perfect Continuous</span><span class="badge badge-present">Present</span></div>
-                        <span class="formula">Subject + have/has been + Present Participle</span>
-                    </a>
-
-                    <!-- Past Tenses -->
-                    <a href="2-past-simple.html" class="tense-card card-past" onmouseenter="handleHover('Past Simple')">
-                        <div class="card-header"><span class="tense-title">Past Simple</span><span class="badge badge-past">Past</span></div>
-                        <span class="formula">Subject + Past Verb</span>
-                    </a>
-                    <a href="6-past-continous.html" class="tense-card card-past" onmouseenter="handleHover('Past Continuous')">
-                        <div class="card-header"><span class="tense-title">Past Continuous</span><span class="badge badge-past">Past</span></div>
-                        <span class="formula">Subject + was/were + Present Participle</span>
-                    </a>
-                    <a href="7-past-perfect.html" class="tense-card card-past" onmouseenter="handleHover('Past Perfect')">
-                        <div class="card-header"><span class="tense-title">Past Perfect</span><span class="badge badge-past">Past</span></div>
-                        <span class="formula">Subject + had + Past Participle</span>
-                    </a>
-                    <a href="9-past-perfect-continuous.html" class="tense-card card-past" onmouseenter="handleHover('Past Perfect Continuous')">
-                        <div class="card-header"><span class="tense-title">Past Perfect Continuous</span><span class="badge badge-past">Past</span></div>
-                        <span class="formula">Subject + had been + Present Participle</span>
-                    </a>
-
-                    <!-- Future Tenses -->
-                    <a href="3-future-simple.html" class="tense-card card-future" onmouseenter="handleHover('Future Simple')">
-                        <div class="card-header"><span class="tense-title">Future Simple</span><span class="badge badge-future">Future</span></div>
-                        <span class="formula">Subject + will + Base Verb</span>
-                    </a>
-                    <a href="10-future-continuous.html" class="tense-card card-future" onmouseenter="handleHover('Future Continuous')">
-                        <div class="card-header"><span class="tense-title">Future Continuous</span><span class="badge badge-future">Future</span></div>
-                        <span class="formula">Subject + will be + Present Participle</span>
-                    </a>
-                    <a href="11-future-perfect.html" class="tense-card card-future" onmouseenter="handleHover('Future Perfect')">
-                        <div class="card-header"><span class="tense-title">Future Perfect</span><span class="badge badge-future">Future</span></div>
-                        <span class="formula">Subject + will have + Past Participle</span>
-                    </a>
-                    <a href="12-future-perfect-continuous.html" class="tense-card card-future" onmouseenter="handleHover('Future Perfect Continuous')">
-                        <div class="card-header"><span class="tense-title">Future Perfect Continuous</span><span class="badge badge-future">Future</span></div>
-                        <span class="formula">Subject + will have been + Present Participle</span>
-                    </a>
-                </div>
-
-                <div class="explanation">
-                    <strong>KEY GRAMMAR TERMS:</strong>
-                    <div>• <strong>Present Participle:</strong> Verb ending in <em>-ing</em> (e.g., <em>running</em>, <em>studying</em>).</div>
-                    <div>• <strong>Past Participle:</strong> Verb ending in <em>-ed</em> or its irregular form (e.g., <em>walked</em>, <em>eaten</em>, <em>seen</em>).</div>
-                </div>
-            </div>
+            
         </div>
-
     </div>
 
     <script>
         let audioCtx;
 
         function startApp() {
-            // Initialize AudioContext on user gesture to comply with browser audio policies
+            // Initialize AudioContext on user gesture
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
@@ -325,9 +348,27 @@
                 audioCtx.resume();
             }
 
-            // Switch screens
+            // Hide the full-screen overlay to reveal the app container underneath
             document.getElementById('start-screen').classList.remove('active');
-            document.getElementById('main-screen').classList.add('active');
+            
+            playStartupTone();
+        }
+
+        function playStartupTone() {
+            try {
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+            } catch (e) {}
         }
 
         function playHoverTone() {
@@ -336,11 +377,11 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 
-                osc.type = 'sine';
+                osc.type = 'triangle';
                 osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
                 
-                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
                 
                 osc.connect(gain);
@@ -361,6 +402,23 @@
                 window.speechSynthesis.speak(utterance);
             }
         }
+
+        // SCROLLBAR AUTO-HIDE LOGIC
+        let scrollTimeout;
+        const contentArea = document.getElementById('main-content');
+        
+        contentArea.addEventListener('scroll', () => {
+            // Add class to reveal scrollbar
+            contentArea.classList.add('is-scrolling');
+            
+            // Clear any existing timeout
+            window.clearTimeout(scrollTimeout);
+            
+            // Set a timeout to remove the class after user stops scrolling (800ms)
+            scrollTimeout = setTimeout(() => {
+                contentArea.classList.remove('is-scrolling');
+            }, 800);
+        });
     </script>
 </body>
 </html>

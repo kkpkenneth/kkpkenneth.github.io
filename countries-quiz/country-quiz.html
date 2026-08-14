@@ -92,6 +92,17 @@
             transform: translateY(1px);
         }
 
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #34495e;
+        }
+
         h2#question-text {
             font-size: 1.5rem;
             margin-bottom: 20px;
@@ -159,6 +170,7 @@
             display: none;
             width: 100%;
             flex-direction: column;
+            align-items: center;
         }
         
         .fact-box {
@@ -173,6 +185,8 @@
             line-height: 1.6;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             color: #34495e;
+            width: 100%;
+            box-sizing: border-box;
         }
         .fact-box h3 {
             margin-top: 0;
@@ -195,12 +209,14 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 25px;
+            width: 100%;
         }
         
         #next-btn-container {
             display: none;
             margin-top: 15px;
             margin-bottom: 10px;
+            width: 100%;
         }
 
         @media (max-width: 600px) {
@@ -262,7 +278,10 @@
     </div>
 
     <div id="quiz-screen">
-        <h2 id="question-text">Which country/territory is this?</h2>
+        <div class="quiz-header">
+            <span id="score-display">Score: 0</span>
+            <span id="question-count">Question: 1</span>
+        </div>
         
         <div class="flag-container">
             <img id="flag-img" src="" alt="Country Flag">
@@ -286,6 +305,8 @@
 
 <script>
     let audioCtx;
+    let score = 0;
+    let questionCount = 0;
 
     function initAudio() {
         if (!audioCtx) {
@@ -415,7 +436,7 @@
 055|055-yemen.jpg|Yemen|也門|A country at the southern end of the Arabian Peninsula in Western Asia.|Arabia Felix|1. Home to the ancient skyscraper city of Shibam, often called the "Manhattan of the Desert".<br>2. Features the unique and biologically diverse Socotra Island.
 056|056-oman.jpg|Oman|阿曼|A country on the southeastern coast of the Arabian Peninsula in Western Asia.|The Jewel of Arabia|1. One of the oldest independent states in the Arab world.<br>2. Renowned for producing world-class frankincense.
 057|057-iceland.jpg|Iceland|冰島|An island nation in the North Atlantic.|Land of Fire and Ice|1. Is the most peaceful country globally.<br>2. Has the most geysers in Europe.
-058|058-denmark.jpg|丹麥|A Scandinavian country in Northern Europe.|Kingdom of Denmark|1. Consonsidered one of the oldest monarchies.<br>2. Has the most bicycles.
+058|058-denmark.jpg|Denmark|丹麥|A Scandinavian country in Northern Europe.|Kingdom of Denmark|1. Consonsidered one of the oldest monarchies.<br>2. Has the most bicycles.
 059|059-norway.jpg|Norway|挪威|A coastal country on the Scandinavian Peninsula.|Land of the Midnight Sun|1. Has the most fjords.<br>2. Has won the most Winter Olympic medals.
 060|060-sweden.jpg|Sweden|瑞典|A Scandinavian country in Northern Europe.|Land of the Midnight Sun|1. Has the most islands of any European country.<br>2. Has the most corporate headquarters per capita.
 061|061-finland.jpg|Finland|芬蘭|A Nordic country in Northern Europe.|Land of a Thousand Lakes|1. Has the most saunas per capita.<br>2. Ranked as the happiest country.
@@ -458,8 +479,78 @@
 103|103-trinidad-and-tobago.jpg|Trinidad and Tobago|特立尼達和多巴哥|A twin-island country situated off the northeastern coast of South America.|The Land of the Hummingbird|1. The birthplace of the steelpan, the only acoustic musical instrument invented in the 20th century.<br>2. Home to Pitch Lake, the largest natural deposit of asphalt in the world.
 104|104-barbados.jpg|Barbados|巴巴多斯|An island country in the Lesser Antilles of the West Indies in the Caribbean region.|Land of the Flying Fish|1. The birthplace of rum, with commercial production dating back to the 1700s.<br>2. Known for its pristine white-sand beaches and crystal-clear turquoise waters.
 105|105-ethiopia.jpg|Ethiopia|埃塞俄比亞|A landlocked country in the Horn of Africa.|The Cradle of Humankind|1. One of the oldest nations in the world and one of the few African countries to avoid colonization.<br>2. Widely recognized as the historical birthplace of coffee arabica.
-
-        `;
+109|109-kenya.jpg|Kenya|肯尼亞|A country in East Africa with a coastline on the Indian Ocean.|Magical Kenya|1. Home to the Great Rift Valley and the incredible annual Wildebeest Migration.<br>2. Renowned for producing some of the world's best long-distance runners.
+110|110-uganda.jpg|Uganda|烏干達|A landlocked country in East-Central Africa known as the "Pearl of Africa".|The Pearl of Africa|1. Home to more than half of the world's remaining mountain gorilla population.<br>2. Features the source of the White Nile river at Jinja.
+111|111-rwanda.jpg|Rwanda|盧旺達|A landlocked country in the Great Rift Valley of East-Central Africa.|Land of a Thousand Hills|1. One of the cleanest nations in the world, having banned plastic bags nationwide since 2008.<br>2. A premier global destination for eco-friendly mountain gorilla tracking.
+112|112-burundi.jpg|Burundi|布隆迪|A landlocked country in the African Great Lakes region of East-Central Africa.|Heart of Africa|1. One of the world's top producers and exporters of high-quality coffee.<br>2. Home to the impressive Ruvubu National Park along the Ruvubu River.
+113|113-thailand.jpg|Thailand|泰國|A country in Southeast Asia known for tropical beaches, royal palaces, and ancient ruins.|Land of Smiles|1. The only Southeast Asian nation to avoid European colonization.<br>2. Home to thousands of ornate Buddhist temples, such as Wat Phra Kaew.
+114|114-vietnam.jpg|Vietnam|越南|A country in Southeast Asia on the South China Sea, known for beaches, rivers, and Buddhist pagodas.|The Land of the Blue Dragon|1. One of the world's leading exporters of coffee and rice.<br>2. Home to Ha Long Bay, featuring thousands of towering limestone karsts.
+115|115-laos.jpg|Laos|老撾|A landlocked country in Southeast Asia, traversed by the Mekong River.|Land of a Million Elephants|1. The most heavily bombed country in history per capita during the Vietnam War era.<br>2. Features the UNESCO-listed town of Luang Prabang with preserved French colonial architecture and Buddhist monasteries.
+116|116-cambodia.jpg|Cambodia|柬埔寨|A country in Southeast Asia bordered by Thailand, Laos, Vietnam, and the Gulf of Thailand.|Kingdom of Wonder|1. Home to Angkor Wat, the largest religious monument in the world.<br>2. Features the massive Tonle Sap Lake, which reverses its flow seasonally.
+117|117-malaysia.jpg|Malaysia|馬來西亞|A Southeast Asian country occupying parts of the Malay Peninsula and the island of Borneo.|Malaysia Truly Asia|1. Home to the Petronas Twin Towers, once the tallest buildings in the world.<br>2. Features one of the oldest tropical rainforests in the world, Taman Negara.
+118|118-singapore.jpg|Singapore|新加坡|A sovereign island city-state in maritime Southeast Asia.|The Lion City|1. One of the world's leading global financial centers with ultra-modern architecture and strict laws.<br>2. Home to Gardens by the Bay, featuring futuristic Supertrees and the world's largest glass greenhouse.
+119|119-brunei.jpg|Brunei|文萊|A tiny sovereign state located on the north coast of the island of Borneo in Southeast Asia.|Abode of Peace|1. One of the wealthiest nations per capita due to extensive petroleum and natural gas fields.<br>2. Ruled by one of the world's last absolute monarchs, the Sultan of Brunei.
+120|120-indonesia.jpg|Indonesia|印尼|An archipelagic country in Southeast Asia and Oceania, consisting of over 17,000 islands.|Emerald of the Equator|1. The world's largest island country and archipelago.<br>2. Home to Komodo dragons, the largest living species of lizard.
+121|121-greece.jpg|Greece|希臘|A country in southeastern Europe, known as the birthplace of Western civilization.|The Cradle of Western Civilization|1. Considered the birthplace of the ancient Olympic Games and democracy.<br>2. Comprises thousands of islands across the Aegean and Ionian Seas.
+122|122-albania.jpg|Albania|阿爾巴尼亞|A country in Southeastern Europe on the Adriatic and Ionian Seas within the Mediterranean Basin.|Land of the Eagles|1. Characterized by thousands of Cold War-era concrete military bunkers built across the landscape.<br>2. Home to the breathtaking Albanian Riviera with pristine turquoise waters.
+123|123-montenegro.jpg|Montenegro|黑山|A rugged mountainous country in Southeast Europe on the Adriatic coast.|Wild Beauty|1. Home to the Tara River Canyon, one of the deepest river canyons in Europe.<br>2. Features the stunning Bay of Kotor, often called Europe's southernmost fjord.
+124|124-serbia.jpg|Serbia|塞爾維亞|A landlocked country situated at the crossroads of Central and Southeast Europe in the Balkans.|Land of the White City|1. One of the world's largest exporters of raspberries.<br>2. Home to the ancient Petrovaradin Fortress overlooking the Danube River.
+125|125-romania.jpg|Romania|羅馬尼亞|A country located at the intersection of Central, Eastern, and Southeastern Europe.|The Land of Transylvania|1. Home to Bran Castle, famously linked to the legend of Dracula.<br>2. Features the magnificent and bio-diverse Danube Delta.
+126|126-bulgaria.jpg|Bulgaria|保加利亞|A country in southeastern Europe, bounded by the Black Sea to the east.|Land of Roses|1. One of the world's top producers of rose oil, vital for the global perfume industry.<br>2. Home to the ancient Thracian tomb monuments recognized globally.
+127|127-north-macedonia.jpg|North Macedonia|北馬其頓|A landlocked country in the Balkan Peninsula of Southeast Europe.|Land of Legends|1. Home to Lake Ohrid, one of the oldest and deepest lakes in Europe.<br>2. Features the historic stone-carved city of Skopje.
+128|128-bosnia-and-herzegovina.jpg|Bosnia and Herzegovina|波斯尼亞和黑塞哥維那|A country in the Balkan Peninsula of southeastern Europe.|The Heart of Southeast Europe|1. Home to the iconic Stari Most (Old Bridge) in Mostar, a masterpiece of Ottoman architecture.<br>2. Features the dramatic Kravice Waterfalls and extensive Dinaric Alps.
+129|129-belize.jpg|Belize|伯利茲|A country on the eastern coast of Central America, bounded by the Caribbean Sea and Mexico.|Jewel of the Caribbean|1. Home to the famous Great Blue Hole, a massive underwater sinkhole ideal for diving.<br>2. Features the second-largest barrier reef system in the world.
+130|130-guatemala.jpg|Guatemala|危地馬拉|A country in Central America bordered by Mexico, the Pacific Ocean, Belize, and Honduras.|Heart of the Mayan World|1. Considered the historic heartland of the ancient Maya civilization.<br>2. Home to Tikal, one of the largest archaeological sites and urban centers of the pre-Columbian Maya.
+131|131-el-salvador.jpg|El Salvador|薩爾瓦多|The smallest and most densely populated country in Central America.|Land of Volcanoes|1. The first country in the world to adopt Bitcoin as legal tender.<br>2. Renowned for world-class surf breaks along its Pacific coastline.
+132|132-honduras.jpg|Honduras|洪都拉斯|A country in Central America bordered by the Caribbean Sea and the Pacific Ocean.|Heart of Central America|1. Home to the ancient Mayan ruins of Copán with intricate hieroglyphic stairways.<br>2. Famous for the Mesoamerican Barrier Reef system off its Caribbean coast.
+133|133-nicaragua.jpg|Nicaragua|尼加拉瓜|The largest country in the Central American isthmus, bordered by Honduras and Costa Rica.|Land of Lakes and Volcanoes|1. Home to Lake Nicaragua, the only freshwater lake in the world containing oceanic species like bull sharks.<br>2. Features Ometepe, the largest volcanic island inside a freshwater lake.
+134|134-costa-rica.jpg|Costa Rica|哥斯達黎加|A rugged, rainforested country in Central America with coastlines on the Pacific and Caribbean.|The Rich Coast|1. Generates over 98% of its electricity from renewable energy sources.<br>2. Abolished its military permanently in 1948 and invests that budget into education and health.
+135|135-panama.jpg|Panama|巴拿馬|A country in Central America connecting North and South America via an isthmus.|Bridge of the World|1. Home to the Panama Canal, one of the greatest engineering feats in global maritime history.<br>2. The only place in the world where you can watch the sun rise on the Pacific Ocean and set on the Atlantic Ocean.
+138|138-democratic-republic-of-congo.jpg|Democratic Republic of the Congo|剛果民主共和國|A massive country located in Central Africa, the second-largest in Africa by area.|Heart of Africa|1. Home to the critically endangered okapi and eastern lowland gorillas.<br>2. Features Virunga National Park, Africa's oldest national park and home to active volcanoes.
+145|145-kazakhstan.jpg|Kazakhstan|哈薩克斯坦|A transcontinental country spanning Central Asia and Eastern Europe.|Land of the Great Steppe|1. The largest landlocked country in the world.<br>2. Home to Baikonur Cosmodrome, the world's first and largest operational space launch facility.
+146|146-kyrgyzstan.jpg|Kyrgyzstan|吉爾吉斯斯坦|A landlocked country in Central Asia characterized by the Tian Shan mountain range.|Switzerland of Central Asia|1. Over 90% of its total land area is mountainous.<br>2. Home to Issyk-Kul, the second-largest alpine lake in the world.
+147|147-tajikistan.jpg|Tajikistan|塔吉克斯坦|A mountainous, landlocked country in Central Asia bordered by Afghanistan, Uzbekistan, Kyrgyzstan, and China.|Land of the Pamir Mountains|1. More than 90% of its territory is covered by mountains, with the Pamir range dominating the landscape.<br>2. Home to Lake Karakul, a striking impact crater lake situated at high altitude.
+148|148-uzbekistan.jpg|Uzbekistan|烏茲別克斯坦|A double-landlocked country in Central Asia, historically central to the Silk Road.|Heart of the Silk Road|1. Home to legendary Silk Road oasis cities like Samarkand, Bukhara, and Khiva.<br>2. One of the world's top producers and exporters of cotton.
+149|149-turkmenistan.jpg|Turkmenistan|土庫曼斯坦|A country in Central Asia bordered by the Caspian Sea, Iran, Afghanistan, Uzbekistan, and Kazakhstan.|Land of the Neutrality|1. Home to the "Door to Hell" (Darvaza gas crater), a natural gas fire that has been burning for decades.<br>2. Famous for breeding world-class Akhal-Teke horses.
+150|150-azerbaijan.jpg|Azerbaijan|阿塞拜疆|A transcontinental country situated at the boundary of Eastern Europe and Western Asia in the Caucasus region.|Land of Fire|1. Famous for its natural "burning hills" and eternal flames fueled by vast subterranean gas deposits.<br>2. Home to a high concentration of unique mud volcanoes.
+151|151-georgia.jpg|Georgia|格魯吉亞|A country at the intersection of Eastern Europe and Western Asia in the Caucasus region.|The Cradle of Wine|1. Widely considered the birthplace of wine, with an 8,000-year-old winemaking tradition.<br>2. Features the stunning Caucasus mountain villages like Ushguli, among the highest permanently inhabited settlements in Europe.
+152|152-armenia.jpg|Armenia|亞美尼亞|A landlocked country in the Armenian Highlands of Western Asia's Caucasus region.|Land of Ancient Stones|1. The first nation in the world to adopt Christianity as its official religion (in 301 AD).<br>2. Home to Lake Sevan, one of the largest high-altitude freshwater alpine lakes in the world.
+153|153-italy.jpg|Italy|意大利|A country consisting of a peninsula delimited by the Alps and several islands surrounding it.|Bel Paese|1. Home to the most UNESCO World Heritage Sites in the world.<br>2. Encloses two independent microstates within its territory (Vatican City and San Marino).
+154|154-vatican-city.jpg|Vatican City|梵蒂岡|An independent city-state enclaved within Rome, Italy.|The Holy See|1. The smallest independent state in the world by both area and population.<br>2. Completely surrounded by the city of Rome.
+155|155-san-marino.jpg|San Marino|聖馬力諾|A mountainous microstate enclaved by Italy, situated on the Italian Peninsula's eastern side.|The Most Serene Republic of San Marino|1. The oldest surviving sovereign republic and constitutional republic in the world.<br>2. One of the wealthiest countries in the world per capita with virtually no national debt.
+156|156-malta.jpg|Malta|馬耳他|A southern European island country in the Mediterranean Sea, consisting of an archipelago.|The Jewel of the Mediterranean|1. One of the most densely populated countries in the world.<br>2. Home to some of the oldest freestanding stone buildings in the world (the Megalithic Temples).
+157|157-cyprus.jpg|Cyprus|賽普勒斯|An island country in the Eastern Mediterranean Sea, located south of Anatolia.|The Island of Aphrodite|1. According to mythology, the birthplace of Aphrodite, the Greek goddess of love and beauty.<br>2. Features a capital city (Nicosia) that remains the last divided capital in Europe.
+158|158-austria.jpg|Austria|奧地利|A landlocked country in the southern part of Central Europe, characterized by alpine terrain.|The Land of Music|1. Famous for being the birthplace of legendary classical composers like Mozart, Schubert, and Strauss.<br>2. Over sixty percent of its total land area is covered by the Austrian Alps.
+159|159-switzerland.jpg|Switzerland|瑞士|A mountainous country situated at the confluence of Western, Central, and Southern Europe.|The Playground of Europe|1. Renowned globally for its neutrality, banking systems, and production of luxury watches and chocolate.<br>2. Features four official national languages (German, French, Italian, and Romansh).
+160|160-croatia.jpg|Croatia|克羅地亞|A country at the crossroads of Central and Southeast Europe, bordering the Adriatic Sea.|The Land of a Thousand Islands|1. Home to over a thousand islands, islets, and reefs along its stunning Adriatic coastline.<br>2. Famous for Plitvice Lakes National Park, a network of terraced cascading lakes.
+161|161-saint-vincent-and-grenadines.jpg|Saint Vincent and the Grenadines|聖文森特和格林納丁斯|An island country in the Lesser Antilles island arc of the Caribbean Sea's southern confines.|The Gems of the Caribbean|1. Served as the primary filming location for the blockbuster movie franchise *Pirates of the Caribbean*.<br>2. Comprises the main island of Saint Vincent and a chain of smaller islands known as the Grenadines.
+162|162-saint-lucia.jpg|Saint Lucia|聖盧西亞|An island country in the eastern Caribbean Sea on the boundary with the Atlantic Ocean.|Helen of the West Indies|1. Famous for its iconic twin volcanic mountain peaks, the Pitons, which are a UNESCO World Heritage Site.<br>2. The only sovereign nation in the world named after a historical woman (Saint Lucy of Syracuse).
+163|163-antigua-and-barbuda.jpg|Antigua and Barbuda|安提瓜和巴布達|An independent sovereign island nation in the Leeward Islands part of the Lesser Antilles in the Caribbean.|Land of 365 Beaches|1. Boasts precisely 365 beaches, one for every single day of the year.<br>2. Famous for hosting prestigious international yachting regattas and sailing events.
+164|164-dominica.jpg|Dominica|多米尼克|An island country in the Caribbean Sea, officially known as the Commonwealth of Dominica.|The Nature Island of the Caribbean|1. Home to the world's second-largest thermally active boiling lake.<br>2. Features lush rainforests, volcanic peaks, and hundreds of cascading rivers and waterfalls.
+165|165-saint-kitts-and-nevis.jpg|Saint Kitts and Nevis|聖基茨和尼維斯|A dual-island nation situated between the Atlantic Ocean and Caribbean Sea in the West Indies.|The Federation in the Caribbean|1. The smallest sovereign state in the Western Hemisphere by both area and population.<br>2. Home to the historic Brimstone Hill Fortress, known as the "Gibraltar of the West Indies".
+177|177-turkey.jpg|Turkey|土耳其|A transcontinental country located mainly on the Anatolian peninsula in West Asia, with a smaller portion on the Balkan peninsula in Southeast Europe.|The Bridge Between East and West|1. Istanbul is the only major metropolis in the world built across two continents (Europe and Asia).<br>2. Home to Cappadocia, famous for its surreal rock formations and hot air balloon rides.
+178|178-andorra.jpg|Andorra|安道爾|A sovereign landlocked microstate in the eastern Pyrenees mountains, bordered by France and Spain.|The Pyrenean Haven|1. The only country in the world with a co-principality, headed jointly by the President of France and the Bishop of Urgell.<br>2. One of the highest life expectancies in the world.
+179|179-moldova.jpg|Moldova|摩爾達維亞|A landlocked country in Eastern Europe, bordered by Romania to the west and Ukraine to the north, east, and south.|The Wine Land|1. Home to Mileștii Mici, housing the largest underground wine cellar collection in the world.<br>2. Features a deeply rolling landscape of hills, valleys, and fertile agricultural steppes.
+180|180-monaco.jpg|Monaco|摩納哥|A sovereign microstate and city-state on the French Riviera in Western Europe.|The Billionaires' Playground|1. The most densely populated independent country in the world.<br>2. Famous worldwide for hosting the prestigious Formula One Monaco Grand Prix street circuit.
+181|181-liechtenstein.jpg|Liechtenstein|列支敦士登|A doubly landlocked German-speaking microstate in Central Europe, nestled between Switzerland and Austria.|The Alpine Principality|1. One of the smallest countries in the world, yet historically one of the richest per capita.<br>2. Famously known as a major global hub for the manufacturing of false teeth.
+182|182-luxembourg.jpg|Luxembourg|盧森堡|A landlocked country in Western Europe, bordered by Belgium, France, and Germany.|The Heart of Europe|1. The world's only remaining grand duchy.<br>2. One of the founding members of the European Union and home to numerous EU institutions.
+183|183-kosovo.jpg|Kosovo|科索沃|A landlocked country in Southeast Europe, situated in the central Balkan peninsula.|The Land of the Young|1. One of the youngest nations in Europe, having declared independence in 2008.<br>2. Features a remarkably young population with the lowest median age on the European continent.
+184|184-timor-leste.jpg|Timor-Leste|東帝汶|A sovereign island country in Southeast Asia comprising the eastern half of the island of Timor.|Land of the Rising Sun|1. One of the world's youngest sovereign states, regaining full independence in 2002.<br>2. Surrounded by stunning, highly biodiverse coral reefs within the Coral Triangle.
+193|193-seychelles.jpg|Seychelles|塞舌爾|An archipelago island country in the Indian Ocean off East Africa comprising 115 islands.|The Creole Paradise|1. Home to the Vallée de Mai, a prehistoric forest growing the massive, rare double coconut known as Coco de Mer.<br>2. The smallest independent African nation by land area and population.
+194|194-tanzania.jpg|Tanzania|坦桑尼亞|A country in East Africa within the African Great Lakes region, famous for vast wilderness areas.|The Land of Kilimanjaro|1. Home to Mount Kilimanjaro, the highest mountain in Africa and the tallest free-standing mountain in the world.<br>2. Features the iconic Serengeti National Park and the breathtaking Ngorongoro Crater.
+195|195-malawi.jpg|Malawi|馬拉維|A landlocked country in southeastern Africa, defined by its topography and the massive Lake Malawi.|The Warm Heart of Africa|1. Lake Malawi covers roughly a third of the country's total area and contains more fish species than any other lake globally.<br>2. Renowned for the exceptional friendliness and warmth of its local population.
+196|196-comoros.jpg|Comoros|科摩羅|A volcanic archipelago island nation in the Indian Ocean off the southeastern coast of Africa.|The Perfume Isles|1. One of the world's top producers and exporters of vanilla and ylang-ylang essential oil.<br>2. Nicknamed the "Perfume Isles" due to the abundance of fragrant flora blooming across the islands.
+197|197-madagascar.jpg|Madagascar|馬達加斯加|An island country in the Indian Ocean, off the southeastern coast of mainland Africa.|The Red Island|1. Home to wildlife found nowhere else on Earth, including hundreds of distinct species of lemurs.<br>2. Famous for its iconic Avenue of the Baobabs, lined by massive, ancient trees.
+198|198-mauritius.jpg|Mauritius|毛里求斯|An island nation in the Indian Ocean situated off the eastern coast of Southeast Africa.|The Star and Key of the Indian Ocean|1. The historical and only known home of the extinct dodo bird.<br>2. Famous for the optical illusion of an "underwater waterfall" off the coast of Le Morne.
+201|201-afghanistan.jpg|Afghanistan|阿富汗|A landlocked country located at the crossroads of Central and South Asia.|Heart of Asia|1. Home to the Bamiyan Valley, historically famous for its towering ancient cliffside Buddha statues.<br>2. Renowned for producing some of the finest handmade carpets and authentic lapis lazuli gemstones.
+202|202-iran.jpg|Iran|伊朗|A country in Western Asia, bordered by the Caspian Sea to the north and the Persian Gulf to the south.|Land of the Aryans|1. Home to Persepolis, the magnificent ceremonial capital of the ancient Achaemenid Empire.<br>2. One of the world's top producers of high-quality Persian saffron and handmade carpets.
+203|203-iraq.jpg|Iraq|伊拉克|A country in Western Asia, bordered by Turkey, Iran, Kuwait, Saudi Arabia, Jordan, and Syria.|Cradle of Civilization|1. Encompasses ancient Mesopotamia, historically recognized as the birthplace of writing and human civilization.<br>2. Home to the legendary ruins of Babylon and the Tigris and Euphrates rivers.
+204|204-syria.jpg|Syria|敘利亞|A country in Western Asia, bordered by the Mediterranean Sea to the west, Turkey, Iraq, Jordan, Israel, and Lebanon.|Heart of the Middle East|1. Home to Damascus, one of the oldest continuously inhabited cities in the world.<br>2. Features a remarkably rich concentration of ancient Roman ruins and medieval Crusader castles.
+205|205-lebanon.jpg|Lebanon|黎巴嫩|A country in Western Asia situated at the meeting point of the Mediterranean basin and the Arabian interior.|Pearl of the Middle East|1. Home to the Jeita Grotto, featuring some of the most spectacular crystal limestone cave formations globally.<br>2. The only country in the Middle East without a single desert landscape.
+206|206-israel.jpg|Israel|以色列|A country in the Middle East, located on the southeastern shore of the Mediterranean Sea.|The Holy Land|1. Features a vibrant high-tech sector widely known as "Silicon Wadi", rivaling Silicon Valley.<br>2. Home to Jerusalem, a city profoundly sacred to three major Abrahamic religions.
+207|207-palestine.jpg|Palestine|巴勒斯坦|A de jure sovereign state in Western Asia comprising the West Bank and the Gaza Strip.|Land of Olive Groves|1. Home to Bethlehem, traditionally recognized worldwide as the birthplace of Jesus Christ.<br>2. Features some of the oldest continually harvested olive groves in human history.
+213|213-faroeislands.jpg|Faroe Islands|法羅群島|A self-governing archipelago and territory of the Kingdom of Denmark situated in the North Atlantic.|Land of theMaybe|1. Home to more sheep than human inhabitants across its rugged volcanic islands.<br>2. Features the stunning optical illusion of the floating Lake Sørvágsvatn perched above the ocean.
+    `;
 
     const countryData = rawData.trim().split('\n').map(line => {
         const parts = line.split('|');
@@ -513,7 +604,11 @@
         {en: "Malawi", zh: "馬拉維"}, {en: "Comoros", zh: "科摩羅"}, {en: "Mauritius", zh: "毛里求斯"},
         {en: "Afghanistan", zh: "阿富汗"}, {en: "Iran", zh: "伊朗"}, {en: "Iraq", zh: "伊拉克"},
         {en: "Syria", zh: "敘利亞"}, {en: "Lebanon", zh: "黎巴嫩"}, {en: "Israel", zh: "以色列"},
-        {en: "Palestine", zh: "巴勒斯坦"}, {en: "Faroe Islands", zh: "法羅群島"}
+        {en: "Palestine", zh: "巴勒斯坦"}, {en: "Faroe Islands", zh: "法羅群島"},
+        {en: "Kenya", zh: "肯尼亞"}, {en: "Thailand", zh: "泰國"}, {en: "Vietnam", zh: "越南"},
+        {en: "Turkey", zh: "土耳其"}, {en: "Egypt", zh: "埃及"}, {en: "Russia", zh: "俄羅斯"},
+        {en: "Brazil", zh: "巴西"}, {en: "India", zh: "印度"}, {en: "Iceland", zh: "冰島"},
+        {en: "Norway", zh: "挪威"}, {en: "Switzerland", zh: "瑞士"}, {en: "Italy", zh: "意大利"}
     ];
 
     const allCountryNames = [...distractorNames, ...countryData.map(c => ({en: c.en, zh: c.zh}))];
@@ -526,6 +621,10 @@
         playSound('start');
         startBackgroundMusic();
         
+        score = 0;
+        questionCount = 0;
+        updateScoreDisplay();
+
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'flex';
         loadNextQuestion();
@@ -539,6 +638,11 @@
         return array;
     }
 
+    function updateScoreDisplay() {
+        document.getElementById('score-display').innerText = `Score: ${score}`;
+        document.getElementById('question-count').innerText = `Question: ${questionCount}`;
+    }
+
     function loadNextQuestion() {
         document.getElementById('next-btn-container').style.display = 'none';
         const optionsContainer = document.getElementById('options-container');
@@ -547,6 +651,9 @@
         if (questionsPool.length === 0) {
             questionsPool = [...countryData];
         }
+        questionCount++;
+        updateScoreDisplay();
+
         const qIndex = Math.floor(Math.random() * questionsPool.length);
         currentQuestion = questionsPool.splice(qIndex, 1)[0];
 
@@ -575,7 +682,11 @@
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn';
-            btn.innerHTML = `${opt.en}<br>${opt.zh}`;
+            btn.dataset.en = opt.en;
+            
+            // Fixed layout structure for all buttons: Chinese name on top, English name below it
+            btn.innerHTML = `<strong>${opt.zh}</strong><br>${opt.en}`;
+            
             btn.onclick = () => checkAnswer(btn, opt.isCorrect);
             optionsContainer.appendChild(btn);
         });
@@ -586,11 +697,16 @@
         
         speakAnswer(currentQuestion.en, currentQuestion.zh);
 
+        if (isCorrect) {
+            score++;
+            updateScoreDisplay();
+        }
+
         const buttons = document.getElementById('options-container').querySelectorAll('.btn');
         
         buttons.forEach(btn => {
             btn.disabled = true;
-            if (btn.innerHTML.includes(currentQuestion.en)) {
+            if (btn.dataset.en === currentQuestion.en) {
                 btn.classList.add('correct');
             }
         });

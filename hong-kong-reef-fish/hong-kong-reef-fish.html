@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AquaDirector Tycoon</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #001f3f; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* The Ocean (Game Container) */
+        #ocean {
+            position: absolute; 
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(180deg, #006994 0%, #001f3f 100%);
+            z-index: 1; 
+            overflow: hidden;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle, #0a192f, #020c1b);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 200; color: white;
+        }
+        #start-screen h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 0 4px 15px rgba(100, 255, 218, 0.6); color: #64ffda; text-transform: uppercase; letter-spacing: 2px;}
+        #start-screen p { color: #8892b0; font-size: 1.2em; text-align: center; padding: 0 20px;}
+        #start-btn {
+            padding: 15px 40px; font-size: 1.5em; font-weight: bold;
+            background: transparent; color: #64ffda; border: 2px solid #64ffda; border-radius: 5px;
+            cursor: pointer; box-shadow: 0 4px 20px rgba(100,255,218,0.2);
+            transition: all 0.2s; text-transform: uppercase; margin-top: 20px;
+        }
+        #start-btn:hover { transform: translateY(-3px); background: rgba(100,255,218,0.1); }
+
+        /* UI Overlay */
+        #ui-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        
+        .hud-column { display: flex; flex-direction: column; gap: 10px; }
+        .btn-column { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+
+        .hud-box {
+            background: rgba(17, 34, 64, 0.85); backdrop-filter: blur(5px);
+            padding: 15px 25px; border-radius: 10px; border: 2px solid rgba(100, 255, 218, 0.4);
+            color: #ccd6f6; font-weight: bold; font-size: 1.5em; pointer-events: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        
+        #auto-harvest-box { font-size: 1em; padding: 10px 20px; color: #64ffda; display: none; }
+
+        /* Buttons */
+        .action-btn { cursor: pointer; transition: transform 0.2s; color: white; border: 2px solid; }
+        .action-btn:hover { transform: scale(1.05); }
+
+        #research-btn { background: rgba(100, 255, 218, 0.1); border-color: #64ffda; color: #64ffda; }
+        #research-btn:hover { background: rgba(100, 255, 218, 0.3); }
+
+        #guide-btn { background: rgba(79, 172, 254, 0.1); border-color: #4facfe; color: #4facfe; }
+        #guide-btn:hover { background: rgba(79, 172, 254, 0.3); }
+
+        #sound-btn, #save-btn, #reset-btn { font-size: 1em; padding: 10px 15px; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+        #sound-btn:hover, #save-btn:hover { background: rgba(255,255,255,0.2); }
+        #reset-btn:hover { background: rgba(255, 71, 87, 0.3); border-color: #ff4757; color: #ff4757; }
+
+        /* Swimming Fish Sprites */
+        .fish-sprite {
+            position: absolute;
+            cursor: grab;
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center;
+            touch-action: none;
+            z-index: 6;
+            filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.5));
+            transform-origin: center center;
+        }
+        .fish-sprite:active { cursor: grabbing; filter: drop-shadow(0px 0px 15px #64ffda) brightness(1.2); }
+        
+        .fish-sprite img {
+            width: auto;
+            max-width: 120px;
+            max-height: 90px;
+            object-fit: contain;
+            pointer-events: none; 
+            user-select: none;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Hover Name Tag */
+        .fish-name-tag {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(17, 34, 64, 0.9);
+            border: 1px solid #64ffda;
+            color: #64ffda;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+
+        .fish-sprite:hover .fish-name-tag {
+            opacity: 1;
+        }
+
+        /* Floating RP Animation */
+        .floating-rp {
+            position: absolute; color: #64ffda; font-size: 1.2em; font-weight: bold;
+            pointer-events: none; animation: floatUp 1.2s ease-out forwards; z-index: 50;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8); white-space: nowrap;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 12, 27, 0.85); z-index: 100;
+            display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px);
+        }
+        
+        .modal {
+            background: rgba(17, 34, 64, 0.95); 
+            border-radius: 15px; color: #ccd6f6; padding: 30px; 
+            max-width: 900px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            border: 2px solid #64ffda;
+            pointer-events: auto;
+        }
+        
+        .modal::-webkit-scrollbar { width: 8px; }
+        .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
+        .modal::-webkit-scrollbar-thumb { background: #64ffda; border-radius: 10px; }
+
+        .modal h2 { 
+            margin-top: -10px; padding-top: 10px; color: #64ffda; font-size: 2.2em; 
+            position: sticky; top: 0; background: rgba(17, 34, 64, 1); 
+            padding-bottom: 15px; z-index: 2; border-bottom: 2px solid rgba(100, 255, 218, 0.3);
+        }
+
+        /* Grid */
+        .grid-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
+        }
+        
+        .collection-item {
+            background: rgba(35, 53, 84, 0.5); padding: 15px; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; 
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            transition: transform 0.2s, border-color 0.2s; cursor: pointer;
+        }
+        .collection-item:hover { transform: translateY(-3px); border-color: #64ffda; }
+        
+        .collection-item.locked { opacity: 0.5; filter: grayscale(100%); cursor: default; }
+        .collection-item.locked:hover { transform: none; border-color: rgba(100, 255, 218, 0.2); }
+        .collection-item.locked .visual img { filter: brightness(0); }
+
+        .collection-item .visual { margin-bottom: 10px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .collection-item .visual img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .collection-item .name-tag { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #fff; text-transform: uppercase;}
+        
+        .buy-btn {
+            background: rgba(100, 255, 218, 0.1); color: #64ffda; border: 1px solid #64ffda; 
+            padding: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: auto; transition: all 0.2s;
+        }
+        .buy-btn:hover:not(:disabled) { background: #64ffda; color: #0a192f; }
+        .buy-btn:disabled { background: rgba(255,255,255,0.05); color: #8892b0; border-color: transparent; cursor: not-allowed; }
+
+        .close-btn { 
+            background: transparent; color: #8892b0; border: 1px solid #8892b0; 
+            padding: 10px 30px; border-radius: 5px; cursor: pointer; font-size: 1.2em; font-weight: bold; transition: all 0.2s; margin-top: 10px;
+        }
+        .close-btn:hover { color: #fff; border-color: #fff; }
+
+        /* Guide Detail View */
+        #detail-view { display: none; flex-direction: column; align-items: center; text-align: center; }
+        #detail-view img { max-width: 220px; max-height: 160px; object-fit: contain; margin: 15px 0; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));}
+        
+        .detail-info-box {
+            text-align: left; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;
+        }
+        .info-section {
+            background: rgba(2, 12, 27, 0.5); padding: 12px 15px; border-left: 4px solid #64ffda; border-radius: 0 8px 8px 0;
+            font-size: 0.95em; line-height: 1.5;
+        }
+        .info-section strong { color: #64ffda; display: block; margin-bottom: 3px; }
+
+        .btn-speak {
+            background: #64ffda; color: #0a192f; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1em;
+            display: flex; align-items: center; gap: 10px; margin: 10px auto; transition: transform 0.2s;
+        }
+        .btn-speak:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+<div id="start-screen">
+    <h1>AquaDirector Tycoon</h1>
+    <p>Construct a thriving pelagic environment. Decode the taxonomy of 91 fish families.</p>
+    <button id="start-btn">Commence Dive</button>
+</div>
+
+<div id="ui-layer">
+    <div class="hud-column">
+        <div class="hud-box">🧬 <span id="rp-count">0</span> RP</div>
+        <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
+    </div>
+    <div class="btn-column">
+        <button id="research-btn" class="hud-box action-btn">🔬 Research Lab</button>
+        <button id="guide-btn" class="hud-box action-btn">📖 Compendium</button>
+        <button id="sound-btn" class="hud-box action-btn">🔊 Sound</button>
+        <button id="save-btn" class="hud-box action-btn">💾 Save</button>
+        <button id="reset-btn" class="hud-box action-btn">⚠️ Format</button>
+    </div>
+</div>
+
+<div id="ocean"></div>
+
+<!-- Research Modal (Unlock new fish) -->
+<div id="research-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>Research Facility</h2>
+        <p style="color:#8892b0;">Spend Research Points (RP) to sequence new families.</p>
+        <div id="research-grid" class="grid-container"></div>
+        <button class="close-btn" onclick="closeModals()">Close</button>
+    </div>
+</div>
+
+<!-- Compendium Modal (Guide & TTS) -->
+<div id="guide-modal" class="modal-overlay">
+    <div class="modal">
+        <h2 id="guide-title">Taxonomic Compendium</h2>
+        
+        <!-- Grid View -->
+        <div id="guide-grid" class="grid-container"></div>
+        
+        <!-- Detail View -->
+        <div id="detail-view">
+            <h3 id="detail-name" style="color: #fff; font-size: 1.6em; margin: 0;">Family</h3>
+            <div id="detail-common" style="color: #8892b0; font-style: italic; margin-top: 5px;">Common Name</div>
+            <img id="detail-img" src="" alt="Fish">
+            
+            <button class="btn-speak" id="speak-btn">🔊 Read Taxonomic Data</button>
+            
+            <div class="detail-info-box">
+                <div class="info-section">
+                    <strong>Etymology</strong>
+                    <span id="detail-etymology"></span>
+                </div>
+                <div class="info-section">
+                    <strong>Morphology</strong>
+                    <span id="detail-morphology"></span>
+                </div>
+                <div class="info-section">
+                    <strong>Diagnostic Differences</strong>
+                    <span id="detail-diagnostic"></span>
+                </div>
+            </div>
+
+            <button class="close-btn" onclick="backToGuideGrid()" style="margin-top: 20px;">Back to Grid</button>
+        </div>
+
+        <button class="close-btn" id="guide-close-btn" onclick="closeModals()">Close</button>
+    </div>
+</div>
+
+<script>
+    // --- Audio Context & Synth ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isMuted = false;
+
+    function playSynth(freq, type, duration, vol=0.2) {
+        if (isMuted) return;
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sfx = {
+        bubble: () => playSynth(400 + Math.random()*200, 'sine', 0.1, 0.1),
+        unlock: () => {
+            playSynth(523.25, 'triangle', 0.2, 0.1); 
+            setTimeout(() => playSynth(659.25, 'triangle', 0.2, 0.1), 150); 
+            setTimeout(() => playSynth(783.99, 'triangle', 0.4, 0.1), 300); 
+        }
+    };
+
+    // --- Fish Database (All 91 Families with full scientific breakdowns) ---
+    const rawData = [
+        { name: "acanthuridae", common: "Tangs, Surgeonfishes, Unicornfishes", morph: "Compressed oval body, small mouth, single continuous dorsal fin, and movable scalpel-like spines on the caudal peduncle.", diag: "Distinguished from similar herbivorous reef families (like Kyphosidae or Pomacanthidae) strictly by the presence of the razor-sharp caudal peduncle spine.", etym: "Derived from Greek 'akantha' (thorn) and 'oura' (tail), referencing the scalpel weapon." },
+        { name: "ambassidae", common: "Asiatic Glassfishes", morph: "Semi-transparent body showing internal organs, two dorsal fins, deeply forked caudal fin, and often a translucent frame.", diag: "Separated from other transparent coastal species by serrations on the preopercular margin and distinct dorsal spine counts.", etym: "Derived from French common name 'ambasse', or Latin roots indicating transparent forms." },
+        { name: "anthiadidae", common: "Fairy Basslets", morph: "Vibrant coloration, elongated dorsal spines in males, streamlined bodies adapted for deep reef drop-offs.", diag: "Differentiated from standard Serranidae by more delicate body profiles and specialized zooplanktivorous dentition.", etym: "Derived from Greek 'anthias', meaning a kind of colorful sea fish." },
+        { name: "antennariidae", common: "Frogfishes", morph: "Globular, scaleless body covered in spinules or dermal flaps, modified first dorsal spine acting as an angling lure (illicium/esc).", diag: "Unlike other benthic ambush predators (such as Scorpaenidae), they lack rigid venomous spines and can 'walk' on pectoral fins.", etym: "Derived from Latin 'antenna' (yardarm/feeler) referencing their fishing appendage." },
+        { name: "apistidae", common: "Wasp Scorpionfishes", morph: "Elongated body with deeply notched dorsal fin, distinct free lower pectoral fin ray used for creeping.", diag: "Differs from standard Scorpaenidae by having a free pectoral ray and unique facial bone projections.", etym: "Derived from Greek 'apistos' (unbelievable or treacherous), noting venomous potency." },
+        { name: "aploactinidae", common: "Velvetfishes", morph: "Deep, compressed bodies covered in small velvety dermal spines or prickles without true scales.", diag: "Distinguished from Scorpaenidae by velvety skin texture and modified anterior dorsal fin origin over the eyes.", etym: "Derived from Greek 'aplos' (simple) and 'actis' (ray)." },
+        { name: "apogonidae", common: "Cardinalfishes", morph: "Large eyes, two separated dorsal fins, short deep bodies, often reddish or patterned, mouthbrooding habits.", diag: "Separated from similar nocturnal reef dwellers by having exactly two dorsal fins and lack of spines on the opercle.", etym: "Derived from Greek 'a-' (without) and 'pogon' (beard), noting the lack of facial barbels." },
+        { name: "atherinidae", common: "Silversides", morph: "Elongated, slender silver bodies with a distinct bright silvery lateral stripe along the flanks.", diag: "Distinguished from Engraulidae (anchovies) by having two dorsal fins and absence of a snout overhang.", etym: "Derived from Greek 'atherina', a small prickly or silverside fish." },
+        { name: "aulostomidae", common: "Trumpetfishes", morph: "Extremely elongated, compressed body with a tubular snout, barbels on chin, and isolated dorsal spinelets.", diag: "Differentiated from Fistulariidae by possessing chin barbels and a deeper, laterally compressed body.", etym: "Derived from Greek 'aulos' (flute/pipe) and 'stoma' (mouth)." },
+        { name: "balistidae", common: "Triggerfishes", morph: "Deep, laterally compressed oval body, tough leathery skin with fused scales, locking dorsal trigger spine mechanism.", diag: "Easily separated from Monacanthidae by having three dorsal spines and a deeper body profile.", etym: "Derived from Latin 'balista' (ballista catapult), referencing the locking trigger spine." },
+        { name: "belonidae", common: "Needlefishes", morph: "Extremely elongated jaws filled with sharp teeth, single dorsal and anal fins positioned far back near the tail.", diag: "Distinguished from Hemiramphidae by having both upper and lower jaws equally elongated.", etym: "Derived from Greek 'belone' (needle)." },
+        { name: "blenniidae", common: "Combtooth Blennies", morph: "Elongated scaleless body, continuous dorsal fin, single row of movable comb-like teeth in jaws, often with supraorbital cirri.", diag: "Separated from Gobiidae by lacking pelvic fins fused into a sucking disc (most blennies have separate or small pelvic fins).", etym: "Derived from Greek 'blennos' (mucus), referencing slime coat." },
+        { name: "caesionidae", common: "Fusiliers", morph: "Streamlined, fusiform body built for continuous open-water swimming, deeply forked caudal fin, extensible upper jaw.", diag: "Differentiated from Lutjanidae (snappers) by their specialized plankton-feeding mouth structure and pelagic lifestyle.", etym: "Derived from Latin 'caesius' (bluish-grey)." },
+        { name: "callionymidae", common: "Dragonets", morph: "Flattened head, naked (scaleless) body, wide pectoral fins, elongated dorsal spines in males, mouth highly protrusible.", diag: "Separated from Gobiesocidae by lacking a ventral sucking disc formed by pelvic fins.", etym: "Derived from Greek 'kallionymos', an ancient name for a fine-named fish." },
+        { name: "carangidae", common: "Jacks, Trevallies, Pompanos", morph: "Deep or streamlined compressed bodies, scutes often lining the lateral line near the tail, narrow caudal peduncle.", diag: "Distinguished from similar silvery pelagic families by the presence of caudal scutes and detached anal spines.", etym: "Derived from French 'carangue', of Caribbean origin." },
+        { name: "centrolophidae", common: "Medusafishes", morph: "Oval to elongate bodies, soft flexible bones, small scales, blunt snouts, often associated with jellyfish during youth.", diag: "Separated from Stromateidae by having pelvic fins present in adults.", etym: "Derived from Greek 'kentron' (spiny/spur) and 'lophos' (crest)." },
+        { name: "cepolidae", common: "Bandfishes", morph: "Very long, ribbon-like compressed body tapering to a point, continuous long dorsal and anal fins fused with caudal fin.", diag: "Distinctive ribbon-like morphology separates them immediately from standard elongated benthic families.", etym: "Derived from Greek 'kepolos', a type of garden fish." },
+        { name: "chaenopsidae", common: "Pikeblennies, Tubeblennies", morph: "Tiny, scaleless, elongated bodies, large expressive mouths, often living in empty worm tubes or cavities.", diag: "Distinguished from Blenniidae by the absence of lateral line canals and unique skull bone structure.", etym: "Derived from Greek 'chaino' (to gape) and 'opsis' (appearance)." },
+        { name: "chaetodontidae", common: "Butterflyfishes", morph: "Deep, highly compressed disk-like body, small protrusible mouth with brush-like teeth, often bright contrasting color patterns.", diag: "Separated from Pomacanthidae by the complete absence of a sharp preopercular spine on the cheek.", etym: "Derived from Greek 'chaite' (hair) and 'odous' (tooth)." },
+        { name: "chanidae", common: "Milkfish", morph: "Streamlined, silvery body, small toothless mouth, deeply forked caudal fin, single species in the family.", diag: "Differentiated from Clupeidae (herrings) by lacking scutes along the belly and having a unique branchiostegal ray count.", etym: "Derived from Latin 'chanos' (gaping mouth)." },
+        { name: "cirrhitidae", common: "Hawkfishes", morph: "Robust body, thickened lower pectoral fin rays used for perching on coral heads, tufts of cirri at dorsal spine tips.", diag: "Separated from Scorpaenidae and Serranidae by the unbranched thickened lower pectoral rays used for station-keeping.", etym: "Derived from Latin 'cirrus' (curl/tendril), referencing dorsal tufts." },
+        { name: "cynoglossidae", common: "Tonguefishes", morph: "Asymmetric flatfishes with eyes on the left side, teardrop-shaped body tapering to a pointed tail, eyes confluent.", diag: "Differentiated from other flatfish families by the continuous dorsal, caudal, and anal fins merged into one fringe.", etym: "Derived from Greek 'kyon' (dog) and 'glossa' (tongue)." },
+        { name: "dactylopteridae", common: "Flying Gurnards", morph: "Enormous wing-like pectoral fins, heavy armored bony head plates, blunt rounded snout.", diag: "Unlike true gurnards (Triglidae), they possess massive expanded pectoral fins that span nearly the entire body length.", etym: "Derived from Greek 'daktylos' (finger) and 'pteron' (wing/fin)." },
+        { name: "dasyatidae", common: "Stingrays", morph: "Flattened cartilaginous disk, pectoral fins fused to head, whip-like tail equipped with one or more serrated venomous spines.", diag: "Separated from Gymnuridae by having a longer whip-like tail rather than a very short narrow tail.", etym: "Derived from Greek 'dasys' (rough/shaggy) and 'batos' (thorn/ray)." },
+        { name: "diodontidae", common: "Porcupinefishes", morph: "Capable of inflating with water or air, body covered in long sharp fixed or erectile spines, heavy beak-like fused teeth.", diag: "Distinguished from Tetraodontidae by possessing prominent external spines covering the skin.", etym: "Derived from Greek 'di-' (two) and 'odous' (teeth), referencing the two fused beak plates." },
+        { name: "echeneidae", common: "Remoras", morph: "Flattened head bearing a specialized oval sucking disc formed from a modified dorsal fin, streamlined elongated body.", diag: "Instantly recognizable by the dorsal adhesion disc used to hitch rides on large marine animals.", etym: "Derived from Greek 'echein' (to hold back) and 'naus' (ship)." },
+        { name: "ephippidae", common: "Batfishes", morph: "Deep, highly compressed diamond or round body, small mouth, vertical banding fading with age, long flowing fins in youth.", diag: "Separated from Chaetodontidae by lacking fine bristle teeth and possessing distinct juvenile fin elongations.", etym: "Derived from Greek 'ephippion' (saddle)." },
+        { name: "epinephelidae", common: "Groupers", morph: "Robust, heavy-bodied predatory fish, large cavernous mouth with protrusible jaws, small embedded scales, truncate or rounded tail.", diag: "Distinguished from standard Serranidae by specific opercular spine arrangements and robust predatory morphology.", etym: "Derived from Greek 'epinephelos' (cloudy/overcast), referencing mottled coloration." },
+        { name: "fistulariidae", common: "Cornetfishes", morph: "Extremely elongated, depressed body, tubular snout, filament extending from the middle of the forked caudal fin.", diag: "Separated from Aulostomidae by having a depressed (flattened) body rather than compressed, and lacking chin barbels.", etym: "Derived from Latin 'fistula' (pipe/flute)." },
+        { name: "gerreidae", common: "Mojarras", morph: "Deep, compressed silvery body, highly protrusible downward-pointing mouth, continuous dorsal fin with notched profile.", diag: "Differentiated by the deep groove on top of the head into which the protrusible mouth mechanism retracts.", etym: "Derived from Greek 'gerros' (wickerwork shield)." },
+        { name: "girellidae", common: "Nibblers", morph: "Oval, compressed bodies, small mouths with multi-cusped teeth, dusky greenish or blackish coloration, herbivorous/omnivorous.", diag: "Separated from Kyphosidae by dental structure and finer scale counts along the lateral line.", etym: "Derived from French vernacular name 'girelle'." },
+        { name: "gobiesocidae", common: "Clingfishes", morph: "Flattened head, tadpole-like body, ventral sucking disc formed by modified pelvic fins and skin folds.", diag: "Instantly identified by the powerful adhesive disc on the belly allowing them to stick to wave-swept rocks.", etym: "Derived from Gobius (goby) and Greek 'esok' (holding)." },
+        { name: "gobiidae", common: "Gobies", morph: "Two separate dorsal fins (first spiny), pelvic fins often fused into a circular sucking disc, benthic lifestyle, small size.", diag: "Differentiated from Blenniidae by having distinct separate pelvic fins fused into a cup and two dorsal fins.", etym: "Derived from Latin 'gobius' (gudgeon/loach)." },
+        { name: "grammistidae", common: "Soapfishes", morph: "Elongated robust body, thick bitter slime coating skin that produces soapy lather when stressed, small scales.", diag: "Separated from Serranidae by toxic skin secretions and reduced dorsal spine counts.", etym: "Derived from Greek 'gramma' (line/writing), referencing body markings." },
+        { name: "gymnuridae", common: "Butterfly Rays", morph: "Extremely wide rhomboidal disc much broader than it is long, very short slender tail without prominent serrated spines.", diag: "Easily separated from Dasyatidae by having a disc width twice their length and a very short tail.", etym: "Derived from Greek 'gymnos' (naked) and 'oura' (tail)." },
+        { name: "haemulidae", common: "Grunts, Sweetlips", morph: "Robust arched back, continuous dorsal fin, thick fleshy lips, often bright colorful patterns or stripes, grinding pharyngeal teeth.", diag: "Separated from Lutjanidae by the lack of canine teeth on the jaws and distinctive red interiors of the mouth in many species.", etym: "Derived from Greek 'haema' (blood), or referencing grunting sounds made by pharyngeal teeth." },
+        { name: "hemiramphidae", common: "Halfbeaks", morph: "Elongated lower jaw forming a long beak, upper jaw short and triangular, single dorsal fin placed far back.", diag: "Distinguished from Belonidae by having only the lower jaw elongated, while the upper jaw remains short.", etym: "Derived from Greek 'hemi' (half) and 'rhamphos' (beak)." },
+        { name: "holocentridae", common: "Squirrelfishes, Soldierfishes", morph: "Large eyes adapted for nocturnal life, heavily spiny opercles, red or silver coloration, rough ctenoid scales.", diag: "Separated from Apogonidae by having prominent sharp spines on the preopercle and spiny dorsal fins.", etym: "Derived from Greek 'holos' (whole) and 'centron' (spiny spur)." },
+        { name: "kyphosidae", common: "Sea Chubs", morph: "Oval, compressed bodies, blunt snout, small terminal mouth with incisor-like teeth, herbivorous grazers.", diag: "Separated from Girellidae and Pomacanthidae by specific tooth shapes and intestinal coiling adaptations for algae digestion.", etym: "Derived from Greek 'kyphos' (bent/humpbacked)." },
+        { name: "labridae", common: "Wrasses", morph: "Thick fleshy lips, protrusible jaws with prominent protruding canine teeth upfront, continuous dorsal fin, varied coloration.", diag: "Distinguished from Scaridae by having separate canine teeth rather than fused beak plates.", etym: "Derived from Latin 'labrum' (lip)." },
+        { name: "latridae", common: "Trumpeters, Morwongs", morph: "Elongated oval bodies, thick fleshy lips, lower pectoral fin rays often unbranched and thickened, continuous dorsal fin.", diag: "Separated from Cirrhitidae by larger size, different scale patterns, and deeper coastal water distribution.", etym: "Derived from Greek 'latris' (servant/attendant)." },
+        { name: "leiognathidae", common: "Ponyfishes", morph: "Deep, compressed silvery bodies, highly protrusible downward-pointing tubular mouths, slimy scaleless or fine-scaled skin.", diag: "Differentiated by the unique upward-and-downward protrusible mouth mechanism and bioluminescent organs in some species.", etym: "Derived from Greek 'leios' (smooth) and 'gnathos' (jaw)." },
+        { name: "lethrinidae", common: "Emperors, Scavengers", morph: "Large head, pointed snout, thick lips, robust body, molar-like teeth in the rear of jaws for crushing hard-shelled prey.", diag: "Separated from Lutjanidae by having a completely scaleless cheek area.", etym: "Derived from Greek 'lethrinus', an ancient name for a sea bream." },
+        { name: "liopropomatidae", common: "Painted Basslets", morph: "Small, colorful reef fish, elongated body, vibrant red/orange/yellow stripes, large eyes, cryptic cave-dwelling habit.", diag: "Separated from Serranidae by streamlined profiles and distinct lateral line ossification.", etym: "Derived from Greek 'leios' (smooth) and 'propoma' (front cover/operculum)." },
+        { name: "lobotidae", common: "Tripletails", morph: "Deep, compressed body where the soft dorsal and anal fins extend backward, matching the rounded caudal fin to look like three tails.", diag: "Instantly identifiable by the 'tripletail' appearance formed by enlarged, rounded rear fins.", etym: "Derived from Greek 'lobos' (lobe)." },
+        { name: "lutjanidae", common: "Snappers", morph: "Robust, streamlined predatory body, strong canine teeth in jaws, continuous dorsal fin, scaled cheeks.", diag: "Distinguished from Lethrinidae by having scaled cheeks and lack of rear crushing molar teeth.", etym: "Derived from local Indonesian/Malay name 'ikan lutjang'." },
+        { name: "microcanthidae", common: "Stripeys", morph: "Compressed oval body, yellow and black horizontal stripes, small mouth, spiny dorsal fin.", diag: "Separated from Kyphosidae and Girellidae by distinct stripe patterns and minor osteological differences.", etym: "Derived from Greek 'mikros' (small) and 'akantha' (spine)." },
+        { name: "microdesmidae", common: "Wormfishes, Dartfishes", morph: "Extremely elongated, slender eel-like or dart-like body, small oblique mouth, living in burrows in sand.", diag: "Differentiated from true eels by possessing pelvic fins and standard rayed fins.", etym: "Derived from Greek 'mikros' (small) and 'desmos' (bundle/bond)." },
+        { name: "monacanthidae", common: "Filefishes", morph: "Deep, extremely compressed diamond-shaped body, rough sandpaper-like skin, single prominent barbed dorsal spine on head.", diag: "Separated from Balistidae by having only one or two dorsal spines and a much thinner, compressed body.", etym: "Derived from Greek 'monos' (single) and 'akantha' (spine)." },
+        { name: "monocentridae", common: "Pinecone Fishes", morph: "Rounded body entirely encased in large, heavy, overlapping scute-like scales resembling a pinecone, yellow-orange hue.", diag: "Instantly recognizable by the armored pinecone-like scale armor and light organs on the lower jaw.", etym: "Derived from Greek 'monos' (single) and 'kentron' (spine)." },
+        { name: "monodactylidae", common: "Moonyfishes, Fingerfishes", morph: "Extremely deep, diamond-shaped, highly compressed silvery body, tall continuous dorsal and anal fins.", diag: "Separated from Ephippidae by a more silvery, compressed disk and lack of prominent filaments.", etym: "Derived from Greek 'monos' (single) and 'daktylos' (finger)." },
+        { name: "mugilidae", common: "Mullets", morph: "Torpedo-shaped silvery body, broad flat head, small mouth, two widely separated small dorsal fins, no lateral line visible.", diag: "Differentiated from other silvery coastal schooling fish by the lack of a visible lateral line and separated dorsal fins.", etym: "Derived from Latin 'mugil' (mullet)." },
+        { name: "mullidae", common: "Goatfishes", morph: "Elongated body, pair of long prominent chemosensory barbels on the chin used for probing sand, two separated dorsal fins.", diag: "Instantly identifiable by the long chin barbels tucked under the chin when swimming.", etym: "Derived from Latin 'mullus' (red mullet)." },
+        { name: "muraenidae", common: "Moray Eels", morph: "Elongated serpentine body, complete lack of pectoral fins, thick slimy skin, large gaping mouth with sharp teeth.", diag: "Distinguished from other eel families by the absence of pectoral fins and small round gill openings.", etym: "Derived from Greek 'murena' (lamprey/eel)." },
+        { name: "nemipteridae", common: "Threadfin Breams", morph: "Streamlined colorful body, upper rays of caudal fin sometimes elongated into trailing filaments, smooth head scales.", diag: "Separated from Lethrinidae and Lutjanidae by delicate coloration and lack of heavy canines or molars.", etym: "Derived from Greek 'nema' (thread) and 'pteron' (fin)." },
+        { name: "ophichthidae", common: "Snake Eels", morph: "Extremely elongated snake-like body, tail tip often hard and pointed for burrowing tail-first into sand.", diag: "Distinguished by the tail ending in a hard, finless point used for tail-first burrowing.", etym: "Derived from Greek 'ophis' (snake) and 'ichthys' (fish)." },
+        { name: "oplegnathidae", common: "Knifejaws", morph: "Deep, compressed body, jaws fused into a powerful beak formed of overlapping sharp tooth plates resembling bird beaks.", diag: "Easily identified by the parrot-like fused beak plates used for crushing barnacles and mollusks.", etym: "Derived from Greek 'hoplon' (weapon) and 'gnathos' (jaw)." },
+        { name: "ostraciidae", common: "Boxfishes", morph: "Body enclosed in a rigid, triangular or rectangular box-like carapace formed of fused hexagonal bony plates.", diag: "Instantly recognized by the rigid bony armor box enclosing the entire body except fins and tail base.", etym: "Derived from Greek 'ostrakon' (shell/potsherd)." },
+        { name: "paralichthyidae", common: "Large-tooth Flounders", morph: "Left-eyed flatfish, large mouth with prominent canine teeth extending past the lower eye, compressed asymmetrical body.", diag: "Separated from other flatfish families by having teeth on the jaws and eyes on the left side.", etym: "Derived from Greek 'para' (near) and 'ichthys' (fish), plus Platichthys." },
+        { name: "pegasidae", common: "Seamoths", morph: "Small bottom-dwelling fish encased in bony rings, snout elongated and blade-like, pectoral fins expanded into horizontal wings.", diag: "Instantly recognized by the flat bony armor, ventral mouth, and horizontal wing-like pectoral fins.", etym: "Derived from Greek 'pegasos' (winged horse Pegasus)." },
+        { name: "pempheridae", common: "Sweepers", morph: "Deep, compressed body, huge eyes adapted for cave-dwelling, single short dorsal fin, deeply forked tail.", diag: "Separated from other cavern-dwelling fish by the extremely deep body and very short dorsal fin placed forward.", etym: "Derived from Greek 'pemphix' (bubble/blister)." },
+        { name: "pinguipedidae", common: "Sandperches", morph: "Elongated cylindrical body, flattened head, resting on sandy bottoms on pelvic fins, mouth turned slightly upward.", diag: "Separated from Gobiidae by having separate pelvic fins and lack of a ventral sucking disc.", etym: "Derived from Latin 'pinguis' (fat) and Greek 'pous' (foot)." },
+        { name: "platycephalidae", common: "Flatheads", morph: "Severely depressed (dorsoventrally flattened) head and body, upward-facing eyes, large mouth with spiny cheek ridges.", diag: "Instantly recognized by the snake-like flattened head and spines on the opercle and preopercle.", etym: "Derived from Greek 'platys' (flat) and 'kephale' (head)." },
+        { name: "plotosidae", common: "Eeltail Catfishes", morph: "Elongated eel-like body tapering to a point, long continuous dorsal and anal fins, barbels around mouth, venomous dorsal/pectoral spines.", diag: "Distinguished from true eels and other catfishes by the eel-like tail and venomous serrated spines.", etym: "Derived from Greek 'plotos' (floating/swimming)." },
+        { name: "polynemidae", common: "Threadfins", morph: "Elongated body, two widely separated dorsal fins, lower pectoral fin rays split into long free filamentous feelers.", diag: "Instantly identified by the dangling independent thread-like rays below the pectoral fins.", etym: "Derived from Greek 'polys' (many) and 'nema' (thread)." },
+        { name: "pomacanthidae", common: "Angelfishes", morph: "Deep, highly compressed oval body, small mouth, distinctive sharp spine projecting backward from the angle of the preopercle.", diag: "Differentiated from Chaetodontidae by the presence of the prominent preopercular cheek spine.", etym: "Derived from Greek 'poma' (cover/operculum) and 'akantha' (spine)." },
+        { name: "pomacentridae", common: "Damselfishes", morph: "Small, robust, compressed body, single nasal opening on each side of snout, interrupted lateral line.", diag: "Separated from similar reef families by having a single nostril opening on each side of the snout.", etym: "Derived from Greek 'poma' (cover) and 'acron' (top/edge)." },
+        { name: "priacanthidae", common: "Bigeyes", morph: "Extremely large eyes adapted for nocturnal deep-water life, bright red coloration, small rough scales, projecting lower jaw.", diag: "Instantly recognized by the massive luminous-looking eyes and bright ruby-red coloration.", etym: "Derived from Greek 'prion' (saw) and 'akantha' (spine)." },
+        { name: "rachycentridae", common: "Cobias", morph: "Elongated, subcylindrical body, broad flattened head, small low first dorsal fin composed of isolated short spines.", diag: "Distinguished from Remoras by lacking an adhesion disk on the head and having a broader, depressed head.", etym: "Derived from Greek 'rhachis' (spine) and 'kentron' (sting)." },
+        { name: "rajidae", common: "Skates", morph: "Flattened rhomboidal cartilaginous body, pectoral fins fused to head, thorny spines along back, egg-laying (mermaid's purses).", diag: "Separated from Stingrays (Dasyatidae) by lacking a venomous tail spine and having fleshy tail folds instead.", etym: "Derived from Latin 'raia' (ray/skate)." },
+        { name: "scaridae", common: "Parrotfishes", morph: "Teeth fused into a powerful parrot-like beak, robust bodies, bright iridescent coloration, large scales.", diag: "Distinguished from Labridae by their fused beak plates used for scraping algae off coral skeletons.", etym: "Derived from Greek 'skaros', an ancient name for parrotfishes." },
+        { name: "scatophagidae", common: "Scats", morph: "Deep, highly compressed square body, blunt snout, small notch-free dorsal fin, often spotted or banded patterns.", diag: "Separated from Ephippidae and Monodactylidae by specific dorsal spine configurations and omnivorous habits.", etym: "Derived from Greek 'skatos' (dung) and 'phagein' (to eat), noting their opportunistic feeding in estuaries." },
+        { name: "scombridae", common: "Mackerels, Tunas, Bonitos", morph: "Streamlined torpedo-shaped body built for extreme speed, finlets behind dorsal and anal fins, caudal keel.", diag: "Instantly recognized by the caudal keels on the tail base and row of finlets trailing the main fins.", etym: "Derived from Latin 'scomber' (mackerel)." },
+        { name: "scorpaenidae", common: "Scorpionfishes, Rockfishes", morph: "Heavy bony head covered in spines and ridges, mottled camouflage coloration, venomous dorsal, anal, and pelvic spines.", diag: "Separated from other spiny reef fish by heavy head ornamentation and venomous gland integration in fin spines.", etym: "Derived from Greek 'skorpios' (scorpion)." },
+        { name: "sebastidae", common: "Rockfishes, Thornyheads", morph: "Robust body, spiny head bones, large eyes, live-bearing reproduction (ovoviviparous), vibrant or cryptic coloration.", diag: "Distinguished from Scorpaenidae primarily by internal anatomical features and live-bearing reproduction.", etym: "Derived from Greek 'sebastos' (venerable/majestic)." },
+        { name: "siganidae", common: "Rabbitfishes", morph: "Oval compressed body, small rabbit-like mouth, venomous spines in dorsal, pelvic, and anal fins.", diag: "Instantly separated by the unique spine formula: 13 dorsal, 7 anal, and 2 pelvic spines, all venomous.", etym: "Derived from Arabic 'sigan' (rabbitfish)." },
+        { name: "sillaginidae", common: "Smelt-whitings, Sillagos", morph: "Elongated, slender body, pointed snout, two separate dorsal fins, sandy coloration for camouflage.", diag: "Separated from Atherinidae by having a subterminal mouth and benthic lifestyle on sandy shores.", etym: "Derived from Greek 'sylago', an ancient fish name." },
+        { name: "soleidae", common: "Soles", morph: "Right-eyed flatfish, oval body, rounded snout often hooked over the mouth, small eyes, asymmetrical fins.", diag: "Separated from other flatfishes by the hooked snout and right-eyed asymmetry.", etym: "Derived from Latin 'solea' (sandal/sole of a foot)." },
+        { name: "solenostomidae", common: "Ghost Pipefishes", morph: "Elongated tubular snout, body encased in star-shaped bony plates, pelvic fins enlarged into brood pouch in females.", diag: "Differentiated from true pipefishes (Syngnathidae) by having pelvic fins and female brooding in pelvic pouch.", etym: "Derived from Greek 'solen' (pipe/tube) and 'stoma' (mouth)." },
+        { name: "sparidae", common: "Porgies, Sea Breams", morph: "Deep oval body, steep forehead, front incisor or canine teeth backed by heavy molar-like crushing teeth.", diag: "Distinguished by the combination of front cutting teeth and rear molar teeth designed for crushing hard-shelled prey.", etym: "Derived from Greek 'sparos', an ancient name for sea bream." },
+        { name: "sphyraenidae", common: "Barracudas", morph: "Elongated torpedo-shaped body, massive pointed head with large jaw containing formidable fang-like teeth, two separated dorsal fins.", diag: "Instantly recognized by the pike-like elongated predatory body and huge lower jaw with dagger teeth.", etym: "Derived from Greek 'sphyraena', ancient name for barracuda." },
+        { name: "spratelloididae", common: "Small Round Herrings", morph: "Slender, cylindrical silvery body, absence of abdominal scutes, single short dorsal fin.", diag: "Separated from Clupeidae (herrings) by having a rounded belly without sharp bony scutes.", etym: "Derived from Sprat + diminutive suffix." },
+        { name: "syngnathidae", common: "Pipefishes, Seahorses", morph: "Body enclosed in ring-like bony plates, tubular snout with small toothless mouth, male brood pouch.", diag: "Instantly recognized by bony body rings and male pregnancy brooding pouches.", etym: "Derived from Greek 'syn' (together) and 'gnathos' (jaw)." },
+        { name: "synodontidae", common: "Lizardfishes", morph: "Cylindrical elongated body, large mouth filled with numerous sharp teeth extending onto the tongue, lizard-like head.", diag: "Distinguished by the reptile-like flattened head and numerous visible teeth inside the mouth.", etym: "Derived from Greek 'syn' (together) and 'odous' (teeth)." },
+        { name: "terapontidae", common: "Grunters, Terapons", morph: "Robust oval body, distinctive dark horizontal stripes on flanks, capable of emitting grunting sounds using swim bladder.", diag: "Separated by internal cranial muscle modifications that produce distinct grunting sounds.", etym: "Derived from Greek 'terapon' (servant/attendant)." },
+        { name: "tetraodontidae", common: "Puffers", morph: "Capable of inflating body with water/air, tough elastic skin without scales, beak formed of four fused teeth plates.", diag: "Distinguished from Diodontidae by having four fused beak teeth and lack of prominent external body spines.", etym: "Derived from Greek 'tetra' (four) and 'odous' (teeth)." },
+        { name: "tetrarogidae", common: "Waspfishes", morph: "Compressed body, high dorsal fin originating above the eyes, venomous spines, capable of rapid color changes.", diag: "Separated from Scorpaenidae by the forward placement of the dorsal fin origin directly over the eyes.", etym: "Derived from Greek 'tetra' (four) and 'rhoge' (notch/split)." },
+        { name: "trichonotidae", common: "Sanddivers", morph: "Extremely slender, ribbon-like body, large eyes, specialized for diving headfirst into sand substrates.", diag: "Instantly recognized by thread-like elongated bodies and habit of burrowing completely into sand.", etym: "Derived from Greek 'thrix' (hair) and 'noton' (back)." },
+        { name: "triglidae", common: "Searobins", morph: "Heavy bony armor on head, large pectoral fins with lower 3 rays free and finger-like used for walking on substrate.", diag: "Instantly separated by the detached finger-like pectoral rays used to 'walk' along the ocean floor.", etym: "Derived from Greek 'trigla', ancient name for red mullet." },
+        { name: "tripterygiidae", common: "Triplefins", morph: "Small benthic fish, three distinct dorsal fins (first two spiny, third soft-rayed), often colorful facial markings.", diag: "Easily separated from Blenniidae and Gobiidae by having exactly three separate dorsal fins.", etym: "Derived from Greek 'tri' (three) and 'pteryx' (fin/wing)." },
+        { name: "zanclidae", common: "Moorish Idol", morph: "Deeply compressed disk body, tubular snout with bristly teeth, highly elongated trailing filament on dorsal fin.", diag: "Separated from Chaetodontidae and Acanthuridae by the sickle-shaped dorsal filament and lack of peduncle spines.", etym: "Derived from Greek 'zanklon' (sickle), referencing the curved dorsal fin." }
+    ];
+
+    const fishData = rawData.map((item, index) => {
+        const idNum = index + 1;
+        const capitalized = item.name.charAt(0).toUpperCase() + item.name.slice(1);
+        return {
+            id: idNum,
+            name: capitalized,
+            common: item.common,
+            file: `${idNum}-${item.name}.png`,
+            cost: idNum * 20, 
+            speed: Math.random() * 0.6 + 0.2, 
+            etymology: item.etym,
+            morphology: item.morph,
+            diagnostic: item.diag
+        };
+    });
+
+    // --- Game State ---
+    let rp = 0;
+    let unlockedIds = [1]; 
+    let activeFish = [];
+    let currentTextToRead = "";
+
+    // --- Core Logic & Saving ---
+    function saveProgress() {
+        localStorage.setItem("aquaRp", rp);
+        localStorage.setItem("aquaUnlocks", JSON.stringify(unlockedIds));
+        
+        const fishStates = activeFish.map(f => ({
+            id: f.id, x: f.x, y: f.y, vx: f.vx, vy: f.vy
+        }));
+        localStorage.setItem("aquaFishStates", JSON.stringify(fishStates));
+    }
+
+    function loadProgress() {
+        const savedRp = localStorage.getItem("aquaRp");
+        const savedUnlocks = localStorage.getItem("aquaUnlocks");
+        if (savedRp !== null) rp = parseInt(savedRp, 10);
+        if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('rp-count').innerText = rp.toLocaleString();
+        
+        const autoBox = document.getElementById('auto-harvest-box');
+        if (unlockedIds.length > 1) {
+            autoBox.style.display = 'block';
+            document.getElementById('auto-rate').innerText = (unlockedIds.length * 2).toLocaleString();
+        } else {
+            autoBox.style.display = 'none';
+        }
+    }
+
+    // --- Ocean & Drag Logic ---
+    function spawnFish(fishDef, savedState = null) {
+        const ocean = document.getElementById('ocean');
+        const el = document.createElement('div');
+        el.className = 'fish-sprite';
+        el.innerHTML = `
+            <div class="fish-name-tag">${fishDef.name} (${fishDef.common.split(',')[0]})</div>
+            <img src="${fishDef.file}" alt="${fishDef.name}">
+        `;
+
+        const img = el.querySelector('img');
+        img.onload = () => {
+            const width = img.clientWidth || 100;
+            const height = img.clientHeight || 80;
+
+            let x, y, vx, vy;
+            if (savedState) {
+                x = savedState.x; y = savedState.y; vx = savedState.vx; vy = savedState.vy;
+            } else {
+                x = Math.max(0, Math.min(Math.random() * window.innerWidth, window.innerWidth - width));
+                y = Math.max(0, Math.min(Math.random() * window.innerHeight, window.innerHeight - height));
+                vx = fishDef.speed * (Math.random() > 0.5 ? 1 : -1);
+                vy = (Math.random() - 0.5) * fishDef.speed;
+            }
+
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+
+            const fishObj = { 
+                id: fishDef.id, 
+                el, x, y, vx, vy, 
+                isDragging: false, 
+                width, height
+            };
+
+            el.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                sfx.bubble();
+                rp += 5; 
+                updateUI();
+                saveProgress();
+
+                const floatRp = document.createElement('div');
+                floatRp.className = 'floating-rp';
+                floatRp.innerText = '+5 RP';
+                floatRp.style.left = e.clientX + 'px';
+                floatRp.style.top = (e.clientY - 20) + 'px';
+                ocean.appendChild(floatRp);
+                setTimeout(() => floatRp.remove(), 1200);
+
+                fishObj.isDragging = true;
+                el.setPointerCapture(e.pointerId);
+                fishObj.offsetX = e.clientX - fishObj.x;
+                fishObj.offsetY = e.clientY - fishObj.y;
+                el.style.zIndex = 100;
+            });
+
+            el.addEventListener('pointermove', (e) => {
+                if (fishObj.isDragging) {
+                    let newX = e.clientX - fishObj.offsetX;
+                    let newY = e.clientY - fishObj.offsetY;
+                    
+                    newX = Math.max(0, Math.min(newX, window.innerWidth - fishObj.width));
+                    newY = Math.max(0, Math.min(newY, window.innerHeight - fishObj.height));
+
+                    fishObj.x = newX;
+                    fishObj.y = newY;
+                    el.style.left = fishObj.x + 'px';
+                    el.style.top = fishObj.y + 'px';
+                }
+            });
+
+            const endDrag = (e) => {
+                if (fishObj.isDragging) {
+                    fishObj.isDragging = false;
+                    el.releasePointerCapture(e.pointerId);
+                    el.style.zIndex = 6;
+                }
+            };
+
+            el.addEventListener('pointerup', endDrag);
+            el.addEventListener('pointercancel', endDrag);
+
+            ocean.appendChild(el);
+            activeFish.push(fishObj);
+        };
+    }
+
+    function animateOcean() {
+        activeFish.forEach(f => {
+            if (!f.isDragging && f.width) {
+                f.x += f.vx * 0.3;
+                f.y += f.vy * 0.3;
+
+                if (f.x <= 0 || f.x >= window.innerWidth - f.width) {
+                    f.vx *= -1;
+                    f.x = Math.max(0, Math.min(f.x, window.innerWidth - f.width));
+                }
+                if (f.y <= 0 || f.y >= window.innerHeight - f.height) {
+                    f.vy *= -1;
+                    f.y = Math.max(0, Math.min(f.y, window.innerHeight - f.height));
+                }
+
+                f.el.style.left = f.x + 'px';
+                f.el.style.top = f.y + 'px';
+
+                // Face the direction it is moving
+                const img = f.el.querySelector('img');
+                if (img) {
+                    img.style.transform = f.vx > 0 ? 'scaleX(-1)' : 'scaleX(1)';
+                }
+            }
+        });
+        requestAnimationFrame(animateOcean);
+    }
+
+    // --- UI Modals ---
+    function openResearch() {
+        const grid = document.getElementById('research-grid');
+        grid.innerHTML = '';
+        
+        fishData.forEach((f) => {
+            if (unlockedIds.includes(f.id)) return; 
+
+            const item = document.createElement('div');
+            item.className = 'collection-item';
+            const canAfford = rp >= f.cost;
+            
+            item.innerHTML = `
+                <div class="visual"><img src="${f.file}" alt="Locked"></div>
+                <div class="name-tag">${f.name}</div>
+                <div style="font-size: 0.75em; color: #8892b0; margin-bottom: 5px;">${f.common}</div>
+                <button class="buy-btn" ${!canAfford ? 'disabled' : ''} onclick="unlockFish(${f.id})">Sequence (${f.cost} RP)</button>
+            `;
+            grid.appendChild(item);
+        });
+        document.getElementById('research-modal').style.display = 'flex';
+    }
+
+    window.unlockFish = function(id) {
+        const fDef = fishData.find(f => f.id === id);
+        if (rp >= fDef.cost) {
+            rp -= fDef.cost;
+            unlockedIds.push(fDef.id);
+            spawnFish(fDef);
+            sfx.unlock();
+            updateUI();
+            saveProgress();
+            openResearch(); 
+        }
+    };
+
+    function openGuide() {
+        document.getElementById('guide-grid').style.display = 'grid';
+        document.getElementById('detail-view').style.display = 'none';
+        document.getElementById('guide-title').innerText = "Taxonomic Compendium";
+        document.getElementById('guide-close-btn').style.display = 'inline-block';
+
+        const grid = document.getElementById('guide-grid');
+        grid.innerHTML = '';
+        
+        fishData.forEach((f) => {
+            const isUnlocked = unlockedIds.includes(f.id);
+            const item = document.createElement('div');
+            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
+            
+            item.innerHTML = `
+                <div class="visual"><img src="${f.file}" alt="${f.name}"></div>
+                <div class="name-tag">${isUnlocked ? f.name : 'Unknown Family'}</div>
+                <div style="font-size: 0.75em; color: #8892b0;">${isUnlocked ? f.common : '???'}</div>
+            `;
+            
+            if(isUnlocked) {
+                item.onclick = () => showDetail(f);
+            }
+            grid.appendChild(item);
+        });
+        document.getElementById('guide-modal').style.display = 'flex';
+    }
+
+    function showDetail(f) {
+        document.getElementById('guide-grid').style.display = 'none';
+        document.getElementById('guide-close-btn').style.display = 'none';
+        const detailView = document.getElementById('detail-view');
+        
+        document.getElementById('guide-title').innerText = "Taxonomic Profile";
+        document.getElementById('detail-name').innerText = f.name;
+        document.getElementById('detail-common').innerText = f.common;
+        document.getElementById('detail-img').src = f.file;
+        
+        document.getElementById('detail-etymology').innerText = f.etymology;
+        document.getElementById('detail-morphology').innerText = f.morphology;
+        document.getElementById('detail-diagnostic').innerText = f.diagnostic;
+        
+        currentTextToRead = "Family " + f.name + ", commonly known as " + f.common + ". Etymology: " + f.etymology + " Morphology: " + f.morphology + " Diagnostic Differences: " + f.diagnostic;
+        detailView.style.display = 'flex';
+    }
+
+    window.backToGuideGrid = function() {
+        window.speechSynthesis.cancel();
+        openGuide();
+    };
+
+    // Global Modal Close (Clicking outside modal window)
+    window.onclick = (e) => {
+        if (e.target.classList.contains('modal-overlay')) {
+            closeModals();
+        }
+    };
+
+    window.closeModals = function() {
+        document.getElementById('research-modal').style.display = 'none';
+        document.getElementById('guide-modal').style.display = 'none';
+        window.speechSynthesis.cancel();
+    };
+
+    // --- Text to Speech (Japanese Accent) ---
+    document.getElementById('speak-btn').addEventListener('click', () => {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); 
+            const utterance = new SpeechSynthesisUtterance(currentTextToRead);
+            utterance.rate = 0.9; 
+            
+            utterance.lang = 'ja-JP';
+
+            const voices = window.speechSynthesis.getVoices();
+            const japaneseVoice = voices.find(voice => 
+                voice.lang === 'ja-JP' || voice.lang === 'ja_JP' || voice.name.includes('Japanese')
+            );
+            
+            if (japaneseVoice) utterance.voice = japaneseVoice;
+
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("TTS not supported by this browser.");
+        }
+    });
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+
+    // --- Buttons ---
+    document.getElementById('research-btn').addEventListener('click', openResearch);
+    document.getElementById('guide-btn').addEventListener('click', openGuide);
+
+    document.getElementById('sound-btn').addEventListener('click', () => {
+        isMuted = !isMuted;
+        const btn = document.getElementById('sound-btn');
+        btn.innerText = isMuted ? '🔇 Muted' : '🔊 Sound';
+    });
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+        saveProgress();
+        const btn = document.getElementById('save-btn');
+        btn.innerText = '✅ Saved!';
+        sfx.bubble();
+        setTimeout(() => btn.innerText = '💾 Save', 1000);
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm("Format Network? All research will be lost.")) {
+            localStorage.clear();
+            location.reload();
+        }
+    });
+
+    // Auto Harvest Loop
+    setInterval(() => {
+        if (unlockedIds.length > 1) {
+            rp += (unlockedIds.length * 2); 
+            updateUI();
+            saveProgress();
+        }
+    }, 1000);
+
+    // --- Initialization ---
+    document.getElementById('start-btn').addEventListener('click', () => {
+        document.getElementById('start-screen').style.display = 'none';
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        
+        loadProgress();
+
+        const savedStatesJSON = localStorage.getItem("aquaFishStates");
+        if (savedStatesJSON && JSON.parse(savedStatesJSON).length > 0) {
+            const savedStates = JSON.parse(savedStatesJSON);
+            savedStates.forEach(state => {
+                const fish = fishData.find(f => f.id === state.id);
+                if(fish) spawnFish(fish, state);
+            });
+        } else {
+            if (unlockedIds.length === 0) unlockedIds = [1];
+            unlockedIds.forEach(id => {
+                const fish = fishData.find(f => f.id === id);
+                if(fish) spawnFish(fish);
+            });
+        }
+
+        updateUI();
+        requestAnimationFrame(animateOcean);
+    });
+</script>
+</body>
+</html>

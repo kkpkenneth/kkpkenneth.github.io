@@ -2,160 +2,269 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Country Quiz | 全球國家問答遊戲</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Global Country Quiz</title>
     <style>
         :root {
-            --primary: #2c3e50;
-            --secondary: #34495e;
-            --accent: #3498db;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --hint: #d35400;
+            --btn-bg: rgba(200, 200, 200, 0.3);
+            --btn-hover: rgba(200, 200, 200, 0.6);
+            --text-color: #2c3e50;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
+            background: linear-gradient(135deg, #e0e0e0 0%, #f5f7fa 50%, #c3cfe2 100%);
+            color: var(--text-color);
             margin: 0;
             padding: 20px 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
-        }
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 650px;
-            padding: 30px;
-            text-align: center;
-            overflow: hidden;
-        }
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        h2 {
-            font-size: 1.2rem;
-            color: #7f8c8d;
-            margin-bottom: 20px;
-        }
-        .btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.1s;
-            width: 100%;
-            margin-bottom: 15px;
             box-sizing: border-box;
         }
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 700px;
+            padding: 40px 30px;
+            text-align: center;
+            overflow: hidden;
+            min-height: 750px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        #start-screen {
+            padding: 30px 10px;
+        }
+        #start-screen h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            letter-spacing: 1px;
+        }
+        #start-screen h2 {
+            font-size: 1.4rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            color: #556;
+        }
+        
+        .primary-action-btn {
+            background: #34495e;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 15px 50px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #2c3e50;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .primary-action-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: #2c3e50;
+        }
+        .primary-action-btn:active {
+            transform: translateY(1px);
+        }
+
+        h2#question-text {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .flag-container {
+            width: 100%;
+            aspect-ratio: 16 / 9; 
+            background-color: rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .flag-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+        }
+
+        /* Answer options: Darker tone with white text */
+        .btn {
+            background-color: #34495e; 
+            color: #ffffff; 
+            border: 1px solid #2c3e50;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
         .btn:hover:not(:disabled) {
-            background-color: #2980b9;
+            background-color: #2c3e50;
+            border-color: #1a252f;
         }
         .btn:active:not(:disabled) {
             transform: scale(0.98);
         }
         .btn:disabled {
             cursor: not-allowed;
-            opacity: 0.8;
+            opacity: 0.9;
         }
-        .btn.correct { background-color: var(--success) !important; color: white; }
-        .btn.wrong { background-color: var(--danger) !important; color: white; }
+        .btn.correct { 
+            background-color: var(--success) !important; 
+            color: white !important;
+            border-color: var(--success) !important;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
+        }
+        .btn.wrong { 
+            background-color: var(--danger) !important; 
+            color: white !important;
+            border-color: var(--danger) !important;
+        }
         
         #quiz-screen {
             display: none;
-        }
-        .flag-container {
             width: 100%;
-            height: 250px;
-            background-color: #f8f9fa;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            flex-direction: column;
         }
-        .flag-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* This forces the image to completely fill the container */
-        }
+        
         .fact-box {
-            background: #fffbea;
-            border-left: 5px solid #f1c40f;
-            padding: 15px;
+            background: rgba(230, 230, 230, 0.5);
+            border-left: 5px solid var(--hint);
+            padding: 18px;
             margin: 20px 0;
             text-align: left;
-            border-radius: 4px;
+            border-radius: 0 8px 8px 0;
             display: none; 
-            font-size: 0.95rem;
-            line-height: 1.5;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            color: #34495e;
         }
         .fact-box h3 {
             margin-top: 0;
-            color: var(--primary);
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 8px;
+            color: #2c3e50;
         }
         .fact-item {
             margin-bottom: 10px;
         }
         .fact-item strong {
-            color: var(--secondary);
+            color: #e67e22;
         }
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
-        @media (max-width: 500px) {
+        
+        #next-btn-container {
+            display: none;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px 0;
+                align-items: center; 
+            }
+            .container {
+                width: 95%;
+                padding: 25px 15px;
+                min-height: 90vh; 
+                justify-content: flex-start;
+            }
+            #start-screen h1 {
+                font-size: 2.2rem;
+            }
+            #start-screen h2 {
+                font-size: 1.1rem;
+            }
+            h2#question-text {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            .flag-container {
+                aspect-ratio: 1 / 1; 
+                margin-bottom: 15px;
+            }
             .options-grid {
                 grid-template-columns: 1fr;
+                gap: 10px;
+                margin-bottom: 15px;
             }
-        }
-        #next-btn {
-            background-color: var(--primary);
-            display: none;
-            margin-top: 10px;
-        }
-        #next-btn:hover {
-            background-color: var(--secondary);
+            .btn {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            .fact-box {
+                font-size: 0.9rem;
+                padding: 12px;
+                margin: 10px 0;
+            }
+            .primary-action-btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body>
 
+<audio id="bg-music" src="global-fusion.mp3" loop></audio>
+
 <div class="container">
     <div id="start-screen">
-        <h1>Global Country Quiz<br>全球國家問答遊戲</h1>
-        <h2>Test your geography knowledge!<br>測試你的地理知識！</h2>
-        <button class="btn" onclick="startQuiz()">Start Quiz / 開始遊戲</button>
+        <h1>Global Country Quiz</h1>
+        <h2>Test your geography knowledge</h2>
+        <button class="primary-action-btn" onclick="startQuiz()">Start Quiz</button>
     </div>
 
     <div id="quiz-screen">
-        <h2 id="question-text">Which country is this? / 這是哪個國家？</h2>
+        <h2 id="question-text">Which country/territory is this?</h2>
         
         <div class="flag-container">
-            <img id="flag-img" src="" alt="Country Flag / 國家圖片">
+            <img id="flag-img" src="" alt="Country Flag">
         </div>
 
         <div class="fact-box" id="fact-box">
-            <h3 id="fact-title">Hints / 提示</h3>
+            <h3 id="fact-title">Hints</h3>
             <div class="fact-item" id="fact-geo"></div>
             <div class="fact-item" id="fact-nickname"></div>
             <div class="fact-item" id="fact-most"></div>
@@ -164,7 +273,9 @@
         <div id="options-container" class="options-grid">
         </div>
 
-        <button class="btn" id="next-btn" onclick="loadNextQuestion()">Next Question / 下一題</button>
+        <div id="next-btn-container">
+            <button class="primary-action-btn" id="next-btn" onclick="loadNextQuestion()">Next Question</button>
+        </div>
     </div>
 </div>
 
@@ -180,6 +291,14 @@
         }
     }
 
+    function startBackgroundMusic() {
+        const bgMusic = document.getElementById('bg-music');
+        bgMusic.volume = 0.2; 
+        bgMusic.play().catch(error => {
+            console.log("Autoplay prevented by browser:", error);
+        });
+    }
+
     function playSound(type) {
         if (!audioCtx) return;
         const oscillator = audioCtx.createOscillator();
@@ -188,11 +307,20 @@
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
-        if (type === 'correct') {
+        if (type === 'start') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.4);
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.4);
+        } else if (type === 'correct') {
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
             oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1); 
-            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.3);
@@ -200,46 +328,141 @@
             oscillator.type = 'sawtooth';
             oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
             oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
-            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.3);
         }
     }
 
-    const countryData = [
-        { id: "003", img: "003-japan.jpg", en: "Japan", zh: "日本", geoEn: "An island nation located off the east coast of Asia.", geoZh: "位於亞洲東海岸外的島國。", nickEn: "The Land of the Rising Sun", nickZh: "日出之國", mostEn: "Has the most elderly population in the world.", mostZh: "擁有世界上最老齡化的人口。" },
-        { id: "007", img: "007-china.jpg", en: "China", zh: "中國", geoEn: "A massive continental country in East Asia.", geoZh: "位於東亞的巨型大陸國家。", nickEn: "The Red Dragon", nickZh: "東方巨龍", mostEn: "Has the most borders with other countries (14 countries).", mostZh: "世界上接壤國家最多的國家（14個）。" },
-        { id: "009", img: "009-united-kingdom.jpg", en: "United Kingdom", zh: "英國", geoEn: "An island nation in northwestern Europe.", geoZh: "位於歐洲西北部的島國。", nickEn: "Britannia", nickZh: "不列顛", mostEn: "Has the most tornadoes by area in the world.", mostZh: "按面積計算，世界上龍捲風發生最密集的國家。" },
-        { id: "010", img: "010-france.jpg", en: "France", zh: "法國", geoEn: "A continental country in Western Europe.", geoZh: "位於西歐的大陸國家。", nickEn: "L'Hexagone (The Hexagon)", nickZh: "六邊形國", mostEn: "Is the most visited country in the world.", mostZh: "是世界上遊客訪問量最多的國家。" },
-        { id: "018", img: "018-united-states.jpg", en: "United States", zh: "美國", geoEn: "A massive continental country in North America.", geoZh: "位於北美洲的巨型大陸國家。", nickEn: "Uncle Sam / Land of the Free", nickZh: "山姆大叔 / 自由之土", mostEn: "Has the most active volcanoes after Indonesia and Japan.", mostZh: "活躍火山數量僅次於印尼和日本。" },
-        { id: "033", img: "033-australia.jpg", en: "Australia", zh: "澳洲", geoEn: "A massive continental island in Oceania.", geoZh: "位於大洋洲的巨大陸地島嶼。", nickEn: "The Land Down Under", nickZh: "南半球之國", mostEn: "Has the most venomous snakes in the world.", mostZh: "擁有世界上最多的毒蛇種類。" },
-        { id: "069", img: "069-egypt.jpg", en: "Egypt", zh: "埃及", geoEn: "A transcontinental country spanning northeast Africa and southwest Asia.", geoZh: "橫跨非洲東北部和亞洲西南部的跨洲國家。", nickEn: "The Gift of the Nile", nickZh: "尼羅河的贈禮", mostEn: "Has the most ancient pyramids in the Arab world.", mostZh: "擁有阿拉伯世界中最古老的金字塔群。" },
-        { id: "081", img: "081-india.jpg", en: "India", zh: "印度", geoEn: "A large peninsula in South Asia.", geoZh: "位於南亞的大型半島。", nickEn: "The Subcontinent", nickZh: "次大陸", mostEn: "Has the most vegetarians in the world.", mostZh: "擁有世界上最多的素食主義者。" },
-        { id: "097", img: "097-brazil.jpg", en: "Brazil", zh: "巴西", geoEn: "A massive coastal country in South America.", geoZh: "位於南美洲的廣闊沿海國家。", nickEn: "The Land of the Holy Cross", nickZh: "聖十字架之地", mostEn: "Contains the most biodiverse rainforest in the world (Amazon).", mostZh: "擁有世界上生物多樣性最豐富的雨林（亞馬遜）。" },
-        { id: "113", img: "113-thailand.jpg", en: "Thailand", zh: "泰國", geoEn: "A coastal country located in the center of the Indochinese Peninsula.", geoZh: "位於中南半島中心的沿海國家。", nickEn: "The Land of Smiles", nickZh: "微笑之國", mostEn: "The most visited city in the world is its capital (Bangkok).", mostZh: "其首都（曼谷）是全球遊客訪問量最多的城市。" },
-        { id: "153", img: "153-italy.jpg", en: "Italy", zh: "意大利", geoEn: "A boot-shaped peninsula in Southern Europe.", geoZh: "位於南歐的靴子形半島。", nickEn: "The Boot (Lo Stivale)", nickZh: "靴子國", mostEn: "Contains the most UNESCO World Heritage sites.", mostZh: "擁有世界上最多的聯合國教科文組織世界遺產。" },
-        { id: "159", img: "159-switzerland.jpg", en: "Switzerland", zh: "瑞士", geoEn: "A landlocked country in Central Europe.", geoZh: "位於中歐的內陸國家。", nickEn: "The Playground of Europe", nickZh: "歐洲的遊樂場", mostEn: "Has the most chocolate consumption per capita.", mostZh: "全球人均巧克力消費量最多的國家。" }
+    function speakAnswer(enText, zhText) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); 
+            
+            const utteranceEn = new SpeechSynthesisUtterance(enText);
+            utteranceEn.lang = 'en-US';
+            utteranceEn.rate = 1.0;
+            
+            const utteranceZh = new SpeechSynthesisUtterance(zhText);
+            utteranceZh.lang = 'zh-HK'; 
+            utteranceZh.rate = 1.0;
+
+            window.speechSynthesis.speak(utteranceEn);
+            window.speechSynthesis.speak(utteranceZh);
+        }
+    }
+
+    const rawData = `
+001|001-hong-kong.jpg|Hong Kong|香港|A coastal territory and archipelago in East Asia.|Pearl of the Orient|1. Has the most skyscrapers in the world.<br>2. Has the most expensive housing market.
+002|002-taiwan.jpg|Taiwan|台灣|An island nation in East Asia.|Ilha Formosa|1. Has the densest concentration of high mountains.<br>2. Has the most convenience stores per capita.
+003|003-japan.jpg|Japan|日本|An island nation in East Asia.|Land of the Rising Sun|1. Has the oldest population.<br>2. Has the most vending machines per capita.
+004|004-south-korea.jpg|South Korea|南韓|A peninsula nation in East Asia.|Land of the Morning Calm|1. Has the most widespread high-speed internet.<br>2. Has the most plastic surgeries per capita.
+005|005-north-korea.jpg|North Korea|北韓|A peninsula nation in East Asia.|The Hermit Kingdom|1. Has the most secretive government.<br>2. Has the most isolated economy.
+006|006-mongolia.jpg|Mongolia|蒙古|A landlocked country in East Asia.|Land of the Eternal Blue Sky|1. Is the most sparsely populated sovereign state.<br>2. Has the most horses per capita.
+007|007-china.jpg|China|中國|A massive continental country in East Asia.|The Red Dragon|1. Has the most borders with other countries.<br>2. Has the most extensive high-speed rail network.
+008|008-macau.jpg|Macau|澳門|A coastal territory in East Asia.|Vegas of China|1. Is the most densely populated region.<br>2. Generates the most gambling revenue globally.
+009|009-united-kingdom.jpg|United Kingdom|英國|An island nation in Northwestern Europe.|Britannia|1. Has the most tornadoes by area.<br>2. Had the most extensive historical empire.
+010|010-france.jpg|France|法國|A continental country in Western Europe.|The Hexagon|1. Is the most visited country in the world.<br>2. Has the most time zones (including territories).
+011|011-spain.jpg|Spain|西班牙|A peninsula country in Southwestern Europe.|La Piel de Toro|1. Produces the most olive oil.<br>2. Has the most Blue Flag beaches.
+012|012-portugal.jpg|Portugal|葡萄牙|A coastal country on the Iberian Peninsula.|The Lusitanian Nation|1. Is the largest producer of cork.<br>2. Has the oldest borders in Europe.
+013|013-netherlands.jpg|Netherlands|荷蘭|A coastal country in Western Europe.|Land of Windmills|1. Has the most bicycles per capita.<br>2. Exports the most flowers globally.
+015|015-germany.jpg|Germany|德國|A continental country in Central Europe.|Das Land der Dichter und Denker|1. Has the most zoos in the world.<br>2. Consumes the most bread varieties.
+017|017-canada.jpg|Canada|加拿大|A massive continental country in North America.|The Great White North|1. Has the most lakes in the world.<br>2. Has the longest coastline.
+018|018-united-states.jpg|United States|美國|A massive continental country in North America.|Uncle Sam|1. Has the most billionaires.<br>2. Has the most active volcanoes after Indonesia and Japan.
+019|019-mexico.jpg|Mexico|墨西哥|A continental country in North America.|Land of the Aztecs|1. Has the most Spanish speakers.<br>2. Produces the most silver globally.
+025|025-south-africa.jpg|South Africa|南非|A coastal country in Southern Africa.|Rainbow Nation|1. Has the most official languages (12).<br>2. Produces the most platinum.
+033|033-australia.jpg|Australia|澳洲|A continental island in Oceania.|Land Down Under|1. Has the most venomous snakes.<br>2. Has the most wild camels.
+042|042-peru.jpg|Peru|秘魯|A coastal country in South America.|Land of the Incas|1. Has the most varieties of potatoes.<br>2. Has the most extensive pre-Columbian ruins.
+046|046-argentina.jpg|Argentina|阿根廷|A vast coastal country in South America.|Land of Silver|1. Consumes the most beef per capita.<br>2. Has the southernmost city in the world (Ushuaia).
+048|048-antarctica.jpg|Antarctica|南極洲|A massive ice-covered continent at the South Pole.|The White Continent|1. Is the coldest continent.<br>2. Is the windiest and driest continent.
+050|050-united-arab-emirates.jpg|United Arab Emirates|阿拉伯聯合酋長國|A coastal country in the Middle East.|The Emirates|1. Has the tallest building in the world (Burj Khalifa).<br>2. Has the most luxurious police car fleet.
+057|057-iceland.jpg|Iceland|冰島|An island nation in the North Atlantic.|Land of Fire and Ice|1. Is the most peaceful country globally.<br>2. Has the most geysers in Europe.
+059|059-norway.jpg|Norway|挪威|A coastal country on the Scandinavian Peninsula.|Land of the Midnight Sun|1. Has the most fjords.<br>2. Has won the most Winter Olympic medals.
+069|069-egypt.jpg|Egypt|埃及|A transcontinental country in North Africa and Southwest Asia.|Gift of the Nile|1. Has the most ancient pyramids in the Arab world.<br>2. Has the most populous city in the Middle East.
+073|073-philippines.jpg|Philippines|菲律賓|An archipelago in Southeast Asia.|Pearl of the Orient Seas|1. Exports the most nurses globally.<br>2. Has the most diverse marine life in its coral reefs.
+081|081-india.jpg|India|印度|A large peninsula in South Asia.|The Subcontinent|1. Has the most vegetarians.<br>2. Has the most post offices in the world.
+089|089-russia.jpg|Russia|俄羅斯|A massive transcontinental country spanning Eastern Europe and Northern Asia.|The Motherland|1. Is the largest country by land area.<br>2. Has the most nuclear weapons.
+097|097-brazil.jpg|Brazil|巴西|A massive coastal country in South America.|Land of the Holy Cross|1. Has the most biodiverse rainforest.<br>2. Has the most uncontacted indigenous tribes.
+109|109-kenya.jpg|Kenya|肯雅|A coastal country in East Africa.|Pride of Africa|1. Has the most ancient human fossil discoveries.<br>2. Has won the most international marathons.
+113|113-thailand.jpg|Thailand|泰國|A coastal country in Southeast Asia.|Land of Smiles|1. Has the most visited city (Bangkok).<br>2. Has the most golden Buddha statues.
+114|114-vietnam.jpg|Vietnam|越南|A coastal country in Southeast Asia.|Land of the Blue Dragon|1. Is the largest exporter of cashew nuts.<br>2. Has the most extensive cave systems.
+120|120-indonesia.jpg|Indonesia|印尼|A vast archipelago in Southeast Asia.|The Emerald of the Equator|1. Is the largest archipelagic state in the world.<br>2. Has the most active volcanoes globally.
+121|121-greece.jpg|Greece|希臘|A peninsula country in Southeastern Europe.|Cradle of Western Civilization|1. Has the most archaeological museums.<br>2. Possesses the most extensive merchant navy.
+145|145-kazakhstan.jpg|Kazakhstan|哈薩克|A massive transcontinental country in Central Asia.|The Great Steppe|1. Is the largest landlocked country.<br>2. Has the most extensive space launch facility.
+153|153-italy.jpg|Italy|意大利|A boot-shaped peninsula in Southern Europe.|The Boot|1. Has the most UNESCO World Heritage sites.<br>2. Produces the most wine globally.
+154|154-vatican-city.jpg|Vatican City|梵蒂岡|A landlocked city-state within Rome.|The Holy See|1. Is the smallest fully independent nation.<br>2. Has the most concentrated Catholic population.
+159|159-switzerland.jpg|Switzerland|瑞士|A landlocked country in Central Europe.|Playground of Europe|1. Consumes the most chocolate per capita.<br>2. Had the strictest banking privacy laws historically.
+177|177-turkey.jpg|Turkey|土耳其|A transcontinental country bridging Europe and Asia.|The Anatolian Peninsula|1. Consumes the most tea per capita.<br>2. Has the oldest known temple structure (Göbekli Tepe).
+197|197-madagascar.jpg|Madagascar|馬達加斯加|A large island nation off the coast of East Africa.|The Red Island|1. Has the most unique endemic species.<br>2. Is the largest producer of vanilla.
+    `;
+
+    const countryData = rawData.trim().split('\n').map(line => {
+        const parts = line.split('|');
+        return {
+            id: parts[0], img: parts[1], en: parts[2], zh: parts[3],
+            geoEn: parts[4], nickEn: parts[5], mostEn: parts[6]
+        };
+    });
+
+    const distractorNames = [
+        {en: "Belgium", zh: "比利時"}, {en: "Ireland", zh: "愛爾蘭"},
+        {en: "Cuba", zh: "古巴"}, {en: "Bahamas", zh: "巴哈馬"}, {en: "Jamaica", zh: "牙買加"},
+        {en: "Haiti", zh: "海地"}, {en: "Dominican Republic", zh: "多明尼加"}, {en: "Lesotho", zh: "萊索托"},
+        {en: "Eswatini", zh: "斯威士蘭"}, {en: "Mozambique", zh: "莫桑比克"}, {en: "Zimbabwe", zh: "津巴布韋"},
+        {en: "Zambia", zh: "贊比亞"}, {en: "Botswana", zh: "博茨瓦納"}, {en: "Namibia", zh: "納米比亞"},
+        {en: "New Zealand", zh: "新西蘭"}, {en: "Tuvalu", zh: "圖瓦盧"}, {en: "Samoa", zh: "薩摩亞"},
+        {en: "Fiji", zh: "斐濟"}, {en: "Tonga", zh: "湯加"}, {en: "Vanuatu", zh: "瓦努阿圖"},
+        {en: "Solomon Islands", zh: "所羅門群島"}, {en: "Ecuador", zh: "厄瓜多爾"}, {en: "Bolivia", zh: "玻利維亞"},
+        {en: "Paraguay", zh: "巴拉圭"}, {en: "Chile", zh: "智利"}, {en: "Uruguay", zh: "烏拉圭"},
+        {en: "Jordan", zh: "約旦"}, {en: "Qatar", zh: "卡塔爾"}, {en: "Kuwait", zh: "科威特"},
+        {en: "Bahrain", zh: "巴林"}, {en: "Saudi Arabia", zh: "沙特阿拉伯"}, {en: "Yemen", zh: "也門"},
+        {en: "Oman", zh: "阿曼"}, {en: "Denmark", zh: "丹麥"}, {en: "Sweden", zh: "瑞典"},
+        {en: "Finland", zh: "芬蘭"}, {en: "Estonia", zh: "愛沙尼亞"}, {en: "Latvia", zh: "拉脫維亞"},
+        {en: "Lithuania", zh: "立陶宛"}, {en: "Morocco", zh: "摩洛哥"}, {en: "Tunisia", zh: "突尼斯"},
+        {en: "South Sudan", zh: "南蘇丹"}, {en: "Papua New Guinea", zh: "巴布亞新幾內亞"}, {en: "Palau", zh: "帛琉"},
+        {en: "Micronesia", zh: "密克羅尼西亞"}, {en: "Marshall Islands", zh: "馬紹爾群島"}, {en: "Kiribati", zh: "基里巴斯"},
+        {en: "Nauru", zh: "瑙魯"}, {en: "Pakistan", zh: "巴基斯坦"}, {en: "Sri Lanka", zh: "斯里蘭卡"},
+        {en: "Maldives", zh: "馬爾代夫"}, {en: "Bangladesh", zh: "孟加拉"}, {en: "Nepal", zh: "尼泊爾"},
+        {en: "Bhutan", zh: "不丹"}, {en: "Myanmar", zh: "緬甸"}, {en: "Ukraine", zh: "烏克蘭"},
+        {en: "Belarus", zh: "白俄羅斯"}, {en: "Poland", zh: "波蘭"}, {en: "Czech Republic", zh: "捷克"},
+        {en: "Slovenia", zh: "斯洛文尼亞"}, {en: "Slovakia", zh: "斯洛伐克"}, {en: "Hungary", zh: "匈牙利"},
+        {en: "Colombia", zh: "哥倫比亞"}, {en: "Venezuela", zh: "委內瑞拉"}, {en: "Suriname", zh: "蘇里南"},
+        {en: "Guyana", zh: "圭亞那"}, {en: "Grenada", zh: "格林納達"}, {en: "Trinidad and Tobago", zh: "千里達"},
+        {en: "Barbados", zh: "巴巴多斯"}, {en: "Ethiopia", zh: "埃塞俄比亞"}, {en: "Uganda", zh: "烏干達"},
+        {en: "Rwanda", zh: "盧旺達"}, {en: "Burundi", zh: "布隆迪"}, {en: "Laos", zh: "老撾"},
+        {en: "Cambodia", zh: "柬埔寨"}, {en: "Malaysia", zh: "馬來西亞"}, {en: "Singapore", zh: "新加坡"},
+        {en: "Brunei", zh: "汶萊"}, {en: "Albania", zh: "阿爾巴尼亞"}, {en: "Montenegro", zh: "黑山"},
+        {en: "Serbia", zh: "塞爾維亞"}, {en: "Romania", zh: "羅馬尼亞"}, {en: "Bulgaria", zh: "保加利亞"},
+        {en: "North Macedonia", zh: "北馬其頓"}, {en: "Bosnia and Herzegovina", zh: "波斯尼亞"}, {en: "Belize", zh: "伯利茲"},
+        {en: "Guatemala", zh: "危地馬拉"}, {en: "El Salvador", zh: "薩爾瓦多"}, {en: "Honduras", zh: "洪都拉斯"},
+        {en: "Nicaragua", zh: "尼加拉瓜"}, {en: "Costa Rica", zh: "哥斯達黎加"}, {en: "Panama", zh: "巴拿馬"},
+        {en: "Democratic Republic of Congo", zh: "剛果民主共和國"}, {en: "Kyrgyzstan", zh: "吉爾吉斯"}, {en: "Tajikistan", zh: "塔吉克"},
+        {en: "Uzbekistan", zh: "烏茲別克"}, {en: "Turkmenistan", zh: "土庫曼"}, {en: "Azerbaijan", zh: "阿塞拜疆"},
+        {en: "Georgia", zh: "格魯吉亞"}, {en: "Armenia", zh: "亞美尼亞"}, {en: "San Marino", zh: "聖馬力諾"},
+        {en: "Malta", zh: "馬耳他"}, {en: "Cyprus", zh: "塞浦路斯"}, {en: "Austria", zh: "奧地利"},
+        {en: "Croatia", zh: "克羅地亞"}, {en: "Saint Vincent and Grenadines", zh: "聖文森特和格林納丁斯"}, {en: "Saint Lucia", zh: "聖盧西亞"},
+        {en: "Antigua and Barbuda", zh: "安提瓜和巴布達"}, {en: "Dominica", zh: "多米尼克"}, {en: "Saint Kitts and Nevis", zh: "聖基茨和尼維斯"},
+        {en: "Andorra", zh: "安道爾"}, {en: "Moldova", zh: "摩爾多瓦"}, {en: "Monaco", zh: "摩納哥"},
+        {en: "Liechtenstein", zh: "列支敦士登"}, {en: "Luxembourg", zh: "盧森堡"}, {en: "Kosovo", zh: "科索沃"},
+        {en: "Timor-Leste", zh: "東帝汶"}, {en: "Seychelles", zh: "塞舌爾"}, {en: "Tanzania", zh: "坦桑尼亞"},
+        {en: "Malawi", zh: "馬拉維"}, {en: "Comoros", zh: "科摩羅"}, {en: "Mauritius", zh: "毛里求斯"},
+        {en: "Afghanistan", zh: "阿富汗"}, {en: "Iran", zh: "伊朗"}, {en: "Iraq", zh: "伊拉克"},
+        {en: "Syria", zh: "敘利亞"}, {en: "Lebanon", zh: "黎巴嫩"}, {en: "Israel", zh: "以色列"},
+        {en: "Palestine", zh: "巴勒斯坦"}, {en: "Faroe Islands", zh: "法羅群島"}
     ];
 
-    const allCountryNames = [
-        {en: "Hong Kong", zh: "香港"}, {en: "Taiwan", zh: "台灣"}, {en: "South Korea", zh: "南韓"}, 
-        {en: "North Korea", zh: "北韓"}, {en: "Mongolia", zh: "蒙古"}, {en: "Macau", zh: "澳門"}, 
-        {en: "Spain", zh: "西班牙"}, {en: "Portugal", zh: "葡萄牙"}, {en: "Netherlands", zh: "荷蘭"}, 
-        {en: "Belgium", zh: "比利時"}, {en: "Germany", zh: "德國"}, {en: "Ireland", zh: "愛爾蘭"}, 
-        {en: "Canada", zh: "加拿大"}, {en: "Mexico", zh: "墨西哥"}, {en: "Cuba", zh: "古巴"},
-        {en: "South Africa", zh: "南非"}, {en: "New Zealand", zh: "新西蘭"}, {en: "Fiji", zh: "斐濟"},
-        {en: "Argentina", zh: "阿根廷"}, {en: "United Arab Emirates", zh: "阿拉伯聯合酋長國"},
-        {en: "Iceland", zh: "冰島"}, {en: "Norway", zh: "挪威"}, {en: "Morocco", zh: "摩洛哥"}
-    ];
+    const allCountryNames = [...distractorNames, ...countryData.map(c => ({en: c.en, zh: c.zh}))];
 
     let currentQuestion = null;
     let questionsPool = [...countryData];
 
     function startQuiz() {
         initAudio();
+        playSound('start');
+        startBackgroundMusic();
+        
         document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('quiz-screen').style.display = 'flex';
         loadNextQuestion();
     }
 
@@ -252,7 +475,7 @@
     }
 
     function loadNextQuestion() {
-        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('next-btn-container').style.display = 'none';
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = '';
 
@@ -264,20 +487,20 @@
 
         document.getElementById('flag-img').src = currentQuestion.img;
         document.getElementById('flag-img').onerror = function() {
-            this.src = 'https://via.placeholder.com/400x250?text=Image+Missing+(' + currentQuestion.img + ')';
+            this.src = 'https://via.placeholder.com/640x360?text=Image+Missing+(' + currentQuestion.img + ')';
         };
 
-        document.getElementById('fact-title').innerHTML = `Hints / 提示`;
-        document.getElementById('fact-geo').innerHTML = `<strong>Location / 地理:</strong> ${currentQuestion.geoEn}<br><em>${currentQuestion.geoZh}</em>`;
-        document.getElementById('fact-nickname').innerHTML = `<strong>Nickname / 綽號:</strong> ${currentQuestion.nickEn}<br><em>${currentQuestion.nickZh}</em>`;
-        document.getElementById('fact-most').innerHTML = `<strong>"The Most" / 「最」之冷知識:</strong> ${currentQuestion.mostEn}<br><em>${currentQuestion.mostZh}</em>`;
+        document.getElementById('fact-title').innerHTML = `Hints`;
+        document.getElementById('fact-geo').innerHTML = `<strong>Location:</strong><br>${currentQuestion.geoEn}`;
+        document.getElementById('fact-nickname').innerHTML = `<strong>Nickname:</strong><br>${currentQuestion.nickEn}`;
+        document.getElementById('fact-most').innerHTML = `<strong>"The Most":</strong><br>${currentQuestion.mostEn}`;
         
-        document.getElementById('fact-box').style.borderLeftColor = '#f1c40f';
+        document.getElementById('fact-box').style.borderLeftColor = 'var(--hint)';
         document.getElementById('fact-box').style.display = 'block';
 
         let options = [{ en: currentQuestion.en, zh: currentQuestion.zh, isCorrect: true }];
         
-        let shuffledDistractors = shuffleArray([...allCountryNames, ...countryData.filter(c => c.id !== currentQuestion.id)]);
+        let shuffledDistractors = shuffleArray([...allCountryNames.filter(c => c.en !== currentQuestion.en)]);
         for (let i = 0; i < 3; i++) {
             options.push({ en: shuffledDistractors[i].en, zh: shuffledDistractors[i].zh, isCorrect: false });
         }
@@ -287,7 +510,6 @@
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn';
-            btn.style.marginBottom = "0"; 
             btn.innerHTML = `${opt.en}<br>${opt.zh}`;
             btn.onclick = () => checkAnswer(btn, opt.isCorrect);
             optionsContainer.appendChild(btn);
@@ -296,6 +518,8 @@
 
     function checkAnswer(clickedBtn, isCorrect) {
         playSound(isCorrect ? 'correct' : 'wrong');
+        
+        speakAnswer(currentQuestion.en, currentQuestion.zh);
 
         const buttons = document.getElementById('options-container').querySelectorAll('.btn');
         
@@ -311,11 +535,11 @@
         }
 
         const resultPrefix = isCorrect ? 'Correct: ' : 'Incorrect: ';
-        document.getElementById('fact-title').innerHTML = `${resultPrefix} ${currentQuestion.en} / ${currentQuestion.zh}`;
+        document.getElementById('fact-title').innerHTML = `${resultPrefix} ${currentQuestion.en}`;
         
-        document.getElementById('fact-box').style.borderLeftColor = isCorrect ? '#2ecc71' : '#e74c3c';
+        document.getElementById('fact-box').style.borderLeftColor = isCorrect ? 'var(--success)' : 'var(--danger)';
 
-        document.getElementById('next-btn').style.display = 'block';
+        document.getElementById('next-btn-container').style.display = 'block';
     }
 </script>
 

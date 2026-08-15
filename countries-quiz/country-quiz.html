@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Global Quiz</title>
+    <title>Global Quiz - Level Progression</title>
     <style>
         :root {
             --success: #27ae60;
@@ -52,6 +52,7 @@
             align-items: center;
             justify-content: center;
         }
+
         #start-screen h1 {
             font-size: 2.8rem;
             margin-bottom: 15px;
@@ -98,9 +99,19 @@
             align-items: center;
             width: 100%;
             margin-bottom: 15px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #34495e;
+        }
+
+        .level-badge {
+            background: #e67e22;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         h2#question-text {
@@ -133,7 +144,7 @@
             background-color: #34495e; 
             color: #ffffff; 
             border: 1px solid #2c3e50;
-            padding: 15px 20px;
+            padding: 15px 15px;
             font-size: 1.1rem;
             font-weight: 500;
             border-radius: 8px;
@@ -142,6 +153,18 @@
             width: 100%;
             box-sizing: border-box;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn .en-text {
+            font-weight: bold;
+        }
+        .btn .zh-text {
+            font-size: 0.9em;
+            font-weight: normal;
         }
         .btn:hover:not(:disabled) {
             background-color: #2c3e50;
@@ -166,7 +189,7 @@
             border-color: var(--danger) !important;
         }
         
-        #quiz-screen {
+        #quiz-screen, #result-screen {
             display: none;
             width: 100%;
             flex-direction: column;
@@ -180,7 +203,7 @@
             margin: 20px 0;
             text-align: left;
             border-radius: 0 8px 8px 0;
-            display: none; 
+            display: block; 
             font-size: 1rem;
             line-height: 1.6;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -220,49 +243,16 @@
         }
 
         @media (max-width: 600px) {
-            body {
-                padding: 10px 0;
-                align-items: center; 
-            }
-            .container {
-                width: 95%;
-                padding: 25px 15px;
-                min-height: 85vh; 
-                justify-content: center;
-                align-items: center;
-            }
-            #start-screen h1 {
-                font-size: 2.2rem;
-            }
-            #start-screen h2 {
-                font-size: 1.1rem;
-            }
-            h2#question-text {
-                font-size: 1.3rem;
-                margin-bottom: 15px;
-            }
-            .flag-container {
-                aspect-ratio: 1 / 1; 
-                margin-bottom: 15px;
-            }
-            .options-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-                margin-bottom: 15px;
-            }
-            .btn {
-                padding: 12px 15px;
-                font-size: 1rem;
-            }
-            .fact-box {
-                font-size: 0.9rem;
-                padding: 12px;
-                margin: 10px 0;
-            }
-            .primary-action-btn {
-                padding: 12px 30px;
-                font-size: 1.1rem;
-            }
+            body { padding: 10px 0; align-items: center; }
+            .container { width: 95%; padding: 25px 15px; min-height: 85vh; justify-content: center; align-items: center; }
+            #start-screen h1, #result-screen h1 { font-size: 2.2rem; }
+            #start-screen h2, #result-screen h2 { font-size: 1.1rem; }
+            h2#question-text { font-size: 1.3rem; margin-bottom: 15px; }
+            .flag-container { aspect-ratio: 1 / 1; margin-bottom: 15px; }
+            .options-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+            .btn { padding: 10px 10px; font-size: 1rem; }
+            .fact-box { font-size: 0.9rem; padding: 12px; margin: 10px 0; }
+            .primary-action-btn { padding: 12px 30px; font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -272,111 +262,62 @@
 
 <div class="container">
     <div id="start-screen">
-        <h1>Global Country And Territory Quiz</h1>
+        <h1>Global Quiz</h1>
         <h2>Test your geography knowledge</h2>
-        <button class="primary-action-btn" onclick="startQuiz()">Start Quiz</button>
+        <button class="primary-action-btn" onclick="startQuiz()">Start Game</button>
     </div>
 
     <div id="quiz-screen">
         <div class="quiz-header">
+            <span class="level-badge" id="level-display">Level 1</span>
             <span id="score-display">Score: 0</span>
-            <span id="question-count">Question: 1</span>
+            <span id="question-count">Q: 1/10</span>
         </div>
         
         <div class="flag-container">
-            <img id="flag-img" src="" alt="Country Flag">
+            <img id="flag-img" src="" alt="Country Flag" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%\' height=\'100%\' fill=\'%23eee\'><rect width=\'100%\' height=\'100%\'/><text x=\'50%\' y=\'50%\' fill=\'%23999\' font-family=\'sans-serif\' font-size=\'20\' text-anchor=\'middle\'>Image Not Found</text></svg>'">
         </div>
 
         <div class="fact-box" id="fact-box">
-            <h3 id="fact-title">Hints</h3>
+            <h3 id="fact-title">Country Profile</h3>
             <div class="fact-item" id="fact-geo"></div>
             <div class="fact-item" id="fact-nickname"></div>
             <div class="fact-item" id="fact-most"></div>
         </div>
         
-        <div id="options-container" class="options-grid">
-        </div>
+        <div id="options-container" class="options-grid"></div>
 
         <div id="next-btn-container">
             <button class="primary-action-btn" id="next-btn" onclick="loadNextQuestion()">Next Question</button>
         </div>
+    </div>
+
+    <div id="result-screen">
+        <h1 id="result-title">Level Complete!</h1>
+        <h2 id="final-score-text">You scored X out of Y</h2>
+        <button class="primary-action-btn" id="result-action-btn" style="margin-bottom: 15px;"></button>
     </div>
 </div>
 
 <script>
     let audioCtx;
     let score = 0;
-    let questionCount = 0;
-
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
-
-    function startBackgroundMusic() {
-        const bgMusic = document.getElementById('bg-music');
-        bgMusic.volume = 0.2; 
-        bgMusic.play().catch(error => {
-            console.log("Autoplay prevented by browser:", error);
-        });
-    }
-
-    function playSound(type) {
-        if (!audioCtx) return;
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        if (type === 'start') {
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.4);
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + 0.4);
-        } else if (type === 'correct') {
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
-            oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1); 
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.3);
-        } else if (type === 'wrong') {
-            oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.3);
-        }
-    }
-
-    function speakAnswer(enText, zhText) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); 
-            
-            const utteranceEn = new SpeechSynthesisUtterance(enText);
-            utteranceEn.lang = 'en-US';
-            utteranceEn.rate = 1.0;
-            
-            const utteranceZh = new SpeechSynthesisUtterance(zhText);
-            utteranceZh.lang = 'zh-HK'; 
-            utteranceZh.rate = 1.0;
-
-            window.speechSynthesis.speak(utteranceEn);
-            window.speechSynthesis.speak(utteranceZh);
-        }
-    }
+    let currentQuestionIndex = 0;
+    let currentLevelQuestions = [];
+    
+    let currentLevel = 1;
+    const maxLevel = 8;
+    
+    const levelMapping = {
+        "United States": 1, "Canada": 1, "Russia": 1, "China": 1, "France": 1, "Mexico": 1, "United Kingdom": 1, "Brazil": 1, "Australia": 1, "Italy": 1, "Germany": 1, "India": 1, "Japan": 1, "Spain": 1,
+        "Argentina": 2, "Iceland": 2, "Egypt": 2, "Ireland": 2, "Portugal": 2, "Sweden": 2, "Chile": 2, "South Africa": 2, "South Korea": 2, "North Korea": 2, "Norway": 2, "Finland": 2, "Turkey": 2, "Greece": 2, "Poland": 2, "Denmark": 2, "Iran": 2, "Taiwan": 2, "Hong Kong": 2, "Antarctica": 2,
+        "New Zealand": 3, "Iraq": 3, "Ukraine": 3, "Madagascar": 3, "Switzerland": 3, "Cuba": 3, "Netherlands": 3, "Pakistan": 3, "Peru": 3, "Mongolia": 3, "Niger": 3, "Austria": 3, "Belgium": 3, "Colombia": 3, "Indonesia": 3, "Saudi Arabia": 3, "Morocco": 3, "Thailand": 3, "Macau": 3,
+        "Afghanistan": 4, "Vietnam": 4, "Israel": 4, "Kazakhstan": 4, "Democratic Republic of the Congo": 4, "Uruguay": 4, "Nigeria": 4, "Panama": 4, "Romania": 4, "Venezuela": 4, "Bolivia": 4, "Hungary": 4, "Philippines": 4, "Algeria": 4, "Croatia": 4, "Congo (Brazzaville)": 4, "Sudan": 4, "Paraguay": 4, "Czechia": 4, "Nepal": 4, "Estonia": 4, "Slovakia": 4, "United Arab Emirates": 4, "Yemen": 4,
+        "Latvia": 5, "Albania": 5, "Belarus": 5, "Jamaica": 5, "Libya": 5, "Lithuania": 5, "Oman": 5, "Somalia": 5, "Syria": 5, "Chad": 5, "Ecuador": 5, "Haiti": 5, "Bulgaria": 5, "Ethiopia": 5, "Kenya": 5, "Malaysia": 5, "Papua New Guinea": 5, "Sri Lanka": 5, "Dominica": 5, "Serbia": 5, "Jordan": 5, "Laos": 5, "Luxembourg": 5, "Slovenia": 5, "Bangladesh": 5, "Bosnia and Herzegovina": 5, "Cambodia": 5, "Uzbekistan": 5, "Tunisia": 5, "Costa Rica": 5, "Georgia": 5, "Zimbabwe": 5, "Cyprus": 5, "Dominican Republic": 5, "Honduras": 5, "Holy See (Vatican City)": 5,
+        "Qatar": 6, "South Sudan": 6, "Ghana": 6, "Guatemala": 6, "Myanmar": 6, "North Macedonia": 6, "Mali": 6, "Turkmenistan": 6, "Armenia": 6, "Bahamas": 6, "Angola": 6, "Lebanon": 6, "Andorra": 6, "Malta": 6, "Moldova": 6, "Singapore": 6, "Azerbaijan": 6, "El Salvador": 6, "Nicaragua": 6, "Belize": 6, "Fiji": 6, "Guinea": 6, "Palestine": 6, "Monaco": 6, "Montenegro": 6, "Zambia": 6, "Bhutan": 6, "Guyana": 6, "Ivory Coast": 6, "Tanzania": 6, "Uganda": 6, "Central African Republic": 6,
+        "Botswana": 7, "Kuwait": 7, "Liechtenstein": 7, "Suriname": 7, "Namibia": 7, "Senegal": 7, "Cameroon": 7, "Kyrgyzstan": 7, "Mozambique": 7, "Tajikistan": 7, "Liberia": 7, "Rwanda": 7, "Togo": 7, "Lesotho": 7, "Maldives": 7, "San Marino": 7, "Eritrea": 7, "Barbados": 7, "Trinidad and Tobago": 7, "Bahrain": 7, "Eswatini": 7, "Mauritania": 7, "Benin": 7,
+        "Djibouti": 8, "Gambia": 8, "Malawi": 8, "Mauritius": 8, "Gabon": 8, "Seychelles": 8, "Sierra Leone": 8, "Brunei": 8, "Burkina Faso": 8, "Cabo Verde": 8, "Equatorial Guinea": 8, "Micronesia": 8, "Saint Lucia": 8, "Samoa": 8, "Tonga": 8, "Burundi": 8, "Timor-Leste": 8, "Solomon Islands": 8, "Antigua and Barbuda": 8, "Guinea-Bissau": 8, "Saint Kitts and Nevis": 8, "Marshall Islands": 8, "Tuvalu": 8, "Vanuatu": 8, "Grenada": 8, "Kiribati": 8, "Palau": 8, "Comoros": 8, "Saint Vincent and the Grenadines": 8, "Sao Tome and Principe": 8, "Nauru": 8, "Kosovo": 8, "Faroe Islands": 8
+    };
 
     const rawData = `
 001|001-hong-kong.jpg|Hong Kong|香港|A coastal territory and archipelago in East Asia.|Pearl of the Orient|1. Has the most skyscrapers in the world.<br>2. Has the most expensive housing market.
@@ -446,7 +387,7 @@
 065|065-morocco.jpg|Morocco|摩洛哥|A country in the Maghreb region of North Africa, overlooking the Mediterranean Sea and Atlantic Ocean.|Land of the Sunset|1. Home to the world's oldest continuously operating university (University of al-Qarawiyyin).<br>2. Famous for its vibrant historical medinas and Atlas Mountains.
 067|067-tunisia.jpg|Tunisia|突尼斯|A country in the Maghreb region of North Africa, bordered by Algeria and Libya.|The Balcony of the Mediterranean|1. Location of the ancient and historic ruins of Carthage.<br>2. The northernmost country in Africa.
 069|069-egypt.jpg|Egypt|埃及|A transcontinental country in North Africa and Southwest Asia.|Gift of the Nile|1. Has the most ancient pyramids in the Arab world.<br>2. Has the most populous city in the Middle East.
-071|071-south-south-sudan.jpg|South Sudan|南蘇丹|A landlocked country in East-Central Africa.|The Nilotic Republic|1. The world's newest sovereign state, gaining independence in 2011.<br>2. Home to one of the largest wildlife migrations on the African continent.
+071|071-south-sudan.jpg|South Sudan|南蘇丹|A landlocked country in East-Central Africa.|The Nilotic Republic|1. The world's newest sovereign state, gaining independence in 2011.<br>2. Home to one of the largest wildlife migrations on the African continent.
 073|073-philippines.jpg|Philippines|菲律賓|An archipelago in Southeast Asia.|Pearl of the Orient Seas|1. Exports the most nurses globally.<br>2. Has the most diverse marine life in its coral reefs.
 074|074-papua-new-guinea.jpg|Papua New Guinea|巴布亞新幾內亞|A country in Oceania that occupies the eastern half of the island of New Guinea.|The Land of the Unexpected|1. One of the most culturally diverse countries in the world with over 800 indigenous languages.<br>2. Features rugged, remote terrain and dense rainforests.
 075|075-palau.jpg|Palau|帛琉|An island country consisting of about 340 coral and volcanic islands in Micronesia.|The Rainbow's End|1. Created the world's first shark sanctuary in its territorial waters.<br>2. Famous for the Jellyfish Lake where swimmers can safely swim with millions of harmless jellyfish.
@@ -460,268 +401,313 @@
 084|084-maldives.jpg|Maldives|馬爾代夫|An archipelago country in the Indian Ocean comprising 26 coral atolls.|The Sunny Side of Life|1. The lowest-lying country in the world.<br>2. Famous for its overwater luxury resorts and crystal-clear waters.
 085|085-bangladesh.jpg|Bangladesh|孟加拉國|A country in South Asia, bordered by India and Myanmar, and sharing a coastline on the Bay of Bengal.|Land of Rivers|1. Home to the Sundarbans, the largest mangrove forest in the world.<br>2. One of the most densely populated countries globally.
 086|086-nepal.jpg|Nepal|尼泊爾|A landlocked country in South Asia along the Himalayas.|Himalayan Kingdom|1. Home to Mount Everest, the highest peak on Earth.<br>2. The birthplace of Siddhartha Gautama (Buddha).
-087|087-bhutan.jpg|Bhutan|不丹|A landlocked country in South Asia situated in the eastern Himalayas.|Land of the Thunder Dragon|1. Measures national progress by Gross National Happiness (GNH) instead of GDP.<br>2. The world's only carbon-negative country.
+087|087-bhutan.jpg|Bhutan|不丹|A landlocked country in South Asia situated in the eastern Himalayas.|Land of the Thunder Dragon|1. Measures national progress by Gross National Happiness.<br>2. The world's only carbon-negative country.
 088|088-myanmar.jpg|Myanmar|緬甸|A country in Southeast Asia bordered by Bangladesh, India, China, Laos, and Thailand.|Golden Land|1. Home to the ancient archaeological zone of Bagan with thousands of Buddhist temples.<br>2. Renowned for its high-quality rubies and jade.
 089|089-russia.jpg|Russia|俄羅斯|A transcontinental country spanning Eastern Europe and Northern Asia.|The Land of the Tsars|1. The largest country in the world by land area.<br>2. Home to Lake Baikal, the deepest and oldest freshwater lake in the world.
 090|090-ukraine.jpg|Ukraine|烏克蘭|A country in Eastern Europe, bordered by Russia, Belarus, Poland, Slovakia, Hungary, Romania, and Moldova.|The Breadbasket of Europe|1. Home to vast expanses of fertile black soil (chernozem).<br>2. Features a rich history of intricate pysanky (traditional Ukrainian Easter eggs).
 091|091-belarus.jpg|Belarus|白俄羅斯|A landlocked country in Eastern Europe, bordered by Russia, Ukraine, Poland, Lithuania, and Latvia.|The Lungs of Europe|1. Home to the Belovezhskaya Pushcha, one of Europe's last primeval forests.<br>2. Known as the country of thousands of blue lakes.
-092|092-poland.jpg|Poland|波蘭|A country in Central Europe, bordered by Germany, the Czech Republic, Slovakia, Ukraine, Belarus, Lithuania, and Russia.|The Heart of Europe|1. Home to the historic Wieliczka Salt Mine with its underground chapels and statues.<br>2. Produced notable global figures like Copernicus and Marie Curie.
-093|093-czech-republic.jpg|Czech Republic|捷克共和國|A landlocked country in Central Europe, historically known as Bohemia.|The Land of Castles|1. Has the highest beer consumption per capita in the world.<br>2. Home to Prague Castle, one of the largest ancient castle complexes globally.
-094|094-slovenia.jpg|Slovenia|斯洛文尼亞|A country in Central Europe, touching the Alps and the Adriatic Sea.|The Green Heart of Europe|1. One of the most water-rich and heavily forested countries in Europe.<br>2. Home to Lake Bled with its iconic island church.
-095|095-slovakia.jpg|Slovakia|斯洛伐克|A landlocked country in Central Europe known for its dramatic natural landscape and castles.|The Heart of Europe|1. Has one of the highest concentrations of castles and chateaux in the world.<br>2. Home to the spectacular Ice Caves protected as UNESCO sites.
-096|096-hungary.jpg|Hungary|匈牙利|A landlocked country in Central Europe, centered on the Carpathian Basin.|The Land of Thermal Waters|1. Capital city Budapest is renowned for its thermal baths and Parliament building.<br>2. Invented the Rubik's Cube.
-097|097-brazil.jpg|Brazil|巴西|The largest country in both South America and Latin America.|Land of the Cross|1. Home to the Amazon Rainforest, producing a vast portion of the world's oxygen.<br>2. Famous for hosting the world-renowned Rio Carnival and possessing the Christ the Redeemer statue.
-098|098-colombia.jpg|Colombia|哥倫比亞|A country in the northwest of South America, featuring a coastline on both the Caribbean Sea and Pacific Ocean.|Gateway to South America|1. The world's leading producer of fine arabica coffee.<br>2. Renowned for mining some of the world's finest emeralds.
-099|099-venezuela.jpg|Venezuela|委內瑞拉|A country on the northern coast of South America consisting of a continental mainland and many islands.|Land of Grace|1. Home to Angel Falls, the world's highest uninterrupted waterfall.<br>2. Possesses some of the largest proven oil reserves in the world.
-100|100-suriname.jpg|Suriname|蘇里南|A small country on the northeastern coast of South America.|The Green Jewel|1. One of the most forested countries on Earth, with over ninety percent forest cover.<br>2. A deeply multicultural nation with a unique blend of indigenous, African, Asian, and European influences.
-101|101-guyana.jpg|Guyana|圭亞那|A country on the northern mainland of South America, culturally tied to the Anglophone Caribbean.|Land of Many Waters|1. Home to Kaieteur Falls, one of the world's largest single-drop waterfalls by volume.<br>2. Over eighty percent of its total land area is covered by pristine tropical rainforests.
-102|102-grenada.jpg|Grenada|格林納達|A sovereign state in the West Indies in the Caribbean Sea consisting of a main island and smaller surrounding islands.|The Isle of Spice|1. One of the world's top producers of nutmeg and mace.<br>2. Home to the world's first underwater sculpture park.
-103|103-trinidad-and-tobago.jpg|Trinidad and Tobago|特立尼達和多巴哥|A twin-island country situated off the northeastern coast of South America.|The Land of the Hummingbird|1. The birthplace of the steelpan, the only acoustic musical instrument invented in the 20th century.<br>2. Home to Pitch Lake, the largest natural deposit of asphalt in the world.
-104|104-barbados.jpg|Barbados|巴巴多斯|An island country in the Lesser Antilles of the West Indies in the Caribbean region.|Land of the Flying Fish|1. The birthplace of rum, with commercial production dating back to the 1700s.<br>2. Known for its pristine white-sand beaches and crystal-clear turquoise waters.
-105|105-ethiopia.jpg|Ethiopia|埃塞俄比亞|A landlocked country in the Horn of Africa.|The Cradle of Humankind|1. One of the oldest nations in the world and one of the few African countries to avoid colonization.<br>2. Widely recognized as the historical birthplace of coffee arabica.
-109|109-kenya.jpg|Kenya|肯尼亞|A country in East Africa with a coastline on the Indian Ocean.|Magical Kenya|1. Home to the Great Rift Valley and the incredible annual Wildebeest Migration.<br>2. Renowned for producing some of the world's best long-distance runners.
-110|110-uganda.jpg|Uganda|烏干達|A landlocked country in East-Central Africa known as the "Pearl of Africa".|The Pearl of Africa|1. Home to more than half of the world's remaining mountain gorilla population.<br>2. Features the source of the White Nile river at Jinja.
-111|111-rwanda.jpg|Rwanda|盧旺達|A landlocked country in the Great Rift Valley of East-Central Africa.|Land of a Thousand Hills|1. One of the cleanest nations in the world, having banned plastic bags nationwide since 2008.<br>2. A premier global destination for eco-friendly mountain gorilla tracking.
-112|112-burundi.jpg|Burundi|布隆迪|A landlocked country in the African Great Lakes region of East-Central Africa.|Heart of Africa|1. One of the world's top producers and exporters of high-quality coffee.<br>2. Home to the impressive Ruvubu National Park along the Ruvubu River.
-113|113-thailand.jpg|Thailand|泰國|A country in Southeast Asia known for tropical beaches, royal palaces, and ancient ruins.|Land of Smiles|1. The only Southeast Asian nation to avoid European colonization.<br>2. Home to thousands of ornate Buddhist temples, such as Wat Phra Kaew.
-114|114-vietnam.jpg|Vietnam|越南|A country in Southeast Asia on the South China Sea, known for beaches, rivers, and Buddhist pagodas.|The Land of the Blue Dragon|1. One of the world's leading exporters of coffee and rice.<br>2. Home to Ha Long Bay, featuring thousands of towering limestone karsts.
-115|115-laos.jpg|Laos|老撾|A landlocked country in Southeast Asia, traversed by the Mekong River.|Land of a Million Elephants|1. The most heavily bombed country in history per capita during the Vietnam War era.<br>2. Features the UNESCO-listed town of Luang Prabang with preserved French colonial architecture and Buddhist monasteries.
-116|116-cambodia.jpg|Cambodia|柬埔寨|A country in Southeast Asia bordered by Thailand, Laos, Vietnam, and the Gulf of Thailand.|Kingdom of Wonder|1. Home to Angkor Wat, the largest religious monument in the world.<br>2. Features the massive Tonle Sap Lake, which reverses its flow seasonally.
-117|117-malaysia.jpg|Malaysia|馬來西亞|A Southeast Asian country occupying parts of the Malay Peninsula and the island of Borneo.|Malaysia Truly Asia|1. Home to the Petronas Twin Towers, once the tallest buildings in the world.<br>2. Features one of the oldest tropical rainforests in the world, Taman Negara.
-118|118-singapore.jpg|Singapore|新加坡|A sovereign island city-state in maritime Southeast Asia.|The Lion City|1. One of the world's leading global financial centers with ultra-modern architecture and strict laws.<br>2. Home to Gardens by the Bay, featuring futuristic Supertrees and the world's largest glass greenhouse.
-119|119-brunei.jpg|Brunei|文萊|A tiny sovereign state located on the north coast of the island of Borneo in Southeast Asia.|Abode of Peace|1. One of the wealthiest nations per capita due to extensive petroleum and natural gas fields.<br>2. Ruled by one of the world's last absolute monarchs, the Sultan of Brunei.
-120|120-indonesia.jpg|Indonesia|印尼|An archipelagic country in Southeast Asia and Oceania, consisting of over 17,000 islands.|Emerald of the Equator|1. The world's largest island country and archipelago.<br>2. Home to Komodo dragons, the largest living species of lizard.
-121|121-greece.jpg|Greece|希臘|A country in southeastern Europe, known as the birthplace of Western civilization.|The Cradle of Western Civilization|1. Considered the birthplace of the ancient Olympic Games and democracy.<br>2. Comprises thousands of islands across the Aegean and Ionian Seas.
-122|122-albania.jpg|Albania|阿爾巴尼亞|A country in Southeastern Europe on the Adriatic and Ionian Seas within the Mediterranean Basin.|Land of the Eagles|1. Characterized by thousands of Cold War-era concrete military bunkers built across the landscape.<br>2. Home to the breathtaking Albanian Riviera with pristine turquoise waters.
-123|123-montenegro.jpg|Montenegro|黑山|A rugged mountainous country in Southeast Europe on the Adriatic coast.|Wild Beauty|1. Home to the Tara River Canyon, one of the deepest river canyons in Europe.<br>2. Features the stunning Bay of Kotor, often called Europe's southernmost fjord.
-124|124-serbia.jpg|Serbia|塞爾維亞|A landlocked country situated at the crossroads of Central and Southeast Europe in the Balkans.|Land of the White City|1. One of the world's largest exporters of raspberries.<br>2. Home to the ancient Petrovaradin Fortress overlooking the Danube River.
-125|125-romania.jpg|Romania|羅馬尼亞|A country located at the intersection of Central, Eastern, and Southeastern Europe.|The Land of Transylvania|1. Home to Bran Castle, famously linked to the legend of Dracula.<br>2. Features the magnificent and bio-diverse Danube Delta.
-126|126-bulgaria.jpg|Bulgaria|保加利亞|A country in southeastern Europe, bounded by the Black Sea to the east.|Land of Roses|1. One of the world's top producers of rose oil, vital for the global perfume industry.<br>2. Home to the ancient Thracian tomb monuments recognized globally.
-127|127-north-macedonia.jpg|North Macedonia|北馬其頓|A landlocked country in the Balkan Peninsula of Southeast Europe.|Land of Legends|1. Home to Lake Ohrid, one of the oldest and deepest lakes in Europe.<br>2. Features the historic stone-carved city of Skopje.
-128|128-bosnia-and-herzegovina.jpg|Bosnia and Herzegovina|波斯尼亞和黑塞哥維那|A country in the Balkan Peninsula of southeastern Europe.|The Heart of Southeast Europe|1. Home to the iconic Stari Most (Old Bridge) in Mostar, a masterpiece of Ottoman architecture.<br>2. Features the dramatic Kravice Waterfalls and extensive Dinaric Alps.
-129|129-belize.jpg|Belize|伯利茲|A country on the eastern coast of Central America, bounded by the Caribbean Sea and Mexico.|Jewel of the Caribbean|1. Home to the famous Great Blue Hole, a massive underwater sinkhole ideal for diving.<br>2. Features the second-largest barrier reef system in the world.
-130|130-guatemala.jpg|Guatemala|危地馬拉|A country in Central America bordered by Mexico, the Pacific Ocean, Belize, and Honduras.|Heart of the Mayan World|1. Considered the historic heartland of the ancient Maya civilization.<br>2. Home to Tikal, one of the largest archaeological sites and urban centers of the pre-Columbian Maya.
-131|131-el-salvador.jpg|El Salvador|薩爾瓦多|The smallest and most densely populated country in Central America.|Land of Volcanoes|1. The first country in the world to adopt Bitcoin as legal tender.<br>2. Renowned for world-class surf breaks along its Pacific coastline.
-132|132-honduras.jpg|Honduras|洪都拉斯|A country in Central America bordered by the Caribbean Sea and the Pacific Ocean.|Heart of Central America|1. Home to the ancient Mayan ruins of Copán with intricate hieroglyphic stairways.<br>2. Famous for the Mesoamerican Barrier Reef system off its Caribbean coast.
-133|133-nicaragua.jpg|Nicaragua|尼加拉瓜|The largest country in the Central American isthmus, bordered by Honduras and Costa Rica.|Land of Lakes and Volcanoes|1. Home to Lake Nicaragua, the only freshwater lake in the world containing oceanic species like bull sharks.<br>2. Features Ometepe, the largest volcanic island inside a freshwater lake.
-134|134-costa-rica.jpg|Costa Rica|哥斯達黎加|A rugged, rainforested country in Central America with coastlines on the Pacific and Caribbean.|The Rich Coast|1. Generates over 98% of its electricity from renewable energy sources.<br>2. Abolished its military permanently in 1948 and invests that budget into education and health.
-135|135-panama.jpg|Panama|巴拿馬|A country in Central America connecting North and South America via an isthmus.|Bridge of the World|1. Home to the Panama Canal, one of the greatest engineering feats in global maritime history.<br>2. The only place in the world where you can watch the sun rise on the Pacific Ocean and set on the Atlantic Ocean.
-138|138-democratic-republic-of-congo.jpg|Democratic Republic of the Congo|剛果民主共和國|A massive country located in Central Africa, the second-largest in Africa by area.|Heart of Africa|1. Home to the critically endangered okapi and eastern lowland gorillas.<br>2. Features Virunga National Park, Africa's oldest national park and home to active volcanoes.
-145|145-kazakhstan.jpg|Kazakhstan|哈薩克斯坦|A transcontinental country spanning Central Asia and Eastern Europe.|Land of the Great Steppe|1. The largest landlocked country in the world.<br>2. Home to Baikonur Cosmodrome, the world's first and largest operational space launch facility.
-146|146-kyrgyzstan.jpg|Kyrgyzstan|吉爾吉斯斯坦|A landlocked country in Central Asia characterized by the Tian Shan mountain range.|Switzerland of Central Asia|1. Over 90% of its total land area is mountainous.<br>2. Home to Issyk-Kul, the second-largest alpine lake in the world.
-147|147-tajikistan.jpg|Tajikistan|塔吉克斯坦|A mountainous, landlocked country in Central Asia bordered by Afghanistan, Uzbekistan, Kyrgyzstan, and China.|Land of the Pamir Mountains|1. More than 90% of its territory is covered by mountains, with the Pamir range dominating the landscape.<br>2. Home to Lake Karakul, a striking impact crater lake situated at high altitude.
-148|148-uzbekistan.jpg|Uzbekistan|烏茲別克斯坦|A double-landlocked country in Central Asia, historically central to the Silk Road.|Heart of the Silk Road|1. Home to legendary Silk Road oasis cities like Samarkand, Bukhara, and Khiva.<br>2. One of the world's top producers and exporters of cotton.
-149|149-turkmenistan.jpg|Turkmenistan|土庫曼斯坦|A country in Central Asia bordered by the Caspian Sea, Iran, Afghanistan, Uzbekistan, and Kazakhstan.|Land of the Neutrality|1. Home to the "Door to Hell" (Darvaza gas crater), a natural gas fire that has been burning for decades.<br>2. Famous for breeding world-class Akhal-Teke horses.
-150|150-azerbaijan.jpg|Azerbaijan|阿塞拜疆|A transcontinental country situated at the boundary of Eastern Europe and Western Asia in the Caucasus region.|Land of Fire|1. Famous for its natural "burning hills" and eternal flames fueled by vast subterranean gas deposits.<br>2. Home to a high concentration of unique mud volcanoes.
-151|151-georgia.jpg|Georgia|格魯吉亞|A country at the intersection of Eastern Europe and Western Asia in the Caucasus region.|The Cradle of Wine|1. Widely considered the birthplace of wine, with an 8,000-year-old winemaking tradition.<br>2. Features the stunning Caucasus mountain villages like Ushguli, among the highest permanently inhabited settlements in Europe.
-152|152-armenia.jpg|Armenia|亞美尼亞|A landlocked country in the Armenian Highlands of Western Asia's Caucasus region.|Land of Ancient Stones|1. The first nation in the world to adopt Christianity as its official religion (in 301 AD).<br>2. Home to Lake Sevan, one of the largest high-altitude freshwater alpine lakes in the world.
-153|153-italy.jpg|Italy|意大利|A country consisting of a peninsula delimited by the Alps and several islands surrounding it.|Bel Paese|1. Home to the most UNESCO World Heritage Sites in the world.<br>2. Encloses two independent microstates within its territory (Vatican City and San Marino).
-154|154-vatican-city.jpg|Vatican City|梵蒂岡|An independent city-state enclaved within Rome, Italy.|The Holy See|1. The smallest independent state in the world by both area and population.<br>2. Completely surrounded by the city of Rome.
-155|155-san-marino.jpg|San Marino|聖馬力諾|A mountainous microstate enclaved by Italy, situated on the Italian Peninsula's eastern side.|The Most Serene Republic of San Marino|1. The oldest surviving sovereign republic and constitutional republic in the world.<br>2. One of the wealthiest countries in the world per capita with virtually no national debt.
-156|156-malta.jpg|Malta|馬耳他|A southern European island country in the Mediterranean Sea, consisting of an archipelago.|The Jewel of the Mediterranean|1. One of the most densely populated countries in the world.<br>2. Home to some of the oldest freestanding stone buildings in the world (the Megalithic Temples).
-157|157-cyprus.jpg|Cyprus|賽普勒斯|An island country in the Eastern Mediterranean Sea, located south of Anatolia.|The Island of Aphrodite|1. According to mythology, the birthplace of Aphrodite, the Greek goddess of love and beauty.<br>2. Features a capital city (Nicosia) that remains the last divided capital in Europe.
-158|158-austria.jpg|Austria|奧地利|A landlocked country in the southern part of Central Europe, characterized by alpine terrain.|The Land of Music|1. Famous for being the birthplace of legendary classical composers like Mozart, Schubert, and Strauss.<br>2. Over sixty percent of its total land area is covered by the Austrian Alps.
-159|159-switzerland.jpg|Switzerland|瑞士|A mountainous country situated at the confluence of Western, Central, and Southern Europe.|The Playground of Europe|1. Renowned globally for its neutrality, banking systems, and production of luxury watches and chocolate.<br>2. Features four official national languages (German, French, Italian, and Romansh).
-160|160-croatia.jpg|Croatia|克羅地亞|A country at the crossroads of Central and Southeast Europe, bordering the Adriatic Sea.|The Land of a Thousand Islands|1. Home to over a thousand islands, islets, and reefs along its stunning Adriatic coastline.<br>2. Famous for Plitvice Lakes National Park, a network of terraced cascading lakes.
-161|161-saint-vincent-and-grenadines.jpg|Saint Vincent and the Grenadines|聖文森特和格林納丁斯|An island country in the Lesser Antilles island arc of the Caribbean Sea's southern confines.|The Gems of the Caribbean|1. Served as the primary filming location for the blockbuster movie franchise *Pirates of the Caribbean*.<br>2. Comprises the main island of Saint Vincent and a chain of smaller islands known as the Grenadines.
-162|162-saint-lucia.jpg|Saint Lucia|聖盧西亞|An island country in the eastern Caribbean Sea on the boundary with the Atlantic Ocean.|Helen of the West Indies|1. Famous for its iconic twin volcanic mountain peaks, the Pitons, which are a UNESCO World Heritage Site.<br>2. The only sovereign nation in the world named after a historical woman (Saint Lucy of Syracuse).
-163|163-antigua-and-barbuda.jpg|Antigua and Barbuda|安提瓜和巴布達|An independent sovereign island nation in the Leeward Islands part of the Lesser Antilles in the Caribbean.|Land of 365 Beaches|1. Boasts precisely 365 beaches, one for every single day of the year.<br>2. Famous for hosting prestigious international yachting regattas and sailing events.
-164|164-dominica.jpg|Dominica|多米尼克|An island country in the Caribbean Sea, officially known as the Commonwealth of Dominica.|The Nature Island of the Caribbean|1. Home to the world's second-largest thermally active boiling lake.<br>2. Features lush rainforests, volcanic peaks, and hundreds of cascading rivers and waterfalls.
-165|165-saint-kitts-and-nevis.jpg|Saint Kitts and Nevis|聖基茨和尼維斯|A dual-island nation situated between the Atlantic Ocean and Caribbean Sea in the West Indies.|The Federation in the Caribbean|1. The smallest sovereign state in the Western Hemisphere by both area and population.<br>2. Home to the historic Brimstone Hill Fortress, known as the "Gibraltar of the West Indies".
-177|177-turkey.jpg|Turkey|土耳其|A transcontinental country located mainly on the Anatolian peninsula in West Asia, with a smaller portion on the Balkan peninsula in Southeast Europe.|The Bridge Between East and West|1. Istanbul is the only major metropolis in the world built across two continents (Europe and Asia).<br>2. Home to Cappadocia, famous for its surreal rock formations and hot air balloon rides.
-178|178-andorra.jpg|Andorra|安道爾|A sovereign landlocked microstate in the eastern Pyrenees mountains, bordered by France and Spain.|The Pyrenean Haven|1. The only country in the world with a co-principality, headed jointly by the President of France and the Bishop of Urgell.<br>2. One of the highest life expectancies in the world.
-179|179-moldova.jpg|Moldova|摩爾達維亞|A landlocked country in Eastern Europe, bordered by Romania to the west and Ukraine to the north, east, and south.|The Wine Land|1. Home to Mileștii Mici, housing the largest underground wine cellar collection in the world.<br>2. Features a deeply rolling landscape of hills, valleys, and fertile agricultural steppes.
-180|180-monaco.jpg|Monaco|摩納哥|A sovereign microstate and city-state on the French Riviera in Western Europe.|The Billionaires' Playground|1. The most densely populated independent country in the world.<br>2. Famous worldwide for hosting the prestigious Formula One Monaco Grand Prix street circuit.
-181|181-liechtenstein.jpg|Liechtenstein|列支敦士登|A doubly landlocked German-speaking microstate in Central Europe, nestled between Switzerland and Austria.|The Alpine Principality|1. One of the smallest countries in the world, yet historically one of the richest per capita.<br>2. Famously known as a major global hub for the manufacturing of false teeth.
-182|182-luxembourg.jpg|Luxembourg|盧森堡|A landlocked country in Western Europe, bordered by Belgium, France, and Germany.|The Heart of Europe|1. The world's only remaining grand duchy.<br>2. One of the founding members of the European Union and home to numerous EU institutions.
-183|183-kosovo.jpg|Kosovo|科索沃|A landlocked country in Southeast Europe, situated in the central Balkan peninsula.|The Land of the Young|1. One of the youngest nations in Europe, having declared independence in 2008.<br>2. Features a remarkably young population with the lowest median age on the European continent.
-184|184-timor-leste.jpg|Timor-Leste|東帝汶|A sovereign island country in Southeast Asia comprising the eastern half of the island of Timor.|Land of the Rising Sun|1. One of the world's youngest sovereign states, regaining full independence in 2002.<br>2. Surrounded by stunning, highly biodiverse coral reefs within the Coral Triangle.
-193|193-seychelles.jpg|Seychelles|塞舌爾|An archipelago island country in the Indian Ocean off East Africa comprising 115 islands.|The Creole Paradise|1. Home to the Vallée de Mai, a prehistoric forest growing the massive, rare double coconut known as Coco de Mer.<br>2. The smallest independent African nation by land area and population.
-194|194-tanzania.jpg|Tanzania|坦桑尼亞|A country in East Africa within the African Great Lakes region, famous for vast wilderness areas.|The Land of Kilimanjaro|1. Home to Mount Kilimanjaro, the highest mountain in Africa and the tallest free-standing mountain in the world.<br>2. Features the iconic Serengeti National Park and the breathtaking Ngorongoro Crater.
-195|195-malawi.jpg|Malawi|馬拉維|A landlocked country in southeastern Africa, defined by its topography and the massive Lake Malawi.|The Warm Heart of Africa|1. Lake Malawi covers roughly a third of the country's total area and contains more fish species than any other lake globally.<br>2. Renowned for the exceptional friendliness and warmth of its local population.
-196|196-comoros.jpg|Comoros|科摩羅|A volcanic archipelago island nation in the Indian Ocean off the southeastern coast of Africa.|The Perfume Isles|1. One of the world's top producers and exporters of vanilla and ylang-ylang essential oil.<br>2. Nicknamed the "Perfume Isles" due to the abundance of fragrant flora blooming across the islands.
-197|197-madagascar.jpg|Madagascar|馬達加斯加|An island country in the Indian Ocean, off the southeastern coast of mainland Africa.|The Red Island|1. Home to wildlife found nowhere else on Earth, including hundreds of distinct species of lemurs.<br>2. Famous for its iconic Avenue of the Baobabs, lined by massive, ancient trees.
-198|198-mauritius.jpg|Mauritius|毛里求斯|An island nation in the Indian Ocean situated off the eastern coast of Southeast Africa.|The Star and Key of the Indian Ocean|1. The historical and only known home of the extinct dodo bird.<br>2. Famous for the optical illusion of an "underwater waterfall" off the coast of Le Morne.
-201|201-afghanistan.jpg|Afghanistan|阿富汗|A landlocked country located at the crossroads of Central and South Asia.|Heart of Asia|1. Home to the Bamiyan Valley, historically famous for its towering ancient cliffside Buddha statues.<br>2. Renowned for producing some of the finest handmade carpets and authentic lapis lazuli gemstones.
-202|202-iran.jpg|Iran|伊朗|A country in Western Asia, bordered by the Caspian Sea to the north and the Persian Gulf to the south.|Land of the Aryans|1. Home to Persepolis, the magnificent ceremonial capital of the ancient Achaemenid Empire.<br>2. One of the world's top producers of high-quality Persian saffron and handmade carpets.
-203|203-iraq.jpg|Iraq|伊拉克|A country in Western Asia, bordered by Turkey, Iran, Kuwait, Saudi Arabia, Jordan, and Syria.|Cradle of Civilization|1. Encompasses ancient Mesopotamia, historically recognized as the birthplace of writing and human civilization.<br>2. Home to the legendary ruins of Babylon and the Tigris and Euphrates rivers.
-204|204-syria.jpg|Syria|敘利亞|A country in Western Asia, bordered by the Mediterranean Sea to the west, Turkey, Iraq, Jordan, Israel, and Lebanon.|Heart of the Middle East|1. Home to Damascus, one of the oldest continuously inhabited cities in the world.<br>2. Features a remarkably rich concentration of ancient Roman ruins and medieval Crusader castles.
-205|205-lebanon.jpg|Lebanon|黎巴嫩|A country in Western Asia situated at the meeting point of the Mediterranean basin and the Arabian interior.|Pearl of the Middle East|1. Home to the Jeita Grotto, featuring some of the most spectacular crystal limestone cave formations globally.<br>2. The only country in the Middle East without a single desert landscape.
-206|206-israel.jpg|Israel|以色列|A country in the Middle East, located on the southeastern shore of the Mediterranean Sea.|The Holy Land|1. Features a vibrant high-tech sector widely known as "Silicon Wadi", rivaling Silicon Valley.<br>2. Home to Jerusalem, a city profoundly sacred to three major Abrahamic religions.
-207|207-palestine.jpg|Palestine|巴勒斯坦|A de jure sovereign state in Western Asia comprising the West Bank and the Gaza Strip.|Land of Olive Groves|1. Home to Bethlehem, traditionally recognized worldwide as the birthplace of Jesus Christ.<br>2. Features some of the oldest continually harvested olive groves in human history.
-213|213-faroeislands.jpg|Faroe Islands|法羅群島|A self-governing archipelago and territory of the Kingdom of Denmark situated in the North Atlantic.|Land of theMaybe|1. Home to more sheep than human inhabitants across its rugged volcanic islands.<br>2. Features the stunning optical illusion of the floating Lake Sørvágsvatn perched above the ocean.
-    `;
+092|092-poland.jpg|Poland|波蘭|A country in Central Europe, bordered by Germany, the Czech Republic, Slovakia, Ukraine, Belarus, Lithuania, and Russia.|The Heart of Europe|1. Home to the historic Wieliczka Salt Mine.<br>2. Features the largest castle in the world by land area (Malbork Castle).
+093|093-czech-republic.jpg|Czechia|捷克|A landlocked country in Central Europe.|Heart of Europe|1. Famous for its historic castles.<br>2. Renowned worldwide for beer production.
+094|094-slovenia.jpg|Slovenia|斯洛文尼亞|A country in Central Europe known for its mountains and lakes.|Sunny Side of the Alps|1. Famous for the picturesque Lake Bled.<br>2. Has an immense cave system at Postojna.
+095|095-slovakia.jpg|Slovakia|斯洛伐克|A landlocked country in Central Europe.|The Heart of Europe|1. Features numerous castles and chateaux.<br>2. Home to the stunning High Tatras mountains.
+096|096-hungary.jpg|Hungary|匈牙利|A landlocked country in Central Europe.|Land of Waters|1. Known for the thermal baths of Budapest.<br>2. Home to Lake Balaton, Central Europe's largest lake.
+097|097-brazil.jpg|Brazil|巴西|The largest country in both South America and Latin America.|The Land of the Holy Cross|1. Home to the Amazon Rainforest.<br>2. Famous for the lively Carnival festival in Rio de Janeiro.
+098|098-colombia.jpg|Colombia|哥倫比亞|A country in South America with territories in North America.|Gateway to South America|1. Renowned for its high-quality coffee production.<br>2. Features diverse landscapes from beaches to the Andes.
+099|099-venezuela.jpg|Venezuela|委內瑞拉|A country on the northern coast of South America.|Land of Grace|1. Home to Angel Falls, the world's highest uninterrupted waterfall.<br>2. Possesses massive oil reserves.
+100|100-suriname.jpg|Suriname|蘇里南|A small country on the northeastern coast of South America.|The Beating Heart of the Amazon|1. One of the most forested countries in the world.<br>2. The only sovereign nation outside Europe where Dutch is spoken.
+101|101-guyana.jpg|Guyana|圭亞那|A country on the northern mainland of South America.|Land of Many Waters|1. Famous for the spectacular Kaieteur Falls.<br>2. Has dense, untouched pristine rainforests.
+102|102-grenada.jpg|Grenada|格林納達|An island country in the West Indies in the Caribbean Sea.|The Spice Isle|1. A major producer of nutmeg and mace.<br>2. Features underwater sculpture parks.
+103|103-trinidad-and-tobago.jpg|Trinidad and Tobago|特立尼達和多巴哥|A twin-island country in the Caribbean.|Land of the Hummingbird|1. Birthplace of the steelpan drum.<br>2. Famous for its vibrant Carnival celebrations.
+104|104-barbados.jpg|Barbados|巴巴多斯|An island country in the Lesser Antilles of the West Indies.|Little England|1. The birthplace of rum.<br>2. Known for its beautiful coral-sand beaches.
+105|105-ethiopia.jpg|Ethiopia|埃塞俄比亞|A landlocked country in the Horn of Africa.|Cradle of Mankind|1. Believed to be the origin place of the coffee bean.<br>2. The oldest independent country in Africa.
+109|109-kenya.jpg|Kenya|肯雅|A country in East Africa with coastline on the Indian Ocean.|Pride of Africa|1. Famous for the Great Rift Valley.<br>2. Renowned for its classic savanna safaris.
+110|110-uganda.jpg|Uganda|烏干達|A landlocked country in East Africa.|Pearl of Africa|1. Home to the endangered mountain gorillas.<br>2. Includes a large portion of Lake Victoria.
+111|111-rwanda.jpg|Rwanda|盧旺達|A landlocked country in the Great Rift Valley of Central Africa.|Land of a Thousand Hills|1. Known for its incredible mountain gorilla trekking.<br>2. Extremely clean, famously banning plastic bags in 2008.
+112|112-burundi.jpg|Burundi|布隆迪|A landlocked country in the Great Rift Valley.|The Heart of Africa|1. Home to the southernmost source of the Nile River.<br>2. Features the expansive Lake Tanganyika on its border.
+113|113-thailand.jpg|Thailand|泰國|A country in Southeast Asia.|Land of Smiles|1. Famous for its ornate Buddhist temples.<br>2. Known for its spectacular tropical beaches and vibrant street food.
+114|114-vietnam.jpg|Vietnam|越南|A country in Southeast Asia on the eastern edge of the Indochinese Peninsula.|Land of the Blue Dragon|1. Known for its rivers, beaches, and bustling cities.<br>2. Famous for the stunning limestone islands of Ha Long Bay.
+115|115-laos.jpg|Laos|老撾|The only landlocked country in Southeast Asia.|Land of a Million Elephants|1. Known for its mountainous terrain and French colonial architecture.<br>2. The Mekong River traverses the country.
+116|116-cambodia.jpg|Cambodia|柬埔寨|A country located in the southern portion of the Indochina peninsula in Southeast Asia.|Kingdom of Wonder|1. Home to the massive Angkor Wat temple complex.<br>2. Located along the mighty Mekong Delta.
+117|117-malaysia.jpg|Malaysia|馬來西亞|A country in Southeast Asia, separated into two regions by the South China Sea.|Truly Asia|1. Famous for the iconic Petronas Twin vertical towers.<br>2. Renowned for its diverse cultural heritage and rainforests.
+118|118-singapore.jpg|Singapore|新加坡|A sovereign island city-state in maritime Southeast Asia.|The Lion City|1. Known for its incredible cleanliness and strict laws.<br>2. Features the stunning Gardens by the Bay.
+119|119-brunei.jpg|Brunei|汶萊|A tiny nation on the island of Borneo.|Abode of Peace|1. Known for its beautiful mosques and Islamic architecture.<br>2. Extremely wealthy due to vast oil and gas reserves.
+120|120-indonesia.jpg|Indonesia|印尼|A country in Southeast Asia and Oceania, between the Indian and Pacific oceans.|The Emerald of the Equator|1. The world's largest archipelagic state.<br>2. Home to the Komodo dragon.
+121|121-greece.jpg|Greece|希臘|A country in southeastern Europe with thousands of islands.|The Cradle of Western Civilization|1. Known as the birthplace of democracy and the Olympic Games.<br>2. Famous for its ancient ruins, like the Acropolis.
+122|122-albania.jpg|Albania|阿爾巴尼亞|A country on the Balkan Peninsula in Southeastern Europe.|Land of the Eagles|1. Known for having hundreds of thousands of concrete bunkers.<br>2. Features a stunning pristine coastline along the Riviera.
+123|123-montenegro.jpg|Montenegro|黑山|A country in Southeast Europe on the Adriatic coast.|Black Mountain|1. Famous for the spectacular Bay of Kotor.<br>2. A relatively young country, gaining independence in 2006.
+124|124-serbia.jpg|Serbia|塞爾維亞|A landlocked country at the crossroads of Central and Southeast Europe.|Crossroads of the Balkans|1. Famous for its vibrant capital city, Belgrade.<br>2. Known for its historical orthodox monasteries.
+125|125-romania.jpg|Romania|羅馬尼亞|A country at the crossroads of Central, Eastern, and Southeastern Europe.|The Carpathian Garden|1. Famous for the legend of Dracula in the Transylvania region.<br>2. Home to the heavily forested Carpathian Mountains.
+126|126-bulgaria.jpg|Bulgaria|保加利亞|A Balkan nation with diverse terrain encompassing Black Sea coastline.|Land of Roses|1. One of the largest producers of rose oil globally.<br>2. Features ancient cities and rich Thracian history.
+127|127-north-macedonia.jpg|North Macedonia|北馬其頓|A landlocked country in Southeast Europe.|The Pearl of the Balkans|1. Home to Lake Ohrid, one of Europe's oldest and deepest lakes.<br>2. Features a mix of Balkan and Mediterranean influences.
+128|128-bosnia-and-herzegovina.jpg|Bosnia and Herzegovina|波斯尼亞和黑塞哥維那|A country on the Balkan Peninsula in Southeastern Europe.|The Heart Shaped Land|1. Famous for the Stari Most (Old Bridge) in Mostar.<br>2. Known for its beautiful mountains and rivers.
+129|129-belize.jpg|Belize|伯利茲|A nation on the eastern coast of Central America.|The Jewel|1. Home to the massive Belize Barrier Reef.<br>2. The only Central American country where English is the official language.
+130|130-guatemala.jpg|Guatemala|危地馬拉|A country in Central America south of Mexico.|Land of Eternal Spring|1. Known for its ancient Mayan ruins, such as Tikal.<br>2. Home to several impressive, active volcanoes.
+131|131-el-salvador.jpg|El Salvador|薩爾瓦多|The smallest and most densely populated country in Central America.|Land of Volcanoes|1. Famous for its world-class surfing beaches.<br>2. Adopted Bitcoin as legal tender.
+132|132-honduras.jpg|Honduras|洪都拉斯|A Central American country with Caribbean Sea coastlines to the north.|The Banana Republic|1. Home to the ancient Mayan ruins of Copán.<br>2. Features the incredible diving spot of Roatán.
+133|133-nicaragua.jpg|Nicaragua|尼加拉瓜|The largest country in the Central American isthmus.|Land of Lakes and Volcanoes|1. Home to Lake Nicaragua, the only freshwater lake with sharks.<br>2. Known for its dramatic volcanic landscapes.
+134|134-costa-rica.jpg|Costa Rica|哥斯達黎加|A rugged, rainforested Central American country.|The Rich Coast|1. Known for its incredible biodiversity and eco-tourism.<br>2. A country that famously abolished its army in 1948.
+135|135-panama.jpg|Panama|巴拿馬|A country on the isthmus linking Central and South America.|Bridge of the World|1. Famous for the engineering marvel, the Panama Canal.<br>2. Uses the US Dollar as its primary currency alongside the Balboa.
+138|138-democratic-republic-of-congo.jpg|Democratic Republic of the Congo|剛果民主共和國|A country in Central Africa, and the second-largest in Africa.|The Heart of Africa|1. Home to massive, resource-rich rainforests.<br>2. Features incredible wildlife including the endemic okapi.
+145|145-kazakhstan.jpg|Kazakhstan|哈薩克斯坦|A Central Asian country and former Soviet republic.|The Great Steppe|1. The world's largest landlocked country.<br>2. Home to the Baikonur Cosmodrome, a major spaceport.
+146|146-kyrgyzstan.jpg|Kyrgyzstan|吉爾吉斯斯坦|A rugged Central Asian country along the Silk Road.|The Switzerland of Central Asia|1. Famous for its dramatic, highly elevated mountain peaks.<br>2. Known for its nomadic traditions and yurt camps.
+147|147-tajikistan.jpg|Tajikistan|塔吉克斯坦|A mountainous, landlocked country in Central Asia.|The Roof of the World|1. Over 90% of its territory is mountainous.<br>2. Features the stunning Pamir Highway.
+148|148-uzbekistan.jpg|Uzbekistan|烏茲別克斯坦|A doubly landlocked country in Central Asia.|The Jewel of the Silk Road|1. Famous for incredible Islamic architecture in cities like Samarkand.<br>2. Deeply connected to the historic Silk Road.
+149|149-turkmenistan.jpg|Turkmenistan|土庫曼斯坦|A country in Central Asia bordered by the Caspian Sea.|The Marble City (Ashgabat)|1. Home to the famous Darvaza Gas Crater (Door to Hell).<br>2. Its capital holds records for the most white marble-clad buildings.
+150|150-azerbaijan.jpg|Azerbaijan|阿塞拜疆|A nation and former Soviet republic bounding the Caspian Sea.|Land of Fire|1. Known for its burning mountain, Yanar Dag.<br>2. The capital, Baku, blends historic and ultra-modern architecture.
+151|151-georgia.jpg|Georgia|格魯吉亞|A country at the intersection of Europe and Asia.|The Balcony of Europe|1. Widely considered one of the birthplaces of wine.<br>2. Famous for the stunning Caucasus Mountains.
+152|152-armenia.jpg|Armenia|亞美尼亞|A nation, and former Soviet republic, in the mountainous Caucasus region.|Land of Noah|1. The first country to adopt Christianity as its state religion.<br>2. Famous for its beautiful, ancient monasteries.
+153|153-italy.jpg|Italy|意大利|A European country with a long Mediterranean coastline.|The Boot|1. Has the most UNESCO World Heritage Sites globally.<br>2. Known for its profound impact on Western culture and cuisine.
+154|154-vatican-city.jpg|Holy See (Vatican City)|梵蒂岡|An independent city-state enclaved within Rome, Italy.|The Holy See|1. The smallest sovereign state in the world by both area and population.<br>2. The spiritual and administrative center of the Roman Catholic Church.
+155|155-san-marino.jpg|San Marino|聖馬力諾|A mountainous microstate surrounded by north-central Italy.|The Serene Republic|1. Claims to be the world's oldest surviving sovereign state.<br>2. Completely surrounded by Italy.
+156|156-malta.jpg|Malta|馬耳他|An archipelago in the central Mediterranean between Sicily and the North African coast.|The Fortress Island|1. Known for historical sites related to a succession of rulers.<br>2. One of the most densely populated countries in the world.
+157|157-cyprus.jpg|Cyprus|塞浦路斯|An island country in the eastern Mediterranean Sea.|Island of Aphrodite|1. Divided into a Greek southern and Turkish northern portion.<br>2. Known for beautiful beaches and ancient ruins.
+158|158-austria.jpg|Austria|奧地利|A landlocked East Alpine country in the southern part of Central Europe.|The Musical Nation|1. Famous for classical music composers like Mozart and Strauss.<br>2. Features stunning alpine landscapes.
+159|159-switzerland.jpg|Switzerland|瑞士|A mountainous Central European country.|Land of Milk and Honey|1. Famous for its historic neutrality in global conflicts.<br>2. Renowned for banking, chocolate, and the Alps.
+160|160-croatia.jpg|Croatia|克羅地亞|A country at the crossroads of Central and Southeast Europe on the Adriatic Sea.|Land of a Thousand Islands|1. Famous for the historic walled city of Dubrovnik.<br>2. Features a stunning coastline with crystal-clear waters.
+161|161-saint-vincent-and-grenadines.jpg|Saint Vincent and the Grenadines|聖文森特和格林納丁斯|A southern Caribbean nation comprising a main island and a chain of smaller islands.|Hairoun|1. Known for its volcanic landscapes and yacht-filled harbors.<br>2. A popular filming location for the "Pirates of the Caribbean" movies.
+162|162-saint-lucia.jpg|Saint Lucia|聖盧西亞|An Eastern Caribbean island nation with a pair of dramatically tapered mountains.|Helen of the West|1. Famous for the Pitons, two striking volcanic spires.<br>2. Known for its reef-diving and luxury resorts.
+163|163-antigua-and-barbuda.jpg|Antigua and Barbuda|安提瓜和巴布達|An independent Commonwealth country comprising its two namesake islands and several smaller ones.|Land of 365 Beaches|1. Famous for having a different beach for every day of the year.<br>2. Renowned for its sailing week and clear waters.
+164|164-dominica.jpg|Dominica|多米尼克|A mountainous Caribbean island nation with natural hot springs and tropical rainforests.|The Nature Isle of the Caribbean|1. Home to the world's second-largest hot spring, Boiling Lake.<br>2. Known for its exceptionally lush and unspoiled natural beauty.
+165|165-saint-kitts-and-nevis.jpg|Saint Kitts and Nevis|聖基茨和尼維斯|A dual-island nation situated between the Atlantic Ocean and Caribbean Sea.|Sugar City|1. The smallest sovereign state in the Western Hemisphere.<br>2. Known for the impressive Brimstone Hill Fortress.
+177|177-turkey.jpg|Turkey|土耳其|A nation straddling eastern Europe and western Asia.|The Crossroads of the World|1. Home to the ancient city of Troy.<br>2. Famous for the unique landscapes of Cappadocia.
+178|178-andorra.jpg|Andorra|安道爾|A tiny, independent principality situated between France and Spain.|The Pyrenean Microstate|1. Known for its ski resorts and tax-haven status.<br>2. Located entirely within the Pyrenees mountains.
+179|179-moldova.jpg|Moldova|摩爾多瓦|An Eastern European country and former Soviet republic.|The Wine Country|1. Contains some of the largest wine cellars in the world.<br>2. Includes the breakaway territory of Transnistria.
+180|180-monaco.jpg|Monaco|摩納哥|A sovereign city-state and microstate on the French Riviera.|The Billionaires' Playground|1. The second-smallest country in the world.<br>2. Famous for the glamorous Monte Carlo Casino and Grand Prix.
+181|181-liechtenstein.jpg|Liechtenstein|列支敦士登|A doubly landlocked German-speaking microstate in Central Europe.|The Alpine Principality|1. One of only two doubly landlocked countries globally.<br>2. Features medieval castles and alpine landscapes.
+182|182-luxembourg.jpg|Luxembourg|盧森堡|A small European country, surrounded by Belgium, France and Germany.|The Grand Duchy|1. The world's only remaining sovereign Grand Duchy.<br>2. Has one of the highest GDP per capita rates in the world.
+183|183-kosovo.jpg|Kosovo|科索沃|A partially recognized state in Southeast Europe.|The Young European|1. Declared independence from Serbia in 2008.<br>2. Features a very young population demographically.
+184|184-timor-leste.jpg|Timor-Leste|東帝汶|A Southeast Asian nation occupying half the island of Timor.|The Sunrise Nation|1. One of the newest countries, gaining independence in 2002.<br>2. Known for its untouched coral reefs and marine life.
+193|193-seychelles.jpg|Seychelles|塞舌爾|An archipelago of 115 islands in the Indian Ocean, off East Africa.|The Garden of Eden|1. Home to giant Aldabra tortoises.<br>2. Features some of the world's most pristine and photographed beaches.
+194|194-tanzania.jpg|Tanzania|坦桑尼亞|An East African country known for its vast wilderness areas.|The Safari Capital|1. Home to Mount Kilimanjaro, Africa's highest peak.<br>2. Famous for the Serengeti National Park and wildlife migration.
+195|195-malawi.jpg|Malawi|馬拉維|A landlocked country in southeastern Africa.|The Warm Heart of Africa|1. Home to Lake Malawi, known for its diverse cichlid fish.<br>2. Renowned for the friendliness of its people.
+196|196-comoros.jpg|Comoros|科摩羅|A volcanic archipelago off Africa's east coast.|The Perfume Islands|1. A major producer of ylang-ylang essence used in perfumes.<br>2. Features unique Swahili-Arab culture.
+197|197-madagascar.jpg|Madagascar|馬達加斯加|An island country in the Indian Ocean, off the coast of East Africa.|The Great Red Island|1. Famous for its incredibly unique and endemic wildlife, especially lemurs.<br>2. The fourth largest island in the world.
+198|198-mauritius.jpg|Mauritius|毛里裘斯|An Indian Ocean island nation, known for its beaches, lagoons and reefs.|The Star and Key of the Indian Ocean|1. The only known habitat of the extinct dodo bird.<br>2. Famous for its underwater waterfall illusion.
+201|201-afghanistan.jpg|Afghanistan|阿富汗|A landlocked country located at the crossroads of Central and South Asia.|Graveyard of Empires|1. Features highly rugged and mountainous terrain.<br>2. Known for its historical role on the Silk Road.
+202|202-iran.jpg|Iran|伊朗|A country in Western Asia.|Land of the Aryans|1. Home to one of the world's oldest continuous major civilizations.<br>2. Famous for its exquisite Persian rugs and architecture.
+203|203-iraq.jpg|Iraq|伊拉克|A country in Western Asia, bordered by Turkey to the north, Iran to the east.|The Cradle of Civilization|1. Historically known as Mesopotamia.<br>2. Home to the Tigris and Euphrates rivers.
+204|204-syria.jpg|Syria|敘利亞|A country in Western Asia, bordering Lebanon and the Mediterranean Sea.|The beating heart of Arabism|1. Home to Damascus, one of the oldest continuously inhabited cities.<br>2. Features rich ancient ruins like Palmyra.
+205|205-lebanon.jpg|Lebanon|黎巴嫩|A country in Western Asia, located on the eastern shore of the Mediterranean Sea.|The Pearl of the Middle East|1. Famous for its ancient cedar trees, depicted on its flag.<br>2. A deeply historic intersection of Mediterranean cultures.
+206|206-israel.jpg|Israel|以色列|A Middle Eastern country on the Mediterranean Sea.|The Holy Land|1. Considered by Jews, Christians, and Muslims as the biblical Holy Land.<br>2. Features the highly saline Dead Sea.
+207|207-palestine.jpg|Palestine|巴勒斯坦|A state located in Western Asia, claiming the West Bank and Gaza Strip.|The Holy Land|1. Home to deep historical and religious significance.<br>2. Contains the ancient city of Jericho.
+213|213-faroeislands.jpg|Faroe Islands|法羅群島|A North Atlantic archipelago located 320 kilometres north-northwest of Scotland.|The Sheep Islands|1. An autonomous territory within the Kingdom of Denmark.<br>2. Known for its dramatic cliffs and large puffin colonies.
+`;
 
-    const countryData = rawData.trim().split('\n').map(line => {
+    const parsedData = rawData.split('\n').filter(line => line.trim() !== '').map(line => {
         const parts = line.split('|');
+        const enName = parts[2];
+        const level = levelMapping[enName] || 4; 
+        
         return {
-            id: parts[0], img: parts[1], en: parts[2], zh: parts[3],
-            geoEn: parts[4], nickEn: parts[5], mostEn: parts[6]
+            id: parts[0],
+            image: parts[1],
+            enName: enName,
+            zhName: parts[3],
+            desc: parts[4],
+            nickname: parts[5],
+            facts: parts[6],
+            level: level
         };
     });
 
-    const distractorNames = [
-        {en: "Belgium", zh: "比利時"}, {en: "Ireland", zh: "愛爾蘭"},
-        {en: "Cuba", zh: "古巴"}, {en: "Bahamas", zh: "巴哈馬"}, {en: "Jamaica", zh: "牙買加"},
-        {en: "Haiti", zh: "海地"}, {en: "Dominican Republic", zh: "多明尼加共和國"}, {en: "Lesotho", zh: "萊索托"},
-        {en: "Eswatini", zh: "斯威士蘭"}, {en: "Mozambique", zh: "莫桑比克"}, {en: "Zimbabwe", zh: "津巴布韋"},
-        {en: "Zambia", zh: "贊比亞"}, {en: "Botswana", zh: "博茨瓦納"}, {en: "Namibia", zh: "納米比亞"},
-        {en: "New Zealand", zh: "新西蘭"}, {en: "Tuvalu", zh: "圖瓦盧"}, {en: "Samoa", zh: "薩摩亞"},
-        {en: "Fiji", zh: "斐濟"}, {en: "Tonga", zh: "湯加"}, {en: "Vanuatu", zh: "瓦努阿圖"},
-        {en: "Solomon Islands", zh: "所羅門群島"}, {en: "Ecuador", zh: "厄瓜多爾"}, {en: "Bolivia", zh: "玻利維亞"},
-        {en: "Paraguay", zh: "巴拉圭"}, {en: "Chile", zh: "智利"}, {en: "Uruguay", zh: "烏拉圭"},
-        {en: "Jordan", zh: "約旦"}, {en: "Qatar", zh: "卡塔爾"}, {en: "Kuwait", zh: "科威特"},
-        {en: "Bahrain", zh: "巴林"}, {en: "Saudi Arabia", zh: "沙特阿拉伯"}, {en: "Yemen", zh: "也門"},
-        {en: "Oman", zh: "阿曼"}, {en: "Denmark", zh: "丹麥"}, {en: "Sweden", zh: "瑞典"},
-        {en: "Finland", zh: "芬蘭"}, {en: "Estonia", zh: "愛沙尼亞"}, {en: "Latvia", zh: "拉脫維亞"},
-        {en: "Lithuania", zh: "立陶宛"}, {en: "Morocco", zh: "摩洛哥"}, {en: "Tunisia", zh: "突尼斯"},
-        {en: "South Sudan", zh: "南蘇丹"}, {en: "Papua New Guinea", zh: "巴布亞新幾內亞"}, {en: "Palau", zh: "帛琉"},
-        {en: "Micronesia", zh: "密克羅尼西亞"}, {en: "Marshall Islands", zh: "馬紹爾群島"}, {en: "Kiribati", zh: "基里巴斯"},
-        {en: "Nauru", zh: "瑙魯"}, {en: "Pakistan", zh: "巴基斯坦"}, {en: "Sri Lanka", zh: "斯里蘭卡"},
-        {en: "Maldives", zh: "馬爾代夫"}, {en: "Bangladesh", zh: "孟加拉"}, {en: "Nepal", zh: "尼泊爾"},
-        {en: "Bhutan", zh: "不丹"}, {en: "Myanmar", zh: "緬甸"}, {en: "Ukraine", zh: "烏克蘭"},
-        {en: "Belarus", zh: "白俄羅斯"}, {en: "Poland", zh: "波蘭"}, {en: "Czech Republic", zh: "捷克"},
-        {en: "Slovenia", zh: "斯洛文尼亞"}, {en: "Slovakia", zh: "斯洛伐克"}, {en: "Hungary", zh: "匈牙利"},
-        {en: "Colombia", zh: "哥倫比亞"}, {en: "Venezuela", zh: "委內瑞拉"}, {en: "Suriname", zh: "蘇里南"},
-        {en: "Guyana", zh: "圭亞那"}, {en: "Grenada", zh: "格林納達"}, {en: "Trinidad and Tobago", zh: "千里達"},
-        {en: "Barbados", zh: "巴巴多斯"}, {en: "Ethiopia", zh: "埃塞俄比亞"}, {en: "Uganda", zh: "烏干達"},
-        {en: "Rwanda", zh: "盧旺達"}, {en: "Burundi", zh: "布隆迪"}, {en: "Laos", zh: "老撾"},
-        {en: "Cambodia", zh: "柬埔寨"}, {en: "Malaysia", zh: "馬來西亞"}, {en: "Singapore", zh: "新加坡"},
-        {en: "Brunei", zh: "汶萊"}, {en: "Albania", zh: "阿爾巴尼亞"}, {en: "Montenegro", zh: "黑山"},
-        {en: "Serbia", zh: "塞爾維亞"}, {en: "Romania", zh: "羅馬尼亞"}, {en: "Bulgaria", zh: "保加利亞"},
-        {en: "North Macedonia", zh: "北馬其頓"}, {en: "Bosnia and Herzegovina", zh: "波斯尼亞"}, {en: "Belize", zh: "伯利茲"},
-        {en: "Guatemala", zh: "危地馬拉"}, {en: "El Salvador", zh: "薩爾瓦多"}, {en: "Honduras", zh: "洪都拉斯"},
-        {en: "Nicaragua", zh: "尼加拉瓜"}, {en: "Costa Rica", zh: "哥斯達黎加"}, {en: "Panama", zh: "巴拿馬"},
-        {en: "Democratic Republic of Congo", zh: "剛果民主共和國"}, {en: "Kyrgyzstan", zh: "吉爾吉斯"}, {en: "Tajikistan", zh: "塔吉克"},
-        {en: "Uzbekistan", zh: "烏茲別克"}, {en: "Turkmenistan", zh: "土庫曼"}, {en: "Azerbaijan", zh: "阿塞拜疆"},
-        {en: "Georgia", zh: "格魯吉亞"}, {en: "Armenia", zh: "亞美尼亞"}, {en: "San Marino", zh: "聖馬力諾"},
-        {en: "Malta", zh: "馬耳他"}, {en: "Cyprus", zh: "塞浦路斯"}, {en: "Austria", zh: "奧地利"},
-        {en: "Croatia", zh: "克羅地亞"}, {en: "Saint Vincent and Grenadines", zh: "聖文森特和格林納丁斯"}, {en: "Saint Lucia", zh: "聖盧西亞"},
-        {en: "Antigua and Barbuda", zh: "安提瓜和巴布達"}, {en: "Dominica", zh: "多米尼克"}, {en: "Saint Kitts and Nevis", zh: "聖基茨和尼維斯"},
-        {en: "Andorra", zh: "安道爾"}, {en: "Moldova", zh: "摩爾多瓦"}, {en: "Monaco", zh: "摩納哥"},
-        {en: "Liechtenstein", zh: "列支敦士登"}, {en: "Luxembourg", zh: "盧森堡"}, {en: "Kosovo", zh: "科索沃"},
-        {en: "Timor-Leste", zh: "東帝汶"}, {en: "Seychelles", zh: "塞舌爾"}, {en: "Tanzania", zh: "坦桑尼亞"},
-        {en: "Malawi", zh: "馬拉維"}, {en: "Comoros", zh: "科摩羅"}, {en: "Mauritius", zh: "毛里求斯"},
-        {en: "Afghanistan", zh: "阿富汗"}, {en: "Iran", zh: "伊朗"}, {en: "Iraq", zh: "伊拉克"},
-        {en: "Syria", zh: "敘利亞"}, {en: "Lebanon", zh: "黎巴嫩"}, {en: "Israel", zh: "以色列"},
-        {en: "Palestine", zh: "巴勒斯坦"}, {en: "Faroe Islands", zh: "法羅群島"},
-        {en: "Kenya", zh: "肯尼亞"}, {en: "Thailand", zh: "泰國"}, {en: "Vietnam", zh: "越南"},
-        {en: "Turkey", zh: "土耳其"}, {en: "Egypt", zh: "埃及"}, {en: "Russia", zh: "俄羅斯"},
-        {en: "Brazil", zh: "巴西"}, {en: "India", zh: "印度"}, {en: "Iceland", zh: "冰島"},
-        {en: "Norway", zh: "挪威"}, {en: "Switzerland", zh: "瑞士"}, {en: "Italy", zh: "意大利"}
-    ];
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
 
-    const allCountryNames = [...distractorNames, ...countryData.map(c => ({en: c.en, zh: c.zh}))];
-
-    let currentQuestion = null;
-    let questionsPool = [...countryData];
+    function startBackgroundMusic() {
+        const bgMusic = document.getElementById('bg-music');
+        bgMusic.volume = 0.2; 
+        bgMusic.play().catch(error => {
+            console.log("Autoplay prevented by browser:", error);
+        });
+    }
 
     function startQuiz() {
         initAudio();
-        playSound('start');
         startBackgroundMusic();
         
-        score = 0;
-        questionCount = 0;
-        updateScoreDisplay();
-
         document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'flex';
-        loadNextQuestion();
+        
+        currentLevel = 1;
+        startLevel(currentLevel);
     }
 
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+    function startLevel(levelNum) {
+        currentLevelQuestions = parsedData.filter(d => d.level === levelNum);
+        currentLevelQuestions = currentLevelQuestions.sort(() => 0.5 - Math.random()); 
+        
+        if(currentLevelQuestions.length === 0 && levelNum <= maxLevel) {
+            currentLevel++;
+            startLevel(currentLevel);
+            return;
         }
-        return array;
+
+        score = 0;
+        currentQuestionIndex = 0;
+        
+        document.getElementById('level-display').textContent = `Level ${levelNum}`;
+        loadQuestion();
     }
 
-    function updateScoreDisplay() {
-        document.getElementById('score-display').innerText = `Score: ${score}`;
-        document.getElementById('question-count').innerText = `Question: ${questionCount}`;
-    }
+    function loadQuestion() {
+        if (currentQuestionIndex >= currentLevelQuestions.length) {
+            showLevelResults();
+            return;
+        }
 
-    function loadNextQuestion() {
+        const question = currentLevelQuestions[currentQuestionIndex];
+        
+        document.getElementById('score-display').textContent = `Score: ${score}`;
+        document.getElementById('question-count').textContent = `Q: ${currentQuestionIndex + 1}/${currentLevelQuestions.length}`;
+        
+        // Direct relative path so images in the same directory load properly
+        document.getElementById('flag-img').src = question.image; 
+        
         document.getElementById('next-btn-container').style.display = 'none';
+        document.getElementById('fact-box').style.display = 'block';
+        
+        document.getElementById('fact-geo').innerHTML = `<strong>Geography:</strong> ${question.desc}`;
+        document.getElementById('fact-nickname').innerHTML = `<strong>Nickname:</strong> ${question.nickname}`;
+        document.getElementById('fact-most').innerHTML = `<strong>Facts:</strong><br>${question.facts}`;
+
+        generateOptions(question);
+    }
+
+    function generateOptions(correctData) {
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = '';
-
-        if (questionsPool.length === 0) {
-            questionsPool = [...countryData];
-        }
-        questionCount++;
-        updateScoreDisplay();
-
-        const qIndex = Math.floor(Math.random() * questionsPool.length);
-        currentQuestion = questionsPool.splice(qIndex, 1)[0];
-
-        document.getElementById('flag-img').src = currentQuestion.img;
-        document.getElementById('flag-img').onerror = function() {
-            this.src = 'https://via.placeholder.com/640x360?text=Image+Missing+(' + currentQuestion.img + ')';
-        };
-
-        document.getElementById('fact-title').innerHTML = `Hints`;
-        document.getElementById('fact-geo').innerHTML = `<strong>Location:</strong><br>${currentQuestion.geoEn}`;
-        document.getElementById('fact-nickname').innerHTML = `<strong>Nickname:</strong><br>${currentQuestion.nickEn}`;
-        document.getElementById('fact-most').innerHTML = `<strong>"The Most":</strong><br>${currentQuestion.mostEn}`;
         
-        document.getElementById('fact-box').style.borderLeftColor = 'var(--hint)';
-        document.getElementById('fact-box').style.display = 'block';
+        let allOtherOptions = parsedData.filter(d => d.enName !== correctData.enName);
+        allOtherOptions = allOtherOptions.filter((d, index, self) => 
+            index === self.findIndex((t) => t.enName === d.enName)
+        );
+        allOtherOptions = allOtherOptions.sort(() => 0.5 - Math.random());
 
-        let options = [{ en: currentQuestion.en, zh: currentQuestion.zh, isCorrect: true }];
-        
-        let shuffledDistractors = shuffleArray([...allCountryNames.filter(c => c.en !== currentQuestion.en)]);
-        for (let i = 0; i < 3; i++) {
-            options.push({ en: shuffledDistractors[i].en, zh: shuffledDistractors[i].zh, isCorrect: false });
-        }
-
-        options = shuffleArray(options);
+        let options = [correctData, allOtherOptions[0], allOtherOptions[1], allOtherOptions[2]];
+        options = options.sort(() => 0.5 - Math.random()); 
 
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn';
-            btn.dataset.en = opt.en;
             
-            btn.innerHTML = `<strong>${opt.en}</strong><br>${opt.zh}`;
+            btn.innerHTML = `<span class="en-text">${opt.enName}</span><span class="zh-text">${opt.zhName}</span>`;
             
-            btn.onclick = () => checkAnswer(btn, opt.isCorrect);
+            btn.onclick = () => checkAnswer(opt.enName === correctData.enName, btn, correctData);
             optionsContainer.appendChild(btn);
         });
     }
 
-    function checkAnswer(clickedBtn, isCorrect) {
-        playSound(isCorrect ? 'correct' : 'wrong');
-        
-        speakAnswer(currentQuestion.en, currentQuestion.zh);
+    function checkAnswer(isCorrect, btnElement, correctData) {
+        const allBtns = document.querySelectorAll('.options-grid .btn');
+        allBtns.forEach(b => b.disabled = true); 
 
         if (isCorrect) {
+            btnElement.classList.add('correct');
+            playSound('correct');
             score++;
-            updateScoreDisplay();
+            document.getElementById('score-display').textContent = `Score: ${score}`;
+        } else {
+            btnElement.classList.add('wrong');
+            playSound('wrong');
+            allBtns.forEach(b => {
+                if (b.querySelector('.en-text').textContent === correctData.enName) {
+                    b.classList.add('correct');
+                }
+            });
         }
 
-        const buttons = document.getElementById('options-container').querySelectorAll('.btn');
-        
-        buttons.forEach(btn => {
-            btn.disabled = true;
-            if (btn.dataset.en === currentQuestion.en) {
-                btn.classList.add('correct');
-            }
-        });
-
-        if (!isCorrect) {
-            clickedBtn.classList.add('wrong');
-        }
-
-        const resultPrefix = isCorrect ? 'Correct: ' : 'Incorrect: ';
-        document.getElementById('fact-title').innerHTML = `${resultPrefix} ${currentQuestion.en}`;
-        
-        document.getElementById('fact-box').style.borderLeftColor = isCorrect ? 'var(--success)' : 'var(--danger)';
-
+        speakAnswer(correctData.enName, correctData.zhName);
         document.getElementById('next-btn-container').style.display = 'block';
     }
-</script>
 
+    function loadNextQuestion() {
+        currentQuestionIndex++;
+        loadQuestion();
+    }
+
+    function showLevelResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'flex';
+        
+        document.getElementById('final-score-text').textContent = `You scored ${score} out of ${currentLevelQuestions.length} in Level ${currentLevel}`;
+        
+        const actionBtn = document.getElementById('result-action-btn');
+        
+        if (currentLevel < maxLevel) {
+            document.getElementById('result-title').textContent = `Level ${currentLevel} Complete!`;
+            actionBtn.textContent = `Start Level ${currentLevel + 1}`;
+            actionBtn.onclick = () => {
+                document.getElementById('result-screen').style.display = 'none';
+                document.getElementById('quiz-screen').style.display = 'flex';
+                currentLevel++;
+                startLevel(currentLevel);
+            };
+        } else {
+            document.getElementById('result-title').textContent = "Game Complete!";
+            actionBtn.textContent = "Back to Start";
+            actionBtn.onclick = () => {
+                document.getElementById('result-screen').style.display = 'none';
+                document.getElementById('start-screen').style.display = 'flex';
+            };
+        }
+    }
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'start') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.4);
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.4);
+        } else if (type === 'correct') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+            oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1); 
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+
+    function speakAnswer(enText, zhText) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); 
+            const utteranceEn = new SpeechSynthesisUtterance(enText);
+            utteranceEn.lang = 'en-US';
+            utteranceEn.rate = 1.0;
+            const utteranceZh = new SpeechSynthesisUtterance(zhText);
+            utteranceZh.lang = 'zh-HK'; 
+            utteranceZh.rate = 1.0;
+            window.speechSynthesis.speak(utteranceEn);
+            window.speechSynthesis.speak(utteranceZh);
+        }
+    }
+</script>
 </body>
 </html>

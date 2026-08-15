@@ -516,10 +516,19 @@
     function render() {
         const upperName = current.n.toUpperCase();
         
-        const display = upperName.split('').map((c, index) => {
-            if (c === " ") return "&nbsp;";
-            return guessed.includes(c) ? current.n[index] : "_";
-        }).join(" ");
+        // Split the country name into distinct words
+        const words = upperName.split(' ');
+        
+        // Map each word and wrap it in a nowrap span to prevent line breaks mid-word
+        const display = words.map(word => {
+            const formattedWord = word.split('').map(c => {
+                // If it's a hyphen or punctuation, reveal it automatically
+                if (!/[A-Z]/.test(c)) return c; 
+                return guessed.includes(c) ? c : "_";
+            }).join(" ");
+            
+            return `<span style="white-space: nowrap;">${formattedWord}</span>`;
+        }).join(" &nbsp;&nbsp;&nbsp; "); // Add distinct spacing between words
         
         document.getElementById('word-display').innerHTML = display;
         

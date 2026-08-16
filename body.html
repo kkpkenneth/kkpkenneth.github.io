@@ -13,7 +13,7 @@
         user-select: none;
     }
 
-    /* Grimy Lab Background */
+    /* Grimy Lab Background - Fixed cursor pointer */
     #lab {
         position: absolute; 
         top: 0; 
@@ -26,9 +26,9 @@
             linear-gradient(90deg, rgba(57, 255, 20, 0.05) 1px, transparent 1px);
         background-size: 50px 50px; 
         z-index: 1; 
-        cursor: grab;
+        cursor: default;
     }
-    #lab:active { cursor: grabbing; }
+    #lab.panning { cursor: grabbing; }
 
     /* Center Anchor for the Grid */
     #spiral-container {
@@ -254,7 +254,7 @@
     .close-btn:hover { background: #39ff14; color: #000; }
 
     /* Popups */
-    #unlock-popup, #auto-popup, #drag-popup { z-index: 300; }
+    #unlock-popup, #auto-popup, #drag-popup, #details-modal { z-index: 300; }
     #unlock-popup .modal { max-height: 550px; }
     .visual canvas { width: 100px; height: 100px; margin: 10px auto; display: block; image-rendering: pixelated;}
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s; }
@@ -303,6 +303,18 @@
     </div>
 </div>
 
+<!-- Details Modal -->
+<div id="details-modal" class="modal-overlay">
+    <div class="modal" style="overflow: hidden;">
+        <h2 style="border: none; margin-bottom: 0;">SPECIMEN DOSSIER</h2>
+        <div id="details-visual" class="visual"></div>
+        <h3 id="details-name" style="margin-top: 0; margin-bottom: 0; font-size: 1.8em; color: white;">Stem Cell</h3>
+        <div id="details-group">[CELL]</div>
+        <p id="details-desc">The blank slate. A primal canvas ready to differentiate.</p>
+        <button class="close-btn" onclick="document.getElementById('details-modal').style.display='none'">CLOSE</button>
+    </div>
+</div>
+
 <!-- Unlock Popup Modal -->
 <div id="unlock-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden;">
@@ -333,7 +345,7 @@
         <div class="gear-icon">🖐️</div>
         <h3 style="margin-top: 0; font-size: 1.5em; color: white;">CONTAINMENT FIELD DISABLED</h3>
         <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">You have synthesized 21 specimens. You may now click and drag to freely rearrange jars across the laboratory.</p>
-        <button class="close-btn" onclick="document.getElementById('drag-popup').style.display='none'">MUAHAHAHA!</button>
+        <button class="close-btn" onclick="closeDragPopup()">MUAHAHAHA!</button>
     </div>
 </div>
 
@@ -378,9 +390,9 @@
     // --- Mad Scientist Theremin Sequencer (BGM) ---
     let isBgmEnabled = true;
     const bgmMelody = [
-        261.63, 311.13, 392.00, 0, 415.30, 0, 392.00, 0,       
-        261.63, 311.13, 392.00, 0, 466.16, 0, 392.00, 0,       
-        261.63, 311.13, 261.63, 0, 233.08, 261.63, 233.08, 0,       
+        261.63, 311.13, 392.00, 0, 415.30, 0, 392.00, 0,        
+        261.63, 311.13, 392.00, 0, 466.16, 0, 392.00, 0,        
+        261.63, 311.13, 261.63, 0, 233.08, 261.63, 233.08, 0,        
         196.00, 0, 0, 0, 0, 0, 0, 0
     ];
 
@@ -409,9 +421,9 @@
         };
     }
 
-    function speakRobotic(text) {
+    function speakRobotic(text, interrupt = true) {
         if (!('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel(); 
+        if (interrupt) window.speechSynthesis.cancel(); 
         
         const utterance = new SpeechSynthesisUtterance(text);
         
@@ -430,19 +442,23 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    // --- Panning / Camera Logic ---
+    // --- Panning / Camera Logic (Shift-Click or Right-Click Drag) ---
     let panX = 0, panY = 0;
     let isPanning = false, startMouseX, startMouseY;
     const lab = document.getElementById('lab');
     const spiralContainer = document.getElementById('spiral-container');
 
     lab.addEventListener('mousedown', (e) => {
-        if(e.target === lab || e.target === spiralContainer) {
+        if (e.button === 2 || (e.button === 0 && e.shiftKey)) {
             isPanning = true;
             startMouseX = e.clientX - panX;
             startMouseY = e.clientY - panY;
+            lab.classList.add('panning');
+            e.preventDefault();
         }
     });
+
+    lab.addEventListener('contextmenu', (e) => e.preventDefault());
 
     window.addEventListener('mousemove', (e) => {
         if (!isPanning) return;
@@ -451,8 +467,14 @@
         spiralContainer.style.transform = `translate(${panX}px, ${panY}px)`;
     });
 
-    window.addEventListener('mouseup', () => { isPanning = false; });
-    window.addEventListener('mouseleave', () => { isPanning = false; });
+    window.addEventListener('mouseup', () => { 
+        isPanning = false; 
+        lab.classList.remove('panning');
+    });
+    window.addEventListener('mouseleave', () => { 
+        isPanning = false; 
+        lab.classList.remove('panning');
+    });
 
     // --- Popup Flow Management ---
     let pendingAutoHarvestPopup = false;
@@ -477,6 +499,19 @@
             }, 300);
             pendingDragPopup = false;
         }
+    };
+
+    window.closeDragPopup = function() {
+        document.getElementById('drag-popup').style.display = 'none';
+        // Randomly scatter all active jars within visible screen range
+        activeJars.forEach(jar => {
+            const rangeX = window.innerWidth * 0.7;
+            const rangeY = window.innerHeight * 0.6;
+            jar.customX = (Math.random() - 0.5) * rangeX;
+            jar.customY = (Math.random() - 0.5) * rangeY;
+        });
+        recalculateLayout();
+        saveProgress();
     };
 
     // --- Sprite Logic ---
@@ -515,7 +550,7 @@
         return canvas;
     }
 
-    // --- 51-Organ Game Data with Groups & Explanations ---
+    // --- Organ Game Data ---
     const organData = [
         // --- CELLS (1-10) ---
         { id: '1', name: 'Stem Cell', group: 'Cell', explanation: 'The blank slate. A primal canvas ready to differentiate.', cost: 1, cellsPerClick: 1 },
@@ -811,6 +846,14 @@
             jarObj.customY = window.loadedPositions[loadIndex].customY;
         }
 
+        // --- Text-to-Speech Hover Event (Just Name) ---
+        el.addEventListener('mouseenter', () => {
+            speakRobotic(organDef.name, true);
+        });
+        el.addEventListener('mouseleave', () => {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        });
+
         let isDraggingJar = false;
         let startX, startY;
         let moved = false;
@@ -918,8 +961,9 @@
             
             const buyBtnHTML = `<button class="pixel-btn" ${canAfford ? '' : 'disabled'} onclick="synthesize('${a.id}')">
                                 ${isUnlocked ? 'SYNTHESIZE' : 'UNLOCK'}<br>(${a.cost.toLocaleString()} 🧬)
-                             </button>`;
-                             
+                               </button>`;
+                               
+            const infoBtnHTML = isUnlocked ? `<button class="pixel-btn" style="background:#0984e3;" onclick="openDetails('${a.id}')">INFO</button>` : '';
             const removeBtnHTML = isUnlocked ? `<button class="remove-btn" title="Incinerate Specimen" onclick="removeJar('${a.id}')">✖</button>` : '';
 
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
@@ -932,6 +976,7 @@
                         ${buyBtnHTML}
                         ${removeBtnHTML}
                     </div>
+                    ${isUnlocked ? `<div class="btn-row">${infoBtnHTML}</div>` : ''}
                 </div>
             `;
             item.querySelector('.visual').appendChild(createOrganCanvas(a.id));
@@ -939,6 +984,21 @@
         });
         document.getElementById('collection-modal').style.display = 'flex';
     }
+
+    window.openDetails = function(id) {
+        const organ = organData.find(a => a.id === id);
+        if (!organ) return;
+        
+        const detailsVisual = document.getElementById('details-visual');
+        detailsVisual.innerHTML = '';
+        detailsVisual.appendChild(createOrganCanvas(organ.id));
+        document.getElementById('details-name').innerText = organ.name;
+        document.getElementById('details-group').innerText = "[" + organ.group.toUpperCase() + "]";
+        document.getElementById('details-desc').innerText = organ.explanation;
+        
+        document.getElementById('details-modal').style.display = 'flex';
+        sfx.bubble();
+    };
 
     window.synthesize = function(id) {
         const organ = organData.find(a => a.id === id);

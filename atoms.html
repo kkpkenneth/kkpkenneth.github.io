@@ -614,6 +614,20 @@
             }
         }
 
+        // Speech Synthesis Setup
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.rate = 1.0;
+                msg.pitch = 1.0;
+                const voices = window.speechSynthesis.getVoices();
+                const engVoice = voices.find(v => v.lang.startsWith('en'));
+                if (engVoice) msg.voice = engVoice;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
         // Audio Context Setup
         let audioCtx;
         function initAudio() {
@@ -714,6 +728,9 @@
             isLevelComplete = false;
             draggedNode = null;
             hoveredNode = null;
+
+            // Trigger voice synthesis for element
+            speakText(`Element ${data.z}, ${data.elemName}`);
 
             const radius = width < 400 ? 25 : 35;
 

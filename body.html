@@ -153,7 +153,7 @@
     /* Default tap action */
     .jar-container:active { transform: translate(-50%, -48%); border-color: #39ff14; }
 
-    /* Drag enabled state */
+    /* Drag enabled state once game reaches 21 specimens */
     body.all-unlocked .jar-container { cursor: grab; }
     body.all-unlocked .jar-container:active { 
         cursor: grabbing; 
@@ -232,7 +232,7 @@
         width: 64px; 
         height: 64px; 
         image-rendering: pixelated; 
-        margin: 0; /* Overrides the popup margin to center correctly */
+        margin: 0; 
     } 
     
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff;}
@@ -255,8 +255,13 @@
 
     /* Popups */
     #unlock-popup, #auto-popup, #drag-popup { z-index: 300; }
-    .visual canvas { width: 100px; height: 100px; margin: 20px auto; display: block; image-rendering: pixelated;}
+    #unlock-popup .modal { max-height: 550px; }
+    .visual canvas { width: 100px; height: 100px; margin: 10px auto; display: block; image-rendering: pixelated;}
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s; }
+
+    /* Explanation & Group styling for the new specimen popup */
+    #popup-group { color: #2ed573; font-size: 0.9em; letter-spacing: 2px; margin-top: 5px; font-weight: bold; }
+    #popup-desc { color: #d1d8e0; font-size: 1.1em; line-height: 1.4; margin: 15px auto; font-style: italic; border-left: 3px solid #39ff14; padding-left: 15px; text-align: left; max-width: 80%; background: rgba(0,255,50,0.05); padding: 15px;}
 
     @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 </style>
@@ -300,10 +305,12 @@
 
 <!-- Unlock Popup Modal -->
 <div id="unlock-popup" class="modal-overlay">
-    <div class="modal" style="overflow: hidden; max-height: 400px;">
+    <div class="modal" style="overflow: hidden;">
         <h2 style="border: none; margin-bottom: 0;">NEW SPECIMEN ISOLATED!</h2>
         <div id="popup-visual" class="visual"></div>
-        <h3 id="popup-name" style="margin-top: 0; font-size: 1.5em; color: white;">Stem Cell</h3>
+        <h3 id="popup-name" style="margin-top: 0; margin-bottom: 0; font-size: 1.8em; color: white;">Stem Cell</h3>
+        <div id="popup-group">[CELL]</div>
+        <p id="popup-desc">The blank slate. A primal canvas ready to differentiate.</p>
         <button class="close-btn" onclick="closeUnlockPopup()">EXCELLENT...</button>
     </div>
 </div>
@@ -508,59 +515,62 @@
         return canvas;
     }
 
-    // --- 51-Organ Game Data ---
+    // --- 51-Organ Game Data with Groups & Explanations ---
     const organData = [
-        { id: '1', name: 'Stem Cell', cost: 5, cellsPerClick: 1 },
-        { id: '2', name: 'Red Blood Cell', cost: 10, cellsPerClick: 2 },
-        { id: '3', name: 'White Blood Cell', cost: 20, cellsPerClick: 3 },
-        { id: '4', name: 'Epithelial Cell', cost: 35, cellsPerClick: 4 },
-        { id: '5', name: 'Fat Cell', cost: 50, cellsPerClick: 5 },
-        { id: '6', name: 'Bone Cell', cost: 75, cellsPerClick: 6 },
-        { id: '7', name: 'Cartilage Cell', cost: 100, cellsPerClick: 8 },
-        { id: '8', name: 'Glandular Cell', cost: 150, cellsPerClick: 10 },
-        { id: '9', name: 'Muscle Cell', cost: 200, cellsPerClick: 12 },
-        { id: '10', name: 'Nerve Cell', cost: 250, cellsPerClick: 15 },
-        { id: '11', name: 'Epithelium', cost: 350, cellsPerClick: 20 },
-        { id: '12', name: 'Endothelium', cost: 500, cellsPerClick: 25 },
-        { id: '13', name: 'Connective Tissue', cost: 750, cellsPerClick: 30 },
-        { id: '14', name: 'Adipose Tissue', cost: 1000, cellsPerClick: 35 },
-        { id: '15', name: 'Mucous Membrane', cost: 1250, cellsPerClick: 40 },
-        { id: '16', name: 'Lymphoid Tissue', cost: 1500, cellsPerClick: 50 },
-        { id: '17', name: 'Smooth Muscle', cost: 2000, cellsPerClick: 60 },
-        { id: '18', name: 'Skeletal Muscle', cost: 2500, cellsPerClick: 70 },
-        { id: '19', name: 'Cardiac Muscle', cost: 3000, cellsPerClick: 80 },
-        { id: '20', name: 'Nervous Tissue', cost: 4000, cellsPerClick: 90 },
-        { id: '21', name: 'Appendix', cost: 5000, cellsPerClick: 100 },
-        { id: '22', name: 'Tonsil', cost: 6500, cellsPerClick: 120 },
-        { id: '23', name: 'Spleen', cost: 8000, cellsPerClick: 140 },
-        { id: '24', name: 'Gallbladder', cost: 10000, cellsPerClick: 160 },
-        { id: '25', name: 'Bladder', cost: 12500, cellsPerClick: 180 },
-        { id: '26', name: 'Thyroid', cost: 15000, cellsPerClick: 200 },
-        { id: '27', name: 'Pancreas', cost: 20000, cellsPerClick: 250 },
-        { id: '28', name: 'Kidney', cost: 25000, cellsPerClick: 300 },
-        { id: '29', name: 'Stomach', cost: 30000, cellsPerClick: 350 },
-        { id: '30', name: 'Intestine', cost: 40000, cellsPerClick: 400 },
-        { id: '31', name: 'Bone Marrow', cost: 50000, cellsPerClick: 500 },
-        { id: '32', name: 'Tongue', cost: 60000, cellsPerClick: 600 },
-        { id: '33', name: 'Ear', cost: 75000, cellsPerClick: 700 },
-        { id: '34', name: 'Eye', cost: 90000, cellsPerClick: 800 },
-        { id: '35', name: 'Skin', cost: 100000, cellsPerClick: 900 },
-        { id: '36', name: 'Skull', cost: 125000, cellsPerClick: 1000 },
-        { id: '37', name: 'Spine', cost: 150000, cellsPerClick: 1200 },
-        { id: '38', name: 'Lung', cost: 175000, cellsPerClick: 1400 },
-        { id: '39', name: 'Liver', cost: 200000, cellsPerClick: 1600 },
-        { id: '40', name: 'Heart', cost: 250000, cellsPerClick: 1800 },
-        { id: '41', name: 'Venom Sac', cost: 300000, cellsPerClick: 2000 },
-        { id: '42', name: 'Acid Gland', cost: 400000, cellsPerClick: 2500 },
-        { id: '43', name: 'Cyber-Spleen', cost: 500000, cellsPerClick: 3000 },
-        { id: '44', name: 'Bioluminescent Skin', cost: 600000, cellsPerClick: 3500 },
-        { id: '45', name: 'Mutant Lung', cost: 750000, cellsPerClick: 4500 },
-        { id: '46', name: 'Extra Heart', cost: 1000000, cellsPerClick: 6000 },
-        { id: '47', name: 'Chrono-Gland', cost: 1500000, cellsPerClick: 8000 },
-        { id: '48', name: 'Telepathic Lobe', cost: 2500000, cellsPerClick: 12000 },
-        { id: '49', name: 'Hive Mind Cortex', cost: 5000000, cellsPerClick: 25000 },
-        { id: '50', name: 'Dark Matter Nucleus', cost: 10000000, cellsPerClick: 50000 },
-        { id: 'brain', name: 'Cosmic Overbrain', cost: 100000000, cellsPerClick: 100000 }
+        { id: '1', name: 'Stem Cell', group: 'Cell', explanation: 'The blank slate. A primal canvas ready to differentiate.', cost: 5, cellsPerClick: 1 },
+        { id: '2', name: 'Red Blood Cell', group: 'Cell', explanation: 'Erythrocyte. Delivers oxygen through the crimson rivers of the host.', cost: 10, cellsPerClick: 2 },
+        { id: '3', name: 'White Blood Cell', group: 'Cell', explanation: 'Leukocyte. The microscopic vanguard against foreign invaders.', cost: 20, cellsPerClick: 3 },
+        { id: '4', name: 'Epithelial Cell', group: 'Cell', explanation: 'The barricade. Forms the protective linings of internal organs.', cost: 35, cellsPerClick: 4 },
+        { id: '5', name: 'Fat Cell', group: 'Cell', explanation: 'Adipocyte. A swollen reservoir of liquid lipid energy.', cost: 50, cellsPerClick: 5 },
+        { id: '6', name: 'Bone Cell', group: 'Cell', explanation: 'Osteocyte. The calcified architect of the skeletal frame.', cost: 75, cellsPerClick: 6 },
+        { id: '7', name: 'Cartilage Cell', group: 'Cell', explanation: 'Chondrocyte. Pliable and tough, cushioning the grinding joints.', cost: 100, cellsPerClick: 8 },
+        { id: '8', name: 'Glandular Cell', group: 'Cell', explanation: 'A tiny chemical factory secreting vital hormones and enzymes.', cost: 150, cellsPerClick: 10 },
+        { id: '9', name: 'Muscle Cell', group: 'Cell', explanation: 'Myocyte. Fibrous and contractile, built for raw kinetic force.', cost: 200, cellsPerClick: 12 },
+        { id: '10', name: 'Nerve Cell', group: 'Cell', explanation: 'Neuron. A sprawling, bio-electric network of data processing.', cost: 250, cellsPerClick: 15 },
+        
+        { id: '11', name: 'Epithelium', group: 'Tissue', explanation: 'A continuous, tightly knit sheet of cells guarding the frontiers.', cost: 350, cellsPerClick: 20 },
+        { id: '12', name: 'Endothelium', group: 'Tissue', explanation: 'The slick, frictionless lining of the vascular highways.', cost: 500, cellsPerClick: 25 },
+        { id: '13', name: 'Connective Tissue', group: 'Tissue', explanation: 'The structural biological glue binding the anatomy together.', cost: 750, cellsPerClick: 30 },
+        { id: '14', name: 'Adipose Tissue', group: 'Tissue', explanation: 'A thick, squishy layer of insulation and metabolic reserve.', cost: 1000, cellsPerClick: 35 },
+        { id: '15', name: 'Mucous Membrane', group: 'Tissue', explanation: 'Viscous and defensive, trapping pathogens before they strike.', cost: 1250, cellsPerClick: 40 },
+        { id: '16', name: 'Lymphoid Tissue', group: 'Tissue', explanation: 'The fortified training ground for the immune system\'s army.', cost: 1500, cellsPerClick: 50 },
+        { id: '17', name: 'Smooth Muscle', group: 'Tissue', explanation: 'Involuntary contractors that silently govern internal mechanics.', cost: 2000, cellsPerClick: 60 },
+        { id: '18', name: 'Skeletal Muscle', group: 'Tissue', explanation: 'Striated, dense cables that puppeteer the host\'s skeleton.', cost: 2500, cellsPerClick: 70 },
+        { id: '19', name: 'Cardiac Muscle', group: 'Tissue', explanation: 'Tireless, rhythmic fibers that never cease their pumping.', cost: 3000, cellsPerClick: 80 },
+        { id: '20', name: 'Nervous Tissue', group: 'Tissue', explanation: 'A dense web of axons processing sensory input and commands.', cost: 4000, cellsPerClick: 90 },
+        
+        { id: '21', name: 'Appendix', group: 'Immune System', explanation: 'A vestigial dead end, or a hidden sanctuary for gut flora.', cost: 5000, cellsPerClick: 100 },
+        { id: '22', name: 'Tonsil', group: 'Immune System', explanation: 'Twin sentinels at the gateway of the respiratory tract.', cost: 6500, cellsPerClick: 120 },
+        { id: '23', name: 'Spleen', group: 'Immune System', explanation: 'The ultimate blood filter. A graveyard for old erythrocytes.', cost: 8000, cellsPerClick: 140 },
+        { id: '24', name: 'Gallbladder', group: 'Digestive System', explanation: 'A tiny sac holding corrosive green bile to dissolve lipids.', cost: 10000, cellsPerClick: 160 },
+        { id: '25', name: 'Bladder', group: 'Excretory System', explanation: 'An expandable muscular reservoir for nitrogenous liquid waste.', cost: 12500, cellsPerClick: 180 },
+        { id: '26', name: 'Thyroid', group: 'Endocrine System', explanation: 'The metabolic metronome, dictating energy consumption rates.', cost: 15000, cellsPerClick: 200 },
+        { id: '27', name: 'Pancreas', group: 'Digestive System', explanation: 'A dual-purpose factory producing insulin and digestive juices.', cost: 20000, cellsPerClick: 250 },
+        { id: '28', name: 'Kidney', group: 'Excretory System', explanation: 'Twin bean-shaped purifiers separating toxins from the blood.', cost: 25000, cellsPerClick: 300 },
+        { id: '29', name: 'Stomach', group: 'Digestive System', explanation: 'A churning, acidic cauldron of hydrochloric fluid and enzymes.', cost: 30000, cellsPerClick: 350 },
+        { id: '30', name: 'Intestine', group: 'Digestive System', explanation: 'A winding, convoluted tube absorbing nutrients into the host.', cost: 40000, cellsPerClick: 400 },
+        { id: '31', name: 'Bone Marrow', group: 'Skeletal System', explanation: 'The gelatinous, deep core where new blood cells are forged.', cost: 50000, cellsPerClick: 500 },
+        { id: '32', name: 'Tongue', group: 'Sensory System', explanation: 'A highly mobile, muscular organ studded with chemoreceptors.', cost: 60000, cellsPerClick: 600 },
+        { id: '33', name: 'Ear', group: 'Sensory System', explanation: 'A complex labyrinth translating atmospheric vibrations into sound.', cost: 75000, cellsPerClick: 700 },
+        { id: '34', name: 'Eye', group: 'Sensory System', explanation: 'A delicate sphere capturing photons to construct visual reality.', cost: 90000, cellsPerClick: 800 },
+        { id: '35', name: 'Skin', group: 'Integumentary System', explanation: 'The largest organ. A resilient barrier of keratinized cells.', cost: 100000, cellsPerClick: 900 },
+        { id: '36', name: 'Skull', group: 'Skeletal System', explanation: 'A heavy calcium vault protecting the central cognitive processor.', cost: 125000, cellsPerClick: 1000 },
+        { id: '37', name: 'Spine', group: 'Skeletal System', explanation: 'An articulated column shielding the central nerve highway.', cost: 150000, cellsPerClick: 1200 },
+        { id: '38', name: 'Lung', group: 'Respiratory System', explanation: 'Spongy, branching sacs continuously exchanging gas with the air.', cost: 175000, cellsPerClick: 1400 },
+        { id: '39', name: 'Liver', group: 'Digestive System', explanation: 'A massive, constantly regenerating chemical processing plant.', cost: 200000, cellsPerClick: 1600 },
+        { id: '40', name: 'Heart', group: 'Circulatory System', explanation: 'The central engine. A tireless muscular pump driving the system.', cost: 250000, cellsPerClick: 1800 },
+        
+        { id: '41', name: 'Venom Sac', group: 'Biological Anomaly', explanation: 'A synthesized gland holding a hyper-potent, paralytic neurotoxin.', cost: 300000, cellsPerClick: 2000 },
+        { id: '42', name: 'Acid Gland', group: 'Biological Anomaly', explanation: 'Produces highly concentrated fluoroantimonic acid within the host.', cost: 400000, cellsPerClick: 2500 },
+        { id: '43', name: 'Cyber-Spleen', group: 'Cybernetics', explanation: 'A mechanized blood filter interwoven with restorative nanotechnology.', cost: 500000, cellsPerClick: 3000 },
+        { id: '44', name: 'Bioluminescent Skin', group: 'Biological Anomaly', explanation: 'Modified epidermis emitting an eerie, localized radioactive glow.', cost: 600000, cellsPerClick: 3500 },
+        { id: '45', name: 'Mutant Lung', group: 'Biological Anomaly', explanation: 'Capable of filtering pure oxygen from highly toxic atmospheres.', cost: 750000, cellsPerClick: 4500 },
+        { id: '46', name: 'Extra Heart', group: 'Biological Anomaly', explanation: 'An auxiliary pump designed to sustain massively accelerated metabolisms.', cost: 1000000, cellsPerClick: 6000 },
+        { id: '47', name: 'Chrono-Gland', group: 'Biological Anomaly', explanation: 'Secretes a localized hormone that subjectively alters time perception.', cost: 1500000, cellsPerClick: 8000 },
+        { id: '48', name: 'Telepathic Lobe', group: 'Biological Anomaly', explanation: 'A dense bundle of grey matter attuned to external brainwave frequencies.', cost: 2500000, cellsPerClick: 12000 },
+        { id: '49', name: 'Hive Mind Cortex', group: 'Biological Anomaly', explanation: 'A neural transceiver networking multiple subjects into one consciousness.', cost: 5000000, cellsPerClick: 25000 },
+        { id: '50', name: 'Dark Matter Nucleus', group: 'Biological Anomaly', explanation: 'An impossible organ harnessing concentrated dark matter for infinite energy.', cost: 10000000, cellsPerClick: 50000 },
+        { id: 'brain', name: 'Cosmic Overbrain', group: 'Eldritch Entity', explanation: 'A hyper-dimensional nervous center. It hears everything.', cost: 100000000, cellsPerClick: 100000 }
     ];
 
     organData.forEach((a, i) => {
@@ -598,8 +608,10 @@
                     popupVisual.innerHTML = '';
                     popupVisual.appendChild(createOrganCanvas(ultimateDef.id));
                     document.getElementById('popup-name').innerText = "Anomaly Detected: " + ultimateDef.name;
+                    document.getElementById('popup-group').innerText = "[" + ultimateDef.group.toUpperCase() + "]";
+                    document.getElementById('popup-desc').innerText = ultimateDef.explanation;
                     document.getElementById('unlock-popup').style.display = 'flex';
-                    speakRobotic("Anomaly detected. " + ultimateDef.name);
+                    speakRobotic("Anomaly detected. " + ultimateDef.name + ". " + ultimateDef.explanation);
                 } else {
                     openCollection();
                 }
@@ -650,7 +662,7 @@
     }
 
     function recalculateLayout() {
-        const cols = 7; // Configurable number of columns for the grid
+        const cols = 7; 
         const spacingX = 110;
         const spacingY = 170;
         const total = activeJars.length;
@@ -667,7 +679,6 @@
                 const totalRows = Math.ceil(total / cols);
                 const currentCols = (totalRows === 1) ? total : cols;
                 
-                // Centering math
                 const x = (col - (currentCols - 1) / 2) * spacingX;
                 const y = (row - (totalRows - 1) / 2) * spacingY;
                 
@@ -864,10 +875,12 @@
                 popupVisual.innerHTML = '';
                 popupVisual.appendChild(createOrganCanvas(organ.id));
                 document.getElementById('popup-name').innerText = organ.name;
+                document.getElementById('popup-group').innerText = "[" + organ.group.toUpperCase() + "]";
+                document.getElementById('popup-desc').innerText = organ.explanation;
                 document.getElementById('unlock-popup').style.display = 'flex';
                 sfx.unlock();
                 
-                speakRobotic("Specimen isolated. " + organ.name);
+                speakRobotic("Specimen isolated. " + organ.name + ". " + organ.explanation);
                 
                 if (reachedThreshold) pendingAutoHarvestPopup = true;
                 if (reachedDrag) pendingDragPopup = true;

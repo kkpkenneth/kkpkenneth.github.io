@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mad Scientist Organ Harvest Tycoon</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden; /* Fluid layout, panning handled by JS */
+        font-family: 'Courier New', Courier, monospace; 
+        background-color: #050a05; 
+        user-select: none;
+    }
+
+    /* Grimy Lab Background */
+    #lab {
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh;
+        background-color: #050a05;
+        background-image: 
+            linear-gradient(rgba(57, 255, 20, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(57, 255, 20, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px; 
+        z-index: 1; 
+        cursor: grab;
+    }
+    #lab:active { cursor: grabbing; }
+
+    /* Center Anchor for the Grid */
+    #spiral-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(0, 0); /* Modified by JS for panning */
+        transition: transform 0.1s linear;
+    }
+
+    /* Start Screen */
+    #start-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: #050a05;
+        background-image: 
+            linear-gradient(rgba(57, 255, 20, 0.05) 2px, transparent 2px),
+            linear-gradient(90deg, rgba(57, 255, 20, 0.05) 2px, transparent 2px);
+        background-size: 50px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 200;
+        color: #39ff14;
+        text-shadow: 2px 2px 0px #000;
+    }
+    #start-screen h1 { font-size: 3em; margin-bottom: 10px; text-align: center; }
+    #start-screen p { color: #d1d8e0; font-size: 1.2em; text-align: center; max-width: 80%; background: rgba(0,0,0,0.8); padding: 15px; border: 2px solid #39ff14;}
+    #start-btn {
+        margin-top: 20px;
+        padding: 15px 40px; font-size: 1.5em; font-weight: bold; font-family: inherit;
+        background: #39ff14; color: #000; border: 4px solid #fff; border-radius: 0;
+        cursor: pointer; box-shadow: 4px 4px 0px rgba(0,0,0,0.8);
+        transition: transform 0.1s;
+    }
+    #start-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.8); }
+
+    /* UI Overlay */
+    #ui-layer {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
+        display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    
+    .hud-column { display: flex; flex-direction: column; gap: 10px; }
+
+    .hud-box {
+        background: rgba(0, 0, 0, 0.8); 
+        padding: 15px 25px; border: 3px solid #39ff14;
+        color: white; font-weight: bold; font-size: 1.5em; pointer-events: auto;
+        box-shadow: 3px 3px 0px rgba(57,255,20,0.3);
+    }
+    
+    #auto-harvest-box {
+        font-size: 1em; padding: 10px 20px; border-color: #2ed573; color: #2ed573;
+        display: none;
+    }
+
+    .action-btn {
+        cursor: pointer; transition: transform 0.1s; font-family: inherit; text-transform: uppercase;
+    }
+    .action-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px rgba(57,255,20,0.3); }
+
+    /* The Glass Jar holding the organs */
+    .jar-container {
+        position: absolute;
+        width: 80px;
+        height: 120px;
+        transform: translate(-50%, -50%); /* Center on its exact grid coordinate */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        background: rgba(0, 255, 50, 0.05);
+        border: 4px solid #222;
+        border-top: 12px solid #111; /* Heavy mechanical lid */
+        border-radius: 10px 10px 20px 20px;
+        box-shadow: inset 0 -20px 20px rgba(57, 255, 20, 0.15), inset 0 0 10px rgba(0,0,0,0.8), 5px 5px 10px rgba(0,0,0,0.5);
+        cursor: pointer;
+        pointer-events: auto;
+    }
+    .jar-container::after {
+        content: '';
+        position: absolute;
+        top: 5px; left: 5px; width: 12px; height: 85%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        pointer-events: none;
+    }
+
+    .jar-label {
+        position: absolute;
+        bottom: -25px;
+        font-size: 10px;
+        font-weight: bold;
+        color: #39ff14;
+        background: #000;
+        padding: 2px 6px;
+        pointer-events: none;
+        white-space: nowrap;
+        border: 2px solid #222;
+        text-shadow: none;
+        z-index: 5;
+    }
+
+    /* Floating Organ Sprite Styling */
+    .floating-organ {
+        width: 64px; 
+        height: 64px;
+        pointer-events: none; 
+        image-rendering: pixelated; 
+        margin-bottom: 20px;
+        animation: float 4s ease-in-out infinite alternate;
+        z-index: 2;
+    }
+    @keyframes float {
+        0% { transform: translateY(5px); }
+        100% { transform: translateY(-10px); }
+    }
+
+    /* Default tap action */
+    .jar-container:active { transform: translate(-50%, -48%); border-color: #39ff14; }
+
+    /* Drag enabled state once game reaches 21 specimens */
+    body.all-unlocked .jar-container { cursor: grab; }
+    body.all-unlocked .jar-container:active { 
+        cursor: grabbing; 
+        transform: translate(-50%, -50%) scale(1.05); 
+        border-color: #39ff14; 
+    }
+
+    /* Floating Cell Animation */
+    .floating-cell {
+        position: absolute;
+        color: #39ff14;
+        font-size: 1.2em;
+        font-weight: bold;
+        pointer-events: none;
+        animation: floatUp 1s ease-out forwards;
+        z-index: 50;
+        text-shadow: 2px 2px 0px #000;
+    }
+    @keyframes floatUp {
+        0% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
+    }
+
+    /* Modals */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 100;
+        display: none; justify-content: center; align-items: center;
+    }
+    
+    .modal {
+        background: #0a110a; 
+        border: 4px solid #39ff14;
+        color: white; padding: 20px; 
+        max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
+        box-shadow: 8px 8px 0px rgba(0,0,0,1);
+        position: relative;
+    }
+    
+    .modal::-webkit-scrollbar { width: 12px; }
+    .modal::-webkit-scrollbar-track { background: #000; border-left: 2px solid #39ff14; }
+    .modal::-webkit-scrollbar-thumb { background: #39ff14; }
+
+    /* Sticky Modal Header */
+    .modal h2 { 
+        margin: -20px -20px 15px -20px; /* Offset the 20px modal padding */
+        padding: 20px;
+        color: #39ff14; font-size: 2em; 
+        position: sticky; top: -20px; 
+        background: #0a110a; 
+        z-index: 10; /* Keeps the title strictly above the sprites */
+        border-bottom: 2px dashed #39ff14;
+        text-shadow: 2px 2px 0px #000;
+    }
+    
+    /* Collection Grid */
+    #collection-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px;
+    }
+    .collection-item {
+        background: #050a05; padding: 15px; border: 2px solid #39ff14;
+        display: flex; flex-direction: column; align-items: center; 
+    }
+    .collection-item.locked .visual canvas { filter: brightness(0) opacity(0.3); animation: none; transform: scaleX(1); }
+    
+    /* Centering the canvas inside the collection card */
+    .collection-item .visual { 
+        margin-bottom: 10px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        height: 64px; 
+        width: 100%;
+    }
+    .collection-item .visual canvas { 
+        width: 64px; 
+        height: 64px; 
+        image-rendering: pixelated; 
+        margin: 0; /* Overrides the popup margin to center correctly */
+    } 
+    
+    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff;}
+    .collection-item .count-badge { color: #39ff14; font-size: 0.9em; margin-left: 5px; }
+    
+    .btn-group { display: flex; flex-direction: column; gap: 5px; width: 100%; align-items: stretch; }
+    .btn-row { display: flex; gap: 5px; }
+
+    .pixel-btn {
+        background: #2ed573; color: black; border: 2px solid white; padding: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 0.8em; text-transform: uppercase;
+        flex-grow: 1;
+    }
+    .pixel-btn:active { transform: translate(2px,2px); }
+    .pixel-btn:disabled { background: #333; color: #666; border-color: #222; cursor: not-allowed; }
+    
+    .remove-btn { background: #ff4757; color: white; border: 2px solid white; width: 30px; font-family: inherit; cursor: pointer;}
+
+    .close-btn { background: #000; color: #39ff14; border: 2px solid #39ff14; padding: 10px 30px; cursor: pointer; font-size: 1.2em; font-family: inherit; margin-top: 10px;}
+    .close-btn:hover { background: #39ff14; color: #000; }
+
+    /* Popups */
+    #unlock-popup, #auto-popup, #drag-popup { z-index: 300; }
+    .visual canvas { width: 100px; height: 100px; margin: 20px auto; display: block; image-rendering: pixelated;}
+    .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s; }
+
+    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+    <h1>🔬 Organ Harvest Tycoon</h1>
+    <p>Grow your lab.<br>Start with cells, expand to tissues, construct biological abominations.</p>
+    <button id="start-btn">INITIALIZE INCUBATOR</button>
+</div>
+
+<div id="ui-layer">
+    <div class="hud-column">
+        <div class="hud-box" style="color: #39ff14;">🧬 <span id="cell-count">0</span></div>
+        <div class="hud-box" id="auto-harvest-box">🧪 BIOREACTOR: +<span id="auto-rate">0</span>/s</div>
+    </div>
+    
+    <div class="hud-column" style="align-items: flex-end;">
+        <button id="bgm-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px; width: 100%;">🔊 BGM</button>
+        <button id="collection-btn" class="hud-box action-btn" style="width: 100%;">🗄️ INVENTORY</button>
+        <button id="save-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px; width: 100%;">💾 SAVE DATA</button>
+        <button id="reset-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px; border-color: #ff4757; color: #ff4757; width: 100%;">⚠️ INCINERATE</button>
+    </div>
+</div>
+
+<div id="lab">
+    <div id="spiral-container">
+        <!-- Jars are dynamically added here -->
+    </div>
+</div>
+
+<!-- Collection Modal -->
+<div id="collection-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>Specimen Database</h2>
+        <div id="collection-grid"></div>
+        <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">CLOSE</button>
+    </div>
+</div>
+
+<!-- Unlock Popup Modal -->
+<div id="unlock-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 400px;">
+        <h2 style="border: none; margin-bottom: 0;">NEW SPECIMEN ISOLATED!</h2>
+        <div id="popup-visual" class="visual"></div>
+        <h3 id="popup-name" style="margin-top: 0; font-size: 1.5em; color: white;">Stem Cell</h3>
+        <button class="close-btn" onclick="closeUnlockPopup()">EXCELLENT...</button>
+    </div>
+</div>
+
+<!-- Bioreactor Popup -->
+<div id="auto-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 400px;">
+        <h2 style="border: none; margin-bottom: 0; color: #2ed573;">SYSTEM UPGRADE!</h2>
+        <div class="gear-icon">🧪</div>
+        <h3 style="margin-top: 0; font-size: 1.5em; color: white;">BIOREACTOR ONLINE</h3>
+        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your expanding laboratory now cultivates stem cells automatically!</p>
+        <button class="close-btn" onclick="document.getElementById('auto-popup').style.display='none'">BACK TO WORK</button>
+    </div>
+</div>
+
+<!-- Drag Unlock Popup -->
+<div id="drag-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 400px;">
+        <h2 style="border: none; margin-bottom: 0; color: #ff4757;">SYSTEM OVERRIDE!</h2>
+        <div class="gear-icon">🖐️</div>
+        <h3 style="margin-top: 0; font-size: 1.5em; color: white;">CONTAINMENT FIELD DISABLED</h3>
+        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">You have synthesized 21 biological anomalies. You may now click and drag to freely rearrange jars across the laboratory.</p>
+        <button class="close-btn" onclick="document.getElementById('drag-popup').style.display='none'">MUAHAHAHA!</button>
+    </div>
+</div>
+
+<script>
+    // --- Audio Context & Synth ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSynth(freq, type, duration, vol=0.2, pitchBend=false) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        if (pitchBend) { 
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.05, audioCtx.currentTime + duration);
+        }
+
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sfx = {
+        bubble: () => playSynth(150 + Math.random()*50, 'sine', 0.2, 0.3), 
+        unlock: () => {
+            playSynth(261.63, 'sawtooth', 0.3, 0.15, true);
+            setTimeout(() => playSynth(311.13, 'sawtooth', 0.3, 0.15, true), 150);
+            setTimeout(() => playSynth(392.00, 'sawtooth', 0.6, 0.15, true), 300);
+        },
+        arpeggio: () => {
+            const notes = [261.63, 311.13, 392.00, 415.30, 466.16]; 
+            notes.forEach((freq, i) => {
+                setTimeout(() => playSynth(freq, 'square', 0.1, 0.1), i * 100);
+            });
+        }
+    };
+
+    // --- Mad Scientist Theremin Sequencer (BGM) ---
+    let isBgmEnabled = true;
+    const bgmMelody = [
+        261.63, 311.13, 392.00, 0, 415.30, 0, 392.00, 0,       
+        261.63, 311.13, 392.00, 0, 466.16, 0, 392.00, 0,       
+        261.63, 311.13, 261.63, 0, 233.08, 261.63, 233.08, 0,       
+        196.00, 0, 0, 0, 0, 0, 0, 0
+    ];
+
+    let bgmStep = 0;
+    setInterval(() => {
+        if (isBgmEnabled && audioCtx.state === 'running') {
+            const freq = bgmMelody[bgmStep];
+            if (freq > 0) playSynth(freq, 'triangle', 0.3, 0.05, true); 
+            bgmStep = (bgmStep + 1) % bgmMelody.length;
+        }
+    }, 250);
+
+    document.getElementById('bgm-btn').addEventListener('click', () => {
+        isBgmEnabled = !isBgmEnabled;
+        document.getElementById('bgm-btn').innerText = isBgmEnabled ? "🔊 BGM" : "🔇 BGM";
+        sfx.bubble();
+        if (audioCtx.state === 'suspended' && isBgmEnabled) audioCtx.resume();
+    });
+
+    // --- Text-to-Speech (Robotic Voice) ---
+    let synthVoices = [];
+    if ('speechSynthesis' in window) {
+        synthVoices = window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = () => {
+            synthVoices = window.speechSynthesis.getVoices();
+        };
+    }
+
+    function speakRobotic(text) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel(); 
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        const voice = synthVoices.find(v => 
+            v.name.includes('UK English Male') || 
+            v.name.includes('David') || 
+            v.name.includes('Daniel') || 
+            v.name.includes('Alex')
+        ) || synthVoices[0];
+        
+        if (voice) utterance.voice = voice;
+        
+        utterance.pitch = 0.1; 
+        utterance.rate = 0.8;  
+        
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // --- Panning / Camera Logic ---
+    let panX = 0, panY = 0;
+    let isPanning = false, startMouseX, startMouseY;
+    const lab = document.getElementById('lab');
+    const spiralContainer = document.getElementById('spiral-container');
+
+    lab.addEventListener('mousedown', (e) => {
+        if(e.target === lab || e.target === spiralContainer) {
+            isPanning = true;
+            startMouseX = e.clientX - panX;
+            startMouseY = e.clientY - panY;
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isPanning) return;
+        panX = e.clientX - startMouseX;
+        panY = e.clientY - startMouseY;
+        spiralContainer.style.transform = `translate(${panX}px, ${panY}px)`;
+    });
+
+    window.addEventListener('mouseup', () => { isPanning = false; });
+    window.addEventListener('mouseleave', () => { isPanning = false; });
+
+    // --- Popup Flow Management ---
+    let pendingAutoHarvestPopup = false;
+    let pendingDragPopup = false;
+
+    window.closeUnlockPopup = function() {
+        document.getElementById('unlock-popup').style.display = 'none';
+        window.speechSynthesis.cancel(); 
+        
+        if (pendingAutoHarvestPopup) {
+            setTimeout(() => {
+                document.getElementById('auto-popup').style.display = 'flex';
+                sfx.unlock();
+                speakRobotic("Bioreactor online.");
+            }, 300);
+            pendingAutoHarvestPopup = false;
+        } else if (pendingDragPopup) {
+            setTimeout(() => {
+                document.getElementById('drag-popup').style.display = 'flex';
+                sfx.arpeggio(); 
+                speakRobotic("Containment field disabled.");
+            }, 300);
+            pendingDragPopup = false;
+        }
+    };
+
+    // --- Sprite Logic ---
+    function generateBlobSprite(color) {
+        let pixels = new Array(256).fill('');
+        for(let y=4; y<12; y++){
+            for(let x=4; x<12; x++){
+                if ((x==4&&y==4) || (x==11&&y==4) || (x==4&&y==11) || (x==11&&y==11)) continue;
+                pixels[y*16 + x] = color;
+            }
+        }
+        pixels[6*16 + 6] = '#000000'; 
+        pixels[6*16 + 9] = '#000000'; 
+        return pixels;
+    }
+
+    const defaultColors = ['#ff4757', '#ffa502', '#eccc68', '#7bed9f', '#70a1ff', '#5352ed', '#ff6b81', '#a4b0be', '#39ff14', '#9b59b6'];
+    let customSprites = {}; 
+
+    function createOrganCanvas(id) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 16; canvas.height = 16;
+        canvas.className = 'floating-organ';
+        canvas.style.animationDelay = (-Math.random() * 4) + 's';
+        
+        const ctx = canvas.getContext('2d');
+        const data = customSprites[id];
+        if(data) {
+            for(let i = 0; i < 256; i++) {
+                if(data[i]) {
+                    ctx.fillStyle = data[i];
+                    ctx.fillRect(i % 16, Math.floor(i / 16), 1, 1);
+                }
+            }
+        }
+        return canvas;
+    }
+
+    // --- 51-Organ Game Data ---
+    const organData = [
+        { id: '1', name: 'Stem Cell', cost: 5, cellsPerClick: 1 },
+        { id: '2', name: 'Red Blood Cell', cost: 10, cellsPerClick: 2 },
+        { id: '3', name: 'White Blood Cell', cost: 20, cellsPerClick: 3 },
+        { id: '4', name: 'Epithelial Cell', cost: 35, cellsPerClick: 4 },
+        { id: '5', name: 'Fat Cell', cost: 50, cellsPerClick: 5 },
+        { id: '6', name: 'Bone Cell', cost: 75, cellsPerClick: 6 },
+        { id: '7', name: 'Cartilage Cell', cost: 100, cellsPerClick: 8 },
+        { id: '8', name: 'Glandular Cell', cost: 150, cellsPerClick: 10 },
+        { id: '9', name: 'Muscle Cell', cost: 200, cellsPerClick: 12 },
+        { id: '10', name: 'Nerve Cell', cost: 250, cellsPerClick: 15 },
+        { id: '11', name: 'Epithelium', cost: 350, cellsPerClick: 20 },
+        { id: '12', name: 'Endothelium', cost: 500, cellsPerClick: 25 },
+        { id: '13', name: 'Connective Tissue', cost: 750, cellsPerClick: 30 },
+        { id: '14', name: 'Adipose Tissue', cost: 1000, cellsPerClick: 35 },
+        { id: '15', name: 'Mucous Membrane', cost: 1250, cellsPerClick: 40 },
+        { id: '16', name: 'Lymphoid Tissue', cost: 1500, cellsPerClick: 50 },
+        { id: '17', name: 'Smooth Muscle', cost: 2000, cellsPerClick: 60 },
+        { id: '18', name: 'Skeletal Muscle', cost: 2500, cellsPerClick: 70 },
+        { id: '19', name: 'Cardiac Muscle', cost: 3000, cellsPerClick: 80 },
+        { id: '20', name: 'Nervous Tissue', cost: 4000, cellsPerClick: 90 },
+        { id: '21', name: 'Appendix', cost: 5000, cellsPerClick: 100 },
+        { id: '22', name: 'Tonsil', cost: 6500, cellsPerClick: 120 },
+        { id: '23', name: 'Spleen', cost: 8000, cellsPerClick: 140 },
+        { id: '24', name: 'Gallbladder', cost: 10000, cellsPerClick: 160 },
+        { id: '25', name: 'Bladder', cost: 12500, cellsPerClick: 180 },
+        { id: '26', name: 'Thyroid', cost: 15000, cellsPerClick: 200 },
+        { id: '27', name: 'Pancreas', cost: 20000, cellsPerClick: 250 },
+        { id: '28', name: 'Kidney', cost: 25000, cellsPerClick: 300 },
+        { id: '29', name: 'Stomach', cost: 30000, cellsPerClick: 350 },
+        { id: '30', name: 'Intestine', cost: 40000, cellsPerClick: 400 },
+        { id: '31', name: 'Bone Marrow', cost: 50000, cellsPerClick: 500 },
+        { id: '32', name: 'Tongue', cost: 60000, cellsPerClick: 600 },
+        { id: '33', name: 'Ear', cost: 75000, cellsPerClick: 700 },
+        { id: '34', name: 'Eye', cost: 90000, cellsPerClick: 800 },
+        { id: '35', name: 'Skin', cost: 100000, cellsPerClick: 900 },
+        { id: '36', name: 'Skull', cost: 125000, cellsPerClick: 1000 },
+        { id: '37', name: 'Spine', cost: 150000, cellsPerClick: 1200 },
+        { id: '38', name: 'Lung', cost: 175000, cellsPerClick: 1400 },
+        { id: '39', name: 'Liver', cost: 200000, cellsPerClick: 1600 },
+        { id: '40', name: 'Heart', cost: 250000, cellsPerClick: 1800 },
+        { id: '41', name: 'Venom Sac', cost: 300000, cellsPerClick: 2000 },
+        { id: '42', name: 'Acid Gland', cost: 400000, cellsPerClick: 2500 },
+        { id: '43', name: 'Cyber-Spleen', cost: 500000, cellsPerClick: 3000 },
+        { id: '44', name: 'Bioluminescent Skin', cost: 600000, cellsPerClick: 3500 },
+        { id: '45', name: 'Mutant Lung', cost: 750000, cellsPerClick: 4500 },
+        { id: '46', name: 'Extra Heart', cost: 1000000, cellsPerClick: 6000 },
+        { id: '47', name: 'Chrono-Gland', cost: 1500000, cellsPerClick: 8000 },
+        { id: '48', name: 'Telepathic Lobe', cost: 2500000, cellsPerClick: 12000 },
+        { id: '49', name: 'Hive Mind Cortex', cost: 5000000, cellsPerClick: 25000 },
+        { id: '50', name: 'Dark Matter Nucleus', cost: 10000000, cellsPerClick: 50000 },
+        { id: 'brain', name: 'Cosmic Overbrain', cost: 100000000, cellsPerClick: 100000 }
+    ];
+
+    organData.forEach((a, i) => {
+        customSprites[a.id] = generateBlobSprite(defaultColors[i % defaultColors.length]);
+    });
+
+    let collectedCells = 5; 
+    let unlockedIds = []; 
+    let activeJars = [];
+    window.loadedPositions = []; 
+
+    // --- Cheatcode Listener ---
+    let cheatBuffer = "";
+    document.addEventListener("keydown", (e) => {
+        cheatBuffer += e.key.toLowerCase();
+        if (cheatBuffer.length > 20) cheatBuffer = cheatBuffer.substring(cheatBuffer.length - 20);
+        
+        if (cheatBuffer.includes("brain")) {
+            cheatBuffer = "";
+            const ultimateDef = organData.find(a => a.id === 'brain');
+            if (ultimateDef && !unlockedIds.includes('brain')) {
+                unlockedIds.push('brain');
+                spawnJar(ultimateDef);
+                updateUI();
+                saveProgress();
+                sfx.unlock();
+                
+                const reachedDrag = new Set(unlockedIds).size === 21;
+                if (reachedDrag) pendingDragPopup = true;
+
+                if (document.getElementById('collection-modal').style.display !== 'flex') {
+                    const popupVisual = document.getElementById('popup-visual');
+                    popupVisual.innerHTML = '';
+                    popupVisual.appendChild(createOrganCanvas(ultimateDef.id));
+                    document.getElementById('popup-name').innerText = "Anomaly Detected: " + ultimateDef.name;
+                    document.getElementById('unlock-popup').style.display = 'flex';
+                    speakRobotic("Anomaly detected. " + ultimateDef.name);
+                } else {
+                    openCollection();
+                }
+            }
+        }
+    });
+
+    // --- Local Storage Management ---
+    function saveProgress() {
+        localStorage.setItem("labCells", collectedCells);
+        localStorage.setItem("labUnlocks", JSON.stringify(unlockedIds));
+        
+        const positions = activeJars.map(j => ({ customX: j.customX, customY: j.customY }));
+        localStorage.setItem("labJarPositions", JSON.stringify(positions));
+    }
+
+    function loadProgress() {
+        const savedCells = localStorage.getItem("labCells");
+        const savedUnlocks = localStorage.getItem("labUnlocks");
+        const savedPositions = localStorage.getItem("labJarPositions");
+        
+        if (savedCells !== null) collectedCells = parseInt(savedCells, 10);
+        if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
+        if (savedPositions !== null) window.loadedPositions = JSON.parse(savedPositions);
+        
+        updateUI();
+    }
+
+    // --- Game Logic ---
+    function updateUI() {
+        document.getElementById('cell-count').innerText = collectedCells.toLocaleString();
+        
+        const autoBox = document.getElementById('auto-harvest-box');
+        if (activeJars.length >= 6) {
+            autoBox.style.display = 'block';
+            let cellsPerSecond = activeJars.reduce((sum, jar) => sum + jar.cellsPerClick, 0);
+            document.getElementById('auto-rate').innerText = cellsPerSecond.toLocaleString();
+        } else {
+            autoBox.style.display = 'none';
+        }
+
+        // Enable grabbing once 21 are collected
+        if (new Set(unlockedIds).size >= 21) {
+            document.body.classList.add('all-unlocked');
+        } else {
+            document.body.classList.remove('all-unlocked');
+        }
+    }
+
+    function recalculateLayout() {
+        const cols = 7; // Configurable number of columns for the grid
+        const spacingX = 110;
+        const spacingY = 170;
+        const total = activeJars.length;
+
+        activeJars.forEach((jar, i) => {
+            if (jar.customX !== undefined && jar.customY !== undefined) {
+                jar.el.style.left = jar.customX + 'px';
+                jar.el.style.top = jar.customY + 'px';
+                jar.el.style.zIndex = Math.floor(jar.customY + 1000);
+            } else {
+                const row = Math.floor(i / cols);
+                const col = i % cols;
+                
+                const totalRows = Math.ceil(total / cols);
+                const currentCols = (totalRows === 1) ? total : cols;
+                
+                // Centering math
+                const x = (col - (currentCols - 1) / 2) * spacingX;
+                const y = (row - (totalRows - 1) / 2) * spacingY;
+                
+                jar.el.style.left = x + 'px';
+                jar.el.style.top = y + 'px';
+                jar.el.style.zIndex = Math.floor(y + 1000); 
+            }
+        });
+    }
+
+    const doHarvest = (organDef, e) => {
+        sfx.bubble();
+        collectedCells += organDef.cellsPerClick;
+        updateUI(); saveProgress();
+
+        const floatCell = document.createElement('div');
+        floatCell.className = 'floating-cell';
+        floatCell.innerText = `+${organDef.cellsPerClick} 🧬`;
+        floatCell.style.left = e.clientX + 'px'; 
+        floatCell.style.top = (e.clientY - 20) + 'px';
+        document.body.appendChild(floatCell);
+        setTimeout(() => floatCell.remove(), 1000);
+    };
+
+    function spawnJar(organDef, loadIndex = -1) {
+        const container = document.getElementById('spiral-container');
+        const el = document.createElement('div');
+        el.className = 'jar-container';
+        
+        el.innerHTML = `<div class="jar-label">${organDef.name}</div>`;
+        const canvas = createOrganCanvas(organDef.id);
+        el.appendChild(canvas);
+
+        const jarObj = { 
+            id: organDef.id, el, cellsPerClick: organDef.cellsPerClick, canvas: canvas,
+            customX: undefined, customY: undefined
+        };
+        
+        if (loadIndex !== -1 && window.loadedPositions && window.loadedPositions[loadIndex]) {
+            jarObj.customX = window.loadedPositions[loadIndex].customX;
+            jarObj.customY = window.loadedPositions[loadIndex].customY;
+        }
+
+        let isDraggingJar = false;
+        let startX, startY;
+        let moved = false;
+
+        el.addEventListener('pointerdown', (e) => {
+            e.preventDefault(); 
+            e.stopPropagation(); 
+            
+            const allUnlocked = new Set(unlockedIds).size >= 21;
+
+            if (allUnlocked) {
+                isDraggingJar = true;
+                moved = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                el.setPointerCapture(e.pointerId);
+                el.style.zIndex = 5000; 
+            } else {
+                doHarvest(organDef, e);
+            }
+        });
+
+        el.addEventListener('pointermove', (e) => {
+            if (!isDraggingJar) return;
+            
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+            
+            if (jarObj.customX === undefined) {
+                jarObj.customX = parseFloat(el.style.left) || 0;
+                jarObj.customY = parseFloat(el.style.top) || 0;
+            }
+            
+            jarObj.customX += dx;
+            jarObj.customY += dy;
+            
+            el.style.left = jarObj.customX + 'px';
+            el.style.top = jarObj.customY + 'px';
+            
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+
+        const endDrag = (e) => {
+            if (!isDraggingJar) return;
+            isDraggingJar = false;
+            
+            try { el.releasePointerCapture(e.pointerId); } catch(err){}
+            el.style.zIndex = Math.floor((jarObj.customY || parseFloat(el.style.top)) + 1000);
+
+            if (!moved) {
+                doHarvest(organDef, e);
+            }
+            saveProgress();
+        };
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+
+        container.appendChild(el);
+        activeJars.push(jarObj);
+        
+        recalculateLayout();
+    }
+
+    setInterval(() => {
+        if (activeJars.length >= 6) {
+            let cellsPerSecond = 0;
+            
+            activeJars.forEach(jar => {
+                if (jar.cellsPerClick > 0) {
+                    cellsPerSecond += jar.cellsPerClick;
+                    
+                    const rect = jar.el.getBoundingClientRect();
+                    const floatCell = document.createElement('div');
+                    floatCell.className = 'floating-cell';
+                    floatCell.innerText = `+${jar.cellsPerClick} 🧬`;
+                    floatCell.style.left = (rect.left + 40 + (Math.random()*20-10)) + 'px';
+                    floatCell.style.top = (rect.top + 20) + 'px';
+                    document.body.appendChild(floatCell);
+                    setTimeout(() => floatCell.remove(), 1000);
+                }
+            });
+            if (cellsPerSecond > 0) { collectedCells += cellsPerSecond; updateUI(); }
+        }
+        saveProgress();
+    }, 1000);
+
+    // --- UI Modals ---
+    window.openCollection = function() {
+        const grid = document.getElementById('collection-grid');
+        grid.innerHTML = '';
+        
+        organData.forEach((a) => {
+            if (a.id === 'brain' && !unlockedIds.includes('brain')) return;
+
+            const count = unlockedIds.filter(id => id === a.id).length;
+            const isUnlocked = count > 0;
+            
+            const item = document.createElement('div');
+            item.className = `collection-item ${isUnlocked ? '' : 'locked'}`;
+            
+            const canAfford = collectedCells >= a.cost;
+            
+            const buyBtnHTML = `<button class="pixel-btn" ${canAfford ? '' : 'disabled'} onclick="synthesize('${a.id}')">
+                                ${isUnlocked ? 'SYNTHESIZE' : 'UNLOCK'}<br>(${a.cost.toLocaleString()} 🧬)
+                             </button>`;
+                             
+            const removeBtnHTML = isUnlocked ? `<button class="remove-btn" title="Incinerate Specimen" onclick="removeJar('${a.id}')">✖</button>` : '';
+
+            const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
+
+            item.innerHTML = `
+                <div class="visual"></div>
+                <div class="name-tag">${isUnlocked ? a.name : 'Unknown Sequence'} ${countBadge}</div>
+                <div class="btn-group">
+                    <div class="btn-row">
+                        ${buyBtnHTML}
+                        ${removeBtnHTML}
+                    </div>
+                </div>
+            `;
+            item.querySelector('.visual').appendChild(createOrganCanvas(a.id));
+            grid.appendChild(item);
+        });
+        document.getElementById('collection-modal').style.display = 'flex';
+    }
+
+    window.synthesize = function(id) {
+        const organ = organData.find(a => a.id === id);
+        
+        if (collectedCells >= organ.cost) {
+            const isFirstTime = !unlockedIds.includes(id);
+            const wasBelowThreshold = activeJars.length < 6;
+            
+            collectedCells -= organ.cost;
+            unlockedIds.push(id);
+            
+            spawnJar(organ);
+            updateUI();
+            saveProgress();
+            
+            const reachedThreshold = wasBelowThreshold && activeJars.length >= 6;
+            const reachedDrag = isFirstTime && new Set(unlockedIds).size === 21;
+
+            if (isFirstTime) {
+                document.getElementById('collection-modal').style.display = 'none';
+                const popupVisual = document.getElementById('popup-visual');
+                popupVisual.innerHTML = '';
+                popupVisual.appendChild(createOrganCanvas(organ.id));
+                document.getElementById('popup-name').innerText = organ.name;
+                document.getElementById('unlock-popup').style.display = 'flex';
+                sfx.unlock();
+                
+                speakRobotic("Specimen isolated. " + organ.name);
+                
+                if (reachedThreshold) pendingAutoHarvestPopup = true;
+                if (reachedDrag) pendingDragPopup = true;
+            } 
+            else {
+                openCollection();
+                if (reachedThreshold) {
+                    document.getElementById('collection-modal').style.display = 'none';
+                    document.getElementById('auto-popup').style.display = 'flex';
+                    sfx.unlock();
+                    speakRobotic("Bioreactor online.");
+                } else if (reachedDrag) {
+                    document.getElementById('collection-modal').style.display = 'none';
+                    document.getElementById('drag-popup').style.display = 'flex';
+                    sfx.arpeggio();
+                    speakRobotic("Containment field disabled.");
+                } else {
+                    sfx.bubble();
+                }
+            }
+        }
+    };
+
+    window.removeJar = function(id) {
+        const unlockIndex = unlockedIds.indexOf(id);
+        if (unlockIndex > -1) unlockedIds.splice(unlockIndex, 1);
+
+        const activeIndex = activeJars.findIndex(a => a.id === id);
+        if (activeIndex > -1) {
+            const jar = activeJars[activeIndex];
+            jar.el.remove(); 
+            activeJars.splice(activeIndex, 1); 
+            recalculateLayout(); 
+        }
+
+        sfx.bubble();
+        updateUI(); saveProgress(); openCollection(); 
+    };
+
+    document.getElementById('collection-btn').addEventListener('click', openCollection);
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+        saveProgress();
+        const btn = document.getElementById('save-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "✅ SAVED!";
+        sfx.bubble();
+        setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm("INCINERATE ALL DATA? This will reset all cells, unlocks, and positions. This cannot be undone.")) {
+            localStorage.removeItem("labCells");
+            localStorage.removeItem("labUnlocks");
+            localStorage.removeItem("labJarPositions");
+
+            collectedCells = 5; 
+            unlockedIds = [];
+            window.loadedPositions = [];
+            
+            activeJars.forEach(j => j.el.remove());
+            activeJars = [];
+
+            panX = 0; panY = 0;
+            spiralContainer.style.transform = `translate(0px, 0px)`;
+
+            updateUI(); saveProgress(); sfx.bubble();
+        }
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                if (e.target.id === 'unlock-popup') {
+                    closeUnlockPopup();
+                } else {
+                    e.target.style.display = 'none';
+                    window.speechSynthesis.cancel();
+                }
+            }
+        });
+    });
+
+    // --- Init ---
+    document.getElementById('start-btn').addEventListener('click', () => {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('ui-layer').style.display = 'flex';
+        
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        
+        if ('speechSynthesis' in window && synthVoices.length === 0) {
+            synthVoices = window.speechSynthesis.getVoices();
+        }
+
+        loadProgress();
+        
+        unlockedIds.forEach((id, index) => {
+            const organ = organData.find(a => a.id === id);
+            if(organ) spawnJar(organ, index);
+        });
+        
+        updateUI();
+    });
+</script>
+</body>
+</html>

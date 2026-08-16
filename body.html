@@ -153,7 +153,7 @@
     /* Default tap action */
     .jar-container:active { transform: translate(-50%, -48%); border-color: #39ff14; }
 
-    /* Drag enabled state once game reaches 21 specimens */
+    /* Drag enabled state */
     body.all-unlocked .jar-container { cursor: grab; }
     body.all-unlocked .jar-container:active { 
         cursor: grabbing; 
@@ -325,7 +325,7 @@
         <h2 style="border: none; margin-bottom: 0; color: #ff4757;">SYSTEM OVERRIDE!</h2>
         <div class="gear-icon">🖐️</div>
         <h3 style="margin-top: 0; font-size: 1.5em; color: white;">CONTAINMENT FIELD DISABLED</h3>
-        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">You have synthesized 21 biological anomalies. You may now click and drag to freely rearrange jars across the laboratory.</p>
+        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">You have synthesized 21 specimens. You may now click and drag to freely rearrange jars across the laboratory.</p>
         <button class="close-btn" onclick="document.getElementById('drag-popup').style.display='none'">MUAHAHAHA!</button>
     </div>
 </div>
@@ -582,13 +582,15 @@
             cheatBuffer = "";
             const ultimateDef = organData.find(a => a.id === 'brain');
             if (ultimateDef && !unlockedIds.includes('brain')) {
+                const wasBelowDrag = activeJars.length < 21;
+                
                 unlockedIds.push('brain');
                 spawnJar(ultimateDef);
                 updateUI();
                 saveProgress();
                 sfx.unlock();
                 
-                const reachedDrag = new Set(unlockedIds).size === 21;
+                const reachedDrag = wasBelowDrag && activeJars.length >= 21;
                 if (reachedDrag) pendingDragPopup = true;
 
                 if (document.getElementById('collection-modal').style.display !== 'flex') {
@@ -639,8 +641,8 @@
             autoBox.style.display = 'none';
         }
 
-        // Enable grabbing once 21 are collected
-        if (new Set(unlockedIds).size >= 21) {
+        // Enable grabbing once 21 specimens of ANY type are collected
+        if (activeJars.length >= 21) {
             document.body.classList.add('all-unlocked');
         } else {
             document.body.classList.remove('all-unlocked');
@@ -717,7 +719,7 @@
             e.preventDefault(); 
             e.stopPropagation(); 
             
-            const allUnlocked = new Set(unlockedIds).size >= 21;
+            const allUnlocked = activeJars.length >= 21;
 
             if (allUnlocked) {
                 isDraggingJar = true;
@@ -844,6 +846,7 @@
         if (collectedCells >= organ.cost) {
             const isFirstTime = !unlockedIds.includes(id);
             const wasBelowThreshold = activeJars.length < 6;
+            const wasBelowDrag = activeJars.length < 21;
             
             collectedCells -= organ.cost;
             unlockedIds.push(id);
@@ -853,7 +856,7 @@
             saveProgress();
             
             const reachedThreshold = wasBelowThreshold && activeJars.length >= 6;
-            const reachedDrag = isFirstTime && new Set(unlockedIds).size === 21;
+            const reachedDrag = wasBelowDrag && activeJars.length >= 21;
 
             if (isFirstTime) {
                 document.getElementById('collection-modal').style.display = 'none';

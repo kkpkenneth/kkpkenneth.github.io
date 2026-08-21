@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2-Octave Keyboard Piano</title>
+<!-- Prevents double-tap zooming on mobile devices -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mobile Touch Piano</title>
 <style>
   body {
     display: flex;
@@ -16,26 +17,29 @@
   }
   .piano-container {
     background: #111;
-    padding: 20px 20px 10px 20px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    overflow-x: auto; /* Allows scrolling on smaller screens */
+    /* Allow swiping left/right on smaller screens */
+    max-width: 95vw;
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
   }
   .piano {
     display: flex;
     position: relative;
     user-select: none;
+    -webkit-user-select: none;
   }
   .key {
-    width: 48px;
-    height: 250px;
+    width: 40px; /* Slightly narrower for mobile */
+    height: 200px;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 0 0 5px 5px;
     margin: 0 1px;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    transition: background 0.1s;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -43,15 +47,16 @@
     box-sizing: border-box;
     font-weight: bold;
     color: #555;
+    /* Prevents the browser from trying to scroll when dragging a finger on a key */
+    touch-action: none; 
   }
   .key:active, .key.active {
     background: #e0e0e0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(2px);
   }
   .black-key {
-    width: 30px;
-    height: 150px;
+    width: 26px; /* Adjusted to fit the new white key width */
+    height: 120px;
     background: #222;
     position: absolute;
     top: 0;
@@ -62,19 +67,20 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding-bottom: 15px;
+    padding-bottom: 10px;
     box-sizing: border-box;
     color: #fff;
     font-size: 0.8em;
+    touch-action: none;
   }
   .black-key:active, .black-key.active {
     background: #444;
-    transform: translateY(2px);
   }
   .hint {
     text-align: center;
     color: #888;
-    margin-top: 20px;
+    margin-top: 15px;
+    font-size: 0.9em;
   }
 </style>
 </head>
@@ -82,11 +88,10 @@
 
 <div class="piano-container">
   <div class="piano" id="piano"></div>
-  <div class="hint">Use your keyboard (Z-M row and Q-U row) or click to play</div>
+  <div class="hint">Tap, hold, or use keyboard keys to play</div>
 </div>
 
 <script>
-  // 2 Octaves + 1 Note (C3 to C5) with keyboard mappings
   const notes = [
     // --- Lower Octave ---
     { note: 'C3',  freq: 130.81, isBlack: false, key: 'z' },
@@ -114,16 +119,12 @@
     { note: 'A4',  freq: 440.00, isBlack: false, key: 'y' },
     { note: 'A#4', freq: 466.16, isBlack: true,  key: '7' },
     { note: 'B4',  freq: 493.88, isBlack: false, key: 'u' },
-    // --- Final Note ---
     { note: 'C5',  freq: 523.25, isBlack: false, key: 'i' }
   ];
 
   const piano = document.getElementById('piano');
   let audioCtx = null;
-  
-  // Track active nodes to stop them on keyup
   const activeOscillators = {}; 
-  // Map keyboard keys directly to their HTML elements
   const keyElements = {}; 
 
   function initAudio() {
@@ -135,9 +136,9 @@
     }
   }
 
-  function playNoteStart(frequency, keyChar) {
+  function playNoteStart(frequency, keyId) {
     initAudio();
-    if (activeOscillators[keyChar]) return; // Note already playing
+    if (activeOscillators[keyId]) return;
 
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
@@ -149,64 +150,64 @@
     gainNode.connect(audioCtx.destination);
     
     oscillator.start();
-    // Quick fade in to prevent clicking sounds
     gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
     gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.05);
 
-    activeOscillators[keyChar] = { oscillator, gainNode };
+    activeOscillators[keyId] = { oscillator, gainNode };
   }
 
-  function playNoteStop(keyChar) {
-    const node = activeOscillators[keyChar];
+  function playNoteStop(keyId) {
+    const node = activeOscillators[keyId];
     if (node) {
-      // Fade out quickly instead of cutting abruptly
       node.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
       node.oscillator.stop(audioCtx.currentTime + 0.1);
-      delete activeOscillators[keyChar];
+      delete activeOscillators[keyId];
     }
   }
 
   let whiteKeyIndex = 0;
-  const whiteKeyStride = 50; // 48px width + 2px margin
+  const whiteKeyStride = 42; // 40px width + 2px margin
 
-  // Generate DOM elements
   notes.forEach((n) => {
     const key = document.createElement('div');
-    key.innerText = n.key.toUpperCase(); // Add letter hint
+    key.innerText = n.key.toUpperCase();
     
     if (n.isBlack) {
       key.className = 'black-key';
-      // Center the 30px black key over the seam between white keys
-      // (stride * whiteKeyIndex) - (half of black key width)
-      key.style.left = `${(whiteKeyIndex * whiteKeyStride) - 15}px`; 
+      key.style.left = `${(whiteKeyIndex * whiteKeyStride) - 13}px`; 
     } else {
       key.className = 'key';
       whiteKeyIndex++;
     }
 
-    // Save reference for keyboard events
     keyElements[n.key] = key;
 
-    // Mouse events
-    key.addEventListener('mousedown', () => {
+    // Use pointer events for universal touch + mouse support
+    key.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); 
+      // Capture pointer so dragging a finger off the key correctly triggers pointerleave
+      key.setPointerCapture(e.pointerId); 
       playNoteStart(n.freq, n.key);
       key.classList.add('active');
     });
 
-    const stopMouseNote = () => {
+    const stopInteraction = (e) => {
+      e.preventDefault();
       playNoteStop(n.key);
       key.classList.remove('active');
     };
 
-    key.addEventListener('mouseup', stopMouseNote);
-    key.addEventListener('mouseleave', stopMouseNote);
+    // Stop sound when finger lifts, drags off the key, or gets interrupted
+    key.addEventListener('pointerup', stopInteraction);
+    key.addEventListener('pointerleave', stopInteraction);
+    key.addEventListener('pointercancel', stopInteraction);
 
     piano.appendChild(key);
   });
 
   // Keyboard events
   window.addEventListener('keydown', (e) => {
-    if (e.repeat) return; // Prevent stuttering if holding key down
+    if (e.repeat) return; 
     const keyChar = e.key.toLowerCase();
     const noteData = notes.find(n => n.key === keyChar);
     

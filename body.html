@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Mad Scientist Organ Harvest Tycoon</title>
 <style>
     body {
@@ -11,6 +11,7 @@
         font-family: 'Courier New', Courier, monospace; 
         background-color: #050a05; 
         user-select: none;
+        touch-action: none; /* Prevents default browser panning on mobile */
     }
 
     /* Grimy Lab Background - Fixed cursor pointer */
@@ -55,6 +56,8 @@
         z-index: 200;
         color: #39ff14;
         text-shadow: 2px 2px 0px #000;
+        padding: 20px;
+        box-sizing: border-box;
     }
     #start-screen h1 { font-size: 3em; margin-bottom: 10px; text-align: center; }
     #start-screen p { color: #d1d8e0; font-size: 1.2em; text-align: center; max-width: 80%; background: rgba(0,0,0,0.8); padding: 15px; border: 2px solid #39ff14;}
@@ -74,7 +77,7 @@
         display: flex; justify-content: space-between; align-items: flex-start;
     }
     
-    .hud-column { display: flex; flex-direction: column; gap: 10px; }
+    .hud-column { display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
 
     .hud-box {
         background: rgba(0, 0, 0, 0.8); 
@@ -182,15 +185,18 @@
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.85); z-index: 100;
         display: none; justify-content: center; align-items: center;
+        padding: 10px;
+        box-sizing: border-box;
     }
     
     .modal {
         background: #0a110a; 
         border: 4px solid #39ff14;
         color: white; padding: 20px; 
-        max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
+        max-width: 800px; width: 100%; max-height: 85vh; overflow-y: auto; text-align: center;
         box-shadow: 8px 8px 0px rgba(0,0,0,1);
         position: relative;
+        box-sizing: border-box;
     }
     
     .modal::-webkit-scrollbar { width: 12px; }
@@ -235,7 +241,7 @@
         margin: 0; 
     } 
     
-    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff;}
+    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; justify-content: center; width: 100%;}
     .collection-item .count-badge { color: #39ff14; font-size: 0.9em; margin-left: 5px; }
     
     .btn-group { display: flex; flex-direction: column; gap: 5px; width: 100%; align-items: stretch; }
@@ -248,22 +254,53 @@
     .pixel-btn:active { transform: translate(2px,2px); }
     .pixel-btn:disabled { background: #333; color: #666; border-color: #222; cursor: not-allowed; }
     
-    .remove-btn { background: #ff4757; color: white; border: 2px solid white; width: 30px; font-family: inherit; cursor: pointer;}
+    .remove-btn { background: #ff4757; color: white; border: 2px solid white; width: 30px; font-family: inherit; cursor: pointer; font-weight: bold;}
 
-    .close-btn { background: #000; color: #39ff14; border: 2px solid #39ff14; padding: 10px 30px; cursor: pointer; font-size: 1.2em; font-family: inherit; margin-top: 10px;}
+    .close-btn { background: #000; color: #39ff14; border: 2px solid #39ff14; padding: 10px 30px; cursor: pointer; font-size: 1.2em; font-family: inherit; margin-top: 10px; width: 100%;}
     .close-btn:hover { background: #39ff14; color: #000; }
 
     /* Popups */
     #unlock-popup, #auto-popup, #drag-popup, #details-modal { z-index: 300; }
-    #unlock-popup .modal { max-height: 550px; }
     .visual canvas { width: 100px; height: 100px; margin: 10px auto; display: block; image-rendering: pixelated;}
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s; }
 
     /* Explanation & Group styling for the new specimen popup */
-    #popup-group { color: #2ed573; font-size: 0.9em; letter-spacing: 2px; margin-top: 5px; font-weight: bold; }
-    #popup-desc { color: #d1d8e0; font-size: 1.1em; line-height: 1.4; margin: 15px auto; font-style: italic; border-left: 3px solid #39ff14; padding-left: 15px; text-align: left; max-width: 80%; background: rgba(0,255,50,0.05); padding: 15px;}
+    #popup-group, #details-group { color: #2ed573; font-size: 0.9em; letter-spacing: 2px; margin-top: 5px; font-weight: bold; }
+    #popup-desc, #details-desc { color: #d1d8e0; font-size: 1.1em; line-height: 1.4; margin: 15px auto; font-style: italic; border-left: 3px solid #39ff14; padding-left: 15px; text-align: left; max-width: 90%; background: rgba(0,255,50,0.05); padding: 15px;}
 
     @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+    /* --- MOBILE RESPONSIVE SCALING --- */
+    @media (max-width: 600px) {
+        #start-screen h1 { font-size: 1.8em; }
+        #start-screen p { font-size: 1em; width: 90%; }
+        #start-btn { font-size: 1.2em; padding: 10px 20px; }
+
+        #ui-layer { padding: 10px; }
+        .hud-box { padding: 10px 15px; font-size: 1em; border-width: 2px; }
+        #auto-harvest-box { padding: 6px 12px; font-size: 0.85em; }
+        .action-btn { font-size: 0.8em !important; padding: 8px 12px !important; }
+
+        /* Smaller Jars for Phone */
+        .jar-container { width: 50px; height: 80px; border-top-width: 8px; border-width: 3px; border-radius: 6px 6px 15px 15px; }
+        .floating-organ { width: 40px; height: 40px; margin-bottom: 15px; }
+        .jar-label { font-size: 8px; bottom: -20px; padding: 2px 4px; }
+        .jar-container::after { width: 8px; }
+
+        /* Modal scaling */
+        .modal { padding: 15px; }
+        .modal h2 { font-size: 1.3em; margin: -15px -15px 10px -15px; padding: 15px; }
+        #popup-name, #details-name { font-size: 1.4em !important; }
+        #popup-desc, #details-desc { font-size: 0.95em !important; padding: 10px; }
+        .visual canvas { width: 80px; height: 80px; }
+        
+        #collection-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+        .collection-item { padding: 10px; }
+        .collection-item .name-tag { font-size: 0.75em; }
+        .pixel-btn { font-size: 0.7em; padding: 8px; }
+        
+        .floating-cell { font-size: 1em; }
+    }
 </style>
 </head>
 <body>
@@ -281,10 +318,10 @@
     </div>
     
     <div class="hud-column" style="align-items: flex-end;">
-        <button id="bgm-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px; width: 100%;">🔊 BGM</button>
+        <button id="bgm-btn" class="hud-box action-btn" style="width: 100%;">🔊 BGM</button>
         <button id="collection-btn" class="hud-box action-btn" style="width: 100%;">🗄️ INVENTORY</button>
-        <button id="save-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px; width: 100%;">💾 SAVE DATA</button>
-        <button id="reset-btn" class="hud-box action-btn" style="font-size: 1em; padding: 10px 20px; border-color: #ff4757; color: #ff4757; width: 100%;">⚠️ INCINERATE</button>
+        <button id="save-btn" class="hud-box action-btn" style="width: 100%;">💾 SAVE DATA</button>
+        <button id="reset-btn" class="hud-box action-btn" style="border-color: #ff4757; color: #ff4757; width: 100%;">⚠️ INCINERATE</button>
     </div>
 </div>
 
@@ -442,39 +479,54 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    // --- Panning / Camera Logic (Shift-Click or Right-Click Drag) ---
+    // --- Panning / Camera Logic ---
     let panX = 0, panY = 0;
     let isPanning = false, startMouseX, startMouseY;
     const lab = document.getElementById('lab');
     const spiralContainer = document.getElementById('spiral-container');
 
+    // Handle both touch and mouse for panning
+    const startPan = (clientX, clientY) => {
+        isPanning = true;
+        startMouseX = clientX - panX;
+        startMouseY = clientY - panY;
+        lab.classList.add('panning');
+    };
+
     lab.addEventListener('mousedown', (e) => {
-        if (e.button === 2 || (e.button === 0 && e.shiftKey)) {
-            isPanning = true;
-            startMouseX = e.clientX - panX;
-            startMouseY = e.clientY - panY;
-            lab.classList.add('panning');
+        if (e.button === 2 || (e.button === 0 && e.shiftKey) || e.target === lab) {
+            startPan(e.clientX, e.clientY);
             e.preventDefault();
         }
     });
 
+    lab.addEventListener('touchstart', (e) => {
+        if (e.target === lab || e.target === spiralContainer) {
+            startPan(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, {passive: false});
+
     lab.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    window.addEventListener('mousemove', (e) => {
+    const movePan = (clientX, clientY) => {
         if (!isPanning) return;
-        panX = e.clientX - startMouseX;
-        panY = e.clientY - startMouseY;
+        panX = clientX - startMouseX;
+        panY = clientY - startMouseY;
         spiralContainer.style.transform = `translate(${panX}px, ${panY}px)`;
-    });
+    };
 
-    window.addEventListener('mouseup', () => { 
+    window.addEventListener('mousemove', (e) => movePan(e.clientX, e.clientY));
+    window.addEventListener('touchmove', (e) => movePan(e.touches[0].clientX, e.touches[0].clientY), {passive: false});
+
+    const endPan = () => { 
         isPanning = false; 
         lab.classList.remove('panning');
-    });
-    window.addEventListener('mouseleave', () => { 
-        isPanning = false; 
-        lab.classList.remove('panning');
-    });
+    };
+
+    window.addEventListener('mouseup', endPan);
+    window.addEventListener('mouseleave', endPan);
+    window.addEventListener('touchend', endPan);
+    window.addEventListener('touchcancel', endPan);
 
     // --- Popup Flow Management ---
     let pendingAutoHarvestPopup = false;
@@ -503,13 +555,25 @@
 
     window.closeDragPopup = function() {
         document.getElementById('drag-popup').style.display = 'none';
-        // Randomly scatter all active jars within visible screen range
+        
+        // Randomly scatter all active jars within visible screen range precisely
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const isMobile = screenWidth <= 600;
+        
+        const jarWidth = isMobile ? 50 : 80;
+        const jarHeight = isMobile ? 80 : 120;
+        
+        // Ensure they spawn inside safely (accounting for UI and jar dimensions)
+        const safeWidth = screenWidth - jarWidth - 40;
+        const safeHeight = screenHeight - jarHeight - 120; // 120 to leave space for top UI
+        
         activeJars.forEach(jar => {
-            const rangeX = window.innerWidth * 0.7;
-            const rangeY = window.innerHeight * 0.6;
-            jar.customX = (Math.random() - 0.5) * rangeX;
-            jar.customY = (Math.random() - 0.5) * rangeY;
+            // (Math.random() - 0.5) creates a range from -half to +half of the container
+            jar.customX = (Math.random() - 0.5) * safeWidth;
+            jar.customY = (Math.random() - 0.5) * safeHeight + (isMobile ? 30 : 20); // slightly pushed down
         });
+        
         recalculateLayout();
         saveProgress();
     };
@@ -786,9 +850,10 @@
     }
 
     function recalculateLayout() {
-        const cols = 7; 
-        const spacingX = 110;
-        const spacingY = 170;
+        const isMobile = window.innerWidth <= 600;
+        const cols = isMobile ? 4 : 7; 
+        const spacingX = isMobile ? 75 : 110;
+        const spacingY = isMobile ? 120 : 170;
         const total = activeJars.length;
 
         activeJars.forEach((jar, i) => {
@@ -963,7 +1028,7 @@
                                 ${isUnlocked ? 'SYNTHESIZE' : 'UNLOCK'}<br>(${a.cost.toLocaleString()} 🧬)
                                </button>`;
                                
-            const infoBtnHTML = isUnlocked ? `<button class="pixel-btn" style="background:#0984e3;" onclick="openDetails('${a.id}')">INFO</button>` : '';
+            const infoBtnHTML = isUnlocked ? `<button class="pixel-btn" style="background:#0984e3; color: white;" onclick="openDetails('${a.id}')">INFO</button>` : '';
             const removeBtnHTML = isUnlocked ? `<button class="remove-btn" title="Incinerate Specimen" onclick="removeJar('${a.id}')">✖</button>` : '';
 
             const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
@@ -1100,11 +1165,15 @@
         }
     });
 
+    window.addEventListener('resize', recalculateLayout);
+
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
                 if (e.target.id === 'unlock-popup') {
                     closeUnlockPopup();
+                } else if (e.target.id === 'drag-popup') {
+                    closeDragPopup();
                 } else {
                     e.target.style.display = 'none';
                     window.speechSynthesis.cancel();

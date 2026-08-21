@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2-Octave Keyboard Piano</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #2c3e50;
+    margin: 0;
+    font-family: sans-serif;
+  }
+  .piano-container {
+    background: #111;
+    padding: 20px 20px 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow-x: auto; /* Allows scrolling on smaller screens */
+  }
+  .piano {
+    display: flex;
+    position: relative;
+    user-select: none;
+  }
+  .key {
+    width: 48px;
+    height: 250px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+    margin: 0 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: background 0.1s;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 15px;
+    box-sizing: border-box;
+    font-weight: bold;
+    color: #555;
+  }
+  .key:active, .key.active {
+    background: #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transform: translateY(2px);
+  }
+  .black-key {
+    width: 30px;
+    height: 150px;
+    background: #222;
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    border-radius: 0 0 5px 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 15px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 0.8em;
+  }
+  .black-key:active, .black-key.active {
+    background: #444;
+    transform: translateY(2px);
+  }
+  .hint {
+    text-align: center;
+    color: #888;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="piano-container">
+  <div class="piano" id="piano"></div>
+  <div class="hint">Use your keyboard (Z-M row and Q-U row) or click to play</div>
+</div>
+
+<script>
+  // 2 Octaves + 1 Note (C3 to C5) with keyboard mappings
+  const notes = [
+    // --- Lower Octave ---
+    { note: 'C3',  freq: 130.81, isBlack: false, key: 'z' },
+    { note: 'C#3', freq: 138.59, isBlack: true,  key: 's' },
+    { note: 'D3',  freq: 146.83, isBlack: false, key: 'x' },
+    { note: 'D#3', freq: 155.56, isBlack: true,  key: 'd' },
+    { note: 'E3',  freq: 164.81, isBlack: false, key: 'c' },
+    { note: 'F3',  freq: 174.61, isBlack: false, key: 'v' },
+    { note: 'F#3', freq: 185.00, isBlack: true,  key: 'g' },
+    { note: 'G3',  freq: 196.00, isBlack: false, key: 'b' },
+    { note: 'G#3', freq: 207.65, isBlack: true,  key: 'h' },
+    { note: 'A3',  freq: 220.00, isBlack: false, key: 'n' },
+    { note: 'A#3', freq: 233.08, isBlack: true,  key: 'j' },
+    { note: 'B3',  freq: 246.94, isBlack: false, key: 'm' },
+    // --- Upper Octave ---
+    { note: 'C4',  freq: 261.63, isBlack: false, key: 'q' },
+    { note: 'C#4', freq: 277.18, isBlack: true,  key: '2' },
+    { note: 'D4',  freq: 293.66, isBlack: false, key: 'w' },
+    { note: 'D#4', freq: 311.13, isBlack: true,  key: '3' },
+    { note: 'E4',  freq: 329.63, isBlack: false, key: 'e' },
+    { note: 'F4',  freq: 349.23, isBlack: false, key: 'r' },
+    { note: 'F#4', freq: 369.99, isBlack: true,  key: '5' },
+    { note: 'G4',  freq: 392.00, isBlack: false, key: 't' },
+    { note: 'G#4', freq: 415.30, isBlack: true,  key: '6' },
+    { note: 'A4',  freq: 440.00, isBlack: false, key: 'y' },
+    { note: 'A#4', freq: 466.16, isBlack: true,  key: '7' },
+    { note: 'B4',  freq: 493.88, isBlack: false, key: 'u' },
+    // --- Final Note ---
+    { note: 'C5',  freq: 523.25, isBlack: false, key: 'i' }
+  ];
+
+  const piano = document.getElementById('piano');
+  let audioCtx = null;
+  
+  // Track active nodes to stop them on keyup
+  const activeOscillators = {}; 
+  // Map keyboard keys directly to their HTML elements
+  const keyElements = {}; 
+
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function playNoteStart(frequency, keyChar) {
+    initAudio();
+    if (activeOscillators[keyChar]) return; // Note already playing
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.type = 'triangle';
+    oscillator.frequency.value = frequency;
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.start();
+    // Quick fade in to prevent clicking sounds
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.05);
+
+    activeOscillators[keyChar] = { oscillator, gainNode };
+  }
+
+  function playNoteStop(keyChar) {
+    const node = activeOscillators[keyChar];
+    if (node) {
+      // Fade out quickly instead of cutting abruptly
+      node.gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+      node.oscillator.stop(audioCtx.currentTime + 0.1);
+      delete activeOscillators[keyChar];
+    }
+  }
+
+  let whiteKeyIndex = 0;
+  const whiteKeyStride = 50; // 48px width + 2px margin
+
+  // Generate DOM elements
+  notes.forEach((n) => {
+    const key = document.createElement('div');
+    key.innerText = n.key.toUpperCase(); // Add letter hint
+    
+    if (n.isBlack) {
+      key.className = 'black-key';
+      // Center the 30px black key over the seam between white keys
+      // (stride * whiteKeyIndex) - (half of black key width)
+      key.style.left = `${(whiteKeyIndex * whiteKeyStride) - 15}px`; 
+    } else {
+      key.className = 'key';
+      whiteKeyIndex++;
+    }
+
+    // Save reference for keyboard events
+    keyElements[n.key] = key;
+
+    // Mouse events
+    key.addEventListener('mousedown', () => {
+      playNoteStart(n.freq, n.key);
+      key.classList.add('active');
+    });
+
+    const stopMouseNote = () => {
+      playNoteStop(n.key);
+      key.classList.remove('active');
+    };
+
+    key.addEventListener('mouseup', stopMouseNote);
+    key.addEventListener('mouseleave', stopMouseNote);
+
+    piano.appendChild(key);
+  });
+
+  // Keyboard events
+  window.addEventListener('keydown', (e) => {
+    if (e.repeat) return; // Prevent stuttering if holding key down
+    const keyChar = e.key.toLowerCase();
+    const noteData = notes.find(n => n.key === keyChar);
+    
+    if (noteData) {
+      playNoteStart(noteData.freq, keyChar);
+      keyElements[keyChar].classList.add('active');
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    const keyChar = e.key.toLowerCase();
+    const noteData = notes.find(n => n.key === keyChar);
+    
+    if (noteData) {
+      playNoteStop(keyChar);
+      keyElements[keyChar].classList.remove('active');
+    }
+  });
+</script>
+
+</body>
+</html>

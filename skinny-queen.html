@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -86,6 +86,8 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            /* Leave space for the thicker bottom bar */
+            padding-bottom: 100px; 
             position: relative;
         }
 
@@ -103,7 +105,7 @@
             top: 0;
             left: 0;
             width: 30%;
-            height: 80%;
+            height: 75%;
             z-index: 5;
         }
 
@@ -112,11 +114,11 @@
             top: 0;
             right: 0;
             width: 70%;
-            height: 80%;
+            height: 75%;
             z-index: 5;
         }
 
-        /* Bottom Control Bar */
+        /* Phone-Friendly Bottom Control Bar */
         #bottom-bar {
             position: absolute;
             bottom: 0;
@@ -124,34 +126,50 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 15px 20px;
+            /* Adds extra padding at the bottom for iPhone home bars */
+            padding-bottom: max(15px, env(safe-area-inset-bottom)); 
             box-sizing: border-box;
-            background: linear-gradient(to top, #fdf6e3 60%, transparent);
+            background-color: rgba(253, 246, 227, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
             z-index: 15;
+            gap: 15px;
         }
 
         .control-btn {
             background-color: #ffffff;
-            color: #2d3436;
-            border: 2px solid #dfe6e9;
-            padding: 12px 20px;
+            color: #0984e3;
+            border: 2px solid #0984e3;
+            padding: 18px 10px; 
             font-size: 1.2rem;
             font-weight: bold;
-            border-radius: 30px;
+            border-radius: 16px; 
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
             -webkit-tap-highlight-color: transparent;
+            flex: 1; 
+            max-width: 140px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.1s;
         }
 
         .control-btn:active {
-            background-color: #dfe6e9;
+            background-color: #0984e3;
+            color: white;
             transform: scale(0.95);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
         }
 
         #progress {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #636e72;
             font-weight: bold;
+            text-align: center;
+            min-width: 80px; 
         }
     </style>
 </head>
@@ -177,41 +195,17 @@
         
         <!-- Bottom Controls -->
         <div id="bottom-bar">
-            <button id="btn-prev" class="control-btn">⬅️ 上一個</button>
+            <button id="btn-prev" class="control-btn">上一個</button>
             <div id="progress">1 / 100</div>
-            <button id="btn-next" class="control-btn">下一個 ➡️</button>
+            <button id="btn-next" class="control-btn">下一個</button>
         </div>
     </div>
 
     <script>
-        const rawText = 
-        `從前有一個皇后
-        她很瘦
-        皇后本來沒有那麼瘦的但是因為胖國王太胖了讓皇后非常的擔心
-        她擔心國王到處找東西吃就把食物都藏起來
-        皇后也擔心國王瘦不下來所以每天陪著國王做運動一二一二一二
-        她覺得好累好累喔
-        她天天緊緊張張又忙又累很多時候一點也不想吃東西有時候只吃一小口蛋糕就上床睡覺了日子久了連好吃的東西也不想吃了
-        大家都說我們的皇后太瘦了不對不對是太瘦太瘦了
-        皇后愈吃愈少愈來愈瘦有一天居然昏倒了快找醫生來國王急著下命令
-        醫生說皇后的身體不健康這樣下去不得了國王很擔心的說大家快想想辦法呀
-        廚師說皇后平常只吃自己喜歡的食物有些食物碰都不碰而且最近吃得太少了
-        醫生說每種食物都要吃營養均衡才會健康而且皇后的心情要放輕鬆累的時候要休息
-        奶製品類主食類魚肉蛋奶類油脂類青菜水果 
-        公主說好久都沒有聽到媽咪唱歌了媽咪說過唱歌和種花的時候心情最輕鬆
-        國王說都是我讓皇后擔心以後我不會再亂吃東西我少吃皇后多吃一點
-        大家覺得這些方法都很好國王決定馬上就照著去做
-        廚師做了美味又營養的食物給國王和皇后吃
-        公主和皇后一起唱歌種花
-        皇后累了就去休息
-        大臣陪著國王做運動皇后在旁邊看有時候幫忙喊加油加油
-        國王拿出口袋裡藏的零食不再讓皇后擔心
-        有時候皇后和國王手牽著手散步看天邊的夕陽
-        皇后不再緊緊張張又忙又累加上天天吃營養均衡的食物終於開始胖了起來
-        從此以後大家都說我們的皇后又美麗又健康`;
+        const rawText = `從前有一個皇后她很瘦皇后本來沒有那麼瘦的但是因為胖國王太胖了讓皇后非常的擔心她擔心國王到處找東西吃就把食物都藏起來皇后也擔心國王瘦不下來所以每天陪著國王做運動一二一二一二她覺得好累好累喔她天天緊緊張張又忙又累很多時候一點也不想吃東西有時候只吃一小口蛋糕就上床睡覺了日子久了連好吃的東西也不想吃了大家都說我們的皇后太瘦了不對不對是太瘦太瘦了皇后愈吃愈少愈來愈瘦有一天居然昏倒了快找醫生來國王急著下命令醫生說皇后的身體不健康這樣下去不得了國王很擔心的說大家快想想辦法呀廚師說皇后平常只吃自己喜歡的食物有些食物碰都不碰而且最近吃得太少了醫生說每種食物都要吃營養均衡才會健康而且皇后的心情要放輕鬆累的時候要休息奶製品類主食類魚肉蛋奶類油脂類青菜水果 公主說好久都沒有聽到媽咪唱歌了媽咪說過唱歌和種花的時候心情最輕鬆國王說都是我讓皇后擔心以後我不會再亂吃東西我少吃皇后多吃一點大家覺得這些方法都很好國王決定馬上就照著去做廚師做了美味又營養的食物給國王和皇后吃公主和皇后一起唱歌種花皇后累了就去休息大臣陪著國王做運動皇后在旁邊看有時候幫忙喊加油加油國王拿出口袋裡藏的零食不再讓皇后擔心有時候皇后和國王手牽著手散步看天邊的夕陽皇后不再緊緊張張又忙又累加上天天吃營養均衡的食物終於開始胖了起來從此以後大家都說我們的皇后又美麗又健康`;
 
-        // Strip punctuation and split into an array
-        const characters = rawText.replace(/[\s，。！：「」、]/g, '').split('');
+        // Strip punctuation and ALL whitespace (including line breaks) and split into an array
+        const characters = rawText.replace(/[\\s，。！：「」、]/g, '').split('');
         
         const flashcard = document.getElementById('flashcard');
         const progress = document.getElementById('progress');
@@ -220,11 +214,11 @@
         
         let currentIndex = 0;
 
-        // TTS function (Cantonese)
+        // TTS function (Traditional Chinese)
         function speakCharacter(char) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(char);
-            utterance.lang = 'zh-HK'; // Changed to Cantonese
+            utterance.lang = 'zh-HK'; 
             utterance.rate = 0.85; 
             window.speechSynthesis.speak(utterance);
         }
@@ -237,7 +231,6 @@
             const char = characters[currentIndex];
             flashcard.innerText = char;
             
-            // Fixed string interpolation syntax
             progress.innerText = `${currentIndex + 1} / ${characters.length}`;
             
             speakCharacter(char);

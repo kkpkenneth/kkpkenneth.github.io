@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>互動字卡 - 皇后與國王 (粵語版)</title>
     <style>
-        /* Base Styles */
+        /* Base Styles - Soft Sky Blue Theme */
         body {
             margin: 0;
             padding: 0;
-            font-family: "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
-            background-color: #fdf6e3;
-            color: #2d3436;
+            font-family: "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Comic Sans MS", sans-serif;
+            background-color: #e0f2fe; /* Soft Sky Blue */
+            color: #1e293b;
             display: flex;
             flex-direction: column;
-            /* Fallback for older browsers, overridden by dvh if supported */
             height: 100vh;
-            /* Dynamic viewport height perfectly accounts for mobile browser address/menu bars */
             height: 100dvh; 
             overflow: hidden; 
             user-select: none;
@@ -30,7 +28,7 @@
             justify-content: center;
             align-items: center;
             height: 100%;
-            background-color: #ffeaa7;
+            background-color: #bae6fd; /* Slightly darker pastel blue */
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
@@ -39,66 +37,70 @@
 
         #start-page h1 {
             font-size: 2.2rem;
-            color: #d63031;
+            color: #1e40af; /* Deep Royal Blue */
             margin-bottom: 10px;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.7);
         }
 
         #start-page p {
             font-size: 1.2rem;
-            color: #636e72;
+            color: #334155;
             margin-bottom: 20px;
             line-height: 1.5;
+            font-weight: bold;
         }
 
         .instructions {
             font-size: 1rem !important;
-            color: #b2bec3 !important;
+            color: #64748b !important;
             margin-bottom: 40px !important;
+            font-weight: normal !important;
         }
 
         .primary-btn {
             padding: 15px 40px;
             font-size: 1.5rem;
             font-weight: bold;
-            background-color: #0984e3;
+            background-color: #0ea5e9; /* Vibrant Kid-friendly Blue */
             color: white;
-            border: none;
+            border: 4px solid #ffffff; 
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 12px rgba(14, 165, 233, 0.3);
             transition: transform 0.1s;
             -webkit-tap-highlight-color: transparent;
         }
 
         .primary-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
         /* Flash Card Page */
         #story-page {
-            display: none; /* Changed via JS to flex */
+            display: none; 
             flex-direction: column;
             height: 100%;
             position: relative;
+            background-image: radial-gradient(circle, #f0f9ff 20%, #e0f2fe 100%);
         }
 
         /* Flashcard Area */
         #flashcard-container {
-            /* Takes up all available space above the bottom bar */
             flex: 1; 
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            padding-bottom: 100px; 
             position: relative;
         }
 
         #flashcard {
             font-size: clamp(8rem, 40vw, 15rem);
             font-weight: bold;
-            color: #d63031;
+            color: #1d4ed8; 
             text-align: center;
-            text-shadow: 2px 4px 12px rgba(0,0,0,0.1);
+            text-shadow: 4px 4px 0px #ffffff, 6px 6px 15px rgba(29, 78, 216, 0.2); 
         }
 
         /* Touch Zones for swiping/tapping */
@@ -122,33 +124,31 @@
 
         /* Phone-Friendly Bottom Control Bar */
         #bottom-bar {
-            /* Naturally sits at the bottom of the flex column now */
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 20px;
-            /* Ensures it stays above the iOS home indicator */
             padding-bottom: max(25px, env(safe-area-inset-bottom)); 
             box-sizing: border-box;
-            background-color: rgba(253, 246, 227, 0.95);
+            background-color: rgba(224, 242, 254, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 -6px 20px rgba(14, 165, 233, 0.1);
             z-index: 15;
             gap: 15px;
         }
 
         .control-btn {
             background-color: #ffffff;
-            color: #0984e3;
-            border: 2px solid #0984e3;
+            color: #0ea5e9;
+            border: 3px solid #0ea5e9; 
             padding: 15px 10px; 
             font-size: 1.2rem;
             font-weight: bold;
-            border-radius: 16px; 
+            border-radius: 25px; 
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px rgba(14, 165, 233, 0.15);
             -webkit-tap-highlight-color: transparent;
             flex: 1; 
             max-width: 140px; 
@@ -156,24 +156,27 @@
             justify-content: center;
             align-items: center;
             transition: all 0.1s;
-            /* Ensures button stays on top of touch zones */
             position: relative; 
             z-index: 20; 
         }
 
         .control-btn:active {
-            background-color: #0984e3;
+            background-color: #0ea5e9;
             color: white;
-            transform: scale(0.95);
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+            transform: scale(0.92);
+            box-shadow: 0 2px 3px rgba(14, 165, 233, 0.2);
         }
 
         #progress {
             font-size: 1.3rem;
-            color: #636e72;
+            color: #38bdf8;
             font-weight: bold;
             text-align: center;
             min-width: 80px; 
+            background: #ffffff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
     </style>
 </head>
@@ -181,8 +184,8 @@
 
     <!-- Starting Page -->
     <div id="start-page">
-        <h1>🃏 互動字卡</h1>
-        <p>使用下方按鈕、左右滑動<br>或鍵盤的 ⬅️ ➡️ 方向鍵切換</p>
+        <h1>互動字卡</h1>
+        <p>使用下方按鈕、左右滑動<br>或鍵盤的左右方向鍵切換</p>
         <p class="instructions">（字卡會自動發音 - 粵語版）</p>
         <button id="btn-start" class="primary-btn">開始</button>
     </div>
@@ -196,59 +199,36 @@
             <div id="zone-right"></div>
             <div id="flashcard"></div>
         </div>
-        
+
         <!-- Flex Item 2: Bottom Controls -->
         <div id="bottom-bar">
-            <button id="btn-prev" class="control-btn">⬅️ 上一個</button>
+            <button id="btn-prev" class="control-btn">上一個</button>
             <div id="progress">1 / 100</div>
-            <button id="btn-next" class="control-btn">下一個 ➡️</button>
+            <button id="btn-next" class="control-btn">下一個</button>
         </div>
     </div>
 
     <script>
-        const rawText = `從前有一個皇后
-        她很瘦
-        皇后本來沒有那麼瘦的但是因為胖國王太胖了讓皇后非常的擔心
-        她擔心國王到處找東西吃就把食物都藏起來
-        皇后也擔心國王瘦不下來所以每天陪著國王做運動一二一二一二
-        她覺得好累好累喔
-        她天天緊緊張張又忙又累很多時候一點也不想吃東西有時候只吃一小口蛋糕就上床睡覺了日子久了連好吃的東西也不想吃了
-        大家都說我們的皇后太瘦了不對不對是太瘦太瘦了
-        皇后愈吃愈少愈來愈瘦有一天居然昏倒了快找醫生來國王急著下命令
-        醫生說皇后的身體不健康這樣下去不得了國王很擔心的說大家快想想辦法呀
-        廚師說皇后平常只吃自己喜歡的食物有些食物碰都不碰而且最近吃得太少了
-        醫生說每種食物都要吃營養均衡才會健康而且皇后的心情要放輕鬆累的時候要休息
-        奶製品類主食類魚肉蛋奶類油脂類青菜水果 
-        公主說好久都沒有聽到媽咪唱歌了媽咪說過唱歌和種花的時候心情最輕鬆
-        國王說都是我讓皇后擔心以後我不會再亂吃東西我少吃皇后多吃一點
-        大家覺得這些方法都很好國王決定馬上就照著去做
-        廚師做了美味又營養的食物給國王和皇后吃
-        公主和皇后一起唱歌種花
-        皇后累了就去休息
-        大臣陪著國王做運動皇后在旁邊看有時候幫忙喊加油加油
-        國王拿出口袋裡藏的零食不再讓皇后擔心
-        有時候皇后和國王手牽著手散步看天邊的夕陽
-        皇后不再緊緊張張又忙又累加上天天吃營養均衡的食物終於開始胖了起來
-        從此以後大家都說我們的皇后又美麗又健康`;
+        const rawText = `從前有一個皇后她很瘦皇后本來沒有那麼瘦的但是因為胖國王太胖了讓皇后非常的擔心她擔心國王到處找東西吃就把食物都藏起來皇后也擔心國王瘦不下來所以每天陪著國王做運動一二一二一二她覺得好累好累喔她天天緊緊張張又忙又累很多時候一點也不想吃東西有時候只吃一小口蛋糕就上床睡覺了日子久了連好吃的東西也不想吃了大家都說我們的皇后太瘦了不對不對是太瘦太瘦了皇后愈吃愈少愈來愈瘦有一天居然昏倒了快找醫生來國王急著下命令醫生說皇后的身體不健康這樣下去不得了國王很擔心的說大家快想想辦法呀廚師說皇后平常只吃自己喜歡的食物有些食物碰都不碰而且最近吃得太少了醫生說每種食物都要吃營養均衡才會健康而且皇后的心情要放輕鬆累的時候要休息奶製品類主食類魚肉蛋奶類油脂類青菜水果公主說好久都沒有聽到媽咪唱歌了媽咪說過唱歌和種花的時候心情最輕鬆國王說都是我讓皇后擔心以後我不會再亂吃東西我少吃皇后多吃一點大家覺得這些方法都很好國王決定馬上就照著去做廚師做了美味又營養的食物給國王和皇后吃公主和皇后一起唱歌種花皇后累了就去休息大臣陪著國王做運動皇后在旁邊看有時候幫忙喊加油加油國王拿出口袋裡藏的零食不再讓皇后擔心有時候皇后和國王手牽著手散步看天邊的夕陽皇后不再緊緊張張又忙又累加上天天吃營養均衡的食物終於開始胖了起來從此以後大家都說我們的皇后又美麗又健康`;
 
         // Strip punctuation and ALL whitespace (including line breaks) and split into an array
-        const characters = rawText.replace(/[\\s，。！：「」、]/g, '').split('');
-        
+        const characters = rawText.replace(/[\s，。！：「」、]/g, '').split('');
+
         const flashcard = document.getElementById('flashcard');
         const progress = document.getElementById('progress');
         const startPage = document.getElementById('start-page');
         const storyPage = document.getElementById('story-page');
-        
+
         let currentIndex = 0;
 
         // TTS function (Cantonese)
         function speakCharacter(char) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(char);
-            
+
             // Set language to Hong Kong Cantonese
             utterance.lang = 'zh-HK'; 
-            
+
             utterance.rate = 0.85; 
             window.speechSynthesis.speak(utterance);
         }
@@ -257,12 +237,12 @@
         function updateCard() {
             if (currentIndex < 0) currentIndex = 0;
             if (currentIndex >= characters.length) currentIndex = characters.length - 1;
-            
+
             const char = characters[currentIndex];
             flashcard.innerText = char;
-            
+
             progress.innerText = `${currentIndex + 1} / ${characters.length}`;
-            
+
             speakCharacter(char);
         }
 
@@ -300,7 +280,7 @@
 
         // Keyboard Arrow Controls
         document.addEventListener('keydown', (event) => {
-            if (storyPage.style.display === 'flex') { // Only if flashcards are active
+            if (storyPage.style.display === 'flex') { 
                 if (event.key === 'ArrowRight') {
                     nextWord();
                 } else if (event.key === 'ArrowLeft') {

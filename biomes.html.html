@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biome Tycoon Collection</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e272e, #2f3640);
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    header {
+        text-align: center;
+        padding: 50px 20px;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        margin-bottom: 40px;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 3em;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        background: linear-gradient(to right, #4cd137, #00a8ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+        font-size: 1.2em;
+        color: #dcdde1;
+        margin-top: 10px;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        width: 90%;
+        max-width: 1200px;
+        padding-bottom: 50px;
+    }
+
+    .card {
+        text-decoration: none;
+        color: white;
+        border-radius: 20px;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .card:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    }
+
+    .card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .card:hover::after {
+        opacity: 1;
+    }
+
+    .icon {
+        font-size: 4em;
+        margin-bottom: 15px;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
+
+    .card h2 {
+        margin: 0 0 10px 0;
+        font-size: 1.8em;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+
+    .currency {
+        background: rgba(0,0,0,0.3);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Biome Specific Gradients */
+    .forest { background: linear-gradient(135deg, #4CAF50, #1B5E20); }
+    .savanna { background: linear-gradient(135deg, #FFB300, #E65100); }
+    .shrubland { background: linear-gradient(135deg, #A5A58D, #6B705C); }
+    .grassland { background: linear-gradient(135deg, #A9DFBF, #27AE60); }
+    .wetland { background: linear-gradient(135deg, #87CEEB, #3e6b40); }
+    .mountain { background: linear-gradient(135deg, #90A4AE, #37474F); }
+    .cave { background: linear-gradient(135deg, #292435, #00838F); }
+    .desert { background: linear-gradient(135deg, #FFD54F, #F57C00); }
+
+    footer {
+        margin-top: auto;
+        padding: 20px;
+        color: #7f8fa6;
+        font-size: 0.9em;
+        text-align: center;
+    }
+
+</style>
+</head>
+<body>
+
+    <header>
+        <h1>Biome Tycoon Hub</h1>
+        <p class="subtitle">Choose an ecosystem to nurture and grow</p>
+    </header>
+
+    <div class="grid-container">
+        
+        <a href="forest-tycoon.html" class="card forest">
+            <div class="icon">🌲</div>
+            <h2>Forest Tycoon</h2>
+            <div class="currency">Currency: Leaves 🍃</div>
+        </a>
+
+        <a href="savanna-tycoon.html" class="card savanna">
+            <div class="icon">☀️</div>
+            <h2>Savanna Tycoon</h2>
+            <div class="currency">Currency: Grass 🌾</div>
+        </a>
+
+        <a href="shrubland-tycoon.html" class="card shrubland">
+            <div class="icon">🏜️</div>
+            <h2>Shrubland Tycoon</h2>
+            <div class="currency">Currency: Scrub 🌿</div>
+        </a>
+
+        <a href="grassland-tycoon.html" class="card grassland">
+            <div class="icon">🌾</div>
+            <h2>Grassland Tycoon</h2>
+            <div class="currency">Currency: Clovers 🍀</div>
+        </a>
+
+        <a href="wetland-tycoon.html" class="card wetland">
+            <div class="icon">🌿</div>
+            <h2>Wetland Tycoon</h2>
+            <div class="currency">Currency: Leaves 🍃</div>
+        </a>
+
+        <a href="mountain-tycoon.html" class="card mountain">
+            <div class="icon">🏔️</div>
+            <h2>Mountain Tycoon</h2>
+            <div class="currency">Currency: Stones 🪨</div>
+        </a>
+
+        <a href="cave-tycoon.html" class="card cave">
+            <div class="icon">🦇</div>
+            <h2>Cave Tycoon</h2>
+            <div class="currency">Currency: Crystals 💎</div>
+        </a>
+
+        <a href="desert-tycoon.html" class="card desert">
+            <div class="icon">🐪</div>
+            <h2>Desert Tycoon</h2>
+            <div class="currency">Currency: Water 💧</div>
+        </a>
+
+    </div>
+
+    <footer>
+        &copy; 2026 Kenneth Kwok | Whatsapp: +85264963210
+    </footer>
+
+</body>
+</html>

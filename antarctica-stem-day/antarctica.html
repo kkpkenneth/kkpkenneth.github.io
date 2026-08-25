@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antarctica Typewriter Quiz</title>
+    <style>
+        /* Fluid Layout Updates */
+        :root {
+            --primary-color: #33ff33;
+            --bg-color: #0a0a0a;
+            --box-bg: #000;
+            --fluid-text: clamp(14px, 2vw, 18px); 
+            --fluid-heading: clamp(20px, 4vw, 32px);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: clamp(10px, 3vw, 20px);
+            box-sizing: border-box;
+            font-size: var(--fluid-text);
+            overflow-x: hidden;
+        }
+
+        /* Screen Toggle Classes */
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 700px;
+            padding: clamp(20px, 5vw, 40px);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            background-color: var(--box-bg);
+            box-shadow: 0 0 15px rgba(51, 255, 51, 0.2);
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Start Screen specific */
+        #start-screen h1 {
+            font-size: var(--fluid-heading);
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px dashed var(--primary-color);
+            padding-bottom: 15px;
+        }
+        
+        #start-screen p {
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        #start-btn {
+            width: 100%;
+            text-align: center;
+            font-size: var(--fluid-heading);
+            font-weight: bold;
+            padding: 20px;
+            opacity: 1;
+            pointer-events: auto;
+            transform: none;
+        }
+
+        /* Quiz Layout */
+        #question-container {
+            min-height: 120px; 
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: clamp(8px, 1.5vw, 12px);
+            height: 1.2em;
+            background-color: var(--primary-color);
+            vertical-align: bottom;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        #options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: clamp(12px, 2.5vw, 18px);
+            font-family: inherit;
+            font-size: 1em;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            word-wrap: break-word;
+        }
+
+        .option-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .option-btn:hover {
+            background: var(--primary-color);
+            color: var(--box-bg);
+            box-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
+        }
+
+        #status-bar {
+            margin-top: clamp(20px, 4vw, 30px);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            border-top: 1px dashed var(--primary-color);
+            padding-top: 15px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <h1>Antarctica Terminal</h1>
+        <p>> ESTABLISHING SECURE CONNECTION...<br>> UPLINK SUCCESSFUL.<br>> AUDIO SYSTEMS ONLINE.<br>> LOAD MODULE: "DETECTIVE PROTOCOL VER. 1.0"</p>
+        <button id="start-btn" class="option-btn">[ INITIALIZE SEQUENCE ]</button>
+    </div>
+
+    <!-- MAIN INTERFACE -->
+    <div id="quiz-container" class="screen">
+        <div id="question-container">
+            <span id="question-text"></span><span class="cursor"></span>
+        </div>
+        <div id="options-container"></div>
+        <div id="status-bar">
+            <span id="progress">Awaiting Data...</span>
+            <span id="score">Status: STANDBY</span>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Which of the following animals is NOT native to Antarctica?",
+                options: ["Emperor Penguin", "Leopard Seal", "Polar Bear", "Krill"],
+                correct: 2,
+                explanation: "Polar bears live exclusively in the Arctic (the North Pole). Antarctica is at the South Pole and is completely devoid of bears."
+            },
+            {
+                question: "What type of biome or habitat is Antarctica classified as?",
+                options: ["Frozen Tundra", "Cold Desert", "Polar Ice Cap", "Alpine Steppe"],
+                correct: 1,
+                explanation: "Despite the massive amount of ice, Antarctica is scientifically defined as a cold desert! A desert is defined by its low precipitation, and the interior of Antarctica receives almost no rain or snow—less than 2 inches a year."
+            },
+            {
+                question: "What percentage of Antarctica is covered by ice?",
+                options: ["About 50%", "About 75%", "About 90%", "About 98%"],
+                correct: 3,
+                explanation: "About 98% of Antarctica is covered by the Antarctic ice sheet, which is the largest single mass of ice on Earth."
+            },
+            {
+                question: "Which ocean completely surrounds the continent of Antarctica?",
+                options: ["The Southern Ocean", "The Indian Ocean", "The Pacific Ocean", "The Arctic Ocean"],
+                correct: 0,
+                explanation: "The Southern Ocean, sometimes known as the Antarctic Ocean, comprises the southernmost waters of the World Ocean and completely encircles Antarctica."
+            },
+            {
+                question: "What is the lowest temperature ever recorded on Earth (at Vostok Station, Antarctica)?",
+                options: ["-60.5°C (-76.9°F)", "-89.2°C (-128.6°F)", "-102.4°C (-152.3°F)", "-120.1°C (-184.1°F)"],
+                correct: 1,
+                explanation: "The lowest natural temperature ever recorded at ground level was -89.2°C (-128.6°F) at the Soviet Vostok Station on July 21, 1983."
+            },
+            {
+                question: "In terms of size, where does Antarctica rank among Earth's continents?",
+                options: ["3rd largest", "5th largest", "6th largest", "The smallest"],
+                correct: 1,
+                explanation: "Antarctica is the 5th largest continent. It is massive—nearly twice the size of Australia."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let isTyping = false;
+        
+        const typingSpeed = 35; 
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizContainer = document.getElementById('quiz-container');
+        const questionTextElement = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const progressElement = document.getElementById('progress');
+        const scoreElement = document.getElementById('score');
+        const startBtn = document.getElementById('start-btn');
+
+        // Audio Context (Synthesized Sounds)
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Text to Speech Function
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.1; 
+            utterance.pitch = 0.9; 
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Sound Generator
+        function playSound(type) {
+            if (!audioCtx) return;
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+
+            if (type === 'type') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.03);
+                gainNode.gain.setValueAtTime(0.02, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                osc.start(now);
+                osc.stop(now + 0.03);
+            } else if (type === 'hover') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                gainNode.gain.setValueAtTime(0.03, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'start') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(600, now + 0.4);
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.2);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'correct') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(600, now + 0.1);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        // Start Button Event
+        startBtn.addEventListener('click', () => {
+            initAudio();
+            playSound('start');
+            
+            // Fade transition
+            startScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                startScreen.classList.remove('active');
+                quizContainer.classList.add('active');
+                
+                setTimeout(() => {
+                    quizContainer.style.opacity = '1';
+                    loadStory();
+                }, 50);
+            }, 400);
+        });
+
+        startBtn.addEventListener('mouseenter', () => playSound('hover'));
+
+        function typeWriter(text, i, callback) {
+            if (i < text.length) {
+                const char = text.charAt(i);
+                
+                if (char === '\n') {
+                    questionTextElement.innerHTML += '<br>';
+                } else {
+                    questionTextElement.innerHTML += char;
+                }
+                
+                if (char !== ' ' && char !== '\n' && char !== '>') {
+                    playSound('type');
+                }
+                
+                setTimeout(() => typeWriter(text, i + 1, callback), typingSpeed);
+            } else if (callback) {
+                callback();
+            }
+        }
+
+        // Story Sequence Function
+        function loadStory() {
+            isTyping = true;
+            optionsContainer.innerHTML = '';
+            questionTextElement.innerHTML = '';
+            
+            progressElement.innerText = "Transmission: INCOMING_MESSAGE";
+            scoreElement.innerText = "Clearance: CLASSIFIED";
+
+            const typedStory = "> ALERT: Critical anomaly detected in Sector 4.\n> Local penguin populations are disappearing at an alarming rate.\n> We suspect fowl play. A kidnapper is on the loose.\n> Can you find out the culprit who kidnapped the penguins?\n> Before you are assigned this case, we must test if you are qualified to be an Antarctic detective.\n> Proceed to the aptitude test.";
+            
+            const spokenStory = "Alert. Critical anomaly detected in Sector 4. Local penguin populations are disappearing at an alarming rate. We suspect fowl play. A kidnapper is on the loose. Can you find out the culprit who kidnapped the penguins? Before you are assigned this case, we must test if you are qualified to be an Antarctic detective. Proceed to the aptitude test.";
+
+            speakText(spokenStory);
+            
+            typeWriter(typedStory, 0, () => {
+                isTyping = false;
+                
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = `[ INITIATE APTITUDE TEST ]`;
+                
+                btn.addEventListener('mouseenter', () => {
+                    if (!isTyping) playSound('hover');
+                });
+                
+                btn.onclick = () => {
+                    window.speechSynthesis.cancel();
+                    playSound('start');
+                    scoreElement.innerText = `Score: 0`; 
+                    loadQuestion();
+                };
+                
+                optionsContainer.appendChild(btn);
+
+                setTimeout(() => {
+                    btn.classList.add('visible');
+                    playSound('type');
+                }, 200);
+            });
+        }
+
+        function loadQuestion() {
+            isTyping = true;
+            optionsContainer.innerHTML = '';
+            questionTextElement.innerHTML = '';
+            
+            const currentQ = quizData[currentQuestion];
+            progressElement.innerText = `Data Entry: ${currentQuestion + 1}/${quizData.length}`;
+            
+            // Build the string that the speech synthesizer will read
+            let spokenText = "";
+            
+            // Add "Test initiated" before the very first question
+            if (currentQuestion === 0) {
+                spokenText += "Test initiated. ";
+            }
+            
+            // Add the question text
+            spokenText += currentQ.question + " ";
+            
+            // Add each option to the spoken text sequence
+            currentQ.options.forEach((opt, idx) => {
+                spokenText += `Option ${idx + 1}: ${opt}. `;
+            });
+            
+            speakText(spokenText);
+            
+            typeWriter(`> ${currentQ.question}`, 0, () => {
+                isTyping = false;
+                showOptions(currentQ);
+            });
+        }
+
+        function showOptions(qData) {
+            qData.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = `[${index + 1}] ${option}`;
+                
+                btn.addEventListener('mouseenter', () => {
+                    if (!isTyping && btn.classList.contains('visible')) {
+                        playSound('hover');
+                    }
+                });
+                
+                btn.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(btn);
+
+                setTimeout(() => {
+                    btn.classList.add('visible');
+                    playSound('type');
+                }, index * 200);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (isTyping) return;
+            
+            window.speechSynthesis.cancel();
+            
+            const currentQ = quizData[currentQuestion];
+            const correctIndex = currentQ.correct;
+            let isCorrect = false;
+            
+            if (selectedIndex === correctIndex) {
+                playSound('correct');
+                score++;
+                scoreElement.innerText = `Score: ${score}`;
+                isCorrect = true;
+            } else {
+                playSound('wrong');
+            }
+
+            showExplanation(isCorrect, currentQ.explanation);
+        }
+
+        function showExplanation(isCorrect, explanationText) {
+            isTyping = true;
+            optionsContainer.innerHTML = '';
+            questionTextElement.innerHTML = '';
+            
+            const resultStatus = isCorrect ? "CORRECT." : "INCORRECT.";
+            const typedExplanation = `> ${resultStatus}\n> ${explanationText}`;
+            const spokenExplanation = `${resultStatus} ${explanationText}`;
+            
+            speakText(spokenExplanation);
+            
+            typeWriter(typedExplanation, 0, () => {
+                isTyping = false;
+                
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = `[ PROCEED TO NEXT ]`;
+                
+                btn.addEventListener('mouseenter', () => {
+                    if (!isTyping) playSound('hover');
+                });
+                
+                btn.onclick = () => {
+                    window.speechSynthesis.cancel();
+                    playSound('type');
+                    currentQuestion++;
+                    
+                    if (currentQuestion < quizData.length) {
+                        loadQuestion();
+                    } else {
+                        showResults();
+                    }
+                };
+                
+                optionsContainer.appendChild(btn);
+
+                setTimeout(() => {
+                    btn.classList.add('visible');
+                    playSound('type');
+                }, 200);
+            });
+        }
+
+        function showResults() {
+            optionsContainer.innerHTML = '';
+            questionTextElement.innerHTML = '';
+            progressElement.innerText = "System Halted.";
+            
+            let finalMessage = "";
+            let finalVoice = "";
+            const passed = score === quizData.length;
+
+            if (passed) {
+                finalMessage = `> Aptitude Test Complete. Score: ${score}/${quizData.length}. \n> Clearance Granted. Welcome aboard, Detective.`;
+                finalVoice = `Aptitude Test Complete. Perfect score. Clearance Granted. Welcome aboard, Detective.`;
+            } else {
+                finalMessage = `> Aptitude Test Complete. Score: ${score}/${quizData.length}. \n> Clearance Denied. Insufficient knowledge of the target area.`;
+                finalVoice = `Aptitude Test Complete. Clearance Denied. Insufficient knowledge of the target area.`;
+            }
+            
+            speakText(finalVoice);
+            
+            typeWriter(finalMessage, 0, () => {
+                isTyping = false;
+                
+                // If the user failed, show the RETRY button
+                if (!passed) {
+                    const retryBtn = document.createElement('button');
+                    retryBtn.className = 'option-btn';
+                    retryBtn.innerText = `[ RETRY TEST ]`;
+                    
+                    retryBtn.addEventListener('mouseenter', () => {
+                        if (!isTyping) playSound('hover');
+                    });
+                    
+                    retryBtn.onclick = () => {
+                        window.speechSynthesis.cancel();
+                        playSound('start');
+                        currentQuestion = 0;
+                        score = 0;
+                        scoreElement.innerText = `Score: 0`;
+                        loadQuestion();
+                    };
+                    
+                    optionsContainer.appendChild(retryBtn);
+
+                    setTimeout(() => {
+                        retryBtn.classList.add('visible');
+                        playSound('type');
+                    }, 200);
+                } else {
+                    // Optional: A button to "Access Case Files" if they pass
+                    const caseBtn = document.createElement('button');
+                    caseBtn.className = 'option-btn';
+                    caseBtn.innerText = `[ ACCESS CASE FILES ]`;
+                    
+                    caseBtn.addEventListener('mouseenter', () => {
+                        if (!isTyping) playSound('hover');
+                    });
+                    
+                    caseBtn.onclick = () => {
+                        window.speechSynthesis.cancel();
+                        playSound('start');
+                        optionsContainer.innerHTML = '';
+                        questionTextElement.innerHTML = '';
+                        typeWriter("> ACCESSING FILES... \n> End of Demo. Good luck out there, Detective.", 0);
+                    };
+                    
+                    optionsContainer.appendChild(caseBtn);
+
+                    setTimeout(() => {
+                        caseBtn.classList.add('visible');
+                        playSound('type');
+                    }, 200);
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

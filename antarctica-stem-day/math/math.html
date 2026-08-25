@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antarctic Math & Logic Challenge</title>
+    <style>
+        body {
+            background-color: #e0f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #004d40;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Draggable Counting Penguins (Made bigger) */
+        .draggable-penguin {
+            position: absolute;
+            width: 80px;
+            height: 90px;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.2));
+            transition: transform 0.1s;
+        }
+        .draggable-penguin:active {
+            cursor: grabbing;
+            transform: scale(1.15);
+        }
+        .draggable-penguin img, .draggable-penguin .penguin-icon {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+        }
+        .penguin-icon {
+            display: none;
+            font-size: 3.5em;
+        }
+
+        #game-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            border: 6px solid #b2ebf2;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #00796b;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: #e0f2f1;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #b2dfdb;
+        }
+
+        #question-area {
+            font-size: 1.25em;
+            margin: 20px 0;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button.option-btn {
+            background-color: #4dd0e1;
+            border: none;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 60px;
+        }
+
+        button.option-btn:hover {
+            background-color: #26c6da;
+        }
+
+        button.option-btn:active {
+            transform: scale(0.95);
+        }
+
+        button.option-btn:disabled {
+            opacity: 0.8;
+            cursor: default;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .mode-btn {
+            background-color: #00838f;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn:hover {
+            background-color: #006064;
+        }
+
+        .mode-btn span {
+            color: white;
+        }
+
+        #feedback-area {
+            margin-top: 20px;
+            min-height: 70px;
+        }
+
+        #feedback-status {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        #feedback-fact {
+            font-size: 0.95em;
+            color: #00695c;
+            background: #e8f5e9;
+            padding: 8px;
+            border-radius: 8px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .correct { color: #2e7d32; }
+        .incorrect { color: #c62828; }
+
+        #start-screen { display: block; }
+        #mode-screen { display: none; }
+        #game-screen { display: none; }
+
+        .primary-btn {
+            background-color: #00838f;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .primary-btn:hover {
+            background-color: #006064;
+        }
+        
+        #next-btn {
+            display: none;
+            background-color: #ff9800;
+            margin: 15px auto 0;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 20px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        #next-btn:hover {
+            background-color: #f57c00;
+        }
+
+        .helper-text {
+            font-size: 0.85em;
+            color: #00796b;
+            margin-top: 15px;
+            font-style: italic;
+        }
+        
+        @media (max-width: 600px) {
+            .options-grid, .mode-grid {
+                grid-template-columns: 1fr;
+            }
+            .draggable-penguin {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 20 Unlabeled Draggable King Penguins scattered around the screen -->
+    <div class="draggable-penguin" style="top: 10px; left: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 10px; left: 100px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 10px; right: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 10px; right: 100px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    
+    <div class="draggable-penguin" style="bottom: 10px; left: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="bottom: 10px; left: 100px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="bottom: 10px; right: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="bottom: 10px; right: 100px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+
+    <div class="draggable-penguin" style="top: 25%; left: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 50%; left: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 75%; left: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+
+    <div class="draggable-penguin" style="top: 25%; right: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 50%; right: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 75%; right: 10px;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+
+    <div class="draggable-penguin" style="top: 15%; left: 22%;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="top: 15%; right: 22%;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="bottom: 15%; left: 22%;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="bottom: 15%; right: 22%;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    
+    <div class="draggable-penguin" style="top: 8%; left: 40%;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+    <div class="draggable-penguin" style="bottom: 8%; right: 40%;"><img src="king-penguin.png" alt="Penguin" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="penguin-icon">P</div></div>
+
+    <div id="game-container">
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1>Antarctic Math Challenge</h1>
+            <p style="font-size: 1.1em; margin-bottom: 25px; color: #00695c; line-height: 1.5;">
+                Test your math skills with polar problems.<br>
+                Use the 20 draggable King Penguins on screen to count along. Sound is enabled.
+            </p>
+            <button class="primary-btn" onclick="showModeScreen()">Start Expedition</button>
+        </div>
+
+        <!-- Mode Selection Screen -->
+        <div id="mode-screen">
+            <h1>Select Math Operation</h1>
+            <div class="mode-grid">
+                <button class="mode-btn" onclick="selectMode('addition')"><span style="color: white;">+</span> Addition</button>
+                <button class="mode-btn" onclick="selectMode('subtraction')"><span style="color: white;">&minus;</span> Subtraction</button>
+                <button class="mode-btn" onclick="selectMode('multiplication')"><span style="color: white;">&times;</span> Multiplication</button>
+                <button class="mode-btn" onclick="selectMode('division')"><span style="color: white;">&divide;</span> Division</button>
+            </div>
+            <button class="primary-btn" style="background-color: #004d40;" onclick="selectMode('mixed')"><span style="color: white;">&plusmn;</span> Mixed Challenge</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen">
+            <div class="stats">
+                <span id="level-display">Q: 1/5</span>
+                <span id="score-display">Score: 0</span>
+            </div>
+            
+            <div id="question-area">Loading question...</div>
+            
+            <div class="options-grid">
+                <button class="option-btn" onclick="checkAnswer(0)" id="btn-0"></button>
+                <button class="option-btn" onclick="checkAnswer(1)" id="btn-1"></button>
+                <button class="option-btn" onclick="checkAnswer(2)" id="btn-2"></button>
+                <button class="option-btn" onclick="checkAnswer(3)" id="btn-3"></button>
+            </div>
+
+            <div id="feedback-area">
+                <div id="feedback-status"></div>
+                <div id="feedback-fact"></div>
+                <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+            </div>
+            <div class="helper-text">Tip: Drag any of the 20 surrounding penguins to use as physical counting tools.</div>
+        </div>
+    </div>
+
+    <script>
+        // --- SOUND ENGINE (Web Audio API) ---
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(frequency, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+            
+            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            
+            if (type === 'start') {
+                playTone(400, 'sine', 0.1);
+                setTimeout(() => playTone(600, 'sine', 0.2), 100);
+            } 
+            else if (type === 'click') {
+                playTone(500, 'sine', 0.05, 0.05);
+            }
+            else if (type === 'correct') {
+                playTone(600, 'sine', 0.1);
+                setTimeout(() => playTone(800, 'sine', 0.2), 100);
+            } 
+            else if (type === 'incorrect') {
+                playTone(250, 'sawtooth', 0.2);
+                setTimeout(() => playTone(200, 'sawtooth', 0.3), 200);
+            }
+            else if (type === 'victory') {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    setTimeout(() => playTone(freq, 'sine', 0.3), i * 150);
+                });
+            }
+        }
+        // --- END SOUND ENGINE ---
+
+        // --- DRAGGABLE PENGUINS LOGIC ---
+        const penguins = document.querySelectorAll('.draggable-penguin');
+        penguins.forEach(penguin => {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+
+            penguin.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                penguin.setPointerCapture(e.pointerId);
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const rect = penguin.getBoundingClientRect();
+                initialX = rect.left;
+                initialY = rect.top;
+                
+                penguin.style.left = initialX + 'px';
+                penguin.style.top = initialY + 'px';
+                penguin.style.bottom = 'auto';
+                penguin.style.right = 'auto';
+                e.preventDefault();
+            });
+
+            penguin.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                penguin.style.left = (initialX + dx) + 'px';
+                penguin.style.top = (initialY + dy) + 'px';
+            });
+
+            penguin.addEventListener('pointerup', (e) => {
+                isDragging = false;
+                penguin.releasePointerCapture(e.pointerId);
+            });
+        });
+        // --- END DRAGGABLE PENGUINS ---
+
+        const questionBank = {
+            addition: [
+                { q: "You see 7 penguins on an ice floe and 8 more join them. How many penguins are there in total?", rawAnswer: 15, unit: " penguins", options: ["13", "14", "15", "16"], answer: "15 penguins", fact: "Calculation: 7 + 8 = 15 penguins." },
+                { q: "5 penguins are resting on the snow, and 12 more waddle over. How many penguins are there now?", rawAnswer: 17, unit: " penguins", options: ["15", "16", "17", "18"], answer: "17 penguins", fact: "Calculation: 5 + 12 = 17 penguins." },
+                { q: "9 King penguins are standing together, and 9 more join their group. How many total penguins are there?", rawAnswer: 18, unit: " penguins", options: ["16", "17", "18", "19"], answer: "18 penguins", fact: "Calculation: 9 + 9 = 18 penguins." },
+                { q: "10 penguins are fishing near a hole, and 10 more arrive. How many penguins are fishing?", rawAnswer: 20, unit: " penguins", options: ["18", "19", "20", "15"], answer: "20 penguins", fact: "Calculation: 10 + 10 = 20 penguins." },
+                { q: "An explorer counts 6 penguins on the left and 11 penguins on the right. What is the total count?", rawAnswer: 17, unit: " penguins", options: ["15", "16", "17", "18"], answer: "17 penguins", fact: "Calculation: 6 + 11 = 17 penguins." }
+            ],
+            subtraction: [
+                { q: "There are 14 penguins on an ice floe, but 5 dive into the ocean. How many remain on the ice?", rawAnswer: 9, unit: " penguins", options: ["8", "9", "10", "11"], answer: "9 penguins", fact: "Calculation: 14 - 5 = 9 penguins remaining." },
+                { q: "A group of 18 penguins is resting, but 7 waddle away to find fish. How many are left?", rawAnswer: 11, unit: " penguins", options: ["10", "11", "12", "13"], answer: "11 penguins", fact: "Calculation: 18 - 7 = 11 penguins remaining." },
+                { q: "You count 20 penguins, and 8 of them jump into the water. How many are still on the ice?", rawAnswer: 12, unit: " penguins", options: ["10", "11", "12", "13"], answer: "12 penguins", fact: "Calculation: 20 - 8 = 12 penguins remaining." },
+                { q: "12 penguins are playing in the snow, and 4 get too cold and leave. How many are left playing?", rawAnswer: 8, unit: " penguins", options: ["7", "8", "9", "10"], answer: "8 penguins", fact: "Calculation: 12 - 4 = 8 penguins remaining." },
+                { q: "16 penguins are lined up, but 9 of them walk away. How many penguins are still in line?", rawAnswer: 7, unit: " penguins", options: ["6", "7", "8", "9"], answer: "7 penguins", fact: "Calculation: 16 - 9 = 7 penguins remaining." }
+            ],
+            multiplication: [
+                { q: "A colony has 3 rows of nesting penguins, with 4 penguins in each row. How many nesting penguins are there?", rawAnswer: 12, unit: " penguins", options: ["10", "12", "14", "16"], answer: "12 penguins", fact: "Calculation: 3 × 4 = 12 nesting penguins." },
+                { q: "An explorer eats 2 fish every day for 5 days. How many fish are eaten in total?", rawAnswer: 10, unit: " fish", options: ["8", "10", "12", "15"], answer: "10 fish", fact: "Calculation: 2 × 5 = 10 fish." },
+                { q: "There are 4 research tents, and each tent houses 3 scientists. How many scientists are there in total?", rawAnswer: 12, unit: " scientists", options: ["10", "12", "14", "16"], answer: "12 scientists", fact: "Calculation: 4 × 3 = 12 scientists." },
+                { q: "An iceberg splits into 2 equal sections, and each section weighs 8 tons. What is the total weight?", rawAnswer: 16, unit: " tons", options: ["14", "16", "18", "20"], answer: "16 tons", fact: "Calculation: 2 × 8 = 16 tons." }
+            ],
+            division: [
+                { q: "A pod of 12 krill is shared equally among 4 hungry King penguins. How many krill does each penguin get?", rawAnswer: 3, unit: " krill", options: ["2", "3", "4", "5"], answer: "3 krill", fact: "Calculation: 12 ÷ 4 = 3 krill per penguin." },
+                { q: "An expedition has 20 liters of water to split equally over a 4-day trek. How many liters do they use per day?", rawAnswer: 5, unit: " liters", options: ["4", "5", "6", "8"], answer: "5 liters", fact: "Calculation: 20 ÷ 4 = 5 liters per day." },
+                { q: "A glacier block of 18 tons breaks into 3 equal pieces. What is the mass of each piece?", rawAnswer: 6, unit: " tons", options: ["5", "6", "7", "8"], answer: "6 tons", fact: "Calculation: 18 ÷ 3 = 6 tons." }
+            ]
+        };
+
+        let currentMode = 'addition';
+        let activeQuestions = [];
+        let score = 0;
+        let currentQIndex = 0;
+        let correctAnswerIndex = 0;
+        let isProcessing = false;
+
+        const startScreen = document.getElementById('start-screen');
+        const modeScreen = document.getElementById('mode-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const questionArea = document.getElementById('question-area');
+        const scoreDisplay = document.getElementById('score-display');
+        const levelDisplay = document.getElementById('level-display');
+        const feedbackStatus = document.getElementById('feedback-status');
+        const feedbackFact = document.getElementById('feedback-fact');
+        const nextBtn = document.getElementById('next-btn');
+        const buttons = [
+            document.getElementById('btn-0'),
+            document.getElementById('btn-1'),
+            document.getElementById('btn-2'),
+            document.getElementById('btn-3')
+        ];
+
+        function showModeScreen() {
+            initAudio();
+            playSound('start');
+            startScreen.style.display = 'none';
+            modeScreen.style.display = 'block';
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function selectMode(mode) {
+            playSound('click');
+            currentMode = mode;
+            
+            if (mode === 'mixed') {
+                activeQuestions = shuffle([
+                    ...questionBank.addition,
+                    ...questionBank.subtraction,
+                    ...questionBank.multiplication,
+                    ...questionBank.division
+                ]).slice(0, 8);
+            } else {
+                activeQuestions = shuffle([...questionBank[mode]]);
+            }
+
+            score = 0;
+            currentQIndex = 0;
+            
+            modeScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            
+            loadQuestion();
+        }
+
+        function updateStats() {
+            scoreDisplay.textContent = `Score: ${score}`;
+            levelDisplay.textContent = `Q: ${currentQIndex + 1}/${activeQuestions.length}`;
+        }
+
+        function loadQuestion() {
+            if (currentQIndex >= activeQuestions.length) {
+                playSound('victory');
+                questionArea.innerHTML = `Challenge Complete! Your final score: ${score}/${activeQuestions.length * 10}`;
+                document.querySelector('.options-grid').style.display = 'none';
+                feedbackStatus.textContent = "";
+                feedbackFact.style.display = "none";
+                nextBtn.textContent = "Choose Another Mode";
+                nextBtn.onclick = () => {
+                    gameScreen.style.display = 'none';
+                    modeScreen.style.display = 'block';
+                    document.querySelector('.options-grid').style.display = 'grid';
+                };
+                nextBtn.style.display = "block";
+                return;
+            }
+
+            isProcessing = false;
+            updateStats();
+            
+            feedbackStatus.textContent = "";
+            feedbackFact.style.display = "none";
+            nextBtn.style.display = "none";
+            
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.style.backgroundColor = "#4dd0e1";
+                btn.style.display = "block";
+            });
+
+            const qData = activeQuestions[currentQIndex];
+            questionArea.textContent = qData.q;
+            
+            let rawWrongs = generateWrongOptions(qData.rawAnswer);
+            let wrongOptionsWithUnits = rawWrongs.map(num => num + qData.unit);
+            
+            let displayOptions = shuffle([qData.answer, ...wrongOptionsWithUnits]);
+            correctAnswerIndex = displayOptions.indexOf(qData.answer);
+
+            for (let i = 0; i < 4; i++) {
+                if (displayOptions[i]) {
+                    buttons[i].textContent = displayOptions[i];
+                } else {
+                    buttons[i].style.display = "none"; 
+                }
+            }
+        }
+
+        function generateWrongOptions(correctNum) {
+            let wrongs = [];
+            while (wrongs.length < 3) {
+                const offset = (Math.floor(Math.random() * 3) + 1) * (Math.random() < 0.5 ? 1 : -1);
+                const wrongNum = correctNum + offset;
+                if (wrongNum >= 0 && wrongNum <= 25 && wrongNum !== correctNum && !wrongs.includes(wrongNum)) {
+                    wrongs.push(wrongNum);
+                }
+            }
+            return wrongs;
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const qData = activeQuestions[currentQIndex];
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === correctAnswerIndex) {
+                playSound('correct');
+                buttons[selectedIndex].style.backgroundColor = "#4caf50";
+                feedbackStatus.textContent = "Correct!";
+                feedbackStatus.className = "correct";
+                score += 10;
+            } else {
+                playSound('incorrect');
+                buttons[selectedIndex].style.backgroundColor = "#ef5350";
+                buttons[correctAnswerIndex].style.backgroundColor = "#4caf50";
+                feedbackStatus.textContent = "Incorrect!";
+                feedbackStatus.className = "incorrect";
+            }
+
+            scoreDisplay.textContent = `Score: ${score}`;
+            feedbackFact.textContent = qData.fact;
+            feedbackFact.style.display = "block";
+            
+            nextBtn.textContent = "Next Question";
+            nextBtn.onclick = () => {
+                playSound('click');
+                currentQIndex++;
+                loadQuestion();
+            };
+            nextBtn.style.display = "block";
+        }
+    </script>
+</body>
+</html>

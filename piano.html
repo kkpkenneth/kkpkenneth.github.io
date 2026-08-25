@@ -8,11 +8,14 @@
 <style>
   body {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #2c3e50;
     margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
     font-family: sans-serif;
   }
   .piano-container {
@@ -32,7 +35,7 @@
     -webkit-user-select: none;
   }
   .key {
-    width: 40px; /* Slightly narrower for mobile */
+    width: 40px; 
     height: 200px;
     background: #fff;
     border: 1px solid #ccc;
@@ -47,15 +50,16 @@
     box-sizing: border-box;
     font-weight: bold;
     color: #555;
+    font-size: 0.9em;
     /* Prevents the browser from trying to scroll when dragging a finger on a key */
     touch-action: none; 
   }
   .key:active, .key.active {
     background: #e0e0e0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 4px inset rgba(0,0,0,0.3);
   }
   .black-key {
-    width: 26px; /* Adjusted to fit the new white key width */
+    width: 26px;
     height: 120px;
     background: #222;
     position: absolute;
@@ -70,17 +74,96 @@
     padding-bottom: 10px;
     box-sizing: border-box;
     color: #fff;
-    font-size: 0.8em;
+    font-size: 0.7em;
+    font-weight: bold;
     touch-action: none;
   }
   .black-key:active, .black-key.active {
     background: #444;
+    box-shadow: 0 2px 4px inset rgba(0,0,0,0.5);
   }
   .hint {
     text-align: center;
     color: #888;
     margin-top: 15px;
     font-size: 0.9em;
+  }
+
+  /* Toggle Button */
+  .toggle-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: background 0.2s;
+  }
+  .toggle-btn:hover {
+    background: #2980b9;
+  }
+
+  /* Guide Styles (Keyboard Layout) */
+  .guide-container {
+    background: #111;
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 95vw;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    /* Default visible */
+    display: block; 
+  }
+  .guide-title {
+    text-align: center;
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+  }
+  .kb-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 6px;
+  }
+  .kb-key {
+    background: #333;
+    border: 2px solid #555;
+    border-radius: 5px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-right: 6px;
+    color: #fff;
+    font-size: 0.85em;
+    box-sizing: border-box;
+  }
+  .kb-key.black-note {
+    background: #222;
+    border-color: #444;
+  }
+  .kb-key.white-note {
+    background: #ddd;
+    border-color: #999;
+    color: #222;
+  }
+  .kb-letter {
+    font-weight: bold;
+    color: #4CAF50;
+    font-size: 1.1em;
+  }
+  .kb-note {
+    font-size: 0.75em;
+    opacity: 0.8;
   }
 </style>
 </head>
@@ -89,6 +172,14 @@
 <div class="piano-container">
   <div class="piano" id="piano"></div>
   <div class="hint">Tap, hold, or use keyboard keys to play</div>
+</div>
+
+<button class="toggle-btn" id="toggle-btn" onclick="toggleMap()">Hide Keyboard Map</button>
+
+<div class="guide-container" id="guide-container">
+  <h3 class="guide-title">Keyboard Map</h3>
+  <!-- Rows will be injected here via JS to simulate physical keyboard layout -->
+  <div id="guide-grid"></div>
 </div>
 
 <script>
@@ -123,9 +214,23 @@
   ];
 
   const piano = document.getElementById('piano');
+  const guideGrid = document.getElementById('guide-grid');
   let audioCtx = null;
   const activeOscillators = {}; 
   const keyElements = {}; 
+
+  // Toggle Functionality
+  function toggleMap() {
+    const container = document.getElementById('guide-container');
+    const btn = document.getElementById('toggle-btn');
+    if (container.style.display === 'none') {
+      container.style.display = 'block';
+      btn.innerText = 'Hide Keyboard Map';
+    } else {
+      container.style.display = 'none';
+      btn.innerText = 'Show Keyboard Map';
+    }
+  }
 
   function initAudio() {
     if (!audioCtx) {
@@ -165,12 +270,13 @@
     }
   }
 
+  // --- 1. Build Piano ---
   let whiteKeyIndex = 0;
   const whiteKeyStride = 42; // 40px width + 2px margin
 
   notes.forEach((n) => {
     const key = document.createElement('div');
-    key.innerText = n.key.toUpperCase();
+    key.innerText = n.note; 
     
     if (n.isBlack) {
       key.className = 'black-key';
@@ -182,10 +288,9 @@
 
     keyElements[n.key] = key;
 
-    // Use pointer events for universal touch + mouse support
+    // Support for touch/mouse
     key.addEventListener('pointerdown', (e) => {
       e.preventDefault(); 
-      // Capture pointer so dragging a finger off the key correctly triggers pointerleave
       key.setPointerCapture(e.pointerId); 
       playNoteStart(n.freq, n.key);
       key.classList.add('active');
@@ -197,7 +302,6 @@
       key.classList.remove('active');
     };
 
-    // Stop sound when finger lifts, drags off the key, or gets interrupted
     key.addEventListener('pointerup', stopInteraction);
     key.addEventListener('pointerleave', stopInteraction);
     key.addEventListener('pointercancel', stopInteraction);
@@ -205,7 +309,37 @@
     piano.appendChild(key);
   });
 
-  // Keyboard events
+  // --- 2. Build Keyboard Guide Map ---
+  // Physical arrangement of rows (indentation measured in pixels for staggering)
+  const kbLayout = [
+    [ { k: '2', m: 35 }, { k: '3', m: 0 }, { k: '5', m: 48 }, { k: '6', m: 0 }, { k: '7', m: 0 } ],
+    [ { k: 'q', m: 10 }, { k: 'w', m: 0 }, { k: 'e', m: 0 }, { k: 'r', m: 0 }, { k: 't', m: 0 }, { k: 'y', m: 0 }, { k: 'u', m: 0 }, { k: 'i', m: 0 } ],
+    [ { k: 's', m: 45 }, { k: 'd', m: 0 }, { k: 'g', m: 48 }, { k: 'h', m: 0 }, { k: 'j', m: 0 } ],
+    [ { k: 'z', m: 32 }, { k: 'x', m: 0 }, { k: 'c', m: 0 }, { k: 'v', m: 0 }, { k: 'b', m: 0 }, { k: 'n', m: 0 }, { k: 'm', m: 0 } ]
+  ];
+
+  kbLayout.forEach(rowInfo => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'kb-row';
+    
+    rowInfo.forEach(item => {
+      const noteData = notes.find(n => n.key === item.k);
+      const keyDiv = document.createElement('div');
+      
+      keyDiv.className = `kb-key ${noteData.isBlack ? 'black-note' : 'white-note'}`;
+      if (item.m) keyDiv.style.marginLeft = `${item.m}px`;
+
+      keyDiv.innerHTML = `
+        <span class="kb-letter">${item.k.toUpperCase()}</span>
+        <span class="kb-note">${noteData.note}</span>
+      `;
+      rowDiv.appendChild(keyDiv);
+    });
+    
+    guideGrid.appendChild(rowDiv);
+  });
+
+  // --- 3. Keyboard Events ---
   window.addEventListener('keydown', (e) => {
     if (e.repeat) return; 
     const keyChar = e.key.toLowerCase();

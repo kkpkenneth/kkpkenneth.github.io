@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Parts & Hypercars Trivia Challenge</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c14; color: #00f2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 650px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ffcc00; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.3rem; color: #ffcc00; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ffcc0055; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; font-size: 1rem; }
+        .btn-left { border-color: #00f2ff; background: transparent; color: #00f2ff; }
+        .btn-left:hover { background: #00f2ff; color: #000; }
+        .btn-right { border-color: #ff00ff; background: transparent; color: #ff00ff; }
+        .btn-right:hover { background: #ff00ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">MISSION SCORE: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE TO START TRIVIA.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">INITIALIZE SYSTEM</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+    // ==========================================
+    // SECTION 1: THE 18 CAR PARTS & FUNCTIONS
+    // ==========================================
+    { 
+        q: "What part of the car touches the road and spins round and round to make it roll?", 
+        a: ["The Wheels", "The Bumpers"], 
+        correct: "The Wheels", 
+        exp: "The wheels and rubber tires provide grip against the road surface and rotate to move the car forward or backward." 
+    },
+    { 
+        q: "What does the driver hold and rotate to control which direction the car goes?", 
+        a: ["The Steering Wheel", "The Tailpipe"], 
+        correct: "The Steering Wheel", 
+        exp: "Turning the steering wheel turns the front wheels left or right to steer the vehicle." 
+    },
+    { 
+        q: "Which button in the car makes a loud 'Beep, beep!' sound to alert other drivers or pedestrians?", 
+        a: ["The Horn", "The Antenna"], 
+        correct: "The Horn", 
+        exp: "The horn is an auditory safety device located in the center of the steering wheel used to warn others of hazards." 
+    },
+    { 
+        q: "What are the bright lights at the front of a car that illuminate the road in the dark?", 
+        a: ["The Headlights", "The Turn Signals"], 
+        correct: "The Headlights", 
+        exp: "Headlights project bright beams of light forward so the driver can see clearly at night or during fog." 
+    },
+    { 
+        q: "Which parts open wide so passengers can climb in and latch tightly shut for safety?", 
+        a: ["The Doors", "The Windows"], 
+        correct: "The Doors", 
+        exp: "Doors provide entry into the passenger cabin and lock securely into the vehicle's structural frame." 
+    },
+    { 
+        q: "What safety strap clicks across your lap and chest to hold you securely in your seat?", 
+        a: ["The Seatbelt", "The Bumper"], 
+        correct: "The Seatbelt", 
+        exp: "Seatbelts restrain passengers during sudden deceleration or collisions, preventing severe impact injuries." 
+    },
+    { 
+        q: "What sweeps back and forth across the front glass to clear away rain and snow?", 
+        a: ["The Windshield Wipers", "The Side Mirrors"], 
+        correct: "The Windshield Wipers", 
+        exp: "Wipers use rubber blades driven by an electric motor to wipe water and debris off the windshield." 
+    },
+    { 
+        q: "What is the large rear storage compartment used for luggage, groceries, and strollers?", 
+        a: ["The Trunk", "The Engine"], 
+        correct: "The Trunk", 
+        exp: "The trunk (or boot) is the dedicated cargo compartment located at the back of the car." 
+    },
+    { 
+        q: "What is the powerful 'heart' under the hood that burns fuel or uses electricity to generate power?", 
+        a: ["The Engine / Motor", "The Transmission"], 
+        correct: "The Engine / Motor", 
+        exp: "The engine converts chemical or electrical energy into mechanical power to drive the wheels." 
+    },
+    { 
+        q: "What allows the driver to see traffic behind and alongside the car without turning their head?", 
+        a: ["Rearview & Side Mirrors", "The Headlights"], 
+        correct: "Rearview & Side Mirrors", 
+        exp: "Mirrors provide wide-angle reflections around the vehicle to eliminate blind spots." 
+    },
+    { 
+        q: "Which glass panels roll up and down to let fresh air and breeze inside the cabin?", 
+        a: ["The Side Windows", "The Windshield"], 
+        correct: "The Side Windows", 
+        exp: "Side door windows can be powered down or up to ventilate the cabin and provide side visibility." 
+    },
+    { 
+        q: "What metal tube at the back bottom of the car expels exhaust gases from the engine?", 
+        a: ["The Tailpipe", "The Antenna"], 
+        correct: "The Tailpipe", 
+        exp: "The tailpipe is the exit point of the exhaust system, venting filtered emissions out the rear of the car." 
+    },
+    { 
+        q: "What mechanism is activated by the driver's foot pedal to slow down and stop the spinning wheels?", 
+        a: ["The Brakes", "The Alternator"], 
+        correct: "The Brakes", 
+        exp: "Brake pads squeeze against rotors (or drums) to create friction, converting kinetic energy into heat to stop the car." 
+    },
+    { 
+        q: "What is the large front pane of safety glass protecting passengers from wind, debris, and bugs?", 
+        a: ["The Windshield", "The Rear Window"], 
+        correct: "The Windshield", 
+        exp: "The windshield (windscreen) is made of laminated safety glass to shield occupants while providing full forward visibility." 
+    },
+    { 
+        q: "What protective bars on the front and rear ends are designed to absorb low-speed impacts?", 
+        a: ["The Bumpers", "The Fenders"], 
+        correct: "The Bumpers", 
+        exp: "Bumpers are impact-absorbing structures positioned at the front and rear to minimize collision damage." 
+    },
+    { 
+        q: "What roof-mounted device (often shaped like a stick or shark fin) receives radio and GPS signals?", 
+        a: ["The Antenna", "The Spoiler"], 
+        correct: "The Antenna", 
+        exp: "The antenna captures electromagnetic radio frequencies and satellite signals for navigation and audio entertainment." 
+    },
+    { 
+        q: "What small exterior hatch covers the nozzle where fuel is added or an EV charger is plugged in?", 
+        a: ["The Gas Door / Charge Port", "The Trunk Lid"], 
+        correct: "The Gas Door / Charge Port", 
+        exp: "The fuel filler door or charging flap protects the internal tank cap and high-voltage electrical charging sockets." 
+    },
+    { 
+        q: "What blinking amber lights signal to other drivers that a car is preparing to turn or change lanes?", 
+        a: ["The Turn Signals", "The Fog Lights"], 
+        correct: "The Turn Signals", 
+        exp: "Turn signals (blinkers/indicators) flash rhythmically on the vehicle's corners to broadcast directional intent." 
+    },
+
+    // =========================================================
+    // SECTION 2: 20 EXPENSIVE CARS (PRICES IN USD)
+    // =========================================================
+    { 
+        q: "Which brand produced the ~23 Million–30 Million USD bespoke coachbuilt roadster 'La Rose Noire Droptail'?", 
+        a: ["Rolls-Royce", "Bentley"], 
+        correct: "Rolls-Royce", 
+        exp: "The Droptail is a bespoke coachbuilt roadster by Rolls-Royce Coachbuild, featuring custom Audemars Piguet timepieces." 
+    },
+    { 
+        q: "Which brand built the 1955 '300 SLR Uhlenhaut Coupé' that sold for a world-record ~146 Million USD (€135M) at auction?", 
+        a: ["Mercedes-Benz", "Ferrari"], 
+        correct: "Mercedes-Benz", 
+        exp: "Sold from Mercedes-Benz's corporate collection in 2022, the 300 SLR Uhlenhaut holds the all-time world auction record." 
+    },
+    { 
+        q: "Which brand created the one-off, quad-turbo W16 'La Voiture Noire' priced at over 18 Million USD?", 
+        a: ["Bugatti", "Pagani"], 
+        correct: "Bugatti", 
+        exp: "Bugatti created La Voiture Noire as a modern homage to Jean Bugatti's legendary Type 57 SC Atlantic." 
+    },
+    { 
+        q: "Which brand handcrafts the ~5.4 Million USD track-focused hypercar 'Huayra Imola'?", 
+        a: ["Pagani", "Koenigsegg"], 
+        correct: "Pagani", 
+        exp: "Horacio Pagani creates limited-production, hand-crafted hypercars powered by bespoke Mercedes-AMG V12 engines." 
+    },
+    { 
+        q: "Which brand engineered the ~2.1 Million USD, 1,200+ hp hybrid hypercar 'W1'?", 
+        a: ["McLaren", "Ferrari"], 
+        correct: "McLaren", 
+        exp: "The McLaren W1 is the British marquee's ultimate hybrid halo car, pushing over 1,200 hp through ground-effect aerodynamics." 
+    },
+    { 
+        q: "Which brand built the ~2.1 Million USD 'Evija', a 2,000-hp all-electric quad-motor hypercar?", 
+        a: ["Lotus", "Aston Martin"], 
+        correct: "Lotus", 
+        exp: "The Lotus Evija is Britain's first pure-electric hypercar, boasting nearly 2,000 metric horsepower." 
+    },
+    { 
+        q: "Which brand manufactured the ~2.0 Million USD coachbuilt grand tourer 'Mulliner Batur' with its iconic W12 engine?", 
+        a: ["Bentley", "Rolls-Royce"], 
+        correct: "Bentley", 
+        exp: "The hand-crafted Bentley Batur by Mulliner is an ultra-exclusive grand tourer limited to just 18 customer cars." 
+    },
+    { 
+        q: "Which brand created the ~580,000+ USD hybrid hypercar 'SF90 Stradale' producing 986 hp?", 
+        a: ["Ferrari", "Lamborghini"], 
+        correct: "Ferrari", 
+        exp: "The SF90 Stradale and XX variants stand as Ferrari's high-performance plug-in hybrid series flagships." 
+    },
+    { 
+        q: "Which brand built the ~608,000+ USD V12 plug-in hybrid flagship supercar 'Revuelto' with 1,001 hp?", 
+        a: ["Lamborghini", "Maserati"], 
+        correct: "Lamborghini", 
+        exp: "The Revuelto combines a naturally aspirated 6.5L V12 with three electric motors and a carbon-fiber monofuselage." 
+    },
+    { 
+        q: "Which brand revived its front-engine twin-turbo V12 grand tourer with the ~432,000 USD 'Vanquish'?", 
+        a: ["Aston Martin", "Jaguar"], 
+        correct: "Aston Martin", 
+        exp: "The Vanquish is Aston Martin's pinnacle front-engine, twin-turbo V12 flagship grand tourer." 
+    },
+    { 
+        q: "Which brand hand-builds the bespoke ~340,000 USD ultra-luxury electric flagship 'Celestiq'?", 
+        a: ["Cadillac", "Lincoln"], 
+        correct: "Cadillac", 
+        exp: "The Celestiq is a custom-commissioned, hand-built electric luxury sedan built at GM's Global Technical Center." 
+    },
+    { 
+        q: "Which brand engineered the ~325,000+ USD street-legal, 800+ hp carbon-fiber supercar 'Mustang GTD'?", 
+        a: ["Ford", "Chevrolet"], 
+        correct: "Ford", 
+        exp: "Developed alongside Multimatic, the Mustang GTD is Ford's track-ready supercar targeting sub-7-minute Nürburgring laps." 
+    },
+    { 
+        q: "Which brand developed the track-focused ~240,000+ USD '911 GT3 RS' with active DRS aerodynamics?", 
+        a: ["Porsche", "Audi"], 
+        correct: "Porsche", 
+        exp: "The 911 GT3 RS is Porsche's naturally aspirated motorsport-derived flagship featuring swan-neck wings and active DRS aero." 
+    },
+    { 
+        q: "Which brand built the ~240,000+ USD carbon-monocoque supercar 'MC20' powered by the Nettuno V6?", 
+        a: ["Maserati", "Alfa Romeo"], 
+        correct: "Maserati", 
+        exp: "The MC20 utilizes pre-chamber F1 combustion technology in Maserati's proprietary Nettuno twin-turbo V6." 
+    },
+    { 
+        q: "Which brand produced the mid-engine, naturally aspirated ~160,000+ USD supercar 'R8 V10 Performance'?", 
+        a: ["Audi", "BMW"], 
+        correct: "Audi", 
+        exp: "The Audi R8 served as Audi Sport's pinnacle supercar across two generations before concluding its legendary V10 production." 
+    },
+    { 
+        q: "Which brand built the limited 50-unit, ~750,000 USD coachbuilt '3.0 CSL' tribute car?", 
+        a: ["BMW", "Mercedes-Benz"], 
+        correct: "BMW", 
+        exp: "The 2023 BMW 3.0 CSL was a hand-assembled, manual-transmission tribute to the historic 1970s 'Batmobile' racer." 
+    },
+    { 
+        q: "Which brand created the exclusive ~370,000 USD luxury SUV 'Range Rover SV Carmel Edition'?", 
+        a: ["Land Rover", "Cadillac"], 
+        correct: "Land Rover", 
+        exp: "The SV Carmel Edition is an ultra-limited Range Rover created by Land Rover's SV Bespoke team." 
+    },
+    { 
+        q: "Which brand created the iconic ~375,000+ USD acoustic 4.8L V10 supercar masterpiece 'LFA'?", 
+        a: ["Lexus", "Infiniti"], 
+        correct: "Lexus", 
+        exp: "The carbon-fiber Lexus LFA is celebrated as one of the finest-sounding and most meticulously engineered Japanese supercars." 
+    },
+    { 
+        q: "Which brand manufactured the ~110,000+ USD supercharged 575-hp V8 halo sports car 'F-Type R'?", 
+        a: ["Jaguar", "Aston Martin"], 
+        correct: "Jaguar", 
+        exp: "The F-Type R and SVR served as Jaguar's halo sports car with an iconic supercharged V8 exhaust soundtrack." 
+    },
+    { 
+        q: "Which brand produces the flagship ~90,000+ USD executive sedan 'G90' with multi-chamber air suspension?", 
+        a: ["Genesis", "Lexus"], 
+        correct: "Genesis", 
+        exp: "The G90 is Genesis's top-of-the-line full-size executive sedan featuring multi-chamber air suspension and VIP rear seating." 
+    }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.85;
+        msg.pitch = 0.6;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(200, 'square', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 40);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "CORRECT!" : "INCORRECT!") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(600, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "MISSION SCORE: " + score;
+                        
+                        setTimeout(nextQuestion, 4000); 
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

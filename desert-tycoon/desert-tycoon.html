@@ -36,13 +36,19 @@
         align-items: center;
         z-index: 200;
         color: white;
+        text-align: center; /* CENTERS TEXT ON ALL SCREENS */
+        padding: 20px;
+        box-sizing: border-box;
     }
     #start-screen h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    #start-screen p { max-width: 90%; line-height: 1.5; }
+    
     #start-btn {
         padding: 15px 40px; font-size: 1.5em; font-weight: bold;
         background: #FFD54F; color: #3E2723; border: none; border-radius: 50px;
         cursor: pointer; box-shadow: 0 4px 15px rgba(255, 213, 79, 0.4);
         transition: transform 0.2s;
+        margin-top: 15px;
     }
     #start-btn:hover { transform: scale(1.1); }
 
@@ -52,7 +58,7 @@
         pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
         display: flex; justify-content: space-between; align-items: flex-start;
     }
-    
+
     .hud-column { display: flex; flex-direction: column; gap: 10px; }
     .btn-column { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
 
@@ -61,8 +67,11 @@
         padding: 15px 25px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.6);
         color: #fff; font-weight: bold; font-size: 1.5em; pointer-events: auto;
         text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        min-width: 220px; /* FORCES UNIFORM SIZE FOR ALL UI PANELS */
+        text-align: center;
+        box-sizing: border-box;
     }
-    
+
     #auto-harvest-box {
         font-size: 1em; padding: 10px 20px; background: rgba(77, 208, 225, 0.6); border-color: rgba(77, 208, 225, 0.9);
         display: none; 
@@ -76,6 +85,30 @@
     #reset-btn { background: rgba(255, 71, 87, 0.3); border: 2px solid rgba(255, 71, 87, 0.6); }
     #reset-btn:hover { transform: scale(1.05); background: rgba(255, 71, 87, 0.5); }
 
+    /* --- FLUID MOBILE LAYOUT MEDIA QUERY --- */
+    @media (max-width: 768px) {
+        #ui-layer {
+            padding: 10px;
+        }
+        .hud-box {
+            font-size: 1rem;
+            min-width: 140px; /* SHRINKS PANELS UNIFORMLY FOR PHONES */
+            padding: 10px;
+        }
+        #auto-harvest-box {
+            font-size: 0.85rem;
+        }
+        #start-screen h1 {
+            font-size: 2em;
+        }
+        .modal {
+            padding: 20px 15px;
+        }
+        #popup-visual .animal-img, #info-visual .animal-img {
+            width: 90px; height: 90px;
+        }
+    }
+
     /* EXPLANATION: Animal elements are absolute positioned so they can move freely around the desert coordinates. touch-action: none prevents mobile browsers from trying to scroll when dragging. */
     .animal {
         position: absolute;
@@ -88,7 +121,7 @@
         touch-action: none;
     }
     .animal:active { cursor: grabbing; }
-    
+
     .animal-name {
         font-size: 14px; font-weight: bold; color: #fff; background: rgba(62, 39, 35, 0.8);
         padding: 4px 10px; border-radius: 12px; margin-bottom: 5px; pointer-events: none;
@@ -115,14 +148,14 @@
         background: rgba(0,0,0,0.7); z-index: 100;
         display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px);
     }
-    
+
     .modal {
         background: rgba(62, 39, 35, 0.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
         border-radius: 25px; color: white; padding: 30px; 
         max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
         box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(255, 213, 79, 0.1); border: 2px solid rgba(255, 213, 79, 0.3);
     }
-    
+
     .modal::-webkit-scrollbar { width: 8px; }
     .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
     .modal::-webkit-scrollbar-thumb { background: rgba(255, 213, 79, 0.5); border-radius: 10px; }
@@ -132,7 +165,7 @@
         position: sticky; top: 0; background: transparent; 
         padding-bottom: 15px; z-index: 2; border-bottom: 2px solid rgba(255, 213, 79, 0.3); box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
     }
-    
+
     #collection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px; }
     .collection-item {
         background: rgba(255, 213, 79, 0.05); padding: 15px; border-radius: 15px;
@@ -143,14 +176,14 @@
     .collection-item.locked .animal-img { filter: grayscale(100%) brightness(0.3); }
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.95em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
     .collection-item .count-badge { color: #81D4FA; font-size: 0.9em; margin-left: 5px; }
-    
+
     .btn-column-group { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: auto; }
     .btn-group { display: flex; gap: 5px; width: 100%; }
 
     .buy-btn { background: linear-gradient(180deg, #FFB74D, #F57C00); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 183, 77, 0.3); transition: transform 0.1s; }
     .buy-btn:active { transform: scale(0.95); }
     .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #BCAAA4; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
-    
+
     .remove-btn { background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s; flex: 0.3; }
     .remove-btn:active { transform: scale(0.95); }
     .remove-btn:hover { filter: brightness(1.1); }
@@ -312,7 +345,7 @@
     { id: 'saguaro-cactus', name: 'Saguaro', scientificName: 'Carnegiea gigantea', adaptation: 'Features an expandable dermal pleating system allowing rapid volumetric swelling, absorbing massive volumes of water during flash floods.', img: 'saguaro.png', cost: 20000000, speed: 0, heartsPerClick: 400000 },
     { id: 'joshua-tree', name: 'Joshua Tree', scientificName: 'Yucca brevifolia', adaptation: 'Relies on an obligate mutualistic relationship with the Yucca moth for pollination, utilizing a dual root system to monopolize sporadic moisture.', img: 'joshua-tree.png', cost: 35000000, speed: 0, heartsPerClick: 600000 },
     { id: 'desert-elephant', name: 'Desert Elephant', scientificName: 'Loxodonta africana', adaptation: 'Exhibits broader footpads to navigate shifting sands, relying on complex matriarchal spatial memory to locate ephemeral underground water sources.', img: 'desert-elephant.png', cost: 50000000, speed: 0.4, heartsPerClick: 1000000 }
-];
+    ];
 
     let hearts = 10;
     let unlockedIds = [];
@@ -325,7 +358,7 @@
         localStorage.setItem("desertHearts", hearts);
         localStorage.setItem("desertUnlocks", JSON.stringify(unlockedIds));
         localStorage.setItem("desertEverUnlocks", JSON.stringify(everUnlockedIds));
-        
+
         const animalStates = activeAnimals.map(anim => ({
             id: anim.id, x: anim.x, y: anim.y, vx: anim.vx, vy: anim.vy
         }));
@@ -336,17 +369,17 @@
         const savedHearts = localStorage.getItem("desertHearts");
         const savedUnlocks = localStorage.getItem("desertUnlocks");
         const savedEverUnlocks = localStorage.getItem("desertEverUnlocks");
-        
+
         if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
         if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
         if (savedEverUnlocks !== null) everUnlockedIds = JSON.parse(savedEverUnlocks);
-        
+
         updateUI();
     }
 
     function updateUI() {
         document.getElementById('heart-count').innerText = hearts.toLocaleString();
-        
+
         const autoBox = document.getElementById('auto-harvest-box');
         if (activeAnimals.length >= 6) {
             autoBox.style.display = 'block';
@@ -362,12 +395,12 @@
         const desertContainer = document.getElementById('desert-area');
         const el = document.createElement('div');
         el.className = 'animal';
-        
+
         el.innerHTML = `
             <div class="animal-name">${animalDef.name}</div>
             <img class="animal-img" src="${animalDef.img}" alt="${animalDef.name}">
         `;
-        
+
         let x, y, vx, vy;
         if (savedState) {
             x = savedState.x; y = savedState.y; vx = savedState.vx; vy = savedState.vy;
@@ -441,23 +474,23 @@
         if (activeAnimals.length >= 6) {
             let heartsPerSecond = 0;
             const desertContainer = document.getElementById('desert-area');
-            
+
             activeAnimals.forEach(anim => {
                 if (anim.heartsPerClick > 0) {
                     heartsPerSecond += anim.heartsPerClick;
                     const floatHeart = document.createElement('div');
                     floatHeart.className = 'floating-heart';
                     floatHeart.innerText = `+${anim.heartsPerClick} 💧`;
-                    
+
                     const offsetX = (Math.random() * 40) - 10;
                     floatHeart.style.left = (anim.x + 30 + offsetX) + 'px';
                     floatHeart.style.top = (anim.y + 10) + 'px';
-                    
+
                     desertContainer.appendChild(floatHeart);
                     setTimeout(() => floatHeart.remove(), 1000);
                 }
             });
-            
+
             if (heartsPerSecond > 0) {
                 hearts += heartsPerSecond;
                 updateUI();
@@ -496,7 +529,7 @@
                 anim.el.style.left = anim.x + 'px';
                 anim.el.style.top = anim.y + 'px';
             });
-            
+
             lastMoveTime = currentTime;
         }
         requestAnimationFrame(animate);
@@ -506,15 +539,15 @@
     function openCollection() {
         const grid = document.getElementById('collection-grid');
         grid.innerHTML = '';
-        
+
         animalData.forEach((a) => {
             const count = unlockedIds.filter(id => id === a.id).length;
             const hasBeenUnlocked = everUnlockedIds.includes(a.id);
             const isUnlocked = count > 0;
-            
+
             const item = document.createElement('div');
             item.className = `collection-item ${hasBeenUnlocked ? '' : 'locked'}`;
-            
+
             const canAfford = hearts >= a.cost;
             const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">X</button>` : '';
 
@@ -548,23 +581,23 @@
         if (!animal) return;
 
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        
+
         document.getElementById('info-name').innerText = animal.name;
         document.getElementById('info-scientific').innerText = animal.scientificName;
         document.getElementById('info-adaptation').innerText = animal.adaptation;
         document.getElementById('info-visual').innerHTML = `<img class="animal-img" src="${animal.img}" style="width: 150px; height: 150px;">`;
-        
+
         document.getElementById('info-popup').style.display = 'flex';
 
         if ('speechSynthesis' in window && !isMuted) {
-            const textToRead = `${animal.name}. Scientific name: ${animal.scientificName}. ${animal.adaptation}`;
+            const textToRead = `${animal.name}. ${animal.scientificName}. ${animal.adaptation}`;
             const utterance = new SpeechSynthesisUtterance(textToRead);
             utterance.rate = 0.95; 
             utterance.pitch = 1;
             window.speechSynthesis.speak(utterance);
         }
     };
-    
+
     window.closeInfoPopup = function() {
         document.getElementById('info-popup').style.display = 'none';
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
@@ -577,19 +610,19 @@
 
     window.unlockSpecies = function(id) {
         const animal = animalData.find(a => a.id === id);
-        
+
         if (hearts >= animal.cost) {
             const isFirstTimeEver = !everUnlockedIds.includes(id);
             const wasBelowThreshold = activeAnimals.length < 6;
-            
+
             hearts -= animal.cost;
             unlockedIds.push(id);
             if (isFirstTimeEver) everUnlockedIds.push(id);
-            
+
             spawnAnimal(animal);
             updateUI();
             saveProgress();
-            
+
             if (wasBelowThreshold && activeAnimals.length >= 6) {
                 pendingAutoPopup = true;
             }
@@ -621,7 +654,7 @@
     window.removeAnimal = function(id) {
         const unlockIndex = unlockedIds.indexOf(id);
         if (unlockIndex > -1) unlockedIds.splice(unlockIndex, 1);
-        
+
         const activeIndex = activeAnimals.findIndex(a => a.id === id);
         if (activeIndex > -1) {
             activeAnimals[activeIndex].el.remove();
@@ -679,18 +712,18 @@
     document.getElementById('start-btn').addEventListener('click', () => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('ui-layer').style.display = 'flex';
-        
+
         if(audioCtx.state === 'suspended') audioCtx.resume();
-        
+
         if (!isMuted) {
             bgMusic.play().catch(e => console.log("Audio play failed:", e));
         }
 
         loadProgress();
-        
+
         const savedStatesJSON = localStorage.getItem("desertStates");
         let loadedFromState = false;
-        
+
         if (savedStatesJSON) {
             const savedStates = JSON.parse(savedStatesJSON);
             if (savedStates.length === unlockedIds.length) {
@@ -701,7 +734,7 @@
                 loadedFromState = true;
             }
         }
-        
+
         if (!loadedFromState) {
             unlockedIds.forEach(id => {
                 const animal = animalData.find(a => a.id === id);

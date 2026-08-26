@@ -5,27 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Desert Tycoon</title>
 <style>
+    /* EXPLANATION: Base styling ensures the game takes up the full screen without scrollbars, creating a locked viewport typical for web games. */
     body {
         margin: 0;
-        overflow: hidden; /* Fluid layout, no scrollbars */
+        overflow: hidden; 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-color: #EDC9AF; 
         user-select: none;
     }
 
-    /* The Desert Area (Game Container) */
+    /* EXPLANATION: The main game container uses a z-index of 1 to sit behind the UI layer but above the background. */
     #desert-area {
         position: absolute; 
         top: 0; 
         left: 0; 
         width: 100vw; 
         height: 100vh;
-        /* Desert sky fading into hot sand */
         background: linear-gradient(to bottom, #FFD54F 0%, #FFB74D 40%, #F57C00 70%, #E65100 100%);
         z-index: 1; 
     }
 
-    /* Start Screen */
+    /* EXPLANATION: The start screen sits on top (z-index 200) and uses flexbox to center its content perfectly on any device. */
     #start-screen {
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
@@ -46,16 +46,15 @@
     }
     #start-btn:hover { transform: scale(1.1); }
 
-    /* UI Overlay */
+    /* EXPLANATION: The UI overlay uses pointer-events: none so clicks pass through to the desert area, but the individual HUD boxes re-enable pointer-events so buttons remain clickable. */
     #ui-layer {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
         display: flex; justify-content: space-between; align-items: flex-start;
     }
     
-    .hud-column {
-        display: flex; flex-direction: column; gap: 10px;
-    }
+    .hud-column { display: flex; flex-direction: column; gap: 10px; }
+    .btn-column { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
 
     .hud-box {
         background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(5px);
@@ -66,28 +65,18 @@
     
     #auto-harvest-box {
         font-size: 1em; padding: 10px 20px; background: rgba(77, 208, 225, 0.6); border-color: rgba(77, 208, 225, 0.9);
-        display: none; /* Hidden until 6 total recruits */
+        display: none; 
     }
 
-    .btn-column {
-        display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
-    }
-
-    #sound-btn, #reset-btn {
-        cursor: pointer; transition: transform 0.2s; color: white; font-size: 1em; padding: 10px 15px;
-    }
+    #sound-btn, #reset-btn { cursor: pointer; transition: transform 0.2s; color: white; font-size: 1em; padding: 10px 15px; }
     #sound-btn { background: rgba(255, 183, 77, 0.5); border: 2px solid rgba(255, 183, 77, 0.8); }
     #sound-btn:hover { transform: scale(1.05); background: rgba(255, 183, 77, 0.7); }
-
-    #collection-btn {
-        background: rgba(255, 255, 255, 0.3); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.6); color: white;
-    }
+    #collection-btn { background: rgba(255, 255, 255, 0.3); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.6); color: white; }
     #collection-btn:hover { transform: scale(1.05); }
-
     #reset-btn { background: rgba(255, 71, 87, 0.3); border: 2px solid rgba(255, 71, 87, 0.6); }
     #reset-btn:hover { transform: scale(1.05); background: rgba(255, 71, 87, 0.5); }
 
-    /* Animals/Plants */
+    /* EXPLANATION: Animal elements are absolute positioned so they can move freely around the desert coordinates. touch-action: none prevents mobile browsers from trying to scroll when dragging. */
     .animal {
         position: absolute;
         cursor: grab;
@@ -101,49 +90,26 @@
     .animal:active { cursor: grabbing; }
     
     .animal-name {
-        font-size: 14px;
-        font-weight: bold;
-        color: #fff;
-        background: rgba(62, 39, 35, 0.8);
-        padding: 4px 10px;
-        border-radius: 12px;
-        margin-bottom: 5px;
-        pointer-events: none;
-        white-space: nowrap;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        border: 1px solid rgba(255,255,255,0.3);
+        font-size: 14px; font-weight: bold; color: #fff; background: rgba(62, 39, 35, 0.8);
+        padding: 4px 10px; border-radius: 12px; margin-bottom: 5px; pointer-events: none;
+        white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3);
     }
 
     .animal-img {
-        width: 80px;
-        height: 80px;
-        object-fit: contain;
-        user-select: none;
-        pointer-events: none;
+        width: 80px; height: 80px; object-fit: contain; user-select: none; pointer-events: none;
         filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.4));
     }
 
-    .animal.clicked {
-        transform: scale(1.2) !important;
-    }
+    .animal.clicked { transform: scale(1.2) !important; }
 
-    /* Floating Point Animation */
+    /* EXPLANATION: CSS animations handle the visual feedback (floating hearts) cleanly without needing complex JS intervals. */
     .floating-heart {
-        position: absolute;
-        color: #81D4FA;
-        font-size: 1.2em;
-        font-weight: bold;
-        pointer-events: none;
-        animation: floatUp 1s ease-out forwards;
-        z-index: 50;
-        text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        position: absolute; color: #81D4FA; font-size: 1.2em; font-weight: bold;
+        pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 50; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
-    @keyframes floatUp {
-        0% { opacity: 1; transform: translateY(0) scale(1); }
-        100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
-    }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
 
-    /* Modals */
+    /* EXPLANATION: Modal overlays block interactions with the background while highlighting the catalog or info screens. */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.7); z-index: 100;
@@ -151,14 +117,10 @@
     }
     
     .modal {
-        background: rgba(62, 39, 35, 0.9); 
-        backdrop-filter: blur(16px); 
-        -webkit-backdrop-filter: blur(16px);
-        border-radius: 25px; 
-        color: white; padding: 30px; 
+        background: rgba(62, 39, 35, 0.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border-radius: 25px; color: white; padding: 30px; 
         max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(255, 213, 79, 0.1);
-        border: 2px solid rgba(255, 213, 79, 0.3);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(255, 213, 79, 0.1); border: 2px solid rgba(255, 213, 79, 0.3);
     }
     
     .modal::-webkit-scrollbar { width: 8px; }
@@ -167,56 +129,45 @@
 
     .modal h2 { 
         margin-top: -10px; padding-top: 10px; color: #FFD54F; font-size: 2.2em; 
-        position: sticky; top: 0; 
-        background: transparent; 
-        padding-bottom: 15px; z-index: 2; 
-        border-bottom: 2px solid rgba(255, 213, 79, 0.3);
-        box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
+        position: sticky; top: 0; background: transparent; 
+        padding-bottom: 15px; z-index: 2; border-bottom: 2px solid rgba(255, 213, 79, 0.3); box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
     }
     
-    /* Collection Grid */
-    #collection-grid {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
-    }
+    #collection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px; }
     .collection-item {
         background: rgba(255, 213, 79, 0.05); padding: 15px; border-radius: 15px;
         display: flex; flex-direction: column; align-items: center; 
-        border: 1px solid rgba(255, 213, 79, 0.2);
-        transition: transform 0.2s, background 0.2s;
+        border: 1px solid rgba(255, 213, 79, 0.2); transition: transform 0.2s, background 0.2s;
     }
-    .collection-item:hover {
-        background: rgba(255, 213, 79, 0.15);
-        transform: translateY(-3px);
-    }
-    .collection-item.locked .animal-img {
-        filter: grayscale(100%) brightness(0.3); 
-    }
+    .collection-item:hover { background: rgba(255, 213, 79, 0.15); transform: translateY(-3px); }
+    .collection-item.locked .animal-img { filter: grayscale(100%) brightness(0.3); }
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.95em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
     .collection-item .count-badge { color: #81D4FA; font-size: 0.9em; margin-left: 5px; }
     
-    .btn-group {
-        display: flex; gap: 5px; width: 100%; margin-top: auto;
-    }
-    .buy-btn {
-        background: linear-gradient(180deg, #FFB74D, #F57C00); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 183, 77, 0.3); transition: transform 0.1s;
-    }
+    .btn-column-group { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: auto; }
+    .btn-group { display: flex; gap: 5px; width: 100%; }
+
+    .buy-btn { background: linear-gradient(180deg, #FFB74D, #F57C00); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 183, 77, 0.3); transition: transform 0.1s; }
     .buy-btn:active { transform: scale(0.95); }
     .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #BCAAA4; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
     
-    .remove-btn {
-        background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s; flex: 0.3;
-    }
+    .remove-btn { background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s; flex: 0.3; }
     .remove-btn:active { transform: scale(0.95); }
     .remove-btn:hover { filter: brightness(1.1); }
 
+    .info-btn {
+        background: rgba(129, 212, 250, 0.15); color: #81D4FA; border: 1px solid rgba(129, 212, 250, 0.4);
+        padding: 6px; border-radius: 8px; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: all 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.8); width: 100%;
+    }
+    .info-btn:hover { background: rgba(129, 212, 250, 0.35); transform: scale(0.98); }
     .close-btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; transition: transform 0.2s; margin-top: 10px;}
     .close-btn:hover { transform: scale(1.05); }
 
-    /* Popups */
-    #unlock-popup, #auto-popup { z-index: 300; }
-    #popup-visual .animal-img { margin: 20px 0; width: 120px; height: 120px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    
+    #unlock-popup, #auto-popup, #info-popup { z-index: 300; }
+    #info-popup { z-index: 400; } 
+    #popup-visual .animal-img, #info-visual .animal-img { margin: 20px 0; width: 120px; height: 120px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     #auto-popup .modal { max-width: 500px; }
+    #info-popup .modal { max-width: 550px; }
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));}
 
     @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
@@ -243,30 +194,36 @@
 </div>
 
 <div id="desert-area"></div>
-
-<!-- Background Music -->
 <audio id="bgMusic" src="desert.mp3" loop></audio>
 
-<!-- Collection Modal -->
+<!-- Modals -->
 <div id="collection-modal" class="modal-overlay">
     <div class="modal">
         <h2>Desert Catalog</h2>
         <div id="collection-grid"></div>
-        <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">Close</button>
+        <button class="close-btn" onclick="closeModalsAndAudio()">Close</button>
     </div>
 </div>
 
-<!-- Unlock Popup Modal -->
+<div id="info-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 550px;">
+        <h2 id="info-name" style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">Name</h2>
+        <div id="info-visual"></div>
+        <h3 id="info-scientific" style="margin-top: 0; font-size: 1.2em; color: #81D4FA; font-style: italic;">Scientific Name</h3>
+        <p id="info-adaptation" style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px; line-height: 1.5;"></p>
+        <button class="close-btn" onclick="closeInfoPopup()">Close</button>
+    </div>
+</div>
+
 <div id="unlock-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden; max-height: 450px;">
         <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">New Species Discovered!</h2>
         <div id="popup-visual"></div>
-        <h3 id="popup-name" style="margin-top: 0; font-size: 1.8em; color: white;">Clownfish</h3>
+        <h3 id="popup-name" style="margin-top: 0; font-size: 1.8em; color: white;">Species</h3>
         <button class="close-btn" onclick="closeUnlockPopup()">Awesome!</button>
     </div>
 </div>
 
-<!-- Auto-Harvest Unlocked Popup -->
 <div id="auto-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden; max-height: 400px;">
         <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #FFD54F;">Ecosystem Thriving!</h2>
@@ -278,9 +235,10 @@
 </div>
 
 <script>
+    // EXPLANATION: AudioContext generates procedural sound effects, saving bandwidth and creating dynamic feedback.
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const bgMusic = document.getElementById('bgMusic');
-    bgMusic.volume = 0.4; // Set background music volume
+    bgMusic.volume = 0.4; 
 
     let isMuted = false;
 
@@ -305,52 +263,56 @@
             playSynth(440, 'triangle', 0.2, 0.2);
             setTimeout(() => playSynth(554, 'triangle', 0.2, 0.2), 150);
             setTimeout(() => playSynth(659, 'triangle', 0.4, 0.2), 300);
-        },
-        error: () => {
-            playSynth(150, 'sawtooth', 0.2, 0.2);
         }
     };
 
-    // --- Desert Species Data ---
+    // EXPLANATION: The data array acts as the central source of truth for the game content, organized strictly by biological mass.
     const animalData = [
-        { id: 'sand-ant', name: 'Sand Ant', img: 'sand-ant.png', cost: 10, speed: 0.5, heartsPerClick: 1 },
-        { id: 'desert-beetle', name: 'Desert Beetle', img: 'desert-beetle.png', cost: 15, speed: 0.2, heartsPerClick: 1 },
-        { id: 'camel-spider', name: 'Camel Spider', img: 'camel-spider.png', cost: 25, speed: 0.8, heartsPerClick: 2 },
-        { id: 'bark-scorpion', name: 'Bark Scorpion', img: 'bark-scorpion.png', cost: 35, speed: 0.3, heartsPerClick: 2 },
-        { id: 'tumbleweed', name: 'Tumbleweed', img: 'tumbleweed.png', cost: 50, speed: 0.9, heartsPerClick: 3 },
-        { id: 'horned-lizard', name: 'Horned Lizard', img: 'horned-lizard.png', cost: 60, speed: 0.4, heartsPerClick: 3 },
-        { id: 'desert-centipede', name: 'Desert Centipede', img: 'desert-centipede.png', cost: 80, speed: 0.5, heartsPerClick: 4 },
-        { id: 'kangaroo-rat', name: 'Kangaroo Rat', img: 'kangaroo-rat.png', cost: 100, speed: 0.6, heartsPerClick: 4 },
-        { id: 'chuckwalla', name: 'Chuckwalla', img: 'chuckwalla.png', cost: 120, speed: 0.3, heartsPerClick: 5 },
-        { id: 'gila-monster', name: 'Gila Monster', img: 'gila-monster.png', cost: 150, speed: 0.2, heartsPerClick: 5 },
-        { id: 'desert-tortoise', name: 'Desert Tortoise', img: 'desert-tortoise.png', cost: 180, speed: 0.1, heartsPerClick: 6 },
-        { id: 'tarantula', name: 'Tarantula', img: 'tarantula.png', cost: 200, speed: 0.3, heartsPerClick: 6 },
-        { id: 'prickly-pear', name: 'Prickly Pear Cactus', img: 'prickly-pear.png', cost: 250, speed: 0, heartsPerClick: 7 },
-        { id: 'roadrunner', name: 'Roadrunner', img: 'roadrunner.png', cost: 300, speed: 0.9, heartsPerClick: 7 },
-        { id: 'fennec-fox', name: 'Fennec Fox', img: 'fennec-fox.png', cost: 350, speed: 0.7, heartsPerClick: 8 },
-        { id: 'sidewinder', name: 'Sidewinder', img: 'sidewinder.png', cost: 400, speed: 0.5, heartsPerClick: 8 },
-        { id: 'diamondback', name: 'Diamondback', img: 'diamondback.png', cost: 500, speed: 0.4, heartsPerClick: 9 },
-        { id: 'kit-fox', name: 'Kit Fox', img: 'kit-fox.png', cost: 600, speed: 0.6, heartsPerClick: 10 },
-        { id: 'sand-cat', name: 'Sand Cat', img: 'sand-cat.png', cost: 700, speed: 0.5, heartsPerClick: 10 },
-        { id: 'meerkat', name: 'Meerkat', img: 'meerkat.png', cost: 900, speed: 0.6, heartsPerClick: 11 },
-        { id: 'agave', name: 'Agave Plant', img: 'agave.png', cost: 1000, speed: 0, heartsPerClick: 12 },
-        { id: 'peccary', name: 'Peccary', img: 'peccary.png', cost: 1200, speed: 0.4, heartsPerClick: 12 },
-        { id: 'caracal', name: 'Caracal', img: 'caracal.png', cost: 1500, speed: 0.7, heartsPerClick: 13 },
-        { id: 'coyote', name: 'Coyote', img: 'coyote.png', cost: 2000, speed: 0.6, heartsPerClick: 15 },
-        { id: 'saguaro', name: 'Saguaro Cactus', img: 'saguaro.png', cost: 2500, speed: 0, heartsPerClick: 20 },
-        { id: 'bighorn-sheep', name: 'Bighorn Sheep', img: 'bighorn-sheep.png', cost: 2600, speed: 0.5, heartsPerClick: 18 },
-        { id: 'dingo', name: 'Dingo', img: 'dingo.png', cost: 3500, speed: 0.6, heartsPerClick: 22 },
-        { id: 'striped-hyena', name: 'Striped Hyena', img: 'striped-hyena.png', cost: 4500, speed: 0.5, heartsPerClick: 27 },
-        { id: 'joshua-tree', name: 'Joshua Tree', img: 'joshua-tree.png', cost: 5000, speed: 0, heartsPerClick: 30 },
-        { id: 'arabian-oryx', name: 'Arabian Oryx', img: 'arabian-oryx.png', cost: 6000, speed: 0.4, heartsPerClick: 35 },
-        { id: 'addax', name: 'Addax', img: 'addax.png', cost: 8000, speed: 0.4, heartsPerClick: 45 },
-        { id: 'bactrian-camel', name: 'Bactrian Camel', img: 'bactrian-camel.png', cost: 12000, speed: 0.3, heartsPerClick: 60 },
-        { id: 'dromedary-camel', name: 'Dromedary Camel', img: 'dromedary-camel.png', cost: 15000, speed: 0.3, heartsPerClick: 70 },
-        { id: 'ostrich', name: 'Ostrich', img: 'ostrich.png', cost: 20000, speed: 0.8, heartsPerClick: 85 },
-        { id: 'oasis', name: 'Oasis', img: 'oasis.png', cost: 50000, speed: 0, heartsPerClick: 200 },
-        { id: 'desert-lion', name: 'Desert Lion', img: 'desert-lion.png', cost: 100000, speed: 0.5, heartsPerClick: 250 },
-        { id: 'namaqua-chameleon', name: 'Namaqua Chameleon', img: 'namaqua-chameleon.png', cost: 200000, speed: 0.5, heartsPerClick: 500 }
-    ];
+    { id: 'termite', name: 'Termite', scientificName: 'Isoptera', adaptation: 'Constructs towering, ventilated mounds with intricate internal convection currents to maintain stable temperatures for subterranean fungal farming.', img: 'termite.png', cost: 10, speed: 0.1, heartsPerClick: 1 },
+    { id: 'saharan-silver-ant', name: 'Saharan Silver Ant', scientificName: 'Cataglyphis bombycina', adaptation: 'Utilizes a dense coat of triangular silver hairs to achieve total internal reflection, preventing overheating while foraging at midday.', img: 'saharan-silver-ant.png', cost: 15, speed: 0.5, heartsPerClick: 1 },
+    { id: 'antlion', name: 'Antlion', scientificName: 'Myrmeleontidae', adaptation: 'Engineers steep-angled conical pits in loose sand, utilizing the avalanche effect to drag struggling prey down into its mandibles.', img: 'antlion.png', cost: 25, speed: 0.1, heartsPerClick: 2 },
+    { id: 'desert-beetle', name: 'Desert Beetle', scientificName: 'Stenocara gracilipes', adaptation: 'Adopts a specialized head-standing posture in coastal fog, using hydrophilic bumps on its elytra to channel condensation directly to its mouthparts.', img: 'desert-beetle.png', cost: 35, speed: 0.2, heartsPerClick: 2 },
+    { id: 'dung-beetle', name: 'Dung Beetle', scientificName: 'Scarabaeinae', adaptation: 'Navigates dung spheres using celestial cues, periodically climbing atop the ball to thermo-regulate its feet away from the scorching sand.', img: 'dung-beetle.png', cost: 50, speed: 0.3, heartsPerClick: 3 },
+    { id: 'desert-locust', name: 'Desert Locust', scientificName: 'Schistocerca gregaria', adaptation: 'Undergoes extreme phenotypic plasticity, transforming from solitary insects into a migratory, hyper-voracious swarm following rare precipitation.', img: 'desert-locust.png', cost: 75, speed: 0.6, heartsPerClick: 4 },
+    { id: 'deathstalker-scorpion', name: 'Deathstalker Scorpion', scientificName: 'Leiurus quinquestriatus', adaptation: 'Employs a highly potent cocktail of neurotoxins to paralyze prey rapidly, minimizing the metabolic energy expenditure of physical combat.', img: 'deathstalker-scorpion.png', cost: 100, speed: 0.3, heartsPerClick: 5 },
+    { id: 'living-stones', name: 'Living Stones', scientificName: 'Lithops', adaptation: 'Exhibits extreme crypsis by mimicking local geological formations, storing massive water reserves in two fused, subterranean leaves.', img: 'living-stones.png', cost: 150, speed: 0, heartsPerClick: 6 },
+    { id: 'long-eared-bat', name: 'Long-Eared Bat', scientificName: 'Otonycteris hemprichii', adaptation: 'Leverages massively proportioned pinnae to capture low-frequency rustling, swooping down to consume venomous arthropods.', img: 'long-eared-bat.png', cost: 200, speed: 0.8, heartsPerClick: 8 },
+    { id: 'desert-rain-frog', name: 'Desert Rain Frog', scientificName: 'Breviceps macrops', adaptation: 'Lacks a free-living tadpole stage; utilizes specialized hind-limb flanges to burrow deep into coastal dunes, emerging only during heavy fog.', img: 'desert-rain-frog.png', cost: 300, speed: 0.2, heartsPerClick: 10 },
+    { id: 'desert-centipede', name: 'Desert Centipede', scientificName: 'Scolopendra polymorpha', adaptation: 'Features a waterproof waxy cuticle to prevent desiccation and modified front legs (forcipules) that inject fast-acting venom.', img: 'desert-centipede.png', cost: 450, speed: 0.4, heartsPerClick: 12 },
+    { id: 'camel-spider', name: 'Camel Spider', scientificName: 'Solifugae', adaptation: 'Lacks venom but utilizes massive, powerful chelicerae to mechanically shear and liquefy prey while hunting at blistering speeds.', img: 'camel-spider.png', cost: 600, speed: 0.8, heartsPerClick: 15 },
+    { id: 'naked-mole-rat', name: 'Naked Mole-Rat', scientificName: 'Heterocephalus glaber', adaptation: 'Demonstrates mammalian eusociality and cold-blooded metabolic traits, thriving in hypoxic subterranean environments with high cancer resistance.', img: 'naked-mole-rat.png', cost: 800, speed: 0.2, heartsPerClick: 20 },
+    { id: 'shovel-snouted-lizard', name: 'Shovel-Snouted Lizard', scientificName: 'Meroles anchietae', adaptation: 'Executes a thermal dance to minimize ground contact, and possesses a wedge-shaped snout allowing rapid, fluid-like diving beneath the sand.', img: 'shovel-snouted-lizard.png', cost: 1000, speed: 0.5, heartsPerClick: 25 },
+    { id: 'horned-lizard', name: 'Horned Lizard', scientificName: 'Phrynosoma', adaptation: 'Employs autohemorrhaging from the ocular sinus to repel predators, while specialized spiky scales channel scarce rainwater directly toward its mouth.', img: 'horned-lizard.png', cost: 1500, speed: 0.4, heartsPerClick: 35 },
+    { id: 'thorny-devil', name: 'Thorny Devil', scientificName: 'Moloch horridus', adaptation: 'Features a hygroscopic capillary system between its scales that defies gravity, pulling moisture from damp sand and morning dew straight to its oral cavity.', img: 'thorny-devil.png', cost: 2000, speed: 0.2, heartsPerClick: 50 },
+    { id: 'kangaroo-rat', name: 'Kangaroo Rat', scientificName: 'Dipodomys', adaptation: 'Extracts all necessary hydration metabolically from dry seeds, utilizing highly efficient kidneys to excrete viscous, super-concentrated urine.', img: 'kangaroo-rat.png', cost: 3000, speed: 0.7, heartsPerClick: 70 },
+    { id: 'golden-mole', name: 'Golden Mole', scientificName: 'Chrysochloridae', adaptation: 'Lacks functional eyes; navigates via low-frequency seismic vibrations, utilizing a heavily ossified skull to swim seamlessly through loose sand.', img: 'golden-mole.png', cost: 4500, speed: 0.4, heartsPerClick: 100 },
+    { id: 'namaqua-chameleon', name: 'Namaqua Chameleon', scientificName: 'Chamaeleo namaquensis', adaptation: 'Dynamically shifts chromatophores from black to white to absorb or reflect solar radiation, ensuring optimal metabolic temperatures in shifting climates.', img: 'namaqua-chameleon.png', cost: 6000, speed: 0.3, heartsPerClick: 150 },
+    { id: 'sandgrouse', name: 'Sandgrouse', scientificName: 'Pteroclidae', adaptation: 'Possesses uniquely coiled abdominal feathers that act as sponges, flying hundreds of miles to transport critical hydration back to its nesting chicks.', img: 'sandgrouse.png', cost: 8000, speed: 0.7, heartsPerClick: 200 },
+    { id: 'roadrunner', name: 'Roadrunner', scientificName: 'Geococcyx', adaptation: 'Maintains a highly carnivorous diet to extract moisture, utilizing blazing sprint speeds and agile evasion to subdue and consume venomous rattlesnakes.', img: 'roadrunner.png', cost: 10000, speed: 0.9, heartsPerClick: 250 },
+    { id: 'sidewinder-snake', name: 'Sidewinder Snake', scientificName: 'Crotalus cerastes', adaptation: 'Utilizes a specialized J-shaped lateral undulation, ensuring only two small points of its body touch the scorching ground at any given moment.', img: 'sidewinder-snake.png', cost: 15000, speed: 0.5, heartsPerClick: 350 },
+    { id: 'meerkat', name: 'Meerkat', scientificName: 'Suricata suricatta', adaptation: 'Operates in cooperative mobs with dedicated sentinels, utilizing dark ocular patches to reduce solar glare while scanning the horizon for avian predators.', img: 'meerkat.png', cost: 20000, speed: 0.6, heartsPerClick: 500 },
+    { id: 'harriss-hawk', name: 'Harris\'s Hawk', scientificName: 'Parabuteo unicinctus', adaptation: 'Exhibits rare cooperative avian hunting dynamics, utilizing leapfrog flight patterns and physical stacking to flush prey from dense, thorny scrub.', img: 'harriss-hawk.png', cost: 30000, speed: 0.8, heartsPerClick: 750 },
+    { id: 'tumbleweed', name: 'Tumbleweed', scientificName: 'Salsola tragus', adaptation: 'Employs a wind-driven dispersal strategy, detaching at the root axis when desiccated to scatter up to 250,000 seeds across barren terrain.', img: 'tumbleweed.png', cost: 45000, speed: 0.9, heartsPerClick: 1000 },
+    { id: 'fennec-fox', name: 'Fennec Fox', scientificName: 'Vulpes zerda', adaptation: 'Features oversized, highly vascularized pinnae that act as a thermal radiator system, while thick fur on its paw pads prevents burns from sun-baked dunes.', img: 'fennec-fox.png', cost: 60000, speed: 0.6, heartsPerClick: 1500 },
+    { id: 'gila-monster', name: 'Gila Monster', scientificName: 'Heloderma suspectum', adaptation: 'Stores immense lipid reserves in its robust tail, surviving up to a year without feeding, and produces a specialized venom used defensively.', img: 'gila-monster.png', cost: 80000, speed: 0.3, heartsPerClick: 2000 },
+    { id: 'sand-cat', name: 'Sand Cat', scientificName: 'Felis margarita', adaptation: 'Obtains hydration entirely from the blood of its prey, featuring unique auditory bullae to hear subterranean vibrations of burrowing rodents.', img: 'sand-cat.png', cost: 100000, speed: 0.6, heartsPerClick: 2500 },
+    { id: 'desert-tortoise', name: 'Desert Tortoise', scientificName: 'Gopherus agassizii', adaptation: 'Constructs extensive subterranean burrows to escape thermal fluctuations, relying on an enlarged bladder to store liquid over years of drought.', img: 'desert-tortoise.png', cost: 150000, speed: 0.1, heartsPerClick: 3500 },
+    { id: 'prickly-pear', name: 'Prickly Pear', scientificName: 'Opuntia', adaptation: 'Utilizes CAM photosynthesis to open stomata only at night, minimizing evapotranspiration while storing massive water reserves in modified stems.', img: 'prickly-pear.png', cost: 200000, speed: 0, heartsPerClick: 4500 },
+    { id: 'caracal', name: 'Caracal', scientificName: 'Caracal caracal', adaptation: 'Boasts specialized, heavily muscled hindquarters enabling vertical leaps exceeding 10 feet to pluck avian prey mid-flight from sparse desert canopies.', img: 'caracal.png', cost: 250000, speed: 0.7, heartsPerClick: 5500 },
+    { id: 'coyote', name: 'Coyote', scientificName: 'Canis latrans', adaptation: 'Displays extreme behavioral plasticity and an opportunistic omnivorous diet, allowing survival in marginal arid zones where apex predators fail.', img: 'coyote.png', cost: 350000, speed: 0.7, heartsPerClick: 7000 },
+    { id: 'agave', name: 'Agave', scientificName: 'Agave', adaptation: 'Employs a dense, spiraling rosette architecture to actively funnel minimal condensation and rare precipitation directly toward a shallow root network.', img: 'agave.png', cost: 500000, speed: 0, heartsPerClick: 10000 },
+    { id: 'striped-hyena', name: 'Striped Hyena', scientificName: 'Hyaena hyaena', adaptation: 'Possesses an exceptionally robust digestive system and bone-crushing carnassial teeth, extracting marrow and nutrients from desiccated carcasses.', img: 'striped-hyena.png', cost: 750000, speed: 0.6, heartsPerClick: 15000 },
+    { id: 'ostrich', name: 'Ostrich', scientificName: 'Struthio camelus', adaptation: 'Utilizes a highly efficient bipedal stride for extensive nomadic foraging, combined with a unique selective brain-cooling mechanism.', img: 'ostrich.png', cost: 1000000, speed: 0.8, heartsPerClick: 20000 },
+    { id: 'oryx', name: 'Oryx', scientificName: 'Oryx gazella', adaptation: 'Tolerates core body temperatures up to 45°C by employing a carotid rete mirabile, a counter-current heat exchange system that supercools brain blood.', img: 'oryx.png', cost: 1500000, speed: 0.6, heartsPerClick: 30000 },
+    { id: 'desert-lion', name: 'Desert Lion', scientificName: 'Panthera leo melanochaita', adaptation: 'Traverses staggering home ranges and relies heavily on moisture-rich prey to survive total water deprivation, adapted with a leaner build.', img: 'desert-lion.png', cost: 2500000, speed: 0.6, heartsPerClick: 50000 },
+    { id: 'desert-crocodile', name: 'Desert Crocodile', scientificName: 'Crocodylus suchus', adaptation: 'Undergoes extensive aestivation (summer dormancy) inside cool caves, drastically depressing its metabolic rate until seasonal rains replenish gueltas.', img: 'desert-crocodile.png', cost: 4000000, speed: 0.4, heartsPerClick: 75000 },
+    { id: 'cholla-cactus', name: 'Cholla Cactus', scientificName: 'Cylindropuntia', adaptation: 'Utilizes barbed, easily detachable stem joints for vegetative propagation, effectively turning large herbivores into vectors for its aggressive expansion.', img: 'cholla-cactus.png', cost: 6000000, speed: 0, heartsPerClick: 100000 },
+    { id: 'dromedary-camel', name: 'Dromedary Camel', scientificName: 'Camelus dromedarius', adaptation: 'Tolerates up to 30% water loss and utilizes specialized oval red blood cells that continue flowing even in highly dehydrated states.', img: 'dromedary-camel.png', cost: 8000000, speed: 0.5, heartsPerClick: 150000 },
+    { id: 'bactrian-camel', name: 'Bactrian Camel', scientificName: 'Camelus ferus', adaptation: 'Features exceptional renal efficiency, thriving in extreme high-altitude deserts by processing highly saline water sources fatal to other ungulates.', img: 'bactrian-camel.png', cost: 12000000, speed: 0.5, heartsPerClick: 250000 },
+    { id: 'saguaro-cactus', name: 'Saguaro', scientificName: 'Carnegiea gigantea', adaptation: 'Features an expandable dermal pleating system allowing rapid volumetric swelling, absorbing massive volumes of water during flash floods.', img: 'saguaro.png', cost: 20000000, speed: 0, heartsPerClick: 400000 },
+    { id: 'joshua-tree', name: 'Joshua Tree', scientificName: 'Yucca brevifolia', adaptation: 'Relies on an obligate mutualistic relationship with the Yucca moth for pollination, utilizing a dual root system to monopolize sporadic moisture.', img: 'joshua-tree.png', cost: 35000000, speed: 0, heartsPerClick: 600000 },
+    { id: 'desert-elephant', name: 'Desert Elephant', scientificName: 'Loxodonta africana', adaptation: 'Exhibits broader footpads to navigate shifting sands, relying on complex matriarchal spatial memory to locate ephemeral underground water sources.', img: 'desert-elephant.png', cost: 50000000, speed: 0.4, heartsPerClick: 1000000 }
+];
 
     let hearts = 10;
     let unlockedIds = [];
@@ -358,7 +320,7 @@
     let activeAnimals = [];
     let pendingAutoPopup = false; 
 
-    // --- Local Storage ---
+    // EXPLANATION: LocalStorage functions serialize the current coordinates and unlocked IDs so the ecosystem state persists on reload.
     function saveProgress() {
         localStorage.setItem("desertHearts", hearts);
         localStorage.setItem("desertUnlocks", JSON.stringify(unlockedIds));
@@ -382,7 +344,6 @@
         updateUI();
     }
 
-    // --- Game Logic ---
     function updateUI() {
         document.getElementById('heart-count').innerText = hearts.toLocaleString();
         
@@ -396,6 +357,7 @@
         }
     }
 
+    // EXPLANATION: pointer events are bound dynamically upon element creation to allow for robust drag-and-drop mechanics.
     function spawnAnimal(animalDef, savedState = null) {
         const desertContainer = document.getElementById('desert-area');
         const el = document.createElement('div');
@@ -407,7 +369,6 @@
         `;
         
         let x, y, vx, vy;
-        
         if (savedState) {
             x = savedState.x; y = savedState.y; vx = savedState.vx; vy = savedState.vy;
         } else {
@@ -472,14 +433,10 @@
         el.addEventListener('pointercancel', endDrag);
 
         desertContainer.appendChild(el);
-        
-        activeAnimals.push({ 
-            id: animalDef.id, el, x, y, vx, vy, speed: animalDef.speed, 
-            isDragging: false, heartsPerClick: animalDef.heartsPerClick
-        });
+        activeAnimals.push({ id: animalDef.id, el, x, y, vx, vy, speed: animalDef.speed, isDragging: false, heartsPerClick: animalDef.heartsPerClick });
     }
 
-    // Auto Harvest Loop
+    // EXPLANATION: SetInterval manages the resource farming loop separately from the visual rendering loop.
     setInterval(() => {
         if (activeAnimals.length >= 6) {
             let heartsPerSecond = 0;
@@ -509,63 +466,43 @@
         saveProgress();
     }, 1000);
 
-    // Animation Loop
+    // EXPLANATION: requestAnimationFrame ensures smooth positional updates tied to the monitor's refresh rate.
     let lastMoveTime = 0;
-    const MOVE_INTERVAL = 2000; // Time in milliseconds between each movement tick (slower interval)
-    const MOVE_MULTIPLIER = 50; // Increased multiplier so the step is noticeable
+    const MOVE_INTERVAL = 2000;
+    const MOVE_MULTIPLIER = 50; 
 
     function animate(currentTime) {
         if (!lastMoveTime) lastMoveTime = currentTime;
 
-        // Only update positions if the interval has passed
         if (currentTime - lastMoveTime >= MOVE_INTERVAL) {
             activeAnimals.forEach(anim => {
                 if (anim.isDragging) return; 
                 if (anim.speed === 0) return; 
 
-                // Generate a completely random direction angle
                 const randomAngle = Math.random() * Math.PI * 2;
-                
-                // Calculate new velocity vectors based on the random angle and base speed
                 anim.vx = Math.cos(randomAngle) * anim.speed;
                 anim.vy = Math.sin(randomAngle) * anim.speed;
 
-                // Move by a discrete "chunk"
                 anim.x += anim.vx * MOVE_MULTIPLIER;
                 anim.y += anim.vy * MOVE_MULTIPLIER;
 
-                // Boundary checking (clamp to screen edges)
-                if (anim.x <= 0) {
-                    anim.x = 0;
-                } else if (anim.x >= window.innerWidth - 100) {
-                    anim.x = window.innerWidth - 100;
-                }
+                if (anim.x <= 0) anim.x = 0;
+                else if (anim.x >= window.innerWidth - 100) anim.x = window.innerWidth - 100;
 
-                if (anim.y <= 0) {
-                    anim.y = 0; 
-                } else if (anim.y >= window.innerHeight - 130) {
-                    anim.y = window.innerHeight - 130; 
-                }
+                if (anim.y <= 0) anim.y = 0; 
+                else if (anim.y >= window.innerHeight - 130) anim.y = window.innerHeight - 130; 
 
-                // Make sure the image faces the correct direction based on movement
-                if (anim.vx < 0) {
-                    anim.el.querySelector('.animal-img').style.transform = "scaleX(-1)";
-                } else {
-                    anim.el.querySelector('.animal-img').style.transform = "scaleX(1)";
-                }
-
-                // Apply the new position
+                anim.el.querySelector('.animal-img').style.transform = (anim.vx < 0) ? "scaleX(-1)" : "scaleX(1)";
                 anim.el.style.left = anim.x + 'px';
                 anim.el.style.top = anim.y + 'px';
             });
             
             lastMoveTime = currentTime;
         }
-
         requestAnimationFrame(animate);
     }
 
-    // --- UI Modals & Logic ---
+    // EXPLANATION: Centralized UI rendering logic ensures the collection grid dynamically reflects real-time state.
     function openCollection() {
         const grid = document.getElementById('collection-grid');
         grid.innerHTML = '';
@@ -581,15 +518,15 @@
             const canAfford = hearts >= a.cost;
             const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">X</button>` : '';
 
-            const actionText = 'Recruit';
-            const actionFunc = `unlockSpecies('${a.id}')`;
-
             const btnHTML = `
-                <div class="btn-group">
-                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="${actionFunc}">
-                        ${actionText}<br>(${a.cost.toLocaleString()} 💧)
-                    </button>
-                    ${removeBtnHTML}
+                <div class="btn-column-group">
+                    <div class="btn-group">
+                        <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="unlockSpecies('${a.id}')">
+                            Recruit (${a.cost.toLocaleString()} 💧)
+                        </button>
+                        ${removeBtnHTML}
+                    </div>
+                    ${hasBeenUnlocked ? `<button class="info-btn" onclick="showInfo('${a.id}')">Info</button>` : ''}
                 </div>
             `;
 
@@ -603,6 +540,39 @@
             grid.appendChild(item);
         });
         document.getElementById('collection-modal').style.display = 'flex';
+    }
+
+    // EXPLANATION: The built-in SpeechSynthesis API handles accessibility and auditory engagement without external libraries.
+    window.showInfo = function(id) {
+        const animal = animalData.find(a => a.id === id);
+        if (!animal) return;
+
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        
+        document.getElementById('info-name').innerText = animal.name;
+        document.getElementById('info-scientific').innerText = animal.scientificName;
+        document.getElementById('info-adaptation').innerText = animal.adaptation;
+        document.getElementById('info-visual').innerHTML = `<img class="animal-img" src="${animal.img}" style="width: 150px; height: 150px;">`;
+        
+        document.getElementById('info-popup').style.display = 'flex';
+
+        if ('speechSynthesis' in window && !isMuted) {
+            const textToRead = `${animal.name}. Scientific name: ${animal.scientificName}. ${animal.adaptation}`;
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.rate = 0.95; 
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+    
+    window.closeInfoPopup = function() {
+        document.getElementById('info-popup').style.display = 'none';
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    };
+
+    window.closeModalsAndAudio = function() {
+        document.getElementById('collection-modal').style.display = 'none';
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     }
 
     window.unlockSpecies = function(id) {
@@ -626,6 +596,8 @@
 
             if (isFirstTimeEver) {
                 document.getElementById('collection-modal').style.display = 'none';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
                 document.getElementById('popup-visual').innerHTML = `<img class="animal-img" src="${animal.img}" style="width: 120px; height: 120px;">`;
                 document.getElementById('popup-name').innerText = animal.name;
                 document.getElementById('unlock-popup').style.display = 'flex';
@@ -633,6 +605,8 @@
             } 
             else if (pendingAutoPopup) {
                 document.getElementById('collection-modal').style.display = 'none';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
                 document.getElementById('auto-popup').style.display = 'flex';
                 sfx.unlock();
                 pendingAutoPopup = false; 
@@ -669,14 +643,15 @@
         }
     };
 
-    // Modal Background Click-to-Close Listeners
-    ['collection-modal', 'unlock-popup', 'auto-popup'].forEach(id => {
+    ['collection-modal', 'unlock-popup', 'auto-popup', 'info-popup'].forEach(id => {
         document.getElementById(id).addEventListener('click', (e) => {
-            if (e.target.id === id) e.target.style.display = 'none';
+            if (e.target.id === id) {
+                e.target.style.display = 'none';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
         });
     });
 
-    // Sound Toggle Logic
     document.getElementById('sound-btn').addEventListener('click', () => {
         isMuted = !isMuted; 
         const btn = document.getElementById('sound-btn');
@@ -685,6 +660,7 @@
             btn.style.borderColor = 'rgba(255, 165, 0, 0.5)';
             btn.style.background = 'rgba(255, 165, 0, 0.2)';
             bgMusic.pause();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         } else {
             btn.innerText = '🔊 Sound';
             btn.style.borderColor = 'rgba(255, 183, 77, 0.8)';
@@ -693,25 +669,19 @@
         }
     });
 
-    // Reset Button Logic
     document.getElementById('reset-btn').addEventListener('click', () => {
         if (confirm("Are you sure you want to reset all progress? Your desert will be permanently cleared.")) {
-            localStorage.removeItem("desertHearts");
-            localStorage.removeItem("desertUnlocks");
-            localStorage.removeItem("desertEverUnlocks");
-            localStorage.removeItem("desertStates");
+            localStorage.clear();
             location.reload(); 
         }
     });
 
-    // --- Init ---
     document.getElementById('start-btn').addEventListener('click', () => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('ui-layer').style.display = 'flex';
         
         if(audioCtx.state === 'suspended') audioCtx.resume();
         
-        // Start background music
         if (!isMuted) {
             bgMusic.play().catch(e => console.log("Audio play failed:", e));
         }

@@ -1,1609 +1,335 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="screen-orientation" content="portrait">
-<meta name="x5-orientation" content="portrait">
-<title>Digital World Tycoon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚇 港鐵 99 站 IQ 題終極挑戰</title>
 <style>
-    body {
-        margin: 0;
-        overflow: hidden;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #0c091f; 
-        user-select: none;
-        -webkit-user-select: none;
-    }
+  :root {
+    --mtr-red: #e2231a;
+    --mtr-bg: #f9f9f9;
+    --text-dark: #333;
+    --text-light: #666;
+  }
+  
+  body {
+    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background-color: #eef2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
 
-    /* The Digital World (Game Container) */
-    #ocean {
-        position: absolute; 
-        top: 0; 
-        left: 0; 
-        width: 100vw; 
-        height: 100vh;
-        background: url('world-map.png') no-repeat center center fixed;
-        background-size: cover;
-        z-index: 1; 
-    }
+  .app-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+  }
 
-    /* Dark Overlay */
-    #ocean::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(12, 9, 31, 0.65);
-        pointer-events: none;
-        z-index: 1;
-    }
+  .header {
+    background-color: var(--mtr-red);
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
 
-    /* Start Screen */
-    #start-screen {
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        background: radial-gradient(circle, #24143a, #100a1d, #05030a);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 200;
-        color: white;
-    }
-    #start-screen h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 0 4px 15px rgba(114, 9, 183, 0.6); color: #00f2fe; }
-    #start-screen p { color: #a29bfe; font-size: 1.1em; text-align: center; padding: 0 20px;}
-    #start-btn {
-        padding: 15px 40px; font-size: 1.5em; font-weight: bold;
-        background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #0c091f; border: none; border-radius: 50px;
-        cursor: pointer; box-shadow: 0 4px 20px rgba(0,242,254,0.4);
-        transition: transform 0.2s;
-    }
-    #start-btn:hover { transform: scale(1.1); }
+  .header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
 
-    /* UI Overlay */
-    #ui-layer {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
-        display: flex; justify-content: space-between; align-items: flex-start;
-    }
-    
-    .hud-column {
-        display: flex; flex-direction: column; gap: 10px;
-    }
+  .progress {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-top: 5px;
+    font-weight: bold;
+  }
 
-    .hud-box {
-        background: rgba(20, 15, 45, 0.75); backdrop-filter: blur(5px);
-        padding: 15px 25px; border-radius: 15px; border: 2px solid rgba(79, 172, 254, 0.4);
-        color: white; font-weight: bold; font-size: 1.5em; pointer-events: auto;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-    
-    #auto-harvest-box {
-        font-size: 1em; padding: 10px 20px; background: rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.5);
-        display: none;
-    }
+  .card-container {
+    padding: 30px 20px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 200px;
+  }
 
-    .btn-column {
-        display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
-    }
+  .question-box {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
 
-    /* Buttons */
-    .action-btn {
-        cursor: pointer; transition: transform 0.2s; color: white; border: 2px solid;
-    }
-    .action-btn:hover { transform: scale(1.05); }
+  .answer-box {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease;
+    height: 0;
+    overflow: hidden;
+  }
 
-    #farm-btn { background: rgba(255, 159, 67, 0.3); border-color: rgba(255, 159, 67, 0.5); }
-    #farm-btn:hover { background: rgba(255, 159, 67, 0.5); }
+  .answer-box.show {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+    margin-bottom: 20px;
+  }
 
-    #collection-btn { background: rgba(79, 172, 254, 0.3); border-color: rgba(79, 172, 254, 0.5); }
-    #collection-btn:hover { background: rgba(79, 172, 254, 0.5); }
+  .station-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--mtr-red);
+    margin: 0;
+  }
 
-    #sound-btn { background: rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.5); font-size: 1em; padding: 10px 15px; }
-    #sound-btn:hover { background: rgba(46, 213, 115, 0.5); }
+  .explanation {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-top: 5px;
+  }
 
-    #save-btn { background: rgba(156, 136, 255, 0.3); border-color: rgba(156, 136, 255, 0.5); font-size: 1em; padding: 10px 15px; }
-    #save-btn:hover { background: rgba(156, 136, 255, 0.5); }
+  .controls {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 30px;
+  }
 
-    #reset-btn { background: rgba(255, 71, 87, 0.3); border-color: rgba(255, 71, 87, 0.5); font-size: 1em; padding: 10px 15px; }
-    #reset-btn:hover { background: rgba(255, 71, 87, 0.5); }
+  button {
+    flex: 1;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+  }
 
-    /* Black Hole for Deletion */
-    #black-hole {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 80px;
-        height: 80px;
-        background: radial-gradient(circle, #000 0%, #1f0230 40%, #46066b 80%, transparent 100%);
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 5;
-        pointer-events: none; 
-        box-shadow: 0 0 20px rgba(180, 0, 255, 0.4);
-        transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-    }
-    #black-hole::after {
-        content: '🌌';
-        font-size: 2.5em;
-        animation: spinRotate 6s linear infinite;
-    }
-    #black-hole.active {
-        transform: scale(1.4);
-        box-shadow: 0 0 40px rgba(255, 50, 100, 0.9);
-        background: radial-gradient(circle, #000 0%, #4a0319 40%, #870529 80%, transparent 100%);
-    }
-    @keyframes spinRotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+  button:active {
+    transform: scale(0.97);
+  }
 
-    /* Digimon Sprites & Eggs */
-    .animal {
-        position: absolute;
-        cursor: grab;
-        display: flex; 
-        flex-direction: column;
-        justify-content: center; 
-        align-items: center;
-        touch-action: none;
-        z-index: 6;
-        transform-origin: bottom center;
-    }
-    .animal:active { cursor: grabbing; }
-    
-    .animal-name {
-        font-size: 13px;
-        font-weight: bold;
-        color: #00f2fe;
-        background: rgba(10, 8, 25, 0.85);
-        padding: 4px 10px;
-        border-radius: 12px;
-        margin-bottom: 5px;
-        pointer-events: none;
-        white-space: nowrap;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-        border: 1px solid rgba(79, 172, 254, 0.3);
-        opacity: 0;
-        transition: opacity 0.2s ease-in-out;
-    }
+  .btn-reveal {
+    background-color: var(--text-dark);
+    color: white;
+  }
+  
+  .btn-reveal:hover {
+    background-color: #1a1a1a;
+  }
 
-    .animal:hover .animal-name,
-    .animal:hover .exp-container {
-        opacity: 1;
-    }
+  .btn-next {
+    background-color: var(--mtr-red);
+    color: white;
+    display: none;
+  }
 
-    .animal img {
-        width: auto;
-        image-rendering: pixelated;
-        pointer-events: none; 
-        user-select: none;
-        filter: drop-shadow(0 5px 8px rgba(0,0,0,0.8));
-    }
-
-    .animal.is-egg img {
-        height: 32px;
-    }
-
-    /* Experience Bar */
-    .exp-container {
-        position: absolute;
-        bottom: -15px; 
-        width: 50px;
-        height: 6px;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid rgba(79, 172, 254, 0.5);
-        border-radius: 4px;
-        opacity: 0;
-        transition: opacity 0.2s ease-in-out;
-        pointer-events: none;
-        overflow: hidden;
-    }
-    
-    .exp-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #00f2fe, #4facfe);
-        width: 0%;
-        transition: width 0.2s ease-out;
-    }
-
-    .exp-fill.max {
-        background: linear-gradient(90deg, #ff4757, #ff6b81);
-    }
-
-    /* Evolution Badge Pulse */
-    @keyframes pulseGlow {
-        0% { transform: scale(1); filter: drop-shadow(0 0 2px #ff4757); }
-        50% { transform: scale(1.1); filter: drop-shadow(0 0 10px #ff4757); }
-        100% { transform: scale(1); filter: drop-shadow(0 0 2px #ff4757); }
-    }
-    .evolve-ready-badge {
-        position: absolute;
-        top: -12px;
-        right: -10px;
-        background: linear-gradient(135deg, #ff4757, #ff6b81);
-        color: white;
-        font-size: 10px;
-        font-weight: bold;
-        padding: 3px 6px;
-        border-radius: 8px;
-        border: 1px solid white;
-        pointer-events: none;
-        animation: pulseGlow 1s infinite;
-        z-index: 5;
-    }
-
-    /* Floating Data Bits Animation */
-    .floating-heart {
-        position: absolute;
-        color: #00f2fe;
-        font-size: 0.8em;
-        font-weight: bold;
-        pointer-events: none;
-        animation: floatUp 1.2s ease-out forwards;
-        z-index: 50;
-        text-shadow: 0 2px 5px rgba(0,242,254,0.6);
-        white-space: nowrap;
-    }
-    .synergy-text {
-        color: #ff9f43;
-        font-size: 0.9em;
-        margin-left: 4px;
-    }
-    @keyframes floatUp {
-        0% { opacity: 1; transform: translateY(0) scale(1); }
-        100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
-    }
-
-    /* Modals */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(5, 3, 10, 0.85); z-index: 100;
-        display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px);
-    }
-    
-    .modal {
-        background: rgba(15, 12, 35, 0.9); 
-        backdrop-filter: blur(16px); 
-        -webkit-backdrop-filter: blur(16px);
-        border-radius: 25px; 
-        color: white; padding: 30px; 
-        max-width: 900px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(79, 172, 254, 0.1);
-        border: 2px solid rgba(79, 172, 254, 0.4);
-    }
-    
-    .modal::-webkit-scrollbar { width: 8px; }
-    .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
-    .modal::-webkit-scrollbar-thumb { background: rgba(79, 172, 254, 0.5); border-radius: 10px; }
-
-    .modal h2 { 
-        margin-top: -10px; padding-top: 10px; color: #00f2fe; font-size: 2.2em; 
-        position: sticky; top: 0; 
-        background: #0f1223; 
-        padding-bottom: 15px; z-index: 2; 
-        border-bottom: 2px solid rgba(79, 172, 254, 0.3);
-        box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
-    }
-
-    /* Archive Tabs */
-    .tab-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 20px;
-        justify-content: center;
-        position: sticky;
-        top: 55px;
-        background: #0f1223;
-        padding-bottom: 15px;
-        z-index: 2;
-        border-bottom: 1px solid rgba(79, 172, 254, 0.2);
-    }
-    
-    .tab-btn {
-        background: rgba(79, 172, 254, 0.1);
-        color: #a29bfe;
-        border: 1px solid rgba(79, 172, 254, 0.4);
-        padding: 8px 16px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 0.9em;
-        transition: all 0.2s ease;
-    }
-    
-    .tab-btn:hover:not(.active) {
-        background: rgba(79, 172, 254, 0.3);
-        color: white;
-    }
-    
-    .tab-btn.active {
-        background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-        color: #0c091f;
-        border-color: #00f2fe;
-        box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
-    }
-    
-    /* Collection/Farm Grid */
-    .grid-container {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
-    }
-    .collection-item {
-        background: rgba(79, 172, 254, 0.05); padding: 15px; border-radius: 15px;
-        display: flex; flex-direction: column; align-items: center; 
-        border: 1px solid rgba(79, 172, 254, 0.2);
-        transition: transform 0.2s, background 0.2s;
-    }
-    .collection-item:hover {
-        background: rgba(79, 172, 254, 0.15);
-        transform: translateY(-3px);
-    }
-    
-    /* Silhouette effect for locked items */
-    .collection-item.locked .visual img {
-        filter: brightness(0);
-        opacity: 0.6;
-    }
-    .collection-item.locked .name-tag {
-        color: #718093;
-    }
-
-    .collection-item .visual { margin-bottom: 10px; height: 70px; display: flex; align-items: center; justify-content: center; }
-    .collection-item .visual img { width: auto; image-rendering: pixelated; }
-    .collection-item .visual img.is-egg-img { height: 32px; }
-    .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.85em; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
-    .collection-item .count-badge { color: #2ed573; font-size: 0.9em; margin-left: 5px; }
-    
-    .btn-group { display: flex; gap: 5px; width: 100%; margin-top: auto; }
-    
-    .buy-btn {
-        background: linear-gradient(180deg, #ff9f43, #ff7b1c); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 159, 67, 0.3); transition: transform 0.1s; width: 100%;
-    }
-    .buy-btn:active { transform: scale(0.95); }
-    .buy-btn:hover:not(:disabled) { filter: brightness(1.1); }
-    .buy-btn:disabled { background: rgba(255,255,255,0.08); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
-
-    .close-btn { background: rgba(79, 172, 254, 0.3); color: white; border: 1px solid rgba(79, 172, 254, 0.5); padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; transition: transform 0.2s; margin-top: 10px;}
-    .close-btn:hover { transform: scale(1.05); background: rgba(79, 172, 254, 0.5); }
-
-    /* Popups */
-    #auto-popup, #evolution-modal { z-index: 300; }
-    .visual img { width: auto; image-rendering: pixelated; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    
-    #auto-popup .modal, #evolution-modal .modal { max-width: 500px; }
-    .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-    .branch-option {
-        display: inline-block;
-        margin: 10px;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px solid rgba(79, 172, 254, 0.3);
-        border-radius: 15px;
-        cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
-    }
-    .branch-option:hover {
-        transform: scale(1.05);
-        background: rgba(79, 172, 254, 0.2);
-        border-color: rgba(79, 172, 254, 0.8);
-    }
-    .branch-option p {
-        margin: 5px 0 0 0;
-        font-weight: bold;
-    }
-
-    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-
-    /* Orientation Warning Lock */
-    #orientation-warning {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        background: #0c091f;
-        color: white;
-        z-index: 9999;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        flex-direction: column;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    #orientation-warning h2 {
-        color: #ff4757;
-        font-size: 2em;
-        margin-bottom: 10px;
-        border: none;
-        background: transparent;
-        box-shadow: none;
-        padding: 0;
-    }
-
-    /* Mobile Responsive Overrides */
-    @media screen and (max-width: 768px) {
-        .hud-box {
-            font-size: 1em !important;
-            padding: 10px 15px !important;
-            border-radius: 10px !important;
-        }
-        #ui-layer {
-            padding: 10px;
-        }
-        #start-screen h1 {
-            font-size: 1.8em;
-            text-align: center;
-        }
-        #start-btn {
-            font-size: 1.2em;
-            padding: 12px 30px;
-        }
-        .modal {
-            padding: 20px;
-            width: 95%;
-        }
-        .tab-btn {
-            padding: 6px 12px;
-            font-size: 0.8em;
-        }
-    }
-
-    /* Enforce Portrait Mode on Mobile */
-    @media screen and (max-width: 900px) and (orientation: landscape) {
-        #orientation-warning {
-            display: flex;
-        }
-    }
-
+  .btn-next:hover {
+    background-color: #b71811;
+  }
 </style>
 </head>
 <body>
 
-<!-- Mobile Orientation Lock Overlay -->
-<div id="orientation-warning">
-    <h2>📱 Please Rotate Your Device</h2>
-    <p>This game is best experienced in portrait mode.</p>
-</div>
-
-<div id="start-screen">
-    <h1>🌐 Digital World Tycoon</h1>
-    <p>Explore the World Map, Tap & Collect Data Bits, and Build your Digimon Network!</p>
-    <button id="start-btn">Enter Network</button>
-</div>
-
-<div id="ui-layer">
-    <div class="hud-column">
-        <div class="hud-box">💾 <span id="heart-count">0</span> Data</div>
-        <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
+<div class="app-container">
+  <div class="header">
+    <h2>🚇 港鐵 99 站爛 Gag 大全</h2>
+    <div class="progress" id="progress-text">準備開始...</div>
+  </div>
+  
+  <div class="card-container">
+    <div class="question-box" id="question-text">載入中...</div>
+    
+    <div class="answer-box" id="answer-box">
+      <p class="station-name" id="answer-station"></p>
+      <p class="explanation" id="answer-exp"></p>
     </div>
-    <div class="btn-column">
-        <button id="farm-btn" class="hud-box action-btn">🥚 Farm</button>
-        <button id="collection-btn" class="hud-box action-btn">📖 Digivices</button>
-        <button id="sound-btn" class="hud-box action-btn">🔊 Sound</button>
-        <button id="save-btn" class="hud-box action-btn">💾 Save</button>
-        <button id="reset-btn" class="hud-box action-btn">⚠️ Reset</button>
-    </div>
-</div>
+  </div>
 
-<div id="black-hole"></div>
-<div id="ocean"></div>
-
-<!-- Farm Modal -->
-<div id="farm-modal" class="modal-overlay">
-    <div class="modal">
-        <h2>Digi-Farm</h2>
-        <div id="farm-grid" class="grid-container"></div>
-        <button class="close-btn" onclick="document.getElementById('farm-modal').style.display='none'">Close</button>
-    </div>
-</div>
-
-<!-- Collection Modal -->
-<div id="collection-modal" class="modal-overlay">
-    <div class="modal">
-        <h2>Digimon Archive</h2>
-        
-        <div class="tab-container" id="collection-tabs">
-            <button class="tab-btn active" onclick="openCollection('Egg')">Eggs</button>
-            <button class="tab-btn" onclick="openCollection('Fresh')">Fresh</button>
-            <button class="tab-btn" onclick="openCollection('In-Training')">In-Training</button>
-            <button class="tab-btn" onclick="openCollection('Rookie')">Rookie</button>
-            <button class="tab-btn" onclick="openCollection('Champion')">Champion</button>
-            <button class="tab-btn" onclick="openCollection('Ultimate')">Ultimate</button>
-            <button class="tab-btn" onclick="openCollection('Mega')">Mega</button>
-        </div>
-
-        <div id="collection-grid" class="grid-container"></div>
-        <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">Close</button>
-    </div>
-</div>
-
-<!-- Evolution Modal Popup -->
-<div id="evolution-modal" class="modal-overlay">
-    <div class="modal" style="overflow: hidden; max-height: 550px;">
-        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #ff4757;">Evolution Ready!</h2>
-        <h3 id="evolution-title" style="margin-top: 10px; font-size: 1.3em; color: white;">Ready to Digivolve!</h3>
-        <p style="font-size: 1em; color: #d1d8e0; margin-bottom: 10px;">Your partner has gathered enough energy to ascend!</p>
-        
-        <div id="evolution-visual" class="visual" style="display:flex; justify-content:center; flex-wrap:wrap;"></div>
-        
-        <div style="margin-top: 20px;">
-            <button id="evolution-action-btn" class="close-btn" style="background: linear-gradient(135deg, #ff4757, #ff6b81); border: none;">✨ Digivolve Now!</button>
-            <button class="close-btn" style="margin-left: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('evolution-modal').style.display='none'">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- Auto-Harvest Unlocked Popup -->
-<div id="auto-popup" class="modal-overlay">
-    <div class="modal" style="overflow: hidden; max-height: 400px;">
-        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #2ed573;">Network Expansion!</h2>
-        <div class="gear-icon">⚙️</div>
-        <h3 style="margin-top: 0; font-size: 1.5em; color: white;">Automated Data Mining Active</h3>
-        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your connected Digimon network is now harvesting data automatically across the world map every second!</p>
-        <button class="close-btn" onclick="document.getElementById('auto-popup').style.display='none'">Keep Exploring</button>
-    </div>
+  <div class="controls">
+    <button class="btn-reveal" id="btn-reveal" onclick="revealAnswer()">㩒我開估！</button>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">下一題 ➔</button>
+  </div>
 </div>
 
 <script>
-    // --- Audio Context & Synth ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let isMuted = false;
-
-    function playSynth(freq, type, duration, vol=0.2) {
-        if (isMuted) return;
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-    }
-
-    const sfx = {
-        bubble: () => playSynth(700 + Math.random()*250, 'sine', 0.1, 0.08),
-        delete: () => {
-            playSynth(150, 'sawtooth', 0.3, 0.2);
-            setTimeout(() => playSynth(100, 'square', 0.4, 0.2), 100);
-        },
-        unlock: () => {
-            playSynth(523.25, 'triangle', 0.2, 0.2); 
-            setTimeout(() => playSynth(659.25, 'triangle', 0.2, 0.2), 150); 
-            setTimeout(() => playSynth(783.99, 'triangle', 0.2, 0.2), 300); 
-            setTimeout(() => playSynth(1046.50, 'triangle', 0.4, 0.2), 450); 
-        },
-        evolve: () => {
-            playSynth(300, 'sawtooth', 0.15, 0.15);
-            setTimeout(() => playSynth(450, 'sawtooth', 0.15, 0.15), 100);
-            setTimeout(() => playSynth(600, 'sawtooth', 0.15, 0.15), 200);
-            setTimeout(() => playSynth(900, 'triangle', 0.4, 0.25), 300);
-        }
-    };
-
-    // --- Digimon Data List (Complete) ---
-    const animalData = [
-        // --- EGGS ---
-        { id: 'egg_botamon', name: 'Digi-Egg (Botamon)', img: '01-egg-botamon.png', cost: 100, speed: 0, next: 'botamon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_punimon', name: 'Digi-Egg (Punimon)', img: '02-egg-punimon.png', cost: 100, speed: 0, next: 'punimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_nyokimon', name: 'Digi-Egg (Nyokimon)', img: '03-egg-nyokimon.png', cost: 100, speed: 0, next: 'nyokimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_pabumon', name: 'Digi-Egg (Pabumon)', img: '04-egg-pabumon.png', cost: 100, speed: 0, next: 'pabumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_yuramon', name: 'Digi-Egg (Yuramon)', img: '05-egg-yuramon.png', cost: 100, speed: 0, next: 'yuramon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_pichimon', name: 'Digi-Egg (Pichimon)', img: '06-egg-pichimon.png', cost: 100, speed: 0, next: 'pichimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_poyomon', name: 'Digi-Egg (Poyomon)', img: '07-egg-poyomon.png', cost: 100, speed: 0, next: 'poyomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_yukimibotamon', name: 'Digi-Egg (YukimiBotamon)', img: '08-egg-yukimibotamon.png', cost: 100, speed: 0, next: 'yukimibotamon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_chibomon', name: 'Digi-Egg (Chibomon)', img: '09-egg-chibomon.png', cost: 100, speed: 0, next: 'chibomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_pururumon', name: 'Digi-Egg (Pururumon)', img: '10-egg-pururumon.png', cost: 100, speed: 0, next: 'pururumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_tsubumon', name: 'Digi-Egg (Tsubumon)', img: '11-egg-tsubumon.png', cost: 100, speed: 0, next: 'tsubumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_leafmon', name: 'Digi-Egg (Leafmon)', img: '12-egg-leafmon.png', cost: 100, speed: 0, next: 'leafmon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_jyarimon', name: 'Digi-Egg (Jyarimon)', img: '13-egg-jyarimon.png', cost: 100, speed: 0, next: 'jyarimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_zerimon', name: 'Digi-Egg (Zerimon)', img: '14-egg-zerimon.png', cost: 100, speed: 0, next: 'zerimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_relemon', name: 'Digi-Egg (Relemon)', img: '15-egg-relemon.png', cost: 100, speed: 0, next: 'relemon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_16', name: 'Digi-Egg 16', img: '16-egg.png', cost: 100, speed: 0, next: 'conomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_17', name: 'Digi-Egg 17', img: '17-egg.png', cost: 100, speed: 0, next: 'keemon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_18', name: 'Digi-Egg 18', img: '18-egg.png', cost: 100, speed: 0, next: 'ketomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_19', name: 'Digi-Egg 19', img: '19-egg.png', cost: 100, speed: 0, next: 'choromon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_20', name: 'Digi-Egg 20', img: '20-egg.png', cost: 100, speed: 0, next: 'paomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_21', name: 'Digi-Egg 21', img: '21-egg.png', cost: 100, speed: 0, next: 'datirimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_22', name: 'Digi-Egg 22', img: '22-egg.png', cost: 100, speed: 0, next: 'kuramon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_23', name: 'Digi-Egg 23', img: '23-egg.png', cost: 100, speed: 0, next: 'mokumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_24', name: 'Digi-Egg 24', img: '24-egg.png', cost: 100, speed: 0, next: 'puttimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_25', name: 'Digi-Egg 25', img: '25-egg.png', cost: 100, speed: 0, next: 'zurumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_26', name: 'Digi-Egg 26', img: '26-egg.png', cost: 100, speed: 0, next: 'dodomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_27', name: 'Digi-Egg 27', img: '27-egg.png', cost: 100, speed: 0, next: 'puwamon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_28', name: 'Digi-Egg 28', img: '28-egg.png', cost: 100, speed: 0, next: 'argomon_fresh', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_29', name: 'Digi-Egg 29', img: '29-egg.png', cost: 100, speed: 0, next: 'bombmon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_30', name: 'Digi-Egg 30', img: '30-egg.png', cost: 100, speed: 0, next: 'chibickmon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_31', name: 'Digi-Egg 31', img: '31-egg.png', cost: 100, speed: 0, next: 'dokimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_32', name: 'Digi-Egg 32', img: '32-egg.png', cost: 100, speed: 0, next: 'curimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_33', name: 'Digi-Egg 33', img: '33-egg.png', cost: 100, speed: 0, next: 'pyonmon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_34', name: 'Digi-Egg 34', img: '34-egg.png', cost: 100, speed: 0, next: 'puyomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_35', name: 'Digi-Egg 35', img: '35-egg.png', cost: 100, speed: 0, next: 'fusamon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_36', name: 'Digi-Egg 36', img: '36-egg.png', cost: 100, speed: 0, next: 'kekomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_37', name: 'Digi-Egg 37', img: '37-egg.png', cost: 100, speed: 0, next: 'tomorimon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_38', name: 'Digi-Egg 38', img: '38-egg.png', cost: 100, speed: 0, next: 'fukamon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_39', name: 'Digi-Egg 39', img: '39-egg.png', cost: 100, speed: 0, next: 'bommon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_40', name: 'Digi-Egg 40', img: '40-egg.png', cost: 100, speed: 0, next: 'cotsucomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_41', name: 'Digi-Egg 41', img: '41-egg.png', cost: 100, speed: 0, next: 'fufumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_42', name: 'Digi-Egg 42', img: '42-egg.png', cost: 100, speed: 0, next: 'pafumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_43', name: 'Digi-Egg 43', img: '43-egg.png', cost: 100, speed: 0, next: 'petitmon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_44', name: 'Digi-Egg 44', img: '44-egg.png', cost: 100, speed: 0, next: 'popomon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_45', name: 'Digi-Egg 45', img: '45-egg.png', cost: 100, speed: 0, next: 'pupumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_46', name: 'Digi-Egg 46', img: '46-egg.png', cost: 100, speed: 0, next: 'pusumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_47', name: 'Digi-Egg 47', img: '47-egg.png', cost: 100, speed: 0, next: 'sakumon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_48', name: 'Digi-Egg 48', img: '48-egg.png', cost: 100, speed: 0, next: 'sandmon', clickGoal: 5, stage: 'Egg' },
-        { id: 'egg_49', name: 'Digi-Egg 49', img: '49-egg.png', cost: 100, speed: 0, next: 'yolkmon', clickGoal: 5, stage: 'Egg' },
-
-        // --- FRESH DIGIMON ---
-        { id: 'botamon', name: 'Botamon', img: 'Botamon.png', cost: 10, speed: 0.3, next: 'koromon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'punimon', name: 'Punimon', img: 'Punimon.png', cost: 10, speed: 0.3, next: 'tsunomon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'nyokimon', name: 'Nyokimon', img: 'Nyokimon.png', cost: 10, speed: 0.3, next: 'yokomon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'pabumon', name: 'Pabumon', img: 'Pabumon.png', cost: 10, speed: 0.3, next: 'motimon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'yuramon', name: 'Yuramon', img: 'Yuramon.png', cost: 10, speed: 0.3, next: 'tanemon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'pichimon', name: 'Pichimon', img: 'Pichimon.png', cost: 10, speed: 0.3, next: ['bukamon', 'chapmon'], clickGoal: 10, stage: 'Fresh' },
-        { id: 'poyomon', name: 'Poyomon', img: 'Poyomon.png', cost: 10, speed: 0.3, next: 'tokomon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'yukimibotamon', name: 'YukimiBotamon', img: 'YukimiBotamon.png', cost: 10, speed: 0.3, next: 'nyaromon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'chibomon', name: 'Chibomon', img: 'Chibomon.png', cost: 10, speed: 0.3, next: 'demiveemon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'pururumon', name: 'Pururumon', img: 'Pururumon.png', cost: 10, speed: 0.3, next: 'poromon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'tsubumon', name: 'Tsubumon', img: 'Tsubumon.png', cost: 10, speed: 0.3, next: 'upamon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'leafmon', name: 'Leafmon', img: 'Leafmon.png', cost: 10, speed: 0.3, next: 'minomon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'datirimon', name: 'Datirimon', img: 'Datirimon.png', cost: 10, speed: 0.3, next: 'chapmon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'kuramon', name: 'Kuramon', img: 'Kuramon.png', cost: 10, speed: 0.3, next: 'tsumemon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'jyarimon', name: 'Jyarimon', img: 'Jyarimon.png', cost: 10, speed: 0.3, next: 'gigimon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'zerimon', name: 'Zerimon', img: 'Zerimon.png', cost: 10, speed: 0.3, next: 'gummymon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'conomon', name: 'Conomon', img: 'Conomon.png', cost: 10, speed: 0.3, next: 'kokomon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'relemon', name: 'Relemon', img: 'Relemon.png', cost: 10, speed: 0.3, next: 'viximon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'keemon', name: 'Keemon', img: 'Keemon.png', cost: 10, speed: 0.3, next: 'yaamon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'ketomon', name: 'Ketomon', img: 'Ketomon.png', cost: 10, speed: 0.3, next: 'hopmon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'paomon', name: 'Paomon', img: 'Paomon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'choromon', name: 'Choromon', img: 'Choromon.png', cost: 10, speed: 0.3, next: 'kaprimon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'mokumon', name: 'Mokumon', img: 'Mokumon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'puttimon', name: 'Puttimon', img: 'Puttimon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'zurumon', name: 'Zurumon', img: 'Zurumon.png', cost: 10, speed: 0.3, next: 'pagumon', clickGoal: 10, stage: 'Fresh' },
-        { id: 'dodomon', name: 'Dodomon', img: 'Dodomon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'puwamon', name: 'Puwamon', img: 'Puwamon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'argomon_fresh', name: 'Argomon (Fresh)', img: 'Argomon-Fresh.png', cost: 10, speed: 0.3, next: 'argomon_it', clickGoal: 10, stage: 'Fresh' },
-        { id: 'bombmon', name: 'Bombmon', img: 'Bombmon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'chibickmon', name: 'Chibickmon', img: 'Chibickmon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'dokimon', name: 'Dokimon', img: 'Dokimon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'curimon', name: 'Curimon', img: 'Curimon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'pyonmon', name: 'Pyonmon', img: 'Pyonmon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'puyomon', name: 'Puyomon', img: 'Puyomon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'fusamon', name: 'Fusamon', img: 'Fusamon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'kekomon', name: 'Kekomon', img: 'Kekomon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'tomorimon', name: 'Tomorimon', img: 'Tomorimon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'fukamon', name: 'Fukamon', img: 'Fukamon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'bommon', name: 'Bommon', img: 'Bommon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'cotsucomon', name: 'Cotsucomon', img: 'Cotsucomon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'fufumon', name: 'Fufumon', img: 'Fufumon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'pafumon', name: 'Pafumon', img: 'Pafumon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'petitmon', name: 'Petitmon', img: 'Petitmon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'popomon', name: 'Popomon', img: 'Popomon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'pupumon', name: 'Pupumon', img: 'Pupumon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'pusumon', name: 'Pusumon', img: 'Pusumon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'sakumon', name: 'Sakumon', img: 'Sakumon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'sandmon', name: 'Sandmon', img: 'Sandmon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-        { id: 'yolkmon', name: 'Yolkmon', img: 'Yolkmon.png', cost: 10, speed: 0.3, next: null, clickGoal: 0, stage: 'Fresh' },
-
-        // --- IN-TRAINING ---
-        { id: 'koromon', name: 'Koromon', img: 'Koromon.png', cost: 20, speed: 0.4, next: ['agumon', 'flamon'], clickGoal: 20, stage: 'In-Training' },
-        { id: 'tsunomon', name: 'Tsunomon', img: 'Tsunomon.png', cost: 20, speed: 0.4, next: ['gabumon', 'elecmon', 'strabimon'], clickGoal: 20, stage: 'In-Training' },
-        { id: 'yokomon', name: 'Yokomon', img: 'Yokomon.png', cost: 20, speed: 0.4, next: ['biyomon', 'tinkermon', 'floramon'], clickGoal: 20, stage: 'In-Training' },
-        { id: 'motimon', name: 'Motimon', img: 'Motimon.png', cost: 20, speed: 0.4, next: ['tentomon', 'kokabuterimon'], clickGoal: 20, stage: 'In-Training' },
-        { id: 'tanemon', name: 'Tanemon', img: 'Tanemon.png', cost: 20, speed: 0.4, next: ['palmon', 'mushroommon'], clickGoal: 20, stage: 'In-Training' },
-        { id: 'bukamon', name: 'Bukamon', img: 'Bukamon.png', cost: 20, speed: 0.4, next: ['gomamon', 'shakomon', 'betamon'], clickGoal: 20, stage: 'In-Training' },
-        { id: 'chapmon', name: 'Chapmon', img: 'Chapmon.png', cost: 20, speed: 0.4, next: 'kamemon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'tokomon', name: 'Tokomon', img: 'Tokomon.png', cost: 20, speed: 0.4, next: ['patamon', 'bakumon'], clickGoal: 20, stage: 'In-Training' },
-        { id: 'nyaromon', name: 'Nyaromon', img: 'Nyaromon.png', cost: 20, speed: 0.4, next: 'salamon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'demiveemon', name: 'DemiVeemon', img: 'DemiVeemon.png', cost: 20, speed: 0.4, next: 'veemon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'poromon', name: 'Poromon', img: 'Poromon.png', cost: 20, speed: 0.4, next: 'hawkmon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'upamon', name: 'Upamon', img: 'Upamon.png', cost: 20, speed: 0.4, next: 'armadillomon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'minomon', name: 'Minomon', img: 'Minomon.png', cost: 20, speed: 0.4, next: 'wormmon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'gigimon', name: 'Gigimon', img: 'Gigimon.png', cost: 20, speed: 0.4, next: 'guilmon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'gummymon', name: 'Gummymon', img: 'Gummymon.png', cost: 20, speed: 0.4, next: 'terriermon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'viximon', name: 'Viximon', img: 'Viximon.png', cost: 20, speed: 0.4, next: 'renamon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'pagumon', name: 'Pagumon', img: 'Pagumon.png', cost: 20, speed: 0.4, next: 'agumon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'yaamon', name: 'Yaamon', img: 'Yaamon.png', cost: 20, speed: 0.4, next: 'impmon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'hopmon', name: 'Hopmon', img: 'Hopmon.png', cost: 20, speed: 0.4, next: 'monodramon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'kokomon', name: 'Kokomon', img: 'Kokomon.png', cost: 20, speed: 0.4, next: 'lopmon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'kaprimon', name: 'Kaprimon', img: 'Kaprimon.png', cost: 20, speed: 0.4, next: 'guardromon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'tsumemon', name: 'Tsumemon', img: 'Tsumemon.png', cost: 20, speed: 0.4, next: 'keramon', clickGoal: 20, stage: 'In-Training' },
-        { id: 'argomon_it', name: 'Argomon (In-Training)', img: 'Argomon-IT.png', cost: 20, speed: 0.4, next: 'argomon_rookie', clickGoal: 20, stage: 'In-Training' },
-
-        // --- ROOKIE ---
-        { id: 'agumon', name: 'Agumon', img: 'Agumon.png', cost: 50, speed: 0.5, next: 'greymon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'flamon', name: 'Flamon', img: 'Flamon.png', cost: 50, speed: 0.5, next: 'agnimon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'gabumon', name: 'Gabumon', img: 'Gabumon.png', cost: 50, speed: 0.5, next: 'garurumon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'elecmon', name: 'Elecmon', img: 'Elecmon.png', cost: 50, speed: 0.5, next: 'leomon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'strabimon', name: 'Strabimon', img: 'Strabimon.png', cost: 50, speed: 0.5, next: 'lobomon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'biyomon', name: 'Biyomon', img: 'Biyomon.png', cost: 50, speed: 0.6, next: 'birdramon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'tinkermon', name: 'Tinkermon', img: 'Tinkermon.png', cost: 50, speed: 0.6, next: 'kazemon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'tentomon', name: 'Tentomon', img: 'Tentomon.png', cost: 50, speed: 0.5, next: 'kabuterimon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'kokabuterimon', name: 'KoKabuterimon', img: 'KoKabuterimon.png', cost: 50, speed: 0.5, next: 'beetlemon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'palmon', name: 'Palmon', img: 'Palmon.png', cost: 50, speed: 0.4, next: 'togemon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'mushroommon', name: 'Mushroommon', img: 'Mushroommon.png', cost: 50, speed: 0.4, next: 'petaldramon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'gomamon', name: 'Gomamon', img: 'Gomamon.png', cost: 50, speed: 0.4, next: 'ikkakumon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'shakomon', name: 'Shakomon', img: 'Shakomon.png', cost: 50, speed: 0.4, next: 'lanamon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'betamon', name: 'Betamon', img: 'Betamon.png', cost: 50, speed: 0.4, next: 'seadramon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'kamemon', name: 'Kamemon', img: 'Kamemon.png', cost: 50, speed: 0.4, next: 'gawappamon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'patamon', name: 'Patamon', img: 'Patamon.png', cost: 50, speed: 0.6, next: 'angemon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'bakumon', name: 'Bakumon', img: 'Bakumon.png', cost: 50, speed: 0.6, next: 'kumamon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'floramon', name: 'Floramon', img: 'Floramon.png', cost: 50, speed: 0.6, next: 'woodmon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'salamon', name: 'Salamon', img: 'Salamon.png', cost: 50, speed: 0.6, next: 'gatomon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'veemon', name: 'Veemon', img: 'Veemon.png', cost: 50, speed: 0.6, next: 'exveemon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'hawkmon', name: 'Hawkmon', img: 'Hawkmon.png', cost: 50, speed: 0.6, next: 'aquilamon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'armadillomon', name: 'Armadillomon', img: 'Armadillomon.png', cost: 50, speed: 0.6, next: 'ankylomon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'wormmon', name: 'Wormmon', img: 'Wormmon.png', cost: 50, speed: 0.6, next: 'stingmon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'guilmon', name: 'Guilmon', img: 'Guilmon.png', cost: 50, speed: 0.6, next: 'growlmon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'terriermon', name: 'Terriermon', img: 'Terriermon.png', cost: 50, speed: 0.6, next: 'gargomon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'renamon', name: 'Renamon', img: 'Renamon.png', cost: 50, speed: 0.6, next: 'kyubimon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'impmon', name: 'Impmon', img: 'Impmon.png', cost: 50, speed: 0.6, next: 'wizardmon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'monodramon', name: 'Monodramon', img: 'Monodramon.png', cost: 50, speed: 0.6, next: 'strikedramon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'lopmon', name: 'Lopmon', img: 'Lopmon.png', cost: 50, speed: 0.6, next: 'tururiemon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'guardromon', name: 'Guardromon', img: 'Guardromon.png', cost: 50, speed: 0.6, next: 'andromon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'candlemon', name: 'Candlemon', img: 'Candlemon.png', cost: 50, speed: 0.6, next: 'bakemon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'keramon', name: 'Keramon', img: 'Keramon.png', cost: 50, speed: 0.6, next: 'chrysalimon', clickGoal: 35, stage: 'Rookie' },
-        { id: 'argomon_rookie', name: 'Argomon (Rookie)', img: 'Argomon-Rookie.png', cost: 50, speed: 0.5, next: 'argomon_champion', clickGoal: 35, stage: 'Rookie' },
-
-        // --- CHAMPION ---
-        { id: 'greymon', name: 'Greymon', img: 'Greymon.png', cost: 200, speed: 0.4, next: ['metalgreymon', 'rizegreymon'], clickGoal: 60, stage: 'Champion' },
-        { id: 'agnimon', name: 'Agnimon', img: 'Agnimon.png', cost: 200, speed: 0.4, next: 'burninggreymon', clickGoal: 60, stage: 'Champion' },
-        { id: 'garurumon', name: 'Garurumon', img: 'Garurumon.png', cost: 200, speed: 0.7, next: 'weregarurumon', clickGoal: 60, stage: 'Champion' },
-        { id: 'leomon', name: 'Leomon', img: 'Leomon.png', cost: 200, speed: 0.7, next: 'grapleomon', clickGoal: 60, stage: 'Champion' },
-        { id: 'lobomon', name: 'Lobomon', img: 'Lobomon.png', cost: 200, speed: 0.7, next: 'kendogarurumon', clickGoal: 60, stage: 'Champion' },
-        { id: 'birdramon', name: 'Birdramon', img: 'Birdramon.png', cost: 200, speed: 0.8, next: 'garudamon', clickGoal: 60, stage: 'Champion' },
-        { id: 'kazemon', name: 'Kazemon', img: 'Kazemon.png', cost: 200, speed: 0.8, next: 'zephyrmon', clickGoal: 60, stage: 'Champion' },
-        { id: 'kabuterimon', name: 'Kabuterimon', img: 'Kabuterimon.png', cost: 200, speed: 0.5, next: 'megakabuterimon', clickGoal: 60, stage: 'Champion' },
-        { id: 'beetlemon', name: 'Beetlemon', img: 'Beetlemon.png', cost: 200, speed: 0.5, next: 'metalkabuterimon', clickGoal: 60, stage: 'Champion' },
-        { id: 'togemon', name: 'Togemon', img: 'Togemon.png', cost: 200, speed: 0.3, next: 'lillymon', clickGoal: 60, stage: 'Champion' },
-        { id: 'petaldramon', name: 'Petaldramon', img: 'Petaldramon.png', cost: 200, speed: 0.3, next: 'argomon_ultimate', clickGoal: 60, stage: 'Champion' },
-        { id: 'ikkakumon', name: 'Ikkakumon', img: 'Ikkakumon.png', cost: 200, speed: 0.4, next: 'zudomon', clickGoal: 60, stage: 'Champion' },
-        { id: 'lanamon', name: 'Lanamon', img: 'Lanamon.png', cost: 200, speed: 0.4, next: 'calmaramon', clickGoal: 60, stage: 'Champion' },
-        { id: 'seadramon', name: 'Seadramon', img: 'Seadramon.png', cost: 200, speed: 0.4, next: 'megaseadramon', clickGoal: 60, stage: 'Champion' },
-        { id: 'gawappamon', name: 'Gawappamon', img: 'Gawappamon.png', cost: 200, speed: 0.5, next: 'shawujinmon', clickGoal: 60, stage: 'Champion' },
-        { id: 'angemon', name: 'Angemon', img: 'Angemon.png', cost: 200, speed: 0.7, next: 'magnaangemon', clickGoal: 60, stage: 'Champion' },
-        { id: 'kumamon', name: 'Kumamon', img: 'Kumamon.png', cost: 200, speed: 0.7, next: 'korikkakumon', clickGoal: 60, stage: 'Champion' },
-        { id: 'woodmon', name: 'Woodmon', img: 'Woodmon.png', cost: 200, speed: 0.8, next: 'cherrymon', clickGoal: 60, stage: 'Champion' },
-        { id: 'gatomon', name: 'Gatomon', img: 'Gatomon.png', cost: 200, speed: 0.7, next: 'angewomon', clickGoal: 60, stage: 'Champion' },
-        { id: 'exveemon', name: 'ExVeemon', img: 'ExVeemon.png', cost: 200, speed: 0.7, next: 'paildramon', clickGoal: 60, stage: 'Champion' },
-        { id: 'aquilamon', name: 'Aquilamon', img: 'Aquilamon.png', cost: 200, speed: 0.7, next: 'silphymon', clickGoal: 60, stage: 'Champion' },
-        { id: 'ankylomon', name: 'Ankylomon', img: 'Ankylomon.png', cost: 200, speed: 0.7, next: 'shakkoumon', clickGoal: 60, stage: 'Champion' },
-        { id: 'stingmon', name: 'Stingmon', img: 'Stingmon.png', cost: 200, speed: 0.7, next: 'grandiskuwagamon', clickGoal: 60, stage: 'Champion' },
-        { id: 'growlmon', name: 'Growlmon', img: 'Growlmon.png', cost: 200, speed: 0.7, next: 'wargrowlmon', clickGoal: 60, stage: 'Champion' },
-        { id: 'gargomon', name: 'Gargomon', img: 'Gargomon.png', cost: 200, speed: 0.7, next: 'rapidmon', clickGoal: 60, stage: 'Champion' },
-        { id: 'kyubimon', name: 'Kyubimon', img: 'Kyubimon.png', cost: 200, speed: 0.7, next: 'taomon', clickGoal: 60, stage: 'Champion' },
-        { id: 'wizardmon', name: 'Wizardmon', img: 'Wizardmon.png', cost: 200, speed: 0.7, next: 'baalmon', clickGoal: 60, stage: 'Champion' },
-        { id: 'strikedramon', name: 'Strikedramon', img: 'Strikedramon.png', cost: 200, speed: 0.7, next: 'cyberdramon', clickGoal: 60, stage: 'Champion' },
-        { id: 'tururiemon', name: 'Tururiemon', img: 'Tururiemon.png', cost: 200, speed: 0.7, next: 'antylamon', clickGoal: 60, stage: 'Champion' },
-        { id: 'andromon', name: 'Andromon', img: 'Andromon.png', cost: 200, speed: 0.7, next: 'hiandromon', clickGoal: 60, stage: 'Champion' },
-        { id: 'bakemon', name: 'Bakemon', img: 'Bakemon.png', cost: 200, speed: 0.7, next: 'phantomon', clickGoal: 60, stage: 'Champion' },
-        { id: 'chrysalimon', name: 'Chrysalimon', img: 'Chrysalimon.png', cost: 200, speed: 0.7, next: 'infermon', clickGoal: 60, stage: 'Champion' },
-        { id: 'argomon_champion', name: 'Argomon (Champion)', img: 'Argomon-Champion.png', cost: 200, speed: 0.5, next: 'argomon_ultimate', clickGoal: 60, stage: 'Champion' },
-
-        // --- ULTIMATE ---
-        { id: 'metalgreymon', name: 'MetalGreymon', img: 'MetalGreymon.png', cost: 1000, speed: 0.5, next: 'wargreymon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'rizegreymon', name: 'RizeGreymon', img: 'RizeGreymon.png', cost: 1000, speed: 0.5, next: 'shinegreymon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'burninggreymon', name: 'BurningGreymon', img: 'BurningGreymon.png', cost: 1000, speed: 0.5, next: 'aldamon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'weregarurumon', name: 'WereGarurumon', img: 'WereGarurumon.png', cost: 1000, speed: 0.6, next: 'metalgarurumon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'grapleomon', name: 'GrapLeomon', img: 'GrapLeomon.png', cost: 1000, speed: 0.6, next: 'bancholeomon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'kendogarurumon', name: 'KendoGarurumon', img: 'KendoGarurumon.png', cost: 1000, speed: 0.6, next: 'beowolfmon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'garudamon', name: 'Garudamon', img: 'Garudamon.png', cost: 1000, speed: 0.7, next: 'phoenixmon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'zephyrmon', name: 'Zephyrmon', img: 'Zephyrmon.png', cost: 1000, speed: 0.7, next: 'jetsilphymon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'megakabuterimon', name: 'MegaKabuterimon', img: 'MegaKabuterimon.png', cost: 1000, speed: 0.5, next: 'herculeskabuterimon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'metalkabuterimon', name: 'MetalKabuterimon', img: 'MetalKabuterimon.png', cost: 1000, speed: 0.5, next: 'rhinokabuterimon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'lillymon', name: 'Lillymon', img: 'Lillymon.png', cost: 1000, speed: 0.7, next: 'rosemon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'argomon_ultimate', name: 'Argomon (Ultimate)', img: 'Argomon-Ultimate.png', cost: 1000, speed: 0.7, next: 'argomon_mega', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'zudomon', name: 'Zudomon', img: 'Zudomon.png', cost: 1000, speed: 0.4, next: 'vikemon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'calmaramon', name: 'Calmaramon', img: 'Calmaramon.png', cost: 1000, speed: 0.4, next: null, clickGoal: 100, stage: 'Ultimate' },
-        { id: 'megaseadramon', name: 'MegaSeadramon', img: 'MegaSeadramon.png', cost: 1000, speed: 0.4, next: 'metalseadramon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'shawujinmon', name: 'Shawujinmon', img: 'Shawujinmon.png', cost: 1000, speed: 0.5, next: 'jumbogamemon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'magnaangemon', name: 'MagnaAngemon', img: 'MagnaAngemon.png', cost: 1000, speed: 0.6, next: 'seraphimon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'korikkakumon', name: 'Korikkakumon', img: 'Korikkakumon.png', cost: 1000, speed: 0.6, next: 'daipenmon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'cherrymon', name: 'Cherrymon', img: 'Cherrymon.png', cost: 1000, speed: 0.7, next: 'puppetmon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'angewomon', name: 'Angewomon', img: 'Angewomon.png', cost: 1000, speed: 0.7, next: 'magnadramon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'paildramon', name: 'Paildramon', img: 'Paildramon.png', cost: 1000, speed: 0.7, next: 'imperialdramon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'silphymon', name: 'Silphymon', img: 'Silphymon.png', cost: 1000, speed: 0.7, next: 'valdurmon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'shakkoumon', name: 'Shakkoumon', img: 'Shakkoumon.png', cost: 1000, speed: 0.7, next: 'slashangemon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'grandiskuwagamon', name: 'GrandisKuwagamon', img: 'GrandisKuwagamon.png', cost: 1000, speed: 0.7, next: null, clickGoal: 100, stage: 'Ultimate' },
-        { id: 'wargrowlmon', name: 'WarGrowlmon', img: 'WarGrowlmon.png', cost: 1000, speed: 0.7, next: 'gallantmon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'rapidmon', name: 'Rapidmon', img: 'Rapidmon.png', cost: 1000, speed: 0.7, next: 'megagargomon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'taomon', name: 'Taomon', img: 'Taomon.png', cost: 1000, speed: 0.7, next: 'sakuyamon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'baalmon', name: 'Baalmon', img: 'Baalmon.png', cost: 1000, speed: 0.7, next: 'beelzemon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'cyberdramon', name: 'Cyberdramon', img: 'Cyberdramon.png', cost: 1000, speed: 0.7, next: 'justimon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'antylamon', name: 'Antylamon', img: 'Antylamon.png', cost: 1000, speed: 0.7, next: 'cherubimon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'hiandromon', name: 'HiAndromon', img: 'HiAndromon.png', cost: 1000, speed: 0.7, next: 'craniamon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'phantomon', name: 'Phantomon', img: 'Phantomon.png', cost: 1000, speed: 0.7, next: 'piedmon', clickGoal: 100, stage: 'Ultimate' },
-        { id: 'infermon', name: 'Infermon', img: 'Infermon.png', cost: 1000, speed: 0.7, next: 'diaboromon', clickGoal: 100, stage: 'Ultimate' },
-
-        // --- MEGA ---
-        { id: 'wargreymon', name: 'WarGreymon', img: 'WarGreymon.png', cost: 5000, speed: 0.6, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'shinegreymon', name: 'ShineGreymon', img: 'ShineGreymon.png', cost: 5000, speed: 0.6, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'aldamon', name: 'Aldamon', img: 'Aldamon.png', cost: 5000, speed: 0.6, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'metalgarurumon', name: 'MetalGarurumon', img: 'MetalGarurumon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'bancholeomon', name: 'BanchoLeomon', img: 'BanchoLeomon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'beowolfmon', name: 'Beowolfmon', img: 'Beowolfmon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'phoenixmon', name: 'Phoenixmon', img: 'Phoenixmon.png', cost: 5000, speed: 0.8, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'jetsilphymon', name: 'JetSilphymon', img: 'JetSilphymon.png', cost: 5000, speed: 0.8, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'herculeskabuterimon', name: 'HerculesKabuterimon', img: 'HerculesKabuterimon.png', cost: 5000, speed: 0.6, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'rhinokabuterimon', name: 'RhinoKabuterimon', img: 'RhinoKabuterimon.png', cost: 5000, speed: 0.6, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'rosemon', name: 'Rosemon', img: 'Rosemon.png', cost: 5000, speed: 0.6, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'argomon_mega', name: 'Argomon (Mega)', img: 'Argomon-Mega.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'vikemon', name: 'Vikemon', img: 'Vikemon.png', cost: 5000, speed: 0.5, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'metalseadramon', name: 'MetalSeadramon', img: 'MetalSeadramon.png', cost: 5000, speed: 0.5, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'jumbogamemon', name: 'JumboGamemon', img: 'JumboGamemon.png', cost: 5000, speed: 0.5, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'seraphimon', name: 'Seraphimon', img: 'Seraphimon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'daipenmon', name: 'Daipenmon', img: 'Daipenmon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'puppetmon', name: 'Puppetmon', img: 'Puppetmon.png', cost: 5000, speed: 0.8, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'magnadramon', name: 'Magnadramon', img: 'Magnadramon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'imperialdramon', name: 'Imperialdramon', img: 'Imperialdramon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'valdurmon', name: 'Valdurmon', img: 'Valdurmon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'gallantmon', name: 'Gallantmon', img: 'Gallantmon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'megagargomon', name: 'MegaGargomon', img: 'MegaGargomon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'sakuyamon', name: 'Sakuyamon', img: 'Sakuyamon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'beelzemon', name: 'Beelzemon', img: 'Beelzemon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'justimon', name: 'Justimon', img: 'Justimon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'cherubimon', name: 'Cherubimon', img: 'Cherubimon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'craniamon', name: 'Craniamon', img: 'Craniamon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'piedmon', name: 'Piedmon', img: 'Piedmon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'diaboromon', name: 'Diaboromon', img: 'Diaboromon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' },
-        { id: 'slashangemon', name: 'SlashAngemon', img: 'SlashAngemon.png', cost: 5000, speed: 0.7, next: null, clickGoal: 0, stage: 'Mega' }
-    ];
-
-    const eggList = animalData.filter(a => a.id.startsWith('egg_'));
-    const randomEgg = eggList[Math.floor(Math.random() * eggList.length)];
-
-    let hearts = 0;
-    let unlockedIds = [randomEgg.id]; 
-    let everUnlockedIds = [randomEgg.id]; 
-    let activeAnimals = [];
-    let pendingAutoPopup = false; 
-    let selectedAnimalForEvolution = null;
-    let currentlySelectedPathId = null;
-    let hasSeenAutoPopup = false; 
-
-    // --- Synergy & Base Yield Logic ---
-    function getStageBase(stage) {
-        switch(stage) {
-            case 'Egg': return 1;
-            case 'Fresh': return 1;
-            case 'In-Training': return 2;
-            case 'Rookie': return 3;
-            case 'Champion': return 4;
-            case 'Ultimate': return 5;
-            case 'Mega': return 6;
-            default: return 1;
-        }
-    }
-
-    // Dynamic stage counts map, refreshed often
-    let stageCounts = {
-        'Egg': 0, 'Fresh': 0, 'In-Training': 0, 'Rookie': 0, 'Champion': 0, 'Ultimate': 0, 'Mega': 0
-    };
-
-    function refreshStageCounts() {
-        stageCounts = { 'Egg': 0, 'Fresh': 0, 'In-Training': 0, 'Rookie': 0, 'Champion': 0, 'Ultimate': 0, 'Mega': 0 };
-        activeAnimals.forEach(anim => {
-            const def = animalData.find(d => d.id === anim.id);
-            if(def && def.stage) {
-                stageCounts[def.stage]++;
-            }
-        });
-    }
-
-    // --- Local Storage Management ---
-    function saveProgress() {
-        unlockedIds = activeAnimals.map(anim => anim.id);
-
-        localStorage.setItem("digiHearts", hearts);
-        localStorage.setItem("digiUnlocks", JSON.stringify(unlockedIds));
-        localStorage.setItem("digiEverUnlocks", JSON.stringify(everUnlockedIds));
-        
-        const animalStates = activeAnimals.map(anim => ({
-            id: anim.id,
-            x: anim.x,
-            y: anim.y,
-            vx: anim.vx,
-            vy: anim.vy,
-            clicks: anim.clicks
-        }));
-        localStorage.setItem("digiAnimalStates", JSON.stringify(animalStates));
-    }
-
-    function loadProgress() {
-        const savedHearts = localStorage.getItem("digiHearts");
-        const savedUnlocks = localStorage.getItem("digiUnlocks");
-        const savedEverUnlocks = localStorage.getItem("digiEverUnlocks");
-        const savedAutoPopup = localStorage.getItem("digiAutoPopup");
-        
-        if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
-        if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
-        if (savedAutoPopup !== null) hasSeenAutoPopup = (savedAutoPopup === "true");
-        
-        if (savedEverUnlocks !== null) {
-            everUnlockedIds = JSON.parse(savedEverUnlocks);
-        } else {
-            everUnlockedIds = [...new Set([randomEgg.id, ...unlockedIds])];
-        }
-        
-        updateUI();
-    }
-
-    // --- Game Logic ---
-    function updateUI() {
-        refreshStageCounts(); // Keep our multipliers accurate
-        
-        document.getElementById('heart-count').innerText = hearts.toLocaleString();
-        
-        const autoBox = document.getElementById('auto-harvest-box');
-        if (activeAnimals.length >= 6) {
-            autoBox.style.display = 'block';
-            
-            // Trigger Auto-Harvest Unlock Popup only the first time hitting 6
-            if (!hasSeenAutoPopup) {
-                hasSeenAutoPopup = true;
-                localStorage.setItem("digiAutoPopup", "true");
-                
-                // FORCE close all other menus so the pop-up is front and center
-                document.getElementById('farm-modal').style.display = 'none';
-                document.getElementById('collection-modal').style.display = 'none';
-                document.getElementById('evolution-modal').style.display = 'none';
-                
-                setTimeout(() => {
-                    document.getElementById('auto-popup').style.display = 'flex';
-                    sfx.unlock();
-                }, 250);
-            }
-            
-            // Calculate total rate utilizing synergy
-            let heartsPerSecond = 0;
-            activeAnimals.forEach(anim => {
-                const def = animalData.find(d => d.id === anim.id);
-                if (def && def.stage) {
-                    const base = getStageBase(def.stage);
-                    const multiplier = Math.max(1, stageCounts[def.stage]);
-                    heartsPerSecond += (base * multiplier);
-                }
-            });
-            document.getElementById('auto-rate').innerText = heartsPerSecond.toLocaleString();
-        } else {
-            autoBox.style.display = 'none';
-        }
-    }
-
-    function updateExpBar(animObj) {
-        const currentDef = animalData.find(a => a.id === animObj.id);
-        const expFill = animObj.el.querySelector('.exp-fill');
-        if (!expFill) return;
-
-        if (currentDef && currentDef.clickGoal > 0) {
-            const pct = Math.min(100, (animObj.clicks / currentDef.clickGoal) * 100);
-            expFill.style.width = pct + '%';
-            if (pct >= 100) {
-                expFill.classList.add('max');
-            } else {
-                expFill.classList.remove('max');
-            }
-        } else {
-            // No next evolution (Mega), keep it full
-            expFill.style.width = '100%';
-            expFill.classList.add('max');
-        }
-    }
-
-    function spawnAnimal(animalDef, savedState = null) {
-        const ocean = document.getElementById('ocean');
-        const el = document.createElement('div');
-        const isEgg = animalDef.id.startsWith('egg_');
-        el.className = `animal ${isEgg ? 'is-egg' : ''}`;
-        
-        el.innerHTML = `
-            <div class="animal-name">${animalDef.name}</div>
-            <img src="${animalDef.img}" alt="${animalDef.name}" class="${isEgg ? 'is-egg-img' : ''}" onerror="this.src='Agumon.png'">
-            <div class="exp-container">
-                <div class="exp-fill"></div>
-            </div>
-        `;
-        
-        let x, y, vx, vy, clicks = savedState ? savedState.clicks || 0 : 0;
-        
-        if (savedState) {
-            x = savedState.x;
-            y = savedState.y;
-            vx = savedState.vx;
-            vy = savedState.vy;
-        } else {
-            if (animalDef.speed === 0 && activeAnimals.length === 0) {
-                x = (window.innerWidth / 2) - 50;
-                y = (window.innerHeight / 2) - 50;
-            } else {
-                x = Math.random() * (window.innerWidth - 100);
-                y = Math.random() * (window.innerHeight - 130);
-            }
-            vx = animalDef.speed; 
-            vy = (Math.random() > 0.5 ? 1 : -1) * animalDef.speed;
-        }
-
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-
-        const animObj = { 
-            id: animalDef.id, 
-            el, x, y, vx, vy, 
-            speed: animalDef.speed, 
-            isDragging: false,
-            clicks: clicks,
-            squishPhase: Math.random() * Math.PI * 2 
-        };
-
-        // Pointerdown correctly handles both mouse and touch for simple taps/grabs
-        el.addEventListener('pointerdown', (e) => {
-            e.preventDefault(); 
-            
-            const currentDef = animalData.find(a => a.id === animObj.id);
-            if (!currentDef) return;
-            
-            // Apply Synergy Math
-            const baseYield = getStageBase(currentDef.stage);
-            const multiplier = Math.max(1, stageCounts[currentDef.stage]);
-            const earned = baseYield * multiplier;
-            
-            sfx.bubble();
-            hearts += earned;
-            animObj.clicks++;
-            updateUI();
-            saveProgress();
-            updateExpBar(animObj);
-
-            // Click squash & stretch effect
-            const imgEl = el.querySelector('img');
-            imgEl.style.transform = `scale(1.3, 0.7)`;
-            setTimeout(() => {
-                imgEl.style.transform = `scale(1, 1)`;
-            }, 150);
-
-            // Floating Text
-            const floatHeart = document.createElement('div');
-            floatHeart.className = 'floating-heart';
-            
-            if (multiplier > 1) {
-                floatHeart.innerHTML = `+${earned.toLocaleString()} 💾 <span class="synergy-text">(x${multiplier})</span>`;
-            } else {
-                floatHeart.innerHTML = `+${earned.toLocaleString()} 💾`;
-            }
-            
-            floatHeart.style.left = e.clientX + 'px';
-            floatHeart.style.top = (e.clientY - 5) + 'px';
-            ocean.appendChild(floatHeart);
-            setTimeout(() => floatHeart.remove(), 1200);
-
-            // Check Evolution Trigger
-            if (currentDef && currentDef.next && animObj.clicks >= currentDef.clickGoal) {
-                triggerEvolutionPrompt(animObj);
-            }
-
-            animObj.isDragging = true;
-            el.setPointerCapture(e.pointerId);
-            animObj.offsetX = e.clientX - animObj.x;
-            animObj.offsetY = e.clientY - animObj.y;
-        });
-
-        el.addEventListener('pointermove', (e) => {
-            if (animObj.isDragging) {
-                animObj.x = e.clientX - animObj.offsetX;
-                animObj.y = e.clientY - animObj.offsetY;
-                el.style.left = animObj.x + 'px';
-                el.style.top = animObj.y + 'px';
-
-                // Check Black Hole interaction
-                const bh = document.getElementById('black-hole');
-                const rect = bh.getBoundingClientRect();
-                
-                if (e.clientX >= rect.left && e.clientX <= rect.right &&
-                    e.clientY >= rect.top && e.clientY <= rect.bottom) {
-                    bh.classList.add('active');
-                } else {
-                    bh.classList.remove('active');
-                }
-            }
-        });
-
-        const endDrag = (e) => {
-            if (animObj.isDragging) {
-                animObj.isDragging = false;
-                el.releasePointerCapture(e.pointerId);
-
-                const bh = document.getElementById('black-hole');
-                const rect = bh.getBoundingClientRect();
-                bh.classList.remove('active');
-
-                // If dropped inside black hole, delete Digimon
-                if (e.clientX >= rect.left && e.clientX <= rect.right &&
-                    e.clientY >= rect.top && e.clientY <= rect.bottom) {
-                    window.removeAnimalObj(animObj);
-                }
-            }
-        };
-
-        el.addEventListener('pointerup', endDrag);
-        el.addEventListener('pointercancel', endDrag);
-
-        ocean.appendChild(el);
-        activeAnimals.push(animObj);
-        
-        refreshStageCounts(); // Update global count when an animal is added
-        updateExpBar(animObj);
-        checkEvolutionBadge(animObj);
-    }
-
-    function checkEvolutionBadge(animObj) {
-        const currentDef = animalData.find(a => a.id === animObj.id);
-        const existingBadge = animObj.el.querySelector('.evolve-ready-badge');
-        
-        if (currentDef && currentDef.next && animObj.clicks >= currentDef.clickGoal) {
-            if (!existingBadge) {
-                const badge = document.createElement('div');
-                badge.className = 'evolve-ready-badge';
-                badge.innerText = '⭐ EVOLVE!';
-                animObj.el.appendChild(badge);
-            }
-        } else if (existingBadge) {
-            existingBadge.remove();
-        }
-    }
-
-    function triggerEvolutionPrompt(animObj) {
-        selectedAnimalForEvolution = animObj;
-        const currentDef = animalData.find(a => a.id === animObj.id);
-        
-        const nextIds = Array.isArray(currentDef.next) ? currentDef.next : [currentDef.next];
-        const nextDefs = nextIds.map(id => animalData.find(a => a.id === id)).filter(Boolean);
-        
-        if (nextDefs.length === 0) return;
-
-        let visualHTML = '';
-        const actionBtn = document.getElementById('evolution-action-btn');
-
-        if (nextDefs.length === 1) {
-            // --- SINGLE PATH: No selection boxes, just show the target and button ---
-            const nextDef = nextDefs[0];
-            const isEgg = nextDef.id.startsWith('egg_');
-            
-            visualHTML = `
-                <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
-                    <img src="${nextDef.img}" alt="${nextDef.name}" class="${isEgg ? 'is-egg-img' : ''}" style="height: 100px; object-fit: contain; animation: pulseGlow 2s infinite;" onerror="this.src='Agumon.png'">
-                </div>
-            `;
-            
-            document.getElementById('evolution-title').innerText = `${currentDef.name} ➔ ${nextDef.name}!`;
-            actionBtn.style.display = 'inline-block';
-            actionBtn.innerText = '✨ Digivolve Now!';
-            actionBtn.setAttribute('onclick', `executeEvolution('${nextDef.id}')`);
-            currentlySelectedPathId = nextDef.id; // Auto-select the only option
-
-        } else {
-            // --- MULTIPLE PATHS: Show the clickable selection boxes ---
-            nextDefs.forEach((nextDef) => {
-                const isEgg = nextDef.id.startsWith('egg_');
-                visualHTML += `
-                    <div class="branch-option" id="branch-opt-${nextDef.id}" onclick="selectEvolutionPath('${nextDef.id}')">
-                        <img src="${nextDef.img}" alt="${nextDef.name}" class="${isEgg ? 'is-egg-img' : ''}" style="height: 60px; object-fit: contain;" onerror="this.src='Agumon.png'">
-                        <p>${nextDef.name}</p>
-                    </div>
-                `;
-            });
-            
-            document.getElementById('evolution-title').innerText = `${currentDef.name} is evolving! Choose a path:`;
-            actionBtn.style.display = 'none'; 
-            currentlySelectedPathId = null;
-        }
-        
-        document.getElementById('evolution-visual').innerHTML = visualHTML;
-        document.getElementById('evolution-modal').style.display = 'flex';
-        sfx.unlock();
-    }
-
-    window.selectEvolutionPath = function(id) {
-        currentlySelectedPathId = id;
-        
-        document.querySelectorAll('.branch-option').forEach(el => {
-            el.style.borderColor = 'rgba(79, 172, 254, 0.3)';
-            el.style.background = 'rgba(255, 255, 255, 0.05)';
-        });
-        const selected = document.getElementById(`branch-opt-${id}`);
-        selected.style.borderColor = '#ff4757';
-        selected.style.background = 'rgba(255, 71, 87, 0.15)';
-
-        const actionBtn = document.getElementById('evolution-action-btn');
-        actionBtn.style.display = 'inline-block';
-        actionBtn.innerText = `✨ Digivolve to ${animalData.find(a => a.id === id).name}!`;
-        actionBtn.setAttribute('onclick', `executeEvolution('${id}')`);
-    }
-
-    window.executeEvolution = function(forcedNextId = null) {
-        if (!selectedAnimalForEvolution) return;
-        
-        const animObj = selectedAnimalForEvolution;
-        const currentDef = animalData.find(a => a.id === animObj.id);
-        
-        let targetId = forcedNextId;
-        if (!targetId) {
-             const nextIds = Array.isArray(currentDef.next) ? currentDef.next : [currentDef.next];
-             targetId = nextIds[0];
-        }
-
-        const nextDef = animalData.find(a => a.id === targetId);
-        if (!nextDef) return;
-
-        animObj.id = nextDef.id;
-        animObj.speed = nextDef.speed;
-        animObj.vx = (animObj.vx >= 0 ? 1 : -1) * nextDef.speed;
-        animObj.vy = (animObj.vy >= 0 ? 1 : -1) * nextDef.speed;
-        animObj.clicks = 0; 
-
-        const isEgg = nextDef.id.startsWith('egg_');
-        animObj.el.className = `animal ${isEgg ? 'is-egg' : ''}`;
-        animObj.el.querySelector('.animal-name').innerText = nextDef.name;
-        
-        const imgTag = animObj.el.querySelector('img');
-        imgTag.src = nextDef.img;
-        imgTag.className = isEgg ? 'is-egg-img' : '';
-        imgTag.onerror = function() { this.src='Agumon.png'; }; 
-        
-        const badge = animObj.el.querySelector('.evolve-ready-badge');
-        if (badge) badge.remove();
-
-        unlockedIds.push(nextDef.id);
-        if (!everUnlockedIds.includes(nextDef.id)) {
-            everUnlockedIds.push(nextDef.id);
-        }
-
-        document.getElementById('evolution-modal').style.display = 'none';
-        sfx.evolve();
-        
-        refreshStageCounts(); // After an evolution, the counts per stage change
-        updateExpBar(animObj);
-        updateUI();
-        saveProgress();
-        
-        selectedAnimalForEvolution = null;
-        currentlySelectedPathId = null;
-    };
-
-    window.removeAnimalObj = function(animObj) {
-        animObj.el.remove();
-        
-        const activeIndex = activeAnimals.indexOf(animObj);
-        if (activeIndex > -1) {
-            activeAnimals.splice(activeIndex, 1);
-        }
-        
-        refreshStageCounts();
-        
-        // Anti-Softlock: If you delete your very last Digimon, you get a free egg!
-        if (activeAnimals.length === 0) {
-            const fallbackEgg = animalData.find(a => a.id === randomEgg.id);
-            unlockedIds = [fallbackEgg.id];
-            if (!everUnlockedIds.includes(fallbackEgg.id)) everUnlockedIds.push(fallbackEgg.id);
-            spawnAnimal(fallbackEgg);
-        }
-
-        updateUI();
-        saveProgress();
-        sfx.delete();
-    };
-
-    // Auto Harvest Loop
-    setInterval(() => {
-        if (activeAnimals.length >= 6) {
-            let heartsPerSecond = 0;
-            const ocean = document.getElementById('ocean');
-            
-            activeAnimals.forEach(anim => {
-                const def = animalData.find(d => d.id === anim.id);
-                if (!def) return;
-                
-                const baseYield = getStageBase(def.stage);
-                const multiplier = Math.max(1, stageCounts[def.stage]);
-                const earned = baseYield * multiplier;
-                
-                if (earned > 0) {
-                    heartsPerSecond += earned;
-                    
-                    const floatHeart = document.createElement('div');
-                    floatHeart.className = 'floating-heart';
-                    if (multiplier > 1) {
-                        floatHeart.innerHTML = `+${earned.toLocaleString()} 💾 <span class="synergy-text">(x${multiplier})</span>`;
-                    } else {
-                        floatHeart.innerHTML = `+${earned.toLocaleString()} 💾`;
-                    }
-                    
-                    const offsetX = (Math.random() * 40) - 10;
-                    floatHeart.style.left = (anim.x + 30 + offsetX) + 'px';
-                    floatHeart.style.top = (anim.y + 10) + 'px';
-                    
-                    ocean.appendChild(floatHeart);
-                    setTimeout(() => floatHeart.remove(), 1200);
-                }
-            });
-            
-            if (heartsPerSecond > 0) {
-                hearts += heartsPerSecond;
-                updateUI();
-            }
-        }
-        saveProgress();
-    }, 1000);
-
-    // Animation Loop
-    function animate() {
-        const time = performance.now() * 0.008; 
-
-        activeAnimals.forEach(anim => {
-            const imgEl = anim.el.querySelector('img');
-
-            if (!anim.isDragging && anim.speed > 0) {
-                anim.x += anim.vx;
-                anim.y += anim.vy;
-
-                if (anim.x <= 0) {
-                    anim.x = 0;
-                    anim.vx = Math.abs(anim.vx);
-                } else if (anim.x >= window.innerWidth - 100) {
-                    anim.x = window.innerWidth - 100;
-                    anim.vx = -Math.abs(anim.vx);
-                }
-
-                if (anim.y <= 0) {
-                    anim.y = 0;
-                    anim.vy *= -1;
-                } else if (anim.y >= window.innerHeight - 130) {
-                    anim.y = window.innerHeight - 130;
-                    anim.vy *= -1;
-                }
-
-                anim.el.style.left = anim.x + 'px';
-                anim.el.style.top = anim.y + 'px';
-
-                const squishCycle = Math.sin(time * 3 + anim.squishPhase);
-                const stretchX = 1 + squishCycle * 0.12;
-                const stretchY = 1 - squishCycle * 0.12;
-                const facingDir = anim.vx < 0 ? -1 : 1;
-
-                imgEl.style.transform = `scaleX(${facingDir * stretchX}) scaleY(${stretchY})`;
-            } else if (anim.speed === 0) {
-                const breathCycle = Math.sin(time * 2 + anim.squishPhase);
-                const stretchX = 1 + breathCycle * 0.04;
-                const stretchY = 1 - breathCycle * 0.04;
-                imgEl.style.transform = `scaleX(${stretchX}) scaleY(${stretchY})`;
-            }
-        });
-        requestAnimationFrame(animate);
-    }
-
-    // --- UI Modals & Logic ---
-    function openFarm() {
-        const grid = document.getElementById('farm-grid');
-        grid.innerHTML = '';
-        
-        const eggs = animalData.filter(a => a.stage === 'Egg');
-        
-        eggs.forEach((egg) => {
-            const item = document.createElement('div');
-            item.className = `collection-item`;
-            const canAfford = hearts >= egg.cost;
-            
-            item.innerHTML = `
-                <div class="visual"><img src="${egg.img}" alt="${egg.name}" class="is-egg-img" onerror="this.src='Agumon.png'"></div>
-                <div class="name-tag">${egg.name}</div>
-                <div class="btn-group">
-                    <button class="buy-btn" ${!canAfford ? 'disabled' : ''} onclick="buyEgg('${egg.id}')">Buy (${egg.cost} 💾)</button>
-                </div>
-            `;
-            grid.appendChild(item);
-        });
-        
-        document.getElementById('farm-modal').style.display = 'flex';
-    }
-
-    window.buyEgg = function(id) {
-        const eggDef = animalData.find(a => a.id === id);
-        if (hearts >= eggDef.cost) {
-            hearts -= eggDef.cost;
-            unlockedIds.push(eggDef.id);
-            if (!everUnlockedIds.includes(eggDef.id)) everUnlockedIds.push(eggDef.id);
-            
-            spawnAnimal(eggDef);
-            sfx.bubble();
-            
-            // We run updateUI() FIRST to check if they hit the 6 Digimon milestone
-            updateUI(); 
-            saveProgress();
-            
-            // ONLY re-open the farm if the auto-popup wasn't just triggered
-            if (document.getElementById('auto-popup').style.display !== 'flex' && 
-                document.getElementById('farm-modal').style.display !== 'none') {
-                openFarm();
-            }
-        }
-    };
-
-    let currentCollectionTab = 'Egg';
-
-    window.openCollection = function(stage = currentCollectionTab) {
-        currentCollectionTab = stage;
-        
-        const tabs = document.querySelectorAll('#collection-tabs .tab-btn');
-        tabs.forEach(tab => {
-            if (tab.innerText === stage || (stage === 'Egg' && tab.innerText === 'Eggs')) {
-                tab.classList.add('active');
-            } else {
-                tab.classList.remove('active');
-            }
-        });
-
-        const grid = document.getElementById('collection-grid');
-        grid.innerHTML = '';
-        
-        const filteredData = animalData.filter(a => a.stage === stage);
-        
-        if (filteredData.length === 0) {
-            grid.innerHTML = `<p style="grid-column: 1 / -1; color: #a29bfe; font-size: 1.2em;">No ${stage} Digimon data found.</p>`;
-        }
-        
-        filteredData.forEach((a) => {
-            const count = unlockedIds.filter(id => id === a.id).length;
-            const hasBeenUnlocked = everUnlockedIds.includes(a.id);
-            
-            const isUnlocked = count > 0;
-            const isEgg = a.id.startsWith('egg_');
-            
-            const item = document.createElement('div');
-            item.className = `collection-item ${hasBeenUnlocked ? '' : 'locked'}`;
-
-            const countBadge = isUnlocked ? `<span class="count-badge">(x${count})</span>` : '';
-
-            item.innerHTML = `
-                <div class="visual"><img src="${a.img}" alt="${a.name}" class="${isEgg ? 'is-egg-img' : ''}" onerror="this.src='Agumon.png'"></div>
-                <div class="name-tag">${hasBeenUnlocked ? a.name : '???'} ${countBadge}</div>
-            `;
-            grid.appendChild(item);
-        });
-        document.getElementById('collection-modal').style.display = 'flex';
-    }
-
-    document.getElementById('farm-btn').addEventListener('click', openFarm);
-    document.getElementById('collection-btn').addEventListener('click', () => openCollection());
-
-    // Modal Close Triggers (Updated safely)
-    const modals = ['collection-modal', 'farm-modal', 'auto-popup']; // Removed evolution-modal
-    modals.forEach(id => {
-        const modalEl = document.getElementById(id);
-        if (modalEl) {
-            modalEl.addEventListener('click', (e) => {
-                if (e.target.id === id) {
-                    e.target.style.display = 'none';
-                }
-            });
-        }
-    });
-
-    // Sound Toggle Logic
-    document.getElementById('sound-btn').addEventListener('click', () => {
-        isMuted = !isMuted; 
-        const btn = document.getElementById('sound-btn');
-        if (isMuted) {
-            btn.innerText = '🔇 Muted';
-            btn.style.borderColor = 'rgba(255, 165, 0, 0.5)';
-            btn.style.background = 'rgba(255, 165, 0, 0.2)';
-        } else {
-            btn.innerText = '🔊 Sound';
-            btn.style.borderColor = 'rgba(46, 213, 115, 0.5)';
-            btn.style.background = 'rgba(46, 213, 115, 0.2)';
-        }
-    });
-
-    // Save Button Logic
-    document.getElementById('save-btn').addEventListener('click', () => {
-        saveProgress();
-        const btn = document.getElementById('save-btn');
-        btn.innerText = '✅ Saved!';
-        btn.style.borderColor = '#2ed573';
-        sfx.bubble(); 
-        
-        setTimeout(() => {
-            btn.innerText = '💾 Save';
-            btn.style.borderColor = 'rgba(156, 136, 255, 0.5)';
-        }, 1000);
-    });
-
-    // Reset Button Logic
-    document.getElementById('reset-btn').addEventListener('click', () => {
-        if (confirm("Are you sure you want to format the network? All Digimon progress will be permanently lost.")) {
-            localStorage.removeItem("digiHearts");
-            localStorage.removeItem("digiUnlocks");
-            localStorage.removeItem("digiEverUnlocks");
-            localStorage.removeItem("digiAnimalStates");
-            localStorage.removeItem("digiAutoPopup");
-            location.reload(); 
-        }
-    });
-
-    // --- Init ---
-    document.getElementById('start-btn').addEventListener('click', () => {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('ui-layer').style.display = 'flex';
-        
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-
-        loadProgress();
-        
-        const savedStatesJSON = localStorage.getItem("digiAnimalStates");
-        
-        if (savedStatesJSON && JSON.parse(savedStatesJSON).length > 0) {
-            // Load perfectly from the saved board state
-            const savedStates = JSON.parse(savedStatesJSON);
-            savedStates.forEach(state => {
-                const animal = animalData.find(a => a.id === state.id);
-                if(animal) spawnAnimal(animal, state);
-            });
-        } else {
-            // Fallback for brand new games
-            unlockedIds.forEach(id => {
-                const animal = animalData.find(a => a.id === id);
-                if(animal) spawnAnimal(animal);
-            });
-        }
-
-        // Anti-Softlock Mechanism: If the board is completely empty, give a free random egg!
-        if (activeAnimals.length === 0) {
-            const fallbackEgg = animalData.find(a => a.id === randomEgg.id);
-            unlockedIds = [fallbackEgg.id];
-            if (!everUnlockedIds.includes(fallbackEgg.id)) everUnlockedIds.push(fallbackEgg.id);
-            spawnAnimal(fallbackEgg);
-        }
-
-        updateUI();
-        requestAnimationFrame(animate);
-    });
-
-    // --- Hidden Secret Code ---
-    let secretBuffer = '';
-    const secretCode = 'butterfly';
+  // 終極 99 個港鐵站 IQ 題 / 爛 Gag 題庫
+  const mtrQuestions = [
+    // 荃灣綫
+    { q: "老公十分靚仔。", a: "美孚", exp: "（美夫）" },
+    { q: "有邊個地鐵站係永遠都唔會直？", a: "荃灣", exp: "（全彎）" },
+    { q: "邊個站最惡、最鍾意打交？", a: "佐敦", exp: "（阻住晒 / 阻噸）" },
+    { q: "皇帝個仔叫咩名？", a: "太子", exp: "（太子爺）" },
+    { q: "最多電腦同黃金買嘅海邊？", a: "深水埗", exp: "（深水步）" },
+    { q: "又長又多沙嘅海灣？", a: "長沙灣", exp: "（長沙灣）" },
+    { q: "荔枝生咗一隻角？", a: "荔枝角", exp: "（荔枝角）" },
+    { q: "睇荔枝嘅好風景？", a: "荔景", exp: "（荔景）" },
+    { q: "一個姓葵，一個叫芳？", a: "葵芳", exp: "（葵芳）" },
+    { q: "葵花好興旺？", a: "葵興", exp: "（葵興）" },
+    { q: "好大個狗竇嘅入口？", a: "大窩口", exp: "（大窩口）" },
+    { q: "最喜歡中間個圈圈？", a: "中環", exp: "（中環）" },
+    { q: "沙灘上面有張好尖嘅咀？", a: "尖沙咀", exp: "（尖沙咀）" },
+    { q: "又充滿油又充滿麻？", a: "油麻地", exp: "（油麻地）" },
+    { q: "全香港最旺嘅角落？", a: "旺角", exp: "（旺角）" },
+
+    // 觀塘綫
+    { q: "睇住人哋食糖？", a: "觀塘", exp: "（觀糖）" },
+    { q: "邊一隻狗最威水，但係唔識吠？", a: "黃大仙", exp: "（汪大仙）" },
+    { q: "全香港最富有嘅地鐵站係邊個？", a: "鑽石山", exp: "（成座山都係鑽石）" },
+    { q: "又快樂又富有？", a: "樂富", exp: "（樂富）" },
+    { q: "落雨之後天上會有咩？", a: "彩虹", exp: "（彩虹）" },
+    { q: "牛頭上面有啲咩？", a: "牛頭角", exp: "（牛頭角）" },
+    { q: "九條龍住喺邊個海灣？", a: "九龍灣", exp: "（九龍灣）" },
+    { q: "充滿生油嘅池塘？", a: "油塘", exp: "（油塘）" },
+    { q: "黃色嘅大船？", a: "黃埔", exp: "（黃埔）" },
+    { q: "藍色嘅農田？", a: "藍田", exp: "（藍田）" },
+    { q: "石頭夾住條尾？", a: "石硤尾", exp: "（石硤尾）" },
+    { q: "調整風景嘅山嶺？", a: "調景嶺", exp: "（調景嶺）" },
+    { q: "姓何同姓文一齊種田？", a: "何文田", exp: "（何文田）" },
+
+    // 港島綫
+    { q: "多啦A夢最鍾意去邊個站？", a: "銅鑼灣", exp: "（因為有銅鑼燒）" },
+    { q: "邊個站最唔貼地？", a: "堅尼地城", exp: "（堅離地城）" },
+    { q: "媽祖娘娘保佑邊度？", a: "天后", exp: "（天后廟）" },
+    { q: "有支大炮嘅山？", a: "炮台山", exp: "（炮台山）" },
+    { q: "香港最北嘅角落？", a: "北角", exp: "（其實唔係最北，但叫北角）" },
+    { q: "鰂魚游水嘅地方？", a: "鰂魚涌", exp: "（鰂魚涌）" },
+    { q: "以前有糖廠，依家有大商場？", a: "太古", exp: "（太古城）" },
+    { q: "西邊海灣嘅一條河？", a: "西灣河", exp: "（西灣河）" },
+    { q: "用來隔水嘅海灣？", a: "筲箕灣", exp: "（筲箕灣）" },
+    { q: "開滿杏花嘅屋邨？", a: "杏花邨", exp: "（杏花邨）" },
+    { q: "充滿木柴嘅海灣？", a: "柴灣", exp: "（柴灣）" },
+    { q: "中環對上係咩環？", a: "上環", exp: "（上環）" },
+    { q: "西邊嘅兵營？", a: "西營盤", exp: "（西營盤）" },
+    { q: "最高學府站？", a: "香港大學", exp: "（HKU）" },
+    { q: "海灣生咗個細路？", a: "灣仔", exp: "（灣仔）" },
+
+    // 東鐵綫
+    { q: "秋天燒嘢食必備嘅嘢？", a: "火炭", exp: "（BBQ 點少得火炭）" },
+    { q: "游完水要做咩？", a: "上水", exp: "（上水）" },
+    { q: "點解宇宙冇戰爭？", a: "太和", exp: "（太和平）" },
+    { q: "點解食飯要叫埋大家？", a: "大圍", exp: "（大圍）" },
+    { q: "麵粉做嘅山嶺？", a: "粉嶺", exp: "（粉嶺）" },
+    { q: "黃金做嘅大鐘？", a: "金鐘", exp: "（金鐘）" },
+    { q: "九條龍一齊浸溫泉？", a: "九龍塘", exp: "（九龍塘）" },
+    { q: "紅色嘅神龕？", a: "紅磡", exp: "（紅磡）" },
+    { q: "好多沙嘅農田？", a: "沙田", exp: "（沙田）" },
+    { q: "讀完中學去邊度？", a: "大學", exp: "（大學）" },
+    { q: "大埔買餸最大嘅地方？", a: "大埔墟", exp: "（大埔墟）" },
+    { q: "姓羅嘅湖？", a: "羅湖", exp: "（羅湖）" },
+    { q: "騎完馬跌咗落水？", a: "落馬洲", exp: "（落馬）" },
+    { q: "睇書展同動漫展要去邊度？", a: "會展", exp: "（會展）" },
+    { q: "旺角嘅東邊？", a: "旺角東", exp: "（旺角東）" },
+    { q: "最多馬跑嘅地方？", a: "馬場", exp: "（馬場）" },
+
+    // 屯馬綫
+    { q: "聽落好似外國人名嘅站？", a: "柯士甸", exp: "（Austin）" },
+    { q: "原來好開朗？", a: "元朗", exp: "（元朗）" },
+    { q: "一百萬個健康？", a: "兆康", exp: "（兆康）" },
+    { q: "天上啲水圍住你？", a: "天水圍", exp: "（天水圍）" },
+    { q: "永遠都考第一嘅城市？", a: "第一城", exp: "（City One）" },
+    { q: "車公住喺邊度？", a: "車公廟", exp: "（車公廟）" },
+    { q: "舊機場喺邊度？", a: "啟德", exp: "（啟德）" },
+    { q: "宋帝昺去過嘅大台？", a: "宋皇臺", exp: "（宋皇臺）" },
+    { q: "番薯（土瓜）生喺海邊？", a: "土瓜灣", exp: "（土瓜灣）" },
+    { q: "向南邊唱歌？", a: "南昌", exp: "（南唱）" },
+    { q: "石頭造嘅大門？", a: "石門", exp: "（石門）" },
+    { q: "永遠都平安？", a: "恆安", exp: "（恆安）" },
+    { q: "烏鴉、溪水同埋沙灘？", a: "烏溪沙", exp: "（烏溪沙）" },
+    { q: "囤積貨物嘅大門？", a: "屯門", exp: "（屯門）" },
+    { q: "馬背上面嗰座山？", a: "馬鞍山", exp: "（馬鞍山）" },
+    { q: "好大個水坑？", a: "大水坑", exp: "（大水坑）" },
+    { q: "包圍住沙田？", a: "沙田圍", exp: "（沙田圍）" },
+    { q: "顯示出一條小路？", a: "顯徑", exp: "（顯徑）" },
+    { q: "尖沙咀嘅細佬？", a: "尖東", exp: "（尖東）" },
+    { q: "荃灣嘅左邊？", a: "荃灣西", exp: "（荃灣西）" },
+    { q: "錦上添咩路？", a: "錦上路", exp: "（錦上路）" },
+    { q: "開朗嘅屏風？", a: "朗屏", exp: "（朗屏）" },
+
+    // 東涌綫及機場快綫
+    { q: "咩站最香？", a: "香港", exp: "（香呀！）" },
+    { q: "咩衫係綠色？", a: "青衣", exp: "（青衣）" },
+    { q: "運動員最想去嘅比賽？", a: "奧運", exp: "（奧運）" },
+    { q: "好開心嘅澳門？", a: "欣澳", exp: "（欣澳 / 充滿陽光）" },
+    { q: "向東邊衝過去？", a: "東涌", exp: "（東衝）" },
+    { q: "九條大龍？", a: "九龍", exp: "（九龍）" },
+    { q: "飛機嘅屋企？", a: "機場", exp: "（機場）" },
+    { q: "睇韓星演唱會最大個館？", a: "博覽館", exp: "（亞洲國際博覽館）" },
+
+    // 將軍澳綫
+    { q: "將軍游水嘅海灣？", a: "將軍澳", exp: "（將軍澳）" },
+    { q: "跌落坑渠嘅入口？", a: "坑口", exp: "（坑口）" },
+    { q: "全部都係寶石嘅樹林？", a: "寶琳", exp: "（寶琳）" },
+    { q: "全香港最健康嘅城市？", a: "康城", exp: "（LOHAS 康城）" },
+
+    // 南港島綫
+    { q: "殺人鯨同熊貓住喺邊？", a: "海洋公園", exp: "（海洋公園）" },
+    { q: "黃色竹樹生喺水坑？", a: "黃竹坑", exp: "（黃竹坑）" },
+    { q: "利益向住東邊？", a: "利東", exp: "（利東）" },
+    { q: "海邊好開心嘅半島？", a: "海怡半島", exp: "（海怡半島）" },
+
+    // 迪士尼綫
+    { q: "米奇老鼠搭地鐵會去邊個站？", a: "迪士尼", exp: "（迪士尼）" }
+  ];
+
+  let currentPool = [];
+  let currentIndex = 0;
+
+  // 初始化遊戲（打亂題目順序）
+  function initGame() {
+    currentPool = [...mtrQuestions].sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    showQuestion();
+  }
+
+  // 顯示題目
+  function showQuestion() {
+    const qData = currentPool[currentIndex];
     
-    window.addEventListener('keydown', (e) => {
-        secretBuffer += e.key.toLowerCase();
-        
-        if (secretBuffer.length > secretCode.length) {
-            secretBuffer = secretBuffer.slice(-secretCode.length);
-        }
-        
-        if (secretBuffer === secretCode) {
-            hearts += 10000;
-            updateUI();
-            saveProgress();
-            sfx.unlock();
-            
-            const ocean = document.getElementById('ocean');
-            const floatHeart = document.createElement('div');
-            floatHeart.className = 'floating-heart';
-            floatHeart.innerHTML = `+10,000 💾 <span class="synergy-text">(Secret Code!)</span>`;
-            floatHeart.style.left = (window.innerWidth / 2) + 'px';
-            floatHeart.style.top = (window.innerHeight / 2) + 'px';
-            floatHeart.style.fontSize = '2em';
-            floatHeart.style.transform = 'translate(-50%, -50%)';
-            ocean.appendChild(floatHeart);
-            setTimeout(() => floatHeart.remove(), 2000);
-            
-            secretBuffer = '';
-        }
-    });
+    document.getElementById("question-text").innerHTML = qData.q;
+    document.getElementById("answer-station").innerText = qData.a;
+    document.getElementById("answer-exp").innerText = qData.exp;
+    
+    document.getElementById("progress-text").innerText = `第 ${currentIndex + 1} 題 / 共 99 站`;
+    
+    // 重置介面狀態
+    document.getElementById("answer-box").classList.remove("show");
+    document.getElementById("btn-reveal").style.display = "block";
+    document.getElementById("btn-next").style.display = "none";
+  }
 
+  // 開估
+  function revealAnswer() {
+    document.getElementById("answer-box").classList.add("show");
+    document.getElementById("btn-reveal").style.display = "none";
+    document.getElementById("btn-next").style.display = "block";
+  }
+
+  // 下一題
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex >= currentPool.length) {
+      alert("太癲喇！你竟然玩晒 99 個站！🏆\n即將重新洗牌開始。");
+      initGame();
+    } else {
+      showQuestion();
+    }
+  }
+
+  // 網頁載入後立即執行
+  window.onload = initGame;
 </script>
+
 </body>
 </html>

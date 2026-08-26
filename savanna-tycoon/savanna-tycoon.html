@@ -7,215 +7,172 @@
 <style>
     body {
         margin: 0;
-        overflow: hidden; /* Fluid layout, no scrollbars */
+        overflow: hidden; 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #F4A460; 
+        background-color: #E1C16E; 
         user-select: none;
     }
 
-    /* The Savanna (Game Container) */
-    #savanna {
+    #savanna-area {
         position: absolute; 
         top: 0; 
         left: 0; 
         width: 100vw; 
         height: 100vh;
-        background: linear-gradient(to bottom, #FFCC80 0%, #FFA726 40%, #EF6C00 70%, #5D4037 100%);
+        background: linear-gradient(to bottom, #FFB75E 0%, #ED8F03 35%, #D4AF37 65%, #8B5A2B 100%);
         z-index: 1; 
     }
 
-    /* Start Screen */
     #start-screen {
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        background: radial-gradient(circle, #E65100, #BF360C, #3E2723);
+        background: radial-gradient(circle, #ED8F03, #A0522D, #2E1905);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 200;
         color: white;
+        text-align: center; 
+        padding: 20px;
+        box-sizing: border-box;
     }
     #start-screen h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    #start-screen p { max-width: 90%; line-height: 1.5; }
+    
     #start-btn {
         padding: 15px 40px; font-size: 1.5em; font-weight: bold;
-        background: #FFCA28; color: #3E2723; border: none; border-radius: 50px;
-        cursor: pointer; box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4);
+        background: #FFD54F; color: #3E2723; border: none; border-radius: 50px;
+        cursor: pointer; box-shadow: 0 4px 15px rgba(255, 213, 79, 0.4);
         transition: transform 0.2s;
+        margin-top: 15px;
     }
     #start-btn:hover { transform: scale(1.1); }
 
-    /* UI Overlay */
     #ui-layer {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         pointer-events: none; z-index: 10; padding: 20px; box-sizing: border-box;
         display: flex; justify-content: space-between; align-items: flex-start;
     }
-    
-    .hud-column {
-        display: flex; flex-direction: column; gap: 10px;
-    }
+
+    .hud-column { display: flex; flex-direction: column; gap: 10px; }
+    .btn-column { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
 
     .hud-box {
         background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(5px);
         padding: 15px 25px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.6);
         color: #fff; font-weight: bold; font-size: 1.5em; pointer-events: auto;
         text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        min-width: 220px; 
+        text-align: center;
+        box-sizing: border-box;
     }
-    
+
     #auto-harvest-box {
-        font-size: 1em; padding: 10px 20px; background: rgba(255, 167, 38, 0.4); border-color: rgba(255, 167, 38, 0.8);
-        display: none; /* Hidden until 6 total recruits */
+        font-size: 1em; padding: 10px 20px; background: rgba(77, 208, 225, 0.6); border-color: rgba(77, 208, 225, 0.9);
+        display: none; 
     }
 
-    .btn-column {
-        display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
-    }
-
-    #sound-btn, #reset-btn {
-        cursor: pointer; transition: transform 0.2s; color: white; font-size: 1em; padding: 10px 15px;
-    }
-    #sound-btn { background: rgba(255, 167, 38, 0.3); border: 2px solid rgba(255, 167, 38, 0.6); }
-    #sound-btn:hover { transform: scale(1.05); background: rgba(255, 167, 38, 0.5); }
-
-    #collection-btn {
-        background: rgba(255, 255, 255, 0.3); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.6); color: white;
-    }
+    #sound-btn, #reset-btn { cursor: pointer; transition: transform 0.2s; color: white; font-size: 1em; padding: 10px 15px; }
+    #sound-btn { background: rgba(237, 143, 3, 0.5); border: 2px solid rgba(237, 143, 3, 0.8); }
+    #sound-btn:hover { transform: scale(1.05); background: rgba(237, 143, 3, 0.7); }
+    #collection-btn { background: rgba(255, 255, 255, 0.3); cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.6); color: white; }
     #collection-btn:hover { transform: scale(1.05); }
-
     #reset-btn { background: rgba(255, 71, 87, 0.3); border: 2px solid rgba(255, 71, 87, 0.6); }
     #reset-btn:hover { transform: scale(1.05); background: rgba(255, 71, 87, 0.5); }
 
-    /* Animals/Plants */
+    @media (max-width: 768px) {
+        #ui-layer { padding: 10px; }
+        .hud-box { font-size: 1rem; min-width: 140px; padding: 10px; }
+        #auto-harvest-box { font-size: 0.85rem; }
+        #start-screen h1 { font-size: 2em; }
+        .modal { padding: 20px 15px; }
+        #popup-visual .animal-img, #info-visual .animal-img { width: 90px; height: 90px; }
+    }
+
     .animal {
-        position: absolute;
-        cursor: grab;
-        transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex; 
-        flex-direction: column;
-        justify-content: center; 
-        align-items: center;
-        touch-action: none;
+        position: absolute; cursor: grab; transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex; flex-direction: column; justify-content: center; align-items: center; touch-action: none;
     }
     .animal:active { cursor: grabbing; }
-    
+
     .animal-name {
-        font-size: 14px;
-        font-weight: bold;
-        color: #fff;
-        background: rgba(62, 39, 35, 0.7);
-        padding: 4px 10px;
-        border-radius: 12px;
-        margin-bottom: 5px;
-        pointer-events: none;
-        white-space: nowrap;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        border: 1px solid rgba(255,255,255,0.3);
+        font-size: 14px; font-weight: bold; color: #fff; background: rgba(46, 25, 5, 0.8);
+        padding: 4px 10px; border-radius: 12px; margin-bottom: 5px; pointer-events: none;
+        white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3);
     }
 
     .animal-img {
-        width: 80px;
-        height: 80px;
-        object-fit: contain;
-        user-select: none;
-        pointer-events: none;
+        width: 80px; height: 80px; object-fit: contain; user-select: none; pointer-events: none;
         filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.4));
     }
 
-    .animal.clicked {
-        transform: scale(1.2) !important;
-    }
+    .animal.clicked { transform: scale(1.2) !important; }
 
-    /* Floating Point Animation */
     .floating-heart {
-        position: absolute;
-        color: #FFD54F;
-        font-size: 1.2em;
-        font-weight: bold;
-        pointer-events: none;
-        animation: floatUp 1s ease-out forwards;
-        z-index: 50;
-        text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        position: absolute; color: #81D4FA; font-size: 1.2em; font-weight: bold;
+        pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 50; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
-    @keyframes floatUp {
-        0% { opacity: 1; transform: translateY(0) scale(1); }
-        100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
-    }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
 
-    /* Modals */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.7); z-index: 100;
         display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px);
     }
-    
+
     .modal {
-        background: rgba(62, 39, 35, 0.85); 
-        backdrop-filter: blur(16px); 
-        -webkit-backdrop-filter: blur(16px);
-        border-radius: 25px; 
-        color: white; padding: 30px; 
+        background: rgba(46, 25, 5, 0.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border-radius: 25px; color: white; padding: 30px; 
         max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; text-align: center;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(255, 202, 40, 0.1);
-        border: 2px solid rgba(255, 202, 40, 0.3);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(237, 143, 3, 0.1); border: 2px solid rgba(237, 143, 3, 0.3);
     }
-    
+
     .modal::-webkit-scrollbar { width: 8px; }
     .modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-    .modal::-webkit-scrollbar-thumb { background: rgba(255, 202, 40, 0.5); border-radius: 10px; }
+    .modal::-webkit-scrollbar-thumb { background: rgba(237, 143, 3, 0.5); border-radius: 10px; }
 
     .modal h2 { 
-        margin-top: -10px; padding-top: 10px; color: #FFCA28; font-size: 2.2em; 
-        position: sticky; top: 0; 
-        background: transparent; 
-        padding-bottom: 15px; z-index: 2; 
-        border-bottom: 2px solid rgba(255, 202, 40, 0.3);
-        box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
+        margin-top: -10px; padding-top: 10px; color: #FFB75E; font-size: 2.2em; 
+        position: sticky; top: 0; background: transparent; 
+        padding-bottom: 15px; z-index: 2; border-bottom: 2px solid rgba(237, 143, 3, 0.3); box-shadow: 0 10px 15px -10px rgba(0,0,0,0.5);
     }
-    
-    /* Collection Grid */
-    #collection-grid {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px;
-    }
+
+    #collection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; padding-top: 15px; }
     .collection-item {
-        background: rgba(255, 202, 40, 0.05); padding: 15px; border-radius: 15px;
+        background: rgba(237, 143, 3, 0.05); padding: 15px; border-radius: 15px;
         display: flex; flex-direction: column; align-items: center; 
-        border: 1px solid rgba(255, 202, 40, 0.2);
-        transition: transform 0.2s, background 0.2s;
+        border: 1px solid rgba(237, 143, 3, 0.2); transition: transform 0.2s, background 0.2s;
     }
-    .collection-item:hover {
-        background: rgba(255, 202, 40, 0.15);
-        transform: translateY(-3px);
-    }
-    .collection-item.locked .animal-img {
-        filter: grayscale(100%) brightness(0.3); 
-    }
+    .collection-item:hover { background: rgba(237, 143, 3, 0.15); transform: translateY(-3px); }
+    .collection-item.locked .animal-img { filter: grayscale(100%) brightness(0.3); }
     .collection-item .name-tag { font-weight: bold; margin-bottom: 10px; font-size: 0.95em; height: 35px; display: flex; align-items: center; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
-    .collection-item .count-badge { color: #FFB300; font-size: 0.9em; margin-left: 5px; }
-    
-    .btn-group {
-        display: flex; gap: 5px; width: 100%; margin-top: auto;
-    }
-    .buy-btn {
-        background: linear-gradient(180deg, #FFB300, #FF8F00); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 179, 0, 0.3); transition: transform 0.1s;
-    }
+    .collection-item .count-badge { color: #81D4FA; font-size: 0.9em; margin-left: 5px; }
+
+    .btn-column-group { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: auto; }
+    .btn-group { display: flex; gap: 5px; width: 100%; }
+
+    .buy-btn { background: linear-gradient(180deg, #FFB75E, #ED8F03); color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; font-size: 0.85em; box-shadow: 0 4px 10px rgba(237, 143, 3, 0.3); transition: transform 0.1s; }
     .buy-btn:active { transform: scale(0.95); }
-    .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #718093; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
-    
-    .remove-btn {
-        background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s; flex: 0.3;
-    }
+    .buy-btn:disabled { background: rgba(255,255,255,0.1); color: #BCAAA4; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
+
+    .remove-btn { background: linear-gradient(180deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); transition: transform 0.1s; flex: 0.3; }
     .remove-btn:active { transform: scale(0.95); }
     .remove-btn:hover { filter: brightness(1.1); }
 
+    .info-btn {
+        background: rgba(129, 212, 250, 0.15); color: #81D4FA; border: 1px solid rgba(129, 212, 250, 0.4);
+        padding: 6px; border-radius: 8px; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: all 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.8); width: 100%;
+    }
+    .info-btn:hover { background: rgba(129, 212, 250, 0.35); transform: scale(0.98); }
     .close-btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 1.2em; font-weight: bold; transition: transform 0.2s; margin-top: 10px;}
     .close-btn:hover { transform: scale(1.05); }
 
-    /* Popups */
-    #unlock-popup, #auto-popup { z-index: 300; }
-    #popup-visual .animal-img { margin: 20px 0; width: 120px; height: 120px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    
+    #unlock-popup, #auto-popup, #info-popup { z-index: 300; }
+    #info-popup { z-index: 400; } 
+    #popup-visual .animal-img, #info-visual .animal-img { margin: 20px 0; width: 120px; height: 120px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     #auto-popup .modal { max-width: 500px; }
+    #info-popup .modal { max-width: 550px; }
     .gear-icon { font-size: 5em; margin: 15px 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));}
 
     @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
@@ -224,14 +181,14 @@
 <body>
 
 <div id="start-screen">
-    <h1>☀️ Savanna Tycoon</h1>
-    <p>Grow your ecosystem. Tap & Drag species for grass points.</p>
+    <h1>🌅 Savanna Tycoon</h1>
+    <p>Grow your ecosystem. Tap & Drag species for water drops.</p>
     <button id="start-btn">Explore</button>
 </div>
 
 <div id="ui-layer">
     <div class="hud-column">
-        <div class="hud-box">🌾 <span id="heart-count">0</span></div>
+        <div class="hud-box">💧 <span id="heart-count">0</span></div>
         <div class="hud-box" id="auto-harvest-box">⚙️ Auto: +<span id="auto-rate">0</span>/s</div>
     </div>
     <div class="btn-column">
@@ -241,37 +198,43 @@
     </div>
 </div>
 
-<div id="savanna"></div>
+<div id="savanna-area"></div>
+<audio id="bgMusic" src="savanna.mp3" loop></audio>
 
-<!-- Background Music -->
-<audio id="bgMusic" src="bamboo-flute.mp3" loop></audio>
-
-<!-- Collection Modal -->
+<!-- Modals -->
 <div id="collection-modal" class="modal-overlay">
     <div class="modal">
         <h2>Savanna Catalog</h2>
         <div id="collection-grid"></div>
-        <button class="close-btn" onclick="document.getElementById('collection-modal').style.display='none'">Close</button>
+        <button class="close-btn" onclick="closeModalsAndAudio()">Close</button>
     </div>
 </div>
 
-<!-- Unlock Popup Modal -->
+<div id="info-popup" class="modal-overlay">
+    <div class="modal" style="overflow: hidden; max-height: 550px;">
+        <h2 id="info-name" style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">Name</h2>
+        <div id="info-visual"></div>
+        <h3 id="info-scientific" style="margin-top: 0; font-size: 1.2em; color: #81D4FA; font-style: italic;">Scientific Name</h3>
+        <p id="info-adaptation" style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px; line-height: 1.5;"></p>
+        <button class="close-btn" onclick="closeInfoPopup()">Close</button>
+    </div>
+</div>
+
 <div id="unlock-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden; max-height: 450px;">
         <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0;">New Species Discovered!</h2>
         <div id="popup-visual"></div>
-        <h3 id="popup-name" style="margin-top: 0; font-size: 1.8em; color: white;">Clownfish</h3>
+        <h3 id="popup-name" style="margin-top: 0; font-size: 1.8em; color: white;">Species</h3>
         <button class="close-btn" onclick="closeUnlockPopup()">Awesome!</button>
     </div>
 </div>
 
-<!-- Auto-Harvest Unlocked Popup -->
 <div id="auto-popup" class="modal-overlay">
     <div class="modal" style="overflow: hidden; max-height: 400px;">
-        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #FFB300;">Ecosystem Thriving!</h2>
-        <div class="gear-icon">☀️</div>
+        <h2 style="position: relative; background: transparent; border: none; box-shadow: none; margin-bottom: 0; color: #FFB75E;">Ecosystem Thriving!</h2>
+        <div class="gear-icon">🌳</div>
         <h3 style="margin-top: 0; font-size: 1.5em; color: white;">Passive Generation Activated</h3>
-        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your vibrant savanna is now producing grass automatically every second!</p>
+        <p style="font-size: 1.1em; color: #d1d8e0; margin-bottom: 20px;">Your vibrant savanna is now producing water automatically every second!</p>
         <button class="close-btn" onclick="document.getElementById('auto-popup').style.display='none'">Keep Growing</button>
     </div>
 </div>
@@ -279,7 +242,7 @@
 <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const bgMusic = document.getElementById('bgMusic');
-    bgMusic.volume = 0.4; // Set background music volume
+    bgMusic.volume = 0.4; 
 
     let isMuted = false;
 
@@ -304,50 +267,53 @@
             playSynth(440, 'triangle', 0.2, 0.2);
             setTimeout(() => playSynth(554, 'triangle', 0.2, 0.2), 150);
             setTimeout(() => playSynth(659, 'triangle', 0.4, 0.2), 300);
-        },
-        error: () => {
-            playSynth(150, 'sawtooth', 0.2, 0.2);
         }
     };
 
-    // --- Savanna Species Data ---
+    // Organized sequentially by approximate average physical mass (smallest to largest)
     const animalData = [
-        { id: 'dung-beetle', name: 'Dung Beetle', img: 'dung-beetle.png', cost: 10, speed: 0.5, heartsPerClick: 1 },
-        { id: 'termite', name: 'Termite', img: 'termite.png', cost: 15, speed: 0.1, heartsPerClick: 1 },
-        { id: 'grasshopper', name: 'Grasshopper', img: 'grasshopper.png', cost: 25, speed: 0.2, heartsPerClick: 2 },
-        { id: 'locust', name: 'Locust', img: 'locust.png', cost: 35, speed: 0.8, heartsPerClick: 2 },
-        { id: 'acacia-seedling', name: 'Acacia Seedling', img: 'acacia-seedling.png', cost: 50, speed: 0, heartsPerClick: 3 },
-        { id: 'meerkat', name: 'Meerkat', img: 'meerkat.png', cost: 60, speed: 0.5, heartsPerClick: 3 },
-        { id: 'baobab-sprout', name: 'Baobab Sprout', img: 'baobab-sprout.png', cost: 80, speed: 0, heartsPerClick: 4 },
-        { id: 'ground-squirrel', name: 'Ground Squirrel', img: 'ground-squirrel.png', cost: 100, speed: 0.4, heartsPerClick: 4 },
-        { id: 'hornbill', name: 'Hornbill', img: 'hornbill.png', cost: 120, speed: 0.3, heartsPerClick: 5 },
-        { id: 'mongoose', name: 'Mongoose', img: 'mongoose.png', cost: 150, speed: 0.4, heartsPerClick: 5 },
-        { id: 'pangolin', name: 'Pangolin', img: 'pangolin.png', cost: 180, speed: 0.2, heartsPerClick: 6 },
-        { id: 'aardvark', name: 'Aardvark', img: 'aardvark.png', cost: 200, speed: 0.3, heartsPerClick: 6 },
-        { id: 'warthog', name: 'Warthog', img: 'warthog.png', cost: 250, speed: 0.5, heartsPerClick: 7 },
-        { id: 'honey-badger', name: 'Honey Badger', img: 'honey-badger.png', cost: 300, speed: 0.4, heartsPerClick: 7 },
-        { id: 'baboon', name: 'Baboon', img: 'baboon.png', cost: 350, speed: 0.4, heartsPerClick: 8 },
-        { id: 'ostrich', name: 'Ostrich', img: 'ostrich.png', cost: 400, speed: 0.8, heartsPerClick: 8 },
-        { id: 'gazelle', name: 'Gazelle', img: 'gazelle.png', cost: 500, speed: 0.7, heartsPerClick: 9 },
-        { id: 'impala', name: 'Impala', img: 'impala.png', cost: 600, speed: 0.7, heartsPerClick: 10 },
-        { id: 'springbok', name: 'Springbok', img: 'springbok.png', cost: 700, speed: 0.7, heartsPerClick: 10 },
-        { id: 'hyena', name: 'Hyena', img: 'hyena.png', cost: 900, speed: 0.5, heartsPerClick: 11 },
-        { id: 'wild-dog', name: 'Wild Dog', img: 'wild-dog.png', cost: 1000, speed: 0.6, heartsPerClick: 12 },
-        { id: 'jackal', name: 'Jackal', img: 'jackal.png', cost: 1200, speed: 0.5, heartsPerClick: 12 },
-        { id: 'cheetah', name: 'Cheetah', img: 'cheetah.png', cost: 1500, speed: 0.9, heartsPerClick: 13 },
-        { id: 'leopard', name: 'Leopard', img: 'leopard.png', cost: 2000, speed: 0.6, heartsPerClick: 15 },
-        { id: 'acacia-tree', name: 'Acacia Tree', img: 'acacia-tree.png', cost: 2500, speed: 0, heartsPerClick: 20 },
-        { id: 'zebra', name: 'Zebra', img: 'zebra.png', cost: 2600, speed: 0.5, heartsPerClick: 18 },
-        { id: 'wildebeest', name: 'Wildebeest', img: 'wildebeest.png', cost: 3500, speed: 0.4, heartsPerClick: 22 },
-        { id: 'cape-buffalo', name: 'Cape Buffalo', img: 'cape-buffalo.png', cost: 4500, speed: 0.3, heartsPerClick: 27 },
-        { id: 'baobab-tree', name: 'Baobab Tree', img: 'baobab-tree.png', cost: 5000, speed: 0, heartsPerClick: 30 },
-        { id: 'giraffe', name: 'Giraffe', img: 'giraffe.png', cost: 6000, speed: 0.3, heartsPerClick: 35 },
-        { id: 'hippopotamus', name: 'Hippopotamus', img: 'hippopotamus.png', cost: 8000, speed: 0.2, heartsPerClick: 45 },
-        { id: 'rhinoceros', name: 'Rhinoceros', img: 'rhinoceros.png', cost: 12000, speed: 0.3, heartsPerClick: 60 },
-        { id: 'elephant', name: 'Elephant', img: 'elephant.png', cost: 15000, speed: 0.2, heartsPerClick: 70 },
-        { id: 'lioness', name: 'Lioness', img: 'lioness.png', cost: 20000, speed: 0.6, heartsPerClick: 85 },
-        { id: 'elephant-grass', name: 'Elephant Grass', img: 'elephant-grass.png', cost: 50000, speed: 0, heartsPerClick: 200 },
-        { id: 'lion', name: 'Lion', img: 'lion.png', cost: 100000, speed: 0.5, heartsPerClick: 250 }
+        { id: 'antlion', name: 'Antlion', scientificName: 'Myrmeleontidae', adaptation: 'Engineers steep-angled conical pits in loose sand, utilizing the avalanche effect to drag struggling prey down into its mandibles.', img: 'antlion.png', cost: 10, speed: 0.1, heartsPerClick: 1 },
+        { id: 'rhinoceros-beetle', name: 'Rhinoceros Beetle', scientificName: 'Dynastinae', adaptation: 'Features a thick chitinous exoskeleton and a pronounced cephalic horn used to aggressively wrestle rivals off tree branches.', img: 'rhinoceros-beetle.png', cost: 15, speed: 0.2, heartsPerClick: 1 },
+        { id: 'weaver-bird', name: 'Weaver Bird', scientificName: 'Ploceidae', adaptation: 'Famous for their incredible architectural skills, creating intricate, woven nests suspended from acacia branches.', img: 'weaver-bird.png', cost: 25, speed: 0.7, heartsPerClick: 2 },
+        { id: 'buffalo-weaver', name: 'Buffalo Weaver', scientificName: 'Bubalornis niger', adaptation: 'Constructs massive, messy communal nests out of thorny twigs, hosting multiple families in distinct chambers.', img: 'buffalo-weaver.png', cost: 35, speed: 0.6, heartsPerClick: 2 },
+        { id: 'elephant-shrew', name: 'Elephant Shrew', scientificName: 'Macroscelididae', adaptation: 'Utilizes a highly flexible, elongated snout to sniff out invertebrates, navigating complex, meticulously cleared trail networks at high speed.', img: 'elephant-shrew.png', cost: 50, speed: 0.9, heartsPerClick: 3 },
+        { id: 'lilac-breasted-roller', name: 'Lilac-Breasted Roller', scientificName: 'Coracias caudatus', adaptation: 'A stunningly vibrant bird that perches on high vantage points before swooping down to catch insects in mid-air.', img: 'lilac-breasted-roller.png', cost: 75, speed: 0.8, heartsPerClick: 4 },
+        { id: 'red-billed-hornbill', name: 'Red-Billed Hornbill', scientificName: 'Tockus erythrorhynchus', adaptation: 'A highly active foraging bird that uses its curved red beak to dig out insects from the dry savanna soil.', img: 'red-billed-hornbill.png', cost: 100, speed: 0.7, heartsPerClick: 5 },
+        { id: 'yellow-billed-hornbill', name: 'Yellow-Billed Hornbill', scientificName: 'Tockus flavirostris', adaptation: 'Often referred to as the "flying banana," it acts in a mutualistic relationship with dwarf mongooses to hunt prey.', img: 'yellow-billed-hornbill.png', cost: 150, speed: 0.7, heartsPerClick: 6 },
+        { id: 'bushbaby', name: 'Bushbaby', scientificName: 'Galagidae', adaptation: 'Small, nocturnal primates with massive eyes, using powerful hind legs to execute incredible leaps between acacia trees in the dark.', img: 'bushbaby.png', cost: 200, speed: 0.6, heartsPerClick: 8 },
+        { id: 'meerkat', name: 'Meerkat', scientificName: 'Suricata suricatta', adaptation: 'Operates in highly organized mobs with designated sentinels that scan the sky for eagles while the rest of the family safely forages.', img: 'meerkat.png', cost: 300, speed: 0.6, heartsPerClick: 10 },
+        { id: 'ground-hornbill', name: 'Ground Hornbill', scientificName: 'Bucorvus leadbeateri', adaptation: 'A massive, predominantly terrestrial bird with striking black plumage and bright red facial wattles, known for its deep, booming call.', img: 'ground-hornbill.png', cost: 450, speed: 0.4, heartsPerClick: 12 },
+        { id: 'dik-dik', name: 'Dik-dik', scientificName: 'Madoqua', adaptation: 'A diminutive, elusive antelope barely a foot tall, using an elongated snout to cool its blood in the extreme heat.', img: 'dik-dik.png', cost: 600, speed: 0.7, heartsPerClick: 15 },
+        { id: 'vervet-monkey', name: 'Vervet Monkey', scientificName: 'Chlorocebus pygerythrus', adaptation: 'Highly agile climber with advanced vocalizations, utilizing distinct alarm calls to warn the troop of specific predators like eagles or leopards.', img: 'vervet-monkey.png', cost: 800, speed: 0.7, heartsPerClick: 20 },
+        { id: 'land-monitor', name: 'Land Monitor', scientificName: 'Varanus albigularis', adaptation: 'A heavily built, terrestrial lizard with a blunt snout and thick skin, found foraging in dry landscapes and rocky kopjes.', img: 'land-monitor.png', cost: 1000, speed: 0.3, heartsPerClick: 25 },
+        { id: 'vulture', name: 'Vulture', scientificName: 'Accipitridae', adaptation: 'A crucial scavenger equipped with highly acidic gastric juices capable of digesting anthrax, botulism, and cholera bacteria safely.', img: 'vulture.png', cost: 1500, speed: 0.6, heartsPerClick: 35 },
+        { id: 'marabou-stork', name: 'Marabou Stork', scientificName: 'Leptoptilos crumenifer', adaptation: 'A massive, bald-headed scavenger that uses its large bill to pull meat from carcasses alongside hyenas and vultures.', img: 'marabou-stork.png', cost: 2000, speed: 0.5, heartsPerClick: 50 },
+        { id: 'water-monitor', name: 'Water Monitor', scientificName: 'Varanus niloticus', adaptation: 'Africa\'s largest lizard, featuring a paddle-like tail that makes it an excellent swimmer near rivers and temporary waterholes.', img: 'water-monitor.png', cost: 3000, speed: 0.4, heartsPerClick: 70 },
+        { id: 'patas-monkey', name: 'Patas Monkey', scientificName: 'Erythrocebus patas', adaptation: 'The fastest runner among all primates, uniquely adapted to terrestrial life on the open plains to outrun danger.', img: 'patas-monkey.png', cost: 4500, speed: 0.9, heartsPerClick: 100 },
+        { id: 'leopard-tortoise', name: 'Leopard Tortoise', scientificName: 'Stigmochelys pardalis', adaptation: 'A large grazing reptile protected by a highly domed shell patterned with exquisite rosette-like spots.', img: 'leopard-tortoise.png', cost: 6000, speed: 0.1, heartsPerClick: 150 },
+        { id: 'springbok', name: 'Springbok', scientificName: 'Antidorcas marsupialis', adaptation: 'A gazelle-like antelope famous for "pronking"—leaping repeatedly into the air with a stiff back to display fitness to predators.', img: 'springbok.png', cost: 10000, speed: 0.8, heartsPerClick: 250 },
+        { id: 'impala', name: 'Impala', scientificName: 'Aepyceros melampus', adaptation: 'Capable of clearing 10-foot obstacles in a single bound, utilizing chaotic, leaping escape trajectories to confuse pursuit predators.', img: 'impala.png', cost: 15000, speed: 0.7, heartsPerClick: 350 },
+        { id: 'cheetah', name: 'Cheetah', scientificName: 'Acinonyx jubatus', adaptation: 'Features a flexible spine, semi-non-retractable claws for traction, and enlarged nasal passages to sustain oxygen flow during 70 mph sprints.', img: 'cheetah.png', cost: 20000, speed: 0.9, heartsPerClick: 500 },
+        { id: 'leopard', name: 'Leopard', scientificName: 'Panthera pardus', adaptation: 'Possesses immense upper-body strength, allowing it to haul carcasses twice its weight high into acacia branches to escape scavengers.', img: 'leopard.png', cost: 30000, speed: 0.6, heartsPerClick: 750 },
+        { id: 'spotted-hyena', name: 'Spotted Hyena', scientificName: 'Crocuta crocuta', adaptation: 'Boasts an incredibly acidic stomach and bone-crushing jaws, living in highly intelligent, matriarchal clans that outcompete lions.', img: 'spotted-hyena.png', cost: 45000, speed: 0.6, heartsPerClick: 1000 },
+        { id: 'warthog', name: 'Warthog', scientificName: 'Phacochoerus africanus', adaptation: 'Drops to its calloused knees to root for tubers, and reverses into old aardvark burrows so its formidable tusks face any incoming predators.', img: 'warthog.png', cost: 60000, speed: 0.5, heartsPerClick: 1500 },
+        { id: 'ugandan-kob', name: 'Ugandan Kob', scientificName: 'Kobus kob thomasi', adaptation: 'A robust antelope adapted to the floodplains and savannas of regions like Elegu, utilizing intense, ritualized lek mating grounds.', img: 'ugandan-kob.png', cost: 80000, speed: 0.6, heartsPerClick: 2000 },
+        { id: 'ostrich', name: 'Ostrich', scientificName: 'Struthio camelus', adaptation: 'The largest living bird, utilizing massive muscular legs equipped with a lethal forward kick to defend against lions and hyenas.', img: 'ostrich.png', cost: 100000, speed: 0.8, heartsPerClick: 2500 },
+        { id: 'topi', name: 'Topi', scientificName: 'Damaliscus lunatus', adaptation: 'A remarkably fast antelope with a distinctive purplish-brown coat, often standing sentinel atop termite mounds.', img: 'topi.png', cost: 150000, speed: 0.7, heartsPerClick: 3500 },
+        { id: 'waterbuck', name: 'Waterbuck', scientificName: 'Kobus ellipsiprymnus', adaptation: 'A shaggy, heavily built antelope that secretes a musky, waterproof oil and retreats into deep water when threatened.', img: 'waterbuck.png', cost: 200000, speed: 0.5, heartsPerClick: 4500 },
+        { id: 'african-lion', name: 'African Lion', scientificName: 'Panthera leo', adaptation: 'The only truly social feline, utilizing cooperative pride dynamics and coordinated flanking maneuvers to take down formidable megafauna.', img: 'african-lion.png', cost: 250000, speed: 0.5, heartsPerClick: 5500 },
+        { id: 'wildebeest', name: 'Blue Wildebeest', scientificName: 'Connochaetes taurinus', adaptation: 'Possesses highly specialized scent glands and instinctual rain-tracking abilities, driving the great circular migration.', img: 'wildebeest.png', cost: 350000, speed: 0.6, heartsPerClick: 7000 },
+        { id: 'sable-antelope', name: 'Sable Antelope', scientificName: 'Hippotragus niger', adaptation: 'A highly aggressive and regal antelope with bold black-and-white facial markings and sweeping, scimitar-shaped horns.', img: 'sable-antelope.png', cost: 500000, speed: 0.6, heartsPerClick: 10000 },
+        { id: 'kudu', name: 'Kudu', scientificName: 'Tragelaphus strepsiceros', adaptation: 'A large, elegant antelope recognizable by its magnificent, long spiraled horns and subtle white body stripes.', img: 'kudu.png', cost: 750000, speed: 0.6, heartsPerClick: 15000 },
+        { id: 'roan-antelope', name: 'Roan Antelope', scientificName: 'Hippotragus equinus', adaptation: 'A large, horse-like antelope with a striking facial mask, capable of fiercely defending itself against lions.', img: 'roan-antelope.png', cost: 1000000, speed: 0.6, heartsPerClick: 20000 },
+        { id: 'zebra', name: 'Plains Zebra', scientificName: 'Equus quagga', adaptation: 'Employs unique disruptive coloration that dazzles predators and deters disease-carrying tsetse flies by disrupting their visual landing systems.', img: 'zebra.png', cost: 1500000, speed: 0.6, heartsPerClick: 30000 },
+        { id: 'eland', name: 'Eland', scientificName: 'Taurotragus oryx', adaptation: 'The largest African antelope, resembling a heavily muscled cow, yet capable of effortlessly jumping a 2-meter fence from a standstill.', img: 'eland.png', cost: 2500000, speed: 0.5, heartsPerClick: 50000 },
+        { id: 'buffalo', name: 'Buffalo', scientificName: 'Syncerus caffer', adaptation: 'Known for its unpredictable aggression and fused horn base (the "boss"), often preemptively mobbing and attacking resting lion prides.', img: 'buffalo.png', cost: 4000000, speed: 0.5, heartsPerClick: 75000 },
+        { id: 'black-rhinoceros', name: 'Black Rhinoceros', scientificName: 'Diceros bicornis', adaptation: 'Features a prehensile, hooked lip perfectly adapted for browsing on thorny savanna bushes and low tree branches.', img: 'black-rhinoceros.png', cost: 6000000, speed: 0.4, heartsPerClick: 100000 },
+        { id: 'giraffe', name: 'Giraffe', scientificName: 'Giraffa camelopardalis', adaptation: 'Utilizes a two-foot-long prehensile tongue and highly specialized cardiovascular valves to prevent fatal blood rushes to the brain when drinking.', img: 'giraffe.png', cost: 8000000, speed: 0.5, heartsPerClick: 150000 },
+        { id: 'hippopotamus', name: 'Hippopotamus', scientificName: 'Hippopotamus amphibius', adaptation: 'Secretes a natural red "blood sweat" that acts as both sunscreen and a powerful antibiotic, protecting its sensitive skin during daylight hours.', img: 'hippopotamus.png', cost: 12000000, speed: 0.3, heartsPerClick: 250000 },
+        { id: 'white-rhinoceros', name: 'White Rhinoceros', scientificName: 'Ceratotherium simum', adaptation: 'Features a wide, square lip perfectly evolved for grazing vast quantities of short grass, relying on acute hearing and smell to compensate for poor eyesight.', img: 'white-rhinoceros.png', cost: 20000000, speed: 0.4, heartsPerClick: 400000 },
+        { id: 'african-elephant', name: 'African Elephant', scientificName: 'Loxodonta africana', adaptation: 'An unparalleled ecosystem engineer that uses its massive tusks and immense strength to uproot trees, transforming dense woodlands into open grazing savannas.', img: 'african-elephant.png', cost: 50000000, speed: 0.4, heartsPerClick: 1000000 }
     ];
 
     let hearts = 10;
@@ -356,12 +322,11 @@
     let activeAnimals = [];
     let pendingAutoPopup = false; 
 
-    // --- Local Storage ---
     function saveProgress() {
         localStorage.setItem("savannaHearts", hearts);
         localStorage.setItem("savannaUnlocks", JSON.stringify(unlockedIds));
         localStorage.setItem("savannaEverUnlocks", JSON.stringify(everUnlockedIds));
-        
+
         const animalStates = activeAnimals.map(anim => ({
             id: anim.id, x: anim.x, y: anim.y, vx: anim.vx, vy: anim.vy
         }));
@@ -372,18 +337,17 @@
         const savedHearts = localStorage.getItem("savannaHearts");
         const savedUnlocks = localStorage.getItem("savannaUnlocks");
         const savedEverUnlocks = localStorage.getItem("savannaEverUnlocks");
-        
+
         if (savedHearts !== null) hearts = parseInt(savedHearts, 10);
         if (savedUnlocks !== null) unlockedIds = JSON.parse(savedUnlocks);
         if (savedEverUnlocks !== null) everUnlockedIds = JSON.parse(savedEverUnlocks);
-        
+
         updateUI();
     }
 
-    // --- Game Logic ---
     function updateUI() {
         document.getElementById('heart-count').innerText = hearts.toLocaleString();
-        
+
         const autoBox = document.getElementById('auto-harvest-box');
         if (activeAnimals.length >= 6) {
             autoBox.style.display = 'block';
@@ -395,17 +359,16 @@
     }
 
     function spawnAnimal(animalDef, savedState = null) {
-        const savannaContainer = document.getElementById('savanna');
+        const savannaContainer = document.getElementById('savanna-area');
         const el = document.createElement('div');
         el.className = 'animal';
-        
+
         el.innerHTML = `
             <div class="animal-name">${animalDef.name}</div>
             <img class="animal-img" src="${animalDef.img}" alt="${animalDef.name}">
         `;
-        
+
         let x, y, vx, vy;
-        
         if (savedState) {
             x = savedState.x; y = savedState.y; vx = savedState.vx; vy = savedState.vy;
         } else {
@@ -433,7 +396,7 @@
 
             const floatHeart = document.createElement('div');
             floatHeart.className = 'floating-heart';
-            floatHeart.innerText = `+${animalDef.heartsPerClick} 🌾`;
+            floatHeart.innerText = `+${animalDef.heartsPerClick} 💧`;
             floatHeart.style.left = e.clientX + 'px';
             floatHeart.style.top = (e.clientY - 5) + 'px';
             savannaContainer.appendChild(floatHeart);
@@ -470,35 +433,30 @@
         el.addEventListener('pointercancel', endDrag);
 
         savannaContainer.appendChild(el);
-        
-        activeAnimals.push({ 
-            id: animalDef.id, el, x, y, vx, vy, speed: animalDef.speed, 
-            isDragging: false, heartsPerClick: animalDef.heartsPerClick
-        });
+        activeAnimals.push({ id: animalDef.id, el, x, y, vx, vy, speed: animalDef.speed, isDragging: false, heartsPerClick: animalDef.heartsPerClick });
     }
 
-    // Auto Harvest Loop
     setInterval(() => {
         if (activeAnimals.length >= 6) {
             let heartsPerSecond = 0;
-            const savannaContainer = document.getElementById('savanna');
-            
+            const savannaContainer = document.getElementById('savanna-area');
+
             activeAnimals.forEach(anim => {
                 if (anim.heartsPerClick > 0) {
                     heartsPerSecond += anim.heartsPerClick;
                     const floatHeart = document.createElement('div');
                     floatHeart.className = 'floating-heart';
-                    floatHeart.innerText = `+${anim.heartsPerClick} 🌾`;
-                    
+                    floatHeart.innerText = `+${anim.heartsPerClick} 💧`;
+
                     const offsetX = (Math.random() * 40) - 10;
                     floatHeart.style.left = (anim.x + 30 + offsetX) + 'px';
                     floatHeart.style.top = (anim.y + 10) + 'px';
-                    
+
                     savannaContainer.appendChild(floatHeart);
                     setTimeout(() => floatHeart.remove(), 1000);
                 }
             });
-            
+
             if (heartsPerSecond > 0) {
                 hearts += heartsPerSecond;
                 updateUI();
@@ -507,87 +465,65 @@
         saveProgress();
     }, 1000);
 
-    // Animation Loop
     let lastMoveTime = 0;
-    const MOVE_INTERVAL = 2000; // Time in milliseconds between each movement tick (slower interval)
-    const MOVE_MULTIPLIER = 50; // Increased multiplier so the step is noticeable
+    const MOVE_INTERVAL = 2000;
+    const MOVE_MULTIPLIER = 50; 
 
     function animate(currentTime) {
         if (!lastMoveTime) lastMoveTime = currentTime;
 
-        // Only update positions if the interval has passed
         if (currentTime - lastMoveTime >= MOVE_INTERVAL) {
             activeAnimals.forEach(anim => {
                 if (anim.isDragging) return; 
                 if (anim.speed === 0) return; 
 
-                // Generate a completely random direction angle
                 const randomAngle = Math.random() * Math.PI * 2;
-                
-                // Calculate new velocity vectors based on the random angle and base speed
                 anim.vx = Math.cos(randomAngle) * anim.speed;
                 anim.vy = Math.sin(randomAngle) * anim.speed;
 
-                // Move by a discrete "chunk"
                 anim.x += anim.vx * MOVE_MULTIPLIER;
                 anim.y += anim.vy * MOVE_MULTIPLIER;
 
-                // Boundary checking (clamp to screen edges)
-                if (anim.x <= 0) {
-                    anim.x = 0;
-                } else if (anim.x >= window.innerWidth - 100) {
-                    anim.x = window.innerWidth - 100;
-                }
+                if (anim.x <= 0) anim.x = 0;
+                else if (anim.x >= window.innerWidth - 100) anim.x = window.innerWidth - 100;
 
-                if (anim.y <= 0) {
-                    anim.y = 0; 
-                } else if (anim.y >= window.innerHeight - 130) {
-                    anim.y = window.innerHeight - 130; 
-                }
+                if (anim.y <= 0) anim.y = 0; 
+                else if (anim.y >= window.innerHeight - 130) anim.y = window.innerHeight - 130; 
 
-                // Make sure the image faces the correct direction based on movement
-                if (anim.vx < 0) {
-                    anim.el.querySelector('.animal-img').style.transform = "scaleX(-1)";
-                } else {
-                    anim.el.querySelector('.animal-img').style.transform = "scaleX(1)";
-                }
-
-                // Apply the new position
+                anim.el.querySelector('.animal-img').style.transform = (anim.vx < 0) ? "scaleX(-1)" : "scaleX(1)";
                 anim.el.style.left = anim.x + 'px';
                 anim.el.style.top = anim.y + 'px';
             });
-            
+
             lastMoveTime = currentTime;
         }
-
         requestAnimationFrame(animate);
     }
 
-    // --- UI Modals & Logic ---
     function openCollection() {
         const grid = document.getElementById('collection-grid');
         grid.innerHTML = '';
-        
+
         animalData.forEach((a) => {
             const count = unlockedIds.filter(id => id === a.id).length;
             const hasBeenUnlocked = everUnlockedIds.includes(a.id);
             const isUnlocked = count > 0;
-            
+
             const item = document.createElement('div');
             item.className = `collection-item ${hasBeenUnlocked ? '' : 'locked'}`;
-            
+
             const canAfford = hearts >= a.cost;
             const removeBtnHTML = isUnlocked ? `<button class="remove-btn" onclick="removeAnimal('${a.id}')">X</button>` : '';
 
-            const actionText = 'Recruit';
-            const actionFunc = `unlockSpecies('${a.id}')`;
-
             const btnHTML = `
-                <div class="btn-group">
-                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="${actionFunc}">
-                        ${actionText}<br>(${a.cost.toLocaleString()} 🌾)
-                    </button>
-                    ${removeBtnHTML}
+                <div class="btn-column-group">
+                    <div class="btn-group">
+                        <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="unlockSpecies('${a.id}')">
+                            Recruit (${a.cost.toLocaleString()} 💧)
+                        </button>
+                        ${removeBtnHTML}
+                    </div>
+                    ${hasBeenUnlocked ? `<button class="info-btn" onclick="showInfo('${a.id}')">Info</button>` : ''}
                 </div>
             `;
 
@@ -603,27 +539,61 @@
         document.getElementById('collection-modal').style.display = 'flex';
     }
 
+    window.showInfo = function(id) {
+        const animal = animalData.find(a => a.id === id);
+        if (!animal) return;
+
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+        document.getElementById('info-name').innerText = animal.name;
+        document.getElementById('info-scientific').innerText = animal.scientificName;
+        document.getElementById('info-adaptation').innerText = animal.adaptation;
+        document.getElementById('info-visual').innerHTML = `<img class="animal-img" src="${animal.img}" style="width: 150px; height: 150px;">`;
+
+        document.getElementById('info-popup').style.display = 'flex';
+
+        if ('speechSynthesis' in window && !isMuted) {
+            const textToRead = `${animal.name}. ${animal.scientificName}. ${animal.adaptation}`;
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.rate = 0.95; 
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
+    window.closeInfoPopup = function() {
+        document.getElementById('info-popup').style.display = 'none';
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    };
+
+    window.closeModalsAndAudio = function() {
+        document.getElementById('collection-modal').style.display = 'none';
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+
     window.unlockSpecies = function(id) {
         const animal = animalData.find(a => a.id === id);
-        
+
         if (hearts >= animal.cost) {
             const isFirstTimeEver = !everUnlockedIds.includes(id);
             const wasBelowThreshold = activeAnimals.length < 6;
-            
+
             hearts -= animal.cost;
             unlockedIds.push(id);
             if (isFirstTimeEver) everUnlockedIds.push(id);
-            
+
             spawnAnimal(animal);
             updateUI();
             saveProgress();
-            
+
             if (wasBelowThreshold && activeAnimals.length >= 6) {
                 pendingAutoPopup = true;
             }
 
             if (isFirstTimeEver) {
                 document.getElementById('collection-modal').style.display = 'none';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
                 document.getElementById('popup-visual').innerHTML = `<img class="animal-img" src="${animal.img}" style="width: 120px; height: 120px;">`;
                 document.getElementById('popup-name').innerText = animal.name;
                 document.getElementById('unlock-popup').style.display = 'flex';
@@ -631,6 +601,8 @@
             } 
             else if (pendingAutoPopup) {
                 document.getElementById('collection-modal').style.display = 'none';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
                 document.getElementById('auto-popup').style.display = 'flex';
                 sfx.unlock();
                 pendingAutoPopup = false; 
@@ -645,7 +617,7 @@
     window.removeAnimal = function(id) {
         const unlockIndex = unlockedIds.indexOf(id);
         if (unlockIndex > -1) unlockedIds.splice(unlockIndex, 1);
-        
+
         const activeIndex = activeAnimals.findIndex(a => a.id === id);
         if (activeIndex > -1) {
             activeAnimals[activeIndex].el.remove();
@@ -667,14 +639,15 @@
         }
     };
 
-    // Modal Background Click-to-Close Listeners
-    ['collection-modal', 'unlock-popup', 'auto-popup'].forEach(id => {
+    ['collection-modal', 'unlock-popup', 'auto-popup', 'info-popup'].forEach(id => {
         document.getElementById(id).addEventListener('click', (e) => {
-            if (e.target.id === id) e.target.style.display = 'none';
+            if (e.target.id === id) {
+                e.target.style.display = 'none';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
         });
     });
 
-    // Sound Toggle Logic
     document.getElementById('sound-btn').addEventListener('click', () => {
         isMuted = !isMuted; 
         const btn = document.getElementById('sound-btn');
@@ -683,15 +656,15 @@
             btn.style.borderColor = 'rgba(255, 165, 0, 0.5)';
             btn.style.background = 'rgba(255, 165, 0, 0.2)';
             bgMusic.pause();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         } else {
             btn.innerText = '🔊 Sound';
-            btn.style.borderColor = 'rgba(255, 167, 38, 0.6)';
-            btn.style.background = 'rgba(255, 167, 38, 0.3)';
+            btn.style.borderColor = 'rgba(237, 143, 3, 0.8)';
+            btn.style.background = 'rgba(237, 143, 3, 0.5)';
             bgMusic.play().catch(e => console.log("Audio play failed:", e));
         }
     });
 
-    // Reset Button Logic
     document.getElementById('reset-btn').addEventListener('click', () => {
         if (confirm("Are you sure you want to reset all progress? Your savanna will be permanently cleared.")) {
             localStorage.removeItem("savannaHearts");
@@ -702,23 +675,21 @@
         }
     });
 
-    // --- Init ---
     document.getElementById('start-btn').addEventListener('click', () => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('ui-layer').style.display = 'flex';
-        
+
         if(audioCtx.state === 'suspended') audioCtx.resume();
-        
-        // Start background music
+
         if (!isMuted) {
             bgMusic.play().catch(e => console.log("Audio play failed:", e));
         }
 
         loadProgress();
-        
+
         const savedStatesJSON = localStorage.getItem("savannaStates");
         let loadedFromState = false;
-        
+
         if (savedStatesJSON) {
             const savedStates = JSON.parse(savedStatesJSON);
             if (savedStates.length === unlockedIds.length) {
@@ -729,7 +700,7 @@
                 loadedFromState = true;
             }
         }
-        
+
         if (!loadedFromState) {
             unlockedIds.forEach(id => {
                 const animal = animalData.find(a => a.id === id);
@@ -745,5 +716,4 @@
 
 </script>
 </body>
-© Kenneth Kwok Whatsapp:+85264963210
 </html>

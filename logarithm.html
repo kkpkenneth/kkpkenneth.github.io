@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Logarithm Odyssey - 100 Mastery Levels</title>
+    <title>The Logarithm Odyssey - Three Mastery Tiers</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -120,47 +120,51 @@
             margin-bottom: 20px;
         }
 
-        .level-grid {
+        .level-cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-            gap: 8px;
-            max-height: 350px;
-            overflow-y: auto;
-            padding-right: 5px;
+            grid-template-columns: 1fr;
+            gap: 15px;
             margin-bottom: 20px;
         }
 
-        .level-grid::-webkit-scrollbar {
-            width: 6px;
-        }
-        .level-grid::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
-        .level-tile {
+        .tier-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-            padding: 10px 0;
-            text-align: center;
-            border-radius: 8px;
-            font-weight: 600;
+            border-radius: 12px;
+            padding: 18px 20px;
+            text-align: left;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .level-tile:hover {
-            background: var(--accent);
-            color: #0f172a;
+        .tier-card:hover {
+            background: rgba(56, 189, 248, 0.15);
             border-color: var(--accent);
+            transform: translateY(-2px);
         }
 
-        .level-tile.completed {
-            background: rgba(74, 222, 128, 0.15);
-            border-color: var(--success);
-            color: var(--success);
+        .tier-info h3 {
+            color: var(--accent);
+            margin-bottom: 4px;
+            font-size: 1.2rem;
+        }
+
+        .tier-info p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            color: var(--text-muted);
+        }
+
+        .tier-badge {
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
         /* Quiz Screen */
@@ -247,6 +251,10 @@
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
+        }
+
+        .option-btn.tf-btn {
+            grid-column: span 1;
         }
 
         .option-btn:hover:not(:disabled) {
@@ -369,25 +377,47 @@
     <div class="container">
         <div id="start-screen" class="card">
             <h1>Logarithm Odyssey</h1>
-            <p>Master logarithms with rich question variations (Standard evaluations, True/False property checks, Expansions, and Complex Equations) guided by dedicated rule pop-ups before each concept!</p>
+            <p>Master logarithms across 3 progressive mastery tiers! Each level features 100 dedicated questions ranging from absolute fundamentals to expert-level equations.</p>
             <div class="btn-group">
-                <button class="btn" onclick="startQuiz(0)">Begin Journey</button>
-                <button class="btn secondary" onclick="openSelector()">Select Level</button>
+                <button class="btn" onclick="startTier(0)">Start Level 1</button>
+                <button class="btn secondary" onclick="openSelector()">Choose Tier</button>
             </div>
         </div>
 
         <div id="selector-screen" class="card">
             <div class="selector-header">
-                <h2>Select Level</h2>
+                <h2>Select Mastery Level</h2>
                 <button class="text-btn" onclick="backToStart()">Back to Home</button>
             </div>
-            <p>Choose any unlocked or completed level to practice.</p>
-            <div class="level-grid" id="level-grid-container"></div>
+            <p>Pick your tier to begin or practice.</p>
+            <div class="level-cards-grid">
+                <div class="tier-card" onclick="startTier(0)">
+                    <div class="tier-info">
+                        <h3>Level 1</h3>
+                        <p>Fundamental Conversions & Core Identities</p>
+                    </div>
+                    <span class="tier-badge">100 Qs</span>
+                </div>
+                <div class="tier-card" onclick="startTier(1)">
+                    <div class="tier-info">
+                        <h3>Level 2 (Intermediate)</h3>
+                        <p>Product, Quotient & Power Laws</p>
+                    </div>
+                    <span class="tier-badge">100 Qs</span>
+                </div>
+                <div class="tier-card" onclick="startTier(2)">
+                    <div class="tier-info">
+                        <h3>Level 3 (Advanced)</h3>
+                        <p>Fractional Bases, Radicals & Complex Equations</p>
+                    </div>
+                    <span class="tier-badge">100 Qs</span>
+                </div>
+            </div>
         </div>
 
         <div id="quiz-screen" class="card">
             <div class="quiz-header">
-                <span id="level-indicator">Level 1 / 100</span>
+                <span id="level-indicator">Level 1 - Question 1 / 100</span>
                 <span id="score-indicator">Score: 0</span>
             </div>
             <div class="progress-bar-container">
@@ -400,27 +430,27 @@
                 <button class="btn small" id="next-btn" onclick="proceedToNext()">Next Question &rarr;</button>
             </div>
             <div class="quiz-footer-nav" style="margin-top: 25px;">
-                <button class="text-btn" onclick="openSelector()">Level Map</button>
+                <button class="text-btn" onclick="openSelector()">Tier Selector</button>
                 <button class="text-btn" onclick="backToStart()">Exit to Home</button>
             </div>
         </div>
 
         <div id="completion-screen" class="card">
-            <h1>Congratulations!</h1>
-            <p>You have conquered all 100 levels of the Logarithm Odyssey.</p>
+            <h1>Tier Completed!</h1>
+            <p id="completion-msg">You have conquered all 100 questions in this level.</p>
             <div class="stats-box" id="final-stats"></div>
             <div class="btn-group">
-                <button class="btn" onclick="startQuiz(0)">Play Again</button>
-                <button class="btn secondary" onclick="openSelector()">Level Map</button>
+                <button class="btn" onclick="openSelector()">Tier Selector</button>
+                <button class="btn secondary" onclick="backToStart()">Home</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="rule-modal">
         <div class="modal-content">
-            <h2 class="modal-title" id="modal-title">New Concept Unlocked!</h2>
+            <h2 class="modal-title" id="modal-title">Concept Explanation</h2>
             <div class="modal-body" id="modal-body">Rule text goes here...</div>
-            <button class="btn" onclick="closeModal()">Got it, let's continue!</button>
+            <button class="btn" onclick="closeModal()">Got it, let's start!</button>
         </div>
     </div>
 
@@ -484,36 +514,39 @@
             }
         }
 
-        // Expanded 100 Progressive Questions spanning Multiple Question Types
-        function generateQuestions() {
+        // Generate Level 1 (100 Questions: Fundamental exponential conversion & core identities)
+        function generateLevel1() {
             const list = [];
-            
             for (let i = 1; i <= 100; i++) {
-                // Phase 1: Basic Evaluation & Exponential Conversion (Levels 1-20)
-                if (i <= 20) {
-                    let base = (i % 3 === 0) ? 3 : (i % 2 === 0) ? 2 : 5;
-                    let exp = (i % 4) + 1;
-                    let val = Math.pow(base, exp);
-                    if (i % 2 === 0) {
-                        list.push({
-                            type: "multiple",
-                            q: `What is log<sub>${base}</sub>(${val})?`,
-                            options: [exp, exp + 1, Math.max(1, exp - 1), exp * 2],
-                            correct: exp,
-                            explanation: `Since ${base}<sup>${exp}</sup> = ${val}, log<sub>${base}</sub>(${val}) = ${exp}.`
-                        });
-                    } else {
-                        list.push({
-                            type: "multiple",
-                            q: `If ${base}<sup>x</sup> = ${val}, what is x?`,
-                            options: [exp, exp - 1, exp + 1, val],
-                            correct: exp,
-                            explanation: `Rewriting as logarithmic form gives log<sub>${base}</sub>(${val}) = x, which evaluates to ${exp}.`
-                        });
-                    }
-                } 
-                // Phase 2: True / False Property Checking (Levels 21-40)
-                else if (i <= 40) {
+                let base = (i % 3 === 0) ? 3 : (i % 2 === 0) ? 2 : 5;
+                let exp = (i % 4) + 1;
+                let val = Math.pow(base, exp);
+                if (i % 2 === 0) {
+                    list.push({
+                        type: "multiple",
+                        q: `What is log<sub>${base}</sub>(${val})?`,
+                        options: [exp, exp + 1, Math.max(1, exp - 1), exp * 2],
+                        correct: exp,
+                        explanation: `Since ${base}<sup>${exp}</sup> = ${val}, log<sub>${base}</sub>(${val}) = ${exp}.`
+                    });
+                } else {
+                    list.push({
+                        type: "multiple",
+                        q: `If ${base}<sup>x</sup> = ${val}, what is x?`,
+                        options: [exp, exp - 1, exp + 1, val],
+                        correct: exp,
+                        explanation: `Rewriting as logarithmic form gives log<sub>${base}</sub>(${val}) = x, which evaluates to ${exp}.`
+                    });
+                }
+            }
+            return list;
+        }
+
+        // Generate Level 2 (100 Questions: Intermediate True/False checks and Product, Quotient & Power Laws)
+        function generateLevel2() {
+            const list = [];
+            for (let i = 1; i <= 100; i++) {
+                if (i <= 50) {
                     let isTrue = (i % 2 === 0);
                     if (isTrue) {
                         list.push({
@@ -532,10 +565,8 @@
                             explanation: `False! The product rule states log<sub>b</sub>(xy) = log<sub>b</sub>(x) + log<sub>b</sub>(y). Addition inside does not split into addition outside.`
                         });
                     }
-                }
-                // Phase 3: Product, Quotient & Power Laws (Levels 41-65)
-                else if (i <= 65) {
-                    if (i % 3 === 0) {
+                } else {
+                    if (i % 2 === 0) {
                         list.push({
                             type: "multiple",
                             q: `Simplify & Evaluate: log<sub>2</sub>(4) + log<sub>2</sub>(8)`,
@@ -543,7 +574,7 @@
                             correct: 5,
                             explanation: `Using the Product Rule log<sub>b</sub>(x) + log<sub>b</sub>(y) = log<sub>b</sub>(xy), this becomes log<sub>2</sub>(32) = 5.`
                         });
-                    } else if (i % 3 === 1) {
+                    } else {
                         list.push({
                             type: "multiple",
                             q: `Evaluate: log<sub>3</sub>(81) - log<sub>3</sub>(9)`,
@@ -551,7 +582,28 @@
                             correct: 2,
                             explanation: `Using the Quotient Rule log<sub>b</sub>(x) - log<sub>b</sub>(y) = log<sub>b</sub>(x / y), this gives log<sub>3</sub>(81 / 9) = log<sub>3</sub>(9) = 2.`
                         });
-                    } else {
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Generate Level 3 (100 Questions: Advanced fractional exponents, radicals, change of base, and complex equations)
+        function generateLevel3() {
+            const list = [];
+            for (let i = 1; i <= 100; i++) {
+                if (i <= 25) {
+                    let denomExp = (i % 3) + 1;
+                    let denom = Math.pow(2, denomExp);
+                    list.push({
+                        type: "multiple",
+                        q: `Evaluate: log<sub>2</sub>(1 / ${denom})`,
+                        options: [-denomExp, denomExp, 0, -1],
+                        correct: -denomExp,
+                        explanation: `Since 2<sup>-${denomExp}</sup> = 1 / ${denom}, the logarithm evaluates to -${denomExp}.`
+                    });
+                } else if (i <= 50) {
+                    if (i % 2 === 0) {
                         let exp = (i % 3) + 3;
                         list.push({
                             type: "multiple",
@@ -560,37 +612,41 @@
                             correct: exp,
                             explanation: `Using log<sub>b</sub>(x<sup>k</sup>) = k &middot; log<sub>b</sub>(x), this simplifies to ${exp} &middot; log<sub>2</sub>(2) = ${exp}.`
                         });
+                    } else {
+                        list.push({
+                            type: "multiple",
+                            q: `Evaluate: log<sub>3</sub>(&radic;3)`,
+                            options: ["0.5", "1", "2", "1.5"],
+                            correct: "0.5",
+                            explanation: `Since &radic;3 = 3<sup>1/2</sup>, log<sub>3</sub>(3<sup>1/2</sup>) = 0.5.`
+                        });
                     }
-                }
-                // Phase 4: Fill-in / Multi-select expansion matching (Levels 66-85)
-                else if (i <= 85) {
+                } else if (i <= 75) {
                     if (i % 2 === 0) {
                         list.push({
                             type: "multiple",
-                            q: `Evaluate: log<sub>4</sub>(64)`,
+                            q: `Evaluate via Change of Base: log<sub>4</sub>(64)`,
                             options: [3, 2, 4, 16],
                             correct: 3,
-                            explanation: `Since 4<sup>3</sup> = 64, log<sub>4</sub>(64) = 3. Using change of base: log<sub>2</sub>(64) / log<sub>2</sub>(4) = 6 / 2 = 3.`
+                            explanation: `Since 4<sup>3</sup> = 64, log<sub>4</sub>(64) = 3. Alternatively, log<sub>2</sub>(64) / log<sub>2</sub>(4) = 6 / 2 = 3.`
                         });
                     } else {
                         list.push({
-                            type: "tf",
-                            q: `True or False: log<sub>b</sub>(x<sup>k</sup>) = k &middot; log<sub>b</sub>(x)`,
-                            options: ["True", "False"],
-                            correct: "True",
-                            explanation: `True! This is the fundamental Power Property of logarithms.`
+                            type: "multiple",
+                            q: `Evaluate: log<sub>9</sub>(81) + log<sub>2</sub>(16)`,
+                            options: [6, 8, 4, 10],
+                            correct: 6,
+                            explanation: `Evaluate each part: log<sub>9</sub>(81) = 2 and log<sub>2</sub>(16) = 4. Sum = 2 + 4 = 6.`
                         });
                     }
-                }
-                // Phase 5: Expert Equations & Advanced Manipulations (Levels 86-100)
-                else {
+                } else {
                     if (i % 3 === 0) {
                         list.push({
                             type: "multiple",
                             q: `Solve for x: log<sub>5</sub>(x) = 3`,
                             options: [125, 25, 625, 15],
                             correct: 125,
-                            explanation: `Converting to exponential form: x = 5<sup>3</sup> = 125.`
+                            explanation: `Converting to exponential form yields x = 5<sup>3</sup> = 125.`
                         });
                     } else if (i % 3 === 1) {
                         list.push({
@@ -598,7 +654,7 @@
                             q: `Solve for b: log<sub>b</sub>(32) = 5`,
                             options: [2, 4, 8, 3],
                             correct: 2,
-                            explanation: `Rewriting as an exponential equation: b<sup>5</sup> = 32, so b = 2.`
+                            explanation: `Rewriting as an exponential equation gives b<sup>5</sup> = 32, so b = 2.`
                         });
                     } else {
                         list.push({
@@ -611,37 +667,28 @@
                     }
                 }
             }
-
             return list;
         }
 
-        const questions = generateQuestions();
-        let currentLevel = 0;
+        const tiers = [generateLevel1(), generateLevel2(), generateLevel3()];
+        let currentTier = 0;
+        let currentQuestionIndex = 0;
         let score = 0;
         let lockClicks = false;
-        let completedLevels = JSON.parse(localStorage.getItem('log_completed') || '{}');
 
-        // Detailed Rule Pop-ups before each concept shift / question type
-        const ruleMilestones = {
+        // Rule Pop-ups shown before starting each tier
+        const tierExplanations = {
             0: {
-                title: "Concept Unlocked: Core Logarithms",
-                text: "A logarithm answers the question: <b>'To what power must I raise base b to get x?'</b><br><br>If b<sup>y</sup> = x, then <b>log<sub>b</sub>(x) = y</b>."
+                title: "Level 1 Masterclass: Fundamentals",
+                text: "Welcome to Level 1! You will tackle 100 foundational questions covering exponential conversions, basic evaluations, and core logarithmic definitions."
             },
-            20: {
-                title: "Concept Unlocked: True/False Property Checks",
-                text: "In this phase, you will verify fundamental algebraic laws of logarithms. Watch out for common traps like splitting addition inside logarithms!"
+            1: {
+                title: "Level 2 Masterclass: Intermediate Laws",
+                text: "Welcome to Level 2 (Intermediate)! You will tackle 100 questions verifying true/false properties and applying product and quotient addition/subtraction rules."
             },
-            40: {
-                title: "Concept Unlocked: Product, Quotient & Power Laws",
-                text: "Review the three major operational laws:<br>1. <b>Product:</b> log(xy) = log(x) + log(y)<br>2. <b>Quotient:</b> log(x/y) = log(x) - log(y)<br>3. <b>Power:</b> log(x<sup>k</sup>) = k &middot; log(x)."
-            },
-            65: {
-                title: "Concept Unlocked: Advanced Base Conversions",
-                text: "Combine your knowledge of change of base formulas and exponent rules to evaluate complex numbers and confirm identities."
-            },
-            85: {
-                title: "Concept Unlocked: Expert Equations & Multiplications",
-                text: "Master solving for unknown variables (like base <i>b</i> or argument <i>x</i>) by converting back and forth between logarithmic and exponential forms!"
+            2: {
+                title: "Level 3 Masterclass: Advanced Techniques",
+                text: "Welcome to Level 3 (Advanced)! You will tackle 100 expert questions involving negative exponents, fractional powers, radical arguments, change-of-base formulas, and solving unknown equations."
             }
         };
 
@@ -659,42 +706,27 @@
             document.getElementById('quiz-screen').style.display = 'none';
             document.getElementById('completion-screen').style.display = 'none';
             document.getElementById('selector-screen').style.display = 'block';
-            
-            const grid = document.getElementById('level-grid-container');
-            grid.innerHTML = '';
-            
-            for (let i = 0; i < 100; i++) {
-                const tile = document.createElement('div');
-                tile.className = 'level-tile';
-                tile.innerText = i + 1;
-                if (completedLevels[i]) {
-                    tile.classList.add('completed');
-                }
-                tile.onclick = () => startQuiz(i);
-                grid.appendChild(tile);
-            }
         }
 
-        function startQuiz(levelIndex) {
+        function startTier(tierIndex) {
             playSound('click');
-            currentLevel = levelIndex;
+            currentTier = tierIndex;
+            currentQuestionIndex = 0;
+            score = 0;
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('selector-screen').style.display = 'none';
             document.getElementById('completion-screen').style.display = 'none';
             document.getElementById('quiz-screen').style.display = 'block';
-            checkAndShowRule(currentLevel);
+            
+            showTierExplanation(tierIndex);
         }
 
-        function checkAndShowRule(levelIndex) {
-            if (ruleMilestones[levelIndex]) {
-                playSound('popup');
-                const rule = ruleMilestones[levelIndex];
-                document.getElementById('modal-title').innerText = rule.title;
-                document.getElementById('modal-body').innerHTML = rule.text;
-                document.getElementById('rule-modal').classList.add('active');
-            } else {
-                loadQuestion();
-            }
+        function showTierExplanation(tierIndex) {
+            playSound('popup');
+            const exp = tierExplanations[tierIndex];
+            document.getElementById('modal-title').innerText = exp.title;
+            document.getElementById('modal-body').innerHTML = exp.text;
+            document.getElementById('rule-modal').classList.add('active');
         }
 
         function closeModal() {
@@ -705,16 +737,17 @@
 
         function loadQuestion() {
             lockClicks = false;
-            if (currentLevel >= questions.length) {
+            const questions = tiers[currentTier];
+            if (currentQuestionIndex >= questions.length) {
                 showCompletion();
                 return;
             }
 
-            const qData = questions[currentLevel];
+            const qData = questions[currentQuestionIndex];
             
-            document.getElementById('level-indicator').innerText = `Level ${currentLevel + 1} / 100`;
+            document.getElementById('level-indicator').innerText = `Level ${currentTier + 1} - Question ${currentQuestionIndex + 1} / 100`;
             document.getElementById('score-indicator').innerText = `Score: ${score}`;
-            const progressPercent = ((currentLevel) / questions.length) * 100;
+            const progressPercent = (currentQuestionIndex / questions.length) * 100;
             document.getElementById('progress-bar').style.width = `${progressPercent}%`;
 
             document.getElementById('question-text').innerHTML = qData.q;
@@ -740,17 +773,13 @@
 
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
-            
-            // Adjust grid layout depending on question type (2x2 for multiple, 1x2 for True/False)
-            if (qData.type === "tf") {
-                optionsContainer.style.gridTemplateColumns = "1fr 1fr";
-            } else {
-                optionsContainer.style.gridTemplateColumns = "1fr 1fr";
-            }
 
             options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
+                if (qData.type === "tf") {
+                    btn.classList.add('tf-btn');
+                }
                 btn.innerText = opt;
                 btn.onclick = () => selectAnswer(opt, qData.correct, btn);
                 optionsContainer.appendChild(btn);
@@ -774,9 +803,7 @@
                 btnElement.classList.add('correct');
                 score += 10;
                 document.getElementById('score-indicator').innerText = `Score: ${score}`;
-                completedLevels[currentLevel] = true;
-                localStorage.setItem('log_completed', JSON.stringify(completedLevels));
-                document.getElementById('feedback-text').innerHTML = `<strong>Correct!</strong> ${questions[currentLevel].explanation}`;
+                document.getElementById('feedback-text').innerHTML = `<strong>Correct!</strong> ${tiers[currentTier][currentQuestionIndex].explanation}`;
             } else {
                 playSound('incorrect');
                 btnElement.classList.add('incorrect');
@@ -785,18 +812,14 @@
                         b.classList.add('correct');
                     }
                 });
-                document.getElementById('feedback-text').innerHTML = `<strong>Incorrect.</strong> ${questions[currentLevel].explanation}`;
+                document.getElementById('feedback-text').innerHTML = `<strong>Incorrect.</strong> ${tiers[currentTier][currentQuestionIndex].explanation}`;
             }
         }
 
         function proceedToNext() {
             playSound('click');
-            currentLevel++;
-            if (ruleMilestones[currentLevel]) {
-                checkAndShowRule(currentLevel);
-            } else {
-                loadQuestion();
-            }
+            currentQuestionIndex++;
+            loadQuestion();
         }
 
         function shuffleArray(array) {
@@ -810,7 +833,8 @@
         function showCompletion() {
             document.getElementById('quiz-screen').style.display = 'none';
             document.getElementById('completion-screen').style.display = 'block';
-            document.getElementById('final-stats').innerHTML = `Final Score: <b>${score}</b> / 1000<br>Mastery Level: 100% Logarithm Expert`;
+            document.getElementById('completion-msg').innerHTML = `You have conquered all 100 questions in Level ${currentTier + 1}!`;
+            document.getElementById('final-stats').innerHTML = `Final Score: <b>${score}</b> / 1000<br>Mastery Status: Complete`;
         }
     </script>
 </body>

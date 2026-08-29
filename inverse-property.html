@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Logarithm Odyssey - 100 Mastery Levels</title>
+    <title>Logarithm Odyssey - Inverse Property Rule Mastery</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -54,7 +54,7 @@
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.3rem;
             margin-bottom: 10px;
             color: var(--accent);
             text-shadow: 0 0 20px var(--accent-glow);
@@ -64,7 +64,7 @@
             color: var(--text-muted);
             margin-bottom: 25px;
             font-size: 1.05rem;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .btn-group {
@@ -87,12 +87,6 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .btn.secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: none;
-        }
-
         .btn.small {
             padding: 8px 20px;
             font-size: 0.95rem;
@@ -106,61 +100,6 @@
 
         .btn:active {
             transform: translateY(1px);
-        }
-
-        /* Level Selector Screen */
-        #selector-screen {
-            display: none;
-        }
-
-        .selector-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-            gap: 8px;
-            max-height: 350px;
-            overflow-y: auto;
-            padding-right: 5px;
-            margin-bottom: 20px;
-        }
-
-        .level-grid::-webkit-scrollbar {
-            width: 6px;
-        }
-        .level-grid::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
-        .level-tile {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-            padding: 10px 0;
-            text-align: center;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.95rem;
-        }
-
-        .level-tile:hover {
-            background: var(--accent);
-            color: #0f172a;
-            border-color: var(--accent);
-        }
-
-        .level-tile.completed {
-            background: rgba(74, 222, 128, 0.15);
-            border-color: var(--success);
-            color: var(--success);
         }
 
         /* Quiz Screen */
@@ -298,7 +237,7 @@
             line-height: 1.5;
         }
 
-        /* Modal Popup System for Rules */
+        /* Modal Popup System for Rule Explanation */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -368,26 +307,16 @@
 
     <div class="container">
         <div id="start-screen" class="card">
-            <h1>Logarithm Odyssey</h1>
-            <p>Master logarithms from absolute ground-zero basics up to expert-level expansions, fractional exponents, multi-base transformations, and complex equations across 100 progressive levels!</p>
+            <h1>Inverse Property Rule Masterclass</h1>
+            <p>Master compositions of exponential and logarithmic functions across 100 dedicated practice questions! Learn to instantly cancel operations using <b>b<sup>log<sub>b</sub>(x)</sup> = x</b> and <b>log<sub>b</sub>(b<sup>x</sup>) = x</b>.</p>
             <div class="btn-group">
-                <button class="btn" onclick="startQuiz(0)">Begin Journey</button>
-                <button class="btn secondary" onclick="openSelector()">Select Level</button>
+                <button class="btn" onclick="startQuiz()">Begin 100-Question Challenge</button>
             </div>
-        </div>
-
-        <div id="selector-screen" class="card">
-            <div class="selector-header">
-                <h2>Select Level</h2>
-                <button class="text-btn" onclick="backToStart()">Back to Home</button>
-            </div>
-            <p>Choose any unlocked or completed level to practice.</p>
-            <div class="level-grid" id="level-grid-container"></div>
         </div>
 
         <div id="quiz-screen" class="card">
             <div class="quiz-header">
-                <span id="level-indicator">Level 1 / 100</span>
+                <span id="level-indicator">Question 1 / 100</span>
                 <span id="score-indicator">Score: 0</span>
             </div>
             <div class="progress-bar-container">
@@ -400,27 +329,30 @@
                 <button class="btn small" id="next-btn" onclick="proceedToNext()">Next Question &rarr;</button>
             </div>
             <div class="quiz-footer-nav" style="margin-top: 25px;">
-                <button class="text-btn" onclick="openSelector()">Level Map</button>
                 <button class="text-btn" onclick="backToStart()">Exit to Home</button>
             </div>
         </div>
 
         <div id="completion-screen" class="card">
-            <h1>Congratulations!</h1>
-            <p>You have conquered all 100 levels of the Logarithm Odyssey.</p>
+            <h1>Challenge Completed!</h1>
+            <p>You have conquered all 100 questions on the Inverse Property Rule.</p>
             <div class="stats-box" id="final-stats"></div>
             <div class="btn-group">
-                <button class="btn" onclick="startQuiz(0)">Play Again</button>
-                <button class="btn secondary" onclick="openSelector()">Level Map</button>
+                <button class="btn" onclick="startQuiz()">Play Again</button>
+                <button class="btn secondary" onclick="backToStart()">Home</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="rule-modal">
         <div class="modal-content">
-            <h2 class="modal-title" id="modal-title">New Concept Unlocked!</h2>
-            <div class="modal-body" id="modal-body">Rule text goes here...</div>
-            <button class="btn" onclick="closeModal()">Got it, let's continue!</button>
+            <h2 class="modal-title">Inverse Property Rule Unlocked</h2>
+            <div class="modal-body">
+                Because exponents and logarithms are inverse functions, composing them cancels each other out when bases match!<br><br>
+                1. <b>b<sup>log<sub>b</sub>(x)</sup> = x</b> (Base raised to a log with the same base leaves just the argument <i>x</i>)<br><br>
+                2. <b>log<sub>b</sub>(b<sup>x</sup>) = x</b> (Logarithm of a base raised to an exponent leaves just the exponent <i>x</i>)
+            </div>
+            <button class="btn" onclick="closeModal()">Got it, let's start!</button>
         </div>
     </div>
 
@@ -484,45 +416,158 @@
             }
         }
 
-        // Expanded 100 Progressive Questions with High Variation & Expert Higher Levels
+        // Generate exactly 100 Inverse Property Rule Questions (mixing b^(log_b(x)) and log_b(b^x))
         function generateQuestions() {
             const list = [];
+            const bases = [2, 3, 5, 7, 10];
             
-            // Phase 1: Ground Zero Basics & Exponential Conversion (Levels 1-15)
-            for (let i = 1; i <= 15; i++) {
-                let base = (i % 3 === 0) ? 3 : (i % 2 === 0) ? 2 : 5;
-                let exp = (i % 4) + 1;
-                let val = Math.pow(base, exp);
+            for (let i = 1; i <= 100; i++) {
+                let base = bases[i % bases.length];
+                let val = (i * 3) % 45 + 1; // Variable argument numbers
+                
                 if (i % 2 === 0) {
+                    // Form: b^(log_b(x)) = x
                     list.push({
-                        q: `What is log<sub>${base}</sub>(${val})?`,
-                        options: [exp, exp + 1, Math.max(1, exp - 1), exp * 2],
-                        correct: exp,
-                        explanation: `Since ${base}<sup>${exp}</sup> = ${val}, log<sub>${base}</sub>(${val}) = ${exp}.`
+                        q: `Simplify: ${base}<sup>log<sub>${base}</sub>(${val})</sup>`,
+                        correct: val,
+                        explanation: `By the Inverse Property Rule, b<sup>log<sub>b</sub>(${val})</sup> = ${val} because the exponential base and logarithmic base cancel out.`
                     });
                 } else {
+                    // Form: log_b(b^x) = x
+                    let expVal = (i * 2) % 30 + 1;
                     list.push({
-                        q: `If ${base}<sup>x</sup> = ${val}, what is x?`,
-                        options: [exp, exp - 1, exp + 1, val],
-                        correct: exp,
-                        explanation: `Rewriting as logarithmic form gives log<sub>${base}</sub>(${val}) = x, which evaluates to ${exp}.`
+                        q: `Simplify: log<sub>${base}</sub>(${base}<sup>${expVal}</sup>)`,
+                        correct: expVal,
+                        explanation: `By the Inverse Property Rule, log<sub>${base}</sub>(${base}<sup>${expVal}</sup>) = ${expVal} because the logarithm and base exponent cancel out.`
                     });
                 }
             }
+            return list;
+        }
 
-            // Phase 2: Boundary Identities & Fractional Bases (Levels 16-30)
-            for (let i = 16; i <= 30; i++) {
-                if (i % 3 === 0) {
-                    let b = i;
-                    list.push({
-                        q: `Evaluate: log<sub>${b}</sub>(1)`,
-                        options: [0, 1, b, -1],
-                        correct: 0,
-                        explanation: `Any base raised to the power of 0 equals 1 (b<sup>0</sup> = 1), so log<sub>${b}</sub>(1) = 0.`
-                    });
-                } else if (i % 3 === 1) {
-                    let b = i - 1;
-                    list.push({
-                        q: `Evaluate: log<sub>${b}</sub>(${b})`,
-                        options: [1, 0, b, 2],
-                        correct:
+        const questions = generateQuestions();
+        let currentIndex = 0;
+        let score = 0;
+        let lockClicks = false;
+
+        function backToStart() {
+            playSound('click');
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'none';
+        }
+
+        function startQuiz() {
+            playSound('click');
+            currentIndex = 0;
+            score = 0;
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            
+            // Show rule popup before beginning
+            playSound('popup');
+            document.getElementById('rule-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('rule-modal').classList.remove('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            lockClicks = false;
+            if (currentIndex >= questions.length) {
+                showCompletion();
+                return;
+            }
+
+            const qData = questions[currentIndex];
+            
+            document.getElementById('level-indicator').innerText = `Question ${currentIndex + 1} / 100`;
+            document.getElementById('score-indicator').innerText = `Score: ${score}`;
+            const progressPercent = (currentIndex / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            document.getElementById('question-text').innerHTML = qData.q;
+            
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.style.display = 'none';
+            document.getElementById('feedback-text').innerHTML = '';
+
+            // Generate 4 plausible options including the correct answer
+            let options = [qData.correct];
+            while (options.length < 4) {
+                let offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() < 0.5 ? 1 : -1);
+                let decoy = qData.correct + offset;
+                if (decoy > 0 && !options.includes(decoy)) {
+                    options.push(decoy);
+                }
+            }
+            options = shuffleArray(options);
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(opt, qData.correct, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selected, correct, btnElement) {
+            if (lockClicks) return;
+            lockClicks = true;
+
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(b => b.disabled = true);
+
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.style.display = 'block';
+
+            const isCorrect = Number(selected) === Number(correct);
+
+            if (isCorrect) {
+                playSound('correct');
+                btnElement.classList.add('correct');
+                score += 10;
+                document.getElementById('score-indicator').innerText = `Score: ${score}`;
+                document.getElementById('feedback-text').innerHTML = `<strong>Correct!</strong> ${questions[currentIndex].explanation}`;
+            } else {
+                playSound('incorrect');
+                btnElement.classList.add('incorrect');
+                allButtons.forEach(b => {
+                    if (Number(b.innerText) === Number(correct)) {
+                        b.classList.add('correct');
+                    }
+                });
+                document.getElementById('feedback-text').innerHTML = `<strong>Incorrect.</strong> ${questions[currentIndex].explanation}`;
+            }
+        }
+
+        function proceedToNext() {
+            playSound('click');
+            currentIndex++;
+            loadQuestion();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showCompletion() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'block';
+            document.getElementById('final-stats').innerHTML = `Final Score: <b>${score}</b> / 1000<br>Mastery Status: Inverse Property Certified`;
+        }
+    </script>
+</body>
+</html>

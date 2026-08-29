@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Logarithm Odyssey - 100 Mastery Levels</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #4ade80;
+            --error: #f87171;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        .btn.small {
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            margin-top: 12px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Level Selector Screen */
+        #selector-screen {
+            display: none;
+        }
+
+        .selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 8px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+            margin-bottom: 20px;
+        }
+
+        .level-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .level-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .level-tile {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 10px 0;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .level-tile:hover {
+            background: var(--accent);
+            color: #0f172a;
+            border-color: var(--accent);
+        }
+
+        .level-tile.completed {
+            background: rgba(74, 222, 128, 0.15);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        /* Quiz Screen */
+        #quiz-screen {
+            display: none;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent);
+            width: 1%;
+            transition: width 0.4s ease;
+        }
+
+        .question-box {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        sup {
+            font-size: 0.65em;
+            vertical-align: 0.6em;
+            position: relative;
+            margin-left: 1px;
+            margin-right: 1px;
+            color: #7dd3fc;
+        }
+
+        sub {
+            font-size: 0.65em;
+            vertical-align: -0.4em;
+            position: relative;
+            margin-left: 1px;
+            margin-right: 1px;
+            color: var(--accent);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 16px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background-color: rgba(74, 222, 128, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .option-btn.incorrect {
+            background-color: rgba(248, 113, 113, 0.2);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .quiz-footer-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .text-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+        .text-btn:hover {
+            color: var(--text-main);
+        }
+
+        /* Explanation area */
+        .feedback-area {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--accent);
+            line-height: 1.5;
+        }
+
+        /* Modal Popup System for Rules */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .modal-body {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        /* Completion Screen */
+        #completion-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .stats-box {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="start-screen" class="card">
+            <h1>Logarithm Odyssey</h1>
+            <p>Master logarithms with rich question variations (Standard evaluations, True/False property checks, Expansions, and Complex Equations) guided by dedicated rule pop-ups before each concept!</p>
+            <div class="btn-group">
+                <button class="btn" onclick="startQuiz(0)">Begin Journey</button>
+                <button class="btn secondary" onclick="openSelector()">Select Level</button>
+            </div>
+        </div>
+
+        <div id="selector-screen" class="card">
+            <div class="selector-header">
+                <h2>Select Level</h2>
+                <button class="text-btn" onclick="backToStart()">Back to Home</button>
+            </div>
+            <p>Choose any unlocked or completed level to practice.</p>
+            <div class="level-grid" id="level-grid-container"></div>
+        </div>
+
+        <div id="quiz-screen" class="card">
+            <div class="quiz-header">
+                <span id="level-indicator">Level 1 / 100</span>
+                <span id="score-indicator">Score: 0</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="question-box" id="question-text">Loading question...</div>
+            <div class="options-grid" id="options-container"></div>
+            <div class="feedback-area" id="feedback-area">
+                <div id="feedback-text"></div>
+                <button class="btn small" id="next-btn" onclick="proceedToNext()">Next Question &rarr;</button>
+            </div>
+            <div class="quiz-footer-nav" style="margin-top: 25px;">
+                <button class="text-btn" onclick="openSelector()">Level Map</button>
+                <button class="text-btn" onclick="backToStart()">Exit to Home</button>
+            </div>
+        </div>
+
+        <div id="completion-screen" class="card">
+            <h1>Congratulations!</h1>
+            <p>You have conquered all 100 levels of the Logarithm Odyssey.</p>
+            <div class="stats-box" id="final-stats"></div>
+            <div class="btn-group">
+                <button class="btn" onclick="startQuiz(0)">Play Again</button>
+                <button class="btn secondary" onclick="openSelector()">Level Map</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="rule-modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modal-title">New Concept Unlocked!</h2>
+            <div class="modal-body" id="modal-body">Rule text goes here...</div>
+            <button class="btn" onclick="closeModal()">Got it, let's continue!</button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API Synthesizer for sound effects
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                    gainNode.gain.setValueAtTime(0.1, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'incorrect') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.linearRampToValueAtTime(120, now + 0.2);
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'popup') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                // Audio context handling fallback
+            }
+        }
+
+        // Expanded 100 Progressive Questions spanning Multiple Question Types
+        function generateQuestions() {
+            const list = [];
+            
+            for (let i = 1; i <= 100; i++) {
+                // Phase 1: Basic Evaluation & Exponential Conversion (Levels 1-20)
+                if (i <= 20) {
+                    let base = (i % 3 === 0) ? 3 : (i % 2 === 0) ? 2 : 5;
+                    let exp = (i % 4) + 1;
+                    let val = Math.pow(base, exp);
+                    if (i % 2 === 0) {
+                        list.push({
+                            type: "multiple",
+                            q: `What is log<sub>${base}</sub>(${val})?`,
+                            options: [exp, exp + 1, Math.max(1, exp - 1), exp * 2],
+                            correct: exp,
+                            explanation: `Since ${base}<sup>${exp}</sup> = ${val}, log<sub>${base}</sub>(${val}) = ${exp}.`
+                        });
+                    } else {
+                        list.push({
+                            type: "multiple",
+                            q: `If ${base}<sup>x</sup> = ${val}, what is x?`,
+                            options: [exp, exp - 1, exp + 1, val],
+                            correct: exp,
+                            explanation: `Rewriting as logarithmic form gives log<sub>${base}</sub>(${val}) = x, which evaluates to ${exp}.`
+                        });
+                    }
+                } 
+                // Phase 2: True / False Property Checking (Levels 21-40)
+                else if (i <= 40) {
+                    let isTrue = (i % 2 === 0);
+                    if (isTrue) {
+                        list.push({
+                            type: "tf",
+                            q: `True or False: log<sub>b</sub>(1) = 0 for any valid base b > 0, b &ne; 1.`,
+                            options: ["True", "False"],
+                            correct: "True",
+                            explanation: `True! Any valid base raised to the power of 0 yields 1 (b<sup>0</sup> = 1).`
+                        });
+                    } else {
+                        list.push({
+                            type: "tf",
+                            q: `True or False: log<sub>b</sub>(x + y) equals log<sub>b</sub>(x) + log<sub>b</sub>(y).`,
+                            options: ["True", "False"],
+                            correct: "False",
+                            explanation: `False! The product rule states log<sub>b</sub>(xy) = log<sub>b</sub>(x) + log<sub>b</sub>(y). Addition inside does not split into addition outside.`
+                        });
+                    }
+                }
+                // Phase 3: Product, Quotient & Power Laws (Levels 41-65)
+                else if (i <= 65) {
+                    if (i % 3 === 0) {
+                        list.push({
+                            type: "multiple",
+                            q: `Simplify & Evaluate: log<sub>2</sub>(4) + log<sub>2</sub>(8)`,
+                            options: [5, 6, 4, 3],
+                            correct: 5,
+                            explanation: `Using the Product Rule log<sub>b</sub>(x) + log<sub>b</sub>(y) = log<sub>b</sub>(xy), this becomes log<sub>2</sub>(32) = 5.`
+                        });
+                    } else if (i % 3 === 1) {
+                        list.push({
+                            type: "multiple",
+                            q: `Evaluate: log<sub>3</sub>(81) - log<sub>3</sub>(9)`,
+                            options: [2, 3, 1, 4],
+                            correct: 2,
+                            explanation: `Using the Quotient Rule log<sub>b</sub>(x) - log<sub>b</sub>(y) = log<sub>b</sub>(x / y), this gives log<sub>3</sub>(81 / 9) = log<sub>3</sub>(9) = 2.`
+                        });
+                    } else {
+                        let exp = (i % 3) + 3;
+                        list.push({
+                            type: "multiple",
+                            q: `Evaluate using Power Rule: log<sub>2</sub>(2<sup>${exp}</sup>)`,
+                            options: [exp, exp + 1, exp - 1, 2],
+                            correct: exp,
+                            explanation: `Using log<sub>b</sub>(x<sup>k</sup>) = k &middot; log<sub>b</sub>(x), this simplifies to ${exp} &middot; log<sub>2</sub>(2) = ${exp}.`
+                        });
+                    }
+                }
+                // Phase 4: Fill-in / Multi-select expansion matching (Levels 66-85)
+                else if (i <= 85) {
+                    if (i % 2 === 0) {
+                        list.push({
+                            type: "multiple",
+                            q: `Evaluate: log<sub>4</sub>(64)`,
+                            options: [3, 2, 4, 16],
+                            correct: 3,
+                            explanation: `Since 4<sup>3</sup> = 64, log<sub>4</sub>(64) = 3. Using change of base: log<sub>2</sub>(64) / log<sub>2</sub>(4) = 6 / 2 = 3.`
+                        });
+                    } else {
+                        list.push({
+                            type: "tf",
+                            q: `True or False: log<sub>b</sub>(x<sup>k</sup>) = k &middot; log<sub>b</sub>(x)`,
+                            options: ["True", "False"],
+                            correct: "True",
+                            explanation: `True! This is the fundamental Power Property of logarithms.`
+                        });
+                    }
+                }
+                // Phase 5: Expert Equations & Advanced Manipulations (Levels 86-100)
+                else {
+                    if (i % 3 === 0) {
+                        list.push({
+                            type: "multiple",
+                            q: `Solve for x: log<sub>5</sub>(x) = 3`,
+                            options: [125, 25, 625, 15],
+                            correct: 125,
+                            explanation: `Converting to exponential form: x = 5<sup>3</sup> = 125.`
+                        });
+                    } else if (i % 3 === 1) {
+                        list.push({
+                            type: "multiple",
+                            q: `Solve for b: log<sub>b</sub>(32) = 5`,
+                            options: [2, 4, 8, 3],
+                            correct: 2,
+                            explanation: `Rewriting as an exponential equation: b<sup>5</sup> = 32, so b = 2.`
+                        });
+                    } else {
+                        list.push({
+                            type: "multiple",
+                            q: `Evaluate: log<sub>2</sub>(8) &times; log<sub>3</sub>(27)`,
+                            options: [9, 6, 12, 18],
+                            correct: 9,
+                            explanation: `Since log<sub>2</sub>(8) = 3 and log<sub>3</sub>(27) = 3, multiplying them gives 3 &times; 3 = 9.`
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        const questions = generateQuestions();
+        let currentLevel = 0;
+        let score = 0;
+        let lockClicks = false;
+        let completedLevels = JSON.parse(localStorage.getItem('log_completed') || '{}');
+
+        // Detailed Rule Pop-ups before each concept shift / question type
+        const ruleMilestones = {
+            0: {
+                title: "Concept Unlocked: Core Logarithms",
+                text: "A logarithm answers the question: <b>'To what power must I raise base b to get x?'</b><br><br>If b<sup>y</sup> = x, then <b>log<sub>b</sub>(x) = y</b>."
+            },
+            20: {
+                title: "Concept Unlocked: True/False Property Checks",
+                text: "In this phase, you will verify fundamental algebraic laws of logarithms. Watch out for common traps like splitting addition inside logarithms!"
+            },
+            40: {
+                title: "Concept Unlocked: Product, Quotient & Power Laws",
+                text: "Review the three major operational laws:<br>1. <b>Product:</b> log(xy) = log(x) + log(y)<br>2. <b>Quotient:</b> log(x/y) = log(x) - log(y)<br>3. <b>Power:</b> log(x<sup>k</sup>) = k &middot; log(x)."
+            },
+            65: {
+                title: "Concept Unlocked: Advanced Base Conversions",
+                text: "Combine your knowledge of change of base formulas and exponent rules to evaluate complex numbers and confirm identities."
+            },
+            85: {
+                title: "Concept Unlocked: Expert Equations & Multiplications",
+                text: "Master solving for unknown variables (like base <i>b</i> or argument <i>x</i>) by converting back and forth between logarithmic and exponential forms!"
+            }
+        };
+
+        function backToStart() {
+            playSound('click');
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('selector-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'none';
+        }
+
+        function openSelector() {
+            playSound('click');
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'none';
+            document.getElementById('selector-screen').style.display = 'block';
+            
+            const grid = document.getElementById('level-grid-container');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'level-tile';
+                tile.innerText = i + 1;
+                if (completedLevels[i]) {
+                    tile.classList.add('completed');
+                }
+                tile.onclick = () => startQuiz(i);
+                grid.appendChild(tile);
+            }
+        }
+
+        function startQuiz(levelIndex) {
+            playSound('click');
+            currentLevel = levelIndex;
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('selector-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            checkAndShowRule(currentLevel);
+        }
+
+        function checkAndShowRule(levelIndex) {
+            if (ruleMilestones[levelIndex]) {
+                playSound('popup');
+                const rule = ruleMilestones[levelIndex];
+                document.getElementById('modal-title').innerText = rule.title;
+                document.getElementById('modal-body').innerHTML = rule.text;
+                document.getElementById('rule-modal').classList.add('active');
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('rule-modal').classList.remove('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            lockClicks = false;
+            if (currentLevel >= questions.length) {
+                showCompletion();
+                return;
+            }
+
+            const qData = questions[currentLevel];
+            
+            document.getElementById('level-indicator').innerText = `Level ${currentLevel + 1} / 100`;
+            document.getElementById('score-indicator').innerText = `Score: ${score}`;
+            const progressPercent = ((currentLevel) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            document.getElementById('question-text').innerHTML = qData.q;
+            
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.style.display = 'none';
+            document.getElementById('feedback-text').innerHTML = '';
+
+            let options = [...qData.options];
+            if (qData.type !== "tf") {
+                if (!options.includes(qData.correct)) {
+                    options[0] = qData.correct;
+                }
+                options = shuffleArray([...new Set(options)]);
+                while(options.length < 4) {
+                    let extra = typeof qData.correct === 'number' ? qData.correct + options.length + 1 : 99;
+                    if(!options.includes(extra)) options.push(extra);
+                    else break;
+                }
+                options = options.slice(0, 4);
+                options = shuffleArray(options);
+            }
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            // Adjust grid layout depending on question type (2x2 for multiple, 1x2 for True/False)
+            if (qData.type === "tf") {
+                optionsContainer.style.gridTemplateColumns = "1fr 1fr";
+            } else {
+                optionsContainer.style.gridTemplateColumns = "1fr 1fr";
+            }
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(opt, qData.correct, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selected, correct, btnElement) {
+            if (lockClicks) return;
+            lockClicks = true;
+
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(b => b.disabled = true);
+
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.style.display = 'block';
+
+            const isCorrect = String(selected) === String(correct);
+
+            if (isCorrect) {
+                playSound('correct');
+                btnElement.classList.add('correct');
+                score += 10;
+                document.getElementById('score-indicator').innerText = `Score: ${score}`;
+                completedLevels[currentLevel] = true;
+                localStorage.setItem('log_completed', JSON.stringify(completedLevels));
+                document.getElementById('feedback-text').innerHTML = `<strong>Correct!</strong> ${questions[currentLevel].explanation}`;
+            } else {
+                playSound('incorrect');
+                btnElement.classList.add('incorrect');
+                allButtons.forEach(b => {
+                    if (String(b.innerText) === String(correct)) {
+                        b.classList.add('correct');
+                    }
+                });
+                document.getElementById('feedback-text').innerHTML = `<strong>Incorrect.</strong> ${questions[currentLevel].explanation}`;
+            }
+        }
+
+        function proceedToNext() {
+            playSound('click');
+            currentLevel++;
+            if (ruleMilestones[currentLevel]) {
+                checkAndShowRule(currentLevel);
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showCompletion() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'block';
+            document.getElementById('final-stats').innerHTML = `Final Score: <b>${score}</b> / 1000<br>Mastery Level: 100% Logarithm Expert`;
+        }
+    </script>
+</body>
+</html>

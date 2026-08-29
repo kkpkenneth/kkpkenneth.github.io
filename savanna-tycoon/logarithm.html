@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Logarithm Odyssey - 100 Mastery Levels</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #4ade80;
+            --error: #f87171;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Quiz Screen */
+        #quiz-screen {
+            display: none;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent);
+            width: 1%;
+            transition: width 0.4s ease;
+        }
+
+        .question-box {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Enhanced Math Typography styling with proper vertical shift and scaling */
+        sup {
+            font-size: 0.65em;
+            vertical-align: 0.6em;
+            position: relative;
+            margin-left: 1px;
+            margin-right: 1px;
+            color: #7dd3fc;
+        }
+
+        sub {
+            font-size: 0.65em;
+            vertical-align: -0.4em;
+            position: relative;
+            margin-left: 1px;
+            margin-right: 1px;
+            color: var(--accent);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 16px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background-color: rgba(74, 222, 128, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .option-btn.incorrect {
+            background-color: rgba(248, 113, 113, 0.2);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        /* Explanation area */
+        .feedback-area {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--accent);
+            line-height: 1.5;
+        }
+
+        /* Modal Popup System for Rules */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .modal-body {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        /* Completion Screen */
+        #completion-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .stats-box {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="card">
+            <h1>Logarithm Odyssey</h1>
+            <p>Master logarithms from absolute ground-zero basics up to expert-level expansions and equations across 100 progressive levels. Interactive rule pop-ups will guide your journey!</p>
+            <button class="btn" onclick="startQuiz()">Begin Journey</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="card">
+            <div class="quiz-header">
+                <span id="level-indicator">Level 1 / 100</span>
+                <span id="score-indicator">Score: 0</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="question-box" id="question-text">Loading question...</div>
+            <div class="options-grid" id="options-container"></div>
+            <div class="feedback-area" id="feedback-area"></div>
+        </div>
+
+        <!-- Completion Screen -->
+        <div id="completion-screen" class="card">
+            <h1>Congratulations!</h1>
+            <p>You have conquered all 100 levels of the Logarithm Odyssey.</p>
+            <div class="stats-box" id="final-stats"></div>
+            <button class="btn" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Rule Pop-up Modal -->
+    <div class="modal-overlay" id="rule-modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modal-title">New Concept Unlocked!</h2>
+            <div class="modal-body" id="modal-body">Rule text goes here...</div>
+            <button class="btn" onclick="closeModal()">Got it, let's continue!</button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API Synthesizer for sound effects
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                    gainNode.gain.setValueAtTime(0.1, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'incorrect') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.linearRampToValueAtTime(120, now + 0.2);
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'popup') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                // Audio context handling fallback
+            }
+        }
+
+        // Question Bank Generator (100 Progressive Questions with Explicitly Styled Superscripts)
+        function generateQuestions() {
+            const list = [];
+            
+            // Phase 1: Basic Exponential-Logarithmic equivalency & Core Identities (Levels 1-20)
+            for (let i = 1; i <= 20; i++) {
+                let base = (i % 3 === 0) ? 3 : (i % 5 === 0) ? 5 : 2;
+                if (i > 15) base = 10;
+                let exp = Math.floor(i / 4) + 1;
+                let val = Math.pow(base, exp);
+                
+                if (i % 2 === 0) {
+                    list.push({
+                        q: `What is log<sub>${base}</sub>(${val})?`,
+                        options: [exp, exp + 1, Math.max(0, exp - 1), exp * 2],
+                        correct: exp,
+                        explanation: `Since ${base}<sup>${exp}</sup> = ${val}, the logarithm log<sub>${base}</sub>(${val}) equals ${exp}.`
+                    });
+                } else {
+                    list.push({
+                        q: `If ${base}<sup>x</sup> = ${val}, what is x?`,
+                        options: [exp, exp - 1, exp + 1, val],
+                        correct: exp,
+                        explanation: `Rewriting in logarithmic form: log<sub>${base}</sub>(${val}) = x, which evaluates to ${exp}.`
+                    });
+                }
+            }
+
+            // Phase 2: Logarithm of 1 and Base Identity Rules (Levels 21-35)
+            for (let i = 21; i <= 35; i++) {
+                let b = (i % 2 === 0) ? 7 : 4;
+                if (i % 3 === 0) {
+                    list.push({
+                        q: `Evaluate: log<sub>${b}</sub>(1)`,
+                        options: [0, 1, b, -1],
+                        correct: 0,
+                        explanation: `Any base raised to the power of 0 equals 1 (b<sup>0</sup> = 1), so log<sub>${b}</sub>(1) = 0.`
+                    });
+                } else if (i % 3 === 1) {
+                    list.push({
+                        q: `Evaluate: log<sub>${b}</sub>(${b})`,
+                        options: [1, 0, b, b * b],
+                        correct: 1,
+                        explanation: `Any number to the power of 1 equals itself (b<sup>1</sup> = b), so log<sub>${b}</sub>(${b}) = 1.`
+                    });
+                } else {
+                    let p = (i % 4) + 2;
+                    let b_pow = Math.pow(b, p);
+                    list.push({
+                        q: `Evaluate: log<sub>${b}</sub>(${b_pow})`,
+                        options: [p, p - 1, p + 1, b],
+                        correct: p,
+                        explanation: `Since ${b}<sup>${p}</sup> = ${b_pow}, the answer is ${p}.`
+                    });
+                }
+            }
+
+            // Phase 3: Product Rule: log(a) + log(b) = log(ab) (Levels 36-50)
+            for (let i = 36; i <= 50; i++) {
+                let b = 2;
+                let x = (i % 2 === 0) ? 2 : 4;
+                let y = (i % 3 === 0) ? 4 : 8;
+                let ans = Math.round(Math.log2(x) + Math.log2(y));
+                list.push({
+                    q: `Simplify & Evaluate: log<sub>${b}</sub>(${x}) + log<sub>${b}</sub>(${y})`,
+                    options: [ans, ans + 1, Math.max(0, ans - 1), ans * 2],
+                    correct: ans,
+                    explanation: `Using the Product Rule log<sub>${b}</sub>(x) + log<sub>${b}</sub>(y) = log<sub>${b}</sub>(xy), this becomes log<sub>2</sub>(${x} &times; ${y}) = log<sub>2</sub>(${x * y}) = ${ans}.`
+                });
+            }
+
+            // Phase 4: Quotient Rule: log(a) - log(b) = log(a/b) (Levels 51-65)
+            for (let i = 51; i <= 65; i++) {
+                let b = 3;
+                let numer = Math.pow(3, (i % 2) + 3); 
+                let denom = Math.pow(3, i % 2); 
+                let resVal = numer / denom;
+                let ans = Math.round(Math.log(resVal) / Math.log(3));
+                list.push({
+                    q: `Evaluate: log<sub>${b}</sub>(${numer}) - log<sub>${b}</sub>(${denom})`,
+                    options: [ans, ans + 1, Math.max(0, ans - 1), ans + 2],
+                    correct: ans,
+                    explanation: `Using the Quotient Rule log<sub>${b}</sub>(x) - log<sub>${b}</sub>(y) = log<sub>${b}</sub>(x / y), we get log<sub>${b}</sub>(${numer} / ${denom}) = log<sub>${b}</sub>(${resVal}) = ${ans}.`
+                });
+            }
+
+            // Phase 5: Power Rule: log(x^k) = k * log(x) (Levels 66-80)
+            for (let i = 66; i <= 80; i++) {
+                let b = 2;
+                let innerBase = 2;
+                let exponent = (i % 4) + 2;
+                list.push({
+                    q: `Evaluate using Power Rule: log<sub>${b}</sub>(${innerBase}<sup>${exponent}</sup>)`,
+                    options: [exponent, exponent + 1, exponent * 2, 1],
+                    correct: exponent,
+                    explanation: `Using the Power Rule log<sub>${b}</sub>(x<sup>k</sup>) = k &middot; log<sub>${b}</sub>(x), this simplifies to ${exponent} &middot; log<sub>2</sub>(2) = ${exponent} &middot; 1 = ${exponent}.`
+                });
+            }
+
+            // Phase 6: Change of Base & Advanced Equations (Levels 81-100)
+            for (let i = 81; i <= 100; i++) {
+                if (i % 2 === 0) {
+                    let b = 4;
+                    list.push({
+                        q: `Evaluate: log<sub>${b}</sub>(16)`,
+                        options: [2, 4, 1, 8],
+                        correct: 2,
+                        explanation: `Since 4<sup>2</sup> = 16, log<sub>4</sub>(16) = 2. Alternatively, using change of base: log<sub>2</sub>(16) / log<sub>2</sub>(4) = 4 / 2 = 2.`
+                    });
+                } else if (i % 3 === 0) {
+                    let b = 5;
+                    list.push({
+                        q: `Solve for x: log<sub>${b}</sub>(x) = 3`,
+                        options: [125, 25, 15, 243],
+                        correct: 125,
+                        explanation: `Converting to exponential form yields x = ${b}<sup>3</sup> = 125.`
+                    });
+                } else {
+                    list.push({
+                        q: `Evaluate: log<sub>10</sub>(1000)`,
+                        options: [3, 2, 40, 10],
+                        correct: 3,
+                        explanation: `Since 10<sup>3</sup> = 1000, the common logarithm log<sub>10</sub>(1000) = 3.`
+                    });
+                }
+            }
+
+            return list;
+        }
+
+        const questions = generateQuestions();
+        let currentLevel = 0;
+        let score = 0;
+        let lockClicks = false;
+
+        // Milestones where Rule Pop-ups trigger
+        const ruleMilestones = {
+            0: {
+                title: "Welcome to Logarithms!",
+                text: "A logarithm answers the question: <b>'To what power must I raise base b to get x?'</b><br><br>If b<sup>y</sup> = x, then <b>log<sub>b</sub>(x) = y</b>."
+            },
+            20: {
+                title: "Rule Unlocked: Boundary Identities",
+                text: "Remember two vital constants:<br><br>1. <b>log<sub>b</sub>(1) = 0</b> (anything to power 0 is 1)<br>2. <b>log<sub>b</sub>(b) = 1</b> (anything to power 1 is itself)."
+            },
+            35: {
+                title: "Rule Unlocked: Product Property",
+                text: "When adding logarithms with the same base, multiply their inner arguments:<br><br><b>log<sub>b</sub>(x) + log<sub>b</sub>(y) = log<sub>b</sub>(xy)</b>."
+            },
+            50: {
+                title: "Rule Unlocked: Quotient Property",
+                text: "When subtracting logarithms with the same base, divide their inner arguments:<br><br><b>log<sub>b</sub>(x) - log<sub>b</sub>(y) = log<sub>b</sub>(x / y)</b>."
+            },
+            65: {
+                title: "Rule Unlocked: Power Property",
+                text: "An exponent on the argument can be brought out front as a multiplier:<br><br><b>log<sub>b</sub>(x<sup>k</sup>) = k &middot; log<sub>b</sub>(x)</b>."
+            },
+            80: {
+                title: "Rule Unlocked: Change of Base Formula",
+                text: "To evaluate logarithms with unfamiliar bases using standard calculators or logs, use:<br><br><b>log<sub>b</sub>(x) = log<sub>k</sub>(x) / log<sub>k</sub>(b)</b>."
+            }
+        };
+
+        function startQuiz() {
+            playSound('click');
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            checkAndShowRule(0);
+        }
+
+        function checkAndShowRule(levelIndex) {
+            if (ruleMilestones[levelIndex]) {
+                playSound('popup');
+                const rule = ruleMilestones[levelIndex];
+                document.getElementById('modal-title').innerText = rule.title;
+                document.getElementById('modal-body').innerHTML = rule.text;
+                document.getElementById('rule-modal').classList.add('active');
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('rule-modal').classList.remove('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            lockClicks = false;
+            if (currentLevel >= questions.length) {
+                showCompletion();
+                return;
+            }
+
+            const qData = questions[currentLevel];
+            
+            document.getElementById('level-indicator').innerText = `Level ${currentLevel + 1} / 100`;
+            document.getElementById('score-indicator').innerText = `Score: ${score}`;
+            const progressPercent = ((currentLevel) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            document.getElementById('question-text').innerHTML = qData.q;
+            
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.style.display = 'none';
+            feedbackArea.innerHTML = '';
+
+            let options = [...qData.options];
+            if (!options.includes(qData.correct)) {
+                options[0] = qData.correct;
+            }
+            options = shuffleArray([...new Set(options)]);
+            while(options.length < 4) {
+                let extra = qData.correct + options.length + 1;
+                if(!options.includes(extra)) options.push(extra);
+                else break;
+            }
+            options = options.slice(0, 4);
+            options = shuffleArray(options);
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(opt, qData.correct, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selected, correct, btnElement) {
+            if (lockClicks) return;
+            lockClicks = true;
+
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(b => b.disabled = true);
+
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.style.display = 'block';
+
+            if (selected === correct) {
+                playSound('correct');
+                btnElement.classList.add('correct');
+                score += 10;
+                document.getElementById('score-indicator').innerText = `Score: ${score}`;
+                feedbackArea.innerHTML = `<strong>Correct!</strong> ${questions[currentLevel].explanation}`;
+            } else {
+                playSound('incorrect');
+                btnElement.classList.add('incorrect');
+                allButtons.forEach(b => {
+                    if (parseFloat(b.innerText) === correct) {
+                        b.classList.add('correct');
+                    }
+                });
+                feedbackArea.innerHTML = `<strong>Incorrect.</strong> ${questions[currentLevel].explanation}`;
+            }
+
+            currentLevel++;
+
+            setTimeout(() => {
+                if (ruleMilestones[currentLevel]) {
+                    checkAndShowRule(currentLevel);
+                } else {
+                    loadQuestion();
+                }
+            }, 2600);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showCompletion() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'block';
+            document.getElementById('final-stats').innerHTML = `Final Score: <b>${score}</b> / 1000<br>Mastery Level: 100% Logarithm Expert`;
+        }
+    </script>
+</body>
+</html>

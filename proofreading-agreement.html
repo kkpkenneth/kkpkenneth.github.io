@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The "Um... Actually" Agreement Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #d1fae5, #f3f4f6); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-card w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden p-6 md:p-10 fade-in">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-emerald-700 mb-4">The "Um... Actually" Agreement Quiz</h1>
+            <p class="text-gray-600 mb-8 text-lg">Every sentence in this 50-question quiz contains a <strong>subject-verb or pronoun agreement error</strong>. Find the mistake and correct it!</p>
+            <button onclick="startQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg transition duration-300 text-xl">
+                Start Proofreading
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span id="question-tracker" class="font-bold text-gray-500 tracking-wide uppercase text-sm">Question 1 / 50</span>
+                <span id="score-tracker" class="font-bold text-emerald-700 bg-emerald-100 py-1 px-4 rounded-full">Score: 0</span>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+                <div id="progress-bar" class="bg-emerald-600 h-2 rounded-full transition-all duration-300" style="width: 2%"></div>
+            </div>
+
+            <div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 border-l-4 border-red-400 pl-4 py-2 bg-red-50 rounded-r-lg">
+                <button onclick="speakQuestion()" class="bg-white hover:bg-gray-100 text-gray-700 p-3 rounded-full shadow transition shrink-0" title="Listen to sentence">
+                    🔊
+                </button>
+                <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed text-red-900">Loading...</h2>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3 mt-6">
+                <!-- Options injected via JS -->
+            </div>
+
+            <!-- Explanation Box (Hidden until answer is clicked) -->
+            <div id="explanation-container" class="hidden mt-6 fade-in">
+                <div class="p-5 bg-emerald-50 border-l-4 border-emerald-500 rounded-r-lg">
+                    <h3 class="font-bold text-emerald-800 mb-1">Why?</h3>
+                    <p id="explanation-text" class="text-gray-700 text-lg"></p>
+                </div>
+                <div class="mt-6 text-right">
+                    <button onclick="nextQuestion()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                        Next Question ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Proofreading Complete!</h2>
+            <div class="text-7xl mb-4" id="emoji-result">🏆</div>
+            <p class="text-xl text-gray-600 mb-6">You corrected <span id="final-score" class="font-bold text-emerald-600 text-3xl">0</span> out of 50 sentences.</p>
+            <button onclick="location.reload()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                Play Again
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 50 Questions: All sentences have an AGREEMENT error (Subject-Verb or Pronoun).
+        const quizData = [
+            // Very Easy (1-10)
+            { q: "The dogs barks loudly every morning.", options: ["'bark'", "'is barking'", "'barked'", "fine as is"], answer: 0, exp: "Plural subjects (dogs) take plural verbs without an 's' (bark)." },
+            { q: "She don't like eating green apples.", options: ["'doesn't'", "'didn't'", "'isn't'", "fine as is"], answer: 0, exp: "Third-person singular subjects (she) pair with 'does not' or 'doesn't', never 'don't'." },
+            { q: "My friend and I am going to the store.", options: ["'are'", "'is'", "'was'", "fine as is"], answer: 0, exp: "Compound subjects joined by 'and' are plural and take the plural verb 'are'." },
+            { q: "Everyone have a pencil for the test.", options: ["'has'", "'had'", "'having'", "fine as is"], answer: 0, exp: "Indefinite pronouns like 'everyone', 'everybody', and 'someone' are always singular." },
+            { q: "There is two cats playing in the yard.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "When a sentence starts with 'There', the true subject follows the verb. 'Cats' is plural, so use 'are'." },
+            { q: "The boy walk to school every day.", options: ["'walks'", "'walking'", "'walked'", "fine as is"], answer: 0, exp: "Singular third-person subjects take verbs ending in 's' in the present tense." },
+            { q: "Each of the boys have their own bicycle.", options: ["'has'", "'had'", "'have got'", "fine as is"], answer: 0, exp: "The subject is 'Each', which is singular. Ignore the prepositional phrase 'of the boys'." },
+            { q: "The box of chocolates are empty.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "The subject is 'box' (singular), not 'chocolates'. Ignore phrases that come between the subject and the verb." },
+            { q: "Somebody left their jacket on the chair. (Traditional grammar)", options: ["'his or her'", "'they'", "'them'", "fine as is"], answer: 0, exp: "In strict traditional grammar, 'somebody' is singular, so it requires a singular pronoun like 'his or her' (though singular 'their' is widely accepted today, strict testing prefers this)." },
+            { q: "The students was happy about the snow day.", options: ["'were'", "'is'", "'be'", "fine as is"], answer: 0, exp: "'Students' is plural, requiring the plural past tense verb 'were'." },
+
+            // Easy (11-20)
+            { q: "My pants is in the washing machine.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "Nouns like pants, scissors, and glasses are plural and take plural verbs." },
+            { q: "The news are on TV at six o'clock.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "The word 'news' looks plural but is actually a singular uncountable noun." },
+            { q: "Neither of the options work for me.", options: ["'works'", "'working'", "'worked'", "fine as is"], answer: 0, exp: "'Neither' is a singular pronoun, requiring the singular verb 'works'." },
+            { q: "Ten dollars are a lot of money for a child.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "Amounts of money, time, and distance are treated as singular units." },
+            { q: "Either the cat or the dog are outside.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "When singular subjects are joined by 'or' or 'nor', the verb is singular." },
+            { q: "Both of the girls has a car.", options: ["'have'", "'had'", "'having'", "fine as is"], answer: 0, exp: "The pronoun 'Both' is always plural." },
+            { q: "A bouquet of yellow roses lend color to the room.", options: ["'lends'", "'lending'", "'loan'", "fine as is"], answer: 0, exp: "The subject is 'bouquet' (singular), not 'roses'." },
+            { q: "Mathematics are my favorite subject.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "Fields of study ending in '-ics' (mathematics, physics, economics) are singular." },
+            { q: "The list of items are on the desk.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "The subject is 'list' (singular), not 'items'." },
+            { q: "One of my friends are coming over.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "The subject is 'One' (singular), not 'friends'." },
+
+            // Medium (21-30)
+            { q: "Neither the teacher nor the students is here.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "In 'neither/nor' sentences, the verb agrees with the noun closest to it (students -> are)." },
+            { q: "Either the students or the teacher are here.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "Because 'teacher' is closer to the verb than 'students', the verb must be singular (is)." },
+            { q: "Along with her sister, Mary are going to the mall.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "Phrases like 'along with', 'as well as', and 'besides' do not make a singular subject plural." },
+            { q: "Not only the dog but also the cats needs feeding.", options: ["'need'", "'needing'", "'needed'", "fine as is"], answer: 0, exp: "In 'not only/but also' constructs, the verb agrees with the noun closest to it (cats -> need)." },
+            { q: "Measles cause a terrible rash.", options: ["'causes'", "'causing'", "'caused'", "fine as is"], answer: 0, exp: "Certain diseases ending in 's' (measles, mumps, rabies) are singular." },
+            { q: "Every man, woman, and child need clean water.", options: ["'needs'", "'needing'", "'needed'", "fine as is"], answer: 0, exp: "When 'every' precedes a compound subject, the entire subject is treated as singular." },
+            { q: "The number of students are increasing.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "'The number' is a specific, singular entity. (Conversely, 'A number' means 'many' and takes a plural verb)." },
+            { q: "A number of students is waiting outside.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "'A number of' is an idiom meaning 'several' or 'many', so it takes a plural verb." },
+            { q: "Here is the apple and the orange.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "The true subject ('the apple and the orange') is compound and plural, requiring 'are'." },
+            { q: "None of the cake were eaten.", options: ["'was'", "'are'", "'be'", "fine as is"], answer: 0, exp: "'None' can be singular or plural depending on what it refers to. 'Cake' is singular, so the verb is singular." },
+
+            // Hard (31-40)
+            { q: "The jury are voting on the verdict right now.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "In American English, collective nouns like 'jury', 'committee', or 'team' are treated as singular when acting as one unit." },
+            { q: "Two-thirds of the pie are eaten.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "With fractions, the verb agrees with the noun in the prepositional phrase. 'Pie' is singular." },
+            { q: "Two-thirds of the apples is rotten.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "Because 'apples' in the prepositional phrase is plural, the fraction takes a plural verb." },
+            { q: "Macaroni and cheese are my favorite meal.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "When two nouns combined with 'and' form a single conceptual entity or dish, they take a singular verb." },
+            { q: "It is I who is sorry for the mistake.", options: ["'am'", "'are'", "'be'", "fine as is"], answer: 0, exp: "The relative pronoun 'who' refers back to 'I'. The verb must agree with 'I', so it becomes 'am'." },
+            { q: "He is one of those men who likes fishing.", options: ["'like'", "'liking'", "'liked'", "fine as is"], answer: 0, exp: "The clause 'who like fishing' refers to 'those men' (plural), not 'He'. Therefore, 'like' must be plural." },
+            { q: "The mayor, as well as his brothers, are going to prison.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "The subject is 'mayor' (singular). The phrase 'as well as his brothers' is parenthetical and does not affect the verb." },
+            { q: "My family are going on vacation.", options: ["'is'", "'were'", "'be'", "fine as is"], answer: 0, exp: "In standard American English, 'family' is a collective noun acting as a single unit, requiring a singular verb." },
+            { q: "The alumni is gathering for the reunion today.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "'Alumni' is the plural form of 'alumnus', so it requires a plural verb." },
+            { q: "None of the students was ready for the exam.", options: ["'were'", "'is'", "'be'", "fine as is"], answer: 0, exp: "When 'none' refers to a plural countable noun (students), it takes a plural verb." },
+
+            // Very Hard (41-50)
+            { q: "I wish I was a little bit taller.", options: ["'were'", "'am'", "'be'", "fine as is"], answer: 0, exp: "This is the subjunctive mood, used for hypothetical or contrary-to-fact statements. 'I' takes 'were', not 'was'." },
+            { q: "She requested that he goes to the store immediately.", options: ["'go'", "'went'", "'going'", "fine as is"], answer: 0, exp: "Verbs of command or request trigger the subjunctive mood, which uses the base form of the verb ('go' instead of 'goes')." },
+            { q: "The criteria for the project is incredibly strict.", options: ["'are'", "'was'", "'be'", "fine as is"], answer: 0, exp: "'Criteria' is the plural form of 'criterion'. Therefore, it takes the plural verb 'are'." },
+            { q: "If I was you, I would leave right now.", options: ["'were'", "'am'", "'be'", "fine as is"], answer: 0, exp: "In the subjunctive mood expressing a hypothetical ('If I were you'), 'was' becomes 'were' for all subjects." },
+            { q: "More than one person have seen the UFO.", options: ["'has'", "'had'", "'having'", "fine as is"], answer: 0, exp: "Despite meaning 'multiple people', the grammatical subject of the phrase 'More than one' is 'one', making it strictly singular." },
+            { q: "Many a student have failed this difficult test.", options: ["'has'", "'had'", "'having'", "fine as is"], answer: 0, exp: "The archaic-sounding phrase 'Many a' is always followed by a singular noun and a singular verb." },
+            { q: "There remains three unresolved issues in the contract.", options: ["'remain'", "'remaining'", "'remained'", "fine as is"], answer: 0, exp: "In inverted sentences starting with 'There', the verb agrees with what follows. 'Issues' is plural, so 'remain' must be plural." },
+            { q: "It is essential that she attends the meeting.", options: ["'attend'", "'attended'", "'attending'", "fine as is"], answer: 0, exp: "Phrases like 'It is essential that' trigger the subjunctive mood, dropping the 's' for third-person subjects." },
+            { q: "The phenomena was witnessed by thousands of people.", options: ["'were'", "'is'", "'be'", "fine as is"], answer: 0, exp: "'Phenomena' is the plural of 'phenomenon'. It requires a plural verb." },
+            { q: "Only one of the books that is on the table belong to me.", options: ["'belongs'", "'belonging'", "'belonged'", "fine as is"], answer: 0, exp: "The core subject of the main clause is 'One' (singular). Therefore, it 'belongs' to me." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let synth = window.speechSynthesis;
+        let synthVoice = null;
+        let audioContextStarted = false;
+
+        let correctSynth, incorrectSynth;
+
+        function initAudio() {
+            if (!audioContextStarted) {
+                Tone.start();
+                correctSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                incorrectSynth = new Tone.Synth().toDestination();
+                audioContextStarted = true;
+                
+                let voices = synth.getVoices();
+                synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+            }
+        }
+
+        function playCorrectSound() {
+            if (!audioContextStarted) return;
+            correctSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
+        }
+
+        function playIncorrectSound() {
+            if (!audioContextStarted) return;
+            incorrectSynth.triggerAttackRelease("C3", "8n");
+        }
+
+        function startQuiz() {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            synth.cancel(); 
+            
+            // Hide explanation from previous question
+            document.getElementById('explanation-container').classList.add('hidden');
+
+            const q = quizData[currentQuestionIndex];
+            
+            document.getElementById('question-tracker').innerText = `Question ${currentQuestionIndex + 1} / 50`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex) / 50) * 100}%`;
+            
+            document.getElementById('question-text').innerText = `"${q.q}"`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                let btn = document.createElement('button');
+                
+                // Format the "Um... actually" text
+                let prefix = (opt === "fine as is") ? "Um... actually, it is " : "Um... actually, it should be ";
+                btn.innerHTML = `<strong>${prefix}</strong> ${opt}.`;
+                
+                btn.className = 'option-btn w-full bg-white border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl text-left hover:border-emerald-400 focus:outline-none text-lg';
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Auto-read the sentence
+            speakQuestion();
+        }
+
+        function speakQuestion() {
+            initAudio();
+            synth.cancel();
+            
+            let qText = document.getElementById('question-text').innerText;
+            const utterance = new SpeechSynthesisUtterance(qText);
+            if (synthVoice) utterance.voice = synthVoice;
+            utterance.rate = 0.85; // Slightly slower for clarity
+            synth.speak(utterance);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const q = quizData[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                score++;
+                document.getElementById('score-tracker').innerText = `Score: ${score}`;
+                playCorrectSound();
+            } else {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                
+                // Highlight correct answer
+                allBtns[q.answer].classList.remove('border-gray-200', 'bg-white');
+                allBtns[q.answer].classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                playIncorrectSound();
+            }
+
+            // Show Explanation
+            document.getElementById('explanation-text').innerText = q.exp;
+            document.getElementById('explanation-container').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            let emoji = '🏆';
+            if (score < 40) emoji = '🎓';
+            if (score < 25) emoji = '📚';
+            if (score < 10) emoji = '✏️';
+            document.getElementById('emoji-result').innerText = emoji;
+        }
+
+        // Voice loading hook for browsers that load voices asynchronously (Chrome)
+        window.speechSynthesis.onvoiceschanged = () => {
+            let voices = synth.getVoices();
+            synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+        };
+    </script>
+</body>
+</html>

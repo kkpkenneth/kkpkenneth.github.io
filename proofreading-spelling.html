@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The "Um... Actually" Spelling Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e9d5ff, #f3f4f6); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-card w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden p-6 md:p-10 fade-in">
+        
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-purple-700 mb-4">The "Um... Actually" Spelling Quiz</h1>
+            <p class="text-gray-600 mb-8 text-lg">Every sentence in this 50-question quiz contains a <strong>glaring spelling mistake</strong>. Find the typo and correct it!</p>
+            <button onclick="startQuiz()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg transition duration-300 text-xl">
+                Start Proofreading
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span id="question-tracker" class="font-bold text-gray-500 tracking-wide uppercase text-sm">Question 1 / 50</span>
+                <span id="score-tracker" class="font-bold text-purple-700 bg-purple-100 py-1 px-4 rounded-full">Score: 0</span>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+                <div id="progress-bar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 2%"></div>
+            </div>
+
+            <div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 border-l-4 border-red-400 pl-4 py-2 bg-red-50 rounded-r-lg">
+                <button onclick="speakQuestion()" class="bg-white hover:bg-gray-100 text-gray-700 p-3 rounded-full shadow transition shrink-0" title="Listen to sentence">
+                    🔊
+                </button>
+                <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed text-red-900">Loading...</h2>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3 mt-6">
+                </div>
+
+            <div id="explanation-container" class="hidden mt-6 fade-in">
+                <div class="p-5 bg-purple-50 border-l-4 border-purple-500 rounded-r-lg">
+                    <h3 class="font-bold text-purple-800 mb-1">Why?</h3>
+                    <p id="explanation-text" class="text-gray-700 text-lg"></p>
+                </div>
+                <div class="mt-6 text-right">
+                    <button onclick="nextQuestion()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                        Next Question ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Proofreading Complete!</h2>
+            <div class="text-7xl mb-4" id="emoji-result">🏆</div>
+            <p class="text-xl text-gray-600 mb-6">You corrected <span id="final-score" class="font-bold text-purple-600 text-3xl">0</span> out of 50 spelling errors.</p>
+            <button onclick="location.reload()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                Play Again
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 50 Questions: All sentences contain a specific spelling mistake.
+        const quizData = [
+            // Very Easy (1-10)
+            { q: "I have alot of homework to do tonight.", options: ["'a lot'", "'allot'", "'alott'", "fine as is"], answer: 0, exp: "'A lot' is always two separate words. 'Allot' is a verb meaning to distribute." },
+            { q: "I will definately be at the party tomorrow.", options: ["'definitely'", "'definitly'", "'defanitely'", "fine as is"], answer: 0, exp: "Remember the root word 'finite'. De-finite-ly." },
+            { q: "Did you recieve the package I sent?", options: ["'receive'", "'receeve'", "'resieve'", "fine as is"], answer: 0, exp: "The rule is 'i before e, except after c'. Because of the 'c', it is 'receive'." },
+            { q: "We have to wait untill the timer goes off.", options: ["'until'", "'untell'", "'intil'", "fine as is"], answer: 0, exp: "'Until' only has one 'l', even though 'till' has two." },
+            { q: "Keep those two items seprate.", options: ["'separate'", "'separete'", "'seperate'", "fine as is"], answer: 0, exp: "There is 'a rat' in 'separate'." },
+            { q: "She is truley a wonderful friend.", options: ["'truly'", "'truely'", "'trulley'", "fine as is"], answer: 0, exp: "Drop the 'e' from 'true' when adding the suffix '-ly'." },
+            { q: "That is a very wierd coincidence.", options: ["'weird'", "'wierdd'", "'weard'", "fine as is"], answer: 0, exp: "'Weird' is a notorious exception to the 'i before e' rule." },
+            { q: "They had a huge arguement in the hallway.", options: ["'argument'", "'argumant'", "'argueing'", "fine as is"], answer: 0, exp: "Drop the 'e' from 'argue' when making the noun 'argument'." },
+            { q: "She wants to acheive her goals.", options: ["'achieve'", "'acheeve'", "'aschieve'", "fine as is"], answer: 0, exp: "Standard 'i before e' rule applies here: 'achieve'." },
+            { q: "We added fresh tomatos to the salad.", options: ["'tomatoes'", "'tomatos'", "'tomattos'", "fine as is"], answer: 0, exp: "For nouns ending in 'o' preceded by a consonant, you usually add '-es' to make them plural." },
+
+            // Easy (11-20)
+            { q: "We can accomodate up to fifty guests.", options: ["'accommodate'", "'acommodate'", "'acomodate'", "fine as is"], answer: 0, exp: "'Accommodate' has two C's and two M's." },
+            { q: "An unexpected error occured during the process.", options: ["'occurred'", "'occured'", "'ocurred'", "fine as is"], answer: 0, exp: "Double the 'r' when adding '-ed' to 'occur'." },
+            { q: "Please don't embarass me in front of them.", options: ["'embarrass'", "'embaras'", "'embaress'", "fine as is"], answer: 0, exp: "'Embarrass' is double 'r' and double 's'." },
+            { q: "Be careful not to mispell your own name.", options: ["'misspell'", "'mispel'", "'misspel'", "fine as is"], answer: 0, exp: "It's a combination of the prefix 'mis-' and the word 'spell', resulting in a double 's'." },
+            { q: "Driving is a priviledge, not a right.", options: ["'privilege'", "'privelege'", "'privledge'", "fine as is"], answer: 0, exp: "There is no 'd' in 'privilege'. Think 'privi-lege'." },
+            { q: "His pronounciation of the word was flawless.", options: ["'pronunciation'", "'pronounsiation'", "'pronunseation'", "fine as is"], answer: 0, exp: "While the verb is 'pronounce', the noun drops the 'o' to become 'pronunciation'." },
+            { q: "He is just an amatuer photographer.", options: ["'amateur'", "'amature'", "'ameteur'", "fine as is"], answer: 0, exp: "Borrowed from French, it ends in '-eur'." },
+            { q: "The song has a great rythm to it.", options: ["'rhythm'", "'rhythym'", "'rhythme'", "fine as is"], answer: 0, exp: "Remember the mnemonic: Rhythm Helps Your Two Hips Move." },
+            { q: "Please clean the rug with the vaccum.", options: ["'vacuum'", "'vacume'", "'vaccumme'", "fine as is"], answer: 0, exp: "'Vacuum' has one 'c' and two 'u's." },
+            { q: "My collegue will be taking over the project.", options: ["'colleague'", "'college'", "'collegue'", "fine as is"], answer: 0, exp: "'Colleague' ends with '-eague'." },
+
+            // Medium (21-30)
+            { q: "They walked through the creepy cemetary.", options: ["'cemetery'", "'cematery'", "'cematary'", "fine as is"], answer: 0, exp: "There are three E's in 'cemetery', and no A's." },
+            { q: "You must renew your driver's lisense.", options: ["'license'", "'lisence'", "'licence' (US context)", "fine as is"], answer: 0, exp: "In American English, it is spelled 'license' with a 'c' then an 's'. (UK English uses 'licence' for the noun)." },
+            { q: "The car needs some routine maintainance.", options: ["'maintenance'", "'maintainence'", "'maintenence'", "fine as is"], answer: 0, exp: "The verb is 'maintain', but the noun changes to 'maintenance'." },
+            { q: "We only eat there on special occassions.", options: ["'occasions'", "'occations'", "'ocassions'", "fine as is"], answer: 0, exp: "'Occasion' has two C's and one S." },
+            { q: "He was forced to apologize publically.", options: ["'publicly'", "'publically'", "'pubicly'", "fine as is"], answer: 0, exp: "Even though 'public' is the root, the adverb form drops the 'al' and is just 'publicly'." },
+            { q: "Mark the date on your calender.", options: ["'calendar'", "'calander'", "'calandar'", "fine as is"], answer: 0, exp: "'Calendar' ends with '-ar', not '-er'." },
+            { q: "Do you believe in the existance of ghosts?", options: ["'existence'", "'existance'", "'existense'", "fine as is"], answer: 0, exp: "Words ending in this sound usually take '-ence', not '-ance'." },
+            { q: "Water is indespensable for human survival.", options: ["'indispensable'", "'indispensible'", "'indespensible'", "fine as is"], answer: 0, exp: "It ends in '-able', and the prefix uses an 'i': indispensable." },
+            { q: "The magician will facinate the audience.", options: ["'fascinate'", "'fassinate'", "'fascenate'", "fine as is"], answer: 0, exp: "'Fascinate' contains 'sc' to make the 's' sound." },
+            { q: "I cannot forsee any problems with this plan.", options: ["'foresee'", "'forsee'", "'foresight'", "fine as is"], answer: 0, exp: "The prefix is 'fore-' (meaning before), so it is 'foresee'." },
+
+            // Hard (31-40)
+            { q: "This new rule will supercede the old one.", options: ["'supersede'", "'superceed'", "'superseed'", "fine as is"], answer: 0, exp: "It is the only word in the English language ending in '-sede'." },
+            { q: "The difference in price is miniscule.", options: ["'minuscule'", "'miniscule'", "'meniscule'", "fine as is"], answer: 0, exp: "Despite sounding like 'mini', the root is related to 'minus', so it is spelled 'minuscule'." },
+            { q: "Vandalizing the church was a sacreligious act.", options: ["'sacrilegious'", "'sacreligious'", "'sacriligeous'", "fine as is"], answer: 0, exp: "It is not derived from 'religious'. It comes from 'sacrilege', so it is spelled 'sacrilegious'." },
+            { q: "We are entering a new millenium.", options: ["'millennium'", "'millenium'", "'milennium'", "fine as is"], answer: 0, exp: "'Millennium' has two L's and two N's." },
+            { q: "King Tut was a famous pharoah.", options: ["'pharaoh'", "'pharoah'", "'pharoh'", "fine as is"], answer: 0, exp: "It ends in 'a-o-h'. A good trick is to remember it ends with 'oh'." },
+            { q: "She acts as the liasion between the two departments.", options: ["'liaison'", "'liason'", "'laiason'", "fine as is"], answer: 0, exp: "'Liaison' has two I's. Remember: l-i-a-i-s-o-n." },
+            { q: "We need to reach a concensus by tomorrow.", options: ["'consensus'", "'concensus'", "'consencus'", "fine as is"], answer: 0, exp: "It is related to 'consent', not 'census'. Therefore, it is 'consensus'." },
+            { q: "His strange habit is just a harmless idiosyncracy.", options: ["'idiosyncrasy'", "'idiosyncracy'", "'ideosyncrasy'", "fine as is"], answer: 0, exp: "Unlike words like 'democracy' or 'bureaucracy', it ends in '-crasy'." },
+            { q: "The doctor will innoculate the patients against the virus.", options: ["'inoculate'", "'innoculate'", "'innocullate'", "fine as is"], answer: 0, exp: "'Inoculate' has only one N and one C." },
+            { q: "The concert is being held at the outdoor pavillion.", options: ["'pavilion'", "'pavillion'", "'pavilien'", "fine as is"], answer: 0, exp: "'Pavilion' has only one L." },
+
+            // Very Hard (41-50)
+            { q: "It is illegal to harrass your coworkers.", options: ["'harass'", "'harrass'", "'haras'", "fine as is"], answer: 0, exp: "'Harass' has one R and two S's." },
+            { q: "Let's grab dinner at the new restaraunt.", options: ["'restaurant'", "'restaraunt'", "'restuarant'", "fine as is"], answer: 0, exp: "Remember there is an 'au' in the middle: rest-au-rant." },
+            { q: "Please fill out this brief questionaire.", options: ["'questionnaire'", "'questionaire'", "'questionnare'", "fine as is"], answer: 0, exp: "Unlike 'millionaire', 'questionnaire' requires two N's." },
+            { q: "I guarrantee you will love this product.", options: ["'guarantee'", "'garantee'", "'gaurantee'", "fine as is"], answer: 0, exp: "'Guarantee' has one R and begins with 'gua-'." },
+            { q: "The weather in April is very changable.", options: ["'changeable'", "'changable'", "'changeble'", "fine as is"], answer: 0, exp: "Keep the 'e' in 'change' to preserve the soft 'g' sound: 'changeable'." },
+            { q: "He needs to aquire more skills for the job.", options: ["'acquire'", "'aquire'", "'accquire'", "fine as is"], answer: 0, exp: "Don't forget the 'c' before the 'q': 'acquire'." },
+            { q: "The patient was awake and concious.", options: ["'conscious'", "'concious'", "'consious'", "fine as is"], answer: 0, exp: "It contains an 'sc' combination: 'conscious'." },
+            { q: "She was in sheer ecstacy when she won the award.", options: ["'ecstasy'", "'ecstacy'", "'extasy'", "fine as is"], answer: 0, exp: "Despite ending with a 'see' sound, it is spelled with an 's': 'ecstasy'." },
+            { q: "The office is lit by harsh flourescent lights.", options: ["'fluorescent'", "'flourescent'", "'florescent'", "fine as is"], answer: 0, exp: "Think of 'fluoride'. It's 'u' before 'o': 'fluorescent'." },
+            { q: "They finally paid off their morgage.", options: ["'mortgage'", "'morgage'", "'morgauge'", "fine as is"], answer: 0, exp: "It comes from Old French meaning 'dead pledge'. Don't forget the silent 't': 'mortgage'." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let synth = window.speechSynthesis;
+        let synthVoice = null;
+        let audioContextStarted = false;
+
+        let correctSynth, incorrectSynth;
+
+        function initAudio() {
+            if (!audioContextStarted) {
+                Tone.start();
+                correctSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                incorrectSynth = new Tone.Synth().toDestination();
+                audioContextStarted = true;
+                
+                let voices = synth.getVoices();
+                // Prefer Google US English or standard en-US
+                synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+            }
+        }
+
+        function playCorrectSound() {
+            if (!audioContextStarted) return;
+            correctSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
+        }
+
+        function playIncorrectSound() {
+            if (!audioContextStarted) return;
+            incorrectSynth.triggerAttackRelease("C3", "8n");
+        }
+
+        function startQuiz() {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            synth.cancel(); 
+            
+            // Hide explanation from previous question
+            document.getElementById('explanation-container').classList.add('hidden');
+
+            const q = quizData[currentQuestionIndex];
+            
+            document.getElementById('question-tracker').innerText = `Question ${currentQuestionIndex + 1} / 50`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex) / 50) * 100}%`;
+            
+            document.getElementById('question-text').innerText = `"${q.q}"`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                let btn = document.createElement('button');
+                
+                // Format the "Um... actually" text
+                let prefix = (opt === "fine as is") ? "Um... actually, it is " : "Um... actually, it should be ";
+                btn.innerHTML = `<strong>${prefix}</strong> ${opt}.`;
+                
+                btn.className = 'option-btn w-full bg-white border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl text-left hover:border-purple-400 focus:outline-none text-lg';
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Auto-read the sentence
+            speakQuestion();
+        }
+
+        function speakQuestion() {
+            initAudio();
+            synth.cancel();
+            
+            let qText = document.getElementById('question-text').innerText;
+            const utterance = new SpeechSynthesisUtterance(qText);
+            if (synthVoice) utterance.voice = synthVoice;
+            utterance.rate = 0.85; // Slightly slower for clarity
+            synth.speak(utterance);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const q = quizData[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                score++;
+                document.getElementById('score-tracker').innerText = `Score: ${score}`;
+                playCorrectSound();
+            } else {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                
+                // Highlight correct answer
+                allBtns[q.answer].classList.remove('border-gray-200', 'bg-white');
+                allBtns[q.answer].classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                playIncorrectSound();
+            }
+
+            // Show Explanation
+            document.getElementById('explanation-text').innerText = q.exp;
+            document.getElementById('explanation-container').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            let emoji = '🏆';
+            if (score < 40) emoji = '🎓';
+            if (score < 25) emoji = '📚';
+            if (score < 10) emoji = '✏️';
+            document.getElementById('emoji-result').innerText = emoji;
+        }
+
+        // Voice loading hook for browsers that load voices asynchronously (Chrome)
+        window.speechSynthesis.onvoiceschanged = () => {
+            let voices = synth.getVoices();
+            synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+        };
+    </script>
+</body>
+</html>

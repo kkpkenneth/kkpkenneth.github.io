@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The "Um... Actually" Verb Tense Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #fef3c7, #f3f4f6); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        
+        /* Custom Highlight Style for Signal Words */
+        .highlight {
+            background-color: #fde68a; /* amber-200 */
+            color: #b45309; /* amber-700 */
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-style: wavy;
+            text-decoration-color: #f59e0b; /* amber-500 */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-card w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden p-6 md:p-10 fade-in">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-600 mb-4">The "Um... Actually" Verb Tense Quiz</h1>
+            <p class="text-gray-600 mb-8 text-lg">Every sentence contains a <strong>verb tense error</strong>. Use the highlighted <strong>signal words</strong> as clues to find the mistake and correct it!</p>
+            <button onclick="startQuiz()" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 px-10 rounded-full shadow-lg transition duration-300 text-xl">
+                Start Proofreading
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span id="question-tracker" class="font-bold text-gray-500 tracking-wide uppercase text-sm">Question 1 / 50</span>
+                <span id="score-tracker" class="font-bold text-amber-700 bg-amber-100 py-1 px-4 rounded-full">Score: 0</span>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+                <div id="progress-bar" class="bg-amber-500 h-2 rounded-full transition-all duration-300" style="width: 2%"></div>
+            </div>
+
+            <div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 border-l-4 border-red-400 pl-4 py-2 bg-red-50 rounded-r-lg">
+                <button onclick="speakQuestion()" class="bg-white hover:bg-gray-100 text-gray-700 p-3 rounded-full shadow transition shrink-0" title="Listen to sentence">
+                    🔊
+                </button>
+                <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed text-red-900">Loading...</h2>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3 mt-6">
+                <!-- Options injected via JS -->
+            </div>
+
+            <!-- Explanation Box (Hidden until answer is clicked) -->
+            <div id="explanation-container" class="hidden mt-6 fade-in">
+                <div class="p-5 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg">
+                    <h3 class="font-bold text-amber-800 mb-1">Why?</h3>
+                    <p id="explanation-text" class="text-gray-700 text-lg"></p>
+                </div>
+                <div class="mt-6 text-right">
+                    <button onclick="nextQuestion()" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                        Next Question ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Proofreading Complete!</h2>
+            <div class="text-7xl mb-4" id="emoji-result">🏆</div>
+            <p class="text-xl text-gray-600 mb-6">You corrected <span id="final-score" class="font-bold text-amber-600 text-3xl">0</span> out of 50 verb tense errors.</p>
+            <button onclick="location.reload()" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                Play Again
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 50 Questions: Sentences contain a VERB TENSE error. 
+        // Signal words are wrapped in <span class='highlight'></span>
+        const quizData = [
+            // Very Easy (1-10)
+            { q: "I go to the store <span class='highlight'>yesterday</span> to buy milk.", options: ["'went'", "'have gone'", "'will go'", "fine as is"], answer: 0, exp: "'Yesterday' indicates an action completed in the past. Therefore, use the simple past tense 'went'." },
+            { q: "She is eat dinner <span class='highlight'>right now</span>.", options: ["'is eating'", "'eats'", "'ate'", "fine as is"], answer: 0, exp: "'Right now' indicates an action in progress, requiring the present continuous tense 'is eating'." },
+            { q: "We will visited Paris <span class='highlight'>next summer</span>.", options: ["'visit'", "'visits'", "'visiting'", "fine as is"], answer: 0, exp: "The future tense using 'will' must be followed by the base form of the verb, 'visit'." },
+            { q: "He runned all the way home <span class='highlight'>yesterday</span>.", options: ["'ran'", "'runs'", "'is running'", "fine as is"], answer: 0, exp: "'Run' is an irregular verb. The simple past tense is 'ran', not 'runned'." },
+            { q: "I seen that movie three times <span class='highlight'>already</span>.", options: ["'have seen'", "'saw'", "'seeing'", "fine as is"], answer: 0, exp: "'Seen' is a past participle and requires a helping verb like 'have'. Because the exact time isn't specified and it relates to the present, use present perfect: 'have seen'." },
+            { q: "They plays soccer <span class='highlight'>every Saturday</span>.", options: ["'play'", "'played'", "'are playing'", "fine as is"], answer: 0, exp: "'They' is a plural subject. In the simple present tense, plural subjects take verbs without an 's'." },
+            { q: "I am knowing the answer to that question.", options: ["'know'", "'knew'", "'have known'", "fine as is"], answer: 0, exp: "'Know' is a stative verb (describing a state of being, not an action). Stative verbs are rarely used in continuous (-ing) forms." },
+            { q: "She <span class='highlight'>didn't</span> went to school today.", options: ["'didn't go'", "'hasn't went'", "'doesn't go'", "fine as is"], answer: 0, exp: "When using 'did not' (didn't) to form a past tense negative, the main verb reverts to its base form: 'go'." },
+            { q: "We <span class='highlight'>have</span> ate all the pizza.", options: ["'have eaten'", "'have eat'", "'ate'", "fine as is"], answer: 0, exp: "The present perfect tense requires 'have' plus the past participle. The past participle of 'eat' is 'eaten'." },
+            { q: "<span class='highlight'>By next year</span>, I am graduating from college.", options: ["'will graduate'", "'have graduated'", "'graduated'", "fine as is"], answer: 0, exp: "'By next year' signals a future event. Use the simple future 'will graduate' (or future perfect 'will have graduated' depending on context)." },
+
+            // Easy (11-20)
+            { q: "He has been lived here <span class='highlight'>for five years</span>.", options: ["'has lived' or 'has been living'", "'lives'", "'is living'", "fine as is"], answer: 0, exp: "'Has been lived' is a passive voice error. Use the present perfect 'has lived' or present perfect continuous 'has been living' to describe an ongoing state starting in the past." },
+            { q: "<span class='highlight'>When I arrived</span>, they was eating dinner.", options: ["'were eating'", "'eat'", "'have eaten'", "fine as is"], answer: 0, exp: "The subject 'they' requires the plural past continuous verb 'were eating'." },
+            { q: "I will call you <span class='highlight'>when</span> I will arrive.", options: ["'arrive'", "'arrived'", "'am arriving'", "fine as is"], answer: 0, exp: "In time clauses starting with 'when', 'as soon as', or 'until', use the simple present tense to refer to the future, not 'will'." },
+            { q: "<span class='highlight'>Did</span> you finished your homework?", options: ["'finish'", "'have finished'", "'finishes'", "fine as is"], answer: 0, exp: "In questions using the auxiliary verb 'did', the main verb must be in its base form: 'finish'." },
+            { q: "She <span class='highlight'>usually</span> is drinking coffee in the morning.", options: ["'drinks'", "'drank'", "'has drunk'", "fine as is"], answer: 0, exp: "Habits and routines (signaled by 'usually') take the simple present tense ('drinks'), not the present continuous." },
+            { q: "I have met him <span class='highlight'>two years ago</span>.", options: ["'met'", "'had met'", "'meet'", "fine as is"], answer: 0, exp: "When a specific time in the past is mentioned ('two years ago'), you must use the simple past tense ('met'), not the present perfect." },
+            { q: "We are waiting for the bus <span class='highlight'>since 8 AM</span>.", options: ["'have been waiting'", "'waited'", "'were waiting'", "fine as is"], answer: 0, exp: "To describe an action that started in the past and is still continuing now, use the present perfect continuous ('have been waiting')." },
+            { q: "<span class='highlight'>Look!</span> It rains.", options: ["'is raining'", "'rained'", "'has rained'", "fine as is"], answer: 0, exp: "'Look!' draws attention to something happening exactly at this moment, requiring the present continuous: 'is raining'." },
+            { q: "The train leaves at 5 PM <span class='highlight'>yesterday</span>.", options: ["'left'", "'has left'", "'was leaving'", "fine as is"], answer: 0, exp: "'Yesterday' is in the past, so the simple past tense 'left' is required." },
+            { q: "I am not agreeing with you on this issue.", options: ["'do not agree'", "'have not agreed'", "'did not agree'", "fine as is"], answer: 0, exp: "'Agree' is a stative verb and is typically not used in continuous (-ing) forms. Use the simple present." },
+
+            // Medium (21-30)
+            { q: "<span class='highlight'>By the time we got to the theater</span>, the movie already started.", options: ["'had already started'", "'has already started'", "'was already starting'", "fine as is"], answer: 0, exp: "When showing that one past action happened before another past action, use the past perfect tense ('had started') for the earlier action." },
+            { q: "I was born <span class='highlight'>in 1990</span>, so I am living here <span class='highlight'>for my whole life</span>.", options: ["'have lived' or 'have been living'", "'live'", "'was living'", "fine as is"], answer: 0, exp: "To connect the past (birth) to the present (now), use the present perfect or present perfect continuous." },
+            { q: "<span class='highlight'>If</span> it will rain tomorrow, we will stay home.", options: ["'rains'", "'rained'", "'has rained'", "fine as is"], answer: 0, exp: "In a first conditional sentence, the 'if' clause must use the simple present tense ('rains'), even though it refers to the future." },
+            { q: "<span class='highlight'>While I was studying</span>, my brother was watching TV.", options: ["'fine as is' (No change needed)", "'watched'", "'has watched'", "'watches'"], answer: 0, exp: "Trick question! This sentence is correct. Two continuous actions happening at the same time in the past use the past continuous." },
+            { q: "He <span class='highlight'>said that</span> he will come to the party.", options: ["'would come'", "'comes'", "'has come'", "fine as is"], answer: 0, exp: "In reported speech, if the main verb is past tense ('said'), the reported verb 'will' shifts backward to 'would'." },
+            { q: "I am having this car <span class='highlight'>since 2015</span>.", options: ["'have had'", "'had'", "'have'", "fine as is"], answer: 0, exp: "When 'have' means possession, it is a stative verb and cannot be continuous. Use the present perfect: 'have had'." },
+            { q: "<span class='highlight'>It is high time</span> you start studying for the exam.", options: ["'started'", "'have started'", "'will start'", "fine as is"], answer: 0, exp: "The phrase 'It is high time' is followed by a verb in the simple past tense to refer to the present or future." },
+            { q: "<span class='highlight'>By next month</span>, I will have been working here <span class='highlight'>for a year</span>.", options: ["'fine as is' (No change needed)", "'will work'", "'will have worked'", "'work'"], answer: 0, exp: "Trick question! This sentence is grammatically correct. It correctly uses the future perfect continuous." },
+            { q: "<span class='highlight'>I wish</span> I know the answer.", options: ["'knew'", "'have known'", "'will know'", "fine as is"], answer: 0, exp: "After 'I wish' referring to a present situation, use the past tense ('knew') to express the subjunctive mood." },
+            { q: "<span class='highlight'>Before she went to sleep</span>, she reads a book.", options: ["'read' (past tense) or 'had read'", "'is reading'", "'has read'", "fine as is"], answer: 0, exp: "Both actions are in the past. To maintain sequence of tenses, use the simple past ('read') or past perfect ('had read')." },
+
+            // Hard (31-40)
+            { q: "<span class='highlight'>If</span> I would have known, I would have helped you.", options: ["'had known'", "'knew'", "'know'", "fine as is"], answer: 0, exp: "In a third conditional (past hypothetical), the 'if' clause takes the past perfect ('had known'), not 'would have'." },
+            { q: "<span class='highlight'>Scarcely</span> did he enter the room <span class='highlight'>when</span> the phone rang.", options: ["'had he entered'", "'he had entered'", "'has he entered'", "fine as is"], answer: 0, exp: "With negative adverbs like 'scarcely' or 'hardly' at the beginning of a sentence, use inverted word order and the past perfect." },
+            { q: "We will be tired <span class='highlight'>when</span> we will arrive.", options: ["'arrive'", "'arrived'", "'have arrived'", "fine as is"], answer: 0, exp: "Time clauses (starting with 'when', 'before', 'after') use the simple present to refer to the future." },
+            { q: "He <span class='highlight'>suggested that</span> she goes to the doctor.", options: ["'go'", "'went'", "'is going'", "fine as is"], answer: 0, exp: "Verbs of recommendation (suggest, demand, insist) trigger the subjunctive mood, requiring the base form of the verb ('go')." },
+            { q: "I had been to London twice <span class='highlight'>last year</span>.", options: ["'went' or 'was in'", "'have been'", "'had gone'", "fine as is"], answer: 0, exp: "With a specific time in the past ('last year'), use the simple past. The past perfect ('had been') requires relation to another past event." },
+            { q: "<span class='highlight'>Not until</span> he received the letter did he realized the truth.", options: ["'realize'", "'had realized'", "'has realized'", "fine as is"], answer: 0, exp: "The auxiliary verb 'did' carries the past tense, so the main verb must be in the base form: 'realize'." },
+            { q: "He behaves <span class='highlight'>as if</span> he is the boss.", options: ["'were'", "'was'", "'has been'", "fine as is"], answer: 0, exp: "'As if' introduces a hypothetical or contrary-to-fact situation, requiring the subjunctive 'were'." },
+            { q: "<span class='highlight'>By the time I retire</span>, I will work here <span class='highlight'>for forty years</span>.", options: ["'will have worked' or 'will have been working'", "'have worked'", "'am working'", "fine as is"], answer: 0, exp: "To describe an action that will be completed over a duration of time before a specific point in the future, use the future perfect (continuous)." },
+            { q: "The boss <span class='highlight'>demanded that</span> the report is finished by Friday.", options: ["'be finished'", "'was finished'", "'will be finished'", "fine as is"], answer: 0, exp: "The verb 'demanded' triggers the subjunctive mood, requiring the base form 'be'." },
+            { q: "I didn't know you were here; I would have baked a cake.", options: ["'had I known'", "'If I knew'", "'knowing'", "fine as is"], answer: 0, exp: "To express a past unreal condition without using 'if', invert the subject and the past perfect auxiliary: 'Had I known'." },
+
+            // Very Hard (41-50)
+            { q: "<span class='highlight'>If</span> he should arrive early, told him to wait.", options: ["'tell'", "'tells'", "'had told'", "fine as is"], answer: 0, exp: "This is a mixed conditional/imperative. The result clause is a command, so it needs the imperative base form: 'tell'." },
+            { q: "<span class='highlight'>It is imperative that</span> the machinery is shut down immediately.", options: ["'be shut down'", "'was shut down'", "'has been shut down'", "fine as is"], answer: 0, exp: "Phrases like 'It is imperative that' require the subjunctive mood (base form of the verb): 'be'." },
+            { q: "<span class='highlight'>Hardly</span> had the play started <span class='highlight'>than</span> the fire alarm went off.", options: ["'when'", "'then'", "'that'", "fine as is"], answer: 0, exp: "The correlative conjunction for 'hardly' or 'scarcely' is 'when'. (Use 'than' with 'no sooner')." },
+            { q: "I <span class='highlight'>would rather</span> you don't smoke in the house.", options: ["'didn't'", "'haven't'", "'won't'", "fine as is"], answer: 0, exp: "When 'would rather' is followed by a different subject ('you'), use the simple past tense ('didn't') to express a present preference." },
+            { q: "<span class='highlight'>No sooner</span> had he left the building <span class='highlight'>when</span> it exploded.", options: ["'than'", "'then'", "'that'", "fine as is"], answer: 0, exp: "The correct correlative conjunction for 'no sooner' is 'than'." },
+            { q: "<span class='highlight'>Supposing</span> he had missed the train, what would he do?", options: ["'would he have done'", "'will he do'", "'did he do'", "fine as is"], answer: 0, exp: "The 'supposing' clause uses the past perfect ('had missed'), setting up a third conditional. The result clause must use 'would have + past participle'." },
+            { q: "He speaks English <span class='highlight'>as though</span> he lived in London all his life.", options: ["'had lived'", "'has lived'", "'lives'", "fine as is"], answer: 0, exp: "To express a hypothetical past action (he didn't actually live there all his life) prior to the present speaking, use the past perfect: 'had lived'." },
+            { q: "The committee <span class='highlight'>recommended that</span> the budget was increased.", options: ["'be increased'", "'is increased'", "'has been increased'", "fine as is"], answer: 0, exp: "The verb 'recommended' triggers the subjunctive mood, requiring the base form 'be'." },
+            { q: "<span class='highlight'>Had I known</span> it was going to rain, I brought an umbrella.", options: ["'would have brought'", "'will bring'", "'had brought'", "fine as is"], answer: 0, exp: "'Had I known' sets up a past unreal condition (third conditional). The result clause requires 'would have + past participle'." },
+            { q: "<span class='highlight'>By next July</span>, we will have been living here <span class='highlight'>for exactly two years</span>.", options: ["'fine as is' (No change needed)", "'will live'", "'have lived'", "'will have lived'"], answer: 0, exp: "Trick question! The sentence is grammatically correct. It perfectly uses the future perfect continuous to emphasize duration leading up to a future point." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let synth = window.speechSynthesis;
+        let synthVoice = null;
+        let audioContextStarted = false;
+
+        let correctSynth, incorrectSynth;
+
+        function initAudio() {
+            if (!audioContextStarted) {
+                Tone.start();
+                correctSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                incorrectSynth = new Tone.Synth().toDestination();
+                audioContextStarted = true;
+                
+                let voices = synth.getVoices();
+                synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+            }
+        }
+
+        function playCorrectSound() {
+            if (!audioContextStarted) return;
+            correctSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
+        }
+
+        function playIncorrectSound() {
+            if (!audioContextStarted) return;
+            incorrectSynth.triggerAttackRelease("C3", "8n");
+        }
+
+        function startQuiz() {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            synth.cancel(); 
+            
+            // Hide explanation from previous question
+            document.getElementById('explanation-container').classList.add('hidden');
+
+            const q = quizData[currentQuestionIndex];
+            
+            document.getElementById('question-tracker').innerText = `Question ${currentQuestionIndex + 1} / 50`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex) / 50) * 100}%`;
+            
+            // Use innerHTML so the <span> tags render correctly
+            document.getElementById('question-text').innerHTML = `"${q.q}"`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                let btn = document.createElement('button');
+                
+                // Format the "Um... actually" text
+                let prefix = (opt.includes("fine as is")) ? "Um... actually, it is " : "Um... actually, it should be ";
+                btn.innerHTML = `<strong>${prefix}</strong> ${opt}.`;
+                
+                btn.className = 'option-btn w-full bg-white border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl text-left hover:border-amber-400 focus:outline-none text-lg';
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Auto-read the sentence
+            speakQuestion();
+        }
+
+        function speakQuestion() {
+            initAudio();
+            synth.cancel();
+            
+            // By grabbing innerText, the browser automatically strips the HTML <span> tags
+            // so the TTS engine reads the sentence naturally.
+            let qText = document.getElementById('question-text').innerText;
+            const utterance = new SpeechSynthesisUtterance(qText);
+            if (synthVoice) utterance.voice = synthVoice;
+            utterance.rate = 0.85; // Slightly slower for clarity
+            synth.speak(utterance);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const q = quizData[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                score++;
+                document.getElementById('score-tracker').innerText = `Score: ${score}`;
+                playCorrectSound();
+            } else {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                
+                // Highlight correct answer
+                allBtns[q.answer].classList.remove('border-gray-200', 'bg-white');
+                allBtns[q.answer].classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                playIncorrectSound();
+            }
+
+            // Show Explanation
+            document.getElementById('explanation-text').innerText = q.exp;
+            document.getElementById('explanation-container').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            let emoji = '🏆';
+            if (score < 40) emoji = '🎓';
+            if (score < 25) emoji = '📚';
+            if (score < 10) emoji = '✏️';
+            document.getElementById('emoji-result').innerText = emoji;
+        }
+
+        // Voice loading hook for browsers that load voices asynchronously (Chrome)
+        window.speechSynthesis.onvoiceschanged = () => {
+            let voices = synth.getVoices();
+            synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+        };
+    </script>
+</body>
+</html>

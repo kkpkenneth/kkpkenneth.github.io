@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The "Um... Actually" Prepositions Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #ccfbf1, #f3f4f6); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        
+        /* Custom Highlight Style for Signal Words */
+        .highlight {
+            background-color: #99f6e4; /* teal-200 */
+            color: #0f766e; /* teal-700 */
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-style: wavy;
+            text-decoration-color: #14b8a6; /* teal-500 */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-card w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden p-6 md:p-10 fade-in">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-teal-700 mb-4">The "Um... Actually" Prepositions Quiz</h1>
+            <p class="text-gray-600 mb-8 text-lg">Every sentence contains a <strong>preposition error</strong>. Use the highlighted <strong>signal words</strong> (the verbs or adjectives that govern the phrase) to find the mistake and correct it!</p>
+            <button onclick="startQuiz()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg transition duration-300 text-xl">
+                Start Proofreading
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span id="question-tracker" class="font-bold text-gray-500 tracking-wide uppercase text-sm">Question 1 / 50</span>
+                <span id="score-tracker" class="font-bold text-teal-800 bg-teal-100 py-1 px-4 rounded-full">Score: 0</span>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+                <div id="progress-bar" class="bg-teal-500 h-2 rounded-full transition-all duration-300" style="width: 2%"></div>
+            </div>
+
+            <div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 border-l-4 border-red-400 pl-4 py-2 bg-red-50 rounded-r-lg">
+                <button onclick="speakQuestion()" class="bg-white hover:bg-gray-100 text-gray-700 p-3 rounded-full shadow transition shrink-0" title="Listen to sentence">
+                    🔊
+                </button>
+                <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed text-red-900">Loading...</h2>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3 mt-6">
+                <!-- Options injected via JS -->
+            </div>
+
+            <!-- Explanation Box (Hidden until answer is clicked) -->
+            <div id="explanation-container" class="hidden mt-6 fade-in">
+                <div class="p-5 bg-teal-50 border-l-4 border-teal-500 rounded-r-lg">
+                    <h3 class="font-bold text-teal-900 mb-1">Why?</h3>
+                    <p id="explanation-text" class="text-gray-800 text-lg"></p>
+                </div>
+                <div class="mt-6 text-right">
+                    <button onclick="nextQuestion()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                        Next Question ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Proofreading Complete!</h2>
+            <div class="text-7xl mb-4" id="emoji-result">🏆</div>
+            <p class="text-xl text-gray-600 mb-6">You corrected <span id="final-score" class="font-bold text-teal-600 text-3xl">0</span> out of 50 preposition errors.</p>
+            <button onclick="location.reload()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                Play Again
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 50 Questions: Sentences contain a PREPOSITION error. 
+        // Signal words are wrapped in <span class='highlight'></span>
+        const quizData = [
+            // Very Easy (1-10)
+            { q: "She is very <span class='highlight'>good</span> in math.", options: ["'at'", "'with'", "'for'", "fine as is"], answer: 0, exp: "The adjective 'good' (when describing a skill or ability) is always followed by 'at', not 'in'." },
+            { q: "I was <span class='highlight'>born</span> at October.", options: ["'in'", "'on'", "'by'", "fine as is"], answer: 0, exp: "Use 'in' for months, years, and seasons (in October, in 1992). Use 'on' for specific days (on Monday)." },
+            { q: "We have a <span class='highlight'>meeting</span> in Monday.", options: ["'on'", "'at'", "'for'", "fine as is"], answer: 0, exp: "Use 'on' for days of the week (on Monday, on Tuesday)." },
+            { q: "He is terrified, because he is <span class='highlight'>afraid</span> from spiders.", options: ["'of'", "'by'", "'with'", "fine as is"], answer: 0, exp: "The adjective 'afraid' is fixed with the preposition 'of'." },
+            { q: "Please <span class='highlight'>listen</span> the teacher carefully.", options: ["'to'", "'at'", "'for'", "fine as is"], answer: 0, exp: "The verb 'listen' is always followed by the preposition 'to' when indicating the target of attention." },
+            { q: "Whether we go or not <span class='highlight'>depends</span> from the weather.", options: ["'on'", "'of'", "'by'", "fine as is"], answer: 0, exp: "The verb 'depend' is always followed by 'on' (or 'upon')." },
+            { q: "Did you hear? She is <span class='highlight'>married</span> with a doctor.", options: ["'to'", "'by'", "'for'", "fine as is"], answer: 0, exp: "In English, you are married 'to' someone, not 'with' them." },
+            { q: "I am really <span class='highlight'>interested</span> for learning Spanish.", options: ["'in'", "'about'", "'to'", "fine as is"], answer: 0, exp: "The adjective 'interested' pairs strictly with the preposition 'in'." },
+            { q: "They have been <span class='highlight'>waiting</span> on the bus for twenty minutes.", options: ["'for'", "'to'", "'at'", "fine as is"], answer: 0, exp: "While 'waiting on' means serving someone (like a waiter), 'waiting for' means expecting someone or something to arrive." },
+            { q: "Hey, <span class='highlight'>look</span> on this picture!", options: ["'at'", "'to'", "'for'", "fine as is"], answer: 0, exp: "When directing someone's vision toward a specific object, use 'look at'." },
+
+            // Easy (11-20)
+            { q: "We <span class='highlight'>arrived</span> to London yesterday.", options: ["'in'", "'at'", "'on'", "fine as is"], answer: 0, exp: "You arrive 'in' a city or country, and you arrive 'at' a specific building or location (like an airport or hotel). You never arrive 'to'." },
+            { q: "I totally <span class='highlight'>agree</span> to you.", options: ["'with'", "'on'", "'about'", "fine as is"], answer: 0, exp: "You agree 'with' a person, but you agree 'to' a proposal or plan." },
+            { q: "He needs to <span class='highlight'>apologize</span> at his boss.", options: ["'to'", "'for'", "'with'", "fine as is"], answer: 0, exp: "You apologize 'to' a person 'for' an action." },
+            { q: "Whose is this? It <span class='highlight'>belongs</span> for me.", options: ["'to'", "'with'", "'at'", "fine as is"], answer: 0, exp: "The verb 'belong' takes the preposition 'to' when indicating ownership." },
+            { q: "I can't <span class='highlight'>concentrate</span> in my work with this noise.", options: ["'on'", "'to'", "'at'", "fine as is"], answer: 0, exp: "You always concentrate 'on' a task or subject." },
+            { q: "The book <span class='highlight'>consists</span> from three main chapters.", options: ["'of'", "'in'", "'with'", "fine as is"], answer: 0, exp: "The verb 'consist' is always followed by 'of'." },
+            { q: "She finally <span class='highlight'>succeeded</span> to pass the exam.", options: ["'in passing'", "'on passing'", "'to passing'", "fine as is"], answer: 0, exp: "You succeed 'in' doing something (followed by a gerund), you don't succeed 'to' do it." },
+            { q: "You can always <span class='highlight'>rely</span> in me.", options: ["'on'", "'to'", "'with'", "fine as is"], answer: 0, exp: "The verbs 'rely', 'depend', and 'count' all take the preposition 'on'." },
+            { q: "He <span class='highlight'>insisted</span> to paying for the dinner.", options: ["'on'", "'for'", "'in'", "fine as is"], answer: 0, exp: "You insist 'on' something or insist 'on' doing something." },
+            { q: "She is very <span class='highlight'>fond</span> for chocolate.", options: ["'of'", "'with'", "'in'", "fine as is"], answer: 0, exp: "The adjective 'fond' pairs with 'of'." },
+
+            // Medium (21-30)
+            { q: "I am not <span class='highlight'>accustomed</span> with this cold weather.", options: ["'to'", "'for'", "'by'", "fine as is"], answer: 0, exp: "You become accustomed 'to' something, not with it." },
+            { q: "Are you <span class='highlight'>capable</span> to do this job?", options: ["'of doing'", "'in doing'", "'for doing'", "fine as is"], answer: 0, exp: "The adjective 'capable' takes 'of' + an -ing verb (gerund). 'Able' takes 'to' + base verb." },
+            { q: "Paris is <span class='highlight'>famous</span> with its art museums.", options: ["'for'", "'by'", "'in'", "fine as is"], answer: 0, exp: "A place or person is famous 'for' their notable qualities or exports." },
+            { q: "The glass is <span class='highlight'>full</span> with water.", options: ["'of'", "'from'", "'by'", "fine as is"], answer: 0, exp: "A container is full 'of' something. (However, it can be 'filled with' something)." },
+            { q: "He was found <span class='highlight'>guilty</span> for theft.", options: ["'of'", "'from'", "'about'", "fine as is"], answer: 0, exp: "In legal and general contexts, a person is guilty 'of' a crime." },
+            { q: "They are very <span class='highlight'>proud</span> for their son's achievements.", options: ["'of'", "'with'", "'about'", "fine as is"], answer: 0, exp: "You are proud 'of' someone or something." },
+            { q: "Who is <span class='highlight'>responsible</span> of this mess?", options: ["'for'", "'to'", "'with'", "fine as is"], answer: 0, exp: "You are responsible 'for' an action, task, or problem." },
+            { q: "Your jacket is very <span class='highlight'>similar</span> with mine.", options: ["'to'", "'as'", "'like'", "fine as is"], answer: 0, exp: "Items are similar 'to' each other. (They can be identical 'with' or 'to' each other)." },
+            { q: "I am <span class='highlight'>tired</span> from hearing the same excuses.", options: ["'of'", "'with'", "'by'", "fine as is"], answer: 0, exp: "If you are annoyed or bored, you are tired 'of' something. If you are physically exhausted, you are tired 'from' working." },
+            { q: "The kids are very <span class='highlight'>excited</span> for the trip.", options: ["'about'", "'with'", "'on'", "fine as is"], answer: 0, exp: "You are excited 'about' an upcoming event." },
+
+            // Hard (31-40) - Redundant Prepositions & Confusing Pairs
+            { q: "We need to <span class='highlight'>discuss</span> about the new project.", options: ["just 'discuss'", "'discuss on'", "'discuss over'", "fine as is"], answer: 0, exp: "'Discuss' means 'talk about'. Adding 'about' after it is redundant." },
+            { q: "The speaker will <span class='highlight'>emphasize</span> on the importance of diet.", options: ["just 'emphasize'", "'emphasize about'", "'emphasize in'", "fine as is"], answer: 0, exp: "Like 'discuss', the verb 'emphasize' takes a direct object. Do not add 'on'." },
+            { q: "He completely <span class='highlight'>lacks</span> of confidence.", options: ["just 'lacks'", "'lacks in'", "'lacks for'", "fine as is"], answer: 0, exp: "As a verb, 'lack' takes a direct object (He lacks confidence). As a noun, it takes 'of' (A lack of confidence)." },
+            { q: "When are you going to <span class='highlight'>return</span> back the book?", options: ["just 'return'", "'return it back'", "'return to'", "fine as is"], answer: 0, exp: "'Return' already means to give or go back. Adding 'back' is a tautology (redundant)." },
+            { q: "She <span class='highlight'>entered</span> into the room quietly.", options: ["just 'entered'", "'entered in'", "'entered to'", "fine as is"], answer: 0, exp: "When entering a physical space, 'enter' takes no preposition. (You can 'enter into' an agreement or contract, however)." },
+            { q: "<span class='highlight'>Despite</span> of the rain, we went outside.", options: ["just 'Despite'", "'In spite'", "'Regardless'", "fine as is"], answer: 0, exp: "Use 'Despite' (no preposition) or 'In spite of'. Never mix them to say 'Despite of'." },
+            { q: "The committee <span class='highlight'>comprises</span> of five members.", options: ["just 'comprises'", "'is comprised by'", "'comprise with'", "fine as is"], answer: 0, exp: "'Comprise' means to 'consist of'. You can say 'is composed of', but never 'comprises of'." },
+            { q: "This model is visually <span class='highlight'>superior</span> than the older one.", options: ["'to'", "'from'", "'over'", "fine as is"], answer: 0, exp: "Latin comparative adjectives (superior, inferior, senior, junior) take 'to', not 'than'." },
+            { q: "I greatly <span class='highlight'>prefer</span> tea than coffee.", options: ["'to'", "'over'", "'from'", "fine as is"], answer: 0, exp: "You prefer one thing 'to' another thing." },
+            { q: "The agency is completely <span class='highlight'>independent</span> from the government.", options: ["'of'", "'to'", "'with'", "fine as is"], answer: 0, exp: "You are dependent 'on', but independent 'of'." },
+
+            // Very Hard (41-50) - Advanced Nuances
+            { q: "He was completely <span class='highlight'>oblivious</span> from the danger.", options: ["'to'", "'of'", "'about'", "fine as is"], answer: 0, exp: "The adjective 'oblivious' is followed by 'to' (or sometimes 'of'), but never 'from'." },
+            { q: "You must sign this <span class='highlight'>prior</span> than your arrival.", options: ["'to'", "'of'", "'from'", "fine as is"], answer: 0, exp: "'Prior' takes the preposition 'to', just like the Latin comparatives superior/inferior." },
+            { q: "Her salary is <span class='highlight'>commensurate</span> to her experience.", options: ["'with'", "'of'", "'for'", "fine as is"], answer: 0, exp: "The formal adjective 'commensurate' (meaning proportional) pairs with 'with'." },
+            { q: "A loud environment is not <span class='highlight'>conducive</span> for studying.", options: ["'to'", "'with'", "'of'", "fine as is"], answer: 0, exp: "'Conducive' (meaning making a certain situation likely/possible) is followed by 'to'." },
+            { q: "His argument was entirely <span class='highlight'>devoid</span> from logic.", options: ["'of'", "'with'", "'to'", "fine as is"], answer: 0, exp: "'Devoid' means entirely lacking or free from, and it pairs exclusively with 'of'." },
+            { q: "Because of his age, he is <span class='highlight'>exempt</span> to the new tax.", options: ["'from'", "'of'", "'with'", "fine as is"], answer: 0, exp: "If you are free from an obligation, you are 'exempt from' it." },
+            { q: "She became quickly <span class='highlight'>infatuated</span> about the famous actor.", options: ["'with'", "'to'", "'for'", "fine as is"], answer: 0, exp: "You are infatuated 'with' someone." },
+            { q: "Passing this class is a <span class='highlight'>prerequisite</span> of graduation.", options: ["'for' or 'to'", "'with'", "'about'", "fine as is"], answer: 0, exp: "A requirement prior to something else is a prerequisite 'for' or 'to' that thing, not 'of'." },
+            { q: "His aggressive refusal was <span class='highlight'>tantamount</span> with a declaration of war.", options: ["'to'", "'of'", "'for'", "fine as is"], answer: 0, exp: "'Tantamount' (meaning equivalent in seriousness) is followed by 'to'." },
+            { q: "The hotel is directly <span class='highlight'>adjacent</span> with the train station.", options: ["'to'", "'of'", "'by'", "fine as is"], answer: 0, exp: "If something is next to something else, it is adjacent 'to' it." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let synth = window.speechSynthesis;
+        let synthVoice = null;
+        let audioContextStarted = false;
+
+        let correctSynth, incorrectSynth;
+
+        function initAudio() {
+            if (!audioContextStarted) {
+                Tone.start();
+                correctSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                incorrectSynth = new Tone.Synth().toDestination();
+                audioContextStarted = true;
+                
+                let voices = synth.getVoices();
+                synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+            }
+        }
+
+        function playCorrectSound() {
+            if (!audioContextStarted) return;
+            correctSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
+        }
+
+        function playIncorrectSound() {
+            if (!audioContextStarted) return;
+            incorrectSynth.triggerAttackRelease("C3", "8n");
+        }
+
+        function startQuiz() {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            synth.cancel(); 
+            
+            // Hide explanation from previous question
+            document.getElementById('explanation-container').classList.add('hidden');
+
+            const q = quizData[currentQuestionIndex];
+            
+            document.getElementById('question-tracker').innerText = `Question ${currentQuestionIndex + 1} / 50`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex) / 50) * 100}%`;
+            
+            // Use innerHTML so the <span class='highlight'> tags render correctly
+            document.getElementById('question-text').innerHTML = `"${q.q}"`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                let btn = document.createElement('button');
+                
+                // Format the "Um... actually" text
+                let prefix = (opt.includes("fine as is") || opt.includes("just")) ? "Um... actually, it is " : "Um... actually, it should be ";
+                btn.innerHTML = `<strong>${prefix}</strong> ${opt}.`;
+                
+                btn.className = 'option-btn w-full bg-white border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl text-left hover:border-teal-400 focus:outline-none text-lg';
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Auto-read the sentence
+            speakQuestion();
+        }
+
+        function speakQuestion() {
+            initAudio();
+            synth.cancel();
+            
+            // By grabbing innerText, the browser automatically strips the HTML <span> tags
+            // so the TTS engine reads the sentence naturally.
+            let qText = document.getElementById('question-text').innerText;
+            const utterance = new SpeechSynthesisUtterance(qText);
+            if (synthVoice) utterance.voice = synthVoice;
+            utterance.rate = 0.85; // Slightly slower for clarity
+            synth.speak(utterance);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const q = quizData[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-900');
+                score++;
+                document.getElementById('score-tracker').innerText = `Score: ${score}`;
+                playCorrectSound();
+            } else {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-red-500', 'bg-red-50', 'text-red-900');
+                
+                // Highlight correct answer
+                allBtns[q.answer].classList.remove('border-gray-200', 'bg-white');
+                allBtns[q.answer].classList.add('border-teal-500', 'bg-teal-50', 'text-teal-900');
+                playIncorrectSound();
+            }
+
+            // Show Explanation
+            document.getElementById('explanation-text').innerText = q.exp;
+            document.getElementById('explanation-container').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            let emoji = '🏆';
+            if (score < 40) emoji = '🎓';
+            if (score < 25) emoji = '📚';
+            if (score < 10) emoji = '✏️';
+            document.getElementById('emoji-result').innerText = emoji;
+        }
+
+        // Voice loading hook for browsers that load voices asynchronously (Chrome)
+        window.speechSynthesis.onvoiceschanged = () => {
+            let voices = synth.getVoices();
+            synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+        };
+    </script>
+</body>
+</html>

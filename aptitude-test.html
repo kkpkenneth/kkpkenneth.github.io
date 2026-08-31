@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Sequence Master Challenge</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .score-display {
+            font-size: 0.9rem;
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .question-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 1.25rem;
+        }
+
+        .sequence-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            text-align: center;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #818cf8;
+            margin-bottom: 1.5rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 1rem;
+            text-align: center;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: var(--success);
+            color: #6ee7b7;
+        }
+
+        .option-btn.incorrect {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--error);
+            color: #fca5a5;
+        }
+
+        .explanation-box {
+            margin-top: 1.25rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.7);
+            border-left: 4px solid var(--primary);
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .next-btn {
+            margin-top: 1.5rem;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+
+        .start-screen h1 {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .start-screen p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="startScreen" class="screen active start-screen">
+            <h1>Number Sequence Challenge</h1>
+            <p>Test your logic across 20 sequence puzzles sharing advanced mathematical patterns. Instant audio feedback included!</p>
+            <button class="action-btn" onclick="startQuiz()">Start Challenge</button>
+        </div>
+
+        <div id="quizScreen" class="screen">
+            <div class="header">
+                <span class="progress-text" id="progressText">Puzzle 1 of 20</span>
+                <span class="score-display" id="scoreDisplay">Score: 0</span>
+            </div>
+            <div class="question-container">
+                <h2 class="question-title">What number comes next in the sequence?</h2>
+                <div class="sequence-box" id="sequenceBox">Loading...</div>
+                <div class="options-grid" id="optionsGrid"></div>
+            </div>
+            <div class="explanation-box" id="explanationBox"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Puzzle</button>
+        </div>
+
+        <div id="resultScreen" class="screen start-screen">
+            <h1>Challenge Completed! 🏆</h1>
+            <p id="finalScoreText">You scored X out of 20</p>
+            <button class="action-btn" onclick="restartQuiz()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                seq: "7, 9, -1, 5, ?",
+                options: ["-3", "-1", "3", "5"],
+                answer: 0,
+                explanation: "Consecutive pair sums (7+9=16, 9+(-1)=8, -1+5=4) form a halving geometric sequence. Next sum is 2, so 5 + x = 2 -> x = -3."
+            },
+            {
+                seq: "2, 6, 4, 10, ?",
+                options: ["6", "8", "12", "14"],
+                answer: 1,
+                explanation: "Consecutive pair sums (2+6=8, 6+4=10, 4+10=14) increase by 2 each step (+2, +2). Next sum is 16, so 10 + x = 16 -> x = 6."
+            },
+            {
+                seq: "1, 3, 7, 15, ?",
+                options: ["23", "27", "31", "35"],
+                answer: 2,
+                explanation: "Each term is multiplied by 2 and then increased by 1: (1×2)+1=3, (3×2)+1=7, (7×2)+1=15, (15×2)+1=31."
+            },
+            {
+                seq: "3, 5, 9, 17, ?",
+                options: ["25", "31", "33", "37"],
+                answer: 2,
+                explanation: "The difference between consecutive terms doubles each time (+2, +4, +8). Next difference is +16, so 17 + 16 = 33."
+            },
+            {
+                seq: "4, 7, 12, 19, ?",
+                options: ["26", "28", "30", "32"],
+                answer: 1,
+                explanation: "The differences between terms form consecutive odd numbers (+3, +5, +7). Next difference is +9, so 19 + 9 = 28."
+            },
+            {
+                seq: "5, 10, 8, 16, ?",
+                options: ["12", "14", "18", "20"],
+                answer: 1,
+                explanation: "The pattern alternates between multiplying by 2 and subtracting 2: (5×2=10, 10-2=8, 8×2=16, 16-2=14)."
+            },
+            {
+                seq: "2, 3, 5, 9, ?",
+                options: ["13", "15", "17", "19"],
+                answer: 2,
+                explanation: "Differences double each time (+1, +2, +4). Next difference is +8, so 9 + 8 = 17."
+            },
+            {
+                seq: "1, 4, 9, 16, ?",
+                options: ["20", "24", "25", "30"],
+                answer: 2,
+                explanation: "These are square numbers: 1², 2², 3², 4². The next is 5² = 25."
+            },
+            {
+                seq: "0, 1, 1, 2, 3, 5, ?",
+                options: ["6", "7", "8", "13"],
+                answer: 2,
+                explanation: "This is the Fibonacci sequence where each term is the sum of the two preceding ones (3 + 5 = 8)."
+            },
+            {
+                seq: "2, 5, 10, 17, ?",
+                options: ["24", "26", "28", "30"],
+                answer: 1,
+                explanation: "Each term is n² + 1 for n = 1, 2, 3, 4. For n = 5, 5² + 1 = 26."
+            },
+            {
+                seq: "8, 6, 7, 5, 6, ?",
+                options: ["3", "4", "5", "7"],
+                answer: 1,
+                explanation: "The pattern alternates by subtracting 2 then adding 1 (-2, +1, -2, +1): 6 - 2 = 4."
+            },
+            {
+                seq: "3, 6, 12, 24, ?",
+                options: ["36", "42", "48", "60"],
+                answer: 2,
+                explanation: "Each term is multiplied by 2 ($3\\times 2 = 6$, $6\\times 2 = 12$, etc.). Next is $24\\times 2 = 48$."
+            },
+            {
+                seq: "1, 8, 27, 64, ?",
+                options: ["100", "125", "150", "216"],
+                answer: 1,
+                explanation: "These are cube numbers: 1³, 2³, 3³, 4³. The next is 5³ = 125."
+            },
+            {
+                seq: "10, 9, 7, 4, ?",
+                options: ["0", "1", "2", "-1"],
+                answer: 0,
+                explanation: "The differences decrease by 1 each step (-1, -2, -3). Next difference is -4, so 4 - 4 = 0."
+            },
+            {
+                seq: "20, 18, 15, 11, ?",
+                options: ["5", "6", "7", "8"],
+                answer: 1,
+                explanation: "The differences decrease sequentially (-2, -3, -4). Next difference is -5, so 11 - 5 = 6."
+            },
+            {
+                seq: "2, 3, 6, 7, 14, 15, ?",
+                options: ["16", "28", "30", "32"],
+                answer: 1,
+                explanation: "The pattern alternates between adding 1 and multiplying by 2 (+1, ×2, +1, ×2, +1): 15 × 2 = 30? Wait: 2+1=3, 3×2=6, 6+1=7, 7×2=14, 14+1=15. Next is 15 × 2 = 30."
+            },
+            {
+                seq: "64, 32, 16, 8, ?",
+                options: ["2", "4", "6", "1"],
+                answer: 1,
+                explanation: "Each term is halved sequentially (divided by 2). 8 ÷ 2 = 4."
+            },
+            {
+                seq: "1, 2, 6, 24, ?",
+                options: ["48", "72", "96", "120"],
+                answer: 3,
+                explanation: "Factorials of natural numbers: 1!, 2!, 3!, 4!. Next is 5! = 120."
+            },
+            {
+                seq: "1, 3, 4, 7, 11, 18, ?",
+                options: ["25", "27", "29", "31"],
+                answer: 2,
+                explanation: "A Lucas-style sequence where each term is the sum of the previous two (11 + 18 = 29)."
+            },
+            {
+                seq: "9, 11, 15, 23, ?",
+                options: ["31", "35", "39", "43"],
+                answer: 2,
+                explanation: "The differences double each time (+2, +4, +8). Next difference is +16, so 23 + 16 = 39."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.15); // E5
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(90, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+            }
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('quizScreen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const q = questions[currentQuestionIndex];
+            
+            document.getElementById('progressText').innerText = `Puzzle ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('scoreDisplay').innerText = `Score: ${score}`;
+            document.getElementById('sequenceBox').innerText = q.seq;
+            
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = option;
+                btn.onclick = () => selectOption(index);
+                optionsGrid.appendChild(btn);
+            });
+
+            document.getElementById('explanationBox').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            if (selectedIndex === q.answer) {
+                buttons[selectedIndex].classList.add('correct');
+                score++;
+                playSound('correct');
+            } else {
+                buttons[selectedIndex].classList.add('incorrect');
+                buttons[q.answer].classList.add('correct');
+                playSound('incorrect');
+            }
+
+            document.getElementById('scoreDisplay').innerText = `Score: ${score}`;
+            
+            const explanationBox = document.getElementById('explanationBox');
+            explanationBox.innerText = `💡 Explanation: ${q.explanation}`;
+            explanationBox.style.display = 'block';
+
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerText = currentQuestionIndex < questions.length - 1 ? "Next Puzzle" : "View Final Results";
+            nextBtn.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizScreen').classList.remove('active');
+            document.getElementById('resultScreen').classList.add('active');
+            document.getElementById('finalScoreText').innerText = `You scored ${score} out of ${questions.length}`;
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultScreen').classList.remove('active');
+            startQuiz();
+        }
+    </script>
+</body>
+</html>

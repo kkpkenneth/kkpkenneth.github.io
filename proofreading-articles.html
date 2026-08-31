@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The "Um... Actually" Articles Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e0e7ff, #f3f4f6); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-card w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden p-6 md:p-10 fade-in">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-indigo-700 mb-4">The "Um... Actually" Articles Quiz</h1>
+            <p class="text-gray-600 mb-8 text-lg">Every sentence in this 50-question quiz is <strong>grammatically incorrect</strong> regarding its use of <em>A, An, The,</em> or <em>Zero Article</em>. Find the error and correct it!</p>
+            <button onclick="startQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg transition duration-300 text-xl">
+                Start Proofreading
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span id="question-tracker" class="font-bold text-gray-500 tracking-wide uppercase text-sm">Question 1 / 50</span>
+                <span id="score-tracker" class="font-bold text-indigo-700 bg-indigo-100 py-1 px-4 rounded-full">Score: 0</span>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+                <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 2%"></div>
+            </div>
+
+            <div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 border-l-4 border-red-400 pl-4 py-2 bg-red-50 rounded-r-lg">
+                <button onclick="speakQuestion()" class="bg-white hover:bg-gray-100 text-gray-700 p-3 rounded-full shadow transition shrink-0" title="Listen to sentence">
+                    🔊
+                </button>
+                <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed text-red-900">Loading...</h2>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3 mt-6">
+                <!-- Options injected via JS -->
+            </div>
+
+            <!-- Explanation Box (Hidden until answer is clicked) -->
+            <div id="explanation-container" class="hidden mt-6 fade-in">
+                <div class="p-5 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg">
+                    <h3 class="font-bold text-indigo-800 mb-1">Why?</h3>
+                    <p id="explanation-text" class="text-gray-700 text-lg"></p>
+                </div>
+                <div class="mt-6 text-right">
+                    <button onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                        Next Question ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Proofreading Complete!</h2>
+            <div class="text-7xl mb-4" id="emoji-result">🏆</div>
+            <p class="text-xl text-gray-600 mb-6">You corrected <span id="final-score" class="font-bold text-indigo-600 text-3xl">0</span> out of 50 sentences.</p>
+            <button onclick="location.reload()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300">
+                Play Again
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 50 Questions: All sentences are WRONG. User must pick the correct fix.
+        const quizData = [
+            // Very Easy (1-10)
+            { q: "I have an cat and a dog.", options: ["'a cat'", "'the cat'", "just 'cat'", "fine as is"], answer: 0, exp: "Use 'a' before words that start with a consonant sound." },
+            { q: "She is eating a apple.", options: ["'an apple'", "'the apple'", "just 'apple'", "fine as is"], answer: 0, exp: "Use 'an' before words that start with a vowel sound." },
+            { q: "Look at a moon!", options: ["'an moon'", "'the moon'", "just 'moon'", "fine as is"], answer: 1, exp: "Use 'the' for unique objects in our solar system, like the moon or the sun." },
+            { q: "I need the new phone, any brand is fine.", options: ["'a new phone'", "'an new phone'", "just 'new phone'", "fine as is"], answer: 0, exp: "Because you are referring to any phone in general, not a specific one, use the indefinite article 'a'." },
+            { q: "He is reading an book.", options: ["'a book'", "'the book'", "just 'book'", "fine as is"], answer: 0, exp: "'Book' starts with a consonant sound, so it takes 'a'." },
+            { q: "We saw a elephant at the zoo.", options: ["'an elephant'", "'the elephant'", "just 'elephant'", "fine as is"], answer: 0, exp: "'Elephant' starts with a vowel sound, so it takes 'an'." },
+            { q: "Please close a door behind you.", options: ["'an door'", "'the door'", "just 'door'", "fine as is"], answer: 1, exp: "Since there is a specific door being referred to in the room, you use the definite article 'the'." },
+            { q: "I want to buy the car, but I haven't chosen one yet.", options: ["'a car'", "'an car'", "just 'car'", "fine as is"], answer: 0, exp: "Because a specific car hasn't been chosen yet, it remains a general concept requiring 'a'." },
+            { q: "Can you pass me a salt?", options: ["'an salt'", "'the salt'", "just 'salt'", "fine as is"], answer: 1, exp: "You are asking for the specific salt shaker on the table, so you use 'the'." },
+            { q: "He gave me a orange.", options: ["'an orange'", "'the orange'", "just 'orange'", "fine as is"], answer: 0, exp: "'Orange' starts with a vowel sound, so it takes 'an'." },
+
+            // Easy (11-20)
+            { q: "A sun rises in the east.", options: ["'An sun'", "'The sun'", "just 'sun'", "fine as is"], answer: 1, exp: "There is only one sun in our solar system, so it is a specific, unique noun requiring 'the'." },
+            { q: "I watched a movie. A movie was great.", options: ["'An movie'", "'The movie'", "just 'movie'", "fine as is"], answer: 1, exp: "When referring to a noun for the second time, it becomes specific to the listener, requiring 'the'." },
+            { q: "She is the teacher at a random school.", options: ["'a teacher'", "'an teacher'", "just 'teacher'", "fine as is"], answer: 0, exp: "When stating someone's profession generally without specifying a title, use 'a' or 'an'." },
+            { q: "They just bought the big house in the suburbs.", options: ["'a big house'", "'an big house'", "just 'big house'", "fine as is"], answer: 0, exp: "This is the first time the house is mentioned, so it takes the indefinite article 'a'." },
+            { q: "It takes a hour to get there.", options: ["'an hour'", "'the hour'", "just 'hour'", "fine as is"], answer: 0, exp: "'Hour' starts with a silent 'h', making the first sound a vowel. Therefore, it takes 'an'." },
+            { q: "I am going to a supermarket we always go to.", options: ["'an supermarket'", "'the supermarket'", "just 'supermarket'", "fine as is"], answer: 1, exp: "Because both the speaker and listener know which specific supermarket it is, 'the' is used." },
+            { q: "I like listening to the music in general.", options: ["'a music'", "'an music'", "just 'music' (no article)", "fine as is"], answer: 2, exp: "When talking about an uncountable noun in a general sense, use the zero article (no article)." },
+            { q: "The dogs are great pets generally speaking.", options: ["'A dogs'", "'An dogs'", "just 'Dogs' (no article)", "fine as is"], answer: 2, exp: "When making a general statement about plural countable nouns, do not use an article." },
+            { q: "We had a dinner at 7 PM.", options: ["'an dinner'", "'the dinner'", "just 'dinner' (no article)", "fine as is"], answer: 2, exp: "Routine meals (breakfast, lunch, dinner) generally take no article unless you are describing a specific, special meal." },
+            { q: "Let's go to a beach near our house.", options: ["'an beach'", "'the beach'", "just 'beach'", "fine as is"], answer: 1, exp: "Since you are referring to a specific, known geographical location nearby, use 'the'." },
+
+            // Medium (21-30)
+            { q: "He plays a piano very well.", options: ["'an piano'", "'the piano'", "just 'piano'", "fine as is"], answer: 1, exp: "When talking about playing musical instruments generally, we use 'the' (e.g., play the piano, play the guitar)." },
+            { q: "I study the English at school.", options: ["'a English'", "'an English'", "just 'English' (no article)", "fine as is"], answer: 2, exp: "Languages do not take articles. You study 'English', not 'the English'." },
+            { q: "She goes to the work at 8 AM.", options: ["'a work'", "'an work'", "just 'work' (no article)", "fine as is"], answer: 2, exp: "'Work' as a general destination/activity takes no article (e.g., go to work, be at work)." },
+            { q: "Paris is the capital of the France.", options: ["'a France'", "'an France'", "just 'France' (no article)", "fine as is"], answer: 2, exp: "Most single countries, like France, do not take an article." },
+            { q: "We visited a Eiffel Tower.", options: ["'an Eiffel Tower'", "'the Eiffel Tower'", "just 'Eiffel Tower'", "fine as is"], answer: 1, exp: "Famous buildings and unique landmarks require the definite article 'the'." },
+            { q: "He is a best player on the team.", options: ["'an best'", "'the best'", "just 'best'", "fine as is"], answer: 1, exp: "Superlatives (best, biggest, fastest) always require 'the'." },
+            { q: "I need an information about the flights.", options: ["'a information'", "'the information'", "just 'information' (no article)", "fine as is"], answer: 2, exp: "'Information' is an uncountable noun in English and cannot be preceded by 'a' or 'an'." },
+            { q: "Have you ever been to United States?", options: ["'a United States'", "'an United States'", "'the United States'", "fine as is"], answer: 2, exp: "Countries that are plurals or include words like 'States', 'Republic', or 'Kingdom' require 'the'." },
+            { q: "She gave me a useful advice.", options: ["'an useful advice'", "'the useful advice'", "just 'useful advice' (no article)", "fine as is"], answer: 2, exp: "'Advice' is uncountable. You cannot have 'an advice'. You either use no article or say 'a piece of advice'." },
+            { q: "A water in this specific bottle is cold.", options: ["'An water'", "'The water'", "just 'Water'", "fine as is"], answer: 1, exp: "While 'water' is usually uncountable, here you are referring to the specific water inside this bottle, which requires 'the'." },
+
+            // Hard (31-40)
+            { q: "He is studying at an university.", options: ["'a university'", "'the university'", "just 'university'", "fine as is"], answer: 0, exp: "Even though 'university' starts with a vowel letter, it starts with a consonant sound ('yoo'), so it takes 'a'." },
+            { q: "She is a honest person.", options: ["'an honest'", "'the honest'", "just 'honest'", "fine as is"], answer: 0, exp: "'Honest' starts with a silent 'h', meaning the first sound is a vowel ('o'). Therefore, it takes 'an'." },
+            { q: "The criminal was sent to the prison.", options: ["'a prison'", "'an prison'", "just 'prison' (no article)", "fine as is"], answer: 2, exp: "When referring to institutions like prison, hospital, or school for their primary purpose, use no article (He is in prison)." },
+            { q: "We traveled by the train.", options: ["'a train'", "'an train'", "just 'train' (no article)", "fine as is"], answer: 2, exp: "Modes of transport used with 'by' take no article (by car, by train, by bus)." },
+            { q: "She is staying at Hilton Hotel.", options: ["'a Hilton Hotel'", "'an Hilton Hotel'", "'the Hilton Hotel'", "fine as is"], answer: 2, exp: "Names of specific hotels, theaters, and museums usually require 'the'." },
+            { q: "A rich should help the poor.", options: ["'An rich'", "'The rich'", "just 'Rich'", "fine as is"], answer: 1, exp: "When using an adjective as a plural noun to describe a group of people (the rich, the elderly), you must use 'the'." },
+            { q: "I'll see you on the Monday.", options: ["'a Monday'", "'an Monday'", "just 'Monday' (no article)", "fine as is"], answer: 2, exp: "Days of the week generally do not take articles." },
+            { q: "They crossed Sahara Desert.", options: ["'a Sahara'", "'an Sahara'", "'the Sahara Desert'", "fine as is"], answer: 2, exp: "Names of deserts, oceans, and rivers require the definite article 'the'." },
+            { q: "He has the terrible headache.", options: ["'a terrible headache'", "'an terrible headache'", "just 'terrible headache'", "fine as is"], answer: 0, exp: "Medical conditions like headaches, colds, and fevers generally take the indefinite article 'a'." },
+            { q: "He was elected a President of the club.", options: ["'an President'", "'the President' or just 'President'", "no change needed", "fine as is"], answer: 1, exp: "For unique titles held by only one person at a time, we use 'the' or no article (He was elected President)." },
+
+            // Very Hard (41-50)
+            { q: "A Mount Everest is the highest mountain in the world.", options: ["'An Mount Everest'", "'The Mount Everest'", "just 'Mount Everest' (no article)", "fine as is"], answer: 2, exp: "Individual mountains do not take articles. Mountain ranges (the Himalayas) do." },
+            { q: "We went skiing in Alps.", options: ["'a Alps'", "'an Alps'", "'the Alps'", "fine as is"], answer: 2, exp: "Plural mountain ranges require the definite article 'the'." },
+            { q: "She suffers from the diabetes.", options: ["'a diabetes'", "'an diabetes'", "just 'diabetes' (no article)", "fine as is"], answer: 2, exp: "Names of diseases and illnesses (cancer, diabetes, malaria) generally take no article." },
+            { q: "The International Criminal Court is located in Hague.", options: ["'a Hague'", "'an Hague'", "'the Hague'", "fine as is"], answer: 2, exp: "The city in the Netherlands is officially referred to with the article: The Hague." },
+            { q: "The Lake Superior is the largest of the Great Lakes.", options: ["'A Lake Superior'", "'An Lake Superior'", "just 'Lake Superior' (no article)", "fine as is"], answer: 2, exp: "Individual lakes do not take articles (Lake Victoria, Lake Superior), unlike groups of lakes (the Great Lakes)." },
+            { q: "She was appointed a CEO of the company.", options: ["'an CEO'", "'the CEO' or just 'CEO'", "no change needed", "fine as is"], answer: 1, exp: "Because there is only one CEO of the company, it's a unique title requiring 'the' or zero article." },
+            { q: "We are traveling to Republic of Ireland.", options: ["'a Republic'", "'an Republic'", "'the Republic of Ireland'", "fine as is"], answer: 2, exp: "Countries with words like 'Republic', 'State', or 'Kingdom' in their name require 'the'." },
+            { q: "It is a honor to meet you.", options: ["'an honor'", "'the honor'", "just 'honor'", "fine as is"], answer: 0, exp: "'Honor' starts with a silent 'h', making the first sound a vowel. Therefore, it takes 'an'." },
+            { q: "I read the article in New York Times.", options: ["'a New York Times'", "'an New York Times'", "'the New York Times'", "fine as is"], answer: 2, exp: "Names of newspapers almost always require the definite article 'the'." },
+            { q: "What is a capital of the Netherlands?", options: ["'an capital'", "'the capital'", "just 'capital'", "fine as is"], answer: 1, exp: "Because a country only has one specific capital, it is unique and requires 'the'." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let synth = window.speechSynthesis;
+        let synthVoice = null;
+        let audioContextStarted = false;
+
+        let correctSynth, incorrectSynth;
+
+        function initAudio() {
+            if (!audioContextStarted) {
+                Tone.start();
+                correctSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                incorrectSynth = new Tone.Synth().toDestination();
+                audioContextStarted = true;
+                
+                let voices = synth.getVoices();
+                // Prefer Google US English or standard en-US
+                synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+            }
+        }
+
+        function playCorrectSound() {
+            if (!audioContextStarted) return;
+            correctSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
+        }
+
+        function playIncorrectSound() {
+            if (!audioContextStarted) return;
+            incorrectSynth.triggerAttackRelease("C3", "8n");
+        }
+
+        function startQuiz() {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            synth.cancel(); 
+            
+            // Hide explanation from previous question
+            document.getElementById('explanation-container').classList.add('hidden');
+
+            const q = quizData[currentQuestionIndex];
+            
+            document.getElementById('question-tracker').innerText = `Question ${currentQuestionIndex + 1} / 50`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex) / 50) * 100}%`;
+            
+            document.getElementById('question-text').innerText = `"${q.q}"`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                let btn = document.createElement('button');
+                
+                // Format the "Um... actually" text
+                let prefix = (opt === "fine as is") ? "Um... actually, it is " : "Um... actually, it should be ";
+                btn.innerHTML = `<strong>${prefix}</strong> ${opt}.`;
+                
+                btn.className = 'option-btn w-full bg-white border-2 border-gray-200 text-gray-700 py-4 px-6 rounded-xl text-left hover:border-indigo-400 focus:outline-none text-lg';
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Auto-read the sentence
+            speakQuestion();
+        }
+
+        function speakQuestion() {
+            initAudio();
+            synth.cancel();
+            
+            let qText = document.getElementById('question-text').innerText;
+            const utterance = new SpeechSynthesisUtterance(qText);
+            if (synthVoice) utterance.voice = synthVoice;
+            utterance.rate = 0.85; // Slightly slower for clarity
+            synth.speak(utterance);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const q = quizData[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                score++;
+                document.getElementById('score-tracker').innerText = `Score: ${score}`;
+                playCorrectSound();
+            } else {
+                btnElement.classList.remove('border-gray-200', 'bg-white');
+                btnElement.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                
+                // Highlight correct answer
+                allBtns[q.answer].classList.remove('border-gray-200', 'bg-white');
+                allBtns[q.answer].classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                playIncorrectSound();
+            }
+
+            // Show Explanation
+            document.getElementById('explanation-text').innerText = q.exp;
+            document.getElementById('explanation-container').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            let emoji = '🏆';
+            if (score < 40) emoji = '🎓';
+            if (score < 25) emoji = '📚';
+            if (score < 10) emoji = '✏️';
+            document.getElementById('emoji-result').innerText = emoji;
+        }
+
+        // Voice loading hook for browsers that load voices asynchronously (Chrome)
+        window.speechSynthesis.onvoiceschanged = () => {
+            let voices = synth.getVoices();
+            synthVoice = voices.find(v => v.name.includes('Google US English')) || voices.find(v => v.lang === 'en-US') || voices[0];
+        };
+    </script>
+</body>
+</html>

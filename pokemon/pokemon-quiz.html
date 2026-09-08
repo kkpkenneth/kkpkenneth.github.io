@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Species Quiz</title>
+    <style>
+        :root {
+            --primary: #ffcb05;
+            --secondary: #3b4cca;
+            --background: #f0f0f0;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --locked: #cccccc;
+            --success: #4caf50;
+            --danger: #f44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            min-height: 80vh;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0.5rem;
+            width: 100%;
+            max-width: 300px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            background-color: #ffde59;
+        }
+        button:disabled {
+            background-color: var(--locked);
+            border-color: #999;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Level Selection Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        .level-btn {
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Quiz UI */
+        .pokemon-number {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .sprite-container {
+            width: 200px;
+            height: 200px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            border: 5px solid var(--secondary);
+        }
+        .sprite-container img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+        }
+        
+        /* Pokemon Types */
+        .types-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .type-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Official Pokemon Type Colors */
+        .type-normal { background-color: #A8A77A; }
+        .type-fire { background-color: #EE8130; }
+        .type-water { background-color: #6390F0; }
+        .type-electric { background-color: #F7D02C; }
+        .type-grass { background-color: #7AC74C; }
+        .type-ice { background-color: #96D9D6; }
+        .type-fighting { background-color: #C22E28; }
+        .type-poison { background-color: #A33EA1; }
+        .type-ground { background-color: #E2BF65; }
+        .type-flying { background-color: #A98FF3; }
+        .type-psychic { background-color: #F95587; }
+        .type-bug { background-color: #A6B91A; }
+        .type-rock { background-color: #B6A136; }
+        .type-ghost { background-color: #735797; }
+        .type-dragon { background-color: #6F35FC; }
+        .type-dark { background-color: #705746; }
+        .type-steel { background-color: #B7B7CE; }
+        .type-fairy { background-color: #D685AD; }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .options-grid button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .options-grid button small {
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .progress {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        /* Loader */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--secondary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Audio Element -->
+<audio id="bgm" src="pokemon-bgm.mp3" loop></audio>
+
+<div class="container">
+    
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <h1>Pokémon Species Quiz</h1>
+        <p style="margin-bottom: 2rem;">Test your knowledge! Can you guess the true species category for all 1025 Pokémon?</p>
+        <button onclick="goToLevels()">Start Game</button>
+    </div>
+
+    <!-- LEVEL SELECTION SCREEN -->
+    <div id="level-screen" class="screen">
+        <h2>Select Generation</h2>
+        <div class="grid" id="level-grid">
+            <!-- Buttons injected via JS -->
+        </div>
+        <button onclick="showScreen('start-screen')" style="margin-top: 2rem; max-width: 200px;">Back</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="screen">
+        <div class="progress" id="quiz-progress">1 / 10</div>
+        
+        <div id="loading-indicator" style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 300px;">
+            <div class="loader"></div>
+            <p style="margin-top: 1rem;">Catching data from PokéAPI and translating...</p>
+        </div>
+
+        <div id="quiz-content" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            
+            <!-- Pokemon Number Container -->
+            <div id="pokemon-number" class="pokemon-number">#001</div>
+
+            <div class="sprite-container">
+                <img id="pokemon-sprite" src="" alt="Pokemon Sprite">
+            </div>
+            
+            <!-- Type Container -->
+            <div id="pokemon-types" class="types-container">
+                <!-- Spans injected via JS -->
+            </div>
+
+            <div class="question-text" id="question-text">What Pokemon is Pikachu?</div>
+            <div class="options-grid" id="options-grid">
+                <!-- Option Buttons Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+        <h2 id="result-title">Generation Complete!</h2>
+        <h3 id="result-score">Score: 8 / 10</h3>
+        <p id="result-message" style="margin-bottom: 2rem;"></p>
+        <button onclick="goToLevels()">Back to Levels</button>
+    </div>
+
+</div>
+
+<script>
+    // --- APP STATE & CONFIG ---
+    const SPEECH_ENABLED = true;
+    const QUESTIONS_PER_LEVEL = 10;
+    const PASSING_SCORE = 7; 
+    
+    const GENERATIONS = [
+        { gen: 1, start: 1, end: 151, name: "Kanto" },
+        { gen: 2, start: 152, end: 251, name: "Johto" },
+        { gen: 3, start: 252, end: 386, name: "Hoenn" },
+        { gen: 4, start: 387, end: 493, name: "Sinnoh" },
+        { gen: 5, start: 494, end: 649, name: "Unova" },
+        { gen: 6, start: 650, end: 721, name: "Kalos" },
+        { gen: 7, start: 722, end: 809, name: "Alola" },
+        { gen: 8, start: 810, end: 905, name: "Galar" },
+        { gen: 9, start: 906, end: 1025, name: "Paldea" }
+    ];
+
+    const FALLBACK_GENERA = [
+        { en: "Mouse", zh: "老鼠" }, { en: "Seed", zh: "種子" }, { en: "Lizard", zh: "蜥蜴" }, 
+        { en: "Flame", zh: "火焰" }, { en: "Tiny Turtle", zh: "小龜" }, { en: "Worm", zh: "蟲寶寶" }, 
+        { en: "Cocoon", zh: "蛹" }, { en: "Bird", zh: "雀鳥" }, { en: "Snake", zh: "蛇" }, 
+        { en: "Poison Bee", zh: "毒蜂" }, { en: "Fairy", zh: "妖精" }, { en: "Fox", zh: "狐狸" }, 
+        { en: "Bat", zh: "蝙蝠" }, { en: "Weed", zh: "雜草" }, { en: "Mushroom", zh: "蘑菇" }, 
+        { en: "Insect", zh: "昆蟲" }, { en: "Hairy Bug", zh: "毛毛蟲" }, { en: "Dragon", zh: "龍" }, 
+        { en: "Bivalve", zh: "雙殼貝" }, { en: "Rock Snake", zh: "岩石蛇" }, { en: "Magnet", zh: "磁鐵" }, 
+        { en: "Wild Duck", zh: "野鴨" }, { en: "Sea Lion", zh: "海獅" }, { en: "Sludge", zh: "污泥" }, 
+        { en: "Crab", zh: "螃蟹" }, { en: "Bone Keeper", zh: "骨頭" }, { en: "Star Shape", zh: "星星" }, 
+        { en: "Virtual", zh: "虛擬" }, { en: "Spiral", zh: "螺旋" }, { en: "Fossil", zh: "化石" }
+    ];
+
+    let unlockedGens = 1;
+    let currentGen = 1;
+    let quizQueue = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let currentCorrectAnswer = { en: "", zh: "" };
+
+    // --- INITIALIZATION ---
+    function init() {
+        loadSaveData();
+    }
+
+    function loadSaveData() {
+        const saved = localStorage.getItem('pokeQuizSave');
+        if (saved) {
+            unlockedGens = JSON.parse(saved).unlockedGens;
+        }
+    }
+
+    function saveProgress(genCompleted) {
+        if (genCompleted >= unlockedGens && genCompleted < 9) {
+            unlockedGens = genCompleted + 1;
+            localStorage.setItem('pokeQuizSave', JSON.stringify({ unlockedGens: unlockedGens }));
+        }
+    }
+
+    // --- NAVIGATION & UI ---
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.speechSynthesis.cancel(); 
+    }
+
+    function goToLevels() {
+        // Start Background Music on first user interaction
+        const bgm = document.getElementById('bgm');
+        if (bgm.paused) {
+            bgm.volume = 0.25; // Set lower volume so it doesn't overpower TTS
+            bgm.play().catch(e => console.log("Audio play blocked by browser:", e));
+        }
+
+        const grid = document.getElementById('level-grid');
+        grid.innerHTML = '';
+
+        GENERATIONS.forEach(g => {
+            const btn = document.createElement('button');
+            btn.className = 'level-btn';
+            const isUnlocked = g.gen <= unlockedGens;
+            
+            btn.innerHTML = `Gen ${g.gen}<br><small>${g.name}</small>`;
+            btn.disabled = !isUnlocked;
+            
+            if (isUnlocked) {
+                btn.onclick = () => startQuiz(g.gen);
+            }
+            grid.appendChild(btn);
+        });
+
+        showScreen('level-screen');
+    }
+
+    // --- DYNAMIC GOOGLE TRANSLATE ---
+    async function translateToChinese(text) {
+        try {
+            // tl=yue requests Cantonese (Traditional Chinese script) from Google Translate
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=yue&dt=t&q=${encodeURIComponent(text)}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data[0][0][0]; 
+        } catch (error) {
+            console.error("Translation failed", error);
+            return text; 
+        }
+    }
+
+    // --- QUIZ LOGIC ---
+    function startQuiz(gen) {
+        currentGen = gen;
+        score = 0;
+        currentQuestionIndex = 0;
+        
+        const genData = GENERATIONS.find(g => g.gen === gen);
+        
+        let pool = [];
+        for(let i = genData.start; i <= genData.end; i++) pool.push(i);
+        pool = shuffleArray(pool).slice(0, QUESTIONS_PER_LEVEL);
+        
+        quizQueue = pool;
+        showScreen('quiz-screen');
+        loadNextQuestion();
+    }
+
+    async function loadNextQuestion() {
+        if (currentQuestionIndex >= quizQueue.length) {
+            endQuiz();
+            return;
+        }
+
+        document.getElementById('quiz-progress').innerText = `${currentQuestionIndex + 1} / ${QUESTIONS_PER_LEVEL}`;
+        
+        document.getElementById('quiz-content').style.display = 'none';
+        document.getElementById('loading-indicator').style.display = 'flex';
+
+        const pokemonId = quizQueue[currentQuestionIndex];
+
+        try {
+            // Format ID with leading zeroes (e.g., #001, #025)
+            const displayId = pokemonId.toString().padStart(3, '0');
+            document.getElementById('pokemon-number').innerText = `#${displayId}`;
+
+            // 1. Fetch Species Data (for names and genera)
+            const speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
+            const speciesData = await speciesResponse.json();
+
+            // 2. Fetch Base Pokemon Data (for Types)
+            const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+            const pokemonData = await pokemonResponse.json();
+
+            // Handle Types UI
+            const typesContainer = document.getElementById('pokemon-types');
+            typesContainer.innerHTML = '';
+            pokemonData.types.forEach(t => {
+                const typeName = t.type.name;
+                const typeSpan = document.createElement('span');
+                typeSpan.innerText = typeName;
+                typeSpan.className = `type-badge type-${typeName}`;
+                typesContainer.appendChild(typeSpan);
+            });
+
+            // Extract English name
+            const nameEntryEn = speciesData.names.find(n => n.language.name === 'en');
+            const nameEn = nameEntryEn ? nameEntryEn.name : speciesData.name;
+
+            // Extract Chinese name 
+            const nameEntryZh = speciesData.names.find(n => n.language.name === 'zh-Hant') || speciesData.names.find(n => n.language.name === 'zh-Hans');
+            const nameZh = nameEntryZh ? nameEntryZh.name : "";
+            
+            const displayQuestionName = nameZh ? `${nameEn} (${nameZh})` : nameEn;
+
+            // Extract English Genus
+            const genusEntryEn = speciesData.genera.find(g => g.language.name === 'en');
+            let genusEn = genusEntryEn ? genusEntryEn.genus : "Unknown Species";
+            genusEn = genusEn.replace(/ Pok[eé]mon/i, '').trim();
+
+            // Dynamically translate the English genus using Google Translate
+            let translatedGenusZh = await translateToChinese(genusEn);
+
+            currentCorrectAnswer = { en: genusEn, zh: translatedGenusZh };
+
+            const spriteUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
+
+            let options = generateOptions(currentCorrectAnswer);
+
+            document.getElementById('pokemon-sprite').src = spriteUrl;
+            document.getElementById('question-text').innerHTML = `What Pokemon is <strong>${displayQuestionName}</strong>?`;
+            
+            const optionsGrid = document.getElementById('options-grid');
+            optionsGrid.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.innerHTML = `<span>${opt.en}</span><small>${opt.zh}</small>`;
+                btn.onclick = () => handleAnswer(opt.en === currentCorrectAnswer.en, nameEn);
+                optionsGrid.appendChild(btn);
+            });
+
+            document.getElementById('loading-indicator').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'flex';
+
+            if (SPEECH_ENABLED) {
+                speakText(`What Pokemon is ${nameEn}?`);
+            }
+
+        } catch (error) {
+            console.error("Failed to load Pokémon data", error);
+            document.getElementById('question-text').innerText = "Error loading data. Retrying...";
+            setTimeout(loadNextQuestion, 2000);
+        }
+    }
+
+    function generateOptions(correctAnswer) {
+        let optionsMap = new Map();
+        optionsMap.set(correctAnswer.en, correctAnswer);
+        
+        while(optionsMap.size < 4) {
+            let randomWrong = FALLBACK_GENERA[Math.floor(Math.random() * FALLBACK_GENERA.length)];
+            if(!optionsMap.has(randomWrong.en)) {
+                optionsMap.set(randomWrong.en, randomWrong);
+            }
+        }
+        return shuffleArray(Array.from(optionsMap.values()));
+    }
+
+    function handleAnswer(isCorrect, pokemonName) {
+        window.speechSynthesis.cancel();
+
+        if (isCorrect) {
+            score++;
+            speakText(`Correct! ${pokemonName} is a ${currentCorrectAnswer.en} Pokemon.`);
+        } else {
+            speakText(`Incorrect. ${pokemonName} is actually a ${currentCorrectAnswer.en} Pokemon.`);
+        }
+
+        currentQuestionIndex++;
+        
+        setTimeout(loadNextQuestion, 1500); 
+    }
+
+    function endQuiz() {
+        showScreen('result-screen');
+        const passed = score >= PASSING_SCORE;
+        
+        document.getElementById('result-title').innerText = passed ? "Level Cleared!" : "Level Failed!";
+        document.getElementById('result-title').style.color = passed ? "var(--success)" : "var(--danger)";
+        document.getElementById('result-score').innerText = `Score: ${score} / ${QUESTIONS_PER_LEVEL}`;
+        
+        const msgEl = document.getElementById('result-message');
+        if (passed) {
+            msgEl.innerText = currentGen < 9 ? "Great job! The next generation has been unlocked." : "You are a Pokémon Master! All generations cleared!";
+            saveProgress(currentGen);
+        } else {
+            msgEl.innerText = `You need at least ${PASSING_SCORE} points to unlock the next generation. Try again!`;
+        }
+        
+        speakText(document.getElementById('result-title').innerText + " You scored " + score + " out of " + QUESTIONS_PER_LEVEL);
+    }
+
+    // --- UTILS ---
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function speakText(text) {
+        if (!('speechSynthesis' in window)) return;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // Boot the app
+    window.onload = init;
+
+</script>
+</body>
+</html>

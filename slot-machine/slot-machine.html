@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Jackpot Slot Machine</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            transition: background-color 0.1s;
+        }
+
+        @keyframes jackpot-flash {
+            0% { background-color: #e74c3c; }
+            25% { background-color: #9b59b6; }
+            50% { background-color: #3498db; }
+            75% { background-color: #2ecc71; }
+            100% { background-color: #f1c40f; }
+        }
+        body.jackpot-active {
+            animation: jackpot-flash 0.3s infinite;
+        }
+
+        .machine-container {
+            background-color: #f1c40f;
+            width: 95%;
+            max-width: 700px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            text-align: center;
+            border: 4px solid #e67e22;
+            position: relative;
+            z-index: 10;
+            box-sizing: border-box;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake { animation: shake 0.4s infinite; }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+
+        .header-bar h1 {
+            margin: 0;
+            font-size: clamp(20px, 4vw, 28px);
+            color: #2c3e50;
+        }
+
+        .credit-box {
+            background-color: #2c3e50;
+            color: #2ecc71;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: clamp(16px, 3.5vw, 22px);
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            border: 2px solid #34495e;
+            transition: color 0.1s;
+        }
+
+        #credit-value { color: #ffea00; }
+        
+        .ticking { color: #fff !important; text-shadow: 0 0 10px #ffea00; } 
+
+        .reels-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .reels-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2%; 
+            background-color: #34495e;
+            padding: 3%;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        .slot {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            aspect-ratio: 1; 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+            transition: filter 0.1s; 
+            overflow: hidden; 
+        }
+
+        .slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+            pointer-events: none;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            font-size: clamp(12px, 2.5vw, 16px);
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinning {
+            filter: url(#motion-blur);
+            opacity: 0.8;
+        }
+
+        .rebound {
+            animation: reboundAnim 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes reboundAnim {
+            0% { transform: translateY(0px); }
+            40% { transform: translateY(18px); }
+            70% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+
+        #win-lines-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .win-line-path {
+            stroke: #ff00ff;
+            stroke-width: clamp(4px, 1.5vw, 8px);
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            filter: drop-shadow(0 0 8px #ff00ff);
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 0.5s ease-out forwards, pulseLine 1s infinite alternate;
+        }
+
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+        @keyframes pulseLine {
+            from { filter: drop-shadow(0 0 5px #ff00ff); stroke: #ff00ff; }
+            to { filter: drop-shadow(0 0 15px #00ffff); stroke: #00ffff; }
+        }
+
+        .controls { 
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        select, button {
+            padding: 12px 18px;
+            font-size: clamp(14px, 3vw, 18px);
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #e74c3c;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0 4px 0 #c0392b;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #c0392b;
+        }
+
+        button:disabled {
+            background-color: #95a5a6;
+            box-shadow: 0 4px 0 #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        #message {
+            font-size: clamp(16px, 3.5vw, 20px);
+            font-weight: bold;
+            min-height: 25px;
+            color: #2c3e50;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .win-block {
+            animation: bounce 0.5s infinite alternate;
+            background-color: #2ecc71;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .floating-win {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: clamp(40px, 10vw, 80px);
+            font-weight: 900;
+            color: #ffea00;
+            text-shadow: 2px 2px 0 #e67e22, -2px -2px 0 #e67e22, 2px -2px 0 #e67e22, -2px 2px 0 #e67e22;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUpFade 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes floatUpFade {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -200px) scale(1); opacity: 0; }
+        }
+
+        .jackpot-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            padding: 0 20px;
+            box-sizing: border-box;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: clamp(35px, 8vw, 90px);
+            line-height: 1.2;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff0000, 0 0 60px #ffea00;
+            text-align: center;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        @keyframes jackpotZoom {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            10% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            20% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+
+        @keyframes pulseText {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .flying-symbol {
+            position: absolute;
+            width: clamp(60px, 12vw, 120px); 
+            height: clamp(60px, 12vw, 120px);
+            z-index: 1500;
+            pointer-events: none;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.8));
+        }
+
+        .flying-symbol img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        @keyframes fly-down { to { transform: translateY(120vh) rotate(720deg); } }
+        @keyframes fly-up { to { transform: translateY(-120vh) rotate(720deg); } }
+        @keyframes fly-right { to { transform: translateX(120vw) rotate(720deg); } }
+        @keyframes fly-left { to { transform: translateX(-120vw) rotate(720deg); } }
+        @keyframes fly-diag-dr { to { transform: translate(120vw, 120vh) rotate(720deg); } }
+        @keyframes fly-diag-ur { to { transform: translate(120vw, -120vh) rotate(720deg); } }
+        @keyframes fly-diag-dl { to { transform: translate(-120vw, 120vh) rotate(720deg); } }
+        @keyframes fly-diag-ul { to { transform: translate(-120vw, -120vh) rotate(720deg); } }
+        @keyframes fly-spiral {
+            0% { transform: translate(-50%, -50%) rotate(0deg) translateX(0) scale(0.1); }
+            100% { transform: translate(-50%, -50%) rotate(1440deg) translateX(50vw) scale(3.5); opacity: 0;}
+        }
+
+        .coin {
+            position: absolute;
+            width: clamp(20px, 5vw, 40px);
+            aspect-ratio: 1;
+            background-color: #f1c40f;
+            border-radius: 50%;
+            border: 4px dashed #d4ac0d;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 1);
+            z-index: 1000;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(1000deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <svg style="width:0; height:0; position:absolute;">
+        <filter id="motion-blur">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0 15" />
+        </filter>
+    </svg>
+
+    <audio id="bgm" src="bgm.mp3" loop></audio>
+    <audio id="bgm2" src="bgm2.mp3" loop></audio>
+
+    <div class="machine-container" id="machine">
+        <div class="header-bar">
+            <h1>5-Reel Wilds</h1>
+            <div class="credit-box">CREDITS: <span id="credit-value">100</span></div>
+        </div>
+        
+        <div class="reels-wrapper" id="reels-wrapper">
+            <div class="reels-container" id="grid">
+                <div class="slot" id="s0-0"></div><div class="slot" id="s0-1"></div><div class="slot" id="s0-2"></div><div class="slot" id="s0-3"></div><div class="slot" id="s0-4"></div>
+                <div class="slot" id="s1-0"></div><div class="slot" id="s1-1"></div><div class="slot" id="s1-2"></div><div class="slot" id="s1-3"></div><div class="slot" id="s1-4"></div>
+                <div class="slot" id="s2-0"></div><div class="slot" id="s2-1"></div><div class="slot" id="s2-2"></div><div class="slot" id="s2-3"></div><div class="slot" id="s2-4"></div>
+            </div>
+            <svg id="win-lines-svg"></svg>
+        </div>
+
+        <div class="controls">
+            <label for="lines">Paylines: </label>
+            <select id="lines">
+                <option value="1">1 Line (Cost: 1)</option>
+                <option value="3">3 Lines (Cost: 3)</option>
+                <!-- Changed to be the default selected option -->
+                <option value="5" selected>5 Lines (Cost: 5)</option>
+            </select>
+            <button id="spinBtn" onclick="spin()">SPIN!</button>
+        </div>
+
+        <div id="message">Match 5 for the MEGA JACKPOT!</div>
+    </div>
+
+    <script>
+        const symbolConfig = {
+            'sym1': { src: 'symbol1.png', alt: 'Symbol 1' },
+            'sym2': { src: 'symbol2.png', alt: 'Symbol 2' },
+            'sym3': { src: 'symbol3.png', alt: 'Symbol 3' },
+            'sym4': { src: 'symbol4.png', alt: 'Symbol 4' },
+            'sym5': { src: 'symbol5.png', alt: 'Symbol 5' },
+            'sym6': { src: 'symbol6.png', alt: 'Symbol 6' },
+            'lukas': { src: 'symbol7.png', alt: 'Lukas Reimann' },
+            'wild': { src: 'symbol8.png', alt: 'Wild Card' }
+        };
+
+        const symbolKeys = Object.keys(symbolConfig);
+        const spinBtn = document.getElementById('spinBtn');
+        const messageEl = document.getElementById('message');
+        const linesSelect = document.getElementById('lines');
+        const svgLines = document.getElementById('win-lines-svg');
+        const creditDisplay = document.getElementById('credit-value');
+        const reelsWrapper = document.getElementById('reels-wrapper');
+        const machine = document.getElementById('machine');
+        
+        const bgmAudio = document.getElementById('bgm');
+        const bgm2Audio = document.getElementById('bgm2');
+        
+        let bgmStarted = false;
+        let credits = 100;
+        let isForcedJackpot = false;
+        let spinCount = 0; 
+        
+        let hasHadFirstJackpot = false; 
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(freq, type, duration, vol=0.1) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function sfxSpin() { playTone(Math.random() * 200 + 400, 'square', 0.1, 0.03); }
+        function sfxStop() { 
+            playTone(100, 'triangle', 0.15, 0.3);
+            setTimeout(() => playTone(80, 'square', 0.1, 0.2), 50);
+        }
+        function sfxWin() {
+            playTone(523.25, 'sine', 0.1, 0.2); 
+            setTimeout(() => playTone(659.25, 'sine', 0.1, 0.2), 100); 
+            setTimeout(() => playTone(783.99, 'sine', 0.3, 0.2), 200); 
+            setTimeout(() => playTone(1046.50, 'sine', 0.4, 0.2), 300); 
+        }
+        function sfxLose() {
+            playTone(300, 'sawtooth', 0.3, 0.1);
+            setTimeout(() => playTone(250, 'sawtooth', 0.4, 0.1), 200);
+        }
+        function sfxBling() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(987.77, t); 
+            osc.frequency.setValueAtTime(1318.51, t + 0.03); 
+            gain.gain.setValueAtTime(0.15, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.1);
+        }
+        function sfxJackpotBling() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1000 + (Math.random() * 1500), t);
+            gain.gain.setValueAtTime(0.06, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.06);
+        }
+
+        function sfxJackpot() {
+            let noteTime = audioCtx.currentTime;
+            for (let i = 0; i < 50; i++) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.frequency.value = 400 + (Math.sin(i * 0.5) * 400) + (Math.random() * 200);
+                osc.type = i % 2 === 0 ? 'square' : 'sawtooth';
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0.15, noteTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, noteTime + 0.1);
+                osc.start(noteTime);
+                osc.stop(noteTime + 0.1);
+                noteTime += 0.08;
+            }
+            const bassOsc = audioCtx.createOscillator();
+            const bassGain = audioCtx.createGain();
+            bassOsc.type = 'square';
+            bassOsc.frequency.setValueAtTime(50, audioCtx.currentTime);
+            bassOsc.frequency.linearRampToValueAtTime(20, audioCtx.currentTime + 4);
+            bassOsc.connect(bassGain);
+            bassGain.connect(audioCtx.destination);
+            bassGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            bassGain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 4);
+            bassOsc.start(audioCtx.currentTime);
+            bassOsc.stop(audioCtx.currentTime + 4);
+        }
+
+        let gridData = [
+            ['sym1', 'sym2', 'sym3', 'sym4', 'sym5'],
+            ['sym6', 'wild', 'sym1', 'lukas', 'sym2'],
+            ['sym3', 'sym4', 'sym5', 'sym6', 'sym1']
+        ];
+        let colSpinning = [false, false, false, false, false];
+        let spinInterval;
+
+        function getRandomSymbol() {
+            const rand = Math.random();
+            if (rand > 0.85) return 'wild'; 
+            if (rand < 0.05) return 'lukas'; 
+            const standardPols = symbolKeys.filter(k => k !== 'wild' && k !== 'lukas');
+            return standardPols[Math.floor(Math.random() * standardPols.length)]; 
+        }
+
+        function renderGrid() {
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const slot = document.getElementById(`s${row}-${col}`);
+                    const symKey = gridData[row][col];
+                    slot.innerHTML = `<img src="${symbolConfig[symKey].src}" alt="${symbolConfig[symKey].alt}">`;
+                }
+            }
+        }
+
+        renderGrid();
+
+        function clearVisuals() {
+            document.querySelectorAll('.slot').forEach(el => {
+                el.classList.remove('win-block', 'spinning', 'rebound');
+            });
+            svgLines.innerHTML = '';
+        }
+
+        function drawWinLine(coords) {
+            const wrapperRect = document.querySelector('.reels-container').getBoundingClientRect();
+            let pointsStr = "";
+            coords.forEach(c => {
+                const el = document.getElementById(`s${c[0]}-${c[1]}`);
+                const r = el.getBoundingClientRect();
+                const x = r.left - wrapperRect.left + (r.width / 2);
+                const y = r.top - wrapperRect.top + (r.height / 2);
+                pointsStr += `${x},${y} `;
+            });
+            const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+            polyline.setAttribute("points", pointsStr.trim());
+            polyline.classList.add("win-line-path");
+            svgLines.appendChild(polyline);
+        }
+
+        function stopColumn(colIndex) {
+            colSpinning[colIndex] = false;
+            
+            if (isForcedJackpot) {
+                gridData[1][colIndex] = 'lukas';
+                const slot = document.getElementById(`s1-${colIndex}`);
+                slot.innerHTML = `<img src="${symbolConfig['lukas'].src}" alt="${symbolConfig['lukas'].alt}">`;
+            }
+
+            sfxStop();
+
+            for (let row = 0; row < 3; row++) {
+                let slot = document.getElementById(`s${row}-${colIndex}`);
+                slot.classList.remove('spinning');
+                void slot.offsetWidth; 
+                slot.classList.add('rebound');
+            }
+        }
+
+        function countUpCredits(winAmount, isJackpot, isFirst) {
+            let current = parseInt(creditDisplay.innerText);
+            let target = current + winAmount;
+            
+            creditDisplay.classList.add('ticking');
+            
+            let tickSpeed = 50;
+            if (isJackpot) {
+                tickSpeed = isFirst ? Math.max(10, Math.floor(60000 / winAmount)) : 4; 
+            }
+
+            let counter = setInterval(() => {
+                current += 1; 
+                
+                if (current >= target) {
+                    current = target;
+                    clearInterval(counter);
+                    creditDisplay.classList.remove('ticking');
+                    if (!isJackpot) spinBtn.disabled = false; 
+                }
+                
+                creditDisplay.innerText = current;
+                
+                if (isJackpot) {
+                    if (isFirst || current % 2 === 0 || current === target) {
+                        sfxJackpotBling();
+                    }
+                } else {
+                    sfxBling();
+                }
+            }, tickSpeed);
+        }
+
+        function triggerJackpotAnimation(amount, isFirst) {
+            let duration = isFirst ? 60000 : 4000;
+
+            bgmAudio.pause();
+            bgm2Audio.currentTime = 0;
+            bgm2Audio.play().catch(e => console.log("BGM2 prevented:", e));
+
+            sfxJackpot();
+            document.body.classList.add('jackpot-active');
+            machine.classList.add('shake');
+            
+            const coinInterval = setInterval(() => {
+                if (isFirst) {
+                    const symContainer = document.createElement('div');
+                    symContainer.classList.add('flying-symbol');
+                    
+                    const randomKey = symbolKeys[Math.floor(Math.random() * symbolKeys.length)];
+                    symContainer.innerHTML = `<img src="${symbolConfig[randomKey].src}" alt="${symbolConfig[randomKey].alt}">`;
+
+                    const types = ['down', 'up', 'right', 'left', 'diag-dr', 'diag-ur', 'diag-dl', 'diag-ul', 'spiral'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+
+                    symContainer.style.animationName = 'fly-' + type;
+                    const dur = Math.random() * 2 + 1.5;
+                    symContainer.style.animationDuration = dur + 's';
+                    symContainer.style.animationTimingFunction = 'linear';
+                    symContainer.style.animationFillMode = 'forwards';
+
+                    if (type.includes('down') || type === 'diag-dr' || type === 'diag-dl') {
+                        symContainer.style.top = '-10vh';
+                        symContainer.style.left = Math.random() * 100 + 'vw';
+                    } else if (type.includes('up') || type === 'diag-ur' || type === 'diag-ul') {
+                        symContainer.style.top = '110vh';
+                        symContainer.style.left = Math.random() * 100 + 'vw';
+                    } else if (type === 'right') {
+                        symContainer.style.left = '-10vw';
+                        symContainer.style.top = Math.random() * 100 + 'vh';
+                    } else if (type === 'left') {
+                        symContainer.style.left = '110vw';
+                        symContainer.style.top = Math.random() * 100 + 'vh';
+                    } else if (type === 'spiral') {
+                        symContainer.style.top = '50%';
+                        symContainer.style.left = '50%';
+                    }
+
+                    document.body.appendChild(symContainer);
+                    setTimeout(() => symContainer.remove(), dur * 1000);
+                } else {
+                    const coin = document.createElement('div');
+                    coin.classList.add('coin');
+                    coin.style.left = (Math.random() * 100) + 'vw';
+                    coin.style.top = '-50px';
+                    coin.style.animationDuration = (Math.random() * 1 + 1.5) + 's';
+                    document.body.appendChild(coin);
+                    setTimeout(() => coin.remove(), 2500);
+                }
+            }, isFirst ? 25 : 50); 
+            
+            const textEl = document.createElement('div');
+            textEl.classList.add('jackpot-text');
+            
+            if (isFirst) {
+                textEl.style.animation = 'pulseText 0.5s infinite alternate';
+                textEl.style.transform = 'translate(-50%, -50%) scale(1)';
+                textEl.style.opacity = '1';
+                
+                textEl.innerHTML = `HAPPY BIRTHDAY<br>MR. MAYOR!<br>+${amount}`;
+                messageEl.innerText = `HAPPY BIRTHDAY MR. MAYOR! MEGA JACKPOT!`;
+            } else {
+                textEl.style.animation = `jackpotZoom ${duration}ms cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+                textEl.innerHTML = `JACKPOT!<br>+${amount}`;
+                messageEl.innerText = `MEGA JACKPOT! Paid ${amount} credits!`;
+            }
+
+            document.body.appendChild(textEl);
+            
+            setTimeout(() => {
+                clearInterval(coinInterval);
+                document.body.classList.remove('jackpot-active');
+                machine.classList.remove('shake');
+                textEl.remove();
+                spinBtn.disabled = false; 
+
+                bgm2Audio.pause();
+                bgmAudio.play().catch(e => console.log("BGM playback prevented:", e));
+            }, duration);
+        }
+
+        function spin() {
+            const cost = parseInt(linesSelect.value);
+
+            if (credits < cost) {
+                messageEl.innerText = "Out of credits! Here is 100 free credits.";
+                credits = 100;
+                creditDisplay.innerText = credits;
+                sfxLose(); 
+                return;
+            }
+
+            credits -= cost;
+            creditDisplay.innerText = credits;
+            spinCount++;
+
+            if (spinCount === 11) {
+                isForcedJackpot = true;
+            } else {
+                isForcedJackpot = Math.random() < 0.07;
+            }
+
+            if (!bgmStarted) {
+                bgmAudio.play().catch(e => console.log("BGM play prevented:", e));
+                bgmStarted = true;
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+            }
+
+            spinBtn.disabled = true;
+            clearVisuals();
+            messageEl.innerText = "Spinning...";
+
+            colSpinning = [true, true, true, true, true];
+            document.querySelectorAll('.slot').forEach(el => el.classList.add('spinning'));
+
+            setTimeout(() => stopColumn(0), 800);
+            setTimeout(() => stopColumn(1), 1300);
+            setTimeout(() => stopColumn(2), 1800);
+            setTimeout(() => stopColumn(3), 2300);
+            setTimeout(() => stopColumn(4), 2800);
+
+            spinInterval = setInterval(() => {
+                let anySpinning = false;
+                let soundPlayedInFrame = false;
+
+                for (let col = 0; col < 5; col++) {
+                    if (colSpinning[col]) {
+                        anySpinning = true;
+                        for (let row = 0; row < 3; row++) {
+                            gridData[row][col] = getRandomSymbol();
+                        }
+                        if (!soundPlayedInFrame) {
+                            sfxSpin();
+                            soundPlayedInFrame = true;
+                        }
+                    }
+                }
+                renderGrid();
+
+                if (!anySpinning) {
+                    clearInterval(spinInterval);
+                    setTimeout(() => checkWins(), 400); 
+                }
+            }, 80);
+        }
+
+        function checkWins() {
+            const activeLines = parseInt(linesSelect.value);
+            let wins = 0;
+            let totalWinAmount = 0;
+            let triggeredJackpot = false;
+
+            const paylines = [
+                { id: 'Middle', coords: [[1,0], [1,1], [1,2], [1,3], [1,4]] },
+                { id: 'Top',    coords: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
+                { id: 'Bottom', coords: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
+                { id: 'V-Shape 1', coords: [[0,0], [1,1], [2,2], [1,3], [0,4]] },
+                { id: 'V-Shape 2', coords: [[2,0], [1,1], [0,2], [1,3], [2,4]] } 
+            ];
+
+            let linesToCheck = [];
+            if (activeLines >= 1) linesToCheck.push(paylines[0]); 
+            if (activeLines >= 3) { linesToCheck.push(paylines[1], paylines[2]); }
+            if (activeLines === 5) { linesToCheck.push(paylines[3], paylines[4]); }
+
+            linesToCheck.forEach(line => {
+                let matchCount = 0;
+                let targetSymbol = null;
+
+                for(let i = 0; i < 5; i++) {
+                    let currentSymbol = gridData[line.coords[i][0]][line.coords[i][1]];
+                    if (currentSymbol !== 'wild') {
+                        if (targetSymbol === null) targetSymbol = currentSymbol;
+                        else if (targetSymbol !== currentSymbol) break; 
+                    }
+                    matchCount++; 
+                }
+
+                if (matchCount >= 3) {
+                    wins++;
+                    if(matchCount === 3) totalWinAmount += 5;
+                    if(matchCount === 4) totalWinAmount += 15;
+                    if(matchCount === 5) {
+                        triggeredJackpot = true;
+                        totalWinAmount += (targetSymbol === 'lukas' || targetSymbol === null) ? 1000 : 200;
+                    }
+
+                    const winningCoords = line.coords.slice(0, matchCount);
+                    winningCoords.forEach(([r, c]) => document.getElementById(`s${r}-${c}`).classList.add('win-block'));
+                    drawWinLine(winningCoords);
+                }
+            });
+
+            if (triggeredJackpot) {
+                credits += totalWinAmount; 
+                let isFirst = !hasHadFirstJackpot;
+                if (isFirst) hasHadFirstJackpot = true;
+
+                triggerJackpotAnimation(totalWinAmount, isFirst);
+                countUpCredits(totalWinAmount, true, isFirst); 
+            } 
+            else if (wins > 0) {
+                sfxWin();
+                credits += totalWinAmount; 
+                
+                const floater = document.createElement('div');
+                floater.classList.add('floating-win');
+                floater.innerText = `+${totalWinAmount}`;
+                reelsWrapper.appendChild(floater);
+                setTimeout(() => floater.remove(), 2000);
+
+                messageEl.innerText = `WINNER! ${wins} line(s) paid ${totalWinAmount}!`;
+                countUpCredits(totalWinAmount, false, false); 
+            } 
+            else {
+                sfxLose();
+                messageEl.innerText = "No win this time. Try again!";
+                spinBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

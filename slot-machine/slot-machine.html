@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mayor's Birthday Slots</title>
+    <title>Lukas's Slot Machine</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,10 +12,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden;
+            padding: 20px 0; /* Adds breathing room when scrolling */
+            box-sizing: border-box;
+            overflow-x: hidden; /* Prevents horizontal scroll */
+            overflow-y: auto;   /* Allows vertical scrolling when needed */
             transition: background-color 0.1s;
         }
 
@@ -34,6 +36,7 @@
             background-color: #f1c40f;
             width: 95%;
             max-width: 700px;
+            margin: auto; /* Replaces justify-content center perfectly */
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.9);
@@ -259,11 +262,11 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            width: 100vw;
-            padding: 0 20px;
+            width: 90vw; 
+            padding: 0;
             box-sizing: border-box;
             transform: translate(-50%, -50%) scale(0);
-            font-size: clamp(35px, 8vw, 90px);
+            font-size: clamp(22px, 7vw, 90px); 
             line-height: 1.2;
             font-weight: 900;
             color: #fff;
@@ -287,7 +290,7 @@
         }
 
         .flying-symbol {
-            position: absolute;
+            position: fixed; 
             width: clamp(60px, 12vw, 120px); 
             height: clamp(60px, 12vw, 120px);
             z-index: 1500;
@@ -316,7 +319,7 @@
         }
 
         .coin {
-            position: absolute;
+            position: fixed; 
             width: clamp(20px, 5vw, 40px);
             aspect-ratio: 1;
             background-color: #f1c40f;
@@ -381,7 +384,7 @@
             'sym4': { src: 'symbol4.png', alt: 'Symbol 4' },
             'sym5': { src: 'symbol5.png', alt: 'Symbol 5' },
             'sym6': { src: 'symbol6.png', alt: 'Symbol 6' },
-            'lukas': { src: 'symbol7.png', alt: 'Lukas Reimann' },
+            'lukas': { src: 'symbol7.png', alt: 'Lukas Reimann' }, // MEGA JACKPOT
             'wild': { src: 'symbol8.png', alt: 'Wild Card' }
         };
 

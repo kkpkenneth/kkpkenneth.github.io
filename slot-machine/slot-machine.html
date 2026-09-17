@@ -14,10 +14,10 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px 0; /* Adds breathing room when scrolling */
+            padding: 20px 0;
             box-sizing: border-box;
-            overflow-x: hidden; /* Prevents horizontal scroll */
-            overflow-y: auto;   /* Allows vertical scrolling when needed */
+            overflow-x: hidden;
+            overflow-y: auto;
             transition: background-color 0.1s;
         }
 
@@ -36,7 +36,7 @@
             background-color: #f1c40f;
             width: 95%;
             max-width: 700px;
-            margin: auto; /* Replaces justify-content center perfectly */
+            margin: auto;
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.9);
@@ -289,22 +289,6 @@
             100% { transform: translate(-50%, -50%) scale(1.1); }
         }
 
-        .flying-symbol {
-            position: fixed; 
-            width: clamp(60px, 12vw, 120px); 
-            height: clamp(60px, 12vw, 120px);
-            z-index: 1500;
-            pointer-events: none;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.8));
-        }
-
-        .flying-symbol img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
         @keyframes fly-down { to { transform: translateY(120vh) rotate(720deg); } }
         @keyframes fly-up { to { transform: translateY(-120vh) rotate(720deg); } }
         @keyframes fly-right { to { transform: translateX(120vw) rotate(720deg); } }
@@ -328,7 +312,7 @@
             box-shadow: 0 0 15px rgba(255, 215, 0, 1);
             z-index: 1000;
             pointer-events: none;
-            animation: fall linear forwards;
+            animation: fall linear forwards; /* Default animation */
         }
 
         @keyframes fall {
@@ -384,7 +368,7 @@
             'sym4': { src: 'symbol4.png', alt: 'Symbol 4' },
             'sym5': { src: 'symbol5.png', alt: 'Symbol 5' },
             'sym6': { src: 'symbol6.png', alt: 'Symbol 6' },
-            'lukas': { src: 'symbol7.png', alt: 'Lukas Reimann' }, // MEGA JACKPOT
+            'lukas': { src: 'symbol7.png', alt: 'Lukas Reimann' },
             'wild': { src: 'symbol8.png', alt: 'Wild Card' }
         };
 
@@ -611,44 +595,39 @@
             machine.classList.add('shake');
             
             const coinInterval = setInterval(() => {
-                if (isFirst) {
-                    const symContainer = document.createElement('div');
-                    symContainer.classList.add('flying-symbol');
-                    
-                    const randomKey = symbolKeys[Math.floor(Math.random() * symbolKeys.length)];
-                    symContainer.innerHTML = `<img src="${symbolConfig[randomKey].src}" alt="${symbolConfig[randomKey].alt}">`;
+                const coin = document.createElement('div');
+                coin.classList.add('coin');
 
+                if (isFirst) {
                     const types = ['down', 'up', 'right', 'left', 'diag-dr', 'diag-ur', 'diag-dl', 'diag-ul', 'spiral'];
                     const type = types[Math.floor(Math.random() * types.length)];
 
-                    symContainer.style.animationName = 'fly-' + type;
+                    coin.style.animationName = 'fly-' + type;
                     const dur = Math.random() * 2 + 1.5;
-                    symContainer.style.animationDuration = dur + 's';
-                    symContainer.style.animationTimingFunction = 'linear';
-                    symContainer.style.animationFillMode = 'forwards';
+                    coin.style.animationDuration = dur + 's';
+                    coin.style.animationTimingFunction = 'linear';
+                    coin.style.animationFillMode = 'forwards';
 
                     if (type.includes('down') || type === 'diag-dr' || type === 'diag-dl') {
-                        symContainer.style.top = '-10vh';
-                        symContainer.style.left = Math.random() * 100 + 'vw';
+                        coin.style.top = '-10vh';
+                        coin.style.left = Math.random() * 100 + 'vw';
                     } else if (type.includes('up') || type === 'diag-ur' || type === 'diag-ul') {
-                        symContainer.style.top = '110vh';
-                        symContainer.style.left = Math.random() * 100 + 'vw';
+                        coin.style.top = '110vh';
+                        coin.style.left = Math.random() * 100 + 'vw';
                     } else if (type === 'right') {
-                        symContainer.style.left = '-10vw';
-                        symContainer.style.top = Math.random() * 100 + 'vh';
+                        coin.style.left = '-10vw';
+                        coin.style.top = Math.random() * 100 + 'vh';
                     } else if (type === 'left') {
-                        symContainer.style.left = '110vw';
-                        symContainer.style.top = Math.random() * 100 + 'vh';
+                        coin.style.left = '110vw';
+                        coin.style.top = Math.random() * 100 + 'vh';
                     } else if (type === 'spiral') {
-                        symContainer.style.top = '50%';
-                        symContainer.style.left = '50%';
+                        coin.style.top = '50%';
+                        coin.style.left = '50%';
                     }
 
-                    document.body.appendChild(symContainer);
-                    setTimeout(() => symContainer.remove(), dur * 1000);
+                    document.body.appendChild(coin);
+                    setTimeout(() => coin.remove(), dur * 1000);
                 } else {
-                    const coin = document.createElement('div');
-                    coin.classList.add('coin');
                     coin.style.left = (Math.random() * 100) + 'vw';
                     coin.style.top = '-50px';
                     coin.style.animationDuration = (Math.random() * 1 + 1.5) + 's';

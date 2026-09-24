@@ -32,7 +32,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 400px; 
+            width: 410px; 
             max-height: 90vh;
             background: rgba(253, 251, 247, 0.95); 
             backdrop-filter: blur(8px);
@@ -313,10 +313,12 @@
             border: 1px solid #d4cbb8;
             border-radius: 4px;
             padding: 2px 4px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
-            margin: 0 8px;
+            margin: 0 6px;
             outline: none;
+            color: #2b3a42;
+            font-weight: 600;
         }
         .start-pin {
             margin: 0 8px;
@@ -338,25 +340,27 @@
         .btn-group { 
             flex-shrink: 0;
             display: flex; 
-            gap: 10px; 
+            gap: 6px; 
             margin-top: auto; 
         }
         .action-btn {
             flex: 1;
-            padding: 12px;
+            padding: 10px 4px;
             border: none;
             border-radius: 4px;
             font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+            font-size: 0.82rem;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             cursor: pointer;
             transition: opacity 0.2s;
+            text-align: center;
         }
         .action-btn:hover { opacity: 0.9; }
         #btn-start { background: #2b3a42; color: #fdfbf7; }
         #btn-start:disabled { background: #aeb6bf; cursor: not-allowed; }
         #btn-clear { background: #f4efe6; color: #2b3a42; border: 1px solid #c8c0b0; }
+        #btn-download { background: #27ae60; color: #fdfbf7; display: none; }
 
         /* Continent Labels Overlay */
         .continent-label {
@@ -447,37 +451,54 @@
             backdrop-filter: blur(8px);
             border: 1px solid #d4cbb8;
             border-radius: 8px;
-            padding: 12px 16px;
+            padding: 10px 14px;
             z-index: 1000;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             font-family: 'Playfair Display', serif;
         }
         .legend-title {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #2b3a42;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-align: center;
             border-bottom: 1px solid #e3dccf;
-            padding-bottom: 4px;
+            padding-bottom: 3px;
             letter-spacing: 0.5px;
         }
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
+            gap: 8px;
+            font-size: 0.75rem;
             font-family: 'Lora', serif;
             color: #2b3a42;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             font-weight: 600;
         }
         .legend-color {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            border: 1.5px solid #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            border: 1px solid #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 600px) {
+            #menu-panel {
+                top: auto;
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+                max-height: 48vh;
+            }
+            #map-legend {
+                bottom: auto;
+                top: 15px;
+                right: 15px;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
@@ -489,7 +510,7 @@
         <!-- Mode Switcher Tabs -->
         <div class="mode-tabs">
             <button class="tab-btn active" id="tab-interactive" onclick="switchMode('interactive')">Interactive</button>
-            <button class="tab-btn" id="tab-pro" onclick="switchMode('pro')">Pro Mode (Text)</button>
+            <button class="tab-btn" id="tab-pro" onclick="switchMode('pro')">Pro Mode</button>
         </div>
 
         <div class="menu-content">
@@ -505,20 +526,21 @@
                 </div>
 
                 <div class="transport-mode">
-                    <label><input type="radio" name="mode" value="plane" checked> ✈️ Plane</label>
-                    <label><input type="radio" name="mode" value="train"> 🚆 Train</label>
-                    <label><input type="radio" name="mode" value="car"> 🚗 Car</label>
-                    <label><input type="radio" name="mode" value="ship"> 🚢 Ship</label>
-                    <label><input type="radio" name="mode" value="walk"> 🚶 Walk</label>
+                    <label><input type="radio" name="mode" value="plane" checked> Plane</label>
+                    <label><input type="radio" name="mode" value="train"> Train</label>
+                    <label><input type="radio" name="mode" value="car"> Car</label>
+                    <label><input type="radio" name="mode" value="ship"> Ship</label>
+                    <label><input type="radio" name="mode" value="walk"> Walk</label>
                 </div>
                 
                 <hr>
-                <div class="instructions">Drag ☰ to reorder. Pick transport per leg!</div>
+                <div class="instructions">Drag to reorder. Pick transport per leg!</div>
                 
                 <ul id="route-list"></ul>
                 
                 <div class="btn-group">
                     <button class="action-btn" id="btn-start" disabled>Embark</button>
+                    <button class="action-btn" id="btn-download">Download Video</button>
                     <button class="action-btn" id="btn-clear">Clear</button>
                 </div>
             </div>
@@ -534,8 +556,8 @@ Osaka [car]
 Okinawa [plane]"></textarea>
                 
                 <div class="btn-group" style="flex-direction: column; gap: 8px;">
-                    <button class="action-btn" id="btn-generate" onclick="generateFromProMode()" style="background: #2b3a42; color: #fdfbf7;">Load Itinerary from Text</button>
-                    <button class="action-btn" id="btn-export-text" onclick="exportToProText()" style="background: #f4efe6; color: #2b3a42; border: 1px solid #d4cbb8;">Generate Pro Text</button>
+                    <button class="action-btn" id="btn-generate" onclick="generateFromProMode()" style="background: #2b3a42; color: #fdfbf7; width: 100%;">Load Itinerary from Text</button>
+                    <button class="action-btn" id="btn-export-text" onclick="exportToProText()" style="background: #f4efe6; color: #2b3a42; border: 1px solid #d4cbb8; width: 100%;">Generate Pro Text</button>
                 </div>
             </div>
 
@@ -548,9 +570,9 @@ Okinawa [plane]"></textarea>
     <div id="map-legend">
         <div class="legend-title">Transportation</div>
         <div class="legend-item"><div class="legend-color" style="background: #c0392b;"></div> Plane</div>
-        <div class="legend-item"><div class="legend-color" style="background: #2980b9;"></div> Train</div>
+        <div class="legend-item"><div class="legend-color" style="background: #8e44ad;"></div> Train</div>
         <div class="legend-item"><div class="legend-color" style="background: #27ae60;"></div> Car</div>
-        <div class="legend-item"><div class="legend-color" style="background: #16a085;"></div> Ship</div>
+        <div class="legend-item"><div class="legend-color" style="background: #2980b9;"></div> Ship</div>
         <div class="legend-item"><div class="legend-color" style="background: #d35400;"></div> Walk</div>
     </div>
 
@@ -606,17 +628,20 @@ Okinawa [plane]"></textarea>
         let animationProgress = 0;
         const uniformCurve = 0.15; 
 
-        // Transportation modes with assigned matching colors
+        let mediaRecorder;
+        let recordedChunks = [];
+
         const vehicles = {
-            plane: { speed: 0.005, color: '#c0392b' }, // Crimson Red
-            train: { speed: 0.005, color: '#2980b9' }, // Navy Blue
-            car:   { speed: 0.005, color: '#27ae60' }, // Forest Green
-            ship:  { speed: 0.005, color: '#16a085' }, // Ocean Teal
-            walk:  { speed: 0.005, color: '#d35400' }  // Amber Gold
+            plane: { speed: 0.005, color: '#c0392b' },
+            train: { speed: 0.005, color: '#8e44ad' },
+            car:   { speed: 0.005, color: '#27ae60' },
+            ship:  { speed: 0.005, color: '#2980b9' },
+            walk:  { speed: 0.005, color: '#d35400' }
         };
 
         const routeListUI = document.getElementById('route-list');
         const startBtn = document.getElementById('btn-start');
+        const downloadBtn = document.getElementById('btn-download');
         const clearBtn = document.getElementById('btn-clear');
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('btn-search');
@@ -688,7 +713,7 @@ Okinawa [plane]"></textarea>
                 
                 const dragHandle = document.createElement('span');
                 dragHandle.className = 'drag-handle';
-                dragHandle.innerText = '☰';
+                dragHandle.innerText = '=';
                 li.appendChild(dragHandle);
 
                 const nameSpan = document.createElement('span');
@@ -737,13 +762,13 @@ Okinawa [plane]"></textarea>
 
                 const modeSelect = index > 0 ? `
                     <select class="leg-mode" onchange="updateLegMode(${index}, this.value)">
-                        <option value="plane" ${city.mode==='plane'?'selected':''}>✈️</option>
-                        <option value="train" ${city.mode==='train'?'selected':''}>🚆</option>
-                        <option value="car" ${city.mode==='car'?'selected':''}>🚗</option>
-                        <option value="ship" ${city.mode==='ship'?'selected':''}>🚢</option>
-                        <option value="walk" ${city.mode==='walk'?'selected':''}>🚶</option>
+                        <option value="plane" ${city.mode==='plane'?'selected':''}>Plane</option>
+                        <option value="train" ${city.mode==='train'?'selected':''}>Train</option>
+                        <option value="car" ${city.mode==='car'?'selected':''}>Car</option>
+                        <option value="ship" ${city.mode==='ship'?'selected':''}>Ship</option>
+                        <option value="walk" ${city.mode==='walk'?'selected':''}>Walk</option>
                     </select>
-                ` : `<span class="start-pin">📍</span>`;
+                ` : `<span class="start-pin">*</span>`;
 
                 li.insertAdjacentHTML('beforeend', modeSelect);
 
@@ -823,7 +848,7 @@ Okinawa [plane]"></textarea>
                 let placeName = line;
                 let specifiedMode = null;
                 
-                const match = line.match(/^(.+?)\s*\[(plane\vert{}train\vert{}car\vert{}ship\vert{}walk)\]$/i);
+                const match = line.match(/(.*?)\s*\[(plane\vert{}train\vert{}car\vert{}ship\vert{}walk)\]/i);
                 if (match) {
                     placeName = match[1].trim();
                     specifiedMode = match[2].toLowerCase();
@@ -922,6 +947,7 @@ Okinawa [plane]"></textarea>
             updateApp();
             searchResults.innerHTML = '';
             searchInput.value = '';
+            downloadBtn.style.display = 'none';
         });
 
         function getLineStyle(color) {
@@ -948,12 +974,24 @@ Okinawa [plane]"></textarea>
             });
         }
 
-        startBtn.addEventListener('click', () => {
+        startBtn.addEventListener('click', async () => {
             if (cities.length < 2 || isMoving) return;
             
             stopJourney(); 
             isMoving = true;
             startBtn.disabled = true;
+            downloadBtn.style.display = 'none';
+
+            try {
+                const mapCanvasElement = document.getElementById('map');
+                const stream = mapCanvasElement.captureStream ? mapCanvasElement.captureStream(30) : null;
+                if (stream) {
+                    recordedChunks = [];
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                    mediaRecorder.start();
+                }
+            } catch(e) { console.log('Recording not supported on this browser context'); }
 
             const initialModeKey = cities[1].mode;
             const initialVehicle = vehicles[initialModeKey];
@@ -974,7 +1012,6 @@ Okinawa [plane]"></textarea>
             currentLeg = 0;
             animationProgress = 0;
             
-            // Draw active line matching the first leg's transport color
             activeLine = L.polyline([], getLineStyle(initialVehicle.color)).addTo(map);
             
             document.body.classList.add('journey-active');
@@ -989,6 +1026,22 @@ Okinawa [plane]"></textarea>
             setTimeout(() => {
                 animateJourney();
             }, 1600);
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (recordedChunks.length === 0) return;
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'embarkation-journey.webm';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
         });
 
         function getPointOnTrajectory(start, end, t) {
@@ -1034,7 +1087,6 @@ Okinawa [plane]"></textarea>
                         iconAnchor: [0, 0]
                     }));
                     
-                    // Create next active line with the color of the upcoming transport mode
                     activeLine = L.polyline([], getLineStyle(nextVehicleObj.color)).addTo(map);
                     
                     const nextDestLabel = document.getElementById(`city-label-${currentLeg + 1}`);
@@ -1049,6 +1101,11 @@ Okinawa [plane]"></textarea>
                 } else {
                     isMoving = false;
                     startBtn.disabled = false;
+                    
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                        downloadBtn.style.display = 'block';
+                    }
                     
                     setTimeout(() => {
                         document.body.classList.remove('journey-active');

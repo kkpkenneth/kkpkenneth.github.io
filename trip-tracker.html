@@ -340,16 +340,16 @@
         .btn-group { 
             flex-shrink: 0;
             display: flex; 
-            gap: 6px; 
+            gap: 8px; 
             margin-top: auto; 
         }
         .action-btn {
             flex: 1;
-            padding: 10px 4px;
+            padding: 12px;
             border: none;
             border-radius: 4px;
             font-family: 'Playfair Display', serif;
-            font-size: 0.82rem;
+            font-size: 1rem;
             font-weight: 700;
             letter-spacing: 0.3px;
             cursor: pointer;
@@ -360,7 +360,6 @@
         #btn-start { background: #2b3a42; color: #fdfbf7; }
         #btn-start:disabled { background: #aeb6bf; cursor: not-allowed; }
         #btn-clear { background: #f4efe6; color: #2b3a42; border: 1px solid #c8c0b0; }
-        #btn-download { background: #27ae60; color: #fdfbf7; display: none; }
 
         /* Continent Labels Overlay */
         .continent-label {
@@ -491,7 +490,7 @@
                 left: 10px;
                 right: 10px;
                 width: auto;
-                max-height: 48vh;
+                max-height: 50vh;
             }
             #map-legend {
                 bottom: auto;
@@ -505,7 +504,7 @@
 <body>
 
     <div id="menu-panel">
-        <div class="menu-header">Itinerary Planner</div>
+        <div class="menu-header">Trip Tracker</div>
         
         <!-- Mode Switcher Tabs -->
         <div class="mode-tabs">
@@ -540,7 +539,6 @@
                 
                 <div class="btn-group">
                     <button class="action-btn" id="btn-start" disabled>Embark</button>
-                    <button class="action-btn" id="btn-download">Download Video</button>
                     <button class="action-btn" id="btn-clear">Clear</button>
                 </div>
             </div>
@@ -628,20 +626,17 @@ Okinawa [plane]"></textarea>
         let animationProgress = 0;
         const uniformCurve = 0.15; 
 
-        let mediaRecorder;
-        let recordedChunks = [];
-
+        // Doubled speed (0.01 instead of 0.005)
         const vehicles = {
-            plane: { speed: 0.005, color: '#c0392b' },
-            train: { speed: 0.005, color: '#8e44ad' },
-            car:   { speed: 0.005, color: '#27ae60' },
-            ship:  { speed: 0.005, color: '#2980b9' },
-            walk:  { speed: 0.005, color: '#d35400' }
+            plane: { speed: 0.01, color: '#c0392b' },
+            train: { speed: 0.01, color: '#8e44ad' },
+            car:   { speed: 0.01, color: '#27ae60' },
+            ship:  { speed: 0.01, color: '#2980b9' },
+            walk:  { speed: 0.01, color: '#d35400' }
         };
 
         const routeListUI = document.getElementById('route-list');
         const startBtn = document.getElementById('btn-start');
-        const downloadBtn = document.getElementById('btn-download');
         const clearBtn = document.getElementById('btn-clear');
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('btn-search');
@@ -947,7 +942,6 @@ Okinawa [plane]"></textarea>
             updateApp();
             searchResults.innerHTML = '';
             searchInput.value = '';
-            downloadBtn.style.display = 'none';
         });
 
         function getLineStyle(color) {
@@ -974,24 +968,12 @@ Okinawa [plane]"></textarea>
             });
         }
 
-        startBtn.addEventListener('click', async () => {
+        startBtn.addEventListener('click', () => {
             if (cities.length < 2 || isMoving) return;
             
             stopJourney(); 
             isMoving = true;
             startBtn.disabled = true;
-            downloadBtn.style.display = 'none';
-
-            try {
-                const mapCanvasElement = document.getElementById('map');
-                const stream = mapCanvasElement.captureStream ? mapCanvasElement.captureStream(30) : null;
-                if (stream) {
-                    recordedChunks = [];
-                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-                    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
-                    mediaRecorder.start();
-                }
-            } catch(e) { console.log('Recording not supported on this browser context'); }
 
             const initialModeKey = cities[1].mode;
             const initialVehicle = vehicles[initialModeKey];
@@ -1026,22 +1008,6 @@ Okinawa [plane]"></textarea>
             setTimeout(() => {
                 animateJourney();
             }, 1600);
-        });
-
-        downloadBtn.addEventListener('click', () => {
-            if (recordedChunks.length === 0) return;
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'embarkation-journey.webm';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
         });
 
         function getPointOnTrajectory(start, end, t) {
@@ -1101,11 +1067,6 @@ Okinawa [plane]"></textarea>
                 } else {
                     isMoving = false;
                     startBtn.disabled = false;
-                    
-                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                        mediaRecorder.stop();
-                        downloadBtn.style.display = 'block';
-                    }
                     
                     setTimeout(() => {
                         document.body.classList.remove('journey-active');

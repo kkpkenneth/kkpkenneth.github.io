@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Travel Planner</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Google Fonts for a "Traveler/Atlas" aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Lora', serif;
+            background-color: #e0e6ed; 
+            overflow: hidden;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        /* UI Menu Styles */
+        #menu-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 400px; 
+            max-height: 90vh;
+            background: rgba(253, 251, 247, 0.95); 
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #d4cbb8;
+        }
+        .menu-header {
+            background: #2b3a42;
+            color: #fdfbf7;
+            padding: 18px 15px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: center;
+            border-bottom: 2px solid #1a252f;
+            flex-shrink: 0;
+        }
+        
+        /* Mode Switcher Tabs */
+        .mode-tabs {
+            display: flex;
+            background: #f4efe6;
+            border-bottom: 1px solid #d4cbb8;
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #6a737b;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-btn.active {
+            background: #fdfbf7;
+            color: #2b3a42;
+            border-bottom: 2px solid #2b3a42;
+        }
+
+        .menu-content {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        /* View Panels */
+        .view-panel {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .view-panel.active {
+            display: flex;
+        }
+
+        /* Pro Mode Textarea Styles */
+        .pro-textarea {
+            width: 100%;
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #c8c0b0;
+            border-radius: 6px;
+            font-family: 'Lora', serif;
+            font-size: 0.9rem;
+            background: #fdfbf7;
+            color: #2b3a42;
+            resize: none;
+            outline: none;
+            box-sizing: border-box;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .pro-textarea:focus { border-color: #2b3a42; }
+        
+        .pro-instructions {
+            font-size: 0.85rem;
+            color: #6a737b;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            font-style: italic;
+        }
+        
+        /* Search Bar & Results Dropdown Wrapper */
+        .search-container {
+            position: relative;
+            flex-shrink: 0;
+            margin-bottom: 15px;
+            z-index: 2000;
+        }
+        .search-box {
+            display: flex;
+            gap: 5px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #c8c0b0;
+            border-radius: 4px;
+            outline: none;
+            font-family: 'Lora', serif;
+            background: #fdfbf7;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: #2b3a42; }
+        
+        .search-box button {
+            padding: 8px 15px;
+            background: #2b3a42;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .search-box button:hover { background: #1a252f; }
+        
+        #search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+            max-height: 180px;
+            overflow-y: auto;
+            background: #fdfbf7;
+            border: 1px solid #d4cbb8;
+            border-radius: 6px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: none; 
+        }
+        #search-results:not(:empty) { display: block; }
+        #search-results li {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e3dccf;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #2b3a42;
+            font-weight: 600;
+        }
+        #search-results li:last-child { border-bottom: none; }
+        #search-results li:hover { background: #f4efe6; }
+
+        /* Transport Mode */
+        .transport-mode {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap; 
+            gap: 8px 12px;
+            margin-bottom: 15px;
+            background: #f4efe6;
+            padding: 10px 6px;
+            border-radius: 6px;
+            border: 1px solid #e3dccf;
+        }
+        .transport-mode label {
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #2b3a42;
+            font-weight: 600;
+        }
+
+        hr { 
+            flex-shrink: 0;
+            border: 0; 
+            border-top: 1px solid #e3dccf; 
+            margin: 15px 0; 
+        }
+
+        .instructions {
+            flex-shrink: 0;
+            font-size: 0.9rem;
+            color: #6a737b;
+            margin-bottom: 12px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Draggable Route List */
+        #route-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 15px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            min-height: 0; 
+            padding-right: 5px;
+        }
+        #route-list::-webkit-scrollbar { width: 6px; }
+        #route-list::-webkit-scrollbar-track { background: #f4efe6; border-radius: 4px; }
+        #route-list::-webkit-scrollbar-thumb { background: #d4cbb8; border-radius: 4px; }
+
+        .route-item {
+            background: #fdfbf7;
+            margin-bottom: 8px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            border: 1px solid #e3dccf;
+            cursor: grab;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .route-item:active { cursor: grabbing; }
+        .route-item.drag-over {
+            border-top: 2px solid #2b3a42;
+            transform: scale(1.02);
+        }
+        .drag-handle {
+            color: #b5ac9a;
+            margin-right: 10px;
+            font-size: 1.2rem;
+            user-select: none;
+        }
+        .city-name {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #2b3a42;
+            font-weight: 600;
+        }
+        
+        /* Edit Stop Elements */
+        .edit-btn {
+            background: none;
+            border: none;
+            color: #9299a0;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 4px;
+            margin-right: 4px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+        .edit-btn:hover { color: #2b3a42; }
+
+        .edit-input {
+            flex-grow: 1;
+            width: 80px;
+            padding: 4px 6px;
+            font-family: 'Lora', serif;
+            font-size: 0.9rem;
+            border: 1px solid #c8c0b0;
+            border-radius: 4px;
+            outline: none;
+            margin-right: 5px;
+            background: #fdfbf7;
+            color: #2b3a42;
+            font-weight: 600;
+        }
+        .edit-input:focus { border-color: #2b3a42; }
+
+        .leg-mode {
+            background: #f4efe6;
+            border: 1px solid #d4cbb8;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 8px;
+            outline: none;
+        }
+        .start-pin {
+            margin: 0 8px;
+            font-size: 1.1rem;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #c0392b;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 0 5px;
+            border-radius: 4px;
+        }
+        .delete-btn:hover { background: #fdf1f0; }
+
+        /* Actions */
+        .btn-group { 
+            flex-shrink: 0;
+            display: flex; 
+            gap: 10px; 
+            margin-top: auto; 
+        }
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .action-btn:hover { opacity: 0.9; }
+        #btn-start { background: #2b3a42; color: #fdfbf7; }
+        #btn-start:disabled { background: #aeb6bf; cursor: not-allowed; }
+        #btn-clear { background: #f4efe6; color: #2b3a42; border: 1px solid #c8c0b0; }
+
+        /* Continent Labels Overlay */
+        .continent-label {
+            color: #9299a0;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 5px;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Map Markers */
+        .custom-map-marker {
+            position: relative;
+            overflow: visible !important;
+        }
+        
+        .custom-map-dot {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            width: 8px;
+            height: 8px;
+            background-color: #fdfbf7;
+            border: 2px solid #2b3a42;
+            border-radius: 50%;
+            z-index: 500;
+        }
+
+        .custom-map-text {
+            position: absolute;
+            top: -40px; 
+            left: 0;
+            transform: translateX(-50%);
+            
+            background: rgba(253, 251, 247, 0.95);
+            border: 1px solid #d4cbb8;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            
+            padding: 2px 6px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: #1a252f;
+            font-size: 0.65rem;
+            white-space: nowrap;
+            z-index: 600;
+            
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        body.journey-active .custom-map-text {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-50%) scale(0.8) translateY(5px);
+        }
+
+        body.journey-active .custom-map-text.active-leg {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1) translateY(0);
+            animation: cuteBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes cuteBounce {
+            0% { transform: translateX(-50%) scale(0.3) translateY(12px); opacity: 0; }
+            100% { transform: translateX(-50%) scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* Colored Traveling Dot */
+        .travel-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #fdfbf7;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transform: translate(-7px, -7px);
+        }
+
+        /* Vintage Map Legend */
+        #map-legend {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(253, 251, 247, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid #d4cbb8;
+            border-radius: 8px;
+            padding: 12px 16px;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            font-family: 'Playfair Display', serif;
+        }
+        .legend-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #2b3a42;
+            margin-bottom: 8px;
+            text-align: center;
+            border-bottom: 1px solid #e3dccf;
+            padding-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-family: 'Lora', serif;
+            color: #2b3a42;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1.5px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu-panel">
+        <div class="menu-header">Itinerary Planner</div>
+        
+        <!-- Mode Switcher Tabs -->
+        <div class="mode-tabs">
+            <button class="tab-btn active" id="tab-interactive" onclick="switchMode('interactive')">Interactive</button>
+            <button class="tab-btn" id="tab-pro" onclick="switchMode('pro')">Pro Mode (Text)</button>
+        </div>
+
+        <div class="menu-content">
+            
+            <!-- Interactive Builder Panel -->
+            <div class="view-panel active" id="panel-interactive">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search destinations...">
+                        <button id="btn-search">Search</button>
+                    </div>
+                    <ul id="search-results"></ul>
+                </div>
+
+                <div class="transport-mode">
+                    <label><input type="radio" name="mode" value="plane" checked> ✈️ Plane</label>
+                    <label><input type="radio" name="mode" value="train"> 🚆 Train</label>
+                    <label><input type="radio" name="mode" value="car"> 🚗 Car</label>
+                    <label><input type="radio" name="mode" value="ship"> 🚢 Ship</label>
+                    <label><input type="radio" name="mode" value="walk"> 🚶 Walk</label>
+                </div>
+                
+                <hr>
+                <div class="instructions">Drag ☰ to reorder. Pick transport per leg!</div>
+                
+                <ul id="route-list"></ul>
+                
+                <div class="btn-group">
+                    <button class="action-btn" id="btn-start" disabled>Embark</button>
+                    <button class="action-btn" id="btn-clear">Clear</button>
+                </div>
+            </div>
+
+            <!-- Pro Mode Text Generator Panel -->
+            <div class="view-panel" id="panel-pro">
+                <div class="pro-instructions">
+                    Type or paste your journey below (one destination per line). Specify transport using brackets, e.g., <strong>Tokyo -> Kyoto [train]</strong>.
+                </div>
+                <textarea id="pro-textarea" class="pro-textarea" placeholder="Tokyo
+Kyoto [train]
+Osaka [car]
+Okinawa [plane]"></textarea>
+                
+                <div class="btn-group" style="flex-direction: column; gap: 8px;">
+                    <button class="action-btn" id="btn-generate" onclick="generateFromProMode()" style="background: #2b3a42; color: #fdfbf7;">Load Itinerary from Text</button>
+                    <button class="action-btn" id="btn-export-text" onclick="exportToProText()" style="background: #f4efe6; color: #2b3a42; border: 1px solid #d4cbb8;">Generate Pro Text</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Map Legend -->
+    <div id="map-legend">
+        <div class="legend-title">Transportation</div>
+        <div class="legend-item"><div class="legend-color" style="background: #c0392b;"></div> Plane</div>
+        <div class="legend-item"><div class="legend-color" style="background: #2980b9;"></div> Train</div>
+        <div class="legend-item"><div class="legend-color" style="background: #27ae60;"></div> Car</div>
+        <div class="legend-item"><div class="legend-color" style="background: #16a085;"></div> Ship</div>
+        <div class="legend-item"><div class="legend-color" style="background: #d35400;"></div> Walk</div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        const map = L.map('map', { zoomControl: false }).setView([35.6895, 139.6917], 4);
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+            maxZoom: 16
+        }).addTo(map);
+
+        const continents = [
+            { name: 'NORTH AMERICA', lat: 45, lng: -100 },
+            { name: 'SOUTH AMERICA', lat: -15, lng: -60 },
+            { name: 'EUROPE', lat: 50, lng: 15 },
+            { name: 'AFRICA', lat: 5, lng: 20 },
+            { name: 'ASIA', lat: 45, lng: 90 },
+            { name: 'OCEANIA', lat: -20, lng: 140 }
+        ];
+
+        const continentMarkers = [];
+        continents.forEach(c => {
+            const icon = L.divIcon({
+                className: 'continent-label',
+                html: `<span>${c.name}</span>`,
+                iconSize: [200, 30],
+                iconAnchor: [100, 15]
+            });
+            const marker = L.marker([c.lat, c.lng], { icon: icon, interactive: false }).addTo(map);
+            continentMarkers.push(marker);
+        });
+
+        map.on('zoomend', function() {
+            if (map.getZoom() > 4) {
+                continentMarkers.forEach(m => m.setOpacity(0));
+            } else {
+                continentMarkers.forEach(m => m.setOpacity(1));
+            }
+        });
+
+        let cities = [];
+        let mapMarkers = [];
+        let activeLine = null;
+        let completedLines = [];
+        let movingVehicle = null;
+        let animationId = null;
+        let isMoving = false;
+        
+        let currentLeg = 0;
+        let animationProgress = 0;
+        const uniformCurve = 0.15; 
+
+        // Transportation modes with assigned matching colors
+        const vehicles = {
+            plane: { speed: 0.005, color: '#c0392b' }, // Crimson Red
+            train: { speed: 0.005, color: '#2980b9' }, // Navy Blue
+            car:   { speed: 0.005, color: '#27ae60' }, // Forest Green
+            ship:  { speed: 0.005, color: '#16a085' }, // Ocean Teal
+            walk:  { speed: 0.005, color: '#d35400' }  // Amber Gold
+        };
+
+        const routeListUI = document.getElementById('route-list');
+        const startBtn = document.getElementById('btn-start');
+        const clearBtn = document.getElementById('btn-clear');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('btn-search');
+        const searchResults = document.getElementById('search-results');
+
+        window.switchMode = function(mode) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            
+            if (mode === 'interactive') {
+                document.getElementById('tab-interactive').classList.add('active');
+                document.getElementById('panel-interactive').classList.add('active');
+            } else {
+                document.getElementById('tab-pro').classList.add('active');
+                document.getElementById('panel-pro').classList.add('active');
+            }
+        };
+
+        window.updateLegMode = function(index, value) {
+            cities[index].mode = value;
+        };
+
+        window.exportToProText = function() {
+            if (cities.length === 0) {
+                document.getElementById('pro-textarea').value = "No stops added yet!";
+                return;
+            }
+            
+            let textOutput = "";
+            cities.forEach((c, index) => {
+                if (index === 0) {
+                    textOutput += `${c.name}\n`;
+                } else {
+                    textOutput += `${c.name} [${c.mode}]\n`;
+                }
+            });
+            
+            document.getElementById('pro-textarea').value = textOutput.trim();
+        };
+
+        function updateApp() {
+            mapMarkers.forEach(m => map.removeLayer(m));
+            mapMarkers = [];
+            routeListUI.innerHTML = '';
+
+            let draggedIndex = null;
+
+            cities.forEach((city, index) => {
+                const customLabelIcon = L.divIcon({
+                    className: 'custom-map-marker',
+                    html: `
+                        <div class="custom-map-dot"></div>
+                        <div id="city-label-${index}" class="custom-map-text">${city.name}</div>
+                    `,
+                    iconSize: [0, 0],   
+                    iconAnchor: [0, 0]  
+                });
+
+                const marker = L.marker([city.lat, city.lng], { 
+                    icon: customLabelIcon,
+                    interactive: false 
+                }).addTo(map);
+                
+                mapMarkers.push(marker);
+
+                const li = document.createElement('li');
+                li.className = 'route-item';
+                li.draggable = true;
+                
+                const dragHandle = document.createElement('span');
+                dragHandle.className = 'drag-handle';
+                dragHandle.innerText = '☰';
+                li.appendChild(dragHandle);
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'city-name';
+                nameSpan.title = city.name;
+                nameSpan.innerText = city.name;
+                li.appendChild(nameSpan);
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-btn';
+                editBtn.innerHTML = '✎';
+                editBtn.title = 'Edit Name';
+                li.appendChild(editBtn);
+
+                editBtn.onclick = () => {
+                    if (isMoving) return;
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = city.name;
+                    input.className = 'edit-input';
+                    
+                    li.insertBefore(input, nameSpan);
+                    li.removeChild(nameSpan);
+                    editBtn.style.display = 'none';
+                    li.draggable = false; 
+                    
+                    input.focus();
+                    const val = input.value;
+                    input.value = '';
+                    input.value = val;
+                    
+                    const saveEdit = () => {
+                        const newVal = input.value.trim();
+                        if (newVal) {
+                            cities[index].name = newVal;
+                        }
+                        updateApp(); 
+                    };
+                    
+                    input.onblur = saveEdit;
+                    input.onkeypress = (e) => { 
+                        if (e.key === 'Enter') input.blur(); 
+                    };
+                };
+
+                const modeSelect = index > 0 ? `
+                    <select class="leg-mode" onchange="updateLegMode(${index}, this.value)">
+                        <option value="plane" ${city.mode==='plane'?'selected':''}>✈️</option>
+                        <option value="train" ${city.mode==='train'?'selected':''}>🚆</option>
+                        <option value="car" ${city.mode==='car'?'selected':''}>🚗</option>
+                        <option value="ship" ${city.mode==='ship'?'selected':''}>🚢</option>
+                        <option value="walk" ${city.mode==='walk'?'selected':''}>🚶</option>
+                    </select>
+                ` : `<span class="start-pin">📍</span>`;
+
+                li.insertAdjacentHTML('beforeend', modeSelect);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-btn';
+                delBtn.innerHTML = '×';
+                delBtn.onclick = () => {
+                    if (isMoving) return;
+                    cities.splice(index, 1);
+                    updateApp();
+                };
+                li.appendChild(delBtn);
+
+                li.addEventListener('dragstart', (e) => {
+                    if (isMoving || !li.draggable) { e.preventDefault(); return; }
+                    draggedIndex = index;
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => li.style.opacity = '0.5', 0);
+                });
+                
+                li.addEventListener('dragover', (e) => {
+                    if (!li.draggable) return;
+                    e.preventDefault();
+                    li.classList.add('drag-over');
+                });
+                
+                li.addEventListener('dragleave', () => {
+                    li.classList.remove('drag-over');
+                });
+                
+                li.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    li.classList.remove('drag-over');
+                    if (draggedIndex !== null && draggedIndex !== index) {
+                        const movedItem = cities.splice(draggedIndex, 1)[0];
+                        cities.splice(index, 0, movedItem);
+                        updateApp();
+                    }
+                });
+                
+                li.addEventListener('dragend', () => {
+                    li.style.opacity = '1';
+                });
+
+                routeListUI.appendChild(li);
+            });
+
+            startBtn.disabled = cities.length < 2;
+        }
+
+        function addStop(name, lat, lng, mode = null) {
+            if (isMoving) return;
+            const globalMode = mode || document.querySelector('input[name="mode"]:checked').value;
+            cities.push({ name, lat, lng, mode: globalMode });
+            updateApp();
+        }
+
+        map.on('click', function(e) {
+            addStop(`Waypoint ${cities.length + 1}`, e.latlng.lat, e.latlng.lng);
+        });
+
+        window.generateFromProMode = async function() {
+            const rawText = document.getElementById('pro-textarea').value.trim();
+            if (!rawText) return;
+
+            const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+            if (lines.length === 0) return;
+
+            const btn = document.getElementById('btn-generate');
+            btn.innerText = 'Parsing & Geocoding...';
+            btn.disabled = true;
+
+            stopJourney();
+            cities = [];
+
+            for (let line of lines) {
+                let placeName = line;
+                let specifiedMode = null;
+                
+                const match = line.match(/^(.+?)\s*\[(plane\vert{}train\vert{}car\vert{}ship\vert{}walk)\]$/i);
+                if (match) {
+                    placeName = match[1].trim();
+                    specifiedMode = match[2].toLowerCase();
+                }
+
+                try {
+                    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(placeName)}&count=1&language=en&format=json`);
+                    const data = await res.json();
+                    
+                    if (data.results && data.results.length > 0) {
+                        const p = data.results[0];
+                        let routeName = p.name;
+                        if (p.admin1 && p.admin1 !== p.name) {
+                            routeName += `, ${p.admin1}`;
+                        }
+                        addStop(routeName, p.latitude, p.longitude, specifiedMode);
+                    }
+                } catch (err) {
+                    console.error("Geocoding failed for: ", placeName);
+                }
+            }
+
+            btn.innerText = 'Load Itinerary from Text';
+            btn.disabled = false;
+
+            switchMode('interactive');
+            if (cities.length > 0) {
+                map.setView([cities[0].lat, cities[0].lng], 5);
+            }
+        };
+
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (!query) return;
+            
+            searchBtn.innerText = '...';
+            
+            fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`)
+                .then(res => res.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    if (!data.results || data.results.length === 0) {
+                        searchResults.innerHTML = '<li>No destinations found.</li>';
+                        return;
+                    }
+                    data.results.forEach(place => {
+                        const li = document.createElement('li');
+                        const parts = [place.name, place.admin1, place.country].filter(Boolean);
+                        li.innerText = parts.join(', ');
+                        
+                        li.addEventListener('click', () => {
+                            let routeName = place.name;
+                            if (place.admin1 && place.admin1 !== place.name) {
+                                routeName += `, ${place.admin1}`;
+                            }
+                            addStop(routeName, place.latitude, place.longitude);
+                            searchResults.innerHTML = ''; 
+                            searchInput.value = '';
+                            map.setView([place.latitude, place.longitude], 5);
+                        });
+                        searchResults.appendChild(li);
+                    });
+                })
+                .catch(() => { searchResults.innerHTML = '<li>Error exploring.</li>'; })
+                .finally(() => { searchBtn.innerText = 'Search'; });
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchBtn.click();
+        });
+
+        function stopJourney() {
+            if (animationId) cancelAnimationFrame(animationId);
+            isMoving = false;
+            
+            if (activeLine) map.removeLayer(activeLine);
+            completedLines.forEach(line => map.removeLayer(line));
+            completedLines = [];
+            
+            if (movingVehicle) {
+                map.removeLayer(movingVehicle);
+                movingVehicle = null;
+            }
+            
+            document.body.classList.remove('journey-active');
+            
+            cities.forEach((_, i) => {
+                const el = document.getElementById(`city-label-${i}`);
+                if (el) el.classList.remove('active-leg');
+            });
+        }
+
+        clearBtn.addEventListener('click', () => {
+            stopJourney();
+            cities = [];
+            updateApp();
+            searchResults.innerHTML = '';
+            searchInput.value = '';
+        });
+
+        function getLineStyle(color) {
+            return { 
+                color: color, 
+                weight: 2, 
+                opacity: 0.85, 
+                dashArray: '6, 8', 
+                lineJoin: 'round'
+            };
+        }
+
+        function frameLeg(index1, index2, duration = 1.2) {
+            const legBounds = L.latLngBounds([
+                [cities[index1].lat, cities[index1].lng],
+                [cities[index2].lat, cities[index2].lng]
+            ]);
+            
+            map.flyToBounds(legBounds, { 
+                paddingTopLeft: [420, 50], 
+                paddingBottomRight: [50, 50], 
+                maxZoom: 16, 
+                duration: duration 
+            });
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (cities.length < 2 || isMoving) return;
+            
+            stopJourney(); 
+            isMoving = true;
+            startBtn.disabled = true;
+
+            const initialModeKey = cities[1].mode;
+            const initialVehicle = vehicles[initialModeKey];
+
+            const dotHtml = `<div class="travel-dot" style="background: ${initialVehicle.color};"></div>`;
+            const customIcon = L.divIcon({
+                className: '',
+                html: dotHtml,
+                iconSize: [0, 0],
+                iconAnchor: [0, 0]
+            });
+            
+            movingVehicle = L.marker([cities[0].lat, cities[0].lng], {
+                icon: customIcon,
+                zIndexOffset: 1000
+            }).addTo(map);
+
+            currentLeg = 0;
+            animationProgress = 0;
+            
+            // Draw active line matching the first leg's transport color
+            activeLine = L.polyline([], getLineStyle(initialVehicle.color)).addTo(map);
+            
+            document.body.classList.add('journey-active');
+            
+            const startLabel = document.getElementById(`city-label-0`);
+            const endLabel = document.getElementById(`city-label-1`);
+            if (startLabel) startLabel.classList.add('active-leg');
+            if (endLabel) endLabel.classList.add('active-leg');
+
+            frameLeg(0, 1, 1.5);
+
+            setTimeout(() => {
+                animateJourney();
+            }, 1600);
+        });
+
+        function getPointOnTrajectory(start, end, t) {
+            let lng = start.lng + (end.lng - start.lng) * t;
+            let baseLat = start.lat + (end.lat - start.lat) * t;
+            
+            let dist = Math.sqrt(Math.pow(end.lng - start.lng, 2) + Math.pow(end.lat - start.lat, 2));
+            let arcHeight = dist * uniformCurve; 
+            
+            let lat = baseLat + Math.sin(t * Math.PI) * arcHeight;
+            return { lat, lng };
+        }
+
+        function animateJourney() {
+            let startCity = cities[currentLeg];
+            let endCity = cities[currentLeg + 1];
+            
+            let modeKey = endCity.mode;
+            let vehicleObj = vehicles[modeKey];
+
+            animationProgress += vehicleObj.speed;
+
+            if (animationProgress >= 1) {
+                animationProgress = 0;
+                
+                const oldStartLabel = document.getElementById(`city-label-${currentLeg}`);
+                if (oldStartLabel) oldStartLabel.classList.remove('active-leg');
+                
+                currentLeg++;
+                
+                movingVehicle.setLatLng([endCity.lat, endCity.lng]);
+                activeLine.addLatLng([endCity.lat, endCity.lng]);
+                completedLines.push(activeLine);
+
+                if (currentLeg < cities.length - 1) {
+                    let nextModeKey = cities[currentLeg + 1].mode;
+                    let nextVehicleObj = vehicles[nextModeKey];
+                    
+                    movingVehicle.setIcon(L.divIcon({
+                        className: '',
+                        html: `<div class="travel-dot" style="background: ${nextVehicleObj.color};"></div>`,
+                        iconSize: [0, 0],
+                        iconAnchor: [0, 0]
+                    }));
+                    
+                    // Create next active line with the color of the upcoming transport mode
+                    activeLine = L.polyline([], getLineStyle(nextVehicleObj.color)).addTo(map);
+                    
+                    const nextDestLabel = document.getElementById(`city-label-${currentLeg + 1}`);
+                    if (nextDestLabel) nextDestLabel.classList.add('active-leg');
+
+                    frameLeg(currentLeg, currentLeg + 1, 1.2);
+
+                    setTimeout(() => {
+                        animationId = requestAnimationFrame(() => animateJourney());
+                    }, 1300); 
+                    return;
+                } else {
+                    isMoving = false;
+                    startBtn.disabled = false;
+                    
+                    setTimeout(() => {
+                        document.body.classList.remove('journey-active');
+                    }, 2000);
+                    return;
+                }
+            }
+
+            let currentPos = getPointOnTrajectory(startCity, endCity, animationProgress);
+            movingVehicle.setLatLng([currentPos.lat, currentPos.lng]);
+            activeLine.addLatLng([currentPos.lat, currentPos.lng]);
+
+            animationId = requestAnimationFrame(() => animateJourney());
+        }
+    </script>
+</body>
+</html>

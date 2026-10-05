@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Braille Learning & Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .dot-transition { transition: all 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/30 font-bold text-xl flex items-center justify-center w-10 h-10">⠃</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">BrailleCraft</h1>
+                    <p class="text-xs text-slate-400">Interactive Learning & Quiz Platform</p>
+                </div>
+            </div>
+            <nav class="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700 w-full sm:w-auto justify-center">
+                <button onclick="switchTab('learn')" id="nav-learn" class="px-5 py-2 text-sm font-medium rounded-lg transition-all bg-indigo-600 text-white shadow-md">Learn & Explore</button>
+                <button onclick="switchTab('practice')" id="nav-practice" class="px-5 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white">Free Practice</button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="px-5 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white">Quiz Mode</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+        
+        <!-- ================= LEARN VIEW ================= -->
+        <section id="view-learn" class="space-y-6">
+            <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-700">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Alphabet & Number Reference</h2>
+                        <p class="text-sm text-slate-400">Click any character to examine its 6-dot Braille structure and hear pronunciation.</p>
+                    </div>
+                    <button onclick="speakText('Select any character to view its Braille cell and hear its pronunciation.')" class="flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-indigo-300 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-slate-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                        <span>Listen Guide</span>
+                    </button>
+                </div>
+
+                <!-- Alphabet Grid -->
+                <div class="mt-6">
+                    <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3">Letters (A-Z)</h3>
+                    <div id="alphabet-grid" class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-9 gap-3"></div>
+                </div>
+
+                <!-- Numbers Grid -->
+                <div class="mt-8">
+                    <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3">Numbers (0-9)</h3>
+                    <div id="numbers-grid" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-10 gap-3"></div>
+                </div>
+            </div>
+
+            <!-- Detailed Selected Character Showcase -->
+            <div id="learn-detail-card" class="bg-gradient-to-br from-slate-800 to-slate-850 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center space-x-6">
+                    <div id="learn-cell-preview" class="grid grid-cols-2 gap-3 bg-slate-900 p-4 rounded-2xl border border-slate-700 shadow-inner">
+                        <!-- Dots rendered dynamically -->
+                    </div>
+                    <div>
+                        <span class="text-xs uppercase font-bold tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">Selected Character</span>
+                        <h3 id="learn-char-title" class="text-4xl font-ext500 font-bold text-white mt-2">A</h3>
+                        <p id="learn-char-desc" class="text-sm text-slate-400 mt-1">Dot combination: Dot 1</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                    <button onclick="speakSelectedLearnChar()" class="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-indigo-600/30 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                        <span>Pronounce Character</span>
+                    </button>
+                    <button onclick="copyLearnCharToPractice()" class="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-5 py-3 rounded-xl font-medium transition-all border border-slate-600">
+                        <span>Try in Practice</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PRACTICE VIEW ================= -->
+        <section id="view-practice" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Interactive Cell Workspace -->
+                <div class="lg:col-span-7 bg-slate-800 border border-slate-700/80 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center">
+                    <div class="w-full flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Interactive Braille Cell</h2>
+                            <p class="text-xs text-slate-400">Click dots to toggle between active (black) and inactive (gray).</p>
+                        </div>
+                        <button onclick="resetPracticeCell()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-600 transition-colors">Clear Cell</button>
+                    </div>
+
+                    <!-- 6-Dot Grid (2 columns, 3 rows) -->
+                    <div id="practice-cell" class="bg-slate-900 p-8 rounded-3xl border border-slate-700/80 shadow-2xl inline-grid grid-cols-2 gap-6 my-4">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <div class="flex items-center justify-center space-x-4 mt-4 w-full">
+                        <div class="text-center">
+                            <span class="text-xs text-slate-400">Detected Character:</span>
+                            <div id="practice-detected-char" class="text-3xl font-ext500 font-bold text-indigo-400 mt-1">?</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 mt-6 justify-center w-full">
+                        <button onclick="speakPracticeCell()" class="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-600/30 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                            <span>Speak Character</span>
+                        </button>
+                        <button onclick="appendPracticeWord()" class="flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-5 py-2.5 rounded-xl font-medium border border-slate-600 transition-all">
+                            <span>Add to Word Builder</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Word Builder Panel -->
+                <div class="lg:col-span-5 bg-slate-800 border border-slate-700/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-700">
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Word Builder</h2>
+                                <p class="text-xs text-slate-400">Build words letter by letter using the Braille cell.</p>
+                            </div>
+                            <button onclick="clearWordBuilder()" class="text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 px-3 py-1.5 rounded-lg border border-red-500/20 transition-colors">Clear Word</button>
+                        </div>
+
+                        <div class="my-6">
+                            <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Current Built Word</span>
+                            <div id="built-word-display" class="min-h-[70px] bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center justify-center text-2xl font-bold tracking-wider text-white shadow-inner">
+                                <span class="text-slate-600 font-normal text-base">Your word will appear here...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="speakBuiltWord()" class="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-xl font-medium shadow-lg shadow-emerald-600/30 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                            <span>Speak Entire Word</span>
+                        </button>
+                        <button onclick="addSpaceToWord()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-sm font-medium border border-slate-600 transition-colors">Add Space</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= QUIZ VIEW ================= -->
+        <section id="view-quiz" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-6 shadow-xl max-w-2xl mx-auto">
+                <div class="flex items-center justify-between pb-6 border-b border-slate-700">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Braille Challenge Quiz</h2>
+                        <p class="text-xs text-slate-400">Test your knowledge by forming the requested character.</p>
+                    </div>
+                    <div class="flex items-center space-x-3 bg-slate-900 px-4 py-2 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400">Score:</span>
+                        <span id="quiz-score" class="text-emerald-400 font-bold text-lg">0</span>
+                    </div>
+                </div>
+
+                <!-- Quiz Prompt Area -->
+                <div class="py-8 text-center space-y-4">
+                    <p class="text-sm uppercase tracking-wider font-semibold text-slate-400">Form the Braille pattern for:</p>
+                    <div id="quiz-target-char" class="text-6xl font-ext500 font-extrabold text-indigo-400">A</div>
+                    <button onclick="speakQuizTarget()" class="inline-flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-indigo-300 px-4 py-2 rounded-xl text-xs font-medium border border-slate-600 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                        <span>Repeat Target</span>
+                    </button>
+                </div>
+
+                <!-- Interactive Quiz Cell -->
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <div id="quiz-cell" class="bg-slate-900 p-8 rounded-3xl border border-slate-700/80 shadow-2xl inline-grid grid-cols-2 gap-6">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <div id="quiz-feedback" class="min-h-[30px] text-sm font-medium text-center"></div>
+
+                    <div class="flex space-x-4 w-full pt-4">
+                        <button onclick="resetQuizCell()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-3 rounded-xl font-medium border border-slate-600 transition-colors">Clear</button>
+                        <button onclick="submitQuizAnswer()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-medium shadow-lg shadow-indigo-600/30 transition-all">Submit Answer</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800/80 border-t border-slate-700 py-4 mt-12 text-center text-xs text-slate-400">
+        <p>Interactive Braille Learning Suite &bull; Built with standard 6-dot Braille patterns & Web Speech API</p>
+    </footer>
+
+    <!-- Custom Notification Modal -->
+    <div id="notification-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto text-xl font-bold border border-indigo-500/30">i</div>
+            <h3 id="modal-title" class="text-lg font-bold text-white">Notice</h3>
+            <p id="modal-message" class="text-sm text-slate-300">Message goes here...</p>
+            <button onclick="closeModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-indigo-600/20">Got it</button>
+        </div>
+    </div>
+
+    <script>
+        // Standard Braille 6-dot patterns mapped to bitmasks or dot arrays [1, 2, 3, 4, 5, 6]
+        const brailleData = {
+            'A': [1, 0, 0, 0, 0, 0],
+            'B': [1, 1, 0, 0, 0, 0],
+            'C': [1, 0, 0, 1, 0, 0],
+            'D': [1, 0, 0, 1, 1, 0],
+            'E': [1, 0, 0, 0, 1, 0],
+            'F': [1, 1, 0, 1, 0, 0],
+            'G': [1, 1, 0, 1, 1, 0],
+            'H': [1, 1, 0, 0, 1, 0],
+            'I': [0, 1, 0, 1, 0, 0],
+            'J': [0, 1, 0, 1, 1, 0],
+            'K': [1, 0, 1, 0, 0, 0],
+            'L': [1, 1, 1, 0, 0, 0],
+            'M': [1, 0, 1, 1, 0, 0],
+            'N': [1, 0, 1, 1, 1, 0],
+            'O': [1, 0, 1, 0, 1, 0],
+            'P': [1, 1, 1, 1, 0, 0],
+            'Q': [1, 1, 1, 1, 1, 0],
+            'R': [1, 1, 1, 0, 1, 0],
+            'S': [0, 1, 1, 1, 0, 0],
+            'T': [0, 1, 1, 1, 1, 0],
+            'U': [1, 0, 1, 0, 0, 1],
+            'V': [1, 1, 1, 0, 0, 1],
+            'W': [0, 1, 0, 1, 1, 1],
+            'X': [1, 0, 1, 1, 0, 1],
+            'Y': [1, 0, 1, 1, 1, 1],
+            'Z': [1, 0, 1, 0, 1, 1],
+            '1': [1, 0, 0, 0, 0, 0],
+            '2': [1, 1, 0, 0, 0, 0],
+            '3': [1, 0, 0, 1, 0, 0],
+            '4': [1, 0, 0, 1, 1, 0],
+            '5': [1, 0, 0, 0, 1, 0],
+            '6': [1, 1, 0, 1, 0, 0],
+            '7': [1, 1, 0, 1, 1, 0],
+            '8': [1, 1, 0, 0, 1, 0],
+            '9': [0, 1, 0, 1, 0, 0],
+            '0': [0, 1, 0, 1, 1, 0]
+        };
+
+        // Standard dot numbering positions in a 2-column, 3-row layout:
+        // Col 1: Dot 1 (top), Dot 2 (middle), Dot 3 (bottom)
+        // Col 2: Dot 4 (top), Dot 5 (middle), Dot 6 (bottom)
+        // Display order in grid:
+        // Row 1: Dot 1, Dot 4
+        // Row 2: Dot 2, Dot 5
+        // Row 3: Dot 3, Dot 6
+        const gridMapping = [0, 3, 1, 4, 2, 5]; // indices in standard array [1,2,3,4,5,6] -> [1,4,2,5,3,6] visually arranged as 2 cols
+
+        let currentLearnChar = 'A';
+        let practiceDots = [0, 0, 0, 0, 0, 0];
+        let quizDots = [0, 0, 0, 0, 0, 0];
+        let builtWord = '';
+        let quizTarget = 'A';
+        let quizScore = 0;
+
+        // Initialize application on load
+        window.onload = function() {
+            renderLearnGrids();
+            selectLearnChar('A');
+            initPracticeCell();
+            initQuizCell();
+            generateNewQuizQuestion();
+        };
+
+        // Speech synthesis helper
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            ['learn', 'practice', 'quiz'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).className = "px-5 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white";
+            });
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabId}`).className = "px-5 py-2 text-sm font-medium rounded-lg transition-all bg-indigo-600 text-white shadow-md";
+            
+            if (tabId === 'quiz') {
+                generateNewQuizQuestion();
+            }
+        }
+
+        // Render Learn Grids
+        function renderLearnGrids() {
+            const alphaContainer = document.getElementById('alphabet-grid');
+            const numContainer = document.getElementById('numbers-grid');
+            alphaContainer.innerHTML = '';
+            numContainer.innerHTML = '';
+
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+            const numbers = "1234567890".split('');
+
+            alphabet.forEach(char => {
+                alphaContainer.appendChild(createMiniCharCard(char));
+            });
+
+            numbers.forEach(char => {
+                numContainer.appendChild(createMiniCharCard(char));
+            });
+        }
+
+        function createMiniCharCard(char) {
+            const btn = document.createElement('button');
+            btn.className = "flex flex-col items-center justify-center p-3 bg-slate-900/60 hover:bg-slate-700/60 border border-slate-700/80 rounded-xl transition-all group";
+            btn.onclick = () => selectLearnChar(char);
+            
+            const dotPattern = brailleData[char];
+            const cellDiv = document.createElement('div');
+            cellDiv.className = "grid grid-cols-2 gap-1.5 mb-2 bg-slate-950 p-2 rounded-lg border border-slate-800";
+            
+            // Render 6 dots in standard visual arrangement
+            gridMapping.forEach(idx => {
+                const dot = document.createElement('div');
+                const isActive = dotPattern[idx] === 1;
+                dot.className = `w-2.5 h-2.5 rounded-full dot-transition ${isActive ? 'bg-indigo-400 shadow-sm shadow-indigo-400/50' : 'bg-slate-700'}`;
+                cellDiv.appendChild(dot);
+            });
+
+            const label = document.createElement('span');
+            label.className = "text-sm font-bold text-slate-300 group-hover:text-white";
+            label.innerText = char;
+
+            btn.appendChild(cellDiv);
+            btn.appendChild(label);
+            return btn;
+        }
+
+        function selectLearnChar(char) {
+            currentLearnChar = char;
+            const dotPattern = brailleData[char];
+            
+            document.getElementById('learn-char-title').innerText = char;
+            
+            // Format dot description
+            let activeDots = [];
+            dotPattern.forEach((val, idx) => { if (val === 1) activeDots.push(idx + 1); });
+            document.getElementById('learn-char-desc').innerText = `Standard 6-Dot Braille | Active Dots: ${activeDots.join(', ')}`;
+
+            // Render big preview cell
+            const previewContainer = document.getElementById('learn-cell-preview');
+            previewContainer.innerHTML = '';
+            gridMapping.forEach(idx => {
+                const dot = document.createElement('div');
+                const isActive = dotPattern[idx] === 1;
+                dot.className = `w-6 h-6 rounded-full dot-transition ${isActive ? 'bg-indigo-500 shadow-md shadow-indigo-500/50' : 'bg-slate-800 border border-slate-700'}`;
+                previewContainer.appendChild(dot);
+            });
+
+            speakText(char);
+        }
+
+        function speakSelectedLearnChar() {
+            speakText(`Character ${currentLearnChar}`);
+        }
+
+        function copyLearnCharToPractice() {
+            switchTab('practice');
+            practiceDots = [...brailleData[currentLearnChar]];
+            updatePracticeCellUI();
+            updateDetectedChar();
+        }
+
+        // Practice Mode Logic
+        function initPracticeCell() {
+            const container = document.getElementById('practice-cell');
+            container.innerHTML = '';
+            
+            gridMapping.forEach(originalIdx => {
+                const btn = document.createElement('button');
+                btn.className = "w-12 h-12 rounded-full dot-transition flex items-center justify-center bg-slate-800 border border-slate-700 hover:border-slate-500 shadow-inner group focus:outline-none";
+                btn.dataset.index = originalIdx;
+                btn.onclick = () => togglePracticeDot(originalIdx);
+
+                const innerDot = document.createElement('div');
+                innerDot.id = `practice-dot-${originalIdx}`;
+                innerDot.className = "w-6 h-6 rounded-full dot-transition bg-slate-700 group-hover:bg-slate-600";
+                
+                const label = document.createElement('span');
+                label.className = "absolute text-[10px] text-slate-500 font-semibold select-none pointer-events-none";
+                label.innerText = originalIdx + 1;
+
+                btn.appendChild(innerDot);
+                btn.appendChild(label);
+                container.appendChild(btn);
+            });
+            updatePracticeCellUI();
+        }
+
+        function togglePracticeDot(idx) {
+            practiceDots[idx] = practiceDots[idx] === 1 ? 0 : 1;
+            updatePracticeCellUI();
+            updateDetectedChar();
+        }
+
+        function updatePracticeCellUI() {
+            practiceDots.forEach((val, idx) => {
+                const dotElem = document.getElementById(`practice-dot-${idx}`);
+                if (dotElem) {
+                    if (val === 1) {
+                        dotElem.className = "w-6 h-6 rounded-full dot-transition bg-indigo-500 shadow-lg shadow-indigo-500/50 scale-105";
+                    } else {
+                        dotElem.className = "w-6 h-6 rounded-full dot-transition bg-slate-700";
+                    }
+                }
+            });
+        }
+
+        function updateDetectedChar() {
+            const match = findMatchingCharacter(practiceDots);
+            const display = document.getElementById('practice-detected-char');
+            display.innerText = match ? match : '?';
+        }
+
+        function findMatchingCharacter(pattern) {
+            for (let [char, pat] of Object.entries(brailleData)) {
+                if (pat.every((val, i) => val === pattern[i])) {
+                    return char;
+                }
+            }
+            return null;
+        }
+
+        function resetPracticeCell() {
+            practiceDots = [0, 0, 0, 0, 0, 0];
+            updatePracticeCellUI();
+            updateDetectedChar();
+        }
+
+        function speakPracticeCell() {
+            const match = findMatchingCharacter(practiceDots);
+            if (match) {
+                speakText(match);
+            } else {
+                speakText("Unrecognized Braille pattern");
+            }
+        }
+
+        function appendPracticeWord() {
+            const match = findMatchingCharacter(practiceDots);
+            if (match) {
+                builtWord += match;
+                updateWordBuilderDisplay();
+                speakText(match);
+            } else {
+                showModal("Notice", "The current dot pattern does not match any standard letter or number.");
+            }
+        }
+
+        function addSpaceToWord() {
+            builtWord += ' ';
+            updateWordBuilderDisplay();
+        }
+
+        function updateWordBuilderDisplay() {
+            const display = document.getElementById('built-word-display');
+            if (builtWord.length === 0) {
+                display.innerHTML = '<span class="text-slate-600 font-normal text-base">Your word will appear here...</span>';
+            } else {
+                display.innerText = builtWord;
+            }
+        }
+
+        function clearWordBuilder() {
+            builtWord = '';
+            updateWordBuilderDisplay();
+        }
+
+        function speakBuiltWord() {
+            if (builtWord.trim().length > 0) {
+                speakText(builtWord);
+            } else {
+                showModal("Notice", "Word builder is currently empty.");
+            }
+        }
+
+        // Quiz Mode Logic
+        function initQuizCell() {
+            const container = document.getElementById('quiz-cell');
+            container.innerHTML = '';
+            
+            gridMapping.forEach(originalIdx => {
+                const btn = document.createElement('button');
+                btn.className = "w-12 h-12 rounded-full dot-transition flex items-center justify-center bg-slate-800 border border-slate-700 hover:border-slate-500 shadow-inner group focus:outline-none";
+                btn.onclick = () => toggleQuizDot(originalIdx);
+
+                const innerDot = document.createElement('div');
+                innerDot.id = `quiz-dot-${originalIdx}`;
+                innerDot.className = "w-6 h-6 rounded-full dot-transition bg-slate-700 group-hover:bg-slate-600";
+                
+                const label = document.createElement('span');
+                label.className = "absolute text-[10px] text-slate-500 font-semibold select-none pointer-events-none";
+                label.innerText = originalIdx + 1;
+
+                btn.appendChild(innerDot);
+                btn.appendChild(label);
+                container.appendChild(btn);
+            });
+            updateQuizCellUI();
+        }
+
+        function toggleQuizDot(idx) {
+            quizDots[idx] = quizDots[idx] === 1 ? 0 : 1;
+            updateQuizCellUI();
+        }
+
+        function updateQuizCellUI() {
+            quizDots.forEach((val, idx) => {
+                const dotElem = document.getElementById(`quiz-dot-${idx}`);
+                if (dotElem) {
+                    if (val === 1) {
+                        dotElem.className = "w-6 h-6 rounded-full dot-transition bg-indigo-500 shadow-lg shadow-indigo-500/50 scale-105";
+                    } else {
+                        dotElem.className = "w-6 h-6 rounded-full dot-transition bg-slate-700";
+                    }
+                }
+            });
+        }
+
+        function generateNewQuizQuestion() {
+            const keys = Object.keys(brailleData);
+            quizTarget = keys[Math.floor(Math.random() * keys.length)];
+            document.getElementById('quiz-target-char').innerText = quizTarget;
+            document.getElementById('quiz-feedback').innerHTML = '';
+            resetQuizCell();
+            speakText(`Form the letter ${quizTarget}`);
+        }
+
+        function speakQuizTarget() {
+            speakText(`Letter ${quizTarget}`);
+        }
+
+        function resetQuizCell() {
+            quizDots = [0, 0, 0, 0, 0, 0];
+            updateQuizCellUI();
+        }
+
+        function submitQuizAnswer() {
+            const targetPattern = brailleData[quizTarget];
+            const isCorrect = targetPattern.every((val, i) => val === quizDots[i]);
+            const feedbackElem = document.getElementById('quiz-feedback');
+
+            if (isCorrect) {
+                quizScore += 10;
+                document.getElementById('quiz-score').innerText = quizScore;
+                feedbackElem.className = "min-h-[30px] text-sm font-bold text-emerald-400";
+                feedbackElem.innerText = "Correct! Great job!";
+                speakText("Correct!");
+                setTimeout(() => {
+                    generateNewQuizQuestion();
+                }, 1500);
+            } else {
+                feedbackElem.className = "min-h-[30px] text-sm font-bold text-red-400";
+                feedbackElem.innerText = "Incorrect pattern. Try again!";
+                speakText("Incorrect. Try again.");
+            }
+        }
+
+        // Modal Handler
+        function showModal(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('notification-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('notification-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

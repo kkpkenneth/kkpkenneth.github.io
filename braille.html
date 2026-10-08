@@ -13,7 +13,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
+    <header class="bg-slate-800/85 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
                 <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/30 font-bold text-xl flex items-center justify-center w-10 h-10">⠃</div>
@@ -23,9 +23,9 @@
                 </div>
             </div>
             <nav class="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700 w-full sm:w-auto justify-center">
-                <button onclick="switchTab('learn')" id="nav-learn" class="px-5 py-2 text-sm font-medium rounded-lg transition-all bg-indigo-600 text-white shadow-md">Learn & Explore</button>
-                <button onclick="switchTab('practice')" id="nav-practice" class="px-5 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white">Free Practice</button>
-                <button onclick="switchTab('quiz')" id="nav-quiz" class="px-5 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white">Quiz Mode</button>
+                <button onclick="switchTab('learn')" id="nav-learn" class="px-4 py-2 text-sm font-medium rounded-lg transition-all bg-indigo-600 text-white shadow-md">Learn & Reference</button>
+                <button onclick="switchTab('practice')" id="nav-practice" class="px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white">Free Practice</button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white">Quiz Mode</button>
             </nav>
         </div>
     </header>
@@ -37,25 +37,41 @@
             <div class="bg-slate-800 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
                 <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-700">
                     <div>
-                        <h2 class="text-2xl font-bold text-white">Alphabet & Number Reference</h2>
-                        <p class="text-sm text-slate-400">Click any character to examine its 6-dot Braille structure and hear pronunciation.</p>
+                        <h2 class="text-2xl font-bold text-white">Braille Reference Library</h2>
+                        <p class="text-sm text-slate-400">Explore Letters, Numbers (with the standard UEB Numeric Indicator prefix ⠼), and Punctuation.</p>
                     </div>
-                    <button onclick="speakText('Select any character to view its Braille cell and hear its pronunciation.')" class="flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-indigo-300 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-slate-600">
+                    <button onclick="speakText('Select any character to view its 6-dot Braille cell and hear its pronunciation.')" class="flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-indigo-300 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-slate-600">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
                         <span>Listen Guide</span>
                     </button>
                 </div>
 
-                <!-- Alphabet Grid -->
-                <div class="mt-6">
-                    <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3">Letters (A-Z)</h3>
-                    <div id="alphabet-grid" class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-9 gap-3"></div>
+                <!-- Sub-tabs for Learn Section -->
+                <div class="flex space-x-2 border-b border-slate-700 pt-6">
+                    <button onclick="switchLearnSubTab('letters')" id="learn-sub-letters" class="pb-3 px-4 text-sm font-semibold border-b-2 border-indigo-500 text-indigo-400 transition-colors">Letters (a-z)</button>
+                    <button onclick="switchLearnSubTab('numbers')" id="learn-sub-numbers" class="pb-3 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white transition-colors">Numbers (1-0)</button>
+                    <button onclick="switchLearnSubTab('symbols')" id="learn-sub-symbols" class="pb-3 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white transition-colors">Punctuation & Modifiers</button>
                 </div>
 
-                <!-- Numbers Grid -->
-                <div class="mt-8">
-                    <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3">Numbers (0-9)</h3>
-                    <div id="numbers-grid" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-10 gap-3"></div>
+                <!-- Letters Grid Container -->
+                <div id="learn-panel-letters" class="mt-6">
+                    <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3">Alphabet Characters</h3>
+                    <div id="alphabet-grid" class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-9 gap-4"></div>
+                </div>
+
+                <!-- Numbers Grid Container -->
+                <div id="learn-panel-numbers" class="mt-6 hidden">
+                    <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl mb-4 text-xs text-indigo-300">
+                        <strong class="font-bold text-white">Note on UEB Numbers:</strong> In standard Unified English Braille, numbers 1 through 0 use the same dot patterns as letters a through j, preceded by the <span class="text-white font-mono bg-indigo-900/60 px-1.5 py-0.5 rounded border border-indigo-500/50">Numeric Indicator (⠼)</span>.
+                    </div>
+                    <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3">Numeric Characters (1-0)</h3>
+                    <div id="numbers-grid" class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-5 gap-4"></div>
+                </div>
+
+                <!-- Symbols Grid Container -->
+                <div id="learn-panel-symbols" class="mt-6 hidden">
+                    <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-3">Punctuation & Indicators</h3>
+                    <div id="symbols-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4"></div>
                 </div>
             </div>
 
@@ -66,15 +82,15 @@
                         <!-- Dots rendered dynamically -->
                     </div>
                     <div>
-                        <span class="text-xs uppercase font-bold tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">Selected Character</span>
-                        <h3 id="learn-char-title" class="text-4xl font-ext500 font-bold text-white mt-2">A</h3>
-                        <p id="learn-char-desc" class="text-sm text-slate-400 mt-1">Dot combination: Dot 1</p>
+                        <span id="learn-badge" class="text-xs uppercase font-bold tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">Selected Letter</span>
+                        <h3 id="learn-char-title" class="text-4xl font-extrabold text-white mt-2 uppercase">A</h3>
+                        <p id="learn-char-desc" class="text-sm text-slate-400 mt-1">Active Dots: Dot 1</p>
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3 w-full md:w-auto">
                     <button onclick="speakSelectedLearnChar()" class="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-indigo-600/30 transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
-                        <span>Pronounce Character</span>
+                        <span>Pronounce</span>
                     </button>
                     <button onclick="copyLearnCharToPractice()" class="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-5 py-3 rounded-xl font-medium transition-all border border-slate-600">
                         <span>Try in Practice</span>
@@ -91,20 +107,25 @@
                     <div class="w-full flex items-center justify-between mb-6">
                         <div>
                             <h2 class="text-xl font-bold text-white">Interactive Braille Cell</h2>
-                            <p class="text-xs text-slate-400">Click dots to toggle between active (black) and inactive (gray).</p>
+                            <p class="text-xs text-slate-400">Tip: Type the Numeric Indicator (Dots 3,4,5,6) to switch to number mode!</p>
                         </div>
                         <button onclick="resetPracticeCell()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-600 transition-colors">Clear Cell</button>
                     </div>
 
-                    <!-- 6-Dot Grid (2 columns, 3 rows) -->
+                    <!-- Mode Indicator -->
+                    <div id="practice-mode-badge" class="mb-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-700 text-slate-300 border border-slate-600 transition-colors">
+                        Letter Mode (a-z)
+                    </div>
+
+                    <!-- 6-Dot Grid (2 columns, 3 rows) with all 6 dots visible -->
                     <div id="practice-cell" class="bg-slate-900 p-8 rounded-3xl border border-slate-700/80 shadow-2xl inline-grid grid-cols-2 gap-6 my-4">
                         <!-- Rendered by JS -->
                     </div>
 
                     <div class="flex items-center justify-center space-x-4 mt-4 w-full">
                         <div class="text-center">
-                            <span class="text-xs text-slate-400">Detected Character:</span>
-                            <div id="practice-detected-char" class="text-3xl font-ext500 font-bold text-indigo-400 mt-1">?</div>
+                            <span class="text-xs text-slate-400">Detected Character / Symbol:</span>
+                            <div id="practice-detected-char" class="text-4xl font-bold text-indigo-400 mt-2 uppercase">?</div>
                         </div>
                     </div>
 
@@ -125,15 +146,15 @@
                         <div class="flex items-center justify-between pb-4 border-b border-slate-700">
                             <div>
                                 <h2 class="text-lg font-bold text-white">Word Builder</h2>
-                                <p class="text-xs text-slate-400">Build words letter by letter using the Braille cell.</p>
+                                <p class="text-xs text-slate-400">Combine letters & symbols into words.</p>
                             </div>
                             <button onclick="clearWordBuilder()" class="text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 px-3 py-1.5 rounded-lg border border-red-500/20 transition-colors">Clear Word</button>
                         </div>
 
                         <div class="my-6">
-                            <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Current Built Word</span>
-                            <div id="built-word-display" class="min-h-[70px] bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center justify-center text-2xl font-bold tracking-wider text-white shadow-inner">
-                                <span class="text-slate-600 font-normal text-base">Your word will appear here...</span>
+                            <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Current Built Text</span>
+                            <div id="built-word-display" class="min-h-[70px] bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex flex-wrap items-center justify-center text-2xl font-bold tracking-wider text-white shadow-inner uppercase break-all">
+                                <span class="text-slate-600 font-normal text-base normal-case">Your text will appear here...</span>
                             </div>
                         </div>
                     </div>
@@ -141,9 +162,9 @@
                     <div class="space-y-3">
                         <button onclick="speakBuiltWord()" class="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-xl font-medium shadow-lg shadow-emerald-600/30 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
-                            <span>Speak Entire Word</span>
+                            <span>Speak Entire Text</span>
                         </button>
-                        <button onclick="addSpaceToWord()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-sm font-medium border border-slate-600 transition-colors">Add Space</button>
+                        <button onclick="addSpaceToWord()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-sm font-medium border border-slate-600 transition-colors">Add Space (Resets to Letters)</button>
                     </div>
                 </div>
             </div>
@@ -155,7 +176,7 @@
                 <div class="flex items-center justify-between pb-6 border-b border-slate-700">
                     <div>
                         <h2 class="text-xl font-bold text-white">Braille Challenge Quiz</h2>
-                        <p class="text-xs text-slate-400">Test your knowledge by forming the requested character.</p>
+                        <p class="text-xs text-slate-400">Test your knowledge across letters, numbers, and punctuation.</p>
                     </div>
                     <div class="flex items-center space-x-3 bg-slate-900 px-4 py-2 rounded-xl border border-slate-700">
                         <span class="text-xs text-slate-400">Score:</span>
@@ -166,7 +187,7 @@
                 <!-- Quiz Prompt Area -->
                 <div class="py-8 text-center space-y-4">
                     <p class="text-sm uppercase tracking-wider font-semibold text-slate-400">Form the Braille pattern for:</p>
-                    <div id="quiz-target-char" class="text-6xl font-ext500 font-extrabold text-indigo-400">A</div>
+                    <div id="quiz-target-char" class="text-5xl font-extrabold text-indigo-400 uppercase">A</div>
                     <button onclick="speakQuizTarget()" class="inline-flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-indigo-300 px-4 py-2 rounded-xl text-xs font-medium border border-slate-600 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
                         <span>Repeat Target</span>
@@ -182,7 +203,7 @@
                     <div id="quiz-feedback" class="min-h-[30px] text-sm font-medium text-center"></div>
 
                     <div class="flex space-x-4 w-full pt-4">
-                        <button onclick="resetQuizCell()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-3 rounded-xl font-medium border border-slate-600 transition-colors">Clear</button>
+                        <button onclick="resetQuizCell()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-3 rounded-xl font-medium border border-slate-600 transition-colors">Clear Cell</button>
                         <button onclick="submitQuizAnswer()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-medium shadow-lg shadow-indigo-600/30 transition-all">Submit Answer</button>
                     </div>
                 </div>
@@ -206,104 +227,129 @@
     </div>
 
     <script>
-        // Standard Braille 6-dot patterns mapped to bitmasks or dot arrays [1, 2, 3, 4, 5, 6]
+        // Standard Braille 6-dot patterns mapped to dot arrays [dot1, dot2, dot3, dot4, dot5, dot6]
         const brailleData = {
-            'A': [1, 0, 0, 0, 0, 0],
-            'B': [1, 1, 0, 0, 0, 0],
-            'C': [1, 0, 0, 1, 0, 0],
-            'D': [1, 0, 0, 1, 1, 0],
-            'E': [1, 0, 0, 0, 1, 0],
-            'F': [1, 1, 0, 1, 0, 0],
-            'G': [1, 1, 0, 1, 1, 0],
-            'H': [1, 1, 0, 0, 1, 0],
-            'I': [0, 1, 0, 1, 0, 0],
-            'J': [0, 1, 0, 1, 1, 0],
-            'K': [1, 0, 1, 0, 0, 0],
-            'L': [1, 1, 1, 0, 0, 0],
-            'M': [1, 0, 1, 1, 0, 0],
-            'N': [1, 0, 1, 1, 1, 0],
-            'O': [1, 0, 1, 0, 1, 0],
-            'P': [1, 1, 1, 1, 0, 0],
-            'Q': [1, 1, 1, 1, 1, 0],
-            'R': [1, 1, 1, 0, 1, 0],
-            'S': [0, 1, 1, 1, 0, 0],
-            'T': [0, 1, 1, 1, 1, 0],
-            'U': [1, 0, 1, 0, 0, 1],
-            'V': [1, 1, 1, 0, 0, 1],
-            'W': [0, 1, 0, 1, 1, 1],
-            'X': [1, 0, 1, 1, 0, 1],
-            'Y': [1, 0, 1, 1, 1, 1],
-            'Z': [1, 0, 1, 0, 1, 1],
-            '1': [1, 0, 0, 0, 0, 0],
-            '2': [1, 1, 0, 0, 0, 0],
-            '3': [1, 0, 0, 1, 0, 0],
-            '4': [1, 0, 0, 1, 1, 0],
-            '5': [1, 0, 0, 0, 1, 0],
-            '6': [1, 1, 0, 1, 0, 0],
-            '7': [1, 1, 0, 1, 1, 0],
-            '8': [1, 1, 0, 0, 1, 0],
-            '9': [0, 1, 0, 1, 0, 0],
-            '0': [0, 1, 0, 1, 1, 0]
+            // Letters (a-z)
+            'a': { type: 'letter', dots: [1, 0, 0, 0, 0, 0], desc: 'Dot 1' },
+            'b': { type: 'letter', dots: [1, 1, 0, 0, 0, 0], desc: 'Dots 1, 2' },
+            'c': { type: 'letter', dots: [1, 0, 0, 1, 0, 0], desc: 'Dots 1, 4' },
+            'd': { type: 'letter', dots: [1, 0, 0, 1, 1, 0], desc: 'Dots 1, 4, 5' },
+            'e': { type: 'letter', dots: [1, 0, 0, 0, 1, 0], desc: 'Dots 1, 5' },
+            'f': { type: 'letter', dots: [1, 1, 0, 1, 0, 0], desc: 'Dots 1, 2, 4' },
+            'g': { type: 'letter', dots: [1, 1, 0, 1, 1, 0], desc: 'Dots 1, 2, 4, 5' },
+            'h': { type: 'letter', dots: [1, 1, 0, 0, 1, 0], desc: 'Dots 1, 2, 5' },
+            'i': { type: 'letter', dots: [0, 1, 0, 1, 0, 0], desc: 'Dots 2, 4' },
+            'j': { type: 'letter', dots: [0, 1, 0, 1, 1, 0], desc: 'Dots 2, 4, 5' },
+            'k': { type: 'letter', dots: [1, 0, 1, 0, 0, 0], desc: 'Dots 1, 3' },
+            'l': { type: 'letter', dots: [1, 1, 1, 0, 0, 0], desc: 'Dots 1, 2, 3' },
+            'm': { type: 'letter', dots: [1, 0, 1, 1, 0, 0], desc: 'Dots 1, 3, 4' },
+            'n': { type: 'letter', dots: [1, 0, 1, 1, 1, 0], desc: 'Dots 1, 3, 4, 5' },
+            'o': { type: 'letter', dots: [1, 0, 1, 0, 1, 0], desc: 'Dots 1, 3, 5' },
+            'p': { type: 'letter', dots: [1, 1, 1, 1, 0, 0], desc: 'Dots 1, 2, 3, 4' },
+            'q': { type: 'letter', dots: [1, 1, 1, 1, 1, 0], desc: 'Dots 1, 2, 3, 4, 5' },
+            'r': { type: 'letter', dots: [1, 1, 1, 0, 1, 0], desc: 'Dots 1, 2, 3, 5' },
+            's': { type: 'letter', dots: [0, 1, 1, 1, 0, 0], desc: 'Dots 2, 3, 4' },
+            't': { type: 'letter', dots: [0, 1, 1, 1, 1, 0], desc: 'Dots 2, 3, 4, 5' },
+            'u': { type: 'letter', dots: [1, 0, 1, 0, 0, 1], desc: 'Dots 1, 3, 6' },
+            'v': { type: 'letter', dots: [1, 1, 1, 0, 0, 1], desc: 'Dots 1, 2, 3, 6' },
+            'w': { type: 'letter', dots: [0, 1, 0, 1, 1, 1], desc: 'Dots 2, 4, 5, 6' },
+            'x': { type: 'letter', dots: [1, 0, 1, 1, 0, 1], desc: 'Dots 1, 3, 4, 6' },
+            'y': { type: 'letter', dots: [1, 0, 1, 1, 1, 1], desc: 'Dots 1, 3, 4, 5, 6' },
+            'z': { type: 'letter', dots: [1, 0, 1, 0, 1, 1], desc: 'Dots 1, 3, 5, 6' },
+
+            // Numbers (1-0). 
+            '1': { type: 'number', dots: [1, 0, 0, 0, 0, 0], desc: 'Number 1 (Uses letter A pattern)' },
+            '2': { type: 'number', dots: [1, 1, 0, 0, 0, 0], desc: 'Number 2 (Uses letter B pattern)' },
+            '3': { type: 'number', dots: [1, 0, 0, 1, 0, 0], desc: 'Number 3 (Uses letter C pattern)' },
+            '4': { type: 'number', dots: [1, 0, 0, 1, 1, 0], desc: 'Number 4 (Uses letter D pattern)' },
+            '5': { type: 'number', dots: [1, 0, 0, 0, 1, 0], desc: 'Number 5 (Uses letter E pattern)' },
+            '6': { type: 'number', dots: [1, 1, 0, 1, 0, 0], desc: 'Number 6 (Uses letter F pattern)' },
+            '7': { type: 'number', dots: [1, 1, 0, 1, 1, 0], desc: 'Number 7 (Uses letter G pattern)' },
+            '8': { type: 'number', dots: [1, 1, 0, 0, 1, 0], desc: 'Number 8 (Uses letter H pattern)' },
+            '9': { type: 'number', dots: [0, 1, 0, 1, 0, 0], desc: 'Number 9 (Uses letter I pattern)' },
+            '0': { type: 'number', dots: [0, 1, 0, 1, 1, 0], desc: 'Number 0 (Uses letter J pattern)' },
+
+            // Punctuation Symbols & Modifiers
+            '!': { type: 'symbol', dots: [0, 1, 1, 0, 1, 0], desc: 'Exclamation Mark (Dots 2, 3, 5)' },
+            '?': { type: 'symbol', dots: [0, 1, 1, 0, 0, 1], desc: 'Question Mark (Dots 2, 3, 6)' },
+            'Numeric Indicator (⠼)': { type: 'modifier', dots: [0, 0, 1, 1, 1, 1], desc: 'Changes following letters a-j into numbers 1-0' }
         };
 
-        // Standard dot numbering positions in a 2-column, 3-row layout:
-        // Col 1: Dot 1 (top), Dot 2 (middle), Dot 3 (bottom)
-        // Col 2: Dot 4 (top), Dot 5 (middle), Dot 6 (bottom)
-        // Display order in grid:
-        // Row 1: Dot 1, Dot 4
-        // Row 2: Dot 2, Dot 5
-        // Row 3: Dot 3, Dot 6
-        const gridMapping = [0, 3, 1, 4, 2, 5]; // indices in standard array [1,2,3,4,5,6] -> [1,4,2,5,3,6] visually arranged as 2 cols
+        const gridMapping = [0, 3, 1, 4, 2, 5]; // [1,4,2,5,3,6] arranged in 2 columns
 
-        let currentLearnChar = 'A';
+        let currentLearnChar = 'a';
+        let currentLearnCategory = 'letters';
         let practiceDots = [0, 0, 0, 0, 0, 0];
         let quizDots = [0, 0, 0, 0, 0, 0];
         let builtWord = '';
-        let quizTarget = 'A';
+        let quizTarget = 'a';
         let quizScore = 0;
+        
+        // --- NEW: State tracker for numbers ---
+        let isNumberMode = false;
 
-        // Initialize application on load
         window.onload = function() {
             renderLearnGrids();
-            selectLearnChar('A');
+            selectLearnChar('a');
             initPracticeCell();
             initQuizCell();
             generateNewQuizQuestion();
         };
 
-        // Speech synthesis helper
         function speakText(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
+                let spokenText = text;
+                if (text === '!') spokenText = "exclamation mark";
+                if (text === '?') spokenText = "question mark";
+                if (text === 'Numeric Indicator (⠼)') spokenText = "Numeric Indicator";
+                if (text === '⠼') spokenText = "Numeric Indicator";
+                const utterance = new SpeechSynthesisUtterance(spokenText);
                 utterance.rate = 0.9;
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        // Tab Switching
         function switchTab(tabId) {
             ['learn', 'practice', 'quiz'].forEach(t => {
                 document.getElementById(`view-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).className = "px-5 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white";
+                document.getElementById(`nav-${t}`).className = "px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white";
             });
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabId}`).className = "px-5 py-2 text-sm font-medium rounded-lg transition-all bg-indigo-600 text-white shadow-md";
+            document.getElementById(`nav-${tabId}`).className = "px-4 py-2 text-sm font-medium rounded-lg transition-all bg-indigo-600 text-white shadow-md";
             
             if (tabId === 'quiz') {
                 generateNewQuizQuestion();
             }
         }
 
-        // Render Learn Grids
+        function switchLearnSubTab(subTab) {
+            ['letters', 'numbers', 'symbols'].forEach(st => {
+                document.getElementById(`learn-panel-${st}`).classList.add('hidden');
+                const btn = document.getElementById(`learn-sub-${st}`);
+                btn.className = "pb-3 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white transition-colors";
+            });
+            document.getElementById(`learn-panel-${subTab}`).classList.remove('hidden');
+            document.getElementById(`learn-sub-${subTab}`).className = "pb-3 px-4 text-sm font-semibold border-b-2 border-indigo-500 text-indigo-400 transition-colors";
+            
+            currentLearnCategory = subTab;
+            if (subTab === 'letters') selectLearnChar('a');
+            else if (subTab === 'numbers') selectLearnChar('1');
+            else if (subTab === 'symbols') selectLearnChar('Numeric Indicator (⠼)');
+        }
+
         function renderLearnGrids() {
             const alphaContainer = document.getElementById('alphabet-grid');
             const numContainer = document.getElementById('numbers-grid');
+            const symContainer = document.getElementById('symbols-grid');
+            
             alphaContainer.innerHTML = '';
             numContainer.innerHTML = '';
+            symContainer.innerHTML = '';
 
-            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+            const alphabet = "abcdefghijklmnopqrstuvwxyz".split('');
             const numbers = "1234567890".split('');
+            const symbols = ['Numeric Indicator (⠼)', '!', '?'];
 
             alphabet.forEach(char => {
                 alphaContainer.appendChild(createMiniCharCard(char));
@@ -312,28 +358,34 @@
             numbers.forEach(char => {
                 numContainer.appendChild(createMiniCharCard(char));
             });
+
+            symbols.forEach(char => {
+                symContainer.appendChild(createMiniCharCard(char));
+            });
         }
 
         function createMiniCharCard(char) {
             const btn = document.createElement('button');
-            btn.className = "flex flex-col items-center justify-center p-3 bg-slate-900/60 hover:bg-slate-700/60 border border-slate-700/80 rounded-xl transition-all group";
+            btn.className = "flex flex-col items-center justify-between p-3 bg-slate-900/60 hover:bg-slate-700/60 border border-slate-700/80 rounded-xl transition-all group min-h-[100px]";
             btn.onclick = () => selectLearnChar(char);
             
-            const dotPattern = brailleData[char];
+            const item = brailleData[char];
             const cellDiv = document.createElement('div');
-            cellDiv.className = "grid grid-cols-2 gap-1.5 mb-2 bg-slate-950 p-2 rounded-lg border border-slate-800";
+            cellDiv.className = "grid grid-cols-2 gap-1.5 bg-slate-950 p-2 rounded-lg border border-slate-800 my-auto";
             
-            // Render 6 dots in standard visual arrangement
             gridMapping.forEach(idx => {
                 const dot = document.createElement('div');
-                const isActive = dotPattern[idx] === 1;
-                dot.className = `w-2.5 h-2.5 rounded-full dot-transition ${isActive ? 'bg-indigo-400 shadow-sm shadow-indigo-400/50' : 'bg-slate-700'}`;
+                const isActive = item.dots[idx] === 1;
+                dot.className = `w-2 h-2 rounded-full dot-transition ${isActive ? 'bg-indigo-400 shadow-sm shadow-indigo-400/50' : 'bg-slate-700'}`;
                 cellDiv.appendChild(dot);
             });
 
             const label = document.createElement('span');
-            label.className = "text-sm font-bold text-slate-300 group-hover:text-white";
-            label.innerText = char;
+            label.className = "text-sm font-bold text-slate-300 group-hover:text-white mt-2 block uppercase text-center leading-tight";
+            if (char === 'Numeric Indicator (⠼)') label.innerText = 'Num (⠼)';
+            else if (char === '!') label.innerText = 'Excl (!)';
+            else if (char === '?') label.innerText = 'Ques (?)';
+            else label.innerText = char;
 
             btn.appendChild(cellDiv);
             btn.appendChild(label);
@@ -342,21 +394,21 @@
 
         function selectLearnChar(char) {
             currentLearnChar = char;
-            const dotPattern = brailleData[char];
+            const item = brailleData[char];
             
             document.getElementById('learn-char-title').innerText = char;
+            document.getElementById('learn-char-desc').innerText = `Standard 6-Dot Braille | ${item.desc}`;
             
-            // Format dot description
-            let activeDots = [];
-            dotPattern.forEach((val, idx) => { if (val === 1) activeDots.push(idx + 1); });
-            document.getElementById('learn-char-desc').innerText = `Standard 6-Dot Braille | Active Dots: ${activeDots.join(', ')}`;
+            const badge = document.getElementById('learn-badge');
+            if (item.type === 'letter') badge.innerText = 'Selected Letter';
+            else if (item.type === 'number') badge.innerText = 'Selected Number (UEB)';
+            else badge.innerText = 'Selected Symbol';
 
-            // Render big preview cell
             const previewContainer = document.getElementById('learn-cell-preview');
             previewContainer.innerHTML = '';
             gridMapping.forEach(idx => {
                 const dot = document.createElement('div');
-                const isActive = dotPattern[idx] === 1;
+                const isActive = item.dots[idx] === 1;
                 dot.className = `w-6 h-6 rounded-full dot-transition ${isActive ? 'bg-indigo-500 shadow-md shadow-indigo-500/50' : 'bg-slate-800 border border-slate-700'}`;
                 previewContainer.appendChild(dot);
             });
@@ -365,25 +417,23 @@
         }
 
         function speakSelectedLearnChar() {
-            speakText(`Character ${currentLearnChar}`);
+            speakText(currentLearnChar);
         }
 
         function copyLearnCharToPractice() {
             switchTab('practice');
-            practiceDots = [...brailleData[currentLearnChar]];
+            practiceDots = [...brailleData[currentLearnChar].dots];
             updatePracticeCellUI();
             updateDetectedChar();
         }
 
-        // Practice Mode Logic
         function initPracticeCell() {
             const container = document.getElementById('practice-cell');
             container.innerHTML = '';
             
             gridMapping.forEach(originalIdx => {
                 const btn = document.createElement('button');
-                btn.className = "w-12 h-12 rounded-full dot-transition flex items-center justify-center bg-slate-800 border border-slate-700 hover:border-slate-500 shadow-inner group focus:outline-none";
-                btn.dataset.index = originalIdx;
+                btn.className = "w-12 h-12 rounded-full dot-transition flex items-center justify-center bg-slate-800 border border-slate-700 hover:border-slate-500 shadow-inner group focus:outline-none relative";
                 btn.onclick = () => togglePracticeDot(originalIdx);
 
                 const innerDot = document.createElement('div');
@@ -420,19 +470,63 @@
             });
         }
 
-        function updateDetectedChar() {
-            const match = findMatchingCharacter(practiceDots);
-            const display = document.getElementById('practice-detected-char');
-            display.innerText = match ? match : '?';
+        function updateModeBadge() {
+            const badge = document.getElementById('practice-mode-badge');
+            if (isNumberMode) {
+                badge.innerText = "Number Mode Active (1-0)";
+                badge.className = "mb-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-900 text-emerald-400 border border-emerald-500/50 transition-colors";
+            } else {
+                badge.innerText = "Letter Mode (a-z)";
+                badge.className = "mb-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-700 text-slate-300 border border-slate-600 transition-colors";
+            }
         }
 
+        function updateDetectedChar() {
+            const isEmpty = practiceDots.every(val => val === 0);
+            const display = document.getElementById('practice-detected-char');
+            
+            if (isEmpty) {
+                display.innerText = '?';
+                return;
+            }
+
+            const match = findMatchingCharacter(practiceDots);
+            
+            if (match) {
+                // If it's the long string key, shorten it visually
+                if (match === 'Numeric Indicator (⠼)') display.innerText = '⠼ (Num)';
+                else display.innerText = match;
+            } else {
+                display.innerText = '?';
+            }
+        }
+
+        // ============================================================================
+        // UPDATED: Now respects the 'isNumberMode' toggle to swap interpretations!
+        // ============================================================================
         function findMatchingCharacter(pattern) {
-            for (let [char, pat] of Object.entries(brailleData)) {
-                if (pat.every((val, i) => val === pattern[i])) {
-                    return char;
+            let matches = [];
+            for (let [char, item] of Object.entries(brailleData)) {
+                if (item.dots.every((val, i) => val === pattern[i])) {
+                    matches.push({ char, type: item.type });
                 }
             }
-            return null;
+            
+            if (matches.length === 0) return null;
+            
+            // Check for explicit modifier symbol (Numeric Indicator)
+            const modifierMatch = matches.find(m => m.type === 'modifier');
+            if (modifierMatch) return modifierMatch.char;
+
+            // If we are in number mode, look for the number character
+            if (isNumberMode) {
+                const numberMatch = matches.find(m => m.type === 'number');
+                if (numberMatch) return numberMatch.char;
+            }
+            
+            // Default to letter
+            const letterMatch = matches.find(m => m.type === 'letter');
+            return letterMatch ? letterMatch.char : matches[0].char;
         }
 
         function resetPracticeCell() {
@@ -442,6 +536,12 @@
         }
 
         function speakPracticeCell() {
+            const isEmpty = practiceDots.every(val => val === 0);
+            if(isEmpty) {
+                speakText("Empty cell");
+                return;
+            }
+
             const match = findMatchingCharacter(practiceDots);
             if (match) {
                 speakText(match);
@@ -451,25 +551,49 @@
         }
 
         function appendPracticeWord() {
+            const isEmpty = practiceDots.every(val => val === 0);
+            if (isEmpty) {
+                showModal("Notice", "Cannot add an empty cell. Please select dots to form a character.");
+                return;
+            }
+
             const match = findMatchingCharacter(practiceDots);
+            
+            if (match === 'Numeric Indicator (⠼)') {
+                isNumberMode = true;
+                builtWord += '⠼';
+                updateModeBadge();
+                updateWordBuilderDisplay();
+                speakText("Number mode active");
+                resetPracticeCell();
+                return;
+            }
+
             if (match) {
                 builtWord += match;
                 updateWordBuilderDisplay();
                 speakText(match);
+                resetPracticeCell(); // Clear cell for next input automatically
             } else {
-                showModal("Notice", "The current dot pattern does not match any standard letter or number.");
+                showModal("Notice", "The current dot pattern does not match any standard character or symbol.");
             }
         }
 
         function addSpaceToWord() {
             builtWord += ' ';
+            // Space terminates standard number mode in UEB
+            if(isNumberMode) {
+                isNumberMode = false;
+                updateModeBadge();
+                resetPracticeCell(); // In case they were building something
+            }
             updateWordBuilderDisplay();
         }
 
         function updateWordBuilderDisplay() {
             const display = document.getElementById('built-word-display');
             if (builtWord.length === 0) {
-                display.innerHTML = '<span class="text-slate-600 font-normal text-base">Your word will appear here...</span>';
+                display.innerHTML = '<span class="text-slate-600 font-normal text-base normal-case">Your text will appear here...</span>';
             } else {
                 display.innerText = builtWord;
             }
@@ -477,6 +601,8 @@
 
         function clearWordBuilder() {
             builtWord = '';
+            isNumberMode = false; // Reset mode
+            updateModeBadge();
             updateWordBuilderDisplay();
         }
 
@@ -488,14 +614,13 @@
             }
         }
 
-        // Quiz Mode Logic
         function initQuizCell() {
             const container = document.getElementById('quiz-cell');
             container.innerHTML = '';
             
             gridMapping.forEach(originalIdx => {
                 const btn = document.createElement('button');
-                btn.className = "w-12 h-12 rounded-full dot-transition flex items-center justify-center bg-slate-800 border border-slate-700 hover:border-slate-500 shadow-inner group focus:outline-none";
+                btn.className = "w-12 h-12 rounded-full dot-transition flex items-center justify-center bg-slate-800 border border-slate-700 hover:border-slate-500 shadow-inner group focus:outline-none relative";
                 btn.onclick = () => toggleQuizDot(originalIdx);
 
                 const innerDot = document.createElement('div');
@@ -534,14 +659,19 @@
         function generateNewQuizQuestion() {
             const keys = Object.keys(brailleData);
             quizTarget = keys[Math.floor(Math.random() * keys.length)];
-            document.getElementById('quiz-target-char').innerText = quizTarget;
+            
+            const displayTarget = quizTarget === 'Numeric Indicator (⠼)' ? '⠼ (Num)' : quizTarget;
+            document.getElementById('quiz-target-char').innerText = displayTarget;
             document.getElementById('quiz-feedback').innerHTML = '';
             resetQuizCell();
-            speakText(`Form the letter ${quizTarget}`);
+            
+            if(quizTarget === 'Numeric Indicator (⠼)') speakText(`Form the Numeric Indicator`);
+            else speakText(`Form the symbol ${quizTarget}`);
         }
 
         function speakQuizTarget() {
-            speakText(`Letter ${quizTarget}`);
+            if(quizTarget === 'Numeric Indicator (⠼)') speakText(`Numeric Indicator`);
+            else speakText(quizTarget);
         }
 
         function resetQuizCell() {
@@ -550,8 +680,8 @@
         }
 
         function submitQuizAnswer() {
-            const targetPattern = brailleData[quizTarget];
-            const isCorrect = targetPattern.every((val, i) => val === quizDots[i]);
+            const targetItem = brailleData[quizTarget];
+            const isCorrect = targetItem.dots.every((val, i) => val === quizDots[i]);
             const feedbackElem = document.getElementById('quiz-feedback');
 
             if (isCorrect) {
@@ -570,7 +700,6 @@
             }
         }
 
-        // Modal Handler
         function showModal(title, message) {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-message').innerText = message;

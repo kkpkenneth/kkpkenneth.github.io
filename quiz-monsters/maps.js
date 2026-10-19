@@ -1,11 +1,6 @@
 /********************************************************************
  * maps.js
- * 5 Interconnected 28x20 Biome Maps, Themes, Exits & Scholar NPCs:
- * - CENTER:   Pallet Research Hub (Exits N, E, S, W)
- * - MOUNTAIN: Crag Mountain Peak (North)
- * - DESERT:   Scorched Mirage Desert (East)
- * - BEACH:    Coral Lagoon Beach (South)
- * - FOREST:   Viridian Canopy Forest (West)
+ * 5 Biome Maps with Named Scholars & Occupational Professionals
  ********************************************************************/
 
 const MAP_COLS = 28;
@@ -17,15 +12,7 @@ const WORLD_MAPS = {
     id: 'CENTER',
     name: 'PALLET RESEARCH HUB',
     subtitle: 'N: MOUNTAIN • E: DESERT • S: BEACH • W: FOREST',
-    theme: {
-      groundA: '#65a30d',
-      groundB: '#6dab14',
-      path: '#d6b37c',
-      grass: '#15803d',
-      grassTip: '#4ade80',
-      tree: '#14532d',
-      treeTop: '#22c55e'
-    },
+    theme: { groundA: '#65a30d', groundB: '#6dab14', path: '#d6b37c', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e' },
     encounters: ['voltbit', 'fernlynx', 'charcoalon', 'aquashell'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
@@ -57,35 +44,19 @@ const WORLD_MAPS = {
     },
     npcs: [
       {
-        id: 'nurse_joy',
-        name: 'NURSE JOY',
-        topic: 'HEAL & CELL FACT',
-        x: 14,
-        y: 5,
-        hatColor: '#f43f5e',
-        shirtColor: '#fda4af',
-        healsParty: true,
-        fact: "Welcome to the Hub Center! I've fully restored your Party's HP! Remember: the Mitochondria is the powerhouse organelle of a eukaryotic cell that generates ATP!"
+        id: 'nurse_joy', name: 'NURSE JOY', topic: 'NURSE • HEAL & CELL FACT', x: 14, y: 5,
+        hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true,
+        fact: "NURSE JOY: Welcome to the Hub Center! I've fully restored your Party's HP! Remember: the Mitochondria is the powerhouse organelle of a eukaryotic cell that generates ATP!"
       },
       {
-        id: 'guide_leo',
-        name: 'GUIDE LEO',
-        topic: 'BIOME GATEWAY FACT',
-        x: 13,
-        y: 8,
-        hatColor: '#2563eb',
-        shirtColor: '#60a5fa',
-        fact: "KNOWLEDGE FACT: Follow the 4 roads to visit the Mountain (North), Desert (East), Beach (South), or Forest (West)! Also, in binary code, 1010 represents the decimal number 10!"
+        id: 'doctor_house', name: 'DR. HOUSE', topic: 'DOCTOR • ANATOMY FACT', x: 13, y: 8,
+        hatColor: '#0284c7', shirtColor: '#e0f2fe',
+        fact: "DR. HOUSE: As a medical doctor, I treat patients daily. Remember: Hemoglobin is the protein in red blood cells that carries oxygen from the lungs to body tissues!"
       },
       {
-        id: 'chemist_ignis',
-        name: 'CHEMIST IGNIS',
-        topic: 'FIRE • CHEMISTRY FACT',
-        x: 19,
-        y: 4,
-        hatColor: '#ea580c',
-        shirtColor: '#fb923c',
-        fact: "KNOWLEDGE FACT: The chemical symbol for Gold is Au, and an Exothermic reaction is any chemical reaction that releases heat to its surroundings!"
+        id: 'officer_riggs', name: 'OFFICER RIGGS', topic: 'POLICEMAN • LOGIC & LAWS', x: 19, y: 4,
+        hatColor: '#1e3a8a', shirtColor: '#60a5fa',
+        fact: "OFFICER RIGGS: Law and order! In binary code, the decimal number 10 is represented as 1010, and an AND Logic Gate outputs TRUE only when both inputs are TRUE!"
       }
     ]
   },
@@ -94,15 +65,7 @@ const WORLD_MAPS = {
     id: 'MOUNTAIN',
     name: 'CRAG MOUNTAIN PEAK (NORTH)',
     subtitle: 'HIGHLAND HABITAT • WILD PYROCORE & VOLTBIT',
-    theme: {
-      groundA: '#57534e',
-      groundB: '#44403c',
-      path: '#a8a29e',
-      grass: '#3f6212',
-      grassTip: '#a3e635',
-      tree: '#292524',
-      treeTop: '#78716c'
-    },
+    theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c' },
     encounters: ['pyrocore', 'voltbit', 'charcoalon'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
@@ -131,24 +94,14 @@ const WORLD_MAPS = {
     },
     npcs: [
       {
-        id: 'geologist_brock',
-        name: 'GEOLOGIST COLE',
-        topic: 'MOUNTAIN • EARTH FACT',
-        x: 13,
-        y: 5,
-        hatColor: '#78350f',
-        shirtColor: '#d97706',
-        fact: "KNOWLEDGE FACT: Igneous rock formed from lava cooling rapidly on Earth's surface is called Extrusive rock—and the Troposphere is the atmospheric layer where most weather clouds form!"
+        id: 'geologist_cole', name: 'GEOLOGIST COLE', topic: 'GEOLOGIST • EARTH SCIENCE', x: 13, y: 5,
+        hatColor: '#78350f', shirtColor: '#d97706',
+        fact: "GEOLOGIST COLE: As a geologist studying rock strata, I know that Igneous rock formed from cooled lava on Earth's surface is called Extrusive rock!"
       },
       {
-        id: 'physicist_tesla',
-        name: 'DR. TESLA',
-        topic: 'MOUNTAIN • PHYSICS FACT',
-        x: 11,
-        y: 11,
-        hatColor: '#eab308',
-        shirtColor: '#fde047',
-        fact: "KNOWLEDGE FACT: In electrical circuits, Resistance (measured in Ohms) is the opposition to current flow, and the Newton is the standard SI unit of force!"
+        id: 'fireman_bravo', name: 'CHIEF BRAVO', topic: 'FIREMAN • THERMODYNAMICS', x: 11, y: 11,
+        hatColor: '#dc2626', shirtColor: '#fca5a5',
+        fact: "CHIEF BRAVO: Putting out fires is my job! Remember: an Exothermic reaction releases heat to its surroundings, and the First Law of Thermodynamics conserves energy!"
       }
     ]
   },
@@ -157,15 +110,7 @@ const WORLD_MAPS = {
     id: 'DESERT',
     name: 'SCORCHED MIRAGE DESERT (EAST)',
     subtitle: 'ARID DUNES • WILD CHARCOALON, PYROCORE & VOLTBIT',
-    theme: {
-      groundA: '#d97706',
-      groundB: '#b45309',
-      path: '#fde68a',
-      grass: '#9a3412',
-      grassTip: '#fb923c',
-      tree: '#15803d',
-      treeTop: '#4ade80'
-    },
+    theme: { groundA: '#d97706', groundB: '#b45309', path: '#fde68a', grass: '#9a3412', grassTip: '#fb923c', tree: '#15803d', treeTop: '#4ade80' },
     encounters: ['charcoalon', 'pyrocore', 'voltbit'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
@@ -194,14 +139,9 @@ const WORLD_MAPS = {
     },
     npcs: [
       {
-        id: 'nomad_sol',
-        name: 'NOMAD SOL',
-        topic: 'DESERT • THERMODYNAMICS FACT',
-        x: 13,
-        y: 11,
-        hatColor: '#dc2626',
-        shirtColor: '#fca5a5',
-        fact: "KNOWLEDGE FACT: The First Law of Thermodynamics states that energy cannot be created or destroyed, only transformed—and Hydrogen is the most abundant element in the universe!"
+        id: 'psychologist_adler', name: 'DR. ADLER', topic: 'PSYCHOLOGIST • HUMAN BEHAVIOR', x: 13, y: 11,
+        hatColor: '#4338ca', shirtColor: '#a5b4fc',
+        fact: "DR. ADLER: As a psychologist studying cognition, I explore how minds process logic. Remember: Hydrogen is the most abundant chemical element in the universe!"
       }
     ]
   },
@@ -210,15 +150,7 @@ const WORLD_MAPS = {
     id: 'BEACH',
     name: 'CORAL LAGOON BEACH (SOUTH)',
     subtitle: 'COASTAL SHORE • WILD AQUASHELL & TIDALFIN',
-    theme: {
-      groundA: '#fde047',
-      groundB: '#facc15',
-      path: '#fef08a',
-      grass: '#0d9488',
-      grassTip: '#5eead4',
-      tree: '#15803d',
-      treeTop: '#4ade80'
-    },
+    theme: { groundA: '#fde047', groundB: '#facc15', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80' },
     encounters: ['aquashell', 'tidalfin', 'voltbit'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
@@ -247,14 +179,9 @@ const WORLD_MAPS = {
     },
     npcs: [
       {
-        id: 'captain_marina',
-        name: 'CAPTAIN MARINA',
-        topic: 'BEACH • OCEAN FACT',
-        x: 13,
-        y: 7,
-        hatColor: '#0284c7',
-        shirtColor: '#38bdf8',
-        fact: "KNOWLEDGE FACT: Water covers about 71% of Earth's surface! The Pacific Ocean is the largest and deepest ocean, containing the Mariana Trench, and ocean tides are driven by the Moon and Sun's gravity!"
+        id: 'ecologist_lin', name: 'ECOLOGIST LIN', topic: 'ECOLOGIST • MARINE HABITATS', x: 13, y: 7,
+        hatColor: '#16a34a', shirtColor: '#4ade80',
+        fact: "ECOLOGIST LIN: As an ecologist, I study biomes! Water covers 71% of Earth, the Pacific Ocean holds the Mariana Trench, and mutualism is a symbiotic relationship where both organisms benefit."
       }
     ]
   },
@@ -262,16 +189,8 @@ const WORLD_MAPS = {
   FOREST: {
     id: 'FOREST',
     name: 'VIRIDIAN CANOPY FOREST (WEST)',
-    subtitle: 'DEEP WOODS • WILD FERNLYNX & AQUASHELL',
-    theme: {
-      groundA: '#3f6212',
-      groundB: '#365314',
-      path: '#a16207',
-      grass: '#14532d',
-      grassTip: '#22c55e',
-      tree: '#052e16',
-      treeTop: '#15803d'
-    },
+    subtitle: 'DEEC WOODS • WILD FERNLYNX & AQUASHELL',
+    theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
     encounters: ['fernlynx', 'aquashell', 'voltbit'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
@@ -300,24 +219,9 @@ const WORLD_MAPS = {
     },
     npcs: [
       {
-        id: 'botanist_lin',
-        name: 'BOTANIST LIN',
-        topic: 'FOREST • BOTANY FACT',
-        x: 13,
-        y: 8,
-        hatColor: '#16a34a',
-        shirtColor: '#4ade80',
-        fact: "KNOWLEDGE FACT: Plants absorb Carbon Dioxide using green Chlorophyll, flower pollen is produced on the Anther, and Fungi are the primary decomposers of dead forest trees!"
-      },
-      {
-        id: 'ranger_oak',
-        name: 'RANGER OAK',
-        topic: 'FOREST • ECOLOGY FACT',
-        x: 13,
-        y: 14,
-        hatColor: '#7c3aed',
-        shirtColor: '#c084fc',
-        fact: "KNOWLEDGE FACT: Mutualism is a symbiotic relationship where both organisms benefit, and Omnivores are animals that eat both plants and other animals!"
+        id: 'botanist_elena', name: 'BOTANIST ELENA', topic: 'BOTANIST • PLANT SCIENCE', x: 13, y: 8,
+        hatColor: '#84cc16', shirtColor: '#bef264',
+        fact: "BOTANIST ELENA: As a botanist, I study plants! Plants absorb Carbon Dioxide during photosynthesis using green Chlorophyll, and flower pollen is produced in the Anther."
       }
     ]
   }

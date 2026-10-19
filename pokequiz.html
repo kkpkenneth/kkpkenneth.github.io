@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokéQuiz DX - 8-Bit Trivia Battle RPG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pixel-font: 'Press Start 2P', monospace;
+      --mono-font: 'VT323', monospace;
+    }
+
+    body {
+      font-family: var(--pixel-font);
+      background-color: #111827;
+      background-image: 
+        radial-gradient(circle at 50% 20%, #1f2937 0%, #090d16 100%);
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    /* Retro CRT Scanline Overlay */
+    .crt-overlay {
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.22) 50%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+
+    /* Classic 8-bit Double Framed Box */
+    .retro-box {
+      background: #f8fafc;
+      color: #0f172a;
+      border: 4px solid #0f172a;
+      box-shadow: 
+        inset 0 0 0 3px #cbd5e1,
+        inset 0 0 0 6px #0f172a,
+        4px 4px 0px rgba(0,0,0,0.45);
+      border-radius: 6px;
+    }
+
+    .retro-box-dark {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 4px solid #0f172a;
+      box-shadow: 
+        inset 0 0 0 3px #475569,
+        4px 4px 0px rgba(0,0,0,0.5);
+      border-radius: 6px;
+    }
+
+    /* Tactile Arcade Buttons */
+    .pixel-btn {
+      position: relative;
+      border: 3px solid #0f172a;
+      box-shadow: inset -3px -3px 0px rgba(0,0,0,0.28), inset 3px 3px 0px rgba(255,255,255,0.35), 3px 3px 0px #0f172a;
+      transition: transform 0.06s ease, box-shadow 0.06s ease;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .pixel-btn:hover:not(:disabled) {
+      filter: brightness(1.06);
+    }
+
+    .pixel-btn:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: inset 2px 2px 0px rgba(0,0,0,0.35), 1px 1px 0px #0f172a;
+    }
+
+    .pixel-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Sprite Keyframe Animations */
+    @keyframes idleBob {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes hitFlash {
+      0%, 100% { filter: none; transform: translateX(0); }
+      20% { filter: brightness(10) invert(1); transform: translateX(-10px); }
+      40% { filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); transform: translateX(10px); }
+      60% { filter: brightness(10); transform: translateX(-8px); }
+      80% { filter: none; transform: translateX(6px); }
+    }
+
+    @keyframes lungePlayer {
+      0% { transform: translate(0, 0) scale(1); }
+      40% { transform: translate(45px, -25px) scale(1.12); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    @keyframes lungeEnemy {
+      0% { transform: translate(0, 0) scale(1); }
+      40% { transform: translate(-45px, 25px) scale(1.12); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    @keyframes ballThrow {
+      0% { transform: translate(-180px, 110px) scale(0.6) rotate(0deg); }
+      55% { transform: translate(-40px, -60px) scale(1.1) rotate(360deg); }
+      100% { transform: translate(0px, 0px) scale(1) rotate(720deg); }
+    }
+
+    @keyframes ballShake {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(-22deg) translateX(-4px); }
+      45% { transform: rotate(22deg) translateX(4px); }
+      70% { transform: rotate(-12deg) translateX(-2px); }
+    }
+
+    @keyframes floatUpFade {
+      0% { opacity: 1; transform: translateY(0) scale(0.85); }
+      30% { opacity: 1; transform: translateY(-14px) scale(1.08); }
+      100% { opacity: 0; transform: translateY(-38px) scale(0.95); }
+    }
+
+    .anim-idle {
+      animation: idleBob 1.8s steps(2, end) infinite;
+    }
+
+    .anim-hit {
+      animation: hitFlash 0.55s ease-in-out;
+    }
+
+    .anim-lunge-player {
+      animation: lungePlayer 0.38s ease-out;
+    }
+
+    .anim-lunge-enemy {
+      animation: lungeEnemy 0.38s ease-out;
+    }
+
+    .anim-ball-throw {
+      animation: ballThrow 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    .anim-ball-shake {
+      animation: ballShake 0.55s ease-in-out;
+    }
+
+    .floating-dmg {
+      animation: floatUpFade 1.15s ease-out forwards;
+      text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000;
+    }
+
+    /* Crisp Pixel Art SVG rendering */
+    svg {
+      shape-rendering: crispEdges;
+    }
+
+    /* Custom Scrollbar for Modals */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col items-center justify-between p-2 sm:p-4">
+
+  <!-- TOP HEADER BAR: Party Roster, Streak Stage, Custom Questions & Sound -->
+  <header class="w-full max-w-4xl retro-box-dark p-2.5 sm:p-3 mb-2 sm:mb-3 flex flex-wrap items-center justify-between gap-2 z-20">
+    <!-- Left: Brand & Party Belt -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-white animate-pulse"></span>
+        <h1 class="text-xs sm:text-sm tracking-tighter text-amber-400 drop-shadow">POKéQUIZ DX</h1>
+      </div>
+
+      <!-- Party Pokéball Slots -->
+      <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1.5 rounded border border-slate-700" title="Your Caught Party (Click SWITCH in battle)">
+        <span class="text-[9px] text-slate-400 mr-1 hidden sm:inline">PARTY:</span>
+        <div id="headerPartySlots" class="flex items-center gap-1.5"></div>
+      </div>
+    </div>
+
+    <!-- Center: Active Streak & Wins -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div id="streakBadge" class="bg-slate-900 px-2.5 py-1.5 rounded border border-amber-500/60 flex items-center gap-1.5">
+        <span class="text-[9px] text-slate-400">STREAK:</span>
+        <span id="streakCountText" class="text-[10px] sm:text-xs text-amber-400 font-bold">0 (1.0x ATK)</span>
+      </div>
+      <div class="bg-slate-900 px-2.5 py-1.5 rounded border border-emerald-500/50 hidden md:flex items-center gap-1.5">
+        <span class="text-[9px] text-slate-400">DEX:</span>
+        <span id="dexCountText" class="text-[10px] sm:text-xs text-emerald-400">1/6</span>
+      </div>
+    </div>
+
+    <!-- Right: Question Editor & Audio Controls -->
+    <div class="flex items-center gap-2">
+      <button id="openEditorBtn" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[9px] sm:text-[10px] px-2.5 py-1.5 flex items-center gap-1">
+        <span>+QUIZ DECK</span>
+      </button>
+      <button id="muteToggleBtn" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[9px] sm:text-[10px] px-2.5 py-1.5">
+        SFX: ON
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN HANDHELD CONSOLE SHELL -->
+  <main class="w-full max-w-4xl bg-slate-800 border-4 border-slate-950 rounded-2xl p-2.5 sm:p-4 shadow-2xl relative overflow-hidden">
+
+    <!-- TOP SCREEN: BATTLE ARENA -->
+    <section id="battleArena" class="relative w-full h-64 sm:h-80 rounded-lg border-4 border-slate-950 overflow-hidden bg-gradient-to-b from-sky-300 via-sky-200 to-emerald-200 shadow-inner">
+      
+      <!-- Decorative Retro Clouds & Distant Mountains -->
+      <div class="absolute inset-x-0 top-6 flex justify-around opacity-55 pointer-events-none">
+        <div class="w-20 h-5 bg-white rounded-full shadow-sm"></div>
+        <div class="w-32 h-6 bg-white rounded-full shadow-sm -mt-2"></div>
+        <div class="w-24 h-5 bg-white rounded-full shadow-sm"></div>
+      </div>
+
+      <!-- CRT Scanline Layer -->
+      <div class="crt-overlay absolute inset-0 z-10"></div>
+
+      <!-- Floating Projectile / Attack FX Overlay -->
+      <div id="fxLayer" class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center"></div>
+
+      <!-- ENEMY STATUS HUD (Top-Left) -->
+      <div class="absolute top-3 left-3 z-20 w-56 sm:w-68 retro-box p-2 sm:p-2.5">
+        <div class="flex items-center justify-between gap-1 mb-1">
+          <div class="flex items-center gap-1.5 truncate">
+            <span id="enemyCaughtIcon" class="hidden text-[10px]" title="Already Caught in Dex">🔴</span>
+            <span id="enemyName" class="text-[10px] sm:text-xs font-bold tracking-tight truncate">CHARCOALON</span>
+          </div>
+          <span id="enemyLevel" class="text-[9px] sm:text-[10px] text-slate-700 shrink-0">Lv12</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-1 mb-1.5">
+          <span id="enemyTypeBadge" class="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold bg-orange-600">FIRE</span>
+          <span id="enemyZoneHint" class="text-[8px] text-slate-600">WILD MONSTER</span>
+        </div>
+
+        <!-- HP Bar Container -->
+        <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1.5">
+          <span class="text-[8px] text-amber-400 font-bold px-1">HP</span>
+          <div class="w-full h-2.5 bg-slate-700 rounded-sm overflow-hidden">
+            <div id="enemyHpBar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 100%;"></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-600">
+          <span id="enemyCaptureOddsText">CATCH ODDS: LOW</span>
+          <span id="enemyHpNumbers">120/120</span>
+        </div>
+      </div>
+
+      <!-- ENEMY PLATFORM & SPRITE (Top-Right) -->
+      <div class="absolute top-12 sm:top-14 right-6 sm:right-14 flex flex-col items-center z-10">
+        <!-- Floating Damage Anchor (Enemy) -->
+        <div id="enemyFloatContainer" class="h-6 flex items-center justify-center pointer-events-none z-30"></div>
+        
+        <!-- Wild Monster Sprite OR Capture Ball Sprite -->
+        <div id="enemySpriteWrapper" class="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10">
+          <!-- Populated dynamically via SVG generator -->
+        </div>
+
+        <!-- Ground Shadow Pedestal -->
+        <div class="w-28 sm:w-36 h-6 sm:h-7 bg-emerald-700/45 border-2 border-emerald-900/50 rounded-full -mt-3"></div>
+      </div>
+
+      <!-- PLAYER PLATFORM & SPRITE (Bottom-Left) -->
+      <div class="absolute bottom-2 sm:bottom-3 left-6 sm:left-14 flex flex-col items-center z-10">
+        <!-- Floating Damage Anchor (Player) -->
+        <div id="playerFloatContainer" class="h-6 flex items-center justify-center pointer-events-none z-30"></div>
+
+        <!-- Player Monster Sprite -->
+        <div id="playerSpriteWrapper" class="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10">
+          <!-- Populated dynamically via SVG generator -->
+        </div>
+
+        <!-- Player Ground Pedestal -->
+        <div class="w-32 sm:w-40 h-6 sm:h-8 bg-emerald-800/45 border-2 border-emerald-950/50 rounded-full -mt-4"></div>
+      </div>
+
+      <!-- PLAYER STATUS HUD (Bottom-Right) -->
+      <div class="absolute bottom-3 right-3 z-20 w-56 sm:w-72 retro-box p-2 sm:p-2.5">
+        <div class="flex items-center justify-between gap-1 mb-1">
+          <span id="playerName" class="text-[10px] sm:text-xs font-bold tracking-tight truncate">VOLTBIT</span>
+          <span id="playerLevel" class="text-[9px] sm:text-[10px] text-slate-700 shrink-0">Lv14</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-1 mb-1.5">
+          <span id="playerTypeBadge" class="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold bg-amber-500">ELECTRIC</span>
+          <span id="playerAtkStage" class="text-[8px] text-indigo-700 font-bold">ATK STAGE: +0</span>
+        </div>
+
+        <!-- HP Bar -->
+        <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1.5">
+          <span class="text-[8px] text-amber-400 font-bold px-1">HP</span>
+          <div class="w-full h-2.5 bg-slate-700 rounded-sm overflow-hidden">
+            <div id="playerHpBar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-700">
+          <span id="playerHpNumbers">140/140</span>
+          <span id="playerXpLabel" class="text-indigo-700">STREAK XP</span>
+        </div>
+
+        <!-- Streak / XP Meter -->
+        <div class="w-full h-1.5 bg-slate-300 border border-slate-600 rounded-sm overflow-hidden mt-0.5">
+          <div id="playerStreakBar" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM SCREEN: DIALOGUE, ELEMENTAL MOVE MENU & LIVE TRIVIA DECK -->
+    <section class="mt-3 w-full min-h-[210px] sm:min-h-[225px] flex flex-col">
+
+      <!-- VIEW 1: CLASSIC DIALOGUE + 4-BUTTON COMMAND DECK -->
+      <div id="commandView" class="grid grid-cols-1 md:grid-cols-12 gap-3 flex-1">
+        <!-- Retro Typewriter Dialogue Box -->
+        <div class="md:col-span-7 retro-box p-3.5 sm:p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b-2 border-slate-300 pb-1.5 mb-2">
+              <span id="dialogueSpeaker" class="text-[9px] sm:text-[10px] text-indigo-700 font-bold">BATTLE LOG</span>
+              <span id="battleHintBadge" class="text-[8px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">CHOOSE ACTION</span>
+            </div>
+            <p id="dialogueText" class="text-xs sm:text-sm leading-relaxed text-slate-900 min-h-[3.5rem]">
+              Wild CHARCOALON appeared! Pick an Elemental Trivia Attack or weaken it to throw a Capture Ball!
+            </p>
+          </div>
+          <div class="flex items-center justify-between text-[8px] sm:text-[9px] text-slate-500 pt-2 border-t border-slate-200">
+            <span>TIP: Match your trivia subject to the enemy's elemental weakness!</span>
+            <span class="animate-bounce text-slate-800">▼</span>
+          </div>
+        </div>
+
+        <!-- 4-Action Command Buttons -->
+        <div class="md:col-span-5 retro-box p-2.5 sm:p-3 grid grid-cols-2 gap-2.5">
+          <button id="btnFight" class="pixel-btn bg-red-600 hover:bg-red-500 text-white p-3 flex flex-col items-center justify-center gap-1">
+            <span class="text-xs sm:text-sm font-bold">FIGHT</span>
+            <span class="text-[8px] text-red-100">4 SUBJECT MOVES</span>
+          </button>
+
+          <button id="btnBall" class="pixel-btn bg-amber-500 hover:bg-amber-400 text-slate-950 p-3 flex flex-col items-center justify-center gap-1">
+            <span class="text-xs sm:text-sm font-bold">BALL</span>
+            <span class="text-[8px] text-slate-900">3-SHAKE QUIZ</span>
+          </button>
+
+          <button id="btnSwitch" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white p-3 flex flex-col items-center justify-center gap-1">
+            <span class="text-xs sm:text-sm font-bold">SWITCH</span>
+            <span id="btnSwitchSub" class="text-[8px] text-emerald-100">PARTY (1)</span>
+          </button>
+
+          <button id="btnRun" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white p-3 flex flex-col items-center justify-center gap-1">
+            <span class="text-xs sm:text-sm font-bold">NEXT FOE</span>
+            <span class="text-[8px] text-sky-100">NEW ENCOUNTER</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 2: ELEMENTAL SUBJECT MOVE SELECTOR + POWER MODE -->
+      <div id="moveSelectView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-3">
+        <!-- Top Row: Power Mode Toggle & Back Button -->
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-300 pb-2">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[9px] sm:text-[10px] font-bold text-slate-700 mr-1">POWER MODE:</span>
+            <button id="modeStandardBtn" class="pixel-btn bg-indigo-600 text-white text-[9px] px-2.5 py-1">
+              STANDARD (80 PWR / 12s)
+            </button>
+            <button id="modeOverchargeBtn" class="pixel-btn bg-slate-200 text-slate-800 text-[9px] px-2.5 py-1">
+              OVERCHARGE (120 PWR / 6s)
+            </button>
+          </div>
+
+          <button id="backFromMovesBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">
+            ← BACK
+          </button>
+        </div>
+
+        <!-- 4 Elemental Subject Move Buttons -->
+        <div id="moveButtonsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Populated dynamically with effectiveness badges against current enemy -->
+        </div>
+      </div>
+
+      <!-- VIEW 3: ACTIVE TRIVIA QUESTION COMBAT / 3-SHAKE BALL CHECK -->
+      <div id="quizCombatView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-2.5">
+        <!-- Quiz Header: Category/Shake Status + Live Speed Crit Timer -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span id="quizContextBadge" class="text-[9px] sm:text-[10px] px-2 py-1 rounded text-white bg-indigo-600 font-bold">
+              FIRE • CHEMISTRY & PHYSICS
+            </span>
+            <span id="quizMultiplierBadge" class="text-[9px] px-2 py-1 rounded bg-amber-200 text-amber-950 font-bold border border-amber-500">
+              2x SUPER EFFECTIVE!
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span id="speedCritIndicator" class="text-[8px] sm:text-[9px] px-2 py-0.5 rounded bg-yellow-300 text-slate-950 font-bold animate-pulse">
+              ⚡ SPEED CRIT ACTIVE (1.5x)
+            </span>
+            <span id="quizTimerText" class="text-xs sm:text-sm font-bold text-slate-900 min-w-[3.2rem] text-right">12.0s</span>
+          </div>
+        </div>
+
+        <!-- Countdown Progress Bar -->
+        <div class="w-full h-2.5 bg-slate-300 border-2 border-slate-900 rounded overflow-hidden">
+          <div id="quizTimerBar" class="h-full bg-emerald-500 transition-all duration-100" style="width: 100%;"></div>
+        </div>
+
+        <!-- Trivia Question Prompt -->
+        <div class="bg-slate-100 border-2 border-slate-300 rounded p-2.5 sm:p-3">
+          <p id="quizQuestionText" class="text-xs sm:text-sm text-slate-900 leading-snug">
+            Which subatomic particle carries a negative electrical charge?
+          </p>
+        </div>
+
+        <!-- 4 Answer Choices Grid -->
+        <div id="quizChoicesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- VIEW 4: PARTY SWITCHER DRAWER -->
+      <div id="partySwitchView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-3">
+        <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+          <div>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">SELECT PARTY MONSTER</h2>
+            <p class="text-[9px] text-slate-600 mt-0.5">Switching matches your monster's STAB (Same-Type Attack Bonus 1.25x) to its element!</p>
+          </div>
+          <button id="backFromPartyBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">
+            ← BACK
+          </button>
+        </div>
+
+        <div id="partyGridContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1">
+          <!-- Populated dynamically with caught monsters -->
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- FOOTER QUICK GUIDE -->
+  <footer class="w-full max-w-4xl mt-2 px-2 flex flex-wrap items-center justify-between text-[8px] sm:text-[9px] text-slate-400 gap-2">
+    <div>GRASS &gt; WATER &gt; FIRE &gt; GRASS • ELECTRIC &gt; WATER • STAB BONUS: +25% DMG</div>
+    <div>ANSWER UNDER 3.5s FOR ⚡1.5x SPEED CRIT!</div>
+  </footer>
+
+  <!-- MODAL: CUSTOM QUESTION EDITOR & JSON LOADER -->
+  <div id="editorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+    <div class="w-full max-w-2xl retro-box p-4 sm:p-5 max-h-[90vh] flex flex-col gap-3 overflow-y-auto">
+      <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+        <div>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">CUSTOM TRIVIA DECK EDITOR</h2>
+          <p class="text-[9px] text-slate-600 mt-0.5">Add classroom questions or load a JSON pack into the Elemental Trivia Pool</p>
+        </div>
+        <button id="closeEditorBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+      </div>
+
+      <!-- Single Question Quick-Add Form -->
+      <form id="addQuestionForm" class="bg-slate-100 border-2 border-slate-300 rounded p-3 flex flex-col gap-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-[10px] font-bold text-indigo-800">ADD NEW QUESTION</span>
+          <select id="qTypeSelect" class="border-2 border-slate-800 rounded px-2 py-1 text-[10px] bg-white text-slate-900">
+            <option value="GRASS">GRASS (Ecology & Nature)</option>
+            <option value="WATER">WATER (Ocean & Earth)</option>
+            <option value="FIRE">FIRE (Chemistry & Physics)</option>
+            <option value="ELECTRIC">ELECTRIC (Tech, Logic & Math)</option>
+          </select>
+        </div>
+
+        <input id="qPromptInput" type="text" required placeholder="Enter trivia question prompt..." class="w-full border-2 border-slate-400 rounded p-2 text-xs text-slate-900 font-mono" style="font-family: var(--mono-font); font-size: 1.1rem;" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <input id="qOpt0" type="text" required placeholder="Correct Answer (Choice A)" class="border-2 border-emerald-600 bg-emerald-50 rounded p-1.5 text-slate-900" style="font-family: var(--mono-font); font-size: 1.05rem;" />
+          <input id="qOpt1" type="text" required placeholder="Wrong Answer 1" class="border-2 border-slate-400 rounded p-1.5 text-slate-900" style="font-family: var(--mono-font); font-size: 1.05rem;" />
+          <input id="qOpt2" type="text" required placeholder="Wrong Answer 2" class="border-2 border-slate-400 rounded p-1.5 text-slate-900" style="font-family: var(--mono-font); font-size: 1.05rem;" />
+          <input id="qOpt3" type="text" required placeholder="Wrong Answer 3" class="border-2 border-slate-400 rounded p-1.5 text-slate-900" style="font-family: var(--mono-font); font-size: 1.05rem;" />
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <span id="editorStatusMsg" class="text-[9px] text-emerald-700 font-bold"></span>
+          <button type="submit" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-3 py-1.5">
+            + ADD TO POOL
+          </button>
+        </div>
+      </form>
+
+      <!-- JSON Import / Export Accordion -->
+      <div class="bg-slate-100 border-2 border-slate-300 rounded p-3 flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-slate-800">JSON QUESTION BANK (IMPORT / EXPORT)</span>
+          <span id="totalQuestionsCount" class="text-[9px] bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-bold">32 Questions</span>
+        </div>
+        <textarea id="jsonBankTextarea" rows="5" class="w-full border-2 border-slate-400 rounded p-2 text-slate-900 bg-white" style="font-family: var(--mono-font); font-size: 0.95rem;"></textarea>
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <button id="resetDefaultDeckBtn" type="button" class="pixel-btn bg-slate-500 text-white text-[9px] px-2.5 py-1">
+            RESET DEFAULTS
+          </button>
+          <button id="loadJsonDeckBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[9px] px-3 py-1">
+            LOAD JSON DECK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /********************************************************************
+     * 1. WEB AUDIO API 8-BIT CHIPTUNE SYNTHESIZER
+     ********************************************************************/
+    class ChiptuneSFX {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, duration = 0.08, type = 'square', delay = 0, gainVal = 0.12) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      blip() {
+        this.playTone(680, 0.05, 'square', 0, 0.09);
+      }
+
+      attackHit(superEffective = false) {
+        if (superEffective) {
+          this.playTone(523.25, 0.07, 'square', 0, 0.15);
+          this.playTone(659.25, 0.07, 'square', 0.06, 0.15);
+          this.playTone(783.99, 0.08, 'square', 0.12, 0.16);
+          this.playTone(1046.5, 0.16, 'square', 0.18, 0.18);
+        } else {
+          this.playTone(440, 0.07, 'square', 0, 0.14);
+          this.playTone(587.33, 0.12, 'square', 0.06, 0.14);
+        }
+      }
+
+      wrongBuzzer() {
+        this.playTone(190, 0.14, 'sawtooth', 0, 0.15);
+        this.playTone(135, 0.25, 'sawtooth', 0.12, 0.16);
+      }
+
+      ballThrow() {
+        this.playTone(300, 0.06, 'triangle', 0, 0.12);
+        this.playTone(450, 0.06, 'triangle', 0.06, 0.12);
+        this.playTone(620, 0.08, 'triangle', 0.12, 0.12);
+      }
+
+      ballShake() {
+        this.playTone(340, 0.06, 'sine', 0, 0.14);
+        this.playTone(260, 0.08, 'sine', 0.07, 0.14);
+      }
+
+      captureFanfare() {
+        const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        const times = [0, 0.1, 0.2, 0.32, 0.48, 0.6];
+        const durs  = [0.09, 0.09, 0.1, 0.14, 0.1, 0.3];
+        notes.forEach((n, i) => this.playTone(n, durs[i], 'square', times[i], 0.15));
+      }
+
+      encounterIntro() {
+        this.playTone(330, 0.06, 'square', 0, 0.11);
+        this.playTone(392, 0.06, 'square', 0.06, 0.11);
+        this.playTone(493.88, 0.09, 'square', 0.12, 0.11);
+      }
+    }
+
+    const sfx = new ChiptuneSFX();
+
+    /********************************************************************
+     * 2. ELEMENTAL TYPES & EFFECTIVENESS MATRIX
+     ********************************************************************/
+    const ELEMENT_TYPES = {
+      GRASS: {
+        id: 'GRASS',
+        name: 'GRASS',
+        subject: 'Ecology & Nature',
+        badgeClass: 'bg-emerald-600',
+        btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white'
+      },
+      WATER: {
+        id: 'WATER',
+        name: 'WATER',
+        subject: 'Ocean & Earth',
+        badgeClass: 'bg-sky-600',
+        btnClass: 'bg-sky-600 hover:bg-sky-500 text-white'
+      },
+      FIRE: {
+        id: 'FIRE',
+        name: 'FIRE',
+        subject: 'Chemistry & Physics',
+        badgeClass: 'bg-orange-600',
+        btnClass: 'bg-orange-600 hover:bg-orange-500 text-white'
+      },
+      ELECTRIC: {
+        id: 'ELECTRIC',
+        name: 'ELECTRIC',
+        subject: 'Tech, Logic & Math',
+        badgeClass: 'bg-amber-500',
+        btnClass: 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+      }
+    };
+
+    function getEffectiveness(attackType, defendType) {
+      const chart = {
+        GRASS:    { WATER: 2.0, FIRE: 0.5, GRASS: 0.5, ELECTRIC: 1.0 },
+        WATER:    { FIRE: 2.0, GRASS: 0.5, WATER: 0.5, ELECTRIC: 1.0 },
+        FIRE:     { GRASS: 2.0, WATER: 0.5, FIRE: 0.5, ELECTRIC: 1.0 },
+        ELECTRIC: { WATER: 2.0, GRASS: 0.5, ELECTRIC: 0.5, FIRE: 1.0 }
+      };
+      return (chart[attackType] && chart[attackType][defendType]) || 1.0;
+    }
+
+    /********************************************************************
+     * 3. MONSTER DEX & CUSTOM 8-BIT PIXEL SVG GENERATOR
+     ********************************************************************/
+    const MONSTER_SPECIES = [
+      {
+        id: 'voltbit',
+        name: 'VOLTBIT',
+        type: 'ELECTRIC',
+        baseHp: 140,
+        level: 14,
+        palette: { p: '#facc15', s: '#ca8a04', d: '#1e293b', a: '#ef4444' },
+        spriteType: 'voltbit'
+      },
+      {
+        id: 'charcoalon',
+        name: 'CHARCOALON',
+        type: 'FIRE',
+        baseHp: 125,
+        level: 12,
+        palette: { p: '#f97316', s: '#dc2626', d: '#1e293b', a: '#fde047' },
+        spriteType: 'charcoalon'
+      },
+      {
+        id: 'aquashell',
+        name: 'AQUASHELL',
+        type: 'WATER',
+        baseHp: 135,
+        level: 13,
+        palette: { p: '#38bdf8', s: '#0284c7', d: '#0f172a', a: '#bae6fd' },
+        spriteType: 'aquashell'
+      },
+      {
+        id: 'fernlynx',
+        name: 'FERNLYNX',
+        type: 'GRASS',
+        baseHp: 130,
+        level: 13,
+        palette: { p: '#4ade80', s: '#15803d', d: '#052e16', a: '#facc15' },
+        spriteType: 'fernlynx'
+      },
+      {
+        id: 'pyrocore',
+        name: 'PYROCORE',
+        type: 'FIRE',
+        baseHp: 150,
+        level: 15,
+        palette: { p: '#ef4444', s: '#7f1d1d', d: '#111827', a: '#fef08a' },
+        spriteType: 'pyrocore'
+      },
+      {
+        id: 'tidalfin',
+        name: 'TIDALFIN',
+        type: 'WATER',
+        baseHp: 145,
+        level: 15,
+        palette: { p: '#2563eb', s: '#1d4ed8', d: '#0f172a', a: '#67e8f9' },
+        spriteType: 'tidalfin'
+      }
+    ];
+
+    function renderMonsterSVG(species) {
+      const { p, s, d, a } = species.palette;
+      switch (species.spriteType) {
+        case 'voltbit':
+          return `
+            <svg viewBox="0 0 16 16" class="w-full h-full drop-shadow-md">
+              <rect x="3" y="1" width="2" height="3" fill="${d}"/>
+              <rect x="11" y="1" width="2" height="3" fill="${d}"/>
+              <rect x="3" y="3" width="2" height="2" fill="${p}"/>
+              <rect x="11" y="3" width="2" height="2" fill="${p}"/>
+              <rect x="4" y="4" width="8" height="9" fill="${p}"/>
+              <rect x="3" y="6" width="10" height="6" fill="${p}"/>
+              <rect x="5" y="6" width="2" height="2" fill="${d}"/>
+              <rect x="9" y="6" width="2" height="2" fill="${d}"/>
+              <rect x="5" y="6" width="1" height="1" fill="#ffffff"/>
+              <rect x="9" y="6" width="1" height="1" fill="#ffffff"/>
+              <rect x="3" y="8" width="2" height="2" fill="${a}"/>
+              <rect x="11" y="8" width="2" height="2" fill="${a}"/>
+              <rect x="7" y="8" width="2" height="1" fill="${d}"/>
+              <rect x="13" y="6" width="2" height="2" fill="${s}"/>
+              <rect x="14" y="4" width="2" height="3" fill="${p}"/>
+              <rect x="4" y="13" width="3" height="2" fill="${s}"/>
+              <rect x="9" y="13" width="3" height="2" fill="${s}"/>
+            </svg>`;
+        case 'charcoalon':
+          return `
+            <svg viewBox="0 0 16 16" class="w-full h-full drop-shadow-md">
+              <rect x="5" y="2" width="5" height="4" fill="${p}"/>
+              <rect x="4" y="5" width="7" height="7" fill="${p}"/>
+              <rect x="5" y="3" width="2" height="2" fill="${d}"/>
+              <rect x="5" y="3" width="1" height="1" fill="#ffffff"/>
+              <rect x="6" y="7" width="4" height="5" fill="${a}"/>
+              <rect x="2" y="7" width="2" height="3" fill="${s}"/>
+              <rect x="11" y="8" width="3" height="3" fill="${s}"/>
+              <rect x="13" y="4" width="2" height="4" fill="${s}"/>
+              <rect x="13" y="2" width="2" height="2" fill="${a}"/>
+              <rect x="4" y="12" width="3" height="3" fill="${s}"/>
+              <rect x="8" y="12" width="3" height="3" fill="${s}"/>
+            </svg>`;
+        case 'aquashell':
+          return `
+            <svg viewBox="0 0 16 16" class="w-full h-full drop-shadow-md">
+              <rect x="4" y="3" width="7" height="5" fill="${p}"/>
+              <rect x="3" y="6" width="9" height="6" fill="${s}"/>
+              <rect x="5" y="7" width="5" height="5" fill="${a}"/>
+              <rect x="5" y="4" width="2" height="2" fill="${d}"/>
+              <rect x="9" y="4" width="2" height="2" fill="${d}"/>
+              <rect x="5" y="4" width="1" height="1" fill="#ffffff"/>
+              <rect x="9" y="4" width="1" height="1" fill="#ffffff"/>
+              <rect x="2" y="8" width="2" height="3" fill="${p}"/>
+              <rect x="12" y="7" width="3" height="4" fill="${a}"/>
+              <rect x="4" y="12" width="3" height="3" fill="${p}"/>
+              <rect x="9" y="12" width="3" height="3" fill="${p}"/>
+            </svg>`;
+        case 'fernlynx':
+          return `
+            <svg viewBox="0 0 16 16" class="w-full h-full drop-shadow-md">
+              <rect x="6" y="1" width="4" height="3" fill="${s}"/>
+              <rect x="7" y="0" width="2" height="2" fill="${a}"/>
+              <rect x="4" y="4" width="8" height="8" fill="${p}"/>
+              <rect x="3" y="3" width="2" height="3" fill="${s}"/>
+              <rect x="11" y="3" width="2" height="3" fill="${s}"/>
+              <rect x="5" y="6" width="2" height="2" fill="${d}"/>
+              <rect x="9" y="6" width="2" height="2" fill="${d}"/>
+              <rect x="5" y="6" width="1" height="1" fill="${a}"/>
+              <rect x="9" y="6" width="1" height="1" fill="${a}"/>
+              <rect x="4" y="12" width="3" height="3" fill="${s}"/>
+              <rect x="9" y="12" width="3" height="3" fill="${s}"/>
+            </svg>`;
+        case 'pyrocore':
+          return `
+            <svg viewBox="0 0 16 16" class="w-full h-full drop-shadow-md">
+              <rect x="6" y="1" width="4" height="2" fill="${a}"/>
+              <rect x="4" y="3" width="8" height="3" fill="${p}"/>
+              <rect x="3" y="5" width="10" height="7" fill="${s}"/>
+              <rect x="5" y="6" width="2" height="2" fill="${a}"/>
+              <rect x="9" y="6" width="2" height="2" fill="${a}"/>
+              <rect x="6" y="10" width="4" height="1" fill="${a}"/>
+              <rect x="2" y="7" width="2" height="4" fill="${p}"/>
+              <rect x="12" y="7" width="2" height="4" fill="${p}"/>
+              <rect x="4" y="12" width="3" height="3" fill="${d}"/>
+              <rect x="9" y="12" width="3" height="3" fill="${d}"/>
+            </svg>`;
+        default:
+          return `
+            <svg viewBox="0 0 16 16" class="w-full h-full drop-shadow-md">
+              <rect x="7" y="1" width="3" height="3" fill="${a}"/>
+              <rect x="4" y="4" width="8" height="8" fill="${p}"/>
+              <rect x="2" y="6" width="2" height="4" fill="${a}"/>
+              <rect x="12" y="6" width="3" height="4" fill="${s}"/>
+              <rect x="5" y="6" width="2" height="2" fill="${d}"/>
+              <rect x="9" y="6" width="2" height="2" fill="${d}"/>
+              <rect x="5" y="12" width="2" height="3" fill="${s}"/>
+              <rect x="9" y="12" width="2" height="3" fill="${s}"/>
+            </svg>`;
+      }
+    }
+
+    function renderCaptureBallSVG(highlightStar = false) {
+      return `
+        <svg viewBox="0 0 16 16" class="w-20 h-20 sm:w-24 sm:h-24 drop-shadow-lg">
+          ${highlightStar ? '<rect x="7" y="0" width="2" height="2" fill="#fde047"/><rect x="2" y="2" width="2" height="2" fill="#fde047"/><rect x="12" y="2" width="2" height="2" fill="#fde047"/>' : ''}
+          <rect x="5" y="3" width="6" height="2" fill="#0f172a"/>
+          <rect x="3" y="5" width="10" height="3" fill="#ef4444"/>
+          <rect x="3" y="8" width="10" height="1" fill="#0f172a"/>
+          <rect x="3" y="9" width="10" height="3" fill="#f8fafc"/>
+          <rect x="5" y="12" width="6" height="2" fill="#0f172a"/>
+          <rect x="6" y="7" width="4" height="3" fill="#0f172a"/>
+          <rect x="7" y="8" width="2" height="1" fill="${highlightStar ? '#4ade80' : '#fde047'}"/>
+        </svg>`;
+    }
+
+    /********************************************************************
+     * 4. DEFAULT ELEMENTAL TRIVIA QUESTION POOL (32 QUESTIONS)
+     ********************************************************************/
+    const DEFAULT_QUESTIONS = [
+      // GRASS: Ecology, Biology & Nature
+      { type: 'GRASS', q: 'Which gas do plants absorb from the atmosphere during photosynthesis?', options: ['Carbon Dioxide', 'Oxygen', 'Nitrogen', 'Argon'], answer: 0 },
+      { type: 'GRASS', q: 'What is the powerhouse organelle of a eukaryotic cell that generates ATP?', options: ['Mitochondria', 'Ribosome', 'Golgi Apparatus', 'Nucleolus'], answer: 0 },
+      { type: 'GRASS', q: 'Which pigment gives plant leaves their green color?', options: ['Chlorophyll', 'Carotene', 'Hemoglobin', 'Melanin'], answer: 0 },
+      { type: 'GRASS', q: 'What term describes animals that eat both plants and other animals?', options: ['Omnivores', 'Herbivores', 'Carnivores', 'Detritivores'], answer: 0 },
+      { type: 'GRASS', q: 'Which biome is characterized by permafrost and very low temperatures?', options: ['Tundra', 'Savanna', 'Taiga', 'Chaparral'], answer: 0 },
+      { type: 'GRASS', q: 'What part of a flower produces pollen?', options: ['Anther', 'Stigma', 'Sepal', 'Pistil'], answer: 0 },
+      { type: 'GRASS', q: 'Symbiosis where both organisms benefit is known as what?', options: ['Mutualism', 'Parasitism', 'Commensalism', 'Predation'], answer: 0 },
+      { type: 'GRASS', q: 'Which group of organisms is primarily responsible for decomposing dead trees?', options: ['Fungi', 'Ferns', 'Mosses', 'Conifers'], answer: 0 },
+
+      // WATER: Ocean, Weather & Earth Science
+      { type: 'WATER', q: 'Which ocean is the largest and deepest on Earth?', options: ['Pacific Ocean', 'Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean'], answer: 0 },
+      { type: 'WATER', q: 'What is the process of water vapor turning directly into liquid clouds?', options: ['Condensation', 'Evaporation', 'Sublimation', 'Transpiration'], answer: 0 },
+      { type: 'WATER', q: 'Roughly what percentage of Earth’s surface is covered by water?', options: ['71%', '51%', '85%', '60%'], answer: 0 },
+      { type: 'WATER', q: 'What causes the regular rise and fall of ocean tides on Earth?', options: ['Gravitational pull of the Moon & Sun', 'Ocean floor volcanic vents', 'Earth’s magnetic field', 'Trade wind currents'], answer: 0 },
+      { type: 'WATER', q: 'What is the deepest known trench in the world’s oceans?', options: ['Mariana Trench', 'Tonga Trench', 'Java Trench', 'Puerto Rico Trench'], answer: 0 },
+      { type: 'WATER', q: 'Which layer of Earth’s atmosphere contains the majority of weather clouds?', options: ['Troposphere', 'Stratosphere', 'Mesosphere', 'Thermosphere'], answer: 0 },
+      { type: 'WATER', q: 'Igneous rock formed from cooled lava on the Earth’s surface is called?', options: ['Extrusive rock', 'Intrusive rock', 'Metamorphic rock', 'Sedimentary rock'], answer: 0 },
+      { type: 'WATER', q: 'Which ocean current warms Western Europe?', options: ['The Gulf Stream', 'Humboldt Current', 'Kuroshio Current', 'Benguela Current'], answer: 0 },
+
+      // FIRE: Chemistry, Energy & Physics
+      { type: 'FIRE', q: 'Which subatomic particle carries a negative electrical charge?', options: ['Electron', 'Proton', 'Neutron', 'Photon'], answer: 0 },
+      { type: 'FIRE', q: 'What is the chemical symbol for the element Gold?', options: ['Au', 'Ag', 'Fe', 'Gd'], answer: 0 },
+      { type: 'FIRE', q: 'At standard atmospheric pressure, at what Celsius temperature does water boil?', options: ['100°C', '90°C', '180°C', '212°C'], answer: 0 },
+      { type: 'FIRE', q: 'Which law states that energy cannot be created or destroyed, only transformed?', options: ['First Law of Thermodynamics', 'Ohm’s Law', 'Boyle’s Law', 'Hooke’s Law'], answer: 0 },
+      { type: 'FIRE', q: 'What is the most abundant chemical element in the universe?', options: ['Hydrogen', 'Helium', 'Gold', 'Carbon'], answer: 0 },
+      { type: 'FIRE', q: 'A chemical reaction that releases heat to its surroundings is called?', options: ['Exothermic', 'Endothermic', 'Isothermal', 'Catalytic'], answer: 0 },
+      { type: 'FIRE', q: 'What is the standard SI unit of force?', options: ['Newton', 'Joule', 'Watt', 'Pascal'], answer: 0 },
+      { type: 'FIRE', q: 'What is the pH value of pure neutral water at 25°C?', options: ['7', '0', '10', '14'], answer: 0 },
+
+      // ELECTRIC: Tech, Logic & Mathematics
+      { type: 'ELECTRIC', q: 'In binary code, what decimal number is represented by 1010?', options: ['10', '8', '12', '6'], answer: 0 },
+      { type: 'ELECTRIC', q: 'What is the square root of 144?', options: ['12', '14', '11', '16'], answer: 0 },
+      { type: 'ELECTRIC', q: 'Which logic gate outputs TRUE only when BOTH inputs are TRUE?', options: ['AND Gate', 'OR Gate', 'XOR Gate', 'NOT Gate'], answer: 0 },
+      { type: 'ELECTRIC', q: 'How many bits make up a single byte?', options: ['8 bits', '4 bits', '16 bits', '32 bits'], answer: 0 },
+      { type: 'ELECTRIC', q: 'What is the next prime number after 13?', options: ['17', '15', '19', '21'], answer: 0 },
+      { type: 'ELECTRIC', q: 'In electrical circuits, what does Resistance measure (in Ohms)?', options: ['Opposition to current flow', 'Total charge stored', 'Voltage amplification', 'Magnetic flux'], answer: 0 },
+      { type: 'ELECTRIC', q: 'If a triangle has angles of 90° and 45°, what is the third angle?', options: ['45°', '30°', '60°', '90°'], answer: 0 },
+      { type: 'ELECTRIC', q: 'What does CPU stand for in computer hardware?', options: ['Central Processing Unit', 'Core Power Utility', 'Circuit Protocol Unit', 'Calculated Program User'], answer: 0 }
+    ];
+
+    /********************************************************************
+     * 5. GAME STATE CONTROLLER
+     ********************************************************************/
+    const state = {
+      questions: structuredClone(DEFAULT_QUESTIONS),
+      party: [],
+      activePartyIndex: 0,
+      enemy: null,
+      streak: 0,
+      powerMode: 'STANDARD', // 'STANDARD' (80 pwr, 12s) or 'OVERCHARGE' (120 pwr, 6s)
+      quizMode: null,        // 'ATTACK' or 'CAPTURE'
+      selectedAttackType: 'ELECTRIC',
+      currentQuestion: null,
+      shuffledOptions: [],
+      timerInterval: null,
+      timeRemaining: 0,
+      maxTime: 12,
+      questionStartTime: 0,
+      captureShakeStep: 0,   // 0, 1, 2 (needs 3/3 to catch)
+      busy: false,
+      typewriterTimer: null
+    };
+
+    // Initialize Player Starter & First Wild Monster
+    function initGame() {
+      const starter = createMonsterInstance(MONSTER_SPECIES[0]);
+      state.party = [starter];
+      state.activePartyIndex = 0;
+
+      spawnWildMonster(MONSTER_SPECIES[1]); // Start against Charcoalon
+      syncAllUI();
+      syncJsonTextarea();
+    }
+
+    function createMonsterInstance(template) {
+      return {
+        ...structuredClone(template),
+        maxHp: template.baseHp,
+        hp: template.baseHp
+      };
+    }
+
+    function spawnWildMonster(forcedSpecies = null) {
+      const activePlayer = getActivePlayer();
+      const candidates = MONSTER_SPECIES.filter(m => !state.enemy || m.id !== state.enemy.id);
+      const chosen = forcedSpecies || candidates[Math.floor(Math.random() * candidates.length)];
+
+      state.enemy = createMonsterInstance(chosen);
+      state.captureShakeStep = 0;
+
+      // Render sprites
+      document.getElementById('enemySpriteWrapper').innerHTML = renderMonsterSVG(state.enemy);
+      document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(activePlayer);
+
+      sfx.encounterIntro();
+      showCommandView();
+      setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! Choose FIGHT to attack with trivia or weaken it to throw a BALL!`, 'ENCOUNTER');
+      syncAllUI();
+    }
+
+    function getActivePlayer() {
+      return state.party[state.activePartyIndex];
+    }
+
+    /********************************************************************
+     * 6. UI SYNCHRONIZATION & HUD UPDATES
+     ********************************************************************/
+    function getHpColorClass(ratio) {
+      if (ratio > 0.5) return 'bg-emerald-500';
+      if (ratio > 0.22) return 'bg-amber-400';
+      return 'bg-red-500 animate-pulse';
+    }
+
+    function syncAllUI() {
+      const player = getActivePlayer();
+      const enemy = state.enemy;
+
+      // Player HUD
+      document.getElementById('playerName').textContent = player.name;
+      document.getElementById('playerLevel').textContent = `Lv${player.level}`;
+      const pTypeInfo = ELEMENT_TYPES[player.type];
+      const pBadge = document.getElementById('playerTypeBadge');
+      pBadge.textContent = pTypeInfo.name;
+      pBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${pTypeInfo.badgeClass}`;
+
+      const pRatio = Math.max(0, player.hp / player.maxHp);
+      const pBar = document.getElementById('playerHpBar');
+      pBar.style.width = `${pRatio * 100}%`;
+      pBar.className = `h-full transition-all duration-500 ease-out ${getHpColorClass(pRatio)}`;
+      document.getElementById('playerHpNumbers').textContent = `${Math.max(0, player.hp)}/${player.maxHp}`;
+
+      const atkBonus = Math.min(6, state.streak);
+      const atkMult = (1 + atkBonus * 0.15).toFixed(2);
+      document.getElementById('playerAtkStage').textContent = `ATK STAGE: +${atkBonus}`;
+      document.getElementById('playerStreakBar').style.width = `${Math.min(100, (state.streak / 6) * 100)}%`;
+
+      // Header Streak & Party Roster
+      document.getElementById('streakCountText').textContent = `${state.streak} (${atkMult}x ATK)`;
+      document.getElementById('dexCountText').textContent = `${state.party.length}/${MONSTER_SPECIES.length}`;
+      document.getElementById('btnSwitchSub').textContent = `PARTY (${state.party.length})`;
+
+      const partySlotsEl = document.getElementById('headerPartySlots');
+      partySlotsEl.innerHTML = '';
+      for (let i = 0; i < MONSTER_SPECIES.length; i++) {
+        const mon = state.party[i];
+        const dot = document.createElement('div');
+        if (mon) {
+          const isCurrent = i === state.activePartyIndex;
+          dot.className = `w-3.5 h-3.5 rounded-full border-2 ${isCurrent ? 'bg-amber-400 border-white scale-110' : 'bg-red-500 border-slate-200'}`;
+          dot.title = `${mon.name} (${mon.type}) - HP ${mon.hp}/${mon.maxHp}`;
+        } else {
+          dot.className = 'w-3.5 h-3.5 rounded-full border border-slate-600 bg-slate-800';
+          dot.title = 'Empty Slot';
+        }
+        partySlotsEl.appendChild(dot);
+      }
+
+      // Enemy HUD
+      if (enemy) {
+        document.getElementById('enemyName').textContent = enemy.name;
+        document.getElementById('enemyLevel').textContent = `Lv${enemy.level}`;
+        const eTypeInfo = ELEMENT_TYPES[enemy.type];
+        const eBadge = document.getElementById('enemyTypeBadge');
+        eBadge.textContent = eTypeInfo.name;
+        eBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo.badgeClass}`;
+
+        const alreadyOwned = state.party.some(p => p.id === enemy.id);
+        document.getElementById('enemyCaughtIcon').classList.toggle('hidden', !alreadyOwned);
+
+        const eRatio = Math.max(0, enemy.hp / enemy.maxHp);
+        const eBar = document.getElementById('enemyHpBar');
+        eBar.style.width = `${eRatio * 100}%`;
+        eBar.className = `h-full transition-all duration-500 ease-out ${getHpColorClass(eRatio)}`;
+        document.getElementById('enemyHpNumbers').textContent = `${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
+
+        const oddsLabel = document.getElementById('enemyCaptureOddsText');
+        if (eRatio <= 0.25) {
+          oddsLabel.textContent = 'CATCH TIMER: 13s (EASY!)';
+          oddsLabel.className = 'text-emerald-700 font-bold';
+        } else if (eRatio <= 0.55) {
+          oddsLabel.textContent = 'CATCH TIMER: 10s (MED)';
+          oddsLabel.className = 'text-amber-700 font-bold';
+        } else {
+          oddsLabel.textContent = 'CATCH TIMER: 7s (STRICT)';
+          oddsLabel.className = 'text-slate-600';
+        }
+      }
+    }
+
+    function setDialogue(text, badgeText = 'BATTLE LOG') {
+      if (state.typewriterTimer) clearInterval(state.typewriterTimer);
+      const el = document.getElementById('dialogueText');
+      document.getElementById('battleHintBadge').textContent = badgeText;
+      el.textContent = '';
+      let idx = 0;
+      state.typewriterTimer = setInterval(() => {
+        el.textContent += text.charAt(idx);
+        idx++;
+        if (idx >= text.length) {
+          clearInterval(state.typewriterTimer);
+        }
+      }, 14);
+    }
+
+    function spawnFloatingText(target, text, colorClass = 'text-amber-300') {
+      const container = document.getElementById(target === 'enemy' ? 'enemyFloatContainer' : 'playerFloatContainer');
+      const badge = document.createElement('div');
+      badge.className = `floating-dmg text-xs sm:text-sm font-bold ${colorClass} whitespace-nowrap`;
+      badge.textContent = text;
+      container.innerHTML = '';
+      container.appendChild(badge);
+      setTimeout(() => {
+        if (badge.parentNode) badge.remove();
+      }, 1150);
+    }
+
+    function triggerSpriteAnimation(target, animClass) {
+      const wrapper = document.getElementById(target === 'enemy' ? 'enemySpriteWrapper' : 'playerSpriteWrapper');
+      wrapper.classList.remove('anim-idle', 'anim-hit', 'anim-lunge-player', 'anim-lunge-enemy', 'anim-ball-throw', 'anim-ball-shake');
+      void wrapper.offsetWidth; // Reflow
+      wrapper.classList.add(animClass);
+      setTimeout(() => {
+        wrapper.classList.remove(animClass);
+        wrapper.classList.add('anim-idle');
+      }, 580);
+    }
+
+    /********************************************************************
+     * 7. VIEW SWITCHING (COMMAND / MOVES / QUIZ / PARTY)
+     ********************************************************************/
+    function hideAllBottomViews() {
+      document.getElementById('commandView').classList.add('hidden');
+      document.getElementById('moveSelectView').classList.add('hidden');
+      document.getElementById('quizCombatView').classList.add('hidden');
+      document.getElementById('partySwitchView').classList.add('hidden');
+    }
+
+    function showCommandView() {
+      hideAllBottomViews();
+      document.getElementById('commandView').classList.remove('hidden');
+    }
+
+    function showMoveSelectView() {
+      if (state.busy) return;
+      sfx.blip();
+      hideAllBottomViews();
+      document.getElementById('moveSelectView').classList.remove('hidden');
+      renderMoveButtons();
+    }
+
+    function renderMoveButtons() {
+      const grid = document.getElementById('moveButtonsGrid');
+      grid.innerHTML = '';
+      const player = getActivePlayer();
+      const enemy = state.enemy;
+
+      Object.values(ELEMENT_TYPES).forEach(typeObj => {
+        const mult = getEffectiveness(typeObj.id, enemy.type);
+        const hasStab = player.type === typeObj.id;
+
+        let effLabel = 'NORMAL (1x)';
+        let effBadgeClass = 'bg-slate-900/40 text-white';
+        if (mult > 1) {
+          effLabel = 'SUPER EFFECTIVE (2x!)';
+          effBadgeClass = 'bg-yellow-300 text-slate-950 animate-pulse';
+        } else if (mult < 1) {
+          effLabel = 'NOT VERY EFFECTIVE (0.5x)';
+          effBadgeClass = 'bg-slate-800/70 text-slate-300';
+        }
+
+        const btn = document.createElement('button');
+        btn.className = `pixel-btn ${typeObj.btnClass} p-2.5 sm:p-3 flex flex-col justify-between text-left gap-1.5`;
+        btn.innerHTML = `
+          <div class="flex items-center justify-between w-full gap-1">
+            <span class="text-xs sm:text-sm font-bold">${typeObj.name} STRIKE</span>
+            ${hasStab ? '<span class="text-[8px] px-1.5 py-0.5 rounded bg-white/90 text-slate-950 font-bold">STAB 1.25x</span>' : ''}
+          </div>
+          <div class="flex items-center justify-between w-full gap-1">
+            <span class="text-[8px] sm:text-[9px] opacity-95">${typeObj.subject}</span>
+            <span class="text-[8px] px-1.5 py-0.5 rounded font-bold ${effBadgeClass}">${effLabel}</span>
+          </div>
+        `;
+        btn.addEventListener('click', () => startElementalTriviaAttack(typeObj.id));
+        grid.appendChild(btn);
+      });
+    }
+
+    function setPowerMode(mode) {
+      sfx.blip();
+      state.powerMode = mode;
+      const stdBtn = document.getElementById('modeStandardBtn');
+      const ovrBtn = document.getElementById('modeOverchargeBtn');
+      if (mode === 'STANDARD') {
+        stdBtn.className = 'pixel-btn bg-indigo-600 text-white text-[9px] px-2.5 py-1';
+        ovrBtn.className = 'pixel-btn bg-slate-200 text-slate-800 text-[9px] px-2.5 py-1';
+      } else {
+        stdBtn.className = 'pixel-btn bg-slate-200 text-slate-800 text-[9px] px-2.5 py-1';
+        ovrBtn.className = 'pixel-btn bg-red-600 text-white text-[9px] px-2.5 py-1';
+      }
+    }
+
+    /********************************************************************
+     * 8. TRIVIA COMBAT & 3-SHAKE CAPTURE ENGINE
+     ********************************************************************/
+    function pickRandomQuestion(elementType = null) {
+      let pool = elementType
+        ? state.questions.filter(q => q.type === elementType)
+        : state.questions;
+
+      if (pool.length === 0) pool = state.questions;
+      const chosen = pool[Math.floor(Math.random() * pool.length)];
+
+      // Create shuffled options tracking original index
+      const indexedOptions = chosen.options.map((text, idx) => ({
+        text,
+        isCorrect: idx === chosen.answer
+      }));
+
+      for (let i = indexedOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+      }
+
+      return { chosen, indexedOptions };
+    }
+
+    function startElementalTriviaAttack(elementType) {
+      sfx.blip();
+      state.quizMode = 'ATTACK';
+      state.selectedAttackType = elementType;
+      const maxSeconds = state.powerMode === 'OVERCHARGE' ? 6.0 : 12.0;
+      launchQuizQuestion(elementType, maxSeconds);
+    }
+
+    function startCaptureBallSequence() {
+      if (state.busy) return;
+      state.busy = true;
+      state.quizMode = 'CAPTURE';
+      state.captureShakeStep = 0;
+
+      sfx.ballThrow();
+      const enemyWrapper = document.getElementById('enemySpriteWrapper');
+      enemyWrapper.innerHTML = renderCaptureBallSVG(false);
+      triggerSpriteAnimation('enemy', 'anim-ball-throw');
+
+      // Calculate timer based on remaining enemy HP
+      const eRatio = state.enemy.hp / state.enemy.maxHp;
+      let ballTimer = 7.0;
+      if (eRatio <= 0.25) ballTimer = 13.0;
+      else if (eRatio <= 0.55) ballTimer = 10.0;
+
+      setTimeout(() => {
+        state.busy = false;
+        launchQuizQuestion(null, ballTimer);
+      }, 550);
+    }
+
+    function launchQuizQuestion(elementType, durationSeconds) {
+      hideAllBottomViews();
+      document.getElementById('quizCombatView').classList.remove('hidden');
+
+      const { chosen, indexedOptions } = pickRandomQuestion(elementType);
+      state.currentQuestion = chosen;
+      state.shuffledOptions = indexedOptions;
+      state.maxTime = durationSeconds;
+      state.timeRemaining = durationSeconds;
+      state.questionStartTime = performance.now();
+
+      // Context Badges
+      const contextBadge = document.getElementById('quizContextBadge');
+      const multBadge = document.getElementById('quizMultiplierBadge');
+
+      if (state.quizMode === 'ATTACK') {
+        const tInfo = ELEMENT_TYPES[elementType];
+        contextBadge.textContent = `${tInfo.name} • ${tInfo.subject.toUpperCase()}`;
+        contextBadge.className = `text-[9px] sm:text-[10px] px-2 py-1 rounded text-white font-bold ${tInfo.badgeClass}`;
+
+        const mult = getEffectiveness(elementType, state.enemy.type);
+        const pwrText = state.powerMode === 'OVERCHARGE' ? '120 PWR' : '80 PWR';
+        multBadge.textContent = `${pwrText} • ${mult}x EFFECT`;
+      } else {
+        contextBadge.textContent = `🔴 CAPTURE BALL • SHAKE CHECK ${state.captureShakeStep + 1}/3`;
+        contextBadge.className = 'text-[9px] sm:text-[10px] px-2 py-1 rounded text-white font-bold bg-red-600';
+        multBadge.textContent = `${ 3 - state.captureShakeStep } MORE TO CATCH!`;
+      }
+
+      // Render Question & Choices
+      document.getElementById('quizQuestionText').textContent = chosen.q;
+      const choicesGrid = document.getElementById('quizChoicesGrid');
+      choicesGrid.innerHTML = '';
+
+      const labels = ['A', 'B', 'C', 'D'];
+      indexedOptions.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'pixel-btn bg-white hover:bg-indigo-50 text-slate-900 p-2 sm:p-2.5 text-left flex items-center gap-2';
+        btn.innerHTML = `
+          <span class="inline-block px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[9px] font-bold shrink-0">${labels[i]}</span>
+          <span class="text-[10px] sm:text-xs leading-tight">${opt.text}</span>
+        `;
+        btn.addEventListener('click', () => handleQuizAnswer(opt.isCorrect, btn));
+        choicesGrid.appendChild(btn);
+      });
+
+      startQuizCountdown();
+    }
+
+    function startQuizCountdown() {
+      if (state.timerInterval) clearInterval(state.timerInterval);
+      const timerBar = document.getElementById('quizTimerBar');
+      const timerText = document.getElementById('quizTimerText');
+      const critBadge = document.getElementById('speedCritIndicator');
+
+      state.timerInterval = setInterval(() => {
+        const elapsed = (performance.now() - state.questionStartTime) / 1000;
+        state.timeRemaining = Math.max(0, state.maxTime - elapsed);
+
+        const pct = (state.timeRemaining / state.maxTime) * 100;
+        timerBar.style.width = `${pct}%`;
+        timerText.textContent = `${state.timeRemaining.toFixed(1)}s`;
+
+        if (elapsed <= 3.5 && state.quizMode === 'ATTACK') {
+          critBadge.classList.remove('hidden');
+        } else {
+          critBadge.classList.add('hidden');
+        }
+
+        if (pct > 50) timerBar.className = 'h-full bg-emerald-500 transition-all duration-75';
+        else if (pct > 25) timerBar.className = 'h-full bg-amber-400 transition-all duration-75';
+        else timerBar.className = 'h-full bg-red-600 transition-all duration-75';
+
+        if (state.timeRemaining <= 0) {
+          clearInterval(state.timerInterval);
+          handleQuizAnswer(false, null, true);
+        }
+      }, 60);
+    }
+
+    function handleQuizAnswer(isCorrect, clickedBtn, isTimeout = false) {
+      if (state.busy) return;
+      state.busy = true;
+      if (state.timerInterval) clearInterval(state.timerInterval);
+
+      const elapsedSeconds = (performance.now() - state.questionStartTime) / 1000;
+      const isSpeedCrit = isCorrect && elapsedSeconds <= 3.5;
+
+      // Highlight correct and wrong buttons briefly
+      const allButtons = document.querySelectorAll('#quizChoicesGrid button');
+      allButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (state.shuffledOptions[idx].isCorrect) {
+          btn.className = 'pixel-btn bg-emerald-500 text-white p-2 sm:p-2.5 text-left flex items-center gap-2';
+        } else if (btn === clickedBtn && !isCorrect) {
+          btn.className = 'pixel-btn bg-red-600 text-white p-2 sm:p-2.5 text-left flex items-center gap-2';
+        }
+      });
+
+      setTimeout(() => {
+        if (state.quizMode === 'ATTACK') {
+          resolveAttackOutcome(isCorrect, isSpeedCrit, isTimeout);
+        } else {
+          resolveCaptureShakeOutcome(isCorrect, isTimeout);
+        }
+      }, 650);
+    }
+
+    function resolveAttackOutcome(isCorrect, isSpeedCrit, isTimeout) {
+      showCommandView();
+      const player = getActivePlayer();
+      const enemy = state.enemy;
+
+      if (isCorrect) {
+        state.streak++;
+        const basePower = state.powerMode === 'OVERCHARGE' ? 38 : 26;
+        const typeMult = getEffectiveness(state.selectedAttackType, enemy.type);
+        const stabMult = player.type === state.selectedAttackType ? 1.25 : 1.0;
+        const critMult = isSpeedCrit ? 1.5 : 1.0;
+        const streakMult = 1 + Math.min(6, state.streak - 1) * 0.15;
+
+        const totalDmg = Math.max(8, Math.round(basePower * typeMult * stabMult * critMult * streakMult));
+        enemy.hp = Math.max(0, enemy.hp - totalDmg);
+
+        triggerSpriteAnimation('player', 'anim-lunge-player');
+        setTimeout(() => {
+          sfx.attackHit(typeMult > 1);
+          triggerSpriteAnimation('enemy', 'anim-hit');
+          spawnFloatingText('enemy', `-${totalDmg} HP${isSpeedCrit ? ' ⚡CRIT!' : ''}`, typeMult > 1 ? 'text-amber-300' : 'text-white');
+          syncAllUI();
+        }, 200);
+
+        let msg = `${player.name} used ${state.selectedAttackType} STRIKE! `;
+        if (isSpeedCrit) msg += 'SPEED CRIT (1.5x)! ';
+        if (typeMult > 1) msg += "It's SUPER EFFECTIVE! ";
+        else if (typeMult < 1) msg += "It's not very effective... ";
+        msg += `Dealt ${totalDmg} DMG!`;
+
+        setDialogue(msg, 'DIRECT HIT!');
+
+        setTimeout(() => {
+          if (enemy.hp <= 0) {
+            sfx.captureFanfare();
+            setDialogue(`Wild ${enemy.name} fainted! Streak is at ${state.streak}! Spawning next wild challenger...`, 'VICTORY!');
+            setTimeout(() => {
+              state.busy = false;
+              spawnWildMonster();
+            }, 1900);
+          } else {
+            state.busy = false;
+          }
+        }, 900);
+
+      } else {
+        // Wrong answer or timeout -> Enemy counterattacks!
+        state.streak = 0;
+        sfx.wrongBuzzer();
+        const enemyDmg = Math.round(24 + enemy.level * 1.2);
+        player.hp = Math.max(0, player.hp - enemyDmg);
+
+        triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
+        setTimeout(() => {
+          triggerSpriteAnimation('player', 'anim-hit');
+          spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
+          syncAllUI();
+        }, 200);
+
+        const reason = isTimeout ? 'TIME UP!' : 'INCORRECT!';
+        setDialogue(`${reason} Combo streak reset! Wild ${enemy.name} counterattacked ${player.name} for ${enemyDmg} DMG!`, 'COUNTERATTACK!');
+
+        setTimeout(() => {
+          if (player.hp <= 0) {
+            player.hp = player.maxHp; // Revive at full HP so classroom session continues seamlessly
+            syncAllUI();
+            setDialogue(`${player.name} exhausted its stamina and was healed at the Trivia Center! Ready to battle on!`, 'HEALED');
+          }
+          state.busy = false;
+        }, 1200);
+      }
+    }
+
+    function resolveCaptureShakeOutcome(isCorrect, isTimeout) {
+      const enemy = state.enemy;
+      const enemyWrapper = document.getElementById('enemySpriteWrapper');
+
+      if (isCorrect) {
+        state.captureShakeStep++;
+        sfx.ballShake();
+        triggerSpriteAnimation('enemy', 'anim-ball-shake');
+        spawnFloatingText('enemy', `SHAKE ${state.captureShakeStep}/3!`, 'text-amber-300');
+
+        if (state.captureShakeStep < 3) {
+          showCommandView();
+          setDialogue(`The Capture Ball shook (${state.captureShakeStep}/3)! Get ready for Shake Check #${state.captureShakeStep + 1}!`, 'SHAKE CHECK');
+          setTimeout(() => {
+            state.busy = false;
+            const eRatio = enemy.hp / enemy.maxHp;
+            const ballTimer = eRatio <= 0.25 ? 13.0 : (eRatio <= 0.55 ? 10.0 : 7.0);
+            launchQuizQuestion(null, ballTimer);
+          }, 950);
+        } else {
+          // 3/3 Shakes Complete -> GOTCHA!
+          sfx.captureFanfare();
+          enemyWrapper.innerHTML = renderCaptureBallSVG(true);
+          spawnFloatingText('enemy', 'GOTCHA! ★', 'text-emerald-300');
+
+          const alreadyInParty = state.party.some(p => p.id === enemy.id);
+          if (!alreadyInParty) {
+            const caughtMon = createMonsterInstance(enemy);
+            state.party.push(caughtMon);
+          }
+
+          showCommandView();
+          syncAllUI();
+          setDialogue(`GOTCHA! ${enemy.name} was caught and added to your Party! Click SWITCH anytime to battle with ${enemy.name}!`, 'CAPTURED! ★');
+
+          setTimeout(() => {
+            state.busy = false;
+            spawnWildMonster();
+          }, 2400);
+        }
+      } else {
+        // Broke Free!
+        sfx.wrongBuzzer();
+        enemyWrapper.innerHTML = renderMonsterSVG(enemy);
+        showCommandView();
+
+        const enemyDmg = 18;
+        const player = getActivePlayer();
+        player.hp = Math.max(1, player.hp - enemyDmg);
+        triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
+        setTimeout(() => {
+          triggerSpriteAnimation('player', 'anim-hit');
+          spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
+          syncAllUI();
+        }, 220);
+
+        setDialogue(`${isTimeout ? 'Too slow!' : 'Wrong answer!'} Wild ${enemy.name} broke free from the ball and struck back for ${enemyDmg} DMG!`, 'BROKE FREE!');
+        setTimeout(() => {
+          state.busy = false;
+        }, 900);
+      }
+    }
+
+    /********************************************************************
+     * 9. PARTY SWITCHER DRAWER
+     ********************************************************************/
+    function showPartySwitchView() {
+      if (state.busy) return;
+      sfx.blip();
+      hideAllBottomViews();
+      document.getElementById('partySwitchView').classList.remove('hidden');
+
+      const container = document.getElementById('partyGridContainer');
+      container.innerHTML = '';
+
+      state.party.forEach((mon, idx) => {
+        const isCurrent = idx === state.activePartyIndex;
+        const tInfo = ELEMENT_TYPES[mon.type];
+        const card = document.createElement('button');
+        card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : 'bg-white hover:bg-slate-100'} text-slate-900 p-2.5 flex items-center gap-2.5 text-left`;
+        card.innerHTML = `
+          <div class="w-12 h-12 shrink-0 bg-slate-200 rounded p-1 border border-slate-400">
+            ${renderMonsterSVG(mon)}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[10px] font-bold truncate">${mon.name}</span>
+              ${isCurrent ? '<span class="text-[8px] bg-amber-400 text-slate-950 px-1 rounded">ACTIVE</span>' : ''}
+            </div>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${mon.type}</span>
+              <span class="text-[8px] text-slate-600">HP ${mon.hp}/${mon.maxHp}</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          if (idx === state.activePartyIndex) {
+            showCommandView();
+            return;
+          }
+          sfx.encounterIntro();
+          state.activePartyIndex = idx;
+          document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(getActivePlayer());
+          syncAllUI();
+          showCommandView();
+          setDialogue(`Go, ${mon.name}! ${mon.type}-type moves now receive a 1.25x Same-Type Attack Bonus!`, 'SWITCHED!');
+        });
+        container.appendChild(card);
+      });
+    }
+
+    /********************************************************************
+     * 10. CUSTOM QUESTION DECK EDITOR & JSON LOADER
+     ********************************************************************/
+    function syncJsonTextarea() {
+      document.getElementById('jsonBankTextarea').value = JSON.stringify(state.questions, null, 2);
+      document.getElementById('totalQuestionsCount').textContent = `${state.questions.length} Questions`;
+    }
+
+    document.getElementById('openEditorBtn').addEventListener('click', () => {
+      sfx.blip();
+      syncJsonTextarea();
+      document.getElementById('editorModal').classList.remove('hidden');
+      document.getElementById('editorModal').classList.add('flex');
+    });
+
+    document.getElementById('closeEditorBtn').addEventListener('click', () => {
+      sfx.blip();
+      document.getElementById('editorModal').classList.add('hidden');
+      document.getElementById('editorModal').classList.remove('flex');
+    });
+
+    document.getElementById('addQuestionForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const type = document.getElementById('qTypeSelect').value;
+      const q = document.getElementById('qPromptInput').value.trim();
+      const o0 = document.getElementById('qOpt0').value.trim();
+      const o1 = document.getElementById('qOpt1').value.trim();
+      const o2 = document.getElementById('qOpt2').value.trim();
+      const o3 = document.getElementById('qOpt3').value.trim();
+
+      if (!q || !o0 || !o1 || !o2 || !o3) return;
+
+      state.questions.unshift({
+        type,
+        q,
+        options: [o0, o1, o2, o3],
+        answer: 0
+      });
+
+      sfx.attackHit(true);
+      e.target.reset();
+      syncJsonTextarea();
+      const status = document.getElementById('editorStatusMsg');
+      status.textContent = `Added to ${type} Deck! (${state.questions.length} total)`;
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    });
+
+    document.getElementById('loadJsonDeckBtn').addEventListener('click', () => {
+      try {
+        const raw = document.getElementById('jsonBankTextarea').value;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Must be a non-empty array');
+        state.questions = parsed;
+        sfx.captureFanfare();
+        syncJsonTextarea();
+        const status = document.getElementById('editorStatusMsg');
+        status.textContent = `Loaded ${parsed.length} custom questions!`;
+      } catch (err) {
+        sfx.wrongBuzzer();
+        const status = document.getElementById('editorStatusMsg');
+        status.textContent = 'Invalid JSON format! Check brackets & quotes.';
+      }
+    });
+
+    document.getElementById('resetDefaultDeckBtn').addEventListener('click', () => {
+      state.questions = structuredClone(DEFAULT_QUESTIONS);
+      sfx.blip();
+      syncJsonTextarea();
+      document.getElementById('editorStatusMsg').textContent = 'Restored default 32-question deck!';
+    });
+
+    /********************************************************************
+     * 11. EVENT LISTENERS & INITIALIZATION
+     ********************************************************************/
+    document.getElementById('btnFight').addEventListener('click', showMoveSelectView);
+    document.getElementById('btnBall').addEventListener('click', startCaptureBallSequence);
+    document.getElementById('btnSwitch').addEventListener('click', showPartySwitchView);
+    document.getElementById('btnRun').addEventListener('click', () => {
+      if (state.busy) return;
+      spawnWildMonster();
+    });
+
+    document.getElementById('backFromMovesBtn').addEventListener('click', () => {
+      sfx.blip();
+      showCommandView();
+    });
+
+    document.getElementById('backFromPartyBtn').addEventListener('click', () => {
+      sfx.blip();
+      showCommandView();
+    });
+
+    document.getElementById('modeStandardBtn').addEventListener('click', () => setPowerMode('STANDARD'));
+    document.getElementById('modeOverchargeBtn').addEventListener('click', () => setPowerMode('OVERCHARGE'));
+
+    document.getElementById('muteToggleBtn').addEventListener('click', (e) => {
+      sfx.muted = !sfx.muted;
+      e.currentTarget.textContent = sfx.muted ? 'SFX: OFF' : 'SFX: ON';
+      e.currentTarget.classList.toggle('text-amber-300', !sfx.muted);
+      e.currentTarget.classList.toggle('text-slate-400', sfx.muted);
+      if (!sfx.muted) sfx.blip();
+    });
+
+    window.addEventListener('load', initGame);
+  </script>
+</body>
+</html>

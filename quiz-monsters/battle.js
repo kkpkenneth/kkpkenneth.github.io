@@ -1,6 +1,6 @@
 /********************************************************************
  * battle.js
- * Trivia Combat Engine, Difficulty x Speed Math, HP Catch & Party UI
+ * Trivia Combat Engine, Difficulty x Speed Math, HP Catch & Partner/Dex UI
  ********************************************************************/
 
 function createMonsterInstance(template) {
@@ -12,7 +12,7 @@ function createMonsterInstance(template) {
 }
 
 function getActivePlayer() {
-  return state.party[state.activePartyIndex];
+  return state.dex[state.activeDexIndex];
 }
 
 function calculateCatchProbability(enemy) {
@@ -62,23 +62,25 @@ function syncAllUI() {
   document.getElementById('playerStreakBar').style.width = `${Math.min(100, (state.streak / 6) * 100)}%`;
 
   document.getElementById('streakCountText').textContent = `${state.streak} (${atkMult}x)`;
-  document.getElementById('dexCountText').textContent = `${state.party.length}/${MONSTER_SPECIES.length}`;
-  document.getElementById('btnSwitchSub').textContent = `PARTY (${state.party.length})`;
+  document.getElementById('dexCountText').textContent = `${state.dex.length}/${MONSTER_SPECIES.length}`;
+  document.getElementById('btnSwitchSub').textContent = `DEX (${state.dex.length})`;
 
-  const partySlotsEl = document.getElementById('headerPartySlots');
-  partySlotsEl.innerHTML = '';
-  for (let i = 0; i < MONSTER_SPECIES.length; i++) {
-    const mon = state.party[i];
-    const dot = document.createElement('div');
-    if (mon) {
-      const isCurrent = i === state.activePartyIndex;
-      dot.className = `w-3.5 h-3.5 rounded-full border-2 ${isCurrent ? 'bg-amber-400 border-white scale-110' : 'bg-red-500 border-slate-200'}`;
-      dot.title = `${mon.name} (${mon.type}) - HP ${mon.hp}/${mon.maxHp}`;
-    } else {
-      dot.className = 'w-3.5 h-3.5 rounded-full border border-slate-600 bg-slate-800';
-      dot.title = 'Empty Slot';
+  const dexSlotsEl = document.getElementById('headerDexSlots');
+  if (dexSlotsEl) {
+    dexSlotsEl.innerHTML = '';
+    for (let i = 0; i < MONSTER_SPECIES.length; i++) {
+      const mon = state.dex[i];
+      const dot = document.createElement('div');
+      if (mon) {
+        const isCurrent = i === state.activeDexIndex;
+        dot.className = `w-3.5 h-3.5 rounded-full border-2 ${isCurrent ? 'bg-amber-400 border-white scale-110' : 'bg-emerald-500 border-slate-200'}`;
+        dot.title = `${mon.name} (${mon.type}) - HP ${mon.hp}/${mon.maxHp}`;
+      } else {
+        dot.className = 'w-3.5 h-3.5 rounded-full border border-slate-600 bg-slate-800';
+        dot.title = 'Uncaught in Dex';
+      }
+      dexSlotsEl.appendChild(dot);
     }
-    partySlotsEl.appendChild(dot);
   }
 
   if (enemy) {
@@ -89,7 +91,7 @@ function syncAllUI() {
     eBadge.textContent = eTypeInfo.name;
     eBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo.badgeClass}`;
 
-    const alreadyOwned = state.party.some(p => p.id === enemy.id);
+    const alreadyOwned = state.dex.some(p => p.id === enemy.id);
     document.getElementById('enemyCaughtIcon').classList.toggle('hidden', !alreadyOwned);
 
     const eRatio = Math.max(0, enemy.hp / enemy.maxHp);
@@ -155,7 +157,7 @@ function hideAllBottomViews() {
   document.getElementById('commandView').classList.add('hidden');
   document.getElementById('moveSelectView').classList.add('hidden');
   document.getElementById('quizCombatView').classList.add('hidden');
-  document.getElementById('partySwitchView').classList.add('hidden');
+  document.getElementById('dexSwitchView').classList.add('hidden');
 }
 
 function showCommandView() {
@@ -272,15 +274,15 @@ function startCaptureBallSequence() {
       enemyWrapper.innerHTML = renderCaptureBallSVG(true);
       spawnFloatingText('enemy', 'GOTCHA! ★', 'text-emerald-300');
 
-      const alreadyInParty = state.party.some(p => p.id === enemy.id);
-      if (!alreadyInParty) {
-        state.party.push(createMonsterInstance(enemy));
+      const alreadyInDex = state.dex.some(p => p.id === enemy.id);
+      if (!alreadyInDex) {
+        state.dex.push(createMonsterInstance(enemy));
       }
       syncAllUI();
-      setDialogue(`GOTCHA! ${enemy.name} was caught (${pctText}% odds)! Returning to Overworld...`, 'CAPTURED! ★');
+      setDialogue(`GOTCHA! ${enemy.name} was caught (${pctText}% odds) and added to your Dex! Returning to Overworld...`, 'CAPTURED! ★');
 
       setTimeout(() => {
-        returnToOverworldFromBattle(`GOTCHA! ${enemy.name} (${enemy.type}) joined your Party! (${state.party.length}/${MONSTER_SPECIES.length} Dex)`);
+        returnToOverworldFromBattle(`GOTCHA! ${enemy.name} (${enemy.type}) registered in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
       }, 2000);
     } else {
       sfx.wrongBuzzer();
@@ -486,19 +488,19 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
 }
 
 /********************************************************************
- * PARTY SWITCHERS (BATTLE DRAWER & OVERWORLD MODAL)
+ * DEX SWITCHERS (BATTLE DRAWER & OVERWORLD MODAL)
  ********************************************************************/
-function showPartySwitchView() {
+function showDexSwitchView() {
   if (state.busy) return;
   sfx.blip();
   hideAllBottomViews();
-  document.getElementById('partySwitchView').classList.remove('hidden');
+  document.getElementById('dexSwitchView').classList.remove('hidden');
 
-  const container = document.getElementById('partyGridContainer');
+  const container = document.getElementById('dexGridContainer');
   container.innerHTML = '';
 
-  state.party.forEach((mon, idx) => {
-    const isCurrent = idx === state.activePartyIndex;
+  state.dex.forEach((mon, idx) => {
+    const isCurrent = idx === state.activeDexIndex;
     const tInfo = ELEMENT_TYPES[mon.type];
     const card = document.createElement('button');
     card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : 'bg-white hover:bg-slate-100'} text-slate-900 p-2.5 flex items-center gap-2.5 text-left`;
@@ -509,7 +511,7 @@ function showPartySwitchView() {
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-1">
           <span class="text-[10px] font-bold truncate">${mon.name}</span>
-          ${isCurrent ? '<span class="text-[8px] bg-amber-400 text-slate-950 px-1 rounded">ACTIVE</span>' : ''}
+          ${isCurrent ? '<span class="text-[8px] bg-amber-400 text-slate-950 px-1 rounded">PARTNER</span>' : ''}
         </div>
         <div class="flex items-center gap-1 mt-1">
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${mon.type}</span>
@@ -518,30 +520,30 @@ function showPartySwitchView() {
       </div>
     `;
     card.addEventListener('click', () => {
-      if (idx === state.activePartyIndex) {
+      if (idx === state.activeDexIndex) {
         showCommandView();
         return;
       }
       sfx.npcChime();
-      state.activePartyIndex = idx;
+      state.activeDexIndex = idx;
       document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(getActivePlayer());
       syncAllUI();
       showCommandView();
-      setDialogue(`Go, ${mon.name}! ${mon.type}-type moves now receive a 1.25x Same-Type Attack Bonus!`, 'SWITCHED!');
+      setDialogue(`Partner switched to ${mon.name}! ${mon.type}-type moves receive a 1.25x STAB bonus!`, 'PARTNER SWITCHED!');
     });
     container.appendChild(card);
   });
 }
 
-function openOverworldPartyModal() {
+function openOverworldDexModal() {
   sfx.blip();
-  const list = document.getElementById('overworldPartyList');
+  const list = document.getElementById('overworldDexList');
   list.innerHTML = '';
 
   MONSTER_SPECIES.forEach(species => {
-    const caughtIndex = state.party.findIndex(p => p.id === species.id);
-    const caughtMon = caughtIndex !== -1 ? state.party[caughtIndex] : null;
-    const isCurrent = caughtIndex === state.activePartyIndex;
+    const dexIndex = state.dex.findIndex(p => p.id === species.id);
+    const caughtMon = dexIndex !== -1 ? state.dex[dexIndex] : null;
+    const isCurrent = dexIndex === state.activeDexIndex;
     const tInfo = ELEMENT_TYPES[species.type];
 
     const card = document.createElement('div');
@@ -556,22 +558,22 @@ function openOverworldPartyModal() {
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${species.type}</span>
         </div>
         <div class="text-[8px] text-slate-600 mt-1">
-          ${caughtMon ? `CAUGHT • HP ${caughtMon.hp}/${caughtMon.maxHp} ${isCurrent ? '★ LEAD' : '(CLICK TO LEAD)'}` : 'UNCAUGHT • FIND IN TALL GRASS'}
+          ${caughtMon ? `CAUGHT • HP ${caughtMon.hp}/${caughtMon.maxHp}${isCurrent ? '★ ACTIVE PARTNER' : '(CLICK TO SET PARTNER)'}` : 'UNCAUGHT • FIND IN TALL GRASS'}
         </div>
       </div>
     `;
     if (caughtMon) {
       card.addEventListener('click', () => {
         sfx.npcChime();
-        state.activePartyIndex = caughtIndex;
+        state.activeDexIndex = dexIndex;
         syncAllUI();
-        openOverworldPartyModal();
+        openOverworldDexModal();
       });
     }
     list.appendChild(card);
   });
 
-  const modal = document.getElementById('overworldPartyModal');
+  const modal = document.getElementById('overworldDexModal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
 }

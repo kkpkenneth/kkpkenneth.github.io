@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PokéQuiz DX - Modular 8-Bit Trivia RPG</title>
+  <title>PokéQuiz DX - Partner &amp; Dex Modular RPG</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,9 +132,9 @@
         <span id="headerStatusLed" class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white animate-pulse"></span>
         <h1 class="text-xs sm:text-sm tracking-tighter text-amber-400 drop-shadow">POKéQUIZ DX</h1>
       </div>
-      <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1.5 rounded border border-slate-700" title="Your Caught Party">
-        <span class="text-[9px] text-slate-400 mr-1 hidden sm:inline">PARTY:</span>
-        <div id="headerPartySlots" class="flex items-center gap-1.5"></div>
+      <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1.5 rounded border border-slate-700" title="Your Registered Dex">
+        <span class="text-[9px] text-slate-400 mr-1 hidden sm:inline">DEX:</span>
+        <div id="headerDexSlots" class="flex items-center gap-1.5"></div>
       </div>
     </div>
 
@@ -145,7 +145,7 @@
       </div>
       <div class="bg-slate-900 px-2 py-1.5 rounded border border-emerald-500/50 hidden md:flex items-center gap-1">
         <span class="text-[8px] text-slate-400">DEX:</span>
-        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/12</span>
+        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/32</span>
       </div>
     </div>
 
@@ -184,7 +184,7 @@
     <section id="titleScreenView" class="relative w-full min-h-[500px] sm:min-h-[535px] rounded-lg border-4 border-slate-950 overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-between p-5 sm:p-8 text-center">
       <div class="crt-overlay absolute inset-0 z-10"></div>
       <div class="w-full flex justify-between items-center text-[9px] text-amber-300/80 z-20">
-        <span>★ VER 4.5 • 12 MONSTER EVOLUTIONS &amp; SCHOLARS</span>
+        <span>★ VER 5.0 • SINGLE PARTNER &amp; DEX SYSTEM</span>
         <span>🎨 8-COLOR PIXEL STUDIO</span>
       </div>
 
@@ -196,7 +196,7 @@
           POKéQUIZ DX
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Explore 5 Biomes • Evolve Monsters as They Level Up • Talk to Doctors, Police, Firemen &amp; Ecologists!
+          Travel with a Single Active Partner • Open Dex to Switch Partners Anytime • Talk to Doctors, Police &amp; Firemen!
         </p>
 
         <div class="flex items-center justify-center gap-4 sm:gap-8 mb-6 bg-slate-900/80 border-2 border-slate-700 px-6 py-4 rounded-xl shadow-inner">
@@ -214,11 +214,11 @@
       <div class="w-full retro-box-dark p-3 z-20 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[8px] sm:text-[9px] text-slate-300">
         <div><span class="text-amber-400">EASED 1-TILE STEP:</span> WASD / ARROWS</div>
         <div><span class="text-emerald-400">4 BIOME EXITS:</span> N / S / E / W BORDERS</div>
-        <div><span class="text-pink-400">OCCUPATIONS:</span> DOCTORS, POLICE, FIREMEN</div>
+        <div><span class="text-pink-400">PARTNER SYSTEM:</span> SWITCH VIA DEX</div>
       </div>
     </section>
 
-    <!-- SCREEN 2: OVERWORLD VIEW (PERFECTLY FITTED D-PAD SHADE) -->
+    <!-- SCREEN 2: OVERWORLD VIEW -->
     <section id="overworldView" class="hidden flex-col gap-3">
       <div class="relative w-full h-80 sm:h-96 rounded-lg border-4 border-slate-950 overflow-hidden bg-slate-950 shadow-inner">
         <canvas id="overworldCanvas" width="768" height="320" class="w-full h-full object-cover"></canvas>
@@ -233,8 +233,8 @@
         </div>
 
         <div class="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
-          <button id="overworldPartyBtn" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[8px] sm:text-[9px] px-2.5 py-1.5">
-            PARTY / DEX
+          <button id="overworldDexBtn" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[8px] sm:text-[9px] px-2.5 py-1.5">
+            DEX / PARTNER
           </button>
           <button id="btnReturnTitle" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[8px] sm:text-[9px] px-2.5 py-1.5">
             TITLE
@@ -245,7 +245,6 @@
           PRESS [SPACE] OR [A] TO TALK
         </div>
 
-        <!-- Perfectly Fitted D-Pad Overlay Shade -->
         <div class="absolute bottom-3 left-3 z-20 w-28 h-28 sm:w-32 sm:h-32 bg-slate-950/50 rounded-2xl border border-slate-700/70 backdrop-blur-[1px] flex items-center justify-center shadow-lg">
           <div class="grid grid-cols-3 gap-1 w-24 h-24 sm:w-28 sm:h-28 items-center justify-items-center">
             <div></div>
@@ -275,7 +274,7 @@
             <span id="overworldTopicBadge" class="text-[8px] bg-emerald-100 text-emerald-900 border border-emerald-500 px-1.5 py-0.5 rounded font-bold">EXPLORATION</span>
           </div>
           <p id="overworldDialogueText" class="text-xs sm:text-sm leading-relaxed text-slate-900 min-h-[2.8rem]">
-            Talk to Doctors, Police Officers, Firemen, and Ecologists on the map to learn knowledge facts! Step into Tall Grass to battle wild monsters and level them up into powerful evolved forms!
+            Explore with your single active Partner! Open the Dex anytime to switch your combat partner. Talk to Doctors, Police and Ecologists to learn facts!
           </p>
         </div>
         <div class="flex items-center justify-between text-[8px] sm:text-[9px] text-slate-500 pt-2 border-t border-slate-200">
@@ -367,7 +366,7 @@
               <p id="dialogueText" class="text-xs sm:text-sm leading-relaxed text-slate-900 min-h-[3.5rem]"></p>
             </div>
             <div class="flex items-center justify-between text-[8px] sm:text-[9px] text-slate-500 pt-2 border-t border-slate-200">
-              <span>TIP: Winning battles grants XP and triggers Evolution when leveling up!</span>
+              <span>TIP: Open Dex to switch active partners during battle!</span>
               <span class="animate-bounce text-slate-800">▼</span>
             </div>
           </div>
@@ -383,7 +382,7 @@
             </button>
             <button id="btnSwitch" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white p-3 flex flex-col items-center justify-center gap-1">
               <span class="text-xs sm:text-sm font-bold">SWITCH</span>
-              <span id="btnSwitchSub" class="text-[8px] text-emerald-100">PARTY (1)</span>
+              <span id="btnSwitchSub" class="text-[8px] text-emerald-100">DEX (1)</span>
             </button>
             <button id="btnRun" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white p-3 flex flex-col items-center justify-center gap-1">
               <span class="text-xs sm:text-sm font-bold">RUN AWAY</span>
@@ -423,15 +422,16 @@
           <div id="quizChoicesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
         </div>
 
-        <div id="partySwitchView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-3">
+        <!-- DEX SWITCHER DRAWER -->
+        <div id="dexSwitchView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-3">
           <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
             <div>
-              <h2 class="text-xs sm:text-sm font-bold text-slate-900">SELECT PARTY MONSTER</h2>
-              <p class="text-[9px] text-slate-600 mt-0.5">Switching matches your monster's STAB (Same-Type Attack Bonus 1.25x) to its element!</p>
+              <h2 class="text-xs sm:text-sm font-bold text-slate-900">SELECT DEX PARTNER</h2>
+              <p class="text-[9px] text-slate-600 mt-0.5">Switch your active combat partner from registered Dex monsters!</p>
             </div>
-            <button id="backFromPartyBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
+            <button id="backFromDexBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
           </div>
-          <div id="partyGridContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1"></div>
+          <div id="dexGridContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1"></div>
         </div>
       </section>
     </div>
@@ -439,7 +439,7 @@
 
   <footer class="w-full max-w-4xl mt-2 px-2 flex flex-wrap items-center justify-between text-[8px] sm:text-[9px] text-slate-400 gap-2">
     <div>EXITS: NORTH=MOUNTAIN • EAST=DESERT • SOUTH=BEACH • WEST=FOREST</div>
-    <div>🎨 CLICK "SPRITE STUDIO" FOR 8-COLOR PALETTE, FLOOD FILL, MIRROR &amp; RETROFIT CODE</div>
+    <div>🎨 CLICK "SPRITE STUDIO" TO RENAME, CHANGE TYPES, PAINT &amp; EXPORT CODE</div>
   </footer>
 
   <!-- MODAL 1: SPRITE STUDIO -->
@@ -447,8 +447,8 @@
     <div class="w-full max-w-4xl retro-box p-3 sm:p-4 max-h-[85vh] flex flex-col gap-2.5 overflow-hidden">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2 shrink-0">
         <div>
-          <h2 class="text-xs sm:text-sm font-bold text-slate-900">🎨 16×16 8-COLOR PIXEL SPRITE STUDIO</h2>
-          <p class="text-[8px] text-slate-600 mt-0.5">8 Clean Color Slots • Flood Fill, Mirror X &amp; Eyedropper (`ALT+Click`)</p>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">🎨 16×16 PIXEL SPRITE STUDIO (RENAME &amp; TYPE)</h2>
+          <p class="text-[8px] text-slate-600 mt-0.5">Change Monster Names &amp; Element Types • 8 Colors • Flood Fill &amp; Mirror X</p>
         </div>
         <button id="closeSpriteStudioBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
       </div>
@@ -456,28 +456,61 @@
       <div class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2.5 min-h-0">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-stretch">
           <div class="md:col-span-6 flex flex-col justify-between gap-2 bg-slate-100 border-2 border-slate-300 rounded p-2.5">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex-1 min-w-[140px]">
-                <label class="text-[8px] font-bold text-slate-700 block mb-1">1. SELECT MONSTER:</label>
-                <select id="studioMonsterSelect" class="w-full border-2 border-slate-800 rounded px-2 py-1 text-[9px] bg-white text-slate-900 font-bold"></select>
-              </div>
-              <div class="flex items-center gap-2 bg-slate-900 text-white px-2 py-1 rounded border-2 border-slate-950 shrink-0">
-                <div class="text-right">
-                  <div class="text-[8px] text-amber-300 font-bold">PREVIEW</div>
-                  <div id="studioSlotCountLabel" class="text-[7px] text-slate-300">8 Colors</div>
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex-1 min-w-[140px]">
+                  <label class="text-[8px] font-bold text-slate-700 block mb-1">1. SELECT MONSTER:</label>
+                  <select id="studioMonsterSelect" class="w-full border-2 border-slate-800 rounded px-2 py-1 text-[9px] bg-white text-slate-900 font-bold"></select>
                 </div>
-                <div id="studioLivePreview" class="w-10 h-10 bg-slate-800 rounded p-0.5 border border-slate-600"></div>
+                <div class="flex items-center gap-2 bg-slate-900 text-white px-2 py-1 rounded border-2 border-slate-950 shrink-0">
+                  <div class="text-right">
+                    <div class="text-[8px] text-amber-300 font-bold">PREVIEW</div>
+                    <div id="studioSlotCountLabel" class="text-[7px] text-slate-300">8 Colors</div>
+                  </div>
+                  <div id="studioLivePreview" class="w-10 h-10 bg-slate-800 rounded p-0.5 border border-slate-600"></div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 bg-slate-200/80 border border-slate-300 rounded p-2">
+                <div>
+                  <label class="text-[7px] font-bold text-slate-700 block mb-0.5">MONSTER NAME:</label>
+                  <input id="studioMonsterNameInput" type="text" maxlength="12" class="w-full border border-slate-600 rounded px-1.5 py-1 text-[9px] bg-white text-slate-900 font-bold" />
+                </div>
+                <div>
+                  <label class="text-[7px] font-bold text-slate-700 block mb-0.5">ELEMENT TYPE:</label>
+                  <select id="studioMonsterTypeSelect" class="w-full border border-slate-600 rounded px-1.5 py-1 text-[9px] bg-white text-slate-900 font-bold">
+                    <option value="NORMAL">NORMAL</option>
+                    <option value="FIRE">FIRE</option>
+                    <option value="WATER">WATER</option>
+                    <option value="GRASS">GRASS</option>
+                    <option value="ELECTRIC">ELECTRIC</option>
+                    <option value="ICE">ICE</option>
+                    <option value="FIGHTING">FIGHTING</option>
+                    <option value="POISON">POISON</option>
+                    <option value="GROUND">GROUND</option>
+                    <option value="FLYING">FLYING</option>
+                    <option value="PSYCHIC">PSYCHIC</option>
+                    <option value="BUG">BUG</option>
+                    <option value="ROCK">ROCK</option>
+                    <option value="GHOST">GHOST</option>
+                    <option value="DRAGON">DRAGON</option>
+                    <option value="DARK">DARK</option>
+                    <option value="STEEL">STEEL</option>
+                    <option value="FAIRY">FAIRY</option>
+                  </select>
+                </div>
               </div>
             </div>
 
             <div class="flex items-center justify-between border-t border-slate-300 pt-1.5">
               <span class="text-[8px] font-bold text-slate-800">2. PALETTE SWATCHES:</span>
+              <button id="studioAddColorSlotBtn" type="button" class="hidden pixel-btn bg-emerald-600 text-white text-[8px] px-2 py-0.5">+ ADD</button>
             </div>
 
             <div id="studioBrushList" class="grid grid-cols-2 gap-1.5"></div>
 
             <div class="border-t border-slate-300 pt-1.5">
-              <div class="text-[7px] font-bold text-slate-600 mb-1">QUICK COLOR PRESETS (APPLIES TO ACTIVE SLOT):</div>
+              <div class="text-[7px] font-bold text-slate-600 mb-1">QUICK COLOR PRESETS:</div>
               <div id="studioPresetBar" class="flex flex-wrap gap-1"></div>
             </div>
           </div>
@@ -504,7 +537,7 @@
 
         <div class="bg-slate-100 border-2 border-slate-300 rounded p-2.5 flex flex-col gap-1.5 shrink-0">
           <div class="flex flex-wrap items-center justify-between gap-1.5">
-            <span class="text-[8px] sm:text-[9px] font-bold text-indigo-900">3. RETROFIT CODE EXPORT (PASTE OVER `DEFAULT_MONSTER_PIXELS` IN `monsters.js`)</span>
+            <span class="text-[8px] sm:text-[9px] font-bold text-indigo-900">3. RETROFIT CODE EXPORT (PASTE INTO `monsters.js`)</span>
             <div class="flex items-center gap-1.5">
               <span id="studioCopyStatus" class="text-[8px] text-emerald-700 font-bold"></span>
               <button id="studioImportCodeBtn" type="button" class="pixel-btn bg-emerald-600 text-white text-[8px] px-2 py-1">APPLY CODE FROM BOX</button>
@@ -517,21 +550,21 @@
     </div>
   </div>
 
-  <!-- MODAL 2: PARTY / MONSTER DEX VIEWER -->
-  <div id="overworldPartyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+  <!-- MODAL 2: OVERWORLD DEX / PARTNER VIEWER -->
+  <div id="overworldDexModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
     <div class="w-full max-w-xl retro-box p-4 sm:p-5 flex flex-col gap-3">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
         <div>
-          <h2 class="text-xs sm:text-sm font-bold text-slate-900">YOUR CAUGHT PARTY &amp; LEAD MONSTER</h2>
-          <p class="text-[9px] text-slate-600 mt-0.5">Click any caught monster to set it as your Lead Partner for Overworld Encounters!</p>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">DEX &amp; ACTIVE PARTNER</h2>
+          <p class="text-[9px] text-slate-600 mt-0.5">Click any registered monster in your Dex to set it as your active combat Partner!</p>
         </div>
-        <button id="closeOverworldPartyBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+        <button id="closeOverworldDexBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
       </div>
-      <div id="overworldPartyList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto p-1"></div>
+      <div id="overworldDexList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto p-1"></div>
     </div>
   </div>
 
-  <!-- MODAL 3: CUSTOM QUESTION EDITOR -->
+  <!-- MODAL 3: QUESTION EDITOR -->
   <div id="editorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
     <div class="w-full max-w-2xl retro-box p-4 sm:p-5 max-h-[85vh] flex flex-col gap-3 overflow-y-auto">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
@@ -599,8 +632,8 @@
       screen: 'TITLE',
       currentMapId: 'CENTER',
       questions: structuredClone(DEFAULT_QUESTIONS),
-      party: [],
-      activePartyIndex: 0,
+      dex: [],             // Registered Dex monsters
+      activeDexIndex: 0,   // Current active partner index
       enemy: null,
       streak: 0,
       selectedAttackType: 'ELECTRIC',
@@ -653,8 +686,8 @@
 
     function initGame() {
       refreshTitleScreenSprites();
-      state.party = [createMonsterInstance(MONSTER_SPECIES[0])];
-      state.activePartyIndex = 0;
+      state.dex = [createMonsterInstance(MONSTER_SPECIES[0])];
+      state.activeDexIndex = 0;
 
       teleportPlayerToGrid(13, 10);
       initSpriteStudio();
@@ -674,17 +707,17 @@
         });
       });
 
-      document.getElementById('overworldPartyBtn').addEventListener('click', openOverworldPartyModal);
-      document.getElementById('closeOverworldPartyBtn').addEventListener('click', () => {
+      document.getElementById('overworldDexBtn').addEventListener('click', openOverworldDexModal);
+      document.getElementById('closeOverworldDexBtn').addEventListener('click', () => {
         sfx.blip();
-        document.getElementById('overworldPartyModal').classList.add('hidden');
-        document.getElementById('overworldPartyModal').classList.remove('flex');
+        document.getElementById('overworldDexModal').classList.add('hidden');
+        document.getElementById('overworldDexModal').classList.remove('flex');
       });
 
       document.getElementById('btnInteractA').addEventListener('click', interactWithFacingNPC);
       document.getElementById('btnFight').addEventListener('click', showMoveSelectView);
       document.getElementById('btnBall').addEventListener('click', startCaptureBallSequence);
-      document.getElementById('btnSwitch').addEventListener('click', showPartySwitchView);
+      document.getElementById('btnSwitch').addEventListener('click', showDexSwitchView);
       document.getElementById('btnRun').addEventListener('click', () => {
         if (state.busy) return;
         sfx.blip();
@@ -692,7 +725,7 @@
       });
 
       document.getElementById('backFromMovesBtn').addEventListener('click', () => { sfx.blip(); showCommandView(); });
-      document.getElementById('backFromPartyBtn').addEventListener('click', () => { sfx.blip(); showCommandView(); });
+      document.getElementById('backFromDexBtn').addEventListener('click', () => { sfx.blip(); showCommandView(); });
 
       document.querySelectorAll('.dpad-btn').forEach(btn => {
         const dir = btn.getAttribute('data-dir');

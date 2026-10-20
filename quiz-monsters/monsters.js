@@ -468,7 +468,7 @@ const DEFAULT_MONSTER_PIXELS = {
       "................",
       "................"
   ]},
-  pikachu: { palette: { p: '#facc15', d: '#ca8a04', l: '#ef4444', s: '#0f172a', b: '#ffffff' }, grid: [
+  pikachu: { palette: { p: '#facc15', d: '#ca8a04', l: '#ef4444', s: '#0f172a', b: '#0f172a' }, grid: [
     "................",
       "................",
       "....b....b......",

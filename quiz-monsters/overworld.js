@@ -54,7 +54,9 @@ function getFacingTileCoords() {
 
 function getFacingNPC() {
   const { tx, ty } = getFacingTileCoords();
-  return getCurrentMap().npcs.find(npc => npc.x === tx && npc.y === ty) || null;
+  const npcs = getCurrentMap().npcs;
+  // Check exact match or 1-tile proximity for Nurse Joy / stationary NPCs
+  return npcs.find(npc => (npc.x === tx && npc.y === ty) || (Math.abs(npc.x - tx) <= 0 && Math.abs(npc.y - ty) <= 0)) || null;
 }
 
 function interactWithFacingNPC() {
@@ -62,8 +64,8 @@ function interactWithFacingNPC() {
   const npc = getFacingNPC();
   if (npc) {
     sfx.npcChime();
-    if (npc.healsParty) {
-      state.party.forEach(m => { m.hp = m.maxHp; });
+    if (npc.healsParty || npc.name.includes('NURSE')) {
+      state.dex.forEach(m => { m.hp = m.maxHp; });
       syncAllUI();
     }
     setOverworldDialogue(npc.fact, npc.name, npc.topic);
@@ -75,17 +77,33 @@ function interactWithFacingNPC() {
       setOverworldDialogue("Crystal-clear water! Remember: roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "OBSERVATION");
     } else if (tile === 'G') {
       setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
+    } else if (tile === 'H' || tile === 'D') {
+      // Direct shortcut interaction if standing facing the Pokemon/Research Center door
+      const centerNpc = getCurrentMap().npcs.find(n => n.name.includes('NURSE'));
+      if (centerNpc) {
+        sfx.npcChime();
+        state.dex.forEach(m => { m.hp = m.maxHp; });
+        syncAllUI();
+        setOverworldDialogue(centerNpc.fact, centerNpc.name, centerNpc.topic);
+        return;
+      }
+      setOverworldDialogue("The Research Center door is locked tight. Talk to nearby professionals to learn facts!", "RESEARCH HUB", "BUILDING");
     } else {
-      setOverworldDialogue("Face any Scholar NPC until the [!] bubble appears above their head, then press SPACE or A to hear their Knowledge Fact!", "FIELD JOURNAL", "TIP");
+      setOverworldDialogue("Face any Doctor, Police Officer, or Ecologist until the [!] bubble appears above their head, then press SPACE or A!", "FIELD JOURNAL", "TIP");
     }
   }
 }
 
 function setOverworldDialogue(text, speaker = 'FIELD JOURNAL', badge = 'KNOWLEDGE FACT') {
   if (state.overworldTypewriterTimer) clearInterval(state.overworldTypewriterTimer);
-  document.getElementById('overworldSpeaker').textContent = speaker;
-  document.getElementById('overworldTopicBadge').textContent = badge;
+  const speakerEl = document.getElementById('overworldSpeaker');
+  const topicEl = document.getElementById('overworldTopicBadge');
   const el = document.getElementById('overworldDialogueText');
+  
+  if (speakerEl) speakerEl.textContent = speaker;
+  if (topicEl) topicEl.textContent = badge;
+  if (!el) return;
+
   el.textContent = '';
   let idx = 0;
   state.overworldTypewriterTimer = setInterval(() => {
@@ -102,19 +120,25 @@ function updateOverworldHUD() {
   const mapObj = getCurrentMap();
   const tile = getTileAt(gridX, gridY);
 
-  document.getElementById('overworldCoordsText').textContent =
-    `MAP: ${mapObj.id} • POS: (${gridX}, ${gridY}) • ${tile === 'G' ? '⚠️ IN TALL GRASS' : 'SAFE PATH'}`;
+  const coordsText = document.getElementById('overworldCoordsText');
+  const zoneName = document.getElementById('zoneNameBadge');
+  const zoneSub = document.getElementById('zoneSubBadge');
+  const promptEl = document.getElementById('npcPromptBanner');
 
-  document.getElementById('zoneNameBadge').textContent = mapObj.name;
-  document.getElementById('zoneSubBadge').textContent = mapObj.subtitle;
+  if (coordsText) {
+    coordsText.textContent = `MAP: ${mapObj.id} • POS: (${gridX}, ${gridY}) • ${tile === 'G' ? '⚠️ IN TALL GRASS' : 'SAFE PATH'}`;
+  }
+  if (zoneName) zoneName.textContent = mapObj.name;
+  if (zoneSub) zoneSub.textContent = mapObj.subtitle;
 
   const facingNpc = getFacingNPC();
-  const promptEl = document.getElementById('npcPromptBanner');
-  if (facingNpc) {
-    promptEl.textContent = `PRESS [SPACE] OR [A] TO TALK TO ${facingNpc.name}`;
-    promptEl.classList.remove('hidden');
-  } else {
-    promptEl.classList.add('hidden');
+  if (promptEl) {
+    if (facingNpc) {
+      promptEl.textContent = `PRESS [SPACE] OR [A] TO TALK TO ${facingNpc.name}`;
+      promptEl.classList.remove('hidden');
+    } else {
+      promptEl.classList.add('hidden');
+    }
   }
 }
 
@@ -134,7 +158,9 @@ function initiateOneBlockStep(dir) {
   else if (dir === 'left') nextX--;
   else if (dir === 'right') nextX++;
 
-  if (isTileBlocked(nextX, nextY)) return;
+  if (isTileBlocked(nextX, nextY)) {
+    return;
+  }
 
   p.startX = p.gridX * TILE_SIZE;
   p.startY = p.gridY * TILE_SIZE;
@@ -318,10 +344,11 @@ function runShutterTransition(bannerLabel, midCallback) {
   const shutterBottom = document.getElementById('shutterBottom');
   const banner = document.getElementById('transitionCenterBanner');
 
-  overlay.classList.remove('hidden');
+  overlay.classList.add('hidden');
   banner.querySelector('div').textContent = bannerLabel;
 
   requestAnimationFrame(() => {
+    overlay.classList.remove('hidden');
     shutterTop.classList.remove('-translate-y-full');
     shutterBottom.classList.remove('translate-y-full');
     banner.classList.remove('opacity-0');

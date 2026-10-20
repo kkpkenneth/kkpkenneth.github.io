@@ -1,290 +1,899 @@
 /********************************************************************
  * monsters.js
- * Complete 18-Type Elemental System & 32 Monster Roster (Base + 20 New + Evolutions)
+ * National Pokédex-Aligned Roster & Default Trivia Questions Bank
  ********************************************************************/
 
 const ELEMENT_TYPES = {
-  NORMAL:   { id: 'NORMAL',   name: 'NORMAL',   subject: 'Everyday Logic & Facts', badgeClass: 'bg-slate-500',   btnClass: 'bg-slate-500 hover:bg-slate-400 text-white' },
-  FIRE:     { id: 'FIRE',     name: 'FIRE',     subject: 'Chemistry & Physics',    badgeClass: 'bg-orange-600',  btnClass: 'bg-orange-600 hover:bg-orange-500 text-white' },
-  WATER:    { id: 'WATER',    name: 'WATER',    subject: 'Ocean & Earth',         badgeClass: 'bg-sky-600',     btnClass: 'bg-sky-600 hover:bg-sky-500 text-white' },
-  GRASS:    { id: 'GRASS',    name: 'GRASS',    subject: 'Ecology & Nature',      badgeClass: 'bg-emerald-600', btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white' },
-  ELECTRIC: { id: 'ELECTRIC', name: 'ELECTRIC', subject: 'Tech, Logic & Math',    badgeClass: 'bg-amber-500',  btnClass: 'bg-amber-500 hover:bg-amber-400 text-slate-950' },
-  ICE:      { id: 'ICE',      name: 'ICE',      subject: 'Cryogenics & Climate',  badgeClass: 'bg-cyan-500',   btnClass: 'bg-cyan-500 hover:bg-cyan-400 text-slate-950' },
-  FIGHTING: { id: 'FIGHTING', name: 'FIGHTING', subject: 'Kinetic Energy & Force',badgeClass: 'bg-red-700',    btnClass: 'bg-red-700 hover:bg-red-600 text-white' },
-  POISON:   { id: 'POISON',   name: 'POISON',   subject: 'Biochemistry & Toxins', badgeClass: 'bg-purple-600',  btnClass: 'bg-purple-600 hover:bg-purple-500 text-white' },
-  GROUND:   { id: 'GROUND',   name: 'GROUND',   subject: 'Geology & Tectonics',   badgeClass: 'bg-yellow-700',  btnClass: 'bg-yellow-700 hover:bg-yellow-600 text-white' },
-  FLYING:   { id: 'FLYING',   name: 'FLYING',   subject: 'Aerodynamics & Altitude',badgeClass: 'bg-indigo-400',  btnClass: 'bg-indigo-400 hover:bg-indigo-300 text-slate-950' },
-  PSYCHIC:  { id: 'PSYCHIC',  name: 'PSYCHIC',  subject: 'Mind & Neuroscience',   badgeClass: 'bg-pink-600',    btnClass: 'bg-pink-600 hover:bg-pink-500 text-white' },
-  BUG:      { id: 'BUG',      name: 'BUG',      subject: 'Entomology & Zoology',  badgeClass: 'bg-lime-600',    btnClass: 'bg-lime-600 hover:bg-lime-500 text-white' },
-  ROCK:     { id: 'ROCK',     name: 'ROCK',     subject: 'Mineralogy & Crystals', badgeClass: 'bg-stone-600',   btnClass: 'bg-stone-600 hover:bg-stone-500 text-white' },
-  GHOST:    { id: 'GHOST',    name: 'GHOST',    subject: 'Quantum & Mysteries',   badgeClass: 'bg-purple-900',  btnClass: 'bg-purple-900 hover:bg-purple-800 text-white' },
-  DRAGON:   { id: 'DRAGON',   name: 'DRAGON',   subject: 'Mythology & Genetics',  badgeClass: 'bg-indigo-800',  btnClass: 'bg-indigo-800 hover:bg-indigo-700 text-white' },
-  DARK:     { id: 'DARK',     name: 'DARK',     subject: 'Astrophysics & Shadows',badgeClass: 'bg-zinc-800',    btnClass: 'bg-zinc-800 hover:bg-zinc-700 text-white' },
-  STEEL:    { id: 'STEEL',    name: 'STEEL',    subject: 'Metallurgy & Materials',badgeClass: 'bg-slate-400',   btnClass: 'bg-slate-400 hover:bg-slate-300 text-slate-950' },
-  FAIRY:    { id: 'FAIRY',    name: 'FAIRY',    subject: 'Aesthetics & Optics',   badgeClass: 'bg-rose-400',    btnClass: 'bg-rose-400 hover:bg-rose-300 text-slate-950' }
+  NORMAL:   { id: 'NORMAL',   name: 'Normal',   subject: 'Logic & Linguistics', btnClass: 'bg-slate-500 hover:bg-slate-400 text-white', badgeClass: 'bg-slate-500' },
+  FIRE:     { id: 'FIRE',     name: 'Fire',     subject: 'Chemistry & Energy',  btnClass: 'bg-orange-600 hover:bg-orange-500 text-white', badgeClass: 'bg-orange-600' },
+  WATER:    { id: 'WATER',    name: 'Water',    subject: 'Earth & Hydrology',   btnClass: 'bg-blue-600 hover:bg-blue-500 text-white', badgeClass: 'bg-blue-600' },
+  GRASS:    { id: 'GRASS',    name: 'Grass',    subject: 'Ecology & Botany',    btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white', badgeClass: 'bg-emerald-600' },
+  ELECTRIC: { id: 'ELECTRIC', name: 'Electric', subject: 'Physics & Circuits',  btnClass: 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold', badgeClass: 'bg-amber-500' },
+  ICE:      { id: 'ICE',      name: 'Ice',      subject: 'Climatology',         btnClass: 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold', badgeClass: 'bg-cyan-500' },
+  FIGHTING: { id: 'FIGHTING', name: 'Fighting', subject: 'Kinesiology & Health',btnClass: 'bg-red-700 hover:bg-red-600 text-white', badgeClass: 'bg-red-700' },
+  POISON:   { id: 'POISON',   name: 'Poison',   subject: 'Biochemistry',        btnClass: 'bg-purple-700 hover:bg-purple-600 text-white', badgeClass: 'bg-purple-700' },
+  GROUND:   { id: 'GROUND',   name: 'Ground',   subject: 'Geology & Earth',     btnClass: 'bg-yellow-700 hover:bg-yellow-600 text-white', badgeClass: 'bg-yellow-700' },
+  FLYING:   { id: 'FLYING',   name: 'Flying',   subject: 'Aerodynamics',        btnClass: 'bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold', badgeClass: 'bg-sky-500' },
+  PSYCHIC:  { id: 'PSYCHIC',  name: 'Psychic',  subject: 'Neuroscience',        btnClass: 'bg-pink-600 hover:bg-pink-500 text-white', badgeClass: 'bg-pink-600' },
+  BUG:      { id: 'BUG',      name: 'Bug',      subject: 'Entomology',          btnClass: 'bg-lime-600 hover:bg-lime-500 text-slate-950 font-bold', badgeClass: 'bg-lime-600' },
+  ROCK:     { id: 'ROCK',     name: 'Rock',     subject: 'Mineralogy',          btnClass: 'bg-amber-800 hover:bg-amber-700 text-white', badgeClass: 'bg-amber-800' },
+  GHOST:    { id: 'GHOST',    name: 'Ghost',    subject: 'History & Folklore',  btnClass: 'bg-indigo-900 hover:bg-indigo-800 text-white', badgeClass: 'bg-indigo-900' },
+  DRAGON:   { id: 'DRAGON',   name: 'Dragon',   subject: 'Evolutionary Theory', btnClass: 'bg-blue-900 hover:bg-blue-800 text-white', badgeClass: 'bg-blue-900' },
+  DARK:     { id: 'DARK',     name: 'Dark',     subject: 'Astronomy & Cosmos',  btnClass: 'bg-zinc-800 hover:bg-zinc-700 text-white', badgeClass: 'bg-zinc-800' },
+  STEEL:    { id: 'STEEL',    name: 'Steel',    subject: 'Materials Science',   btnClass: 'bg-slate-400 hover:bg-slate-300 text-slate-950 font-bold', badgeClass: 'bg-slate-400' },
+  FAIRY:    { id: 'FAIRY',    name: 'Fairy',    subject: 'Mythology & Arts',    btnClass: 'bg-rose-400 hover:bg-rose-300 text-slate-950 font-bold', badgeClass: 'bg-rose-400' }
 };
 
-function getEffectiveness(attackType, defendType) {
+function getEffectiveness(atkType, defType) {
   const chart = {
-    NORMAL:   { ROCK: 0.5, GHOST: 0.0, STEEL: 0.5 },
-    FIRE:     { FIRE: 0.5, WATER: 0.5, GRASS: 2.0, ICE: 2.0, BUG: 2.0, ROCK: 0.5, DRAGON: 0.5, STEEL: 2.0 },
-    WATER:    { FIRE: 2.0, WATER: 0.5, GRASS: 0.5, GROUND: 2.0, ROCK: 2.0, DRAGON: 0.5 },
-    GRASS:    { FIRE: 0.5, WATER: 2.0, GRASS: 0.5, POISON: 0.5, GROUND: 2.0, FLYING: 0.5, BUG: 0.5, ROCK: 2.0, DRAGON: 0.5, STEEL: 0.5 },
-    ELECTRIC: { WATER: 2.0, GRASS: 0.5, ELECTRIC: 0.5, GROUND: 0.0, FLYING: 2.0, DRAGON: 0.5 },
-    ICE:      { FIRE: 0.5, WATER: 0.5, GRASS: 2.0, ICE: 0.5, GROUND: 2.0, FLYING: 2.0, DRAGON: 2.0, STEEL: 0.5 },
-    FIGHTING: { NORMAL: 2.0, ICE: 2.0, POISON: 0.5, FLYING: 0.5, PSYCHIC: 0.5, BUG: 0.5, ROCK: 2.0, GHOST: 0.0, DARK: 2.0, STEEL: 2.0, FAIRY: 0.5 },
-    POISON:   { GRASS: 2.0, POISON: 0.5, GROUND: 0.5, ROCK: 0.5, GHOST: 0.5, STEEL: 0.0, FAIRY: 2.0 },
-    GROUND:   { FIRE: 2.0, ELECTRIC: 2.0, GRASS: 0.5, POISON: 2.0, FLYING: 0.0, BUG: 0.5, ROCK: 2.0, STEEL: 2.0 },
-    FLYING:   { GRASS: 2.0, ELECTRIC: 0.5, FIGHTING: 2.0, BUG: 2.0, ROCK: 0.5, STEEL: 0.5 },
-    PSYCHIC:  { FIGHTING: 2.0, POISON: 2.0, PSYCHIC: 0.5, DARK: 0.0, STEEL: 0.5 },
-    BUG:      { FIRE: 0.5, GRASS: 2.0, FIGHTING: 0.5, POISON: 0.5, FLYING: 0.5, PSYCHIC: 2.0, GHOST: 0.5, DARK: 2.0, STEEL: 0.5, FAIRY: 0.5 },
-    ROCK:     { FIRE: 2.0, ICE: 2.0, FIGHTING: 0.5, GROUND: 0.5, FLYING: 2.0, BUG: 2.0, STEEL: 0.5 },
-    GHOST:    { NORMAL: 0.0, PSYCHIC: 2.0, GHOST: 2.0, DARK: 0.5 },
-    DRAGON:   { DRAGON: 2.0, STEEL: 0.5, FAIRY: 0.0 },
-    DARK:     { FIGHTING: 0.5, PSYCHIC: 2.0, GHOST: 2.0, DARK: 0.5, FAIRY: 0.5 },
-    STEEL:    { FIRE: 0.5, WATER: 0.5, ELECTRIC: 0.5, ICE: 2.0, ROCK: 2.0, STEEL: 0.5, FAIRY: 2.0 },
-    FAIRY:    { FIRE: 0.5, FIGHTING: 2.0, POISON: 0.5, DRAGON: 2.0, DARK: 2.0, STEEL: 0.5 }
+    FIRE: { GRASS: 2, ICE: 2, BUG: 2, STEEL: 2, WATER: 0.5, FIRE: 0.5, ROCK: 0.5, DRAGON: 0.5 },
+    WATER: { FIRE: 2, GROUND: 2, ROCK: 2, WATER: 0.5, GRASS: 0.5, DRAGON: 0.5 },
+    GRASS: { WATER: 2, GROUND: 2, ROCK: 2, FIRE: 0.5, GRASS: 0.5, POISON: 0.5, FLYING: 0.5, BUG: 0.5, DRAGON: 0.5, STEEL: 0.5 },
+    ELECTRIC: { WATER: 2, FLYING: 2, ELECTRIC: 0.5, GRASS: 0.5, DRAGON: 0.5, GROUND: 0 },
+    ICE: { GRASS: 2, GROUND: 2, FLYING: 2, DRAGON: 2, FIRE: 0.5, WATER: 0.5, ICE: 0.5, STEEL: 0.5 },
+    FIGHTING: { NORMAL: 2, ICE: 2, ROCK: 2, DARK: 2, STEEL: 2, POISON: 0.5, FLYING: 0.5, PSYCHIC: 0.5, BUG: 0.5, FAIRY: 0.5, GHOST: 0 },
+    POISON: { GRASS: 2, FAIRY: 2, POISON: 0.5, GROUND: 0.5, ROCK: 0.5, GHOST: 0.5, STEEL: 0 },
+    GROUND: { FIRE: 2, ELECTRIC: 2, POISON: 2, ROCK: 2, STEEL: 2, GRASS: 0.5, BUG: 0.5, FLYING: 0 },
+    FLYING: { GRASS: 2, FIGHTING: 2, BUG: 2, ELECTRIC: 0.5, ROCK: 0.5, STEEL: 0.5 },
+    PSYCHIC: { FIGHTING: 2, POISON: 2, PSYCHIC: 0.5, STEEL: 0.5, DARK: 0 },
+    BUG: { GRASS: 2, PSYCHIC: 2, DARK: 2, FIRE: 0.5, FIGHTING: 0.5, POISON: 0.5, FLYING: 0.5, GHOST: 0.5, STEEL: 0.5, FAIRY: 0.5 },
+    ROCK: { FIRE: 2, ICE: 2, FLYING: 2, BUG: 2, FIGHTING: 0.5, GROUND: 0.5, STEEL: 0.5 },
+    GHOST: { PSYCHIC: 2, GHOST: 2, DARK: 0.5, NORMAL: 0 },
+    DRAGON: { DRAGON: 2, STEEL: 0.5, FAIRY: 0 },
+    DARK: { PSYCHIC: 2, GHOST: 2, FIGHTING: 0.5, DARK: 0.5, FAIRY: 0.5 },
+    STEEL: { ICE: 2, ROCK: 2, FAIRY: 2, FIRE: 0.5, WATER: 0.5, ELECTRIC: 0.5, STEEL: 0.5 },
+    FAIRY: { FIGHTING: 2, DRAGON: 2, DARK: 2, FIRE: 0.5, POISON: 0.5, STEEL: 0.5 }
   };
-  return (chart[attackType] && chart[attackType][defendType]) !== undefined ? chart[attackType][defendType] : 1.0;
+  if (chart[atkType] && chart[atkType][defType] !== undefined) {
+    return chart[atkType][defType];
+  }
+  return 1.0;
 }
 
-/********************************************************************
- * 32 MONSTER PIXEL MATRICES (BASE + EVOLUTIONS + 20 NEW MONSTERS)
- ********************************************************************/
-const DEFAULT_MONSTER_PIXELS = {
-  voltbit: {
-    palette: { p: '#facc15', s: '#eab308', d: '#1e293b', a: '#ef4444', w: '#ffffff', h: '#fef08a', m: '#ca8a04', c: '#fde047' },
-    grid: ["................","...dd......dd...","...dm......md...","...ph......hp...","....hhhhhhhh....","...hppppppppph..","...ppwdppwdpp...", "...ppddppddpp.aa","...aappddppaa.ss","...aappccppaa.pp","...ppppccpppp.mm","...spppccppps...", "....mmmmmmmm....","....mdm..mdm....","....ddd..ddd....","................"]
-  },
-  voltprime: {
-    palette: { p: '#fde047', s: '#ca8a04', d: '#0f172a', a: '#38bdf8', w: '#ffffff', h: '#fef9c3', m: '#eab308', c: '#facc15' },
-    grid: [".....11..11.....","....111..111....","...dd......dd...","...ph1h..h1hp...", "....hhhhhhhh....","..hpppppppppph..",".ppw1ppwwpp1dpp.",".ppddppffppddpp.", ".aappddffddppaa.",".aappccffccppaa.","..ppppccffccpp..","...sppppppppps..", "....mmmmmmmm....","....m4m..m4m....","....ddd..ddd....","................"]
-  },
-  charcoalon: {
-    palette: { p: '#f97316', s: '#ea580c', d: '#1e293b', a: '#fde047', w: '#ffffff', h: '#fdba74', m: '#9a3412', c: '#ef4444' },
-    grid: [".............aa.","............aca.",".....hhhhp..ccc.",".....wdhpp...ss.", ".....d2ppp...sm.","....hppppps..mm.","....ppppppps.m..","..ccppaaaapp....", "..ccppahhapppss.","..mmppahhapppsm.","....ppaaaappmmm.","....spaaaaps....", "....mms.smm.....","....mws.swm.....","....ddd.ddd.....","................"]
-  },
-  pyroclast: {
-    palette: { p: '#ea580c', s: '#c2410c', d: '#0f172a', a: '#f59e0b', w: '#ffffff', h: '#fed7aa', m: '#7c2d12', c: '#ef4444' },
-    grid: ["....aa....aa....","...aaaa..aaaa...","..hhhhhpppppp...",".wdhpppppppppp..", ".dpppaaaapppppp.","ppppppaaccappppp","ppppppaaccappppp","ppppaaccccaapppp", "ppppaaccccaapppp",".ppppaaccccaapp.","..ppppaaaaapp...","...ssppppppss...", "....mm....mm....","....mm....mm....","....dd....dd....","................"]
-  },
-  aquashell: {
-    palette: { p: '#38bdf8', s: '#0284c7', d: '#0f172a', a: '#bae6fd', w: '#ffffff', h: '#7dd3fc', m: '#0369a1', c: '#fde68a' },
-    grid: ["................","................",".....hhhhh......","....hppppph.....", "....pwdppwd.....","....pddppdd.....","...mmmmmmmmm....","...msccccccsmww.", "..ppdccccccdaaa.","..pmdccccccdaam.","..mmmmmmmmmmmm..","...ddccccccdd...", "....ppp..ppp....","....pmm..mmp....","....ddd..ddd....","................"]
-  },
-  neptunoid: {
-    palette: { p: '#0284c7', s: '#0369a1', d: '#0f172a', a: '#38bdf8', w: '#ffffff', h: '#bae6fd', m: '#075985', c: '#7dd3fc' },
-    grid: ["......hhhh......",".....hpppph.....","....hpppph33....","...hpphpph333..", "...pwdppwdphhh..","...pddppddphh..","..mmmmmmmmmmmm..",".mmseeeeeeeesm..", "ppsseeeeeeeespp.","ppsseccccccespp.",".mmseccccccesm..","..mmseeeeeeesm..", "...sss....sss...","...sss....sss...","....dd....dd....","................"]
-  },
-  fernlynx: {
-    palette: { p: '#4ade80', s: '#16a34a', d: '#052e16', a: '#facc15', w: '#ffffff', h: '#86efac', m: '#15803d', c: '#dcfce7' },
-    grid: [".......11.......","......ahha......","......hssh......","...ss.hssh.ss...", "...shhhhhhhhhs..","...spppppppps...", "....padppadp....","....pddppddp....", "....pppccppp....","....ppccccpp....","....spccccps....","....mmmmmmmm....", "....mms..smm....","....mms..smm....","....ddd..ddd....","................"]
-  },
-  sylvanpanther: {
-    palette: { p: '#16a34a', s: '#15803d', d: '#052e16', a: '#fde047', w: '#ffffff', h: '#4ade80', m: '#064e3b', c: '#bbf7d0' },
-    grid: [".....111111.....","....1aaaaaa1....","...1ahhhhhha1...","...ahhhhhhhhha..", "..shpppppppphs..",".shppwdppwdpphs.",".shppddppddpphs.",".shppccppccpphs.", "..shppccppccphs.","...shhhhhhhhhs..","....mmmmmmmm....","....mmseesmms...", "....ssm..mss....","....ssm..mss....","....ddd..ddd....","................"]
-  },
-  pyrocore: {
-    palette: { p: '#ef4444', s: '#b91c1c', d: '#111827', a: '#fef08a', w: '#ffffff', h: '#f87171', m: '#7f1d1d', c: '#f97316' },
-    grid: [".......aa.......","......acca......",".....cccccc.....","....hhhhhhhh....", "....pppppppp....","...ssssssssss...", "...ssaw..wass...", "..ccsa1..1ascc..", "..ppssssssssspp.","..mmsccccccsmm..","..mmssaaaaassmm.","...mmssssssssmm.", "....mdd..ddm....","....mdd..ddm....","....ddd..ddd....","................"]
-  },
-  infernotitan: {
-    palette: { p: '#dc2626', s: '#991b1b', d: '#0f172a', a: '#fde047', w: '#ffffff', h: '#fca5a5', m: '#450a0a', c: '#f97316' },
-    grid: ["....aaaaaa......","...aaaaaaaa.....","..hhpppppphh....",".whpppppppphw...", "hssssssssssssh..","hssddppddppssh..","hssddppddppssh..","hssccppccppssh..", ".ssccppccppss...",".ssaaaaaaaaas...", "..mmmmmmmmmm....","..mmssaaaaasmm..", "...ssmm..mmss...", "...dddd..dddd...", "................","................"]
-  },
-  tidalfin: {
-    palette: { p: '#2563eb', s: '#1d4ed8', d: '#0f172a', a: '#67e8f9', w: '#ffffff', h: '#60a5fa', m: '#1e3a8a', c: '#e0f2fe' },
-    grid: [".......aa.......",".......aah......",".......aah......","......haah......", "....hhhhhhhh....","....pppppppp....","..aapwdppwdpsss.","..hapddppddpssm.", "..happccccppssm.","..aapccccccpsmm.","....pccccccp....","....mmmmmmmm....", ".....sm..ms.....",".....dm..md.....",".....dd..dd.....","................"]
-  },
-  leviathan: {
-    palette: { p: '#1d4ed8', s: '#1e40af', d: '#0f172a', a: '#38bdf8', w: '#ffffff', h: '#93c5fd', m: '#1e3a8a', c: '#bae6fd' },
-    grid: ["......aaaa......",".....aaaar......","....hhpppphh....","...whpppppphw...", "..hpppppppppph..",".hppwdppwdpph...",".hppddppddpph...",".hppccppccpph...", "..hppccppccph...","...hhhhhhhhh....","..mmmmmmmmmm....","..mmseeeeesm....", "...ssm..mss.....","...ssm..mss.....","....dd..dd......","................"]
-  },
-  // 20 Additional Brand-New Monsters
-  blitzcat: {
-    palette: { p: '#fbbf24', s: '#d97706', d: '#1e293b', a: '#ffffff', w: '#ffffff', h: '#fde68a', m: '#b45309', c: '#fef3c7' },
-    grid: ["....dd..dd......","...dppddppd.....","..dppppppspd....","..dphhhhhpdd....","..dph1hh1hpdd...", "..dpphhhhppd....","...dppssppd.....","....pppppp......","...appppppa.....","..apssppssap....","..apssppssap....","...pp....pp.....","...dd....dd.....","................","................","................"]
-  },
-  magmaclaw: {
-    palette: { p: '#dc2626', s: '#991b1b', d: '#0f172a', a: '#fde047', w: '#ffffff', h: '#fca5a5', m: '#7f1d1d', c: '#f97316' },
-    grid: [".....aa..aa.....","....ahhaahha....","...apppppppp....","..apwpddppwda...", "..apppppppppp...", ".spppaaaaappss..", ".spcccccccppss..", ".spcccccccppss..", "..spccccccps....", "...sppppppps....", "....mm..mm......", "....mm..mm......", "....dd..dd......","................","................","................"]
-  },
-  frostfang: {
-    palette: { p: '#22d3ee', s: '#0891b2', d: '#082f49', a: '#e0f2fe', w: '#ffffff', h: '#67e8f9', m: '#0e7490', c: '#cffafe' },
-    grid: [".....ww..ww.....","....wppwwppw....","...dppppppppd...", "..dphhhpphhdp...", "..dphwhppwhdp...", "..dppppppppd....","...dppssppd.....","....pppppp......","...dapppppad....","..dapssppsad....","..dapssppsad....","...pp....pp.....","...dd....dd.....","................","................","................"]
-  },
-  terramoth: {
-    palette: { p: '#a16207', s: '#78350f', d: '#292524', a: '#fde047', w: '#ffffff', h: '#d97706', m: '#451a03', c: '#fef3c7' },
-    grid: ["...d......d.....","..dppppppppd....",".dppaaaaaaaapp..", "dppahhhhhhaapp..", "dpphwwppwwphpp..", "dpphwwppwwphpp..", ".dpphhhhhhppd...", "..dpppppppd.....", "...dppssppd.....", "..dppssppssd....", "..dpp....ppd....", "..dpp....ppd....", "...dd....dd.....","................","................","................"]
-  },
-  aerodrake: {
-    palette: { p: '#818cf8', s: '#4f46e5', d: '#1e1b4b', a: '#c7d2fe', w: '#ffffff', h: '#a5b4fc', m: '#3730a3', c: '#e0e7ff' },
-    grid: ["......aa........",".....ahha.......","....hpppph......","...hpppppph.....","..hppwppwph.....","..hppppppph.....","...hppppph......","....hhhhhh......","...spppppps.....","..sppssppss.....",".spp......pps...","..s........s....","................","................","................","................"]
-  },
-  venomspore: {
-    palette: { p: '#c084fc', s: '#9333ea', d: '#3b0764', a: '#4ade80', w: '#ffffff', h: '#e879f9', m: '#6b21a8', c: '#f3e8ff' },
-    grid: [".....aaaa.......","....aahhaaa.....","...ahhhhhha.....","..shhhhhhhhs....", ".shpwppwpphhs...", ".shpwppwpphhs...", "..shhhhhhhhs....","...sppppppps....","..sppaapppps....", ".sppaaccappa....", ".sppaaaaappa....", "..spppppppps....","...ss....ss.....","................","................","................"]
-  },
-  gigaslate: {
-    palette: { p: '#64748b', s: '#475569', d: '#0f172a', a: '#38bdf8', w: '#ffffff', h: '#94a3b8', m: '#334155', c: '#cbd5e1' },
-    grid: ["...dddddddd.....","..dppppppppd....",".dphhhhhhhhdp...", ".dphwpppwphdp...", ".dphwpppwphdp...", ".dphhhhhhhhdp...", ".dppppppppppd...", ".dppccccccccd...", ".dppccccccccd...", ".dppppppppppd...", "..dppppppppd....","...dppssppd.....","...ddd..ddd.....","................","................","................"]
-  },
-  pixiebell: {
-    palette: { p: '#fb7185', s: '#e11d48', d: '#4c0519', a: '#fde047', w: '#ffffff', h: '#fda4af', m: '#9f1239', c: '#ffe4e6' },
-    grid: ["......aa........",".....aaha.......","....ahhhha......","...shhhhhhs.....", ".shpwppwpphs....", ".shpwppwpphs....", "..shhhhhhhhs....","...sppppppps....","..sppaapppps....", ".sppaaccappa....", ".sppaaaaappa....", "..spppppppps....","...ss....ss.....","................","................","................"]
-  },
-  spectre: {
-    palette: { p: '#a855f7', s: '#7e22ce', d: '#3b0764', a: '#22d3ee', w: '#ffffff', h: '#c084fc', m: '#581c87', c: '#e879f9' },
-    grid: ["......hh........",".....hppph......","....hpppph......","...hpppppph.....","..hppwppwph.....",".shppwppwpphs...", ".shhhhhhhhs.....","..sppppppps.....","..sppaappps.....", "...sppaaaps.....", "....spppps......", ".....ssss.......","................","................","................","................"]
-  },
-  boulderkin: {
-    palette: { p: '#78716c', s: '#57534e', d: '#1c1917', a: '#a8a29e', w: '#ffffff', h: '#d6d3d1', m: '#44403c', c: '#e7e5e4' },
-    grid: ["................","...dddddddd.....","..dppppppppd....", ".dphhhhhhhhdp...", ".dphwpppwphdp...", ".dphwpppwphdp...", ".dphhhhhhhhdp...", ".dppppppppppd...", ".dppccccccccd...", ".dppppppppppd...", "..dppppppppd....","...dppssppd.....","...ddd..ddd.....","................","................","................"]
-  },
-  shadowstalker: {
-    palette: { p: '#27272a', s: '#18181b', d: '#09090b', a: '#a855f7', w: '#ffffff', h: '#52525b', m: '#0f172a', c: '#3f3f46' },
-    grid: [".....aaaa.......","....aapppaa.....","...appppppa.....","..appwppwpd.....", "..appdppdpda....", "..appppppppa....","...appssppa.....","....pppppp......","...dapppppad....","..dapssppsad....","..dapssppsad....","...pp....pp.....","...dd....dd.....","................","................","................"]
-  },
-  mechagolem: {
-    palette: { p: '#94a3b8', s: '#64748b', d: '#0f172a', a: '#facc15', w: '#ffffff', h: '#cbd5e1', m: '#334155', c: '#f1f5f9' },
-    grid: ["...dddddddd.....","..dppppppppd....", ".dphhhhhhhhdp...", ".dphwpppwphdp...", ".dphwpppwphdp...", ".dphhhhhhhhdp...", ".dppppppppppd...", ".dppccccccccd...", ".dppccccccccd...", ".dppppppppppd...", "..dppppppppd....","...dppssppd.....","...ddd..ddd.....","................","................","................"]
-  },
-  solari: {
-    palette: { p: '#f59e0b', s: '#d97706', d: '#78350f', a: '#fef08a', w: '#ffffff', h: '#fde68a', m: '#b45309', c: '#fffbeb' },
-    grid: ["....aa..aa......","...aahaahha.....","..ahhhhhhhha....", ".ahwppppppwha...", ".ahwppppppwha...", "..ahhhhhhhha....", "...ahhhhhha.....","....pppppp......","...spppppps.....","..sppssppssa....", "..sppssppssa....", "...pp....pp.....", "...dd....dd.....","................","................","................"]
-  },
-  abyssalis: {
-    palette: { p: '#09090b', s: '#18181b', d: '#27272a', a: '#06b6d4', w: '#ffffff', h: '#3f3f46', m: '#020617', c: '#1e1b4b' },
-    grid: ["................","...dd......dd...", "...dm......md...", "...ph......hp...", "....hhhhhhhh....","...hppppppppph..","...ppwdppwdpp...", "...ppddppddpp.aa","...aappddppaa.ss","...aappccppaa.pp","...ppppccpppp.mm","...spppccppps...", "....mmmmmmmm....","....mdm..mdm....","....ddd..ddd....","................"]
-  },
-  zephyr: {
-    palette: { p: '#38bdf8', s: '#0284c7', d: '#0c4a6e', a: '#ffffff', w: '#ffffff', h: '#7dd3fc', m: '#0369a1', c: '#e0f2fe' },
-    grid: ["......aa........",".....ahha.......","....hpppph......","...hpppppph.....","..hppwppwph.....","..hppppppph.....","...hppppph......","....hhhhhh......","...spppppps.....","..sppssppss.....",".spp......pps...","..s........s....","................","................","................","................"]
-  },
-  myceloid: {
-    palette: { p: '#db2777', s: '#be185d', d: '#4c0519', a: '#fef08a', w: '#ffffff', h: '#f472b6', m: '#831843', c: '#fce7f3' },
-    grid: ["....hhhhhh......","...hppppppph....","..hppwppwpph....","..hppwppwpph....", "...hppppppph....", "....hhhhhh......", ".....pppps......", "....sppppps.....", "...sppssppps....", "...sppssppps....", "....pp..pp......", "....dd..dd......","................","................","................","................"]
-  },
-  chronomite: {
-    palette: { p: '#10b981', s: '#059669', d: '#022c22', a: '#fde047', w: '#ffffff', h: '#34d399', m: '#047857', c: '#ecfdf5' },
-    grid: ["................","...dd......dd...", "...dm......md...", "...ph......hp...", "....hhhhhhhh....","...hppppppppph..","...ppwdppwdpp...", "...ppddppddpp.aa","...aappddppaa.ss","...aappccppaa.pp","...ppppccpppp.mm","...spppccppps...", "....mmmmmmmm....","....mdm..mdm....","....ddd..ddd....","................"]
-  },
-  galehawk: {
-    palette: { p: '#6366f1', s: '#4f46e5', d: '#312e81', a: '#facc15', w: '#ffffff', h: '#818cf8', m: '#3730a3', c: '#e0e7ff' },
-    grid: ["......aa........",".....ahha.......","....hpppph......","...hpppppph.....","..hppwppwph.....","..hppppppph.....","...hppppph......","....hhhhhh......","...spppppps.....","..sppssppss.....",".spp......pps...","..s........s....","................","................","................","................"]
-  },
-  pythos: {
-    palette: { p: '#15803d', s: '#166534', d: '#052e16', a: '#facc15', w: '#ffffff', h: '#22c55e', m: '#14532d', c: '#dcfce7' },
-    grid: ["................","...dd......dd...", "...dm......md...", "...ph......hp...", "....hhhhhhhh....","...hppppppppph..","...ppwdppwdpp...", "...ppddppddpp.aa","...aappddppaa.ss","...aappccppaa.pp","...ppppccpppp.mm","...spppccppps...", "....mmmmmmmm....","....mdm..mdm....","....ddd..ddd....","................"]
-  },
-  celestia: {
-    palette: { p: '#ec4899', s: '#db2777', d: '#500724', a: '#fde047', w: '#ffffff', h: '#f472b6', m: '#9d174d', c: '#fce7f3' },
-    grid: ["......aa........",".....aaha.......","....ahhhha......","...shhhhhhs.....", ".shpwppwpphs....", ".shpwppwpphs....", "..shhhhhhhhs....","...sppppppps....","..sppaapppps....", ".sppaaccappa....", ".sppaaaaappa....", "..spppppppps....","...ss....ss.....","................","................","................"]
-  }
-};
-
-let MONSTER_PIXELS = structuredClone(DEFAULT_MONSTER_PIXELS);
-
+// National Pokédex Roster (#1 to #32)
 const MONSTER_SPECIES = [
-  { id: 'voltbit', name: 'VOLTBIT', type: 'ELECTRIC', baseHp: 140, level: 14, evolvesTo: 'voltprime', evolveLevel: 16 },
-  { id: 'voltprime', name: 'VOLTPRIME', type: 'ELECTRIC', baseHp: 195, level: 16 },
-  { id: 'charcoalon', name: 'CHARCOALON', type: 'FIRE', baseHp: 125, level: 12, evolvesTo: 'pyroclast', evolveLevel: 15 },
-  { id: 'pyroclast', name: 'PYROCLAST', type: 'FIRE', baseHp: 180, level: 15 },
-  { id: 'aquashell', name: 'AQUASHELL', type: 'WATER', baseHp: 135, level: 13, evolvesTo: 'neptunoid', evolveLevel: 15 },
-  { id: 'neptunoid', name: 'NEPTUNOID', type: 'WATER', baseHp: 190, level: 15 },
-  { id: 'fernlynx', name: 'FERNLYNX', type: 'GRASS', baseHp: 130, level: 13, evolvesTo: 'sylvanpanther', evolveLevel: 15 },
-  { id: 'sylvanpanther', name: 'SYLVAN PANTHER', type: 'GRASS', baseHp: 185, level: 15 },
-  { id: 'pyrocore', name: 'PYROCORE', type: 'FIRE', baseHp: 150, level: 15, evolvesTo: 'infernotitan', evolveLevel: 18 },
-  { id: 'infernotitan', name: 'INFERNOTITAN', type: 'FIRE', baseHp: 210, level: 18 },
-  { id: 'tidalfin', name: 'TIDALFIN', type: 'WATER', baseHp: 145, level: 15, evolvesTo: 'leviathan', evolveLevel: 18 },
-  { id: 'leviathan', name: 'LEVIATHAN', type: 'WATER', baseHp: 215, level: 18 },
-  // 20 New Monsters
-  { id: 'blitzcat', name: 'BLITZCAT', type: 'ELECTRIC', baseHp: 130, level: 11 },
-  { id: 'magmaclaw', name: 'MAGMACLAW', type: 'FIRE', baseHp: 160, level: 14 },
-  { id: 'frostfang', name: 'FROSTFANG', type: 'ICE', baseHp: 145, level: 13 },
-  { id: 'terramoth', name: 'TERRAMOTH', type: 'GROUND', baseHp: 155, level: 14 },
-  { id: 'aerodrake', name: 'AERODRAKE', type: 'DRAGON', baseHp: 170, level: 16 },
-  { id: 'venomspore', name: 'VENOMSPORE', type: 'POISON', baseHp: 135, level: 12 },
-  { id: 'gigaslate', name: 'GIGASLATE', type: 'ROCK', baseHp: 190, level: 17 },
-  { id: 'pixiebell', name: 'PIXIEBELL', type: 'FAIRY', baseHp: 125, level: 10 },
-  { id: 'spectre', name: 'SPECTRE', type: 'GHOST', baseHp: 135, level: 13 },
-  { id: 'boulderkin', name: 'BOULDERKIN', type: 'ROCK', baseHp: 175, level: 15 },
-  { id: 'shadowstalker', name: 'SHADOWSTALKER', type: 'DARK', baseHp: 160, level: 14 },
-  { id: 'mechagolem', name: 'MECHAGOLEM', type: 'STEEL', baseHp: 200, level: 18 },
-  { id: 'solari', name: 'SOLARI', type: 'FIRE', baseHp: 150, level: 14 },
-  { id: 'abyssalis', name: 'ABYSSALIS', type: 'DARK', baseHp: 185, level: 16 },
-  { id: 'zephyr', name: 'ZEPHYR', type: 'FLYING', baseHp: 140, level: 12 },
-  { id: 'myceloid', name: 'MYCELOID', type: 'GRASS', baseHp: 145, level: 13 },
-  { id: 'chronomite', name: 'CHRONOMITE', type: 'STEEL', baseHp: 165, level: 15 },
-  { id: 'galehawk', name: 'GALEHAWK', type: 'FLYING', baseHp: 150, level: 14 },
-  { id: 'pythos', name: 'PYTHOS', type: 'POISON', baseHp: 160, level: 15 },
-  { id: 'celestia', name: 'CELESTIA', type: 'PSYCHIC', baseHp: 175, level: 16 }
+  { id: 'bulbasaur', pokedexNo: 1, name: 'BULBASAUR', type: 'GRASS', baseHp: 140, level: 12 },
+  { id: 'charmander', pokedexNo: 4, name: 'CHARMANDER', type: 'FIRE', baseHp: 135, level: 12 },
+  { id: 'squirtle', pokedexNo: 7, name: 'SQUIRTLE', type: 'WATER', baseHp: 145, level: 12 },
+  { id: 'caterpie', pokedexNo: 10, name: 'CATERPIE', type: 'BUG', baseHp: 120, level: 10 },
+  { id: 'weedle', pokedexNo: 13, name: 'WEEDLE', type: 'POISON', baseHp: 118, level: 10 },
+  { id: 'pidgey', pokedexNo: 16, name: 'PIDGEY', type: 'FLYING', baseHp: 125, level: 10 },
+  { id: 'rattata', pokedexNo: 19, name: 'RATTATA', type: 'NORMAL', baseHp: 115, level: 10 },
+  { id: 'spearow', pokedexNo: 21, name: 'SPEAROW', type: 'FLYING', baseHp: 122, level: 10 },
+  { id: 'ekans', pokedexNo: 23, name: 'EKANS', type: 'POISON', baseHp: 128, level: 11 },
+  { id: 'pikachu', pokedexNo: 25, name: 'PIKACHU', type: 'ELECTRIC', baseHp: 130, level: 14 },
+  { id: 'sandshrew', pokedexNo: 27, name: 'SANDSHREW', type: 'GROUND', baseHp: 140, level: 13 },
+  { id: 'nidoran_f', pokedexNo: 29, name: 'NIDORAN♀', type: 'POISON', baseHp: 135, level: 12 },
+  { id: 'nidoran_m', pokedexNo: 32, name: 'NIDORAN♂', type: 'POISON', baseHp: 135, level: 12 },
+  { id: 'clefairy', pokedexNo: 35, name: 'CLEFAIRY', type: 'FAIRY', baseHp: 150, level: 13 },
+  { id: 'vulpix', pokedexNo: 37, name: 'VULPIX', type: 'FIRE', baseHp: 130, level: 13 },
+  { id: 'jigglypuff', pokedexNo: 39, name: 'JIGGLYPUFF', type: 'FAIRY', baseHp: 160, level: 12 },
+  { id: 'zubat', pokedexNo: 41, name: 'ZUBAT', type: 'POISON', baseHp: 125, level: 11 },
+  { id: 'oddish', pokedexNo: 43, name: 'ODDISH', type: 'GRASS', baseHp: 132, level: 11 },
+  { id: 'paras', pokedexNo: 46, name: 'PARAS', type: 'BUG', baseHp: 128, level: 11 },
+  { id: 'venonat', pokedexNo: 48, name: 'VENONAT', type: 'BUG', baseHp: 135, level: 12 },
+  { id: 'diglett', pokedexNo: 50, name: 'DIGLETT', type: 'GROUND', baseHp: 110, level: 12 },
+  { id: 'meowth', pokedexNo: 52, name: 'MEOWTH', type: 'NORMAL', baseHp: 125, level: 12 },
+  { id: 'psyduck', pokedexNo: 54, name: 'PSYDUCK', type: 'WATER', baseHp: 140, level: 13 },
+  { id: 'mankey', pokedexNo: 56, name: 'MANKEY', type: 'FIGHTING', baseHp: 130, level: 13 },
+  { id: 'growlithe', pokedexNo: 58, name: 'GROWLITHE', type: 'FIRE', baseHp: 145, level: 14 },
+  { id: 'poliwag', pokedexNo: 60, name: 'POLIWAG', type: 'WATER', baseHp: 125, level: 12 },
+  { id: 'abra', pokedexNo: 63, name: 'ABRA', type: 'PSYCHIC', baseHp: 120, level: 14 },
+  { id: 'machop', pokedexNo: 66, name: 'MACHOP', type: 'FIGHTING', baseHp: 150, level: 14 },
+  { id: 'bellsprout', pokedexNo: 69, name: 'BELLSPROUT', type: 'GRASS', baseHp: 130, level: 12 },
+  { id: 'tentacool', pokedexNo: 72, name: 'TENTACOOL', type: 'WATER', baseHp: 135, level: 13 },
+  { id: 'geodude', pokedexNo: 74, name: 'GEODUDE', type: 'ROCK', baseHp: 145, level: 13 },
+  { id: 'ponyta', pokedexNo: 77, name: 'PONYTA', type: 'FIRE', baseHp: 140, level: 14 }
 ];
 
-const PALETTE_SLOT_NAMES = {
-  p: 'Primary (p)', s: 'Secondary (s)', d: 'Outline (d)', a: 'Accent (a)',
-  w: 'White (w)', h: 'Highlight (h)', m: 'Shadow (m)', c: 'Core/Belly (c)'
+// Default Trivia Question Bank required by index.html
+const DEFAULT_QUESTIONS = [
+  // --- NORMAL (10 Questions) ---
+  { type: 'NORMAL', difficulty: 1, q: 'What is the standard biological classification term for modern human beings?', options: ['Homo sapiens', 'Pan troglodytes', 'Canis lupus', 'Felis catus'], answer: 0 },
+  { type: 'NORMAL', difficulty: 2, q: 'In linguistics, what term describes a word that reads the same backward as forward?', options: ['Palindrome', 'Anagram', 'Homophone', 'Portmanteau'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'Which of the following is a traditional primary color in paint and pigment mixing?', options: ['Red', 'Orange', 'Green', 'Purple'], answer: 0 },
+  { type: 'NORMAL', difficulty: 2, q: 'How many permanent teeth does an average healthy adult human have, including wisdom teeth?', options: ['32', '28', '30', '34'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'How many letters are in the modern English alphabet?', options: ['26', '24', '28', '25'], answer: 0 },
+  { type: 'NORMAL', difficulty: 2, q: 'What literary term describes a word blending the sounds and meanings of two other words (e.g., "brunch")?', options: ['Portmanteau', 'Acronym', 'Euphemism', 'Idiom'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'Which of these animals is commonly known as man\'s best friend?', options: ['Dog', 'Cat', 'Hamster', 'Parrot'], answer: 0 },
+  { type: 'NORMAL', difficulty: 2, q: 'What figure of speech combines contradictory terms, such as "deafening silence"?', options: ['Oxymoron', 'Hyperbole', 'Metaphor', 'Onomatopoeia'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after July?', options: ['August', 'June', 'September', 'October'], answer: 0 },
+  { type: 'NORMAL', difficulty: 2, q: 'What is the term for a word that has the exact opposite meaning of another word?', options: ['Antonym', 'Synonym', 'Homonym', 'Acronym'], answer: 0 },
+
+  // --- FIRE (10 Questions) ---
+  { type: 'FIRE', difficulty: 1, q: 'What chemical process rapidly combines oxygen with materials, releasing heat and light?', options: ['Combustion', 'Oxidation', 'Reduction', 'Pyrolysis'], answer: 0 },
+  { type: 'FIRE', difficulty: 2, q: 'What is the most abundant gas found in Earths atmosphere?', options: ['Nitrogen', 'Oxygen', 'Argon', 'Carbon dioxide'], answer: 0 },
+  { type: 'FIRE', difficulty: 2, q: 'What scientific term describes a chemical reaction that absorbs heat from its surroundings?', options: ['Endothermic', 'Exothermic', 'Isothermal', 'Adiabatic'], answer: 0 },
+  { type: 'FIRE', difficulty: 1, q: 'What element is essential for sustaining a fire and acts as the primary oxidizer?', options: ['Oxygen', 'Hydrogen', 'Helium', 'Nitrogen'], answer: 0 },
+  { type: 'FIRE', difficulty: 2, q: 'What state of matter is created when a gas is superheated until its atoms become ionized?', options: ['Plasma', 'Bose-Einstein condensate', 'Supercritical fluid', 'Solid'], answer: 0 },
+  { type: 'FIRE', difficulty: 1, q: 'What color flame typically indicates the hottest part of a standard gas burner flame?', options: ['Blue', 'Red', 'Yellow', 'Orange'], answer: 0 },
+  { type: 'FIRE', difficulty: 2, q: 'What law states that the total energy of an isolated system is constant (cannot be created or destroyed)?', options: ['First Law of Thermodynamics', 'Second Law of Thermodynamics', 'Third Law', 'Boyle\'s Law'], answer: 0 },
+  { type: 'FIRE', difficulty: 1, q: 'What common household safety device detects smoke and products of combustion?', options: ['Smoke detector', 'Thermometer', 'Barometer', 'Hygrometer'], answer: 0 },
+  { type: 'FIRE', difficulty: 2, q: 'What temperature scale has its zero point at absolute zero?', options: ['Kelvin', 'Celsius', 'Fahrenheit', 'Rankine'], answer: 0 },
+  { type: 'FIRE', difficulty: 1, q: 'Which fossil fuel is a flammable gas primarily composed of methane?', options: ['Natural gas', 'Coal', 'Propane', 'Petroleum'], answer: 0 },
+
+  // --- WATER (10 Questions) ---
+  { type: 'WATER', difficulty: 1, q: 'Approximately what percentage of Earths surface is covered by oceans?', options: ['71%', '50%', '85%', '60%'], answer: 0 },
+  { type: 'WATER', difficulty: 1, q: 'What is the standard chemical formula for pure water?', options: ['H2O', 'CO2', 'NaCl', 'O2'], answer: 0 },
+  { type: 'WATER', difficulty: 2, q: 'What scientific term describes the movement of water molecules across a semipermeable membrane?', options: ['Osmosis', 'Diffusion', 'Active transport', 'Filtration'], answer: 0 },
+  { type: 'WATER', difficulty: 1, q: 'At standard atmospheric pressure, what is the boiling point of pure water in Celsius?', options: ['100°C', '0°C', '212°C', '50°C'], answer: 0 },
+  { type: 'WATER', difficulty: 2, q: 'What global ocean circulation pattern is driven by differences in water temperature and salinity?', options: ['Thermohaline circulation', 'Coriolis drift', 'Upwelling', 'Tidal current'], answer: 0 },
+  { type: 'WATER', difficulty: 1, q: 'What phase change occurs when liquid water turns into water vapor?', options: ['Evaporation', 'Condensation', 'Freezing', 'Sublimation'], answer: 0 },
+  { type: 'WATER', difficulty: 2, q: 'What is the term for an underground layer of water-bearing permeable rock or sediment?', options: ['Aquifer', 'Reservoir', 'Estuary', 'Watershed'], answer: 0 },
+  { type: 'WATER', difficulty: 1, q: 'What term describes precipitation in the form of lumps or balls of ice?', options: ['Hail', 'Sleet', 'Snow', 'Dew'], answer: 0 },
+  { type: 'WATER', difficulty: 2, q: 'What coastal body of water has a free connection to the open sea, where fresh water meets salt water?', options: ['Estuary', 'Fjord', 'Lagoon', 'Atoll'], answer: 0 },
+  { type: 'WATER', difficulty: 1, q: 'What is the primary force responsible for ocean tides on Earth?', options: ['Moon\'s gravitational pull', 'Wind velocity', 'Earth\'s magnetic field', 'Solar radiation'], answer: 0 },
+
+  // --- GRASS (10 Questions) ---
+  { type: 'GRASS', difficulty: 1, q: 'What primary green pigment do plants use to absorb light energy for photosynthesis?', options: ['Chlorophyll', 'Carotene', 'Xanthophyll', 'Anthocyanin'], answer: 0 },
+  { type: 'GRASS', difficulty: 1, q: 'What gas do plants primarily take in from the atmosphere during photosynthesis?', options: ['Carbon dioxide', 'Oxygen', 'Nitrogen', 'Hydrogen'], answer: 0 },
+  { type: 'GRASS', difficulty: 2, q: 'What vascular plant tissue is responsible for transporting water and dissolved minerals upward from roots?', options: ['Xylem', 'Phloem', 'Cortex', 'Cambium'], answer: 0 },
+  { type: 'GRASS', difficulty: 1, q: 'What plant organ is primarily responsible for anchoring the plant and absorbing water and nutrients?', options: ['Roots', 'Leaves', 'Stems', 'Flowers'], answer: 0 },
+  { type: 'GRASS', difficulty: 2, q: 'What term describes the stable final community stage in ecological succession?', options: ['Climax community', 'Pioneer community', 'Seral community', 'Biizing community'], answer: 0 },
+  { type: 'GRASS', difficulty: 1, q: 'What structural green cellular feature gives plant cells rigidity and protection?', options: ['Cell wall', 'Cell membrane', 'Nucleus', 'Ribosome'], answer: 0 },
+  { type: 'GRASS', difficulty: 2, q: 'What vascular tissue in plants distributes sugars and organic compounds produced by photosynthesis?', options: ['Phloem', 'Xylem', 'Pith', 'Epidermis'], answer: 0 },
+  { type: 'GRASS', difficulty: 1, q: 'What are the tiny pores on plant leaves that allow gas exchange called?', options: ['Stomata', 'Chloroplasts', 'Lenticels', 'Vili'], answer: 0 },
+  { type: 'GRASS', difficulty: 2, q: 'What symbiotic relationship occurs between plant roots and specialized fungi that aid nutrient absorption?', options: ['Mycorrhiza', 'Lichens', 'Rhizome', 'Mycelium'], answer: 0 },
+  { type: 'GRASS', difficulty: 1, q: 'What plant reproductive structure contains seeds enclosed within a fruit?', options: ['Angiosperm flower', 'Gymnosperm cone', 'Spore', 'Fern frond'], answer: 0 },
+
+  // --- ELECTRIC (10 Questions) ---
+  { type: 'ELECTRIC', difficulty: 1, q: 'What electrical unit measures the rate of flow of electric charge (current)?', options: ['Ampere', 'Volt', 'Ohm', 'Watt'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 1, q: 'What passive electronic component is used to store electrical energy in an electric field?', options: ['Capacitor', 'Resistor', 'Transistor', 'Inductor'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 2, q: 'According to Ohm\'s law, voltage equals current multiplied by what?', options: ['Resistance', 'Capacitance', 'Inductance', 'Frequency'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 1, q: 'What subatomic particle carries a negative electric charge?', options: ['Electron', 'Proton', 'Neutron', 'Positron'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 2, q: 'What semiconductor device is primarily used to amplify or switch electrical signals and power?', options: ['Transistor', 'Diode', 'Transformer', 'Fuse'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 1, q: 'What instrument is used to measure electrical potential difference (voltage)?', options: ['Voltmeter', 'Ammeter', 'Ohmmeter', 'Wattmeter'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 2, q: 'What electrical law states that the total current entering a junction must equal the total current leaving it?', options: ['Kirchhoff\'s Current Law', 'Ohm\'s Law', 'Coulomb\'s Law', 'Faraday\'s Law'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 1, q: 'What material allows electrical current to flow through it easily?', options: ['Conductor', 'Insulator', 'Semiconductor', 'Dielectric'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 2, q: 'What unit measures electrical power, representing one joule per second?', options: ['Watt', 'Joule', 'Volt', 'Ampere'], answer: 0 },
+  { type: 'ELECTRIC', difficulty: 1, q: 'What safety device contains a thin wire that melts when current exceeds a safe limit?', options: ['Fuse', 'Resistor', 'Capacitor', 'Transistor'], answer: 0 },
+
+  // --- ICE (10 Questions) ---
+  { type: 'ICE', difficulty: 1, q: 'At what temperature in Celsius does pure water freeze at standard atmospheric pressure?', options: ['0°C', '32°C', '-10°C', '4°C'], answer: 0 },
+  { type: 'ICE', difficulty: 2, q: 'What scientific term describes the direct phase transition from a solid directly into a gas?', options: ['Sublimation', 'Condensation', 'Deposition', 'Melting'], answer: 0 },
+  { type: 'ICE', difficulty: 1, q: 'What massive body of dense ice constantly moves under its own weight?', options: ['Glacier', 'Iceberg', 'Tundra', 'Permafrost'], answer: 0 },
+  { type: 'ICE', difficulty: 2, q: 'What term describes ground that remains at or below 0°C for two or more consecutive years?', options: ['Permafrost', 'Glacial till', 'Sleet', 'Pack ice'], answer: 0 },
+  { type: 'ICE', difficulty: 1, q: 'What is a large piece of freshwater ice that has broken off a glacier and floats in open water called?', options: ['Iceberg', 'Floe', 'Glacier', 'Shelf'], answer: 0 },
+  { type: 'ICE', difficulty: 2, q: 'What crystal structure does ordinary water ice form at standard atmospheric pressure?', options: ['Hexagonal', 'Cubic', 'Tetragonal', 'Orthorhombic'], answer: 0 },
+  { type: 'ICE', difficulty: 1, q: 'What winter sport involves sliding across ice using specialized footwear with metal blades?', options: ['Ice skating', 'Skiing', 'Snowshoeing', 'Curling'], answer: 0 },
+  { type: 'ICE', difficulty: 2, q: 'What is the name of the geological epoch characterized by repeated glacial expansion (the Ice Age)?', options: ['Pleistocene', 'Holocene', 'Miocene', 'Cretaceous'], answer: 0 },
+  { type: 'ICE', difficulty: 1, q: 'Which polar region contains the vast majority of Earths glacial ice?', options: ['Antarctica', 'The Arctic', 'Greenland only', 'Siberia'], answer: 0 },
+  { type: 'ICE', difficulty: 2, q: 'What term refers to the phase change where water vapor turns directly into ice without becoming liquid?', options: ['Deposition (Desublimation)', 'Sublimation', 'Condensation', 'Evaporation'], answer: 0 },
+
+  // --- FIGHTING (10 Questions) ---
+  { type: 'FIGHTING', difficulty: 1, q: 'Which human body system is primarily responsible for voluntary movement and posture?', options: ['Muscular system', 'Digestive system', 'Endocrine system', 'Lymphatic system'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 2, q: 'What high-energy molecule stores and transports chemical energy within cellular structures?', options: ['ATP (Adenosine triphosphate)', 'DNA', 'RNA', 'Glucose'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 1, q: 'What tough fibrous connective tissue connects skeletal muscles to bones?', options: ['Tendon', 'Ligament', 'Cartilage', 'Joint'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 2, q: 'What specialized protein filaments slide past each other during muscle contraction?', options: ['Actin and Myosin', 'Keratin and Collagen', 'Hemoglobin and Albumin', 'Insulin and Glucagon'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 1, q: 'What fibrous connective tissue connects bones to other bones at joints?', options: ['Ligament', 'Tendon', 'Fascia', 'Cartilage'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 2, q: 'What mineral ion is critically required inside muscle cells to trigger contraction?', options: ['Calcium (Ca2+)', 'Sodium (Na+)', 'Potassium (K+)', 'Iron (Fe)'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 1, q: 'What type of muscle tissue forms the walls of the human heart?', options: ['Cardiac muscle', 'Skeletal muscle', 'Smooth muscle', 'Striated muscle'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 2, q: 'What aerobic metabolic process generates ATP inside cellular mitochondria using oxygen?', options: ['Cellular respiration (Oxidative phosphorylation)', 'Glycolysis only', 'Fermentation', 'Lactic acid pathway'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 1, q: 'Which organ system provides structural support, protection, and blood cell production?', options: ['Skeletal system', 'Nervous system', 'Integumentary system', 'Respiratory system'], answer: 0 },
+  { type: 'FIGHTING', difficulty: 2, q: 'What chemical byproduct builds up in skeletal muscle tissue during strenuous anaerobic exercise?', options: ['Lactic acid (Lactate)', 'Uric acid', 'Citric acid', 'Carbonic acid'], answer: 0 },
+
+  // --- POISON (10 Questions) ---
+  { type: 'POISON', difficulty: 1, q: 'What internal organ in the human body is primarily responsible for filtering toxins and processing blood?', options: ['Liver', 'Heart', 'Lungs', 'Stomach'], answer: 0 },
+  { type: 'POISON', difficulty: 2, q: 'What logarithmic scale is used to specify the acidity or basicity of aqueous solutions?', options: ['pH scale', 'Richter scale', 'Beaufort scale', 'Mohs scale'], answer: 0 },
+  { type: 'POISON', difficulty: 1, q: 'What excretion system filters metabolic waste and excess water from the blood via kidneys?', options: ['Urinary / Excretory system', 'Digestive system', 'Circulatory system', 'Lymphatic system'], answer: 0 },
+  { type: 'POISON', difficulty: 2, q: 'What branch of science is dedicated to the study of poisons, toxins, and their effects?', options: ['Toxicology', 'Pharmacology', 'Pathology', 'Immunology'], answer: 0 },
+  { type: 'POISON', difficulty: 1, q: 'What gas, produced by cellular respiration, is expelled as a metabolic waste product by the lungs?', options: ['Carbon dioxide', 'Oxygen', 'Nitrogen', 'Helium'], answer: 0 },
+  { type: 'POISON', difficulty: 2, q: 'What protein molecule in red blood cells binds and carries oxygen, and can bind dangerously to carbon monoxide?', options: ['Hemoglobin', 'Myoglobin', 'Fibrinogen', 'Albumin'], answer: 0 },
+  { type: 'POISON', difficulty: 1, q: 'What protective barrier covers the exterior of the human body, blocking pathogens and toxins?', options: ['Skin (Integumentary system)', 'Mucous membrane', 'Skull', 'Rib cage'], answer: 0 },
+  { type: 'POISON', difficulty: 2, q: 'What chemical element is a heavy, toxic liquid metal historically used in thermometers?', options: ['Mercury', 'Lead', 'Cadmium', 'Arsenic'], answer: 0 },
+  { type: 'POISON', difficulty: 1, q: 'What tiny specialized white blood cells help neutralize pathogens, bacteria, and foreign toxins?', options: ['Leukocytes (White blood cells)', 'Erythrocytes', 'Platelets', 'Plasma cells'], answer: 0 },
+  { type: 'POISON', difficulty: 2, q: 'What specific type of biological toxin is produced naturally by living organisms like snakes, spiders, or bees?', options: ['Venom', 'Antiseptic', 'Antibiotic', 'Carcinogen'], answer: 0 },
+
+  // --- GROUND (10 Questions) ---
+  { type: 'GROUND', difficulty: 1, q: 'What is the outermost solid shell or skin of a rocky planet called?', options: ['Crust', 'Mantle', 'Core', 'Magma'], answer: 0 },
+  { type: 'GROUND', difficulty: 2, q: 'What scientific theory describes the large-scale motion of Earths lithosphere plates?', options: ['Plate tectonics', 'Continental drift only', 'Seafloor spreading', 'Isostasy'], answer: 0 },
+  { type: 'GROUND', difficulty: 1, q: 'What dense, hot layer of Earth sits directly beneath the crust and above the core?', options: ['Mantle', 'Atmosphere', 'Lithosphere', 'Biosphere'], answer: 0 },
+  { type: 'GROUND', difficulty: 2, q: 'What scale is used to quantify the magnitude or energy released by an earthquake?', options: ['Moment magnitude scale (Richter scale)', 'Mercalli scale', 'Mohs scale', 'Fujita scale'], answer: 0 },
+  { type: 'GROUND', difficulty: 1, q: 'Molten or semi-molten rock located beneath the surface of a terrestrial planet is called what?', options: ['Magma', 'Lava', 'Ash', 'Basalt'], answer: 0 },
+  { type: 'GROUND', difficulty: 2, q: 'What boundary type occurs where tectonic plates move apart from one another?', options: ['Divergent boundary', 'Convergent boundary', 'Transform fault', 'Subduction zone'], answer: 0 },
+  { type: 'GROUND', difficulty: 1, q: 'What is molten rock called once it erupts onto Earths surface?', options: ['Lava', 'Magma', 'Pumice', 'Tuff'], answer: 0 },
+  { type: 'GROUND', difficulty: 2, q: 'What term describes the geological process where one tectonic plate moves under another and sinks into the mantle?', options: ['Subduction', 'Accretion', 'Orogeny', 'Faulting'], answer: 0 },
+  { type: 'GROUND', difficulty: 1, q: 'What branch of science deals with the solid Earth, the rocks of which it is composed, and the processes by which they change?', options: ['Geology', 'Meteorology', 'Astronomy', 'Oceanography'], answer: 0 },
+  { type: 'GROUND', difficulty: 2, q: 'What geological term refers to the formation of mountain ranges, typically via tectonic plate compression?', options: ['Orogeny', 'Erosion', 'Sedimentation', 'Weathering'], answer: 0 },
+
+  // --- FLYING (10 Questions) ---
+  { type: 'FLYING', difficulty: 1, q: 'What physical aerodynamic force counteracts gravity to allow an aircraft or bird to rise?', options: ['Lift', 'Drag', 'Thrust', 'Inertia'], answer: 0 },
+  { type: 'FLYING', difficulty: 2, q: 'What lowest layer of Earths atmosphere is where weather phenomena occur?', options: ['Troposphere', 'Stratosphere', 'Mesosphere', 'Thermosphere'], answer: 0 },
+  { type: 'FLYING', difficulty: 1, q: 'What forward force propels an aircraft or bird through the air, overcoming aerodynamic drag?', options: ['Thrust', 'Lift', 'Gravity', 'Friction'], answer: 0 },
+  { type: 'FLYING', difficulty: 2, q: 'What atmospheric layer sits directly above the troposphere and contains the ozone layer?', options: ['Stratosphere', 'Troposphere', 'Thermosphere', 'Exosphere'], answer: 0 },
+  { type: 'FLYING', difficulty: 1, q: 'What aerodynamic resistance force slows down an object moving through a fluid or gas?', options: ['Drag (Air resistance)', 'Lift', 'Thrust', 'Gravity'], answer: 0 },
+  { type: 'FLYING', difficulty: 2, q: 'What apparent force deflects moving objects (like winds and ocean currents) due to Earths rotation?', options: ['Coriolis effect', 'Centrifugal force', 'Centripetal force', 'Gravitational pull'], answer: 0 },
+  { type: 'FLYING', difficulty: 1, q: 'What winged vertebrate class includes birds, which are uniquely adapted for flight?', options: ['Aves (Birds)', 'Mammalia', 'Reptilia', 'Amphibia'], answer: 0 },
+  { type: 'FLYING', difficulty: 2, q: 'What principle states that an increase in the speed of a fluid occurs simultaneously with a decrease in pressure?', options: ['Bernoulli\'s principle', 'Archimedes\' principle', 'Pascal\'s law', 'Newton\'s third law'], answer: 0 },
+  { type: 'FLYING', difficulty: 1, q: 'What natural flying mammals belong to the order Chiroptera?', options: ['Bats', 'Flying squirrels', 'Gliding possums', 'Birds'], answer: 0 },
+  { type: 'FLYING', difficulty: 2, q: 'What atmospheric phenomenon features powerful, narrow meandering air currents high in the atmosphere?', options: ['Jet stream', 'Trade winds', 'Monsoon', 'Doldrums'], answer: 0 },
+
+  // --- PSYCHIC (10 Questions) ---
+  { type: 'PSYCHIC', difficulty: 1, q: 'Which lobe of the human brain is primarily responsible for reasoning, motor control, and higher executive function?', options: ['Frontal lobe', 'Occipital lobe', 'Cerebellum', 'Brainstem'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 2, q: 'What microscopic gap allows neurons to transmit chemical neurotransmitter signals to adjacent cells?', options: ['Synapse', 'Axon', 'Dendrite', 'Myelin sheath'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 1, q: 'What central nervous system organ serves as the main control center for the human body?', options: ['Brain', 'Spinal cord', 'Heart', 'Liver'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 2, q: 'What lobe of the brain is primarily responsible for processing visual information?', options: ['Occipital lobe', 'Temporal lobe', 'Parietal lobe', 'Frontal lobe'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 1, q: 'What long, slender nerve fiber conducts electrical impulses away from a neuron\'s cell body?', options: ['Axon', 'Dendrite', 'Synapse', 'Neuron'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 2, q: 'What insulating fatty substance surrounds nerve cell axons to speed up electrical impulse transmission?', options: ['Myelin', 'Plasma', 'Collagen', 'Keratin'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 1, q: 'What branch-like structures of a neuron receive electrical signals from other neurons?', options: ['Dendrites', 'Axons', 'Synapses', 'Soma'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 2, q: 'What part of the brain coordinates voluntary muscular movements, balance, and posture?', options: ['Cerebellum', 'Cerebrum', 'Thalamus', 'Hypothalamus'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 1, q: 'What specialized chemical messengers transmit signals across a synapse between neurons?', options: ['Neurotransmitters', 'Hormones', 'Enzymes', 'Antibodies'], answer: 0 },
+  { type: 'PSYCHIC', difficulty: 2, q: 'What limbic structure deeply embedded within the temporal lobe plays a major role in memory and emotion?', options: ['Hippocampus', 'Amygdala', 'Medulla', 'Pons'], answer: 0 },
+
+  // --- BUG (10 Questions) ---
+  { type: 'BUG', difficulty: 1, q: 'What are the three main body segments of a typical adult insect?', options: ['Head, thorax, abdomen', 'Head, torso, tail', 'Cervix, chest, pelvis', 'Exoskeleton, wings, legs'], answer: 0 },
+  { type: 'BUG', difficulty: 2, q: 'What biological process transforms an insect through distinct developmental stages from larva to adult?', options: ['Metamorphosis', 'Mitosis', 'Meiosis', 'Osmosis'], answer: 0 },
+  { type: 'BUG', difficulty: 1, q: 'How many jointed legs do adult insects possess as a defining physical characteristic?', options: ['6', '8', '4', '10'], answer: 0 },
+  { type: 'BUG', difficulty: 2, q: 'What tough, protective external skeleton composed of chitin do arthropods possess?', options: ['Exoskeleton', 'Endoskeleton', 'Shell', 'Carapace'], answer: 0 },
+  { type: 'BUG', difficulty: 1, q: 'What class of invertebrate animals includes insects, spiders, and crustaceans?', options: ['Arthropods', 'Mollusks', 'Annelids', 'Echinoderms'], answer: 0 },
+  { type: 'BUG', difficulty: 2, q: 'What specialized breathing organs do insects use to take in oxygen directly from the air?', options: ['Tracheae / Spiracles', 'Gills', 'Lungs', 'Book lungs'], answer: 0 },
+  { type: 'BUG', difficulty: 1, q: 'What social insects live in large colonies and are famous for building complex nests and producing honey?', options: ['Honeybees', 'Wasps', 'Termites', 'Ants'], answer: 0 },
+  { type: 'BUG', difficulty: 2, q: 'What is the immature, caterpillar-like feeding stage of complete metamorphosis in insects called?', options: ['Larva', 'Nymph', 'Pupa', 'Imago'], answer: 0 },
+  { type: 'BUG', difficulty: 1, q: 'What protective resting stage sits between the larval and adult forms in complete metamorphosis (e.g., a chrysalis)?', options: ['Pupa', 'Larva', 'Nymph', 'Egg'], answer: 0 },
+  { type: 'BUG', difficulty: 2, q: 'What biological structural polysaccharide gives insect exoskeletons their tough, resilient properties?', options: ['Chitin', 'Cellulose', 'Glycogen', 'Keratin'], answer: 0 },
+
+  // --- ROCK (10 Questions) ---
+  { type: 'ROCK', difficulty: 1, q: 'What category of rock is formed by the cooling and solidification of molten magma or lava?', options: ['Igneous', 'Sedimentary', 'Metamorphic', 'Fossiliferous'], answer: 0 },
+  { type: 'ROCK', difficulty: 2, q: 'What standard geological scale characterizes the scratch resistance of various minerals?', options: ['Mohs scale', 'Richter scale', 'Fujita scale', 'Kelvin scale'], answer: 0 },
+  { type: 'ROCK', difficulty: 1, q: 'What category of rock is formed from the accumulation and cementation of mineral or organic particles over time?', options: ['Sedimentary', 'Igneous', 'Metamorphic', 'Basaltic'], answer: 0 },
+  { type: 'ROCK', difficulty: 2, q: 'What geological process transforms existing rocks under intense heat and pressure into new rock types?', options: ['Metamorphism', 'Weathering', 'Erosion', 'Melting'], answer: 0 },
+  { type: 'ROCK', difficulty: 1, q: 'What is the most abundant mineral found in Earths continental crust, composed of silicon and oxygen?', options: ['Quartz', 'Feldspar', 'Calcite', 'Mica'], answer: 0 },
+  { type: 'ROCK', difficulty: 2, q: 'What common sedimentary rock is formed primarily from the accumulation of microscopic skeletal remains of marine organisms?', options: ['Limestone', 'Sandstone', 'Shale', 'Conglomerate'], answer: 0 },
+  { type: 'ROCK', difficulty: 1, q: 'What igneous rock is dark-colored, fine-grained, and forms the primary constituent of oceanic crust?', options: ['Basalt', 'Granite', 'Pumice', 'Obsidian'], answer: 0 },
+  { type: 'ROCK', difficulty: 2, q: 'What mineral is rated as a 10 (the hardest) on the Mohs hardness scale?', options: ['Diamond', 'Corundum', 'Topaz', 'Quartz'], answer: 0 },
+  { type: 'ROCK', difficulty: 1, q: 'What coarse-grained intrusive igneous rock is widely used for monuments and countertops?', options: ['Granite', 'Basalt', 'Obsidian', 'Slate'], answer: 0 },
+  { type: 'ROCK', difficulty: 2, q: 'What cyclic geological model describes how rocks transition between igneous, sedimentary, and metamorphic states?', options: ['The Rock Cycle', 'Plate Tectonics', 'Hydrologic Cycle', 'Carbon Cycle'], answer: 0 },
+
+  // --- GHOST (10 Questions) ---
+  { type: 'GHOST', difficulty: 1, q: 'In cosmology, what invisible form of matter accounts for approximately 85% of the universe\'s total mass?', options: ['Dark matter', 'Antimatter', 'Baryonic matter', 'Plasma'], answer: 0 },
+  { type: 'GHOST', difficulty: 2, q: 'What theoretical massless particle is hypothesized in physics to mediate the force of gravity?', options: ['Graviton', 'Photon', 'Gluon', 'Boson'], answer: 0 },
+  { type: 'GHOST', difficulty: 1, q: 'What type of subatomic particle has an identical mass to an ordinary particle but opposite electric charge?', options: ['Antiparticle (Antimatter)', 'Neutron', 'Photon', 'Neutrino'], answer: 0 },
+  { type: 'GHOST', difficulty: 2, q: 'What ghostly, nearly massless subatomic particle interacts very weakly with normal matter?', options: ['Neutrino', 'Electron', 'Proton', 'Quark'], answer: 0 },
+  { type: 'GHOST', difficulty: 1, q: 'What phenomenon occurs when matter and antimatter collide, completely converting mass into energy?', options: ['Annihilation', 'Fission', 'Fusion', 'Ionization'], answer: 0 },
+  { type: 'GHOST', difficulty: 2, q: 'In quantum mechanics, what phenomenon describes particles remaining interconnected regardless of distance?', options: ['Quantum entanglement', 'Superposition', 'Tunneling', 'Wave-particle duality'], answer: 0 },
+  { type: 'GHOST', difficulty: 1, q: 'What celestial remnant is an extremely dense collapsed core of a massive supergiant star?', options: ['Neutron star', 'Red giant', 'White dwarf', 'Protostar'], answer: 0 },
+  { type: 'GHOST', difficulty: 2, q: 'What quantum physics principle states that a system can exist in multiple states simultaneously until observed?', options: ['Quantum superposition', 'Heisenberg uncertainty', 'Pauli exclusion', 'Quantum tunneling'], answer: 0 },
+  { type: 'GHOST', difficulty: 1, q: 'What type of high-energy electromagnetic radiation is produced by radioactive decay and cosmic events?', options: ['Gamma rays', 'X-rays', 'Ultraviolet', 'Infrared'], answer: 0 },
+  { type: 'GHOST', difficulty: 2, q: 'What theoretical concept describes bridges through spacetime that could connect distant points in the universe?', options: ['Wormhole (Einstein-Rosen bridge)', 'Black hole', 'Event horizon', 'Singularity'], answer: 0 },
+
+  // --- DRAGON (10 Questions) ---
+  { type: 'DRAGON', difficulty: 1, q: 'What major group of extinct reptiles dominated terrestrial ecosystems during the Mesozoic era?', options: ['Dinosaurs', 'Mammoths', 'Amphibians', 'Trilobites'], answer: 0 },
+  { type: 'DRAGON', difficulty: 2, q: 'What biological macromolecules carry hereditary genetic information essential for all cellular life?', options: ['Nucleic acids (DNA/RNA)', 'Proteins', 'Carbohydrates', 'Lipids'], answer: 0 },
+  { type: 'DRAGON', difficulty: 1, q: 'What geological era is commonly known as the Age of Reptiles or Age of Dinosaurs?', options: ['Mesozoic era', 'Paleozoic era', 'Cenozoic era', 'Precambrian'], answer: 0 },
+  { type: 'DRAGON', difficulty: 2, q: 'What scientific term describes animals (like reptiles and dinosaurs) whose body temperature depends on external sources?', options: ['Ectotherm (Cold-blooded)', 'Endotherm', 'Homeotherm', 'Marsupial'], answer: 0 },
+  { type: 'DRAGON', difficulty: 1, q: 'What famous massive carnivorous dinosaur lived during the late Cretaceous period?', options: ['Tyrannosaurus rex', 'Stegosaurus', 'Triceratops', 'Brachiosaurus'], answer: 0 },
+  { type: 'DRAGON', difficulty: 2, q: 'What evolutionary theory proposes that modern birds are direct descendants of a group of two-legged dinosaurs?', options: ['Theropod dinosaur ancestry', 'Mammalian convergence', 'Pterosaur evolution', 'Amphibian divergence'], answer: 0 },
+  { type: 'DRAGON', difficulty: 1, q: 'What large marine reptiles lived alongside dinosaurs in Mesozoic oceans but were technically not dinosaurs?', options: ['Plesiosaurs / Ichthyosaurs', 'Whales', 'Sharks', 'Crocodiles'], answer: 0 },
+  { type: 'DRAGON', difficulty: 2, q: 'What catastrophic global event at the end of the Cretaceous period caused the extinction of non-avian dinosaurs?', options: ['An asteroid impact (Chicxulub impact)', 'Massive global glaciation', 'Supervolcano eruption only', 'Solar flare'], answer: 0 },
+  { type: 'DRAGON', difficulty: 1, q: 'What living reptile group is considered the closest surviving evolutionary relative to crocodiles and birds?', options: ['Alligators / Crocodilians', 'Snakes', 'Lizards', 'Turtles'], answer: 0 },
+  { type: 'DRAGON', difficulty: 2, q: 'What nitrogenous base pairs form the rungs of the DNA double helix structure?', options: ['Adenine, Thymine, Cytosine, Guanine', 'Carbon, Hydrogen, Oxygen, Nitrogen', 'Glucose, Fructose, Sucrose', 'Amino acids'], answer: 0 },
+
+  // --- DARK (10 Questions) ---
+  { type: 'DARK', difficulty: 1, q: 'In astronomy, what region of spacetime exhibits gravitational attraction so strong that nothing can escape?', options: ['Black hole', 'Pulsar', 'Quasar', 'Supernova'], answer: 0 },
+  { type: 'DARK', difficulty: 2, q: 'What mysterious repulsive force is driving the current accelerated expansion of the universe?', options: ['Dark energy', 'Solar wind', 'Magnetic flux', 'Centrifugal force'], answer: 0 },
+  { type: 'DARK', difficulty: 1, q: 'What boundary surrounding a black hole marks the point of no return for light and matter?', options: ['Event horizon', 'Singularity', 'Accretion disk', 'Photon sphere'], answer: 0 },
+  { type: 'DARK', difficulty: 2, q: 'What theoretical radiation is predicted to be thermally emitted by black holes?', options: ['Hawking radiation', 'Cherenkov radiation', 'Synchrotron radiation', 'Cosmic microwave background'], answer: 0 },
+  { type: 'DARK', difficulty: 1, q: 'What is the infinitely dense central point of a black hole called?', options: ['Gravitational singularity', 'Event horizon', 'Core', 'Pulsar'], answer: 0 },
+  { type: 'DARK', difficulty: 2, q: 'What type of extremely dense rotating neutron star emits regular pulses of electromagnetic radiation?', options: ['Pulsar', 'Quasar', 'Magnetar', 'Supergiant'], answer: 0 },
+  { type: 'DARK', difficulty: 1, q: 'What term describes the celestial phenomenon where a massive star explodes at the end of its life cycle?', options: ['Supernova', 'Nebula', 'Eclipse', 'Flares'], answer: 0 },
+  { type: 'DARK', difficulty: 2, q: 'What extremely luminous active galactic nucleus is powered by a supermassive black hole?', options: ['Quasar', 'Pulsar', 'Magnetar', 'Binary star'], answer: 0 },
+  { type: 'DARK', difficulty: 1, q: 'What interstellar cloud of dust, hydrogen, helium, and ionized gases is often a birthplace of stars?', options: ['Nebula', 'Galaxy', 'Cluster', 'Asteroid belt'], answer: 0 },
+  { type: 'DARK', difficulty: 2, q: 'What theoretical dense star is composed entirely of closely packed neutrons resulting from gravitational collapse?', options: ['Neutron star', 'White dwarf', 'Brown dwarf', 'Black dwarf'], answer: 0 },
+
+  // --- STEEL (10 Questions) ---
+  { type: 'STEEL', difficulty: 1, q: 'Steel is an industrial alloy primarily composed of iron combined with which chemical element?', options: ['Carbon', 'Copper', 'Zinc', 'Aluminum'], answer: 0 },
+  { type: 'STEEL', difficulty: 2, q: 'What mechanical property describes a material\'s ability to deform under tensile stress without fracturing?', options: ['Ductility', 'Brittleness', 'Hardness', 'Density'], answer: 0 },
+  { type: 'STEEL', difficulty: 1, q: 'What metal is alloyed with iron and chromium to create corrosion-resistant stainless steel?', options: ['Chromium', 'Gold', 'Lead', 'Mercury'], answer: 0 },
+  { type: 'STEEL', difficulty: 2, q: 'What metallurgical heat treatment process involves heating steel and cooling it rapidly to increase hardness?', options: ['Quenching', 'Annealing', 'Tempering', 'Smelting'], answer: 0 },
+  { type: 'STEEL', difficulty: 1, q: 'What is the chemical symbol for the metal iron?', options: ['Fe', 'Ir', 'In', 'I'], answer: 0 },
+  { type: 'STEEL', difficulty: 2, q: 'What mechanical property measures a material\'s resistance to permanent indentation or scratching?', options: ['Hardness', 'Toughness', 'Elasticity', 'Mallability'], answer: 0 },
+  { type: 'STEEL', difficulty: 1, q: 'What term describes a mixture of two or more metallic elements to enhance desirable properties?', options: ['Alloy', 'Compound', 'Solution', 'Ore'], answer: 0 },
+  { type: 'STEEL', difficulty: 2, q: 'What industrial process extracts usable metal from raw mineral ore using heat and chemical reduction?', options: ['Smelting', 'Forging', 'Casting', 'Extrusion'], answer: 0 },
+  { type: 'STEEL', difficulty: 1, q: 'What is the most widely used structural metal in human construction and manufacturing?', options: ['Iron / Steel', 'Aluminum', 'Copper', 'Titanium'], answer: 0 },
+  { type: 'STEEL', difficulty: 2, q: 'What metallurgical process reheats quenched steel to a lower temperature to relieve internal stress and increase toughness?', options: ['Tempering', 'Quenching', 'Annealing', 'Galvanizing'], answer: 0 },
+
+  // --- FAIRY (10 Questions) ---
+  { type: 'FAIRY', difficulty: 1, q: 'In European folklore and mythology, what legendary diminutive spirits are traditionally associated with nature and woodlands?', options: ['Fae / Pixies', 'Goblins', 'Trolls', 'Ogres'], answer: 0 },
+  { type: 'FAIRY', difficulty: 2, q: 'In literature, what narrative technique uses symbolic fictional characters and events to express a deeper moral meaning?', options: ['Allegory', 'Metaphor', 'Hyperbole', 'Oxymoron'], answer: 0 },
+  { type: 'FAIRY', difficulty: 1, q: 'What classic folklore genre features magical creatures, royalty, spells, and mythical transformations?', options: ['Fairy tale', 'Sci-fi thriller', 'Historical drama', 'Biographical essay'], answer: 0 },
+  { type: 'FAIRY', difficulty: 2, q: 'What literary device assigns human emotions, traits, or intentions to non-human objects or nature?', options: ['Anthropomorphism (Personification)', 'Alliteration', 'Simile', 'Irony'], answer: 0 },
+  { type: 'FAIRY', difficulty: 1, q: 'In mythology, what winged magical humanoid creature is often depicted granting wishes or bestowing enchantments?', options: ['Fairy / Pixie', 'Vampire', 'Zombie', 'Cyclops'], answer: 0 },
+  { type: 'FAIRY', difficulty: 2, q: 'What traditional folklore term describes a ring of mushrooms that supernatural beings were believed to dance inside?', options: ['Fairy ring', 'Stone circle', 'Witches\' sabbath', 'Labyrinth'], answer: 0 },
+  { type: 'FAIRY', difficulty: 1, q: 'What famous Danish author wrote classic fairy tales such as "The Little Mermaid" and "The Ugly Duckling"?', options: ['Hans Christian Andersen', 'Brothers Grimm', 'Charles Perrault', 'J.R.R. Tolkien'], answer: 0 },
+  { type: 'FAIRY', difficulty: 2, q: 'What folkloric term describes a malicious supernatural being or mischief-maker often living underground or in forests?', options: ['Goblin / Imp', 'Angel', 'Titan', 'Sphinx'], answer: 0 },
+  { type: 'FAIRY', difficulty: 1, q: 'What traditional German brothers compiled and published famous folklore collections including Cinderella and Snow White?', options: ['Brothers Grimm', 'Brothers Wright', 'Brothers Marx', 'Brothers Lumière'], answer: 0 },
+  { type: 'FAIRY', difficulty: 2, q: 'What term describes traditional stories passed down orally within a specific culture before being written down?', options: ['Folklore / Oral tradition', 'Primary sources', 'Academic thesis', 'Legal statute'], answer: 0 }
+];
+
+const DEFAULT_MONSTER_PIXELS = {
+  bulbasaur: { palette: { p: '#22c55e', d: '#15803d', l: '#86efac', b: '#0f172a' }, grid: [
+     "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      ".........dd.....",
+      "........dddd....",
+      "...p...pdddd....",
+      "...ppppppppl....",
+      "...bppbpplpp....",
+      "...ppppppppp....",
+      "........p..p....",
+      "................",
+      "................",
+      "................",
+      "................"
+  ]},
+  charmander: { palette: { p: '#f97316', d: '#c2410c', l: '#fdba74', s: '#ef4444', b: '#0f172a' }, grid: [
+     "................",
+      "................",
+      "................",
+      "................",
+      ".....pppppp.....",
+      ".....pbppbp.....",
+      ".....pppppp..e..",
+      ".......ppppp.d..",
+      "......ppppp..l..",
+      ".......pllp..p..",
+      ".......pllp.p...",
+      ".......pllppp...",
+      ".......p..p.....",
+      "................",
+      "................",
+      "................"
+  ]},
+  squirtle: { palette: { p: '#3b82f6', d: '#a16207', l: '#93c5fd', s: '#fef08a', b: '#0f172a' }, grid: [
+    "................",
+      "................",
+      "................",
+      "......pppppp....",
+      "......pppppp....",
+      "......bppppb....",
+      "......pppppp....",
+      ".....pssssssp...",
+      ".....dssssssd...",
+      ".....dssssssd...",
+      ".....dssssssd...",
+      ".....dssssssd...",
+      "......p....p....",
+      "................",
+      "................",
+      "................"
+  ]},
+  caterpie: { palette: { p: '#84cc16', d: '#4d7c0f', l: '#bef264', s: '#ef4444', b: '#0f172a' }, grid: [
+    "................",
+      "................",
+      "................",
+      "....s.s.........",
+      "....sss.........",
+      "...ppsppp.......",
+      "...blppbl.......",
+      "...bbppbb.......",
+      "...pddppp.......",
+      "....ddpdd..p....",
+      ".....pppdd.p....",
+      "......pppddp....",
+      ".......ppppp....",
+      "................",
+      "................",
+      "................"
+  ]},
+  weedle: { palette: { p: '#eab308', d: '#a16207', l: '#fef08a', s: '#dc2626', b: '#0f172a' }, grid: [
+    "................",
+      "................",
+      "......ll........",
+      "......ll........",
+      "....pppppp......",
+      "....bpsspb......",
+      "....ppsspp......",
+      "....pppppp......",
+      "......ppp.......",
+      "......ppp...l...",
+      ".......ppp..p...",
+      ".......pppppp...",
+      ".........ppp....",
+      "................",
+      "................",
+      "................"
+  ]},
+  pidgey: { palette: { p: '#a16207', d: '#713f12', l: '#fef08a', s: '#f97316', b: '#0f172a' }, grid: [
+    "................",
+      "................",
+      "................",
+      "....p...........",
+      "....pppp........",
+      "...ppppll.......",
+      "...ppppll.......",
+      "....llbll.......",
+      "...dllllp.ppp...",
+      "....lllllppp....",
+      "..ppdddpppppp...",
+      "...ppdddpppp....",
+      "......dddddd....",
+      "......l....l....",
+      "................",
+      "................"
+  ]},
+  rattata: { palette: { p: '#a855f7', d: '#6b21a8', l: '#f3e8ff', s: '#ffffff', b: '#0f172a' }, grid: [
+     "................",
+      "................",
+      "................",
+      "..........ppp...",
+      "..pp..pp..ppp...",
+      "..pp..pp....p...",
+      "..blllbp....p...",
+      "..ldllppppppp...",
+      "..llllppppppp...",
+      "...p...pppppp...",
+      "...p...p...pp...",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+  ]},
+  spearow: { palette: { p: '#b45309', d: '#78350f', l: '#fde68a', s: '#dc2626', b: '#0f172a' }, grid: [
+    '................',
+    '.....rrrr.......',
+    '    ....pppppp......',
+    '...pbwbbwbp.....',
+    '...pppppppp.....',
+    '..pppppppppp....',
+    '...llllllll.....',
+    '    ....llllll......',
+    '.....llll.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  ekans: { palette: { p: '#a855f7', d: '#facc15', l: '#ecfccb', s: '#0f172a', b: '#0f172a' }, grid: [
+    "................",
+      "................",
+      "................",
+      "................",
+      "...pppppdpp.....",
+      "...ppsppdpp.....",
+      "...pppppdppp....",
+      ".....ddddppp....",
+      "........pppp....",
+      ".......ppps.....",
+      ".....pdddds..d..",
+      "....ppppppsppp..",
+      "....ppppppppp...",
+      "................",
+      "................",
+      "................"
+  ]},
+  pikachu: { palette: { p: '#facc15', d: '#ca8a04', l: '#ef4444', s: '#0f172a', b: '#ffffff' }, grid: [
+    "................",
+      "................",
+      "....b....b......",
+      "....p....p......",
+      "....p....p......",
+      "....pppppp......",
+      "....pbppbp......",
+      "....rppppr......",
+      "...pppppppp.....",
+      "....dppppd..b...",
+      "....pppppp.pp...",
+      "....dppppdpp....",
+      "....p....p......",
+      "................",
+      "................",
+      "................"
+  ]},
+  sandshrew: { palette: { p: '#eab308', d: '#854d0e', l: '#fef08a', s: '#0f172a' }, grid: [
+    '................',
+    '    ....llllll......',
+    '...llllllll.....',
+    '..pppppppp......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '    ....dd..dd......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  nidoran_f: { palette: { p: '#a855f7', d: '#581c87', l: '#e9d5ff', b: '#0f172a' }, grid: [
+    '................',
+    '...p......p.....',
+    '..ppp....ppp....',
+    '...pppppppp.....',
+    '...pb..pb.p.....',
+    '...pppppppp.....',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  nidoran_m: { palette: { p: '#3b82f6', d: '#1e3a8a', l: '#bfdbfe', b: '#0f172a' }, grid: [
+    '................',
+    '    ....pp..pp......',
+    '    ....pppppp......',
+    '...pppppppp.....',
+    '...pb..pb.p.....',
+    '...pppppppp.....',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  clefairy: { palette: { p: '#f472b6', d: '#db2777', l: '#fbcfe8', b: '#0f172a' }, grid: [
+    '................',
+    '...pppppp.......',
+    '..pppppppp......',
+    '..pb..pb.p......',
+    '.pppppppppp.....',
+    '.plllllllpp.....',
+    '.llllllllp......',
+    '..llllllll......',
+    '...pppppp.......',
+    '    ....dd..dd......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  vulpix: { palette: { p: '#ea580c', d: '#9a3412', l: '#fdba74', b: '#0f172a' }, grid: [
+    '................',
+    '    ....pppp........',
+    '...pppppp.......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..llllllll......',
+    '...llllll.......',
+    '..llllllll......',
+    '...pppppp.......',
+    '    ....dd..dd......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  jigglypuff: { palette: { p: '#f472b6', d: '#be185d', l: '#fbcfe8', b: '#0f172a', w: '#38bdf8' }, grid: [
+    '................',
+    '...pppppp.......',
+    '..pppppppp......',
+    '..pw..pw.p......',
+    '.pppppppppp.....',
+    '.pppppppppp.....',
+    '.pppppppppp.....',
+    '..pppppppp......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  zubat: { palette: { p: '#6366f1', d: '#312e81', l: '#c7d2fe', b: '#0f172a' }, grid: [
+    '................',
+    '..pp......pp....',
+    '.pppp....pppp...',
+    'pppppppppppppp..',
+    '...pppppp.......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  oddish: { palette: { p: '#3b82f6', d: '#1e40af', l: '#93c5fd', g: '#16a34a', b: '#0f172a' }, grid: [
+    '................',
+    '...gggggggg.....',
+    '..gggggggggg....',
+    '..pppppppp......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..pppppppp......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  paras: { palette: { p: '#dc2626', d: '#991b1b', l: '#fca5a5', w: '#fef08a', b: '#0f172a' }, grid: [
+    '................',
+    '..wwwwwwwwww....',
+    '.wwwwwwwwwwww...',
+    '..pppppppp......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..pppppppp......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  venonat: { palette: { p: '#7e22ce', d: '#581c87', l: '#e9d5ff', r: '#ef4444', b: '#0f172a' }, grid: [
+    '................',
+    '...pppppp.......',
+    '..prrrrrrpp.....',
+    '.prrbbbbrrp.....',
+    '.prrrrrrrpp.....',
+    '.pppppppppp.....',
+    '..pppppppp......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  diglett: { palette: { p: '#a16207', d: '#713f12', l: '#fef08a', b: '#0f172a' }, grid: [
+    '................',
+    '................',
+    '................',
+    '    .....pppp.......',
+    '    ....pppppp......',
+    '...pb..pb.p.....',
+    '...pppppppp.....',
+    '...pppppppp.....',
+    '..llllllll......',
+    '.llllllllll.....',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  meowth: { palette: { p: '#fef08a', d: '#ca8a04', l: '#ffffff', b: '#0f172a', r: '#b45309' }, grid: [
+    '................',
+    '    .....rrrr.......',
+    '    ....pppppp......',
+    '...pb..pb.p.....',
+    '...pppppppp.....',
+    '...pppppppp.....',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  psyduck: { palette: { p: '#facc15', d: '#ca8a04', l: '#fef08a', b: '#0f172a', k: '#000000' }, grid: [
+    '................',
+    '    ....pppp........',
+    '...pppppp.......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '    ....dd..dd......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  mankey: { palette: { p: '#d97706', d: '#b45309', l: '#fde68a', b: '#0f172a' }, grid: [
+    '................',
+    '    ....pppp........',
+    '...pppppp.......',
+    '..pb..pb.p......',
+    '.pppppppppp.....',
+    '.pppppppppp.....',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  growlithe: { palette: { p: '#ea580c', d: '#9a3412', l: '#fef08a', b: '#0f172a' }, grid: [
+    '................',
+    '    ....llll........',
+    '...llllll.......',
+    '..pppppppp......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  poliwag: { palette: { p: '#3b82f6', d: '#1d4ed8', l: '#93c5fd', w: '#ffffff', b: '#0f172a' }, grid: [
+    '................',
+    '    .....pppp.......',
+    '    ....pppppp......',
+    '...ppwwppwpp....',
+    '...ppwwppwpp....',
+    '...pppppppp.....',
+    '    ....pppppp......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  abra: { palette: { p: '#facc15', d: '#ca8a04', l: '#fef08a', b: '#0f172a' }, grid: [
+    '................',
+    '    ....pppp........',
+    '...pppppp.......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  machop: { palette: { p: '#93c5fd', d: '#3b82f6', l: '#dbeafe', b: '#0f172a' }, grid: [
+    '................',
+    '    ....pppp........',
+    '...pppppp.......',
+    '..pb..pb.p......',
+    '.pppppppppp.....',
+    '.pppppppppp.....',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  bellsprout: { palette: { p: '#eab308', d: '#a16207', g: '#16a34a', b: '#0f172a' }, grid: [
+    '................',
+    '    .....gggg.......',
+    '    ....gggggg......',
+    '    .....pppp.......',
+    '    ....pb..p.......',
+    '    ....pppp........',
+    '...pppppp.......',
+    '...pppppp.......',
+    '    ....dd..dd......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  tentacool: { palette: { p: '#f472b6', d: '#db2777', l: '#fbcfe8', r: '#dc2626', b: '#0f172a' }, grid: [
+    '................',
+    '    ....rrrr........',
+    '    ....pppp........',
+    '...pppppp.......',
+    '...pr..prp......',
+    '...pppppp.......',
+    '..pppppppp......',
+    '    ....d....d.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  geodude: { palette: { p: '#a8a29e', d: '#57534e', l: '#d6d3d1', b: '#0f172a' }, grid: [
+    '................',
+    '    .....pppp.......',
+    '    ....pppppp......',
+    '...pppppppp.....',
+    '...pb..pb.p.....',
+    '...pppppppp.....',
+    '..pppppppppp....',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]},
+  ponyta: { palette: { p: '#ea580c', d: '#9a3412', l: '#fef08a', b: '#0f172a' }, grid: [
+    '................',
+    '    ....llll........',
+    '...llllll.......',
+    '..pppppppp......',
+    '..pb..pb.p......',
+    '..pppppppp......',
+    '..llllllll......',
+    '..llllllll......',
+    '...pppppp.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]}
 };
 
 const PIXEL_COLOR_PRESETS = [
-  '#0f172a', '#ffffff', '#ef4444', '#f97316', '#facc15', '#4ade80', '#15803d', '#38bdf8',
-  '#2563eb', '#a855f7', '#f43f5e', '#78350f', '#57534e', '#d97706', '#0284c7', '#16a34a'
+  '#0f172a', '#ffffff', '#ef4444', '#f97316', '#facc15',
+  '#22c55e', '#3b82f6', '#a855f7', '#f472b6', '#a16207'
 ];
 
-function renderMonsterSVG(speciesOrId) {
-  const id = typeof speciesOrId === 'string' ? speciesOrId : speciesOrId.id;
-  const art = MONSTER_PIXELS[id] || MONSTER_PIXELS.voltbit;
-  const pal = art.palette;
-  let rects = '';
-  for (let y = 0; y < 16; y++) {
-    const row = art.grid[y] || '................';
-    for (let x = 0; x < 16; x++) {
-      const ch = row.charAt(x);
-      if (ch !== '.' && pal[ch]) {
-        rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${pal[ch]}"/>`;
-      }
-    }
-  }
-  return `<svg viewBox="0 0 16 16" class="w-full h-full drop-shadow-md">${rects}</svg>`;
-}
-
-function renderCaptureBallSVG(highlightStar = false) {
-  return `
-    <svg viewBox="0 0 16 16" class="w-20 h-20 sm:w-24 sm:h-24 drop-shadow-lg">
-      ${highlightStar ? '<rect x="7" y="0" width="2" height="2" fill="#fde047"/><rect x="2" y="2" width="2" height="2" fill="#fde047"/><rect x="12" y="2" width="2" height="2" fill="#fde047"/>' : ''}
-      <rect x="5" y="3" width="6" height="2" fill="#0f172a"/>
-      <rect x="3" y="5" width="10" height="3" fill="#ef4444"/>
-      <rect x="3" y="8" width="10" height="1" fill="#0f172a"/>
-      <rect x="3" y="9" width="10" height="3" fill="#f8fafc"/>
-      <rect x="5" y="12" width="6" height="2" fill="#0f172a"/>
-      <rect x="6" y="7" width="4" height="3" fill="#0f172a"/>
-      <rect x="7" y="8" width="2" height="1" fill="${highlightStar ? '#4ade80' : '#fde047'}"/>
-    </svg>`;
-}
-
-/********************************************************************
- * TRIVIA QUESTION POOL ACROSS ALL 18 TYPES
- ********************************************************************/
-const DEFAULT_QUESTIONS = [
-  { type: 'GRASS', difficulty: 1, q: 'Which gas do plants absorb from the atmosphere during photosynthesis?', options: ['Carbon Dioxide', 'Oxygen', 'Nitrogen', 'Argon'], answer: 0 },
-  { type: 'GRASS', difficulty: 2, q: 'What is the powerhouse organelle of a eukaryotic cell that generates ATP?', options: ['Mitochondria', 'Ribosome', 'Golgi Apparatus', 'Nucleolus'], answer: 0 },
-  { type: 'WATER', difficulty: 1, q: 'Which ocean is the largest and deepest on Earth?', options: ['Pacific Ocean', 'Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean'], answer: 0 },
-  { type: 'WATER', difficulty: 2, q: 'What is the deepest known trench in the world’s oceans?', options: ['Mariana Trench', 'Tonga Trench', 'Java Trench', 'Puerto Rico Trench'], answer: 0 },
-  { type: 'FIRE', difficulty: 1, q: 'Which subatomic particle carries a negative electrical charge?', options: ['Electron', 'Proton', 'Neutron', 'Photon'], answer: 0 },
-  { type: 'FIRE', difficulty: 3, q: 'A chemical reaction that releases heat to its surroundings is called?', options: ['Exothermic', 'Endothermic', 'Isothermal', 'Catalytic'], answer: 0 },
-  { type: 'ELECTRIC', difficulty: 2, q: 'In binary code, what decimal number is represented by 1010?', options: ['10', '8', '12', '6'], answer: 0 },
-  { type: 'PSYCHIC', difficulty: 2, q: 'Which lobe of the human brain is primarily responsible for visual processing?', options: ['Occipital Lobe', 'Frontal Lobe', 'Temporal Lobe', 'Parietal Lobe'], answer: 0 },
-  { type: 'DRAGON', difficulty: 2, q: 'What molecule carries genetic instructions used in the growth, development, and functioning of all living organisms?', options: ['DNA', 'ATP', 'RNA', 'Protein'], answer: 0 },
-  { type: 'ICE', difficulty: 1, q: 'At standard atmospheric pressure, at what Celsius temperature does water freeze into ice?', options: ['0°C', '-10°C', '4°C', '-32°C'], answer: 0 },
-  { type: 'GHOST', difficulty: 3, q: 'In quantum mechanics, what phenomenon describes particles remaining interconnected regardless of distance?', options: ['Quantum Entanglement', 'Superposition', 'Tunneling', 'Wave-particle duality'], answer: 0 },
-  { type: 'NORMAL', difficulty: 1, q: 'How many days are in a standard non-leap year?', options: ['365', '366', '360', '355'], answer: 0 },
-  { type: 'FIGHTING', difficulty: 2, q: 'What term describes the rate of doing work or consuming energy in physics?', options: ['Power', 'Velocity', 'Momentum', 'Acceleration'], answer: 0 },
-  { type: 'POISON', difficulty: 2, q: 'What pH level represents a strongly acidic chemical substance?', options: ['pH 1-3', 'pH 7', 'pH 9-11', 'pH 14'], answer: 0 },
-  { type: 'GROUND', difficulty: 2, q: 'What instrument is used to record seismic waves generated by earthquakes?', options: ['Seismograph', 'Barometer', 'Anemometer', 'Hydrometer'], answer: 0 },
-  { type: 'FLYING', difficulty: 1, q: 'What force opposes the forward motion of an aircraft through the air?', options: ['Drag', 'Lift', 'Thrust', 'Gravity'], answer: 0 },
-  { type: 'BUG', difficulty: 1, q: 'How many main body segments does an adult insect have?', options: ['Three', 'Two', 'Four', 'One'], answer: 0 },
-  { type: 'ROCK', difficulty: 2, q: 'Which mineral is known as the hardest naturally occurring substance on Earth?', options: ['Diamond', 'Quartz', 'Topaz', 'Corundum'], answer: 0 },
-  { type: 'DARK', difficulty: 3, q: 'What theoretical boundary around a black hole prevents anything, including light, from escaping?', options: ['Event Horizon', 'Accretion Disk', 'Singularity', 'Photon Sphere'], answer: 0 },
-  { type: 'STEEL', difficulty: 2, q: 'What primary metal alloy is created by combining iron and carbon?', options: ['Steel', 'Bronze', 'Brass', 'Pewter'], answer: 0 },
-  { type: 'FAIRY', difficulty: 2, q: 'In optics, what phenomenon causes light to bend around the edges of an obstacle or opening?', options: ['Diffraction', 'Reflection', 'Refraction', 'Dispersion'], answer: 0 }
-];
+const PALETTE_SLOT_NAMES = {
+  p: 'Primary Hue',
+  d: 'Shading',
+  l: 'Highlight',
+  b: 'Outline',
+  s: 'Secondary Hue',
+  t: 'Tertiary Hue'
+};

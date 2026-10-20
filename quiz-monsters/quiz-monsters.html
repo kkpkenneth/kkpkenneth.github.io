@@ -72,14 +72,14 @@
 
     @keyframes idleBob { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
     @keyframes hitFlash {
-      0%, 100% { filter: none; transform: translateX(0); }
-      20% { filter: brightness(10) invert(1); transform: translateX(-10px); }
-      40% { filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); transform: translateX(10px); }
-      60% { filter: brightness(10); transform: translateX(-8px); }
-      80% { filter: none; transform: translateX(6px); }
+      0%, 100% { filter: none; }
+      20% { filter: brightness(10) invert(1); }
+      40% { filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
+      60% { filter: brightness(10); }
+      80% { filter: none; }
     }
-    @keyframes lungePlayer { 0% { transform: translate(0, 0) scale(1); } 40% { transform: translate(45px, -25px) scale(1.12); } 100% { transform: translate(0, 0) scale(1); } }
-    @keyframes lungeEnemy { 0% { transform: translate(0, 0) scale(1); } 40% { transform: translate(-45px, 25px) scale(1.12); } 100% { transform: translate(0, 0) scale(1); } }
+    @keyframes lungePlayer { 0% { transform: translate(0, 0) scale(1); } 40% { transform: translate(10px, -6px) scale(1.04); } 100% { transform: translate(0, 0) scale(1); } }
+    @keyframes lungeEnemy { 0% { transform: translate(0, 0) scale(1); } 40% { transform: translate(-10px, 6px) scale(1.04); } 100% { transform: translate(0, 0) scale(1); } }
     @keyframes ballThrow {
       0% { transform: translate(-180px, 110px) scale(0.6) rotate(0deg); }
       55% { transform: translate(-40px, -60px) scale(1.1) rotate(360deg); }
@@ -131,10 +131,6 @@
       <div class="flex items-center gap-2">
         <span id="headerStatusLed" class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white animate-pulse"></span>
         <h1 class="text-xs sm:text-sm tracking-tighter text-amber-400 drop-shadow">POKéQUIZ DX</h1>
-      </div>
-      <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1.5 rounded border border-slate-700" title="Your Registered Dex">
-        <span class="text-[9px] text-slate-400 mr-1 hidden sm:inline">DEX:</span>
-        <div id="headerDexSlots" class="flex items-center gap-1.5"></div>
       </div>
     </div>
 
@@ -203,7 +199,7 @@
           <div id="titleSprite0" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle"></div>
           <div id="titleSprite1" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.3s;"></div>
           <div id="titleSprite2" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.6s;"></div>
-          <div id="titleSprite3" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.9s;"></div>
+          <div id="titleSprite9" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.9s;"></div>
         </div>
 
         <button id="startGameBtn" class="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-base font-bold px-7 py-3.5 animate-bounce">
@@ -224,24 +220,26 @@
         <canvas id="overworldCanvas" width="768" height="320" class="w-full h-full object-cover"></canvas>
         <div class="crt-overlay absolute inset-0 z-10"></div>
 
-        <div class="absolute top-2.5 left-2.5 z-20 retro-box px-2.5 py-1.5 flex items-center gap-2">
-          <span id="zoneDotIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-          <div>
-            <div id="zoneNameBadge" class="text-[9px] sm:text-[10px] font-bold text-slate-900">PALLET HUB TOWN</div>
-            <div id="zoneSubBadge" class="text-[8px] text-slate-600">EXITS: N-MOUNTAIN • E-DESERT • S-BEACH • W-FOREST</div>
+        <!-- ZONE BADGE WITH INCREASED PADDING -->
+        <div class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 retro-box px-3.5 py-2 sm:px-4 sm:py-2.5 flex items-center gap-2 max-w-[48%] sm:max-w-none">
+          <span id="zoneDotIndicator" class="inline-block w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-600 shrink-0"></span>
+          <div class="min-w-0">
+            <div id="zoneNameBadge" class="text-[9px] sm:text-[10px] font-bold text-slate-900 truncate">PALLET HUB TOWN</div>
+            <div id="zoneSubBadge" class="hidden sm:block text-[8px] text-slate-600 truncate">EXITS: N-MOUNTAIN • E-DESERT • S-BEACH • W-FOREST</div>
           </div>
         </div>
 
-        <div class="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
-          <button id="overworldDexBtn" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[8px] sm:text-[9px] px-2.5 py-1.5">
+        <!-- OVERWORLD DEX & TITLE BUTTONS -->
+        <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 flex items-center gap-1.5">
+          <button id="overworldDexBtn" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2.5">
             DEX / PARTNER
           </button>
-          <button id="btnReturnTitle" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[8px] sm:text-[9px] px-2.5 py-1.5">
+          <button id="btnReturnTitle" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2.5">
             TITLE
           </button>
         </div>
 
-        <div id="npcPromptBanner" class="hidden absolute bottom-3 left-1/2 -translate-x-1/2 z-20 bg-slate-950/90 text-amber-300 border-2 border-amber-400 px-3 py-1 rounded text-[9px] sm:text-[10px] animate-bounce whitespace-nowrap pointer-events-none">
+        <div id="npcPromptBanner" class="hidden absolute bottom-3 left-0 right-0 mx-auto w-max z-30 bg-slate-950/95 text-amber-300 border-2 border-amber-400 px-2.5 py-0.5 rounded text-[6px] sm:text-[7px] animate-bounce shadow-xl pointer-events-none">
           PRESS [SPACE] OR [A] TO TALK
         </div>
 
@@ -318,16 +316,18 @@
           </div>
         </div>
 
-        <div class="absolute top-12 sm:top-14 right-6 sm:right-14 flex flex-col items-center z-10">
-          <div id="enemyFloatContainer" class="h-6 flex items-center justify-center pointer-events-none z-30"></div>
+        <!-- ENEMY SPRITE CONTAINER (Moved lower inside arena to keep shake/float text completely on screen) -->
+        <div class="absolute top-6 right-12 sm:top-8 sm:right-24 w-24 sm:w-32 flex flex-col items-center z-10">
+          <div id="enemyFloatContainer" class="absolute -top-4 left-1/2 -translate-x-1/2 w-0 h-6 flex items-center justify-center overflow-visible pointer-events-none z-30"></div>
           <div id="enemySpriteWrapper" class="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10"></div>
-          <div class="w-28 sm:w-36 h-6 sm:h-7 bg-emerald-700/45 border-2 border-emerald-900/50 rounded-full -mt-3"></div>
+          <div class="w-20 sm:w-28 h-4 sm:h-5 bg-slate-900/35 rounded-full blur-[1px] -mt-2 shrink-0"></div>
         </div>
 
-        <div class="absolute bottom-2 sm:bottom-3 left-6 sm:left-14 flex flex-col items-center z-10">
-          <div id="playerFloatContainer" class="h-6 flex items-center justify-center pointer-events-none z-30"></div>
+        <!-- PLAYER SPRITE CONTAINER -->
+        <div class="absolute bottom-2 sm:bottom-3 left-12 sm:left-24 w-24 sm:w-32 flex flex-col items-center z-10">
+          <div id="playerFloatContainer" class="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-6 flex items-center justify-center overflow-visible pointer-events-none z-30"></div>
           <div id="playerSpriteWrapper" class="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10"></div>
-          <div class="w-32 sm:w-40 h-6 sm:h-8 bg-emerald-800/45 border-2 border-emerald-950/50 rounded-full -mt-4"></div>
+          <div class="w-20 sm:w-28 h-4 sm:h-5 bg-slate-900/35 rounded-full blur-[1px] -mt-2 shrink-0"></div>
         </div>
 
         <div class="absolute bottom-3 right-3 z-20 w-56 sm:w-72 retro-box p-2 sm:p-2.5">
@@ -347,10 +347,6 @@
           </div>
           <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-700">
             <span id="playerHpNumbers">140/140</span>
-            <span id="playerXpLabel" class="text-indigo-700">STREAK XP</span>
-          </div>
-          <div class="w-full h-1.5 bg-slate-300 border border-slate-600 rounded-sm overflow-hidden mt-0.5">
-            <div id="playerStreakBar" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%;"></div>
           </div>
         </div>
       </section>
@@ -431,7 +427,7 @@
             </div>
             <button id="backFromDexBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
           </div>
-          <div id="dexGridContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1"></div>
+          <div id="dexGridContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1 justify-items-center"></div>
         </div>
       </section>
     </div>
@@ -619,13 +615,15 @@
     </div>
   </div>
 
+  <!-- Also update the caught text color in battle.js to yellow (text-amber-300) -->
   <script src="monsters.js"></script>
-  <script src="maps.js"></script>
-  <script src="audio.js"></script>
-  <script src="characters.js"></script>
   <script src="overworld.js"></script>
   <script src="battle.js"></script>
   <script src="studio.js"></script>
+  <script src="maps.js"></script>
+  <script src="audio.js"></script>
+  <script src="characters.js"></script>
+  
 
   <script>
     const state = {
@@ -678,9 +676,11 @@
     };
 
     function refreshTitleScreenSprites() {
-      [0, 1, 2, 3].forEach(idx => {
+      [0, 1, 2, 9].forEach(idx => {
         const el = document.getElementById(`titleSprite${idx}`);
-        if (el) el.innerHTML = renderMonsterSVG(MONSTER_SPECIES[idx]);
+        if (el && MONSTER_SPECIES[idx]) {
+          el.innerHTML = renderMonsterSVG(MONSTER_SPECIES[idx]);
+        }
       });
     }
 
@@ -694,8 +694,21 @@
       initQuestionEditor();
       syncAllUI();
 
-      document.getElementById('startGameBtn').addEventListener('click', enterOverworldFromTitle);
-      document.getElementById('btnReturnTitle').addEventListener('click', () => {
+      // Safe helper to bind events only if elements exist in DOM
+      const bindClick = (id, handler) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', handler);
+      };
+
+      bindClick('startGameBtn', enterOverworldFromTitle);
+      bindClick('overworldDexBtn', openOverworldDexModal);
+      bindClick('closeOverworldDexBtn', () => {
+        sfx.blip();
+        document.getElementById('overworldDexModal').classList.add('hidden');
+        document.getElementById('overworldDexModal').classList.remove('flex');
+      });
+
+      bindClick('btnReturnTitle', () => {
         if (state.busy) return;
         sfx.blip();
         runShutterTransition('TITLE SCREEN...', () => {
@@ -707,25 +720,18 @@
         });
       });
 
-      document.getElementById('overworldDexBtn').addEventListener('click', openOverworldDexModal);
-      document.getElementById('closeOverworldDexBtn').addEventListener('click', () => {
-        sfx.blip();
-        document.getElementById('overworldDexModal').classList.add('hidden');
-        document.getElementById('overworldDexModal').classList.remove('flex');
-      });
-
-      document.getElementById('btnInteractA').addEventListener('click', interactWithFacingNPC);
-      document.getElementById('btnFight').addEventListener('click', showMoveSelectView);
-      document.getElementById('btnBall').addEventListener('click', startCaptureBallSequence);
-      document.getElementById('btnSwitch').addEventListener('click', showDexSwitchView);
-      document.getElementById('btnRun').addEventListener('click', () => {
+      bindClick('btnInteractA', interactWithFacingNPC);
+      bindClick('btnFight', showMoveSelectView);
+      bindClick('btnBall', startCaptureBallSequence);
+      bindClick('btnSwitch', showDexSwitchView);
+      bindClick('btnRun', () => {
         if (state.busy) return;
         sfx.blip();
         returnToOverworldFromBattle(`Got away safely from wild ${state.enemy.name}!`);
       });
 
-      document.getElementById('backFromMovesBtn').addEventListener('click', () => { sfx.blip(); showCommandView(); });
-      document.getElementById('backFromDexBtn').addEventListener('click', () => { sfx.blip(); showCommandView(); });
+      bindClick('backFromMovesBtn', () => { sfx.blip(); showCommandView(); });
+      bindClick('backFromDexBtn', () => { sfx.blip(); showCommandView(); });
 
       document.querySelectorAll('.dpad-btn').forEach(btn => {
         const dir = btn.getAttribute('data-dir');
@@ -753,7 +759,7 @@
 
       window.addEventListener('keyup', (e) => { state.keysHeld[e.code] = false; });
 
-      document.getElementById('bgmToggleBtn').addEventListener('click', (e) => {
+      bindClick('bgmToggleBtn', (e) => {
         sfx.bgmMuted = !sfx.bgmMuted;
         e.currentTarget.textContent = sfx.bgmMuted ? 'BGM: OFF' : 'BGM: ON';
         e.currentTarget.classList.toggle('bg-emerald-700', !sfx.bgmMuted);
@@ -762,7 +768,7 @@
         else sfx.startBGM(state.screen === 'BATTLE' ? 'BATTLE' : (state.screen === 'OVERWORLD' ? 'OVERWORLD' : 'TITLE'));
       });
 
-      document.getElementById('muteToggleBtn').addEventListener('click', (e) => {
+      bindClick('muteToggleBtn', (e) => {
         sfx.sfxMuted = !sfx.sfxMuted;
         e.currentTarget.textContent = sfx.sfxMuted ? 'SFX: OFF' : 'SFX: ON';
         e.currentTarget.classList.toggle('text-amber-300', !sfx.sfxMuted);

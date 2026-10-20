@@ -13,7 +13,7 @@ const WORLD_MAPS = {
     name: 'PALLET RESEARCH HUB',
     subtitle: 'N: MOUNTAIN • E: DESERT • S: BEACH • W: FOREST',
     theme: { groundA: '#65a30d', groundB: '#6dab14', path: '#d6b37c', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e' },
-    encounters: ['voltbit', 'fernlynx', 'charcoalon', 'aquashell'],
+    encounters: ['pikachu', 'pidgey', 'rattata','spearow'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..FFFF..PPPPPPPPPP..FFFF..T",
@@ -54,10 +54,15 @@ const WORLD_MAPS = {
         fact: "DR. HOUSE: As a medical doctor, I treat patients daily. Remember: Hemoglobin is the protein in red blood cells that carries oxygen from the lungs to body tissues!"
       },
       {
-        id: 'officer_riggs', name: 'OFFICER RIGGS', topic: 'POLICEMAN • LOGIC & LAWS', x: 19, y: 4,
+        id: 'officer_jenny', name: 'OFFICER JENNY', topic: 'POLICEMAN • LOGIC & LAWS', x: 19, y: 4,
         hatColor: '#1e3a8a', shirtColor: '#60a5fa',
-        fact: "OFFICER RIGGS: Law and order! In binary code, the decimal number 10 is represented as 1010, and an AND Logic Gate outputs TRUE only when both inputs are TRUE!"
-      }
+        fact: "OFFICER JENNY: Law and order! In binary code, the decimal number 10 is represented as 1010, and an AND Logic Gate outputs TRUE only when both inputs are TRUE!"
+      },
+      {
+        id: 'teacher_cherry', name: 'TEACHER CHERRY', topic: 'TEACHER • CRITICAL THINKING', x: 13, y: 5,
+        hatColor: '#8b5cf6', shirtColor: '#c084fc',
+        fact: "TEACHER CHERRY: Welcome back to the Hub Center! Always analyze sources critically before jumping to conclusions!"
+      },
     ]
   },
 
@@ -66,7 +71,7 @@ const WORLD_MAPS = {
     name: 'CRAG MOUNTAIN PEAK (NORTH)',
     subtitle: 'HIGHLAND HABITAT • WILD PYROCORE & VOLTBIT',
     theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c' },
-    encounters: ['pyrocore', 'voltbit', 'charcoalon'],
+    encounters: ['charmander', 'clefairy', 'vulpix', 'jigglypuff', 'zubat','growlithe','ponyta'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       "T..TTTT....PPPPPP....TTTT..T",
@@ -111,7 +116,7 @@ const WORLD_MAPS = {
     name: 'SCORCHED MIRAGE DESERT (EAST)',
     subtitle: 'ARID DUNES • WILD CHARCOALON, PYROCORE & VOLTBIT',
     theme: { groundA: '#d97706', groundB: '#b45309', path: '#fde68a', grass: '#9a3412', grassTip: '#fb923c', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['charcoalon', 'pyrocore', 'voltbit'],
+    encounters: ['sandshrew', 'nidoran_f','nidoran_m','machop','mankey'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       "T....GGGG..........GGGG....T",
@@ -151,7 +156,7 @@ const WORLD_MAPS = {
     name: 'CORAL LAGOON BEACH (SOUTH)',
     subtitle: 'COASTAL SHORE • WILD AQUASHELL & TIDALFIN',
     theme: { groundA: '#fde047', groundB: '#facc15', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['aquashell', 'tidalfin', 'voltbit'],
+    encounters: ['squirtle', 'psyduck', 'poliwag','tentacool','geodude','abra','ekans'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T...........PPPP...........T",
@@ -191,7 +196,7 @@ const WORLD_MAPS = {
     name: 'VIRIDIAN CANOPY FOREST (WEST)',
     subtitle: 'DEEC WOODS • WILD FERNLYNX & AQUASHELL',
     theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
-    encounters: ['fernlynx', 'aquashell', 'voltbit'],
+    encounters: ['bulbasaur', 'caterpie', 'weedle', 'oddish', 'bellsprout','meowth','venonat','paras'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       "T.TTTT..GGGGGGGGGGGG..TTTT.T",

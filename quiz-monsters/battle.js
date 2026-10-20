@@ -1,18 +1,32 @@
 /********************************************************************
  * battle.js
- * Trivia Combat Engine, Difficulty x Speed Math, HP Catch & Partner/Dex UI
+ * Trivia Combat Engine, Difficulty x Speed Math, HP Catch & Live MONSTER_SPECIES Binding
  ********************************************************************/
 
 function createMonsterInstance(template) {
+  // Find live species template so custom names/types from Studio are respected
+  const liveSpecies = (typeof MONSTER_SPECIES !== 'undefined' ? MONSTER_SPECIES.find(m => m.id === template.id) : null) || template;
+
+  const allTypes = Object.keys(ELEMENT_TYPES);
+  const charSum = liveSpecies.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const consistentRandomType = allTypes[Math.floor(allTypes.length * Math.random())];
+
   return {
-    ...structuredClone(template),
-    maxHp: template.baseHp,
-    hp: template.baseHp
+    ...structuredClone(liveSpecies),
+    maxHp: liveSpecies.baseHp || template.baseHp || 100,
+    hp: liveSpecies.baseHp || template.baseHp || 100,
+    consistentRandomType: consistentRandomType === liveSpecies.type ? allTypes[(charSum + 1) % allTypes.length] : consistentRandomType
   };
 }
 
 function getActivePlayer() {
-  return state.dex[state.activeDexIndex];
+  const dexMon = state.dex[state.activeDexIndex];
+  const liveSpecies = MONSTER_SPECIES.find(m => m.id === dexMon.id);
+  if (liveSpecies) {
+    dexMon.name = liveSpecies.name;
+    dexMon.type = liveSpecies.type;
+  }
+  return dexMon;
 }
 
 function calculateCatchProbability(enemy) {
@@ -25,11 +39,29 @@ function setupBattleEncounter(chosenSpecies) {
   const activePlayer = getActivePlayer();
   state.enemy = createMonsterInstance(chosenSpecies);
 
-  document.getElementById('enemySpriteWrapper').innerHTML = renderMonsterSVG(state.enemy);
-  document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(activePlayer);
+  const enemyWrapper = document.getElementById('enemySpriteWrapper');
+  const playerWrapper = document.getElementById('playerSpriteWrapper');
+
+  if (enemyWrapper) {
+    enemyWrapper.innerHTML = renderMonsterSVG(state.enemy);
+    enemyWrapper.style.boxShadow = 'none';
+    enemyWrapper.style.filter = 'none';
+    enemyWrapper.style.transform = 'scale(1)';
+    enemyWrapper.style.opacity = '1';
+  }
+  if (playerWrapper) {
+    playerWrapper.innerHTML = renderMonsterSVG(activePlayer);
+    playerWrapper.style.boxShadow = 'none';
+    playerWrapper.style.filter = 'none';
+  }
+
+  // Safely hide ground shadow elements if present in DOM
+  document.querySelectorAll('.battle-platform, #playerPlatform, #enemyPlatform').forEach(el => {
+    if (el) el.classList.add('hidden');
+  });
 
   showCommandView();
-  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared in ${getCurrentMap().name}! Answer fast on tough questions for huge damage, or throw a BALL!`, 'WILD ENCOUNTER');
+  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared in ${getCurrentMap().name}! Choose your move or throw a BALL!`, 'WILD ENCOUNTER');
   syncAllUI();
 }
 
@@ -47,8 +79,8 @@ function syncAllUI() {
   document.getElementById('playerLevel').textContent = `Lv${player.level}`;
   const pTypeInfo = ELEMENT_TYPES[player.type];
   const pBadge = document.getElementById('playerTypeBadge');
-  pBadge.textContent = pTypeInfo.name;
-  pBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${pTypeInfo.badgeClass}`;
+  pBadge.textContent = pTypeInfo ? pTypeInfo.name : player.type;
+  pBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${pTypeInfo ? pTypeInfo.badgeClass : 'bg-slate-700'}`;
 
   const pRatio = Math.max(0, player.hp / player.maxHp);
   const pBar = document.getElementById('playerHpBar');
@@ -59,7 +91,6 @@ function syncAllUI() {
   const atkBonus = Math.min(6, state.streak);
   const atkMult = (1 + atkBonus * 0.15).toFixed(2);
   document.getElementById('playerAtkStage').textContent = `ATK STAGE: +${atkBonus}`;
-  document.getElementById('playerStreakBar').style.width = `${Math.min(100, (state.streak / 6) * 100)}%`;
 
   document.getElementById('streakCountText').textContent = `${state.streak} (${atkMult}x)`;
   document.getElementById('dexCountText').textContent = `${state.dex.length}/${MONSTER_SPECIES.length}`;
@@ -88,8 +119,8 @@ function syncAllUI() {
     document.getElementById('enemyLevel').textContent = `Lv${enemy.level}`;
     const eTypeInfo = ELEMENT_TYPES[enemy.type];
     const eBadge = document.getElementById('enemyTypeBadge');
-    eBadge.textContent = eTypeInfo.name;
-    eBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo.badgeClass}`;
+    eBadge.textContent = eTypeInfo ? eTypeInfo.name : enemy.type;
+    eBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo ? eTypeInfo.badgeClass : 'bg-slate-700'}`;
 
     const alreadyOwned = state.dex.some(p => p.id === enemy.id);
     document.getElementById('enemyCaughtIcon').classList.toggle('hidden', !alreadyOwned);
@@ -179,17 +210,29 @@ function renderMoveButtons() {
   const player = getActivePlayer();
   const enemy = state.enemy;
 
-  Object.values(ELEMENT_TYPES).forEach(typeObj => {
-    const mult = getEffectiveness(typeObj.id, enemy.type);
-    const hasStab = player.type === typeObj.id;
+  const secondaryType = player.consistentRandomType || 'NORMAL';
+  const primarySubject = ELEMENT_TYPES[player.type] ? ELEMENT_TYPES[player.type].subject : 'General';
+  const secondarySubject = ELEMENT_TYPES[secondaryType] ? ELEMENT_TYPES[secondaryType].subject : 'General';
 
-    let effLabel = 'NORMAL (1x)';
+  const moveConfigs = [
+    { title: 'NORMAL STRIKE', typeId: 'NORMAL', diff: 1, desc: 'Everyday Logic (★1 • Normal)' },
+    { title: `${player.type} EASY STRIKE`, typeId: player.type, diff: 1, desc: `${primarySubject} (★1 • Easy STAB)` },
+    { title: `${player.type} HARD STRIKE`, typeId: player.type, diff: 3, desc: `${primarySubject} (★3 • Hard STAB)` },
+    { title: `${secondaryType} WILD STRIKE`, typeId: secondaryType, diff: 2, desc: `${secondarySubject} (★2 • Partner Move)` }
+  ];
+
+  moveConfigs.forEach(cfg => {
+    const typeObj = ELEMENT_TYPES[cfg.typeId] || { name: cfg.typeId, btnClass: 'bg-slate-700 text-white', badgeClass: 'bg-slate-700' };
+    const mult = getEffectiveness(cfg.typeId, enemy.type);
+    const hasStab = player.type === cfg.typeId && cfg.typeId !== 'NORMAL';
+
+    let effLabel = '1x';
     let effBadgeClass = 'bg-slate-900/40 text-white';
     if (mult > 1) {
-      effLabel = 'SUPER EFFECTIVE (2x!)';
+      effLabel = 'SUPER (2x!)';
       effBadgeClass = 'bg-yellow-300 text-slate-950 animate-pulse';
     } else if (mult < 1) {
-      effLabel = 'NOT VERY EFFECTIVE (0.5x)';
+      effLabel = 'NOT VERY (0.5x)';
       effBadgeClass = 'bg-slate-800/70 text-slate-300';
     }
 
@@ -197,25 +240,30 @@ function renderMoveButtons() {
     btn.className = `pixel-btn ${typeObj.btnClass} p-2.5 sm:p-3 flex flex-col justify-between text-left gap-1.5`;
     btn.innerHTML = `
       <div class="flex items-center justify-between w-full gap-1">
-        <span class="text-xs sm:text-sm font-bold">${typeObj.name} STRIKE</span>
-        ${hasStab ? '<span class="text-[8px] px-1.5 py-0.5 rounded bg-white/90 text-slate-950 font-bold">STAB 1.25x</span>' : ''}
+        <span class="text-xs sm:text-sm font-bold">${cfg.title}</span>
+        ${hasStab ? '<span class="text-[8px] px-1.5 py-0.5 rounded bg-white/90 text-slate-950 font-bold">STAB</span>' : ''}
       </div>
       <div class="flex items-center justify-between w-full gap-1">
-        <span class="text-[8px] sm:text-[9px] opacity-95">${typeObj.subject}</span>
+        <span class="text-[8px] sm:text-[9px] opacity-95">${cfg.desc}</span>
         <span class="text-[8px] px-1.5 py-0.5 rounded font-bold ${effBadgeClass}">${effLabel}</span>
       </div>
     `;
-    btn.addEventListener('click', () => startElementalTriviaAttack(typeObj.id));
+    btn.addEventListener('click', () => startElementalTriviaAttack(cfg.typeId, cfg.diff));
     grid.appendChild(btn);
   });
 }
 
-function pickRandomQuestion(elementType = null) {
-  let pool = elementType
-    ? state.questions.filter(q => q.type === elementType)
-    : state.questions;
-
+function pickRandomQuestion(elementType = null, difficulty = null) {
+  let pool = state.questions;
+  if (elementType) {
+    pool = pool.filter(q => q.type === elementType);
+  }
+  if (difficulty !== null) {
+    const diffPool = pool.filter(q => q.difficulty === difficulty);
+    if (diffPool.length > 0) pool = diffPool;
+  }
   if (pool.length === 0) pool = state.questions;
+
   const chosen = pool[Math.floor(Math.random() * pool.length)];
 
   const indexedOptions = chosen.options.map((text, idx) => ({
@@ -237,10 +285,11 @@ function getDifficultyMultiplier(diff) {
   return 1.0;
 }
 
-function startElementalTriviaAttack(elementType) {
+function startElementalTriviaAttack(elementType, difficulty = 2) {
   sfx.blip();
   state.selectedAttackType = elementType;
-  launchQuizQuestion(elementType, 25.0);
+  state.selectedDifficulty = difficulty;
+  launchQuizQuestion(elementType, difficulty, 25.0);
 }
 
 function startCaptureBallSequence() {
@@ -253,78 +302,125 @@ function startCaptureBallSequence() {
   const pctText = Math.round(catchProb * 100);
 
   sfx.ballThrow();
-  const enemyWrapper = document.getElementById('enemySpriteWrapper');
-  enemyWrapper.innerHTML = renderCaptureBallSVG(false);
-  triggerSpriteAnimation('enemy', 'anim-ball-throw');
+  
+  const targetContainer = document.getElementById('enemyContainer');
+  
+  if (targetContainer) {
+    const flyingBall = document.createElement('div');
+    flyingBall.className = 'absolute z-50 w-10 h-10 transition-all duration-600 ease-out pointer-events-none';
+    flyingBall.style.left = '-140px';
+    flyingBall.style.bottom = '-40px';
+    flyingBall.style.transform = 'scale(0.8)';
+    flyingBall.innerHTML = renderCaptureBallSVG(false);
+    targetContainer.appendChild(flyingBall);
+
+    void flyingBall.offsetWidth;
+    setTimeout(() => {
+      flyingBall.style.left = '16px';
+      flyingBall.style.bottom = '16px';
+      flyingBall.style.transform = 'scale(0.8)';
+    }, 40);
+
+    setTimeout(() => {
+      flyingBall.remove();
+    }, 620);
+  }
+
   setDialogue(`Threw a Capture Ball at ${enemy.name}! (HP Catch Rate: ${pctText}%)...`, 'THROWING BALL');
 
-  const isCaught = Math.random() < catchProb;
-  const totalShakes = isCaught ? 3 : (Math.floor(Math.random() * 2) + 1);
-
-  let currentShake = 0;
-  const runNextShake = () => {
-    currentShake++;
-    if (currentShake <= totalShakes) {
-      sfx.ballShake();
-      triggerSpriteAnimation('enemy', 'anim-ball-shake');
-      spawnFloatingText('enemy', `SHAKE ${currentShake}...`, 'text-amber-300');
-      setTimeout(runNextShake, 750);
-    } else if (isCaught) {
-      sfx.captureFanfare();
-      enemyWrapper.innerHTML = renderCaptureBallSVG(true);
-      spawnFloatingText('enemy', 'GOTCHA! ★', 'text-emerald-300');
-
-      const alreadyInDex = state.dex.some(p => p.id === enemy.id);
-      if (!alreadyInDex) {
-        state.dex.push(createMonsterInstance(enemy));
-      }
-      syncAllUI();
-      setDialogue(`GOTCHA! ${enemy.name} was caught (${pctText}% odds) and added to your Dex! Returning to Overworld...`, 'CAPTURED! ★');
+  setTimeout(() => {
+    const enemyWrapper = document.getElementById('enemySpriteWrapper');
+    if (enemyWrapper) {
+      enemyWrapper.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+      enemyWrapper.style.transform = 'scale(0.1)';
+      enemyWrapper.style.opacity = '0';
 
       setTimeout(() => {
-        returnToOverworldFromBattle(`GOTCHA! ${enemy.name} (${enemy.type}) registered in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
-      }, 2000);
-    } else {
-      sfx.wrongBuzzer();
-      enemyWrapper.innerHTML = renderMonsterSVG(enemy);
-      const enemyDmg = 18;
-      const player = getActivePlayer();
-      player.hp = Math.max(1, player.hp - enemyDmg);
+        enemyWrapper.style.transition = 'none';
+        enemyWrapper.style.transform = 'scale(1)';
+        enemyWrapper.style.opacity = '1';
+        enemyWrapper.innerHTML = renderCaptureBallSVG(false);
 
-      triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
-      setTimeout(() => {
-        triggerSpriteAnimation('player', 'anim-hit');
-        spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
-        syncAllUI();
-      }, 220);
+        const isCaught = Math.random() < catchProb;
+        const totalShakes = isCaught ? 3 : (Math.floor(Math.random() * 2) + 1);
 
-      setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG! Lower its HP to increase catch rate!`, 'BROKE FREE!');
-      setTimeout(() => {
-        state.busy = false;
-      }, 950);
+        let currentShake = 0;
+        const runNextShake = () => {
+          currentShake++;
+          if (currentShake <= totalShakes) {
+            sfx.ballShake();
+            triggerSpriteAnimation('enemy', 'anim-ball-shake');
+            spawnFloatingText('enemy', `SHAKE ${currentShake}...`, 'text-amber-300');
+            setTimeout(runNextShake, 750);
+          } else if (isCaught) {
+            sfx.captureFanfare();
+            enemyWrapper.innerHTML = renderCaptureBallSVG(true);
+            spawnFloatingText('enemy', 'GOTCHA! ★', 'text-emerald-300');
+
+            const alreadyInDex = state.dex.some(p => p.id === enemy.id);
+            if (!alreadyInDex) {
+              state.dex.push(createMonsterInstance(enemy));
+            }
+            syncAllUI();
+            setDialogue(`GOTCHA! ${enemy.name} was caught (${pctText}% odds) and added to your Dex! Returning to Overworld...`, 'CAPTURED! ★');
+
+            setTimeout(() => {
+              returnToOverworldFromBattle(`GOTCHA! ${enemy.name} (${enemy.type}) registered in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
+            }, 2000);
+          } else {
+            sfx.wrongBuzzer();
+            enemyWrapper.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+            enemyWrapper.style.transform = 'scale(0.1)';
+            enemyWrapper.style.opacity = '0';
+
+            setTimeout(() => {
+              enemyWrapper.style.transition = 'none';
+              enemyWrapper.style.transform = 'scale(1)';
+              enemyWrapper.style.opacity = '1';
+              enemyWrapper.innerHTML = renderMonsterSVG(enemy);
+            }, 150);
+
+            const enemyDmg = 18;
+            const player = getActivePlayer();
+            player.hp = Math.max(1, player.hp - enemyDmg);
+
+            triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
+            setTimeout(() => {
+              triggerSpriteAnimation('player', 'anim-hit');
+              spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
+              syncAllUI();
+            }, 220);
+
+            setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG! Lower its HP to increase catch rate!`, 'BROKE FREE!');
+            setTimeout(() => {
+              state.busy = false;
+            }, 950);
+          }
+        };
+
+        setTimeout(runNextShake, 600);
+      }, 300);
     }
-  };
-
-  setTimeout(runNextShake, 680);
+  }, 550);
 }
 
-function launchQuizQuestion(elementType, durationSeconds) {
+function launchQuizQuestion(elementType, difficulty, durationSeconds) {
   hideAllBottomViews();
   document.getElementById('quizCombatView').classList.remove('hidden');
 
-  const { chosen, indexedOptions } = pickRandomQuestion(elementType);
+  const { chosen, indexedOptions } = pickRandomQuestion(elementType, difficulty);
   state.currentQuestion = chosen;
   state.shuffledOptions = indexedOptions;
   state.maxTime = durationSeconds;
   state.timeRemaining = durationSeconds;
   state.questionStartTime = performance.now();
 
-  const tInfo = ELEMENT_TYPES[elementType];
+  const tInfo = ELEMENT_TYPES[elementType] || { name: elementType, subject: 'General', badgeClass: 'bg-slate-700' };
   const contextBadge = document.getElementById('quizContextBadge');
   contextBadge.textContent = `${tInfo.name} • ${tInfo.subject.toUpperCase()}`;
   contextBadge.className = `text-[9px] sm:text-[10px] px-2 py-1 rounded text-white font-bold ${tInfo.badgeClass}`;
 
-  const diff = chosen.difficulty || 2;
+  const diff = chosen.difficulty || difficulty;
   const diffBadge = document.getElementById('quizDifficultyBadge');
   if (diff === 3) {
     diffBadge.textContent = '★★★ HARD (1.75x DMG)';
@@ -419,10 +515,10 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
   if (isCorrect) {
     state.streak++;
     const basePower = 24;
-    const diff = state.currentQuestion?.difficulty || 2;
+    const diff = state.selectedDifficulty || state.currentQuestion?.difficulty || 2;
     const diffMult = getDifficultyMultiplier(diff);
     const typeMult = getEffectiveness(state.selectedAttackType, enemy.type);
-    const stabMult = player.type === state.selectedAttackType ? 1.25 : 1.0;
+    const stabMult = player.type === state.selectedAttackType && state.selectedAttackType !== 'NORMAL' ? 1.25 : 1.0;
     const streakMult = 1 + Math.min(6, state.streak - 1) * 0.12;
 
     const totalDmg = Math.max(8, Math.round(basePower * diffMult * speedMult * typeMult * stabMult * streakMult));
@@ -500,8 +596,12 @@ function showDexSwitchView() {
   container.innerHTML = '';
 
   state.dex.forEach((mon, idx) => {
+    const liveSpecies = MONSTER_SPECIES.find(m => m.id === mon.id) || mon;
+    const displayName = liveSpecies.name;
+    const displayType = liveSpecies.type;
     const isCurrent = idx === state.activeDexIndex;
-    const tInfo = ELEMENT_TYPES[mon.type];
+    const tInfo = ELEMENT_TYPES[displayType] || { name: displayType, badgeClass: 'bg-slate-700' };
+
     const card = document.createElement('button');
     card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : 'bg-white hover:bg-slate-100'} text-slate-900 p-2.5 flex items-center gap-2.5 text-left`;
     card.innerHTML = `
@@ -510,11 +610,11 @@ function showDexSwitchView() {
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-1">
-          <span class="text-[10px] font-bold truncate">${mon.name}</span>
+          <span class="text-[10px] font-bold truncate">${displayName}</span>
           ${isCurrent ? '<span class="text-[8px] bg-amber-400 text-slate-950 px-1 rounded">PARTNER</span>' : ''}
         </div>
         <div class="flex items-center gap-1 mt-1">
-          <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${mon.type}</span>
+          <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${displayType}</span>
           <span class="text-[8px] text-slate-600">HP ${mon.hp}/${mon.maxHp}</span>
         </div>
       </div>
@@ -526,10 +626,15 @@ function showDexSwitchView() {
       }
       sfx.npcChime();
       state.activeDexIndex = idx;
-      document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(getActivePlayer());
+      const playerWrapper = document.getElementById('playerSpriteWrapper');
+      if (playerWrapper) {
+        playerWrapper.innerHTML = renderMonsterSVG(getActivePlayer());
+        playerWrapper.style.boxShadow = 'none';
+        playerWrapper.style.filter = 'none';
+      }
       syncAllUI();
       showCommandView();
-      setDialogue(`Partner switched to ${mon.name}! ${mon.type}-type moves receive a 1.25x STAB bonus!`, 'PARTNER SWITCHED!');
+      setDialogue(`Partner switched to ${displayName}! ${displayType}-type moves receive a 1.25x STAB bonus!`, 'PARTNER SWITCHED!');
     });
     container.appendChild(card);
   });
@@ -544,7 +649,7 @@ function openOverworldDexModal() {
     const dexIndex = state.dex.findIndex(p => p.id === species.id);
     const caughtMon = dexIndex !== -1 ? state.dex[dexIndex] : null;
     const isCurrent = dexIndex === state.activeDexIndex;
-    const tInfo = ELEMENT_TYPES[species.type];
+    const tInfo = ELEMENT_TYPES[species.type] || { name: species.type, badgeClass: 'bg-slate-700' };
 
     const card = document.createElement('div');
     card.className = `pixel-btn ${caughtMon ? (isCurrent ? 'bg-amber-100' : 'bg-white') : 'bg-slate-200 opacity-65'} text-slate-900 p-2.5 flex items-center gap-3`;

@@ -216,12 +216,12 @@
 
     <!-- SCREEN 2: OVERWORLD VIEW -->
     <section id="overworldView" class="hidden flex-col gap-3">
-      <div class="relative w-full h-80 sm:h-96 rounded-lg border-4 border-slate-950 overflow-hidden bg-slate-950 shadow-inner">
-        <canvas id="overworldCanvas" width="768" height="320" class="w-full h-full object-cover"></canvas>
-        <div class="crt-overlay absolute inset-0 z-10"></div>
+      <div id="overworldViewport" class="relative w-full h-80 sm:h-96 rounded-lg border-4 border-slate-950 overflow-hidden bg-slate-950 shadow-inner">
+        <canvas id="overworldCanvas" width="320" height="320" class="w-full h-full block"></canvas>
+        <div class="crt-overlay absolute inset-0 z-10 pointer-events-none"></div>
 
-        <!-- ZONE BADGE WITH INCREASED PADDING -->
-        <div class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 retro-box px-3.5 py-2 sm:px-4 sm:py-2.5 flex items-center gap-2 max-w-[48%] sm:max-w-none">
+        <!-- ZONE BADGE WITH PADDING -->
+        <div class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 retro-box px-3.5 py-2 sm:px-4 sm:py-2.5 flex items-center gap-2 max-w-[58%] sm:max-w-none">
           <span id="zoneDotIndicator" class="inline-block w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-600 shrink-0"></span>
           <div class="min-w-0">
             <div id="zoneNameBadge" class="text-[9px] sm:text-[10px] font-bold text-slate-900 truncate">PALLET HUB TOWN</div>
@@ -229,12 +229,12 @@
           </div>
         </div>
 
-        <!-- OVERWORLD DEX & TITLE BUTTONS -->
-        <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 flex items-center gap-1.5">
-          <button id="overworldDexBtn" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2.5">
+        <!-- OVERWORLD DEX & TITLE BUTTONS (TITLE STACKED BELOW DEX / PARTNER) -->
+        <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 flex flex-col items-end gap-1.5">
+          <button id="overworldDexBtn" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
             DEX / PARTNER
           </button>
-          <button id="btnReturnTitle" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2.5">
+          <button id="btnReturnTitle" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[7px] sm:text-[9px] px-2.5 py-1.5 sm:px-3 sm:py-2">
             TITLE
           </button>
         </div>
@@ -292,60 +292,62 @@
         </div>
         <div class="crt-overlay absolute inset-0 z-10"></div>
 
-        <div class="absolute top-3 left-3 z-20 w-56 sm:w-68 retro-box p-2 sm:p-2.5">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <div class="flex items-center justify-between gap-1.5 truncate">
-              <span id="enemyCaughtIcon" class="hidden text-[10px]" title="Already Caught in Dex">🔴</span>
-              <span id="enemyName" class="text-[10px] sm:text-xs font-bold tracking-tight truncate">CHARCOALON</span>
+        <!-- ENEMY HUD BOX (Compact w-44 on mobile so it doesn't cover enemy sprite) -->
+        <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 w-44 sm:w-64 retro-box p-1.5 sm:p-2.5">
+          <div class="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
+            <div class="flex items-center gap-1 truncate">
+              <span id="enemyCaughtIcon" class="hidden text-[8px] sm:text-[10px]" title="Already Caught in Dex">🔴</span>
+              <span id="enemyName" class="text-[8px] sm:text-xs font-bold tracking-tight truncate">CHARCOALON</span>
             </div>
-            <span id="enemyLevel" class="text-[9px] sm:text-[10px] text-slate-700 shrink-0">Lv12</span>
+            <span id="enemyLevel" class="text-[8px] sm:text-[10px] text-slate-700 shrink-0">Lv12</span>
           </div>
-          <div class="flex items-center justify-between gap-1 mb-1.5">
-            <span id="enemyTypeBadge" class="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold bg-orange-600">FIRE</span>
-            <span id="enemyZoneHint" class="text-[8px] text-slate-600">WILD MONSTER</span>
+          <div class="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
+            <span id="enemyTypeBadge" class="text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold bg-orange-600">FIRE</span>
+            <span id="enemyZoneHint" class="hidden sm:inline text-[8px] text-slate-600">WILD MONSTER</span>
           </div>
-          <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1.5">
-            <span class="text-[8px] text-amber-400 font-bold px-1">HP</span>
-            <div class="w-full h-2.5 bg-slate-700 rounded-sm overflow-hidden">
+          <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
+            <span class="text-[7px] sm:text-[8px] text-amber-400 font-bold px-0.5 sm:px-1">HP</span>
+            <div class="w-full h-2 sm:h-2.5 bg-slate-700 rounded-sm overflow-hidden">
               <div id="enemyHpBar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 100%;"></div>
             </div>
           </div>
-          <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-600">
-            <span id="enemyCaptureOddsText">CATCH RATE: 25%</span>
+          <div class="flex justify-between items-center mt-1 text-[7px] sm:text-[9px] text-slate-600">
+            <span id="enemyCaptureOddsText">CATCH: 25%</span>
             <span id="enemyHpNumbers">120/120</span>
           </div>
         </div>
 
-        <!-- ENEMY SPRITE CONTAINER (Moved lower inside arena to keep shake/float text completely on screen) -->
-        <div class="absolute top-6 right-12 sm:top-8 sm:right-24 w-24 sm:w-32 flex flex-col items-center z-10">
+        <!-- ENEMY SPRITE CONTAINER -->
+        <div id="enemyContainer" class="absolute top-5 right-2 sm:top-8 sm:right-20 w-20 sm:w-32 flex flex-col items-center z-10">
           <div id="enemyFloatContainer" class="absolute -top-4 left-1/2 -translate-x-1/2 w-0 h-6 flex items-center justify-center overflow-visible pointer-events-none z-30"></div>
-          <div id="enemySpriteWrapper" class="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10"></div>
-          <div class="w-20 sm:w-28 h-4 sm:h-5 bg-slate-900/35 rounded-full blur-[1px] -mt-2 shrink-0"></div>
+          <div id="enemySpriteWrapper" class="w-20 h-20 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10"></div>
+          <div class="w-16 sm:w-28 h-3.5 sm:h-5 bg-slate-900/35 rounded-full blur-[1px] -mt-1.5 sm:-mt-2 shrink-0"></div>
         </div>
 
         <!-- PLAYER SPRITE CONTAINER -->
-        <div class="absolute bottom-2 sm:bottom-3 left-12 sm:left-24 w-24 sm:w-32 flex flex-col items-center z-10">
+        <div class="absolute bottom-2 left-2 sm:bottom-3 sm:left-20 w-20 sm:w-32 flex flex-col items-center z-10">
           <div id="playerFloatContainer" class="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-6 flex items-center justify-center overflow-visible pointer-events-none z-30"></div>
-          <div id="playerSpriteWrapper" class="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10"></div>
-          <div class="w-20 sm:w-28 h-4 sm:h-5 bg-slate-900/35 rounded-full blur-[1px] -mt-2 shrink-0"></div>
+          <div id="playerSpriteWrapper" class="w-20 h-20 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10"></div>
+          <div class="w-16 sm:w-28 h-3.5 sm:h-5 bg-slate-900/35 rounded-full blur-[1px] -mt-1.5 sm:-mt-2 shrink-0"></div>
         </div>
 
-        <div class="absolute bottom-3 right-3 z-20 w-56 sm:w-72 retro-box p-2 sm:p-2.5">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span id="playerName" class="text-[10px] sm:text-xs font-bold tracking-tight truncate">VOLTBIT</span>
-            <span id="playerLevel" class="text-[9px] sm:text-[10px] text-slate-700 shrink-0">Lv14</span>
+        <!-- PLAYER HUD BOX -->
+        <div class="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 z-20 w-44 sm:w-72 retro-box p-1.5 sm:p-2.5">
+          <div class="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
+            <span id="playerName" class="text-[8px] sm:text-xs font-bold tracking-tight truncate">VOLTBIT</span>
+            <span id="playerLevel" class="text-[8px] sm:text-[10px] text-slate-700 shrink-0">Lv14</span>
           </div>
-          <div class="flex items-center justify-between gap-1 mb-1.5">
-            <span id="playerTypeBadge" class="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold bg-amber-500">ELECTRIC</span>
-            <span id="playerAtkStage" class="text-[8px] text-indigo-700 font-bold">ATK STAGE: +0</span>
+          <div class="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
+            <span id="playerTypeBadge" class="text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold bg-amber-500">ELECTRIC</span>
+            <span id="playerAtkStage" class="text-[7px] sm:text-[8px] text-indigo-700 font-bold">ATK: +0</span>
           </div>
-          <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1.5">
-            <span class="text-[8px] text-amber-400 font-bold px-1">HP</span>
-            <div class="w-full h-2.5 bg-slate-700 rounded-sm overflow-hidden">
+          <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
+            <span class="text-[7px] sm:text-[8px] text-amber-400 font-bold px-0.5 sm:px-1">HP</span>
+            <div class="w-full h-2 sm:h-2.5 bg-slate-700 rounded-sm overflow-hidden">
               <div id="playerHpBar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 100%;"></div>
             </div>
           </div>
-          <div class="flex justify-between items-center mt-1 text-[8px] sm:text-[9px] text-slate-700">
+          <div class="flex justify-between items-center mt-1 text-[7px] sm:text-[9px] text-slate-700">
             <span id="playerHpNumbers">140/140</span>
           </div>
         </div>
@@ -390,7 +392,7 @@
         <div id="moveSelectView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-300 pb-2">
             <div class="text-[9px] sm:text-[10px] font-bold text-slate-700">
-              ⚡ DAMAGE = QUESTION DIFFICULTY (★1–★3) × ANSWER SPEED (25s TIMER)
+              ⚡ DAMAGE = QUESTION DIFFICULTY (★1–★2) × ANSWER SPEED (25s TIMER)
             </div>
             <button id="backFromMovesBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
           </div>
@@ -615,7 +617,6 @@
     </div>
   </div>
 
-  <!-- Also update the caught text color in battle.js to yellow (text-amber-300) -->
   <script src="monsters.js"></script>
   <script src="overworld.js"></script>
   <script src="battle.js"></script>
@@ -675,6 +676,33 @@
       }
     };
 
+    // Dynamically matches the canvas internal width to the container's aspect ratio (keeping height=320)
+    // Runs automatically before every overworld frame and via ResizeObserver so the very first frame is never squished!
+    function syncCanvasAspect() {
+      const canvas = document.getElementById('overworldCanvas');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const targetHeight = 320;
+        const targetWidth = Math.round(targetHeight * (rect.width / rect.height));
+        if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+        }
+      }
+    }
+
+    // Wrap overworldRenderLoop so syncCanvasAspect runs automatically before the very first frame is drawn
+    if (typeof window.overworldRenderLoop === 'function') {
+      const originalOverworldLoop = window.overworldRenderLoop;
+      window.overworldRenderLoop = function(timestamp) {
+        if (state.screen === 'OVERWORLD') {
+          syncCanvasAspect();
+        }
+        return originalOverworldLoop(timestamp);
+      };
+    }
+
     function refreshTitleScreenSprites() {
       [0, 1, 2, 9].forEach(idx => {
         const el = document.getElementById(`titleSprite${idx}`);
@@ -693,6 +721,15 @@
       initSpriteStudio();
       initQuestionEditor();
       syncAllUI();
+      syncCanvasAspect();
+
+      window.addEventListener('resize', syncCanvasAspect);
+
+      // Watch #overworldViewport so the exact microsecond it unhides from Title or Battle, canvas aspect syncs
+      const viewportEl = document.getElementById('overworldViewport');
+      if (viewportEl && typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(() => syncCanvasAspect()).observe(viewportEl);
+      }
 
       // Safe helper to bind events only if elements exist in DOM
       const bindClick = (id, handler) => {
@@ -735,7 +772,11 @@
 
       document.querySelectorAll('.dpad-btn').forEach(btn => {
         const dir = btn.getAttribute('data-dir');
-        const startHold = (e) => { e.preventDefault(); state.keysHeld[dir] = true; initiateOneBlockStep(dir); };
+        const startHold = (e) => {
+          e.preventDefault();
+          state.keysHeld[dir] = true;
+          initiateOneBlockStep(dir);
+        };
         const endHold = () => { state.keysHeld[dir] = false; };
         btn.addEventListener('mousedown', startHold);
         btn.addEventListener('touchstart', startHold, { passive: false });

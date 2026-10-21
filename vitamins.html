@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Vitamin & Mineral Master Quiz with Sound & Revision Table</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between font-sans relative pb-16 sm:pb-0">
+
+    <!-- Header -->
+    <header class="bg-emerald-600 text-white shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">The Ultimate Nutrient Master Quiz</h1>
+            <p class="text-emerald-100 mt-1 text-xs sm:text-base">Testing Deficiency Disorders, Food Sources & Chemical Names for Vitamins and Essential Minerals</p>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl w-full mx-auto px-4 py-8 flex-grow">
+        
+        <!-- Quiz Card -->
+        <div id="quiz-container" class="bg-white rounded-xl shadow-lg border border-slate-100 p-5 sm:p-8 transition-all">
+            
+            <!-- Progress Bar & Score Tracker -->
+            <div class="flex justify-between items-center mb-6 text-xs sm:text-sm font-medium text-slate-500">
+                <span id="question-progress">Question 1 of 72</span>
+                <span id="score-tracker" class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-100">Score: 0</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2 rounded-full mb-8 overflow-hidden">
+                <div id="progress-bar" class="bg-emerald-600 h-full w-[1.38%] transition-all duration-300"></div>
+            </div>
+
+            <!-- Question Area -->
+            <div id="question-box" class="mb-6">
+                <h2 id="question-text" class="text-base sm:text-xl font-semibold text-slate-900 leading-snug">
+                    Loading question...
+                </h2>
+            </div>
+
+            <!-- Options Area -->
+            <div id="options-container" class="space-y-3 mb-8">
+                <!-- Dynamically populated options -->
+            </div>
+
+            <!-- Explanation Box (Hidden by default) -->
+            <div id="explanation-box" class="hidden mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+                <p id="explanation-text" class="text-slate-700"></p>
+            </div>
+
+            <!-- Action Button -->
+            <button id="next-btn" onclick="nextQuestion()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition-colors hidden">
+                Next Question
+            </button>
+
+        </div>
+
+        <!-- Results Card (Hidden by default) -->
+        <div id="result-container" class="hidden bg-white rounded-xl shadow-lg border border-slate-100 p-6 sm:p-8 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full text-3xl mb-4">
+                🏆
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Quiz Completed!</h2>
+            <p id="final-score-text" class="text-base sm:text-lg text-slate-600 mb-6">You scored X out of 72.</p>
+            <div id="badge-box" class="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-100 text-slate-700 text-sm sm:text-base font-medium">
+                <!-- Dynamic performance feedback -->
+            </div>
+            <button onclick="restartQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-lg shadow transition-colors">
+                Try Again
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Floating Bottom Right Revision Guide Button (Mobile & Desktop Responsive) -->
+    <button onclick="toggleRevisionModal()" class="fixed right-4 bottom-4 z-40 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-3 rounded-full shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 border-2 border-emerald-400">
+        <span class="text-base">📖</span> <span class="hidden xs:inline">Revision Guide</span><span class="xs:hidden">Guide</span>
+    </button>
+
+    <!-- Revision Table Modal (Hidden by default) -->
+    <div id="revision-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] sm:max-h-[90vh] flex flex-col border border-slate-100 animate-in fade-in zoom-in duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200 bg-slate-50 rounded-t-2xl">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-900">Nutrient Revision Guide</h2>
+                    <p class="text-[11px] sm:text-xs text-slate-500">Quick reference table with major symptoms for vitamins and essential minerals.</p>
+                </div>
+                <button onclick="toggleRevisionModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-200/50 transition-colors text-xl font-bold">
+                    &times;
+                </button>
+            </div>
+            <!-- Modal Body (Scrollable Table optimized for phones and screens) -->
+            <div class="p-3 sm:p-6 overflow-y-auto flex-grow">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] sm:text-xs tracking-wider border-b border-slate-200">
+                                <th class="p-2 sm:p-3 rounded-l-lg">Nutrient</th>
+                                <th class="p-2 sm:p-3">Chemical Name / Form</th>
+                                <th class="p-2 sm:p-3">Primary Food Source</th>
+                                <th class="p-2 sm:p-3">Deficiency Disorder</th>
+                                <th class="p-2 sm:p-3 rounded-r-lg">Major Symptoms</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin A</td>
+                                <td class="p-2 sm:p-3">Retinol / Carotenoids</td>
+                                <td class="p-2 sm:p-3">Beef liver, eggs, carrots, spinach</td>
+                                <td class="p-2 sm:p-3">Xerophthalmia / Night blindness</td>
+                                <td class="p-2 sm:p-3">Inability to see in low light, dry corneas, Bitot's spots</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B1</td>
+                                <td class="p-2 sm:p-3">Thiamine</td>
+                                <td class="p-2 sm:p-3">Pork, whole grains, nuts, legumes</td>
+                                <td class="p-2 sm:p-3">Beriberi</td>
+                                <td class="p-2 sm:p-3">Muscle weakness, nerve damage, swelling, heart failure</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B2</td>
+                                <td class="p-2 sm:p-3">Riboflavin</td>
+                                <td class="p-2 sm:p-3">Milk, yogurt, cheese, eggs</td>
+                                <td class="p-2 sm:p-3">Ariboflavinosis</td>
+                                <td class="p-2 sm:p-3">Cracked mouth corners (angular cheilitis), sore throat, magenta tongue</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B3</td>
+                                <td class="p-2 sm:p-3">Niacin</td>
+                                <td class="p-2 sm:p-3">Poultry, tuna, peanuts, grains</td>
+                                <td class="p-2 sm:p-3">Pellagra (4 Ds)</td>
+                                <td class="p-2 sm:p-3">Dermatitis, diarrhea, dementia, death</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B5</td>
+                                <td class="p-2 sm:p-3">Pantothenic Acid</td>
+                                <td class="p-2 sm:p-3">Avocado, chicken, broccoli</td>
+                                <td class="p-2 sm:p-3">Burning Feet Syndrome</td>
+                                <td class="p-2 sm:p-3">Numbness, burning sensation in feet, fatigue, irritability</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B6</td>
+                                <td class="p-2 sm:p-3">Pyridoxine</td>
+                                <td class="p-2 sm:p-3">Bananas, chickpeas, poultry</td>
+                                <td class="p-2 sm:p-3">Peripheral Neuropathy</td>
+                                <td class="p-2 sm:p-3">Tingling in hands/feet, seizures, microcytic anemia, dermatitis</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B7</td>
+                                <td class="p-2 sm:p-3">Biotin</td>
+                                <td class="p-2 sm:p-3">Egg yolks, liver, sweet potatoes</td>
+                                <td class="p-2 sm:p-3">Biotin Deficiency</td>
+                                <td class="p-2 sm:p-3">Hair loss (alopecia), scaly red facial rashes, depression, fatigue</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B8</td>
+                                <td class="p-2 sm:p-3">Inositol</td>
+                                <td class="p-2 sm:p-3">Cereals, beans, nuts, citrus</td>
+                                <td class="p-2 sm:p-3">Metabolic Imbalance</td>
+                                <td class="p-2 sm:p-3">Insulin resistance, metabolic syndrome traits, mood fluctuations</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B9</td>
+                                <td class="p-2 sm:p-3">Folic Acid / Folate</td>
+                                <td class="p-2 sm:p-3">Spinach, dark leafy greens, legumes</td>
+                                <td class="p-2 sm:p-3">Neural Tube Defects</td>
+                                <td class="p-2 sm:p-3">Spinal column defects in newborns, fatigue, megaloblastic anemia</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B10</td>
+                                <td class="p-2 sm:p-3">Para-aminobenzoic Acid</td>
+                                <td class="p-2 sm:p-3">Grains, eggs, meat (Gut flora)</td>
+                                <td class="p-2 sm:p-3">PABA Deficiency (Historical)</td>
+                                <td class="p-2 sm:p-3">Premature graying of hair, patchy skin depigmentation (vitiligo link)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B11</td>
+                                <td class="p-2 sm:p-3">Pteroyltriglutamate variants</td>
+                                <td class="p-2 sm:p-3">Liver, yeast extracts</td>
+                                <td class="p-2 sm:p-3">Growth Factor Deficiency</td>
+                                <td class="p-2 sm:p-3">Impaired cell division, poor growth in young subjects, anemia</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B12</td>
+                                <td class="p-2 sm:p-3">Cobalamin</td>
+                                <td class="p-2 sm:p-3">Meat, fish, dairy, eggs</td>
+                                <td class="p-2 sm:p-3">Pernicious Anemia</td>
+                                <td class="p-2 sm:p-3">Severe fatigue, pale skin, numbness/tingling in extremities, cognitive issues</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B13</td>
+                                <td class="p-2 sm:p-3">Orotic Acid</td>
+                                <td class="p-2 sm:p-3">Cow's milk and dairy</td>
+                                <td class="p-2 sm:p-3">Orotic Aciduria</td>
+                                <td class="p-2 sm:p-3">Excess orotic crystals in urine, retarded growth, megaloblastic anemia</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B14</td>
+                                <td class="p-2 sm:p-3">Xanthopterin derivative</td>
+                                <td class="p-2 sm:p-3">Liver and yeast extracts</td>
+                                <td class="p-2 sm:p-3">Impaired Hematopoiesis</td>
+                                <td class="p-2 sm:p-3">Decreased red blood cell production, low white blood cell count</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B15</td>
+                                <td class="p-2 sm:p-3">Pangamic Acid</td>
+                                <td class="p-2 sm:p-3">Apricot kernels, whole grains</td>
+                                <td class="p-2 sm:p-3">Tissue Oxygenation Deficit</td>
+                                <td class="p-2 sm:p-3">Reduced athletic stamina, sub-optimal cellular oxygen delivery (disputed)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin B17</td>
+                                <td class="p-2 sm:p-3">Amygdalin (Laetrile)</td>
+                                <td class="p-2 sm:p-3">Apricot, apple, peach pits</td>
+                                <td class="p-2 sm:p-3">Cyanide Toxicity Risk</td>
+                                <td class="p-2 sm:p-3">Nausea, headache, rapid breathing, low blood pressure from ingestion</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin C</td>
+                                <td class="p-2 sm:p-3">Ascorbic Acid</td>
+                                <td class="p-2 sm:p-3">Oranges, bell peppers, strawberries</td>
+                                <td class="p-2 sm:p-3">Scurvy</td>
+                                <td class="p-2 sm:p-3">Bleeding gums, loose teeth, petechiae, slow wound healing, joint pain</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin D</td>
+                                <td class="p-2 sm:p-3">Calciferol</td>
+                                <td class="p-2 sm:p-3">Fatty fish, fortified milk, sunlight</td>
+                                <td class="p-2 sm:p-3">Rickets / Osteomalacia</td>
+                                <td class="p-2 sm:p-3">Soft/bowed bones, skeletal deformities, muscle weakness, bone pain</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin E</td>
+                                <td class="p-2 sm:p-3">Tocopherol</td>
+                                <td class="p-2 sm:p-3">Sunflower seeds, almonds, oils</td>
+                                <td class="p-2 sm:p-3">Hemolytic Anemia</td>
+                                <td class="p-2 sm:p-3">Muscle weakness, loss of body movement coordination, vision changes</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Vitamin K</td>
+                                <td class="p-2 sm:p-3">Phylloquinone / Menaquinone</td>
+                                <td class="p-2 sm:p-3">Kale, spinach, broccoli</td>
+                                <td class="p-2 sm:p-3">Hemorrhagic Disorders</td>
+                                <td class="p-2 sm:p-3">Excessive bleeding from minor cuts, easy bruising, gastrointestinal bleeding</td>
+                            </tr>
+                            <!-- Minerals -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Calcium</td>
+                                <td class="p-2 sm:p-3">Calcium Ion (Ca2+)</td>
+                                <td class="p-2 sm:p-3">Milk, yogurt, cheese, sardines</td>
+                                <td class="p-2 sm:p-3">Tetany / Osteoporosis</td>
+                                <td class="p-2 sm:p-3">Muscle spasms/cramps, brittle bones, numbness in fingers, fractures</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Iron</td>
+                                <td class="p-2 sm:p-3">Ferrous / Ferric Iron</td>
+                                <td class="p-2 sm:p-3">Red meat, spinach, lentils</td>
+                                <td class="p-2 sm:p-3">Iron-Deficiency Anemia</td>
+                                <td class="p-2 sm:p-3">Chronic fatigue, pale skin, shortness of breath, brittle nails, cold hands</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Iodine</td>
+                                <td class="p-2 sm:p-3">Iodide (I-)</td>
+                                <td class="p-2 sm:p-3">Iodized salt, seaweed, cod</td>
+                                <td class="p-2 sm:p-3">Goiter / Hypothyroidism</td>
+                                <td class="p-2 sm:p-3">Enlarged thyroid gland in neck, weight gain, fatigue, cold intolerance</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 sm:p-3 font-semibold text-slate-800">Zinc</td>
+                                <td class="p-2 sm:p-3">Zinc Ion (Zn2+)</td>
+                                <td class="p-2 sm:p-3">Oysters, beef, pumpkin seeds</td>
+                                <td class="p-2 sm:p-3">Zinc Deficiency</td>
+                                <td class="p-2 sm:p-3">Impaired wound healing, hair loss, suppressed immunity, altered taste/smell</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-200 bg-slate-50 rounded-b-2xl text-right">
+                <button onclick="toggleRevisionModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-5 py-2 rounded-lg shadow transition-colors">
+                    Close Guide
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        Interactive Educational Quiz &bull; Nutrient Master Guide
+    </footer>
+
+    <!-- Quiz Logic & Sound Effects Script -->
+    <script>
+        // Web Audio API Synthesizer for Sound Effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'incorrect') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.setValueAtTime(110, now + 0.1);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'complete') {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(freq, now + (idx * 0.1));
+                    g.gain.setValueAtTime(0.1, now + (idx * 0.1));
+                    g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.3);
+                    o.start(now + (idx * 0.1));
+                    o.stop(now + (idx * 0.1) + 0.3);
+                });
+            }
+        }
+
+        function toggleRevisionModal() {
+            playSound('click');
+            const modal = document.getElementById('revision-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        const quizData = [
+            // ==================== VITAMIN A ====================
+            {
+                topic: "Vitamin A",
+                question: "What is the primary chemical name or active form most commonly referenced in human nutrition for Vitamin A?",
+                options: ["Retinol", "Calciferol", "Tocopherol", "Phylloquinone"],
+                answer: 0,
+                explanation: "Vitamin A exists as retinoids (such as retinol, retinal, and retinoic acid) and carotenoids like beta-carotene."
+            },
+            {
+                topic: "Vitamin A",
+                question: "A patient has developed Xerophthalmia / Night Blindness, what nutrient is the patient lacking?",
+                options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin B1"],
+                answer: 0,
+                explanation: "Vitamin A is vital for rhodopsin production in the retina; deficiency leads to night blindness and severe ocular damage."
+            },
+            {
+                topic: "Vitamin A",
+                question: "Which rich food source provides abundant preformed amounts of Vitamin A (retinol)?",
+                options: ["Beef liver", "White bread", "Polished white rice", "Refined sugar"],
+                answer: 0,
+                explanation: "Organ meats like beef liver, as well as eggs, dairy, and orange/dark leafy vegetables (provitamin A), are premier sources of Vitamin A."
+            },
+
+            // ==================== VITAMIN B1 ====================
+            {
+                topic: "Vitamin B1",
+                question: "What is the chemical name for Vitamin B1?",
+                options: ["Thiamine", "Riboflavin", "Niacin", "Cobalamin"],
+                answer: 0,
+                explanation: "Vitamin B1 is known chemically as Thiamine, crucial for carbohydrate and neural metabolism."
+            },
+            {
+                topic: "Vitamin B1",
+                question: "A patient has developed Beriberi, what nutrient is the patient lacking?",
+                options: ["Vitamin B1", "Vitamin B3", "Vitamin C", "Vitamin B12"],
+                answer: 0,
+                explanation: "Beriberi is classically caused by a thiamine deficiency, frequent in populations relying heavily on polished white rice."
+            },
+            {
+                topic: "Vitamin B1",
+                question: "Which food is exceptionally rich in Vitamin B1?",
+                options: ["Pork and whole grains", "Apples", "Olive oil", "Pure cane sugar"],
+                answer: 0,
+                explanation: "Pork, whole grains, legumes, and nuts are fantastic dietary sources of Vitamin B1 (Thiamine)."
+            },
+
+            // ==================== VITAMIN B2 ====================
+            {
+                topic: "Vitamin B2",
+                question: "What is the chemical name for Vitamin B2?",
+                options: ["Riboflavin", "Pyridoxine", "Biotin", "Folic Acid"],
+                answer: 0,
+                explanation: "Vitamin B2 is Riboflavin, serving as a coenzyme in energy metabolism (FAD and FMN)."
+            },
+            {
+                topic: "Vitamin B2",
+                question: "A patient has developed Ariboflavinosis, what nutrient is the patient lacking?",
+                options: ["Vitamin B2", "Vitamin C", "Vitamin D", "Vitamin A"],
+                answer: 0,
+                explanation: "Ariboflavinosis results from riboflavin deficiency, characterized by inflammation of the lips, mouth, and tongue."
+            },
+            {
+                topic: "Vitamin B2",
+                question: "Which food source is particularly high in Vitamin B2?",
+                options: ["Milk and dairy products", "White refined flour", "Coconut water", "Table salt"],
+                answer: 0,
+                explanation: "Dairy products (milk, yogurt, cheese), eggs, and green leafy vegetables are prime sources of Vitamin B2."
+            },
+
+            // ==================== VITAMIN B3 ====================
+            {
+                topic: "Vitamin B3",
+                question: "What is the chemical name for Vitamin B3?",
+                options: ["Niacin (Nicotinic acid / Nicotinamide)", "Pantothenic Acid", "Ascorbic Acid", "Calciferol"],
+                answer: 0,
+                explanation: "Vitamin B3 is Niacin, essential for NAD and NADP coenzyme functions."
+            },
+            {
+                topic: "Vitamin B3",
+                question: "A patient has developed Pellagra, what nutrient is the patient lacking?",
+                options: ["Vitamin B3", "Vitamin B1", "Vitamin C", "Vitamin D"],
+                answer: 0,
+                explanation: "Pellagra is caused by a deficiency of niacin or its precursor amino acid tryptophan."
+            },
+            {
+                topic: "Vitamin B3",
+                question: "Which food is an excellent dietary source of Vitamin B3?",
+                options: ["Poultry (chicken/turkey) and peanuts", "Iceberg lettuce", "Starch", "Honey"],
+                answer: 0,
+                explanation: "Chicken, turkey, tuna, peanuts, and fortified grains provide rich amounts of Vitamin B3."
+            },
+
+            // ==================== VITAMIN B5 ====================
+            {
+                topic: "Vitamin B5",
+                question: "What is the chemical name for Vitamin B5?",
+                options: ["Pantothenic Acid", "Pyridoxine", "Cobalamin", "Biotin"],
+                answer: 0,
+                explanation: "Vitamin B5 is Pantothenic acid, a building block for Coenzyme A (CoA)."
+            },
+            {
+                topic: "Vitamin B5",
+                question: "A patient has developed Burning Feet Syndrome (Paresthesia), what nutrient is the patient lacking?",
+                options: ["Vitamin B5", "Vitamin A", "Vitamin D", "Vitamin B6"],
+                answer: 0,
+                explanation: "Pantothenic acid deficiency can manifest as paresthesia, notably burning feet syndrome."
+            },
+            {
+                topic: "Vitamin B5",
+                question: "Why is Vitamin B5 named 'pantothenic'?",
+                options: ["Because it is found 'everywhere' in foods (Greek 'pantos')", "Because it was discovered in pants", "Because it cures panting", "Because it is synthetic"],
+                answer: 0,
+                explanation: "'Pantothen' means 'from everywhere' in Greek, reflecting its widespread presence in plant and animal foods (like avocado, chicken, and broccoli) for Vitamin B5."
+            },
+
+            // ==================== VITAMIN B6 ====================
+            {
+                topic: "Vitamin B6",
+                question: "What is the chemical name for Vitamin B6?",
+                options: ["Pyridoxine (Pyridoxal / Pyridoxamine)", "Thiamine", "Riboflavin", "Folic Acid"],
+                answer: 0,
+                explanation: "Vitamin B6 encompasses pyridoxine, pyridoxal, and pyridoxamine, essential for amino acid metabolism."
+            },
+            {
+                topic: "Vitamin B6",
+                question: "A patient has developed Peripheral neuropathy and seizures, what nutrient is the patient lacking?",
+                options: ["Vitamin B6", "Vitamin C", "Vitamin K", "Vitamin B3"],
+                answer: 0,
+                explanation: "Vitamin B6 deficiency affects neurotransmitter synthesis, potentially causing peripheral neuropathy and seizures."
+            },
+            {
+                topic: "Vitamin B6",
+                question: "Which food source is famously rich in Vitamin B6?",
+                options: ["Bananas, chickpeas, and poultry", "Refined white sugar", "Butter", "Table salt"],
+                answer: 0,
+                explanation: "Bananas, chickpeas, potatoes, and poultry are outstanding sources of Vitamin B6."
+            },
+
+            // ==================== VITAMIN B7 ====================
+            {
+                topic: "Vitamin B7",
+                question: "What is the chemical name or common alternative name for Vitamin B7?",
+                options: ["Biotin (formerly Vitamin H)", "Cobalamin", "Niacin", "Ascorbic Acid"],
+                answer: 0,
+                explanation: "Vitamin B7 is Biotin, acting as a crucial coenzyme for carboxylation reactions."
+            },
+            {
+                topic: "Vitamin B7",
+                question: "A patient has developed Alopecia and scaly red rashes, what nutrient is the patient lacking?",
+                options: ["Vitamin B7", "Vitamin Scurvy", "Vitamin Rickets", "Vitamin Beriberi"],
+                answer: 0,
+                explanation: "Biotin deficiency can result in hair loss (alopecia), scaly red facial rashes, and neurological issues."
+            },
+            {
+                topic: "Vitamin B7",
+                question: "Which food is a very rich dietary source of Vitamin B7?",
+                options: ["Egg yolks and liver", "Clear soda", "Refined corn oil", "White rice"],
+                answer: 0,
+                explanation: "Egg yolks, liver, nuts, and sweet potatoes are top dietary sources of Vitamin B7."
+            },
+
+            // ==================== VITAMIN B8 ====================
+            {
+                topic: "Vitamin B8",
+                question: "What historical or alternative compound is often referred to as Vitamin B8?",
+                options: ["Inositol (myo-inositol)", "Choline", "Carnitine", "PABA"],
+                answer: 0,
+                explanation: "Myo-inositol was historically designated as Vitamin B8, playing a role in cell signaling and membrane structures."
+            },
+            {
+                topic: "Vitamin B8",
+                question: "A patient has developed Metabolic and insulin-resistance related conditions (like PCOS), what nutrient is the patient lacking?",
+                options: ["Vitamin B8", "Vitamin Scurvy", "Vitamin Rickets", "Vitamin Beriberi"],
+                answer: 0,
+                explanation: "Supplements relating to Vitamin B8 (Inositol) are often studied in relation to metabolic syndrome, insulin sensitivity, and mood regulation."
+            },
+            {
+                topic: "Vitamin B8",
+                question: "Which food category naturally contains high amounts of Vitamin B8 and its derivatives?",
+                options: ["Cereals, beans, nuts, and citrus fruits", "Pure cane sugar", "Refined vegetable oils", "Processed white flour"],
+                answer: 0,
+                explanation: "Whole grains, beans, nuts, cantaloupe, and citrus fruits are rich in natural Vitamin B8 (Inositols)."
+            },
+
+            // ==================== VITAMIN B9 ====================
+            {
+                topic: "Vitamin B9",
+                question: "What is the chemical name for Vitamin B9?",
+                options: ["Folic Acid / Folate", "Cobalamin", "Thiamine", "Riboflavin"],
+                answer: 0,
+                explanation: "Vitamin B9 is known as Folic Acid (synthetic) or Folate (natural form), vital for DNA synthesis."
+            },
+            {
+                topic: "Vitamin B9",
+                question: "A patient has developed Neural tube defects (e.g., spina bifida), what nutrient is the patient lacking?",
+                options: ["Vitamin B9", "Vitamin Night blindness", "Vitamin Goiter", "Vitamin Scurvy"],
+                answer: 0,
+                explanation: "Vitamin B9 (Folate) is critical for rapid cell division and neural tube closure during embryonic development."
+            },
+            {
+                topic: "Vitamin B9",
+                question: "Which food source is named after its abundance in dark green leaves?",
+                options: ["Spinach and dark leafy greens ('foliage')", "Apples", "Pork chops", "Butter"],
+                answer: 0,
+                explanation: "Vitamin B9 (Folate) gets its name from 'folium' (Latin for leaf), abundant in spinach, kale, and legumes."
+            },
+
+            // ==================== VITAMIN B10 ====================
+            {
+                topic: "Vitamin B10",
+                question: "What historical compound was historically designated as Vitamin B10?",
+                options: ["Para-aminobenzoic acid (PABA)", "Choline", "Carnitine", "Ubiquinone"],
+                answer: 0,
+                explanation: "PABA was once considered a B-complex vitamin (Vitamin B10) before being reclassified as a non-essential organic compound."
+            },
+            {
+                topic: "Vitamin B10",
+                question: "A patient has developed Premature graying of hair, what nutrient is the patient lacking?",
+                options: ["Vitamin B10", "Vitamin Tooth decay", "Vitamin Night blindness", "Vitamin Bone softening"],
+                answer: 0,
+                explanation: "Early researchers linked Vitamin B10 (PABA) deficiency to hair depigmentation, though it is no longer recognized as an essential human vitamin."
+            },
+            {
+                topic: "Vitamin B10",
+                question: "Where is this historical compound naturally synthesized in the human body?",
+                options: ["Synthesized by gut flora (intestinal bacteria)", "Bone marrow exclusively", "Teeth enamel", "Heart muscle only"],
+                answer: 0,
+                explanation: "Gut bacteria synthesize Vitamin B10 (PABA), and it is also found in foods like grains, eggs, and meat."
+            },
+
+            // ==================== VITAMIN B11 ====================
+            {
+                topic: "Vitamin B11",
+                question: "What historical compound was historically referred to as Vitamin B11?",
+                options: ["Salicylic acid / pteroyltriglutamate variants (historically grouped with chick growth factors)", "Inositol", "Biotin", "Retinol"],
+                answer: 0,
+                explanation: "Vitamin B11 was a historical designation for growth factors in chick nutrition later identified as folate derivatives."
+            },
+            {
+                topic: "Vitamin B11",
+                question: "A patient has developed Megaloblastic anemia and poor growth, what nutrient is the patient lacking?",
+                options: ["Vitamin B11", "Vitamin Scurvy", "Vitamin Rickets", "Vitamin Beriberi"],
+                answer: 0,
+                explanation: "Deficiencies tied to these historical Vitamin B11 chick factors involved impaired cell replication and anemia."
+            },
+            {
+                topic: "Vitamin B11",
+                question: "Natural sources for these historical B-complex factors included:",
+                options: ["Liver and leafy vegetables", "Refined white sugar", "Soda", "Table salt"],
+                answer: 0,
+                explanation: "Liver, yeast, and greens provided these Vitamin B11 growth factors."
+            },
+
+            // ==================== VITAMIN B12 ====================
+            {
+                topic: "Vitamin B12",
+                question: "What is the chemical name for Vitamin B12, which contains the metal ion cobalt?",
+                options: ["Cobalamin", "Thiamine", "Pyridoxine", "Niacin"],
+                answer: 0,
+                explanation: "Vitamin B12 is Cobalamin, unique for containing cobalt."
+            },
+            {
+                topic: "Vitamin B12",
+                question: "A patient has developed Pernicious anemia and nerve damage, what nutrient is the patient lacking?",
+                options: ["Vitamin B12", "Vitamin Scurvy", "Vitamin Rickets", "Vitamin Goiter"],
+                answer: 0,
+                explanation: "Pernicious anemia is a megaloblastic anemia caused by inability to absorb Vitamin B12, leading to fatigue and nerve damage."
+            },
+            {
+                topic: "Vitamin B12",
+                question: "Natural dietary sources of Vitamin B12 are exclusively found in:",
+                options: ["Animal products (meat, fish, dairy, eggs)", "Sunlight exposure", "Citrus fruits exclusively", "Dark leafy vegetables"],
+                answer: 0,
+                explanation: "Vitamin B12 is synthesized by bacteria; plant foods do not naturally contain active B12 unless fortified."
+            },
+
+            // ==================== VITAMIN B13 ====================
+            {
+                topic: "Vitamin B13",
+                question: "What is the historical name for Vitamin B13?",
+                options: ["Orotic acid", "Carnitine", "Choline", "Ubiquinone"],
+                answer: 0,
+                explanation: "Orotic acid was once studied as Vitamin B13, involved in pyrimidine metabolism."
+            },
+            {
+                topic: "Vitamin B13",
+                question: "A patient has developed Orotic aciduria and megaloblastic anemia, what nutrient is the patient lacking?",
+                options: ["Vitamin B13", "Vitamin Scurvy", "Vitamin Rickets", "Vitamin Beriberi"],
+                answer: 0,
+                explanation: "Vitamin B13 (Orotic acid) deficiency results in abnormal excretion of orotic acid in urine and megaloblastic anemia."
+            },
+            {
+                topic: "Vitamin B13",
+                question: "Where is this historical substance naturally found in dietary sources?",
+                options: ["Cow's milk and dairy products", "Citrus fruits", "Whole wheat flour", "Leafy greens"],
+                answer: 0,
+                explanation: "Vitamin B13 (Orotic acid) is present in milk and fermented dairy products."
+            },
+
+            // ==================== VITAMIN B14 ====================
+            {
+                topic: "Vitamin B14",
+                question: "What was Vitamin B14 historically proposed to be?",
+                options: ["A compound related to xanthopterin / B-complex growth factors", "Ascorbic acid", "Calciferol", "Tocopherol"],
+                answer: 0,
+                explanation: "Vitamin B14 was a short-lived historical designation for a pterin derivative studied for cell proliferation."
+            },
+            {
+                topic: "Vitamin B14",
+                question: "A patient has developed Impaired hematopoiesis, what nutrient is the patient lacking?",
+                options: ["Vitamin B14", "Vitamin Bone calcification", "Vitamin Night vision", "Vitamin Blood clotting"],
+                answer: 0,
+                explanation: "Vitamin B14 was investigated for its role in hematopoietic (blood cell) stimulation."
+            },
+            {
+                topic: "Vitamin B14",
+                question: "Sources investigated for these historical pterin factors included:",
+                options: ["Liver and yeast extracts", "Refined oils", "Table sugar", "White rice"],
+                answer: 0,
+                explanation: "Liver and yeast served as the primary experimental extracts for Vitamin B14."
+            },
+
+            // ==================== VITAMIN B15 ====================
+            {
+                topic: "Vitamin B15",
+                question: "What is the common name for Vitamin B15?",
+                options: ["Pangamic acid", "Biotin", "Choline", "Inositol"],
+                answer: 0,
+                explanation: "Pangamic acid was marketed as Vitamin B15, though it is not recognized as a true vitamin."
+            },
+            {
+                topic: "Vitamin B15",
+                question: "A patient has developed Impaired tissue oxygenation, what nutrient is the patient lacking?",
+                options: ["Vitamin B15", "Vitamin Scurvy", "Vitamin Night blindness", "Vitamin Rickets"],
+                answer: 0,
+                explanation: "Vitamin B15 (Pangamic acid) was touted as an ergogenic aid for oxygen utilization, though unproven scientifically."
+            },
+            {
+                topic: "Vitamin B15",
+                question: "Where is this historical compound naturally found?",
+                options: ["Apricot kernels and whole grains", "Citrus fruit peels", "Fish oils", "Dairy products"],
+                answer: 0,
+                explanation: "Apricot seeds (kernels) and whole grains are common sources of Vitamin B15 (pangamic acid) extracts."
+            },
+
+            // ==================== VITAMIN B17 ====================
+            {
+                topic: "Vitamin B17",
+                question: "What is the common alternative name for Vitamin B17?",
+                options: ["Amygdalin (or synthetic derivative Laetrile)", "Carnitine", "Choline", "Retinol"],
+                answer: 0,
+                explanation: "Vitamin B17 is a disputed term for amygdalin, found in fruit pits."
+            },
+            {
+                topic: "Vitamin B17",
+                question: "Why is this disputed compound controversial and dangerous in high doses?",
+                options: ["It can release toxic hydrogen cyanide in the body", "It causes severe bone softening", "It leads to scurvy", "It causes immediate night blindness"],
+                answer: 0,
+                explanation: "Enzymes in the gut break down Vitamin B17 (amygdalin) into hydrogen cyanide, posing serious toxicity risks."
+            },
+            {
+                topic: "Vitamin B17",
+                question: "Where is this compound naturally found?",
+                options: ["Pits/seeds of apricots, apples, and peaches", "Leafy green vegetables", "Milk and cheese", "Whole wheat bread"],
+                answer: 0,
+                explanation: "Vitamin B17 (Amygdalin) is abundant in the pits and seeds of stone fruits like apricots, peaches, and apples."
+            },
+
+            // ==================== VITAMIN C ====================
+            {
+                topic: "Vitamin C",
+                question: "What is the chemical name for Vitamin C, which acts as a powerful antioxidant?",
+                options: ["Ascorbic Acid", "Citric Acid", "Acetic Acid", "Lactic Acid"],
+                answer: 0,
+                explanation: "Vitamin C is Ascorbic acid, acting as a powerful antioxidant and collagen cofactor."
+            },
+            {
+                topic: "Vitamin C",
+                question: "A patient has developed Scurvy, what nutrient is the patient lacking?",
+                options: ["Vitamin C", "Vitamin Beriberi", "Vitamin Rickets", "Vitamin Pellagra"],
+                answer: 0,
+                explanation: "Scurvy is the classic collagen-failure disease caused by a lack of Vitamin C."
+            },
+            {
+                topic: "Vitamin C",
+                question: "Which food is exceptionally rich in Vitamin C?",
+                options: ["Citrus fruits, bell peppers, and strawberries", "Beef steak", "White rice", "Butter"],
+                answer: 0,
+                explanation: "Oranges, lemons, bell peppers, kiwi, and strawberries are packed with Vitamin C."
+            },
+
+            // ==================== VITAMIN D ====================
+            {
+                topic: "Vitamin D",
+                question: "What is the chemical group name for Vitamin D (such as D2 and D3)?",
+                options: ["Calciferol (Ergocalciferol / Cholecalciferol)", "Tocopherol", "Phylloquinone", "Retinol"],
+                answer: 0,
+                explanation: "Vitamin D refers to calciferols—ergocalciferol (D2) from plants and cholecalciferol (D3) synthesized via skin sunlight."
+            },
+            {
+                topic: "Vitamin D",
+                question: "A patient has developed Rickets / Osteomalacia, what nutrient is the patient lacking?",
+                options: ["Vitamin D", "Vitamin Scurvy", "Vitamin Beriberi", "Vitamin Goiter"],
+                answer: 0,
+                explanation: "Rickets is caused by impaired calcium/phosphorus mineralization due to Vitamin D deficiency."
+            },
+            {
+                topic: "Vitamin D",
+                question: "Besides sunlight exposure, which food is a reliable source of Vitamin D?",
+                options: ["Fatty fish (salmon) and fortified dairy/milk", "White bread", "Celery", "Apples"],
+                answer: 0,
+                explanation: "Fatty fish, egg yolks, and fortified milk or cereals provide dietary Vitamin D."
+            },
+
+            // ==================== VITAMIN E ====================
+            {
+                topic: "Vitamin E",
+                question: "What is the chemical name for the most active form of Vitamin E in human biology?",
+                options: ["Tocopherol (Alpha-tocopherol)", "Calciferol", "Phylloquinone", "Retinol"],
+                answer: 0,
+                explanation: "Vitamin E is a family of compounds featuring alpha-tocopherol, acting as a major fat-soluble antioxidant."
+            },
+            {
+                topic: "Vitamin E",
+                question: "A patient has developed Hemolytic anemia and neurological/nerve damage, what nutrient is the patient lacking?",
+                options: ["Vitamin E", "Vitamin Scurvy", "Vitamin Rickets", "Vitamin Goiter"],
+                answer: 0,
+                explanation: "Vitamin E protects cell membranes from oxidative stress; deficiency leads to nerve dysfunction and fragile red blood cells."
+            },
+            {
+                topic: "Vitamin E",
+                question: "Which food source is exceptionally high in Vitamin E?",
+                options: ["Sunflower seeds, almonds, and vegetable oils", "White sugar", "Lean chicken breast", "Celery"],
+                answer: 0,
+                explanation: "Nuts, seeds (like sunflower seeds), almonds, and plant oils are top sources of Vitamin E."
+            },
+
+            // ==================== VITAMIN K ====================
+            {
+                topic: "Vitamin K",
+                question: "What is the chemical name for Vitamin K (K1 and K2)?",
+                options: ["Phylloquinone (K1) / Menaquinone (K2)", "Tocopherol", "Retinol", "Calciferol"],
+                answer: 0,
+                explanation: "Vitamin K includes phylloquinone (from plants) and menaquinones (from animal/bacterial sources)."
+            },
+            {
+                topic: "Vitamin K",
+                question: "A patient has developed Prolonged bleeding time / hemorrhagic disorders, what nutrient is the patient lacking?",
+                options: ["Vitamin K", "Vitamin Night blindness", "Vitamin Bone softening", "Vitamin Dermatitis"],
+                answer: 0,
+                explanation: "Vitamin K is required for the carboxylation of blood clotting factors (like prothrombin)."
+            },
+            {
+                topic: "Vitamin K",
+                question: "Which food source is exceptionally rich in Vitamin K?",
+                options: ["Leafy green vegetables (kale, spinach, broccoli)", "White rice", "Refined sugar", "Beef fat"],
+                answer: 0,
+                explanation: "Kale, spinach, collards, Brussels sprouts, and broccoli are exceptionally high in Vitamin K."
+            },
+
+            // ==================== CALCIUM ====================
+            {
+                topic: "Calcium",
+                question: "What essential macromineral is primarily stored in bones and teeth to provide structural rigidity?",
+                options: ["Calcium", "Iron", "Iodine", "Zinc"],
+                answer: 0,
+                explanation: "Calcium is the most abundant mineral in the human body, vital for skeletal strength, muscle contraction, and nerve signaling."
+            },
+            {
+                topic: "Calcium",
+                question: "A patient has developed Tetany and osteoporosis, what nutrient is the patient lacking?",
+                options: ["Calcium", "Vitamin C", "Iron", "Vitamin A"],
+                answer: 0,
+                explanation: "Calcium deficiency impairs bone density leading to osteoporosis, and low ionic calcium causes neuromuscular hyperexcitability (tetany)."
+            },
+            {
+                topic: "Calcium",
+                question: "Which food source is exceptionally rich in Calcium?",
+                options: ["Dairy products (milk, cheese, yogurt) and sardines", "White rice", "Pure cane sugar", "Apples"],
+                answer: 0,
+                explanation: "Milk, cheese, yogurt, and small fish consumed with bones (like sardines) are premier sources of dietary calcium."
+            },
+
+            // ==================== IRON ====================
+            {
+                topic: "Iron",
+                question: "What essential mineral is a core component of hemoglobin for oxygen transport in red blood cells?",
+                options: ["Iron", "Calcium", "Iodine", "Zinc"],
+                answer: 0,
+                explanation: "Iron is a vital trace mineral essential for oxygen binding in hemoglobin and myoglobin."
+            },
+            {
+                topic: "Iron",
+                question: "A patient has developed Iron-deficiency anemia, what nutrient is the patient lacking?",
+                options: ["Iron", "Calcium", "Iodine", "Zinc"],
+                answer: 0,
+                explanation: "Iron deficiency leads to microcytic anemia, characterized by fatigue, weakness, and reduced oxygen-carrying capacity."
+            },
+            {
+                topic: "Iron",
+                question: "Which food source is exceptionally rich in Iron?",
+                options: ["Red meat, lentils, and spinach", "White bread", "Refined sugar", "Clear soda"],
+                answer: 0,
+                explanation: "Red meat, organ meats, lentils, beans, and spinach provide rich amounts of dietary iron (heme and non-heme)."
+            },
+
+            // ==================== IODINE ====================
+            {
+                topic: "Iodine",
+                question: "What essential trace mineral is required by the thyroid gland to synthesize hormones like thyroxine?",
+                options: ["Iodine", "Calcium", "Iron", "Zinc"],
+                answer: 0,
+                explanation: "Iodine is a crucial trace element integrated directly into thyroid hormones regulating metabolism."
+            },
+            {
+                topic: "Iodine",
+                question: "A patient has developed Goiter / Hypothyroidism, what nutrient is the patient lacking?",
+                options: ["Iodine", "Calcium", "Iron", "Zinc"],
+                answer: 0,
+                explanation: "Iodine deficiency prevents thyroid hormone production, prompting the thyroid gland to enlarge (goiter)."
+            },
+            {
+                topic: "Iodine",
+                question: "Which food source is famously rich in Iodine?",
+                options: ["Iodized salt, seaweed, and cod", "White flour", "Pure sugar", "Olive oil"],
+                answer: 0,
+                explanation: "Iodized salt, marine fish, shrimp, and seaweeds (like kelp) are exceptional sources of dietary iodine."
+            },
+
+            // ==================== ZINC ====================
+            {
+                topic: "Zinc",
+                question: "What essential trace mineral plays a critical role in immune function, DNA synthesis, and wound healing?",
+                options: ["Zinc", "Calcium", "Iron", "Iodine"],
+                answer: 0,
+                explanation: "Zinc is a cofactor for hundreds of enzymatic reactions supporting immune defense and cellular growth."
+            },
+            {
+                topic: "Zinc",
+                question: "A patient has developed Impaired wound healing and stunted growth, what nutrient is the patient lacking?",
+                options: ["Zinc", "Calcium", "Iron", "Iodine"],
+                answer: 0,
+                explanation: "Zinc deficiency leads to compromised immune response, delayed wound healing, and growth retardation."
+            },
+            {
+                topic: "Zinc",
+                question: "Which food source is exceptionally rich in Zinc?",
+                options: ["Oysters, beef, and pumpkin seeds", "White rice", "Apples", "Table sugar"],
+                answer: 0,
+                explanation: "Oysters, red meat, poultry, beans, and pumpkin seeds are outstanding sources of dietary zinc."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        const questionProgress = document.getElementById("question-progress");
+        const scoreTracker = document.getElementById("score-tracker");
+        const progressBar = document.getElementById("progress-bar");
+        const questionText = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("options-container");
+        const explanationBox = document.getElementById("explanation-box");
+        const explanationText = document.getElementById("explanation-text");
+        const nextBtn = document.getElementById("next-btn");
+        const quizContainer = document.getElementById("quiz-container");
+        const resultContainer = document.getElementById("result-container");
+        const finalScoreText = document.getElementById("final-score-text");
+        const badgeBox = document.getElementById("badge-box");
+
+        function loadQuestion() {
+            answered = false;
+            explanationBox.classList.add("hidden");
+            nextBtn.classList.add("hidden");
+
+            const current = quizData[currentQuestionIndex];
+            questionProgress.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            scoreTracker.textContent = `Score: ${score}`;
+            progressBar.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            questionText.textContent = current.question;
+
+            optionsContainer.innerHTML = "";
+            current.options.forEach((option, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = option;
+                btn.className = "w-full text-left p-3 sm:p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 hover:border-emerald-300 font-medium text-xs sm:text-base text-slate-700 transition-all shadow-sm";
+                btn.onclick = () => {
+                    playSound('click');
+                    selectOption(index, btn);
+                };
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIndex, selectedBtn) {
+            if (answered) return;
+            answered = true;
+
+            const current = quizData[currentQuestionIndex];
+            const optionButtons = optionsContainer.children;
+
+            if (selectedIndex === current.answer) {
+                playSound('correct');
+                selectedBtn.classList.remove("bg-white", "border-slate-200", "hover:bg-slate-50", "hover:border-emerald-300");
+                selectedBtn.classList.add("bg-emerald-50", "border-emerald-500", "text-emerald-900");
+                score++;
+                scoreTracker.textContent = `Score: ${score}`;
+            } else {
+                playSound('incorrect');
+                selectedBtn.classList.remove("bg-white", "border-slate-200", "hover:bg-slate-50", "hover:border-emerald-300");
+                selectedBtn.classList.add("bg-rose-50", "border-rose-500", "text-rose-900");
+
+                // Highlight correct answer
+                optionButtons[current.answer].classList.remove("bg-white", "border-slate-200", "hover:bg-slate-50", "hover:border-emerald-300");
+                optionButtons[current.answer].classList.add("bg-emerald-50", "border-emerald-500", "text-emerald-900");
+            }
+
+            // Disable all buttons after selection
+            for (let btn of optionButtons) {
+                btn.disabled = true;
+                btn.classList.add("cursor-default");
+            }
+
+            // Show explanation with topic included and next button
+            explanationText.innerHTML = `<strong>Topic: ${current.topic}</strong><br><strong>Explanation:</strong> ${current.explanation}`;
+            explanationBox.classList.remove("hidden");
+            nextBtn.classList.remove("hidden");
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            playSound('complete');
+            quizContainer.classList.add("hidden");
+            resultContainer.classList.remove("hidden");
+            finalScoreText.textContent = `You scored ${score} out of ${quizData.length} (${Math.round((score/quizData.length)*100)}%).`;
+
+            let feedback = "";
+            if (score === 72) {
+                feedback = "🌟 Flawless Victory! You have master-level knowledge of all vitamins, essential minerals, sources, and deficiencies!";
+            } else if (score >= 55) {
+                feedback = "👏 Outstanding work! You have a phenomenal understanding of nutritional biochemistry.";
+            } else if (score >= 35) {
+                feedback = "💡 Good effort! Review the historical vitamins and mineral functions to boost your score even higher.";
+            } else {
+                feedback = "📚 Keep studying! Working through these 72 questions is a great way to master all essential nutrients.";
+            }
+            badgeBox.textContent = feedback;
+        }
+
+        function restartQuiz() {
+            playSound('click');
+            currentQuestionIndex = 0;
+            score = 0;
+            resultContainer.classList.add("hidden");
+            quizContainer.classList.remove("hidden");
+            loadQuestion();
+        }
+
+        // Initialize quiz on load
+        loadQuestion();
+    </script>
+</body>
+</html>

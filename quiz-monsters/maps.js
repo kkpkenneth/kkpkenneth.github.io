@@ -50,9 +50,9 @@ const WORLD_MAPS = {
         fact: "NURSE JOY: Welcome to the Hub Center! I've fully restored your Party's HP! Remember: the Mitochondria is the powerhouse organelle of a eukaryotic cell that generates ATP!"
       },
       {
-        id: 'doctor_house', name: 'DR. HOUSE', topic: 'DOCTOR • ANATOMY FACT', x: 13, y: 8,
+        id: 'professor_oak', name: 'PROFESSOR OAK', topic: 'PROFESSOR • MONSTER FACT', x: 13, y: 8,
         hatColor: '#0284c7', shirtColor: '#e0f2fe',
-        fact: "DR. HOUSE: As a medical doctor, I treat patients daily. Remember: Hemoglobin is the protein in red blood cells that carries oxygen from the lungs to body tissues!"
+        fact: "PROFESSOR OAK: As a professor, I research daily. Remember: If you walk into the tall grass, you will encounter wild monsters!"
       },
       {
         id: 'officer_jenny', name: 'OFFICER JENNY', topic: 'POLICEMAN • LOGIC & LAWS', x: 19, y: 4,
@@ -69,8 +69,8 @@ const WORLD_MAPS = {
 
   MOUNTAIN: {
     id: 'MOUNTAIN',
-    name: 'CRAG MOUNTAIN PEAK (NORTH)',
-    subtitle: 'HIGHLAND HABITAT • WILD PYROCORE & VOLTBIT',
+    name: 'CRAG MOUNTAIN PEAK',
+    subtitle: 'CLEFAIRY • ZUBAT & MORE',
     theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c' },
     encounters: ['charmander', 'clefairy', 'vulpix', 'jigglypuff', 'zubat','growlithe','ponyta'],
     rows: [
@@ -114,8 +114,8 @@ const WORLD_MAPS = {
 
   DESERT: {
     id: 'DESERT',
-    name: 'SCORCHED MIRAGE DESERT (EAST)',
-    subtitle: 'ARID DUNES • WILD CHARCOALON, PYROCORE & VOLTBIT',
+    name: 'SCORCHED MIRAGE DESERT',
+    subtitle: 'SANDSHREW • MACHOP & MORE',
     theme: { groundA: '#d97706', groundB: '#b45309', path: '#fde68a', grass: '#9a3412', grassTip: '#fb923c', tree: '#15803d', treeTop: '#4ade80' },
     encounters: ['sandshrew', 'nidoran_f','nidoran_m','machop','mankey'],
     rows: [
@@ -154,8 +154,8 @@ const WORLD_MAPS = {
 
   BEACH: {
     id: 'BEACH',
-    name: 'CORAL LAGOON BEACH (SOUTH)',
-    subtitle: 'COASTAL SHORE • WILD AQUASHELL & TIDALFIN',
+    name: 'CORAL LAGOON BEACH',
+    subtitle: 'PSYDUCK • EKANS & MORE',
     theme: { groundA: '#fde047', groundB: '#facc15', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80' },
     encounters: ['squirtle', 'psyduck', 'poliwag','tentacool','geodude','abra','ekans'],
     rows: [
@@ -194,8 +194,8 @@ const WORLD_MAPS = {
 
   FOREST: {
     id: 'FOREST',
-    name: 'VIRIDIAN CANOPY FOREST (WEST)',
-    subtitle: 'DEEC WOODS • WILD FERNLYNX & AQUASHELL',
+    name: 'VIRIDIAN CANOPY FOREST',
+    subtitle: 'CATERPIE • WEEDLE & MORE',
     theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
     encounters: ['bulbasaur', 'caterpie', 'weedle', 'oddish', 'bellsprout','meowth','venonat','paras'],
     rows: [

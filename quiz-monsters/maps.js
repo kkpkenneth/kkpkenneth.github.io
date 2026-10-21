@@ -1,6 +1,7 @@
 /********************************************************************
  * maps.js
  * 5 Biome Maps with Named Scholars & Occupational Professionals
+ * Includes Partner Follower Drawing and Depth Sorting Logic
  ********************************************************************/
 
 const MAP_COLS = 28;
@@ -39,8 +40,8 @@ const WORLD_MAPS = {
     exits: {
       north: { targetMap: 'MOUNTAIN', spawnX: 13, spawnY: 18 },
       south: { targetMap: 'BEACH',    spawnX: 13, spawnY: 1 },
-      west:  { targetMap: 'FOREST',   spawnX: 26, spawnY: 9 },
-      east:  { targetMap: 'DESERT',   spawnX: 1,  spawnY: 9 }
+      west:  { targetMap: 'FOREST',    spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'DESERT',    spawnX: 1,  spawnY: 9 }
     },
     npcs: [
       {
@@ -231,3 +232,119 @@ const WORLD_MAPS = {
     ]
   }
 };
+
+/********************************************************************
+ * MAP CANVAS RENDERING & FOLLOWER DEPTH-SORTING
+ ********************************************************************/
+function drawOverworldCanvas() {
+  const canvas = document.getElementById('overworldCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const mapObj = getCurrentMap();
+  const theme = mapObj.theme;
+  const p = state.playerWorld;
+
+  // Camera calculations
+  const camX = p.pixelX - canvas.width / 2 + TILE_SIZE / 2;
+  const camY = p.pixelY - canvas.height / 2 + TILE_SIZE / 2;
+
+  // 1. Draw Map Tiles
+  for (let r = 0; r < mapObj.rows.length; r++) {
+    for (let c = 0; c < mapObj.rows[r].length; c++) {
+      const tile = mapObj.rows[r].charAt(c);
+      const x = c * TILE_SIZE - camX;
+      const y = r * TILE_SIZE - camY;
+
+      // Skip offscreen tiles for optimization
+      if (x < -TILE_SIZE || x > canvas.width || y < -TILE_SIZE || y > canvas.height) continue;
+
+      // Tile Backgrounds
+      if (tile === 'T') {
+        ctx.fillStyle = theme.tree;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = theme.treeTop;
+        ctx.fillRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+      } else if (tile === 'W') {
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
+      } else if (tile === 'G') {
+        ctx.fillStyle = theme.grass;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = theme.grassTip;
+        ctx.fillRect(x + 8, y + 8, 4, 4);
+        ctx.fillRect(x + 20, y + 16, 4, 4);
+      } else if (tile === 'P' || tile === 'E') {
+        ctx.fillStyle = theme.path;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 'H' || tile === 'D') {
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+      } else {
+        ctx.fillStyle = ((r + c) % 2 === 0) ? theme.groundA : theme.groundB;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+      }
+    }
+  }
+
+  // 2. Draw NPCs
+  if (mapObj.npcs) {
+    mapObj.npcs.forEach(npc => {
+      const nx = npc.x * TILE_SIZE - camX;
+      const ny = npc.y * TILE_SIZE - camY;
+      if (nx >= -TILE_SIZE && nx <= canvas.width && ny >= -TILE_SIZE && ny <= canvas.height) {
+        // Simple NPC Sprite Box
+        ctx.fillStyle = npc.hatColor || '#334155';
+        ctx.fillRect(nx + 6, ny + 4, 20, 10);
+        ctx.fillStyle = npc.shirtColor || '#94a3b8';
+        ctx.fillRect(nx + 4, ny + 14, 24, 14);
+
+        // Interaction exclamation bubble if facing
+        const facing = getFacingNPC();
+        if (facing && facing.id === npc.id) {
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.arc(nx + 16, ny - 6, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 9px monospace';
+          ctx.fillText('!', nx + 14, ny - 3);
+        }
+      }
+    });
+  }
+
+  // 3. DEPTH-SORTED PARTNER & PLAYER RENDERING
+  const pw = state.partnerWorld;
+  const playerY = p.pixelY;
+  const partnerY = pw ? pw.pixelY : playerY;
+
+  const renderPlayer = () => {
+    if (typeof drawPlayerSprite === 'function') {
+      drawPlayerSprite(ctx, p.pixelX - camX, p.pixelY - camY + p.hopOffsetY, p.dir);
+    } else {
+      // Fallback Player Graphic
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(Math.round(p.pixelX - camX) + 6, Math.round(p.pixelY - camY + p.hopOffsetY) + 4, 20, 24);
+    }
+  };
+
+  const renderPartner = () => {
+    if (pw && typeof drawFollowerPartner === 'function') {
+      drawFollowerPartner(ctx, camX, camY);
+    }
+  };
+
+  if (partnerY <= playerY) {
+    renderPartner();
+    renderPlayer();
+  } else {
+    renderPlayer();
+    renderPartner();
+  }
+}

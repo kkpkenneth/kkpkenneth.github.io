@@ -1,7 +1,24 @@
 /********************************************************************
  * overworld.js
- * Eased 1-Block Movement, Screen Shutter Transitions & NPC Interaction
+ * Eased 1-Block Movement, Screen Shutter Transitions, NPC Interaction
+ * & Active Partner Follower with Canvas Depth-Sorting
  ********************************************************************/
+
+// Initialize partnerWorld state if not already present
+if (typeof state !== 'undefined' && !state.partnerWorld) {
+  state.partnerWorld = {
+    gridX: 13,
+    gridY: 9,
+    startX: 13 * TILE_SIZE,
+    startY: 9 * TILE_SIZE,
+    targetX: 13 * TILE_SIZE,
+    targetY: 9 * TILE_SIZE,
+    pixelX: 13 * TILE_SIZE,
+    pixelY: 9 * TILE_SIZE,
+    hopOffsetY: 0,
+    dir: 'down'
+  };
+}
 
 function easeInOutCubic(t) {
   return t < 0.5
@@ -21,6 +38,19 @@ function teleportPlayerToGrid(gx, gy) {
   p.pixelY = gy * TILE_SIZE;
   p.hopOffsetY = 0;
   p.isStepping = false;
+
+  // Sync partner position on teleport
+  if (state.partnerWorld) {
+    state.partnerWorld.gridX = gx;
+    state.partnerWorld.gridY = gy;
+    state.partnerWorld.startX = gx * TILE_SIZE;
+    state.partnerWorld.startY = gy * TILE_SIZE;
+    state.partnerWorld.targetX = gx * TILE_SIZE;
+    state.partnerWorld.targetY = gy * TILE_SIZE;
+    state.partnerWorld.pixelX = gx * TILE_SIZE;
+    state.partnerWorld.pixelY = gy * TILE_SIZE;
+    state.partnerWorld.hopOffsetY = 0;
+  }
 }
 
 function getCurrentMap() {
@@ -55,7 +85,6 @@ function getFacingTileCoords() {
 function getFacingNPC() {
   const { tx, ty } = getFacingTileCoords();
   const npcs = getCurrentMap().npcs;
-  // Check exact match or 1-tile proximity for Nurse Joy / stationary NPCs
   return npcs.find(npc => (npc.x === tx && npc.y === ty) || (Math.abs(npc.x - tx) <= 0 && Math.abs(npc.y - ty) <= 0)) || null;
 }
 
@@ -78,7 +107,6 @@ function interactWithFacingNPC() {
     } else if (tile === 'G') {
       setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
     } else if (tile === 'H' || tile === 'D') {
-      // Direct shortcut interaction if standing facing the Pokemon/Research Center door
       const centerNpc = getCurrentMap().npcs.find(n => n.name.includes('NURSE'));
       if (centerNpc) {
         sfx.npcChime();
@@ -148,6 +176,9 @@ function initiateOneBlockStep(dir) {
   if (state.busy || state.screen !== 'OVERWORLD' || p.isStepping) return;
   if (now - p.lastStepEndTime < p.stepPauseMs) return;
 
+  const prevX = p.gridX;
+  const prevY = p.gridY;
+
   p.dir = dir;
   updateOverworldHUD();
 
@@ -171,6 +202,18 @@ function initiateOneBlockStep(dir) {
   p.stepStartTime = now;
   p.isStepping = true;
   p.stepFrame = (p.stepFrame + 1) % 2;
+
+  // Partner steps to where player just was
+  if (state.partnerWorld && (p.gridX !== prevX || p.gridY !== prevY)) {
+    const pw = state.partnerWorld;
+    pw.startX = pw.pixelX;
+    pw.startY = pw.pixelY;
+    pw.gridX = prevX;
+    pw.gridY = prevY;
+    pw.targetX = prevX * TILE_SIZE;
+    pw.targetY = prevY * TILE_SIZE;
+    pw.dir = dir;
+  }
 }
 
 function onSingleBlockStepLanded() {
@@ -209,6 +252,176 @@ function onSingleBlockStepLanded() {
       p.stepsSinceBattle = 0;
       triggerWildBattleFromOverworld();
     }
+  }
+}
+
+/********************************************************************
+ * ACTIVE PARTNER FOLLOWER & CANVAS RENDERING
+ ********************************************************************/
+function drawFollowerPartner(ctx, camX, camY) {
+  const partner = typeof getActivePlayer === 'function' ? getActivePlayer() : (state.dex && state.dex[state.activeDexIndex]);
+  if (!partner) return;
+
+  const liveSpecies = (typeof MONSTER_SPECIES !== 'undefined' ? MONSTER_SPECIES.find(m => m.id === partner.id) : null) || partner;
+  const grid = liveSpecies.pixels || liveSpecies.grid || partner.pixels || partner.grid;
+  const palette = liveSpecies.palette || partner.palette;
+  if (!grid || !palette) return;
+
+  const p = state.playerWorld;
+  const pw = state.partnerWorld;
+
+  if (p.isStepping) {
+    const elapsed = performance.now() - p.stepStartTime;
+    const t = Math.min(1, Math.max(0, elapsed / p.stepDurationMs));
+    pw.pixelX = pw.startX + (pw.targetX - pw.startX) * t;
+    pw.pixelY = pw.startY + (pw.targetY - pw.startY) * t;
+    pw.hopOffsetY = -Math.sin(t * Math.PI) * 5;
+  } else {
+    pw.pixelX = pw.targetX;
+    pw.pixelY = pw.targetY;
+    pw.hopOffsetY = Math.sin(performance.now() / 220) * 1.5;
+  }
+
+  const screenX = Math.round(pw.pixelX - camX);
+  const screenY = Math.round(pw.pixelY - camY + pw.hopOffsetY);
+
+  // Soft ground shadow
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(
+    screenX + TILE_SIZE / 2,
+    Math.round(pw.pixelY - camY) + TILE_SIZE - 3,
+    TILE_SIZE * 0.32,
+    TILE_SIZE * 0.14,
+    0, 0, Math.PI * 2
+  );
+  ctx.fill();
+
+  const scale = (TILE_SIZE * 0.8) / 16;
+  const offsetX = screenX + (TILE_SIZE - 16 * scale) / 2;
+  const offsetY = screenY + (TILE_SIZE - 16 * scale) - 2;
+  const flipX = pw.dir === 'right';
+
+  for (let r = 0; r < grid.length; r++) {
+    const row = grid[r];
+    for (let c = 0; c < row.length; c++) {
+      const ch = row[c];
+      if (ch === '.' || ch === ' ' || !palette[ch]) continue;
+      ctx.fillStyle = palette[ch];
+      const drawCol = flipX ? (15 - c) : c;
+      ctx.fillRect(
+        Math.floor(offsetX + drawCol * scale),
+        Math.floor(offsetY + r * scale),
+        Math.ceil(scale),
+        Math.ceil(scale)
+      );
+    }
+  }
+}
+
+function drawOverworldCanvas() {
+  const canvas = document.getElementById('overworldCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const mapObj = getCurrentMap();
+  const theme = mapObj.theme;
+  const p = state.playerWorld;
+
+  // Camera calculations
+  const camX = p.pixelX - canvas.width / 2 + TILE_SIZE / 2;
+  const camY = p.pixelY - canvas.height / 2 + TILE_SIZE / 2;
+
+  // 1. Draw Map Tiles
+  for (let r = 0; r < mapObj.rows.length; r++) {
+    for (let c = 0; c < mapObj.rows[r].length; c++) {
+      const tile = mapObj.rows[r].charAt(c);
+      const x = c * TILE_SIZE - camX;
+      const y = r * TILE_SIZE - camY;
+
+      if (x < -TILE_SIZE || x > canvas.width || y < -TILE_SIZE || y > canvas.height) continue;
+
+      if (tile === 'T') {
+        ctx.fillStyle = theme.tree;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = theme.treeTop;
+        ctx.fillRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+      } else if (tile === 'W') {
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
+      } else if (tile === 'G') {
+        ctx.fillStyle = theme.grass;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = theme.grassTip;
+        ctx.fillRect(x + 8, y + 8, 4, 4);
+        ctx.fillRect(x + 20, y + 16, 4, 4);
+      } else if (tile === 'P' || tile === 'E') {
+        ctx.fillStyle = theme.path;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 'H' || tile === 'D') {
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+      } else {
+        ctx.fillStyle = ((r + c) % 2 === 0) ? theme.groundA : theme.groundB;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+      }
+    }
+  }
+
+  // 2. Draw NPCs
+  if (mapObj.npcs) {
+    mapObj.npcs.forEach(npc => {
+      const nx = npc.x * TILE_SIZE - camX;
+      const ny = npc.y * TILE_SIZE - camY;
+      if (nx >= -TILE_SIZE && nx <= canvas.width && ny >= -TILE_SIZE && ny <= canvas.height) {
+        ctx.fillStyle = npc.hatColor || '#334155';
+        ctx.fillRect(nx + 6, ny + 4, 20, 10);
+        ctx.fillStyle = npc.shirtColor || '#94a3b8';
+        ctx.fillRect(nx + 4, ny + 14, 24, 14);
+
+        const facing = getFacingNPC();
+        if (facing && facing.id === npc.id) {
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.arc(nx + 16, ny - 6, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 9px monospace';
+          ctx.fillText('!', nx + 14, ny - 3);
+        }
+      }
+    });
+  }
+
+  // 3. DEPTH-SORTED PARTNER & PLAYER RENDERING
+  const pw = state.partnerWorld;
+  const playerY = p.pixelY;
+  const partnerY = pw ? pw.pixelY : playerY;
+
+  const renderPlayer = () => {
+    if (typeof drawPlayerSprite === 'function') {
+      drawPlayerSprite(ctx, p.pixelX - camX, p.pixelY - camY + p.hopOffsetY, p.dir);
+    } else {
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(Math.round(p.pixelX - camX) + 6, Math.round(p.pixelY - camY + p.hopOffsetY) + 4, 20, 24);
+    }
+  };
+
+  const renderPartner = () => {
+    if (pw) drawFollowerPartner(ctx, camX, camY);
+  };
+
+  if (partnerY <= playerY) {
+    renderPartner();
+    renderPlayer();
+  } else {
+    renderPlayer();
+    renderPartner();
   }
 }
 

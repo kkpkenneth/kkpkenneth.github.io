@@ -1,10 +1,9 @@
 /********************************************************************
  * characters.js
- * 16x16 Bitmap Tile Engine, Trainer/NPC/Overworld-Pokémon Renderer
- * & Active Partner Follower with Y-Depth Sorting
+ * 16x16 Bitmap Tile Engine with Distinct Rocks, Ice, Lava, Swamp Mud,
+ * Desert Cacti, Beach Corals & Multi-Color Flowers
  ********************************************************************/
 
-// 16x16 Bitmap Grids for Every Map Object (matching monsters.js format)
 const TILE_BITMAPS = {
   // Tree (16x16)
   T: [
@@ -23,6 +22,82 @@ const TILE_BITMAPS = {
     ".....bbbbbb.....",
     ".....bbbbbb.....",
     "....bbbbbbbb....",
+    "................"
+  ],
+  // Jagged Crag Rock / Boulder (16x16)
+  R: [
+    "................",
+    ".....bbbbbb.....",
+    "...bbllllllbb...",
+    "..bllrrrrrrllb..",
+    ".blrrrrrrrrrrlb.",
+    ".blrrrlllrrrrlb.",
+    "blrrrllrrrrrrrlb",
+    "blrrrrrrrrddddlb",
+    "brrrrrrrdddddddb",
+    "brrrrrddddddrrrb",
+    ".bddddddddrrrrb.",
+    ".bbddddddddddbb.",
+    "..bbbbbbbbbbbb..",
+    "...ssssssssss...",
+    "................",
+    "................"
+  ],
+  // Crystalline Glacier Ice Block (16x16)
+  I: [
+    ".bbbbbbbbbbbbbb.",
+    "bwwwwwwwwwwwwwwb",
+    "bwllllllllllllwb",
+    "bwlwwllllllwwlwb",
+    "bwlwllllllllwlwb",
+    "bwllllwwwwllllwb",
+    "bwlllwwccwwlllwb",
+    "bwllwwccccwwllwb",
+    "bwllwccccccwllwb",
+    "bwlllwwccwwlllwb",
+    "bwllllwwwwllllwb",
+    "bwlwllllllllwlwb",
+    "bwlwwllllllwwlwb",
+    "bwccccccccccccwb",
+    "bwwwwwwwwwwwwwwb",
+    ".bbbbbbbbbbbbbb."
+  ],
+  // Desert Saguaro Cactus (16x16)
+  C: [
+    "................",
+    "......bbbb......",
+    ".....bggggb.....",
+    ".....bglggb.....",
+    ".bbb.bglggb.bbb.",
+    "bgggb.bglgb.bggb",
+    "bglgb.bglgb.bglb",
+    "bglgbbbglgbbbglb",
+    "bggggggglggggggb",
+    ".bbbbbbglgbbbbb.",
+    ".....bbglgb.....",
+    ".....bgglgb.....",
+    ".....bggggb.....",
+    ".....bggggb.....",
+    "....dddddddd....",
+    "................"
+  ],
+  // Beach / Reef Coral (16x16)
+  K: [
+    "................",
+    "..kk...pp...kk..",
+    ".kkkk.pppp.kkkk.",
+    ".kllk.pllp.kllk.",
+    "..kkkkppppkkkk..",
+    "...kkkkppkkkk...",
+    "..yykkkkkkkkcc..",
+    ".yyyykkkkkkcccc.",
+    "..yykkkkkkkkcc..",
+    "....kkkkkkkk....",
+    ".....kkkkkk.....",
+    "....bbbbbbbb....",
+    "...dddddddddd...",
+    "................",
+    "................",
     "................"
   ],
   // Tall Wild Grass (16x16)
@@ -63,7 +138,45 @@ const TILE_BITMAPS = {
     "wwwwwwwwwwwwwwww",
     "wwwwwwwwwwwwwwww"
   ],
-  // Animated Flower Tile (16x16)
+  // Lava Magma Wave Tile (16x16)
+  L: [
+    "wwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwllllwwwwyyyyww",
+    "wwwwllllwwwwwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwwwyyyywwwwwwww",
+    "wwwwwwwwwwllllww",
+    "wwwwwwwwllllwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwyyyywwwwwwwwww",
+    "wwllllwwwwwwwwww",
+    "wwwwllllwwwwyyyy",
+    "wwwwwwwwwwwwwwww",
+    "wwwwwwwwwwllllww",
+    "wwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwww"
+  ],
+  // Swamp Mud Tile (16x16)
+  M: [
+    "wwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwllllwwwwddddww",
+    "wwwwllllwwwwwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwwwddddwwwwwwww",
+    "wwwwwwwwwwllllww",
+    "wwwwwwwwllllwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwddddwwwwwwwwww",
+    "wwllllwwwwwwwwww",
+    "wwwwllllwwwwdddd",
+    "wwwwwwwwwwwwwwww",
+    "wwwwwwwwwwllllww",
+    "wwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwww"
+  ],
+  // Multi-Color Animated Flower Tile (16x16)
   F: [
     "................",
     "...yy...........",
@@ -179,7 +292,6 @@ const TILE_BITMAPS = {
   ]
 };
 
-// 16x16 Character Sprite Bitmaps (Trainer & NPCs)
 const CHAR_BITMAPS = {
   TRAINER_DOWN: [
     "....rrrrrrrr....",
@@ -275,18 +387,111 @@ function drawBitmap16(ctx, grid, palette, dx, dy, size = TILE_SIZE, flipX = fals
   }
 }
 
+const FLOWER_COLOR_SETS = [
+  { r: '#f43f5e', y: '#fde047', c: '#ffffff' },
+  { r: '#a855f7', y: '#f472b6', c: '#fef08a' },
+  { r: '#38bdf8', y: '#fb923c', c: '#ffffff' },
+  { r: '#ec4899', y: '#a78bfa', c: '#fde047' },
+  { r: '#f97316', y: '#facc15', c: '#fffbeb' }
+];
+
 function drawOverworldTile(ctx, tile, tx, ty, c, r, theme, animTick) {
-  // Base Checkerboard Ground
   ctx.fillStyle = (c + r) % 2 === 0 ? theme.groundA : theme.groundB;
   ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
 
   const bmp = TILE_BITMAPS[tile];
   if (!bmp) return;
 
+  if (tile === 'R') {
+    const rockPalette = {
+      b: '#1c1917',
+      r: theme.rock || '#78716c',
+      l: theme.rockLight || '#d6d3d1',
+      d: theme.rockDark || '#44403c',
+      s: 'rgba(0,0,0,0.28)'
+    };
+    drawBitmap16(ctx, bmp, rockPalette, tx, ty, TILE_SIZE, (c + r) % 2 === 1);
+    return;
+  }
+
+  if (tile === 'I') {
+    const icePalette = {
+      b: '#0284c7',
+      w: '#e0f2fe',
+      l: '#7dd3fc',
+      c: '#38bdf8'
+    };
+    drawBitmap16(ctx, bmp, icePalette, tx, ty, TILE_SIZE, false);
+    return;
+  }
+
+  if (tile === 'L') {
+    const lavaPalette = {
+      w: '#dc2626',
+      l: animTick % 2 === 0 ? '#f97316' : '#fb923c',
+      y: animTick % 2 === 0 ? '#fde047' : '#facc15'
+    };
+    const flipLava = (animTick + c + r) % 2 === 1;
+    drawBitmap16(ctx, bmp, lavaPalette, tx, ty, TILE_SIZE, flipLava);
+    return;
+  }
+
+  if (tile === 'M') {
+    const mudPalette = {
+      w: '#5c4033',
+      l: '#78350f',
+      d: animTick % 2 === 0 ? '#92400e' : '#451a03'
+    };
+    const flipMud = (animTick + c + r) % 2 === 1;
+    drawBitmap16(ctx, bmp, mudPalette, tx, ty, TILE_SIZE, flipMud);
+    return;
+  }
+
+  if (tile === 'C') {
+    const cactusPalette = {
+      b: '#052e16',
+      g: '#16a34a',
+      l: '#86efac',
+      d: 'rgba(0,0,0,0.25)'
+    };
+    drawBitmap16(ctx, bmp, cactusPalette, tx, ty, TILE_SIZE, c % 2 === 1);
+    return;
+  }
+
+  if (tile === 'K') {
+    const coralColors = ['#f43f5e', '#fb7185', '#e879f9', '#f97316'];
+    const secColors   = ['#a855f7', '#38bdf8', '#facc15', '#ec4899'];
+    const idx = (c * 3 + r * 5) % coralColors.length;
+    const coralPalette = {
+      k: coralColors[idx],
+      p: secColors[idx],
+      l: '#ffffff',
+      y: '#fde047',
+      c: '#2dd4bf',
+      b: '#475569',
+      d: 'rgba(0,0,0,0.28)'
+    };
+    drawBitmap16(ctx, bmp, coralPalette, tx, ty, TILE_SIZE, (c + r) % 2 === 1);
+    return;
+  }
+
+  if (tile === 'F') {
+    const fSet = FLOWER_COLOR_SETS[(c * 7 + r * 13) % FLOWER_COLOR_SETS.length];
+    const flowerPalette = {
+      r: fSet.r,
+      y: animTick % 2 === 0 ? fSet.y : fSet.r,
+      c: fSet.c,
+      g: '#15803d'
+    };
+    const flipFlower = (animTick + c + r) % 2 === 1;
+    drawBitmap16(ctx, bmp, flowerPalette, tx, ty, TILE_SIZE, flipFlower);
+    return;
+  }
+
   const palette = {
     t: theme.tree,
     l: tile === 'W' ? '#38bdf8' : (tile === 'B' ? '#d97706' : (tile === 'G' ? theme.grassTip : theme.treeTop)),
-    g: tile === 'F' ? '#15803d' : theme.grass,
+    g: theme.grass,
     d: 'rgba(0,0,0,0.25)',
     b: tile === 'T' || tile === 'B' ? '#451a03' : '#0f172a',
     B: '#0f172a',
@@ -298,7 +503,7 @@ function drawOverworldTile(ctx, tile, tx, ty, c, r, theme, animTick) {
     y: animTick % 2 === 0 ? '#fde047' : '#f59e0b'
   };
 
-  const flipTile = (tile === 'W' || tile === 'F') && ((animTick + c + r) % 2 === 1);
+  const flipTile = tile === 'W' && ((animTick + c + r) % 2 === 1);
   drawBitmap16(ctx, bmp, palette, tx, ty, TILE_SIZE, flipTile);
 }
 
@@ -347,9 +552,10 @@ function drawNPCSprite(ctx, npc, playerWorld, isFacingThisNpc, animTick) {
 }
 
 function drawOverworldPokemonNPC(ctx, pNpc, playerWorld, isFacingThisPoke, animTick) {
-  const art = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[pNpc.speciesId])
-    ? MONSTER_PIXELS[pNpc.speciesId]
-    : (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[pNpc.speciesId] : null);
+  const monKey = pNpc.speciesId || pNpc.monsterId || pNpc.id;
+  const art = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[monKey])
+    ? MONSTER_PIXELS[monKey]
+    : (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[monKey] : null);
   if (!art || !art.grid) return;
 
   const nx = pNpc.x * TILE_SIZE;
@@ -466,7 +672,6 @@ function drawOverworldCanvas() {
 
   const animTick = Math.floor(performance.now() / 350);
 
-  // 1. Draw 16x16 Bitmap Map Tiles
   for (let r = 0; r < MAP_ROWS; r++) {
     for (let c = 0; c < MAP_COLS; c++) {
       const tx = c * TILE_SIZE;
@@ -476,15 +681,17 @@ function drawOverworldCanvas() {
     }
   }
 
-  // 2. Draw Human Career/Scholar NPCs
   const facingNpc = getFacingNPC();
   if (mapObj.npcs) {
     mapObj.npcs.forEach(npc => {
-      drawNPCSprite(ctx, npc, p, facingNpc && facingNpc.id === npc.id, animTick);
+      if (npc.isMonster || npc.monsterId) {
+        drawOverworldPokemonNPC(ctx, npc, p, facingNpc && facingNpc.id === npc.id, animTick);
+      } else {
+        drawNPCSprite(ctx, npc, p, facingNpc && facingNpc.id === npc.id, animTick);
+      }
     });
   }
 
-  // 3. Draw Overworld Interactable Pokémon NPCs
   const facingPoke = typeof getFacingPokeNPC === 'function' ? getFacingPokeNPC() : null;
   if (mapObj.pokeNpcs) {
     mapObj.pokeNpcs.forEach(pNpc => {
@@ -492,7 +699,6 @@ function drawOverworldCanvas() {
     });
   }
 
-  // 4. Depth-Sorted Partner Follower & Trainer Rendering
   const pw = state.partnerWorld;
   if (pw && pw.pixelY <= p.pixelY) {
     drawFollowerPartner(ctx, theme);

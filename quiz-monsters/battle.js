@@ -1,6 +1,6 @@
 /********************************************************************
  * battle.js
- * Trivia Combat Engine, Auto-Save on Catch & 100% Dex Celebration
+ * Trivia Combat Engine, Auto-Switch on Faint, No Region After Name
  ********************************************************************/
 
 function createMonsterInstance(template) {
@@ -32,6 +32,49 @@ function getActivePlayer() {
   return dexMon;
 }
 
+function findNextHealthyPartnerIndex() {
+  if (!state.dex || state.dex.length === 0) return -1;
+  for (let i = 0; i < state.dex.length; i++) {
+    if (i !== state.activeDexIndex && state.dex[i].hp > 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function handleActivePartnerFainted() {
+  const faintedMon = getActivePlayer();
+  faintedMon.hp = 0;
+  syncAllUI();
+
+  const nextIdx = findNextHealthyPartnerIndex();
+  if (nextIdx !== -1) {
+    state.activeDexIndex = nextIdx;
+    const newPartner = getActivePlayer();
+    const playerWrapper = document.getElementById('playerSpriteWrapper');
+    if (playerWrapper) {
+      playerWrapper.innerHTML = renderMonsterSVG(newPartner);
+      triggerSpriteAnimation('player', 'anim-lunge-player');
+    }
+    sfx.pokemonCry(newPartner.id);
+    if (typeof saveGameProgress === 'function') saveGameProgress();
+    syncAllUI();
+    setDialogue(`${faintedMon.name} fainted! Go, ${newPartner.name}! "${newPartner.name}! ${newPartner.name}~"`, 'PARTNER SWITCHED!');
+    setTimeout(() => {
+      state.busy = false;
+    }, 1000);
+  } else {
+    state.dex.forEach(m => { m.hp = m.maxHp; });
+    syncAllUI();
+    setDialogue(`${faintedMon.name} fainted! All your partners are exhausted! Returning to Nurse Joy...`, 'PARTY FAINTED');
+    setTimeout(() => {
+      state.currentMapId = 'CENTER';
+      teleportPlayerToGrid(14, 6);
+      returnToOverworldFromBattle(`Nurse Joy restored all your Pokémon to full HP!`);
+    }, 1600);
+  }
+}
+
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
   const hpRatio = Math.max(0, enemy.hp / enemy.maxHp);
@@ -39,7 +82,17 @@ function calculateCatchProbability(enemy) {
 }
 
 function setupBattleEncounter(chosenSpecies) {
-  const activePlayer = getActivePlayer();
+  let activePlayer = getActivePlayer();
+  if (activePlayer.hp <= 0) {
+    const healthyIdx = findNextHealthyPartnerIndex();
+    if (healthyIdx !== -1) {
+      state.activeDexIndex = healthyIdx;
+      activePlayer = getActivePlayer();
+    } else {
+      activePlayer.hp = activePlayer.maxHp;
+    }
+  }
+
   state.enemy = createMonsterInstance(chosenSpecies);
 
   const enemyWrapper = document.getElementById('enemySpriteWrapper');
@@ -61,7 +114,8 @@ function setupBattleEncounter(chosenSpecies) {
   setTimeout(() => sfx.pokemonCry(state.enemy.id), 350);
 
   showCommandView();
-  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared in ${getCurrentMap().name}! "${state.enemy.name}! ${state.enemy.name}~"`, 'WILD ENCOUNTER');
+  // Do not show the region after the Pokémon name in battle
+  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! "${state.enemy.name}! ${state.enemy.name}~"`, 'WILD ENCOUNTER');
   syncAllUI();
 }
 
@@ -103,6 +157,12 @@ function syncAllUI() {
     const eBadge = document.getElementById('enemyTypeBadge');
     eBadge.textContent = eTypeInfo ? eTypeInfo.name : enemy.type;
     eBadge.className = `text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo ? eTypeInfo.badgeClass : 'bg-slate-700'}`;
+
+    const zoneHint = document.getElementById('enemyZoneHint');
+    if (zoneHint) {
+      zoneHint.textContent = '';
+      zoneHint.classList.add('hidden');
+    }
 
     const alreadyOwned = state.dex.some(p => p.id === enemy.id);
     document.getElementById('enemyCaughtIcon').classList.toggle('hidden', !alreadyOwned);
@@ -349,7 +409,7 @@ function startCaptureBallSequence() {
 
             const enemyDmg = 18;
             const player = getActivePlayer();
-            player.hp = Math.max(1, player.hp - enemyDmg);
+            player.hp = Math.max(0, player.hp - enemyDmg);
 
             triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
             setTimeout(() => {
@@ -359,7 +419,13 @@ function startCaptureBallSequence() {
             }, 220);
 
             setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG!`, 'BROKE FREE!');
-            setTimeout(() => { state.busy = false; }, 950);
+            setTimeout(() => {
+              if (player.hp <= 0) {
+                handleActivePartnerFainted();
+              } else {
+                state.busy = false;
+              }
+            }, 950);
           }
         };
         setTimeout(runNextShake, 600);
@@ -526,14 +592,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
 
     setTimeout(() => {
       if (player.hp <= 0) {
-        player.hp = player.maxHp;
-        syncAllUI();
-        setDialogue(`${player.name} fainted! Returning to Nurse Joy at Pallet Research Hub...`, 'FAINTED');
-        setTimeout(() => {
-          state.currentMapId = 'CENTER';
-          teleportPlayerToGrid(14, 6);
-          returnToOverworldFromBattle(`Nurse Joy restored ${player.name} to full HP!`);
-        }, 1500);
+        handleActivePartnerFainted();
       } else {
         state.busy = false;
       }
@@ -558,10 +617,12 @@ function showDexSwitchView() {
     const displayName = liveSpecies.name;
     const displayType = liveSpecies.type;
     const isCurrent = idx === state.activeDexIndex;
+    const isFainted = mon.hp <= 0;
     const tInfo = ELEMENT_TYPES[displayType] || { name: displayType, badgeClass: 'bg-slate-700' };
 
     const card = document.createElement('button');
-    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : 'bg-white hover:bg-slate-100'} text-slate-900 p-2.5 flex items-center gap-2.5 text-left w-full`;
+    card.disabled = isFainted;
+    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : (isFainted ? 'bg-slate-300 opacity-60' : 'bg-white hover:bg-slate-100')} text-slate-900 p-2.5 flex items-center gap-2.5 text-left w-full`;
     card.innerHTML = `
       <div class="w-12 h-12 shrink-0 bg-slate-200 rounded p-1 border border-slate-400">
         ${renderMonsterSVG(mon)}
@@ -569,15 +630,16 @@ function showDexSwitchView() {
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-1">
           <span class="text-[10px] font-bold truncate">${displayName}</span>
-          ${isCurrent ? '<span class="text-[8px] bg-amber-400 text-slate-950 px-1 rounded">PARTNER</span>' : ''}
+          ${isCurrent ? '<span class="text-[8px] bg-amber-400 text-slate-950 px-1 rounded">PARTNER</span>' : (isFainted ? '<span class="text-[8px] bg-red-600 text-white px-1 rounded">FAINTED</span>' : '')}
         </div>
         <div class="flex items-center gap-1 mt-1">
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${displayType}</span>
-          <span class="text-[8px] text-slate-600">HP ${mon.hp}/${mon.maxHp}</span>
+          <span class="text-[8px] text-slate-600">HP ${Math.max(0, mon.hp)}/${mon.maxHp}</span>
         </div>
       </div>
     `;
     card.addEventListener('click', () => {
+      if (isFainted) return;
       if (idx === state.activeDexIndex) {
         showCommandView();
         return;
@@ -618,12 +680,15 @@ function openOverworldDexModal() {
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${species.type}</span>
         </div>
         <div class="text-[8px] text-slate-600 mt-1">
-          ${caughtMon ? `CAUGHT • HP ${caughtMon.hp}/${caughtMon.maxHp} ${isCurrent ? '★ ACTIVE PARTNER' : '(CLICK TO SET PARTNER)'}` : 'UNCAUGHT • FIND IN TALL GRASS'}
+          ${caughtMon ? `CAUGHT • HP ${Math.max(0, caughtMon.hp)}/${caughtMon.maxHp} ${isCurrent ? '★ ACTIVE PARTNER' : '(CLICK TO SET PARTNER)'}` : 'UNCAUGHT • FIND IN TALL GRASS'}
         </div>
       </div>
     `;
     if (caughtMon) {
       card.addEventListener('click', () => {
+        if (caughtMon.hp <= 0) {
+          caughtMon.hp = caughtMon.maxHp;
+        }
         sfx.pokemonCry(species.id);
         state.activeDexIndex = dexIndex;
         if (typeof saveGameProgress === 'function') saveGameProgress();

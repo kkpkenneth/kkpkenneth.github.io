@@ -1,11 +1,8 @@
 /********************************************************************
  * maps.js
- * 13 Biome Maps:
- * - 1 Center Hub (CENTER)
- * - 4 Cardinal Maps (MOUNTAIN, DESERT, BEACH, FOREST)
- * - 4 Corner Maps (NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST)
- * - 4 Far Outer Maps (GLACIER, VOLCANO, ABYSS, SANCTUARY)
- * Every habitat has strictly unique 1st-stage or Legendary Pokémon!
+ * 13 Biome Maps Featuring Custom Tiles:
+ * R = Rock, I = Ice, L = Lava, M = Swamp Mud, C = Cactus, K = Coral, F = Multi-Color Flower
+ * Every habitat has strictly 1st-stage or single-stage Kanto Pokémon!
  ********************************************************************/
 
 const MAP_COLS = 28;
@@ -19,7 +16,7 @@ const WORLD_MAPS = {
     name: 'PALLET RESEARCH HUB',
     subtitle: 'N: MOUNTAIN • E: DESERT • S: BEACH • W: FOREST',
     theme: { groundA: '#65a30d', groundB: '#6dab14', path: '#d6b37c', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e' },
-    encounters: ['pikachu', 'pidgey', 'rattata', 'eevee'],
+    encounters: ['pikachu', 'pidgey', 'rattata', 'eevee', 'chansey', 'ditto', 'porygon'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..FFFF..PPPPPPPPPP..FFFF..T",
@@ -102,34 +99,34 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 2. NORTH: MOUNTAIN (Connects N->GLACIER, S->CENTER, W->NORTHWEST, E->NORTHEAST)
+  // 2. NORTH: MOUNTAIN (Uses R = Rock boulders instead of recolored trees)
   MOUNTAIN: {
     id: 'MOUNTAIN',
     name: 'CRAG MOUNTAIN PEAK (NORTH)',
     subtitle: 'N: GLACIER • S: HUB • W: SKY PLATEAU • E: CANYON',
-    theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c' },
-    encounters: ['clefairy', 'jigglypuff', 'zubat', 'machop'],
+    theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
+    encounters: ['clefairy', 'jigglypuff', 'zubat', 'machop', 'hitmonlee', 'hitmonchan'],
     rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T..TTTT....PPPPPP....TTTT..T",
-      "T.GGGGGG...P....P...GGGGGG.T",
-      "T.GGGGGG..PP.FF.PP..GGGGGG.T",
-      "T.GGGGGG..P......P..GGGGGG.T",
-      "T...TT....PPPPPPPP....TT...T",
-      "T........PP......PP........T",
-      "T..GGGGPPP..TTTT..PPPGGGG..T",
-      "T..GGGGP...TTTTTT...PGGGG..T",
-      "EPPPPPPP...TTTTTT...PPPPPPPE",
-      "EPPPPPPP....TTTT....PPPPPPPE",
-      "T..TTT..PPPPPPPPPPPP..TTT..T",
-      "T..........PP..PP..........T",
-      "T.GGGGGGG..PP..PP..GGGGGGG.T",
-      "T.GGGGGGG..PP..PP..GGGGGGG.T",
-      "T.GGGGGGG.PPP..PPP.GGGGGGG.T",
-      "T.........P......P.........T",
-      "T..TTTT...PPPPPPPP...TTTT..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..RRRR....PPPPPP....RRRR..R",
+      "R.GGGGGG...P....P...GGGGGG.R",
+      "R.GGGGGG..PP.FF.PP..GGGGGG.R",
+      "R.GGGGGG..P......P..GGGGGG.R",
+      "R...RR....PPPPPPPP....RR...R",
+      "R........PP......PP........R",
+      "R..GGGGPPP..RRRR..PPPGGGG..R",
+      "R..GGGGP...RRRRRR...PGGGG..R",
+      "EPPPPPPP...RRRRRR...PPPPPPPE",
+      "EPPPPPPP....RRRR....PPPPPPPE",
+      "R..RRR..PPPPPPPPPPPP..RRR..R",
+      "R..........PP..PP..........R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG.PPP..PPP.GGGGGGG.R",
+      "R.........P......P.........R",
+      "R..RRRR...PPPPPPPP...RRRR..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
     ],
     exits: {
       north: { targetMap: 'GLACIER',   spawnX: 13, spawnY: 18 },
@@ -161,34 +158,34 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 3. EAST: DESERT (Connects W->CENTER, E->VOLCANO, N->NORTHEAST, S->SOUTHEAST)
+  // 3. EAST: DESERT (Uses C = Cactus & R = Desert Rocks)
   DESERT: {
     id: 'DESERT',
     name: 'SCORCHED MIRAGE DESERT (EAST)',
     subtitle: 'W: HUB • E: VOLCANO • N: CANYON • S: ATOLL',
-    theme: { groundA: '#d97706', groundB: '#b45309', path: '#fde68a', grass: '#9a3412', grassTip: '#fb923c', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['sandshrew', 'diglett', 'mankey', 'doduo'],
+    theme: { groundA: '#d97706', groundB: '#b45309', path: '#fde68a', grass: '#9a3412', grassTip: '#fb923c', tree: '#15803d', treeTop: '#4ade80', rock: '#b45309', rockLight: '#fcd34d', rockDark: '#78350f' },
+    encounters: ['sandshrew', 'diglett', 'mankey', 'doduo', 'cubone', 'rhyhorn'],
     rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T....GGGG....PP....GGGG....T",
-      "T...GGGGGG..PPPP..GGGGGG...T",
-      "T...GGGGGG...PP...GGGGGG...T",
-      "T...........PPPP...........T",
-      "T..TTT.....PP..PP.....TTT..T",
-      "T.........PP.WW.PP.........T",
-      "T..GGGG..PP.WWWW.PP..GGGG..T",
-      "T..GGGG.PP..WWWW..PP.GGGG..T",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..C.GGGG....PP....GGGG.C..R",
+      "R...GGGGGG..PPPP..GGGGGG...R",
+      "R.C.GGGGGG...PP...GGGGGG.C.R",
+      "R...........PPPP...........R",
+      "R..CCC.....PP..PP.....CCC..R",
+      "R.........PP.WW.PP.........R",
+      "R..GGGG..PP.WWWW.PP..GGGG..R",
+      "R..GGGG.PP..WWWW..PP.GGGG..R",
       "EPPPPPPPP....WW....PPPPPPPPE",
       "EPPPPPPPP..........PPPPPPPPE",
-      "T..GGGG..PPPPPPPPPP..GGGG..T",
-      "T..GGGG......PP......GGGG..T",
-      "T............PP............T",
-      "T...TTT.....PPPP.....TTT...T",
-      "T..........PP..PP..........T",
-      "T..GGGGGG..P....P..GGGGGG..T",
-      "T..GGGGGG..PPPPPP..GGGGGG..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "R..GGGG..PPPPPPPPPP..GGGG..R",
+      "R..GGGG......PP......GGGG..R",
+      "R.C..........PP..........C.R",
+      "R...CCC.....PPPP.....CCC...R",
+      "R..........PP..PP..........R",
+      "R..GGGGGG..P....P..GGGGGG..R",
+      "R..GGGGGG..PPPPPP..GGGGGG..R",
+      "R..C.........PP.........C..R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
     ],
     exits: {
       north: { targetMap: 'NORTHEAST', spawnX: 13, spawnY: 18 },
@@ -220,31 +217,31 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 4. SOUTH: BEACH (Connects N->CENTER, S->ABYSS, W->SOUTHWEST, E->SOUTHEAST)
+  // 4. SOUTH: BEACH (Uses K = Coral Reefs along the shoreline)
   BEACH: {
     id: 'BEACH',
     name: 'CORAL LAGOON BEACH (SOUTH)',
     subtitle: 'N: HUB • S: ABYSS • W: MARSH • E: ATOLL',
     theme: { groundA: '#fde047', groundB: '#facc15', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['squirtle', 'psyduck', 'poliwag', 'krabby'],
+    encounters: ['squirtle', 'psyduck', 'poliwag', 'krabby', 'omanyte', 'kabuto'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T...........PPPP...........T",
+      "T..K........PPPP........K..T",
       "T..GGGGGG...PPPP...GGGGGG..T",
       "T..GGGGGG....PP....GGGGGG..T",
       "T..GGGGGG...PPPP...GGGGGG..T",
-      "T..........PP..PP..........T",
+      "T..K.......PP..PP.......K..T",
       "T..FFFF...PP....PP...FFFF..T",
       "T........PPPPPPPPPP........T",
-      "T..GGGG......PP......GGGG..T",
+      "T..GGGG..K...PP...K..GGGG..T",
       "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
       "EPPPPPPPPPPPPBBPPPPPPPPPPPPE",
-      "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
+      "TWWWWWWWWKKKKBBKKKKWWWWWWWWT",
       "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
       "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
       "TWWWWWWWW...PPPP...WWWWWWWWT",
-      "TWWWWWWW...GGGGGG...WWWWWWWT",
-      "TWWWWWWW...GGGGGG...WWWWWWWT",
+      "TWWWWWWWK..GGGGGG..KWWWWWWWT",
+      "TWWWWWWWK..GGGGGG..KWWWWWWWT",
       "TWWWWWWWW...PPPP...WWWWWWWWT",
       "TWWWWWWWWWWWWPPWWWWWWWWWWWWT",
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
@@ -279,29 +276,29 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 5. WEST: FOREST (Connects E->CENTER, W->SANCTUARY, N->NORTHWEST, S->SOUTHWEST)
+  // 5. WEST: FOREST
   FOREST: {
     id: 'FOREST',
     name: 'VIRIDIAN CANOPY FOREST (WEST)',
     subtitle: 'E: HUB • W: SANCTUARY • N: SKY PLATEAU • S: MARSH',
     theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
-    encounters: ['bulbasaur', 'caterpie', 'weedle', 'oddish', 'bellsprout'],
+    encounters: ['bulbasaur', 'caterpie', 'weedle', 'oddish', 'bellsprout', 'exeggcute', 'chansey'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T.TTTT..GGGG.PP.GGGG..TTTT.T",
       "T.TTTT..GGGG.PP.GGGG..TTTT.T",
-      "T.......GGGG.PP.GGGG.......T",
+      "T..FF...GGGG.PP.GGGG...FF..T",
       "T..GGG..PPPPPPPPPPPP..GGG..T",
       "T..GGG..P..TTTTTT..P..GGG..T",
       "T..GGG..P..TTTTTT..P..GGG..T",
-      "T.......P....FF....P.......T",
+      "T..FF...P....FF....P...FF..T",
       "T.TTTT..PPPPPPPPPPPP.......T",
       "EPPPPPPP.....PP.....PPPPPPPE",
       "EPPPPPPP.....PP.....PPPPPPPE",
       "T..GGGGGGG...PP...GGGGGGG..T",
       "T..GGGGGGG..PPPP..GGGGGGG..T",
       "T..GGGGGGG.PP..PP.GGGGGGG..T",
-      "T..........P.FF.P..........T",
+      "T...FF.....P.FF.P.....FF...T",
       "T.TTTT....PP....PP....TTTT.T",
       "T.TTTT....PPPPPPPP....TTTT.T",
       "T......GGGG..PP..GGGG......T",
@@ -343,34 +340,34 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 6. ORIGINAL CORNER 1: NORTHWEST (Alpine Sky Plateau - Connects E->MOUNTAIN, S->FOREST)
+  // 6. NORTHWEST: ALPINE SKY PLATEAU
   NORTHWEST: {
     id: 'NORTHWEST',
     name: 'ALPINE SKY PLATEAU (NORTHWEST)',
     subtitle: 'E: CRAG MOUNTAIN • S: VIRIDIAN FOREST',
-    theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#15803d', grassTip: '#86efac', tree: '#1e293b', treeTop: '#38bdf8' },
-    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir'],
+    theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#15803d', grassTip: '#86efac', tree: '#1e293b', treeTop: '#38bdf8', rock: '#64748b', rockLight: '#cbd5e1', rockDark: '#334155' },
+    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir', 'aerodactyl'],
     rows: [
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "T..TTTT....PPPPPP....TTTT..T",
-      "T.GGGGGG...P....P...GGGGGG.T",
-      "T.GGGGGG..PP.FF.PP..GGGGGG.T",
-      "T.GGGGGG..P......P..GGGGGG.T",
-      "T.........PPPPPPPP.........T",
-      "T........PP......PP........T",
-      "T..GGGGPPP..WWWW..PPPGGGG..T",
-      "T..GGGGP...WWWWWW...PGGGG..T",
-      "T..GGGGP...WWWWWW...PPPPPPPE",
-      "T......PP...WWWW....PPPPPPPE",
-      "T..TTT..PPPPPPPPPPPP..TTT..T",
-      "T..........PP..PP..........T",
-      "T.GGGGGGG..PP..PP..GGGGGGG.T",
-      "T.GGGGGGG..PP..PP..GGGGGGG.T",
-      "T.GGGGGGG.PPP..PPP.GGGGGGG.T",
-      "T.........P......P.........T",
-      "T..TTTT...PPPPPPPP...TTTT..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..TTTT....PPPPPP....TTTT..R",
+      "R.GGGGGG...P....P...GGGGGG.R",
+      "R.GGGGGG..PP.FF.PP..GGGGGG.R",
+      "R.GGGGGG..P......P..GGGGGG.R",
+      "R.........PPPPPPPP.........R",
+      "R........PP......PP........R",
+      "R..GGGGPPP..WWWW..PPPGGGG..R",
+      "R..GGGGP...WWWWWW...PGGGG..R",
+      "R..GGGGP...WWWWWW...PPPPPPPE",
+      "R......PP...WWWW....PPPPPPPE",
+      "R..RRR..PPPPPPPPPPPP..RRR..R",
+      "R..........PP..PP..........R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG.PPP..PPP.GGGGGGG.R",
+      "R.........P......P.........R",
+      "R..RRRR...PPPPPPPP...RRRR..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
     ],
     exits: {
       east:  { targetMap: 'MOUNTAIN', spawnX: 1,  spawnY: 9 },
@@ -392,7 +389,6 @@ const WORLD_MAPS = {
         hatColor: '#f59e0b', shirtColor: '#fde68a',
         fact: "CYCLIST LANCE: Tendons connect skeletal muscles to bones, while Ligaments connect bones to other bones at your joints!"
       },
-
       {
         id: 'cosmologist_stephen', name: 'COSMOLOGIST STEPHEN', topic: 'COSMOLOGIST • UNIVERSE', x: 9, y: 15,
         hatColor: '#5f7478', shirtColor: '#4d5354',
@@ -401,34 +397,34 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 7. ORIGINAL CORNER 2: NORTHEAST (Badlands Canyon Quarry - Connects W->MOUNTAIN, S->DESERT)
+  // 7. NORTHEAST: BADLANDS CANYON QUARRY (Uses R = Rocks)
   NORTHEAST: {
     id: 'NORTHEAST',
     name: 'BADLANDS CANYON QUARRY (NORTHEAST)',
     subtitle: 'W: CRAG MOUNTAIN • S: MIRAGE DESERT',
-    theme: { groundA: '#78350f', groundB: '#92400e', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#451a03', treeTop: '#d97706' },
-    encounters: ['geodude', 'onix', 'rhyhorn', 'cubone'],
+    theme: { groundA: '#78350f', groundB: '#92400e', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#451a03', treeTop: '#d97706', rock: '#92400e', rockLight: '#fbbf24', rockDark: '#451a03' },
+    encounters: ['geodude', 'onix', 'voltorb', 'magnemite', 'electabuzz'],
     rows: [
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "T....GGGG..........GGGG....T",
-      "T...GGGGGG..TTTT..GGGGGG...T",
-      "T...GGGGGG........GGGGGG...T",
-      "T...........PPPP...........T",
-      "T..TTT.....PP..PP.....TTT..T",
-      "T.........PP....PP.........T",
-      "T..GGGG..PP..FF..PP..GGGG..T",
-      "T..GGGG.PP...FF...PP.GGGG..T",
-      "EPPPPPPPP..........PPPPPPPPT",
-      "EPPPPPPPP..........PPPPPPPPT",
-      "T..GGGG..PPPPPPPPPP..GGGG..T",
-      "T..GGGG......PP......GGGG..T",
-      "T............PP............T",
-      "T...TTT.....PPPP.....TTT...T",
-      "T..........PP..PP..........T",
-      "T..GGGGGG..P....P..GGGGGG..T",
-      "T..GGGGGG..PPPPPP..GGGGGG..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R....GGGG..........GGGG....R",
+      "R...GGGGGG..RRRR..GGGGGG...R",
+      "R...GGGGGG........GGGGGG...R",
+      "R...........PPPP...........R",
+      "R..RRR.....PP..PP.....RRR..R",
+      "R.........PP....PP.........R",
+      "R..GGGG..PP..FF..PP..GGGG..R",
+      "R..GGGG.PP...FF...PP.GGGG..R",
+      "EPPPPPPPP..........PPPPPPPPR",
+      "EPPPPPPPP..........PPPPPPPPR",
+      "R..GGGG..PPPPPPPPPP..GGGG..R",
+      "R..GGGG......PP......GGGG..R",
+      "R............PP............R",
+      "R...RRR.....PPPP.....RRR...R",
+      "R..........PP..PP..........R",
+      "R..GGGGGG..P....P..GGGGGG..R",
+      "R..GGGGGG..PPPPPP..GGGGGG..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
     ],
     exits: {
       west:  { targetMap: 'MOUNTAIN', spawnX: 26, spawnY: 9 },
@@ -453,33 +449,33 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 8. ORIGINAL CORNER 3: SOUTHWEST (Mangrove Swamp Marsh - Connects N->FOREST, E->BEACH)
+  // 8. SOUTHWEST: MANGROVE SWAMP MARSH (Uses M = Brown Swamp Mud)
   SOUTHWEST: {
     id: 'SOUTHWEST',
     name: 'MANGROVE SWAMP MARSH (SOUTHWEST)',
     subtitle: 'N: VIRIDIAN FOREST • E: CORAL BEACH',
     theme: { groundA: '#134e4a', groundB: '#115e59', path: '#99f6e4', grass: '#065f46', grassTip: '#34d399', tree: '#042f2e', treeTop: '#0d9488' },
-    encounters: ['paras', 'venonat', 'tangela', 'ekans', 'grimer'],
+    encounters: ['paras', 'venonat', 'tangela', 'ekans', 'grimer', 'koffing'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T.TTTT..GGGG.PP.GGGG..TTTT.T",
       "T.TTTT..GGGG.PP.GGGG..TTTT.T",
-      "T.......GGGG.PP.GGGG.......T",
+      "T..MM...GGGG.PP.GGGG...MM..T",
       "T..GGG..PPPPPPPPPPPP..GGG..T",
-      "T..GGG..P..WWWWWW..P..GGG..T",
-      "T..GGG..P..WWWWWW..P..GGG..T",
+      "T..GGG..P..MMMMMM..P..GGG..T",
+      "T..GGG..P..MMMMMM..P..GGG..T",
       "T.......P....FF....P.......T",
       "T.TTTT..PPPPPPPPPPPP.......T",
       "T.TTTT.......PP.....PPPPPPPE",
-      "T............PP.....PPPPPPPE",
+      "T..MM........PP.....PPPPPPPE",
       "T..GGGGGGG...PP...GGGGGGG..T",
       "T..GGGGGGG..PPPP..GGGGGGG..T",
       "T..GGGGGGG.PP..PP.GGGGGGG..T",
-      "T..........P.FF.P..........T",
+      "T...MM.....P.FF.P.....MM...T",
       "T.TTTT....PP....PP....TTTT.T",
       "T.TTTT....PPPPPPPP....TTTT.T",
-      "T......GGGG......GGGG......T",
-      "T......GGGG......GGGG......T",
+      "T......GGGG..MM..GGGG......T",
+      "T......GGGG..MM..GGGG......T",
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
     ],
     exits: {
@@ -505,7 +501,7 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 9. ORIGINAL CORNER 4: SOUTHEAST (Sunken Trade Atoll - Connects N->DESERT, W->BEACH)
+  // 9. SOUTHEAST: SUNKEN TRADE ATOLL (Uses K = Coral)
   SOUTHEAST: {
     id: 'SOUTHEAST',
     name: 'SUNKEN TRADE ATOLL (SOUTHEAST)',
@@ -514,22 +510,22 @@ const WORLD_MAPS = {
     encounters: ['tentacool', 'staryu', 'meowth', 'snorlax', 'kangaskhan', 'tauros'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T...........PPPP...........T",
+      "T..K........PPPP........K..T",
       "T..GGGGGG...PPPP...GGGGGG..T",
       "T..GGGGGG....PP....GGGGGG..T",
       "T..GGGGGG...PPPP...GGGGGG..T",
       "T..........PP..PP..........T",
       "T..FFFF...PP....PP...FFFF..T",
       "T........PPPPPPPPPP........T",
-      "T..GGGG......PP......GGGG..T",
+      "T..GGGG..K...PP...K..GGGG..T",
       "EPPPPPPPPPPPPPPPPP.........T",
       "EPPPPPPPPPPPPBBPPP.........T",
-      "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
+      "TWWWWWWWWKKKKBBKKKKWWWWWWWWT",
       "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
       "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
       "TWWWWWWWW...PPPP...WWWWWWWWT",
-      "TWWWWWWW...GGGGGG...WWWWWWWT",
-      "TWWWWWWW...GGGGGG...WWWWWWWT",
+      "TWWWWWWWK..GGGGGG..KWWWWWWWT",
+      "TWWWWWWWK..GGGGGG..KWWWWWWWT",
       "TWWWWWWWW..........WWWWWWWWT",
       "TWWWWWWWWWWWWWWWWWWWWWWWWWWT",
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
@@ -557,7 +553,7 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 10. FAR NORTH: GLACIER (North of MOUNTAIN)
+  // 10. FAR NORTH: GLACIER (Uses I = Crystalline Ice Blocks)
   GLACIER: {
     id: 'GLACIER',
     name: 'ARCTIC GLACIER PEAK (FAR NORTH)',
@@ -565,26 +561,26 @@ const WORLD_MAPS = {
     theme: { groundA: '#bae6fd', groundB: '#7dd3fc', path: '#f0f9ff', grass: '#0284c7', grassTip: '#e0f2fe', tree: '#0f172a', treeTop: '#38bdf8' },
     encounters: ['seel', 'shellder', 'jynx', 'lapras', 'articuno'],
     rows: [
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "T..WWWW....PPPPPP....WWWW..T",
-      "T.GGGGGG...P....P...GGGGGG.T",
-      "T.GGGGGG..PP.FF.PP..GGGGGG.T",
-      "T.GGGGGG..P......P..GGGGGG.T",
-      "T.........PPPPPPPP.........T",
-      "T........PP......PP........T",
-      "T..GGGGPPP..WWWW..PPPGGGG..T",
-      "T..GGGGP...WWWWWW...PGGGG..T",
-      "T..GGGGP...WWWWWW...PGGGG..T",
-      "T......PP...WWWW...PP......T",
-      "T..TTT..PPPPPPPPPPPP..TTT..T",
-      "T..........PP..PP..........T",
-      "T.GGGGGGG..PP..PP..GGGGGGG.T",
-      "T.GGGGGGG..PP..PP..GGGGGGG.T",
-      "T.GGGGGGG.PPP..PPP.GGGGGGG.T",
-      "T.........P......P.........T",
-      "T..TTTT...PPPPPPPP...TTTT..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
+      "I..IIII....PPPPPP....IIII..I",
+      "I.GGGGGG...P....P...GGGGGG.I",
+      "I.GGGGGG..PP.FF.PP..GGGGGG.I",
+      "I.GGGGGG..P......P..GGGGGG.I",
+      "I.........PPPPPPPP.........I",
+      "I........PP......PP........I",
+      "I..GGGGPPP..IIII..PPPGGGG..I",
+      "I..GGGGP...IIIIII...PGGGG..I",
+      "I..GGGGP...IIIIII...PGGGG..I",
+      "I......PP...IIII...PP......I",
+      "I..III..PPPPPPPPPPPP..III..I",
+      "I..........PP..PP..........I",
+      "I.GGGGGGG..PP..PP..GGGGGGG.I",
+      "I.GGGGGGG..PP..PP..GGGGGGG.I",
+      "I.GGGGGGG.PPP..PPP.GGGGGGG.I",
+      "I.........P......P.........I",
+      "I..IIII...PPPPPPPP...IIII..I",
+      "I............PP............I",
+      "IIIIIIIIIIIIIEEIIIIIIIIIIIII"
     ],
     exits: {
       south: { targetMap: 'MOUNTAIN', spawnX: 13, spawnY: 1 }
@@ -603,34 +599,34 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 11. FAR EAST: VOLCANO (East of DESERT)
+  // 11. FAR EAST: VOLCANO (Uses R = Igneous Rocks & L = Molten Lava Pools)
   VOLCANO: {
     id: 'VOLCANO',
     name: 'MAGMA CALDERA CORE (FAR EAST)',
     subtitle: 'W: MIRAGE DESERT • IGNEOUS CRATER & STAGE ARTS',
-    theme: { groundA: '#450a0a', groundB: '#7f1d1d', path: '#fca5a5', grass: '#991b1b', grassTip: '#f97316', tree: '#1c1917', treeTop: '#dc2626' },
+    theme: { groundA: '#450a0a', groundB: '#7f1d1d', path: '#fca5a5', grass: '#991b1b', grassTip: '#f97316', tree: '#1c1917', treeTop: '#dc2626', rock: '#450a0a', rockLight: '#ef4444', rockDark: '#1c1917' },
     encounters: ['charmander', 'vulpix', 'growlithe', 'ponyta', 'magmar', 'moltres'],
     rows: [
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "T....GGGG..........GGGG....T",
-      "T...GGGGGG..TTTT..GGGGGG...T",
-      "T...GGGGGG........GGGGGG...T",
-      "T...........PPPP...........T",
-      "T..TTT.....PP..PP.....TTT..T",
-      "T.........PP.WW.PP.........T",
-      "T..GGGG..PP.WWWW.PP..GGGG..T",
-      "T..GGGG.PP..WWWW..PP.GGGG..T",
-      "EPPPPPPPP....WW....PPPPPPPPT",
-      "EPPPPPPPP..........PPPPPPPPT",
-      "T..GGGG..PPPPPPPPPP..GGGG..T",
-      "T..GGGG......PP......GGGG..T",
-      "T............PP............T",
-      "T...TTT.....PPPP.....TTT...T",
-      "T..........PP..PP..........T",
-      "T..GGGGGG..P....P..GGGGGG..T",
-      "T..GGGGGG..PPPPPP..GGGGGG..T",
-      "T..........................T",
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..LLGGGG..........GGGGLL..R",
+      "R...GGGGGG..RRRR..GGGGGG...R",
+      "R...GGGGGG........GGGGGG...R",
+      "R...........PPPP...........R",
+      "R..RRR.....PP..PP.....RRR..R",
+      "R.........PP.LL.PP.........R",
+      "R..GGGG..PP.LLLL.PP..GGGG..R",
+      "R..GGGG.PP..LLLL..PP.GGGG..R",
+      "EPPPPPPPP....LL....PPPPPPPPR",
+      "EPPPPPPPP..........PPPPPPPPR",
+      "R..GGGG..PPPPPPPPPP..GGGG..R",
+      "R..GGGG......PP......GGGG..R",
+      "R............PP............R",
+      "R...RRR.....PPPP.....RRR...R",
+      "R..........PP..PP..........R",
+      "R..GGGGGG..P....P..GGGGGG..R",
+      "R..GGGGGG..PPPPPP..GGGGGG..R",
+      "R..LL..................LL..R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
     exits: {
       west: { targetMap: 'DESERT', spawnX: 26, spawnY: 9 }
@@ -669,34 +665,34 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 12. FAR SOUTH: ABYSS (South of BEACH)
+  // 12. FAR SOUTH: ABYSS (Uses K = Deep Sea Coral & R = Seafloor Rocks)
   ABYSS: {
     id: 'ABYSS',
     name: 'TRENCH CORAL ABYSS (FAR SOUTH)',
     subtitle: 'N: CORAL LAGOON BEACH • DEEP OCEAN CURRENTS',
-    theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7' },
+    theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7', rock: '#1e293b', rockLight: '#64748b', rockDark: '#020617' },
     encounters: ['horsea', 'goldeen', 'magikarp', 'slowpoke', 'dratini', 'zapdos'],
     rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T...........PPPP...........T",
-      "T..GGGGGG...PPPP...GGGGGG..T",
-      "T..GGGGGG....PP....GGGGGG..T",
-      "T..GGGGGG...PPPP...GGGGGG..T",
-      "T..........PP..PP..........T",
-      "T..WWWW...PP....PP...WWWW..T",
-      "T........PPPPPPPPPP........T",
-      "T..GGGG......PP......GGGG..T",
-      "T..GGGG......PP......GGGG..T",
-      "T............BB............T",
-      "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
-      "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
-      "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
-      "TWWWWWWWW...PPPP...WWWWWWWWT",
-      "TWWWWWWW...GGGGGG...WWWWWWWT",
-      "TWWWWWWW...GGGGGG...WWWWWWWT",
-      "TWWWWWWWW..........WWWWWWWWT",
-      "TWWWWWWWWWWWWWWWWWWWWWWWWWWT",
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..K........PPPP........K..R",
+      "R..GGGGGG...PPPP...GGGGGG..R",
+      "R..GGGGGG....PP....GGGGGG..R",
+      "R..GGGGGG...PPPP...GGGGGG..R",
+      "R..........PP..PP..........R",
+      "R..WWWW...PP....PP...WWWW..R",
+      "R..KKKK..PPPPPPPPPP..KKKK..R",
+      "R..GGGG......PP......GGGG..R",
+      "R..GGGG......PP......GGGG..R",
+      "R............BB............R",
+      "RWWWWWWWWKKKKBBKKKKWWWWWWWWR",
+      "RWWWWWWWWWWWWBBWWWWWWWWWWWWR",
+      "RWWWWWWWWWWWWBBWWWWWWWWWWWWR",
+      "RWWWWWWWW...PPPP...WWWWWWWWR",
+      "RWWWWWWWK..GGGGGG..KWWWWWWWR",
+      "RWWWWWWWK..GGGGGG..KWWWWWWWR",
+      "RWWWWWWWW..........WWWWWWWWR",
+      "RWWWWWWWWWWWWWWWWWWWWWWWWWWR",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
     exits: {
       north: { targetMap: 'BEACH', spawnX: 13, spawnY: 18 }
@@ -715,31 +711,31 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 13. FAR WEST: SANCTUARY (West of FOREST)
+  // 13. FAR WEST: SANCTUARY
   SANCTUARY: {
     id: 'SANCTUARY',
     name: 'MYSTIC RUIN SANCTUARY (FAR WEST)',
     subtitle: 'E: VIRIDIAN FOREST • COSMOLOGY, FOLKLORE & MYTH',
-    theme: { groundA: '#2e1065', groundB: '#3b0764', path: '#c084fc', grass: '#4c1d95', grassTip: '#e879f9', tree: '#090d16', treeTop: '#7e22ce' },
-    encounters: ['abra', 'gastly', 'drowzee', 'nidoran_f', 'nidoran_m', 'koffing', 'mewtwo', 'mew'],
+    theme: { groundA: '#2e1065', groundB: '#3b0764', path: '#c084fc', grass: '#4c1d95', grassTip: '#e879f9', tree: '#090d16', treeTop: '#7e22ce', rock: '#4c1d95', rockLight: '#c084fc', rockDark: '#1e1b4b' },
+    encounters: ['abra', 'gastly', 'drowzee', 'nidoran_f', 'nidoran_m', 'mr_mime', 'mewtwo', 'mew'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "T.TTTT..GGGGGGGGGGGG..TTTT.T",
-      "T.TTTT..GGGGGGGGGGGG..TTTT.T",
-      "T.......GGGG....GGGG.......T",
+      "T.RRRR..GGGGGGGGGGGG..RRRR.T",
+      "T.RRRR..GGGGGGGGGGGG..RRRR.T",
+      "T..FF...GGGG....GGGG...FF..T",
       "T..GGG..PPPPPPPPPPPP..GGG..T",
-      "T..GGG..P..TTTTTT..P..GGG..T",
-      "T..GGG..P..TTTTTT..P..GGG..T",
-      "T.......P....FF....P.......T",
-      "T.TTTT..PPPPPPPPPPPP.......T",
-      "T.TTTT.......PP.....PPPPPPPE",
+      "T..GGG..P..RRRRRR..P..GGG..T",
+      "T..GGG..P..RRRRRR..P..GGG..T",
+      "T..FF...P....FF....P...FF..T",
+      "T.RRRR..PPPPPPPPPPPP.......T",
+      "T.RRRR.......PP.....PPPPPPPE",
       "T............PP.....PPPPPPPE",
       "T..GGGGGGG...PP...GGGGGGG..T",
       "T..GGGGGGG..PPPP..GGGGGGG..T",
       "T..GGGGGGG.PP..PP.GGGGGGG..T",
-      "T..........P.FF.P..........T",
-      "T.TTTT....PP....PP....TTTT.T",
-      "T.TTTT....PPPPPPPP....TTTT.T",
+      "T...FF.....P.FF.P.....FF...T",
+      "T.RRRR....PP....PP....RRRR.T",
+      "T.RRRR....PPPPPPPP....RRRR.T",
       "T......GGGG......GGGG......T",
       "T......GGGG......GGGG......T",
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"

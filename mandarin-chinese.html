@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-TW"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Traditional Chinese Quiz (Taiwan)</title>    <style>
+<!DOCTYPE html><html lang="zh-TW"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Traditional Chinese Quiz Suite (Taiwan)</title>    <style>
         :root {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
@@ -23,7 +23,7 @@
             border-radius: 16px;
             text-align: center;
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
         .game-screen { display: none; }
@@ -42,12 +42,35 @@
         .btn {
             background-color: var(--accent);
             border: none;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: var(--bg-color);
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .modes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .mode-btn {
+            background-color: #334155;
+            border: 2px solid transparent;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .mode-btn:hover {
+            border-color: var(--accent);
+            background-color: #3f4f6b;
         }
         .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .choice-btn {
@@ -71,144 +94,159 @@
             text-align: left;
         }
         .next-btn { background-color: #64748b; color: white; margin-top: 20px; width: 100%; display: none; }
+        .back-btn { background-color: #475569; color: white; margin-top: 15px; width: 100%; }
     </style></head><body>
 <div class="container">
     <div id="start-screen">
         <h1>Traditional Chinese Quiz</h1>
-        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px;">Sorted from least to most strokes</p>
-        <button class="btn" onclick="playSound('magic'); setTimeout(startGame, 500)">Start Quiz</button>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px;">Select a Mode or Topic to Start:</p>
+        <div class="modes-grid">
+            <button class="mode-btn" onclick="playSound('magic'); startMode('strokes')">✏️ Least Strokes</button>
+            <button class="mode-btn" onclick="playSound('magic'); startMode('family')">👨‍👩‍👧 Family</button>
+            <button class="mode-btn" onclick="playSound('magic'); startMode('food')">🍎 Food & Drink</button>
+            <button class="mode-btn" onclick="playSound('magic'); startMode('time')">⏰ Time</button>
+            <button class="mode-btn" onclick="playSound('magic'); startMode('places')">🗺️ Places</button>
+            <button class="mode-btn" onclick="playSound('magic'); startMode('colors')">🎨 Colors</button>
+            <button class="mode-btn" onclick="playSound('magic'); startMode('body')">👀 Body Parts</button>
+            <button class="mode-btn" onclick="playSound('magic'); startMode('all')">🌟 Random Mix</button>
+        </div>
     </div>
+    
     <div id="game-screen" class="game-screen">
-        <div>Score: <span id="score">0</span></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.9rem;">
+            <span id="mode-title">Mode</span>
+            <span>Score: <span id="score">0</span></span>
+        </div>
         <div class="big-character" id="char">字</div>
         <button class="phonetic-btn" id="audio-btn" onclick="playSound('click'); playCurrentAudio()">pīnyīn</button>
         <div class="choices-grid" id="choices"></div>
         <div id="explanation"></div>
         <button class="btn next-btn" id="next-btn" onclick="playSound('click'); nextQ()">Next Question</button>
+        <button class="btn back-btn" onclick="playSound('click'); returnToHome()">🏠 Home Menu</button>
     </div>
 </div>
 <script>
-    // Sorted strictly from least strokes to most strokes using Traditional Chinese characters (English meanings)
-    const charDB = [
-        // 1 Stroke
-        ["一", "yī", "one", "The numerical digit one."],
+    // Categorized Character Database (Traditional Chinese with English translations)
+    const categoryDB = {
+        strokes: [
+            // 1 Stroke
+            ["一", "yī", "one", "The numerical digit one."],
+            // 2 Strokes
+            ["人", "rén", "person", "A human being."],
+            ["入", "rù", "enter", "To go or come into something."],
+            ["八", "bā", "eight", "The numerical digit eight."],
+            ["十", "shí", "ten", "The numerical digit ten."],
+            ["了", "le", "completed action marker", "Particle indicating completed action."],
+            ["刀", "dāo", "knife", "A cutting tool or weapon."],
+            ["力", "lì", "strength / power", "Physical or mental power."],
+            ["又", "yòu", "again / also", "Indicates repetition or addition."],
+            // 3 Strokes
+            ["三", "sān", "three", "The numerical digit three."],
+            ["上", "shàng", "above / up", "Indicates a high position or going up."],
+            ["下", "xià", "below / down", "Indicates a low position or going down."],
+            ["大", "dà", "big", "Large in size, scale, or extent."],
+            ["小", "xiǎo", "small", "Little in size, scale, or age."],
+            ["山", "shān", "mountain", "A large natural elevation of the earth's surface."],
+            ["口", "kǒu", "mouth", "The mouth opening or an entrance."],
+            ["子", "zǐ", "child / son", "A descendant, offspring, or child."],
+            ["女", "nǚ", "female / woman", "Feminine gender or woman."],
+            ["馬", "mǎ", "horse", "A large hoofed mammal."],
+            ["門", "mén", "door / gate", "A hinged or sliding barrier for entry."],
+            ["飛", "fēi", "fly", "To move through the air using wings."],
+            // 4 Strokes
+            ["天", "tiān", "sky / heaven", "The space above the earth; the sky."],
+            ["日", "rì", "sun / day", "The star we orbit or a 24-hour day."],
+            ["月", "yuè", "moon / month", "Earth's satellite or a calendar month."],
+            ["水", "shuǐ", "water", "Clear, colorless liquid essential for life."],
+            ["火", "huǒ", "fire", "Combustion producing heat and light."],
+            ["木", "mù", "tree / wood", "A living tree or woody plant material."],
+            ["中", "zhōng", "middle / center", "The center or midway point."],
+            ["不", "bù", "not", "General negation adverb."],
+            ["文", "wén", "language / culture", "Writing, language, or culture."],
+            ["長", "cháng", "long", "Measuring a great distance from end to end."],
+            ["見", "jiàn", "see / meet", "To perceive with eyes or meet someone."],
+            ["開", "kāi", "open", "To open something closed."],
+            ["手", "shǒu", "hand", "The end part of a person's arm."],
+            ["友", "yǒu", "friend", "A companion linked by mutual affection."],
+            ["書", "shū", "book", "Bound pages containing text or illustrations."],
+            ["少", "shǎo", "few / little", "Small in amount, quantity, or degree."],
+            ["氣", "qì", "air / gas / spirit", "Invisible gaseous substance or breath/mood."]
+        ],
+        family: [
+            ["爸", "bà", "dad / father", "Paternal parent."],
+            ["媽", "mā", "mum / mother", "Maternal parent."],
+            ["哥", "gē", "older brother", "An older male sibling."],
+            ["姐", "jiě", "older sister", "An older female sibling."],
+            ["弟", "dì", "younger brother", "A younger male sibling."],
+            ["妹", "mèi", "younger sister", "A younger female sibling."],
+            ["爺", "yé", "grandfather", "Paternal grandfather."],
+            ["奶", "nǎi", "grandmother", "Paternal grandmother."],
+            ["子", "zǐ", "child", "An offspring or child."],
+            ["女", "nǚ", "daughter / female", "Female descendant or woman."],
+            ["男", "nán", "son / male", "Male person."],
+            ["友", "yǒu", "friend", "Companion or friend."]
+        ],
+        food: [
+            ["飯", "fàn", "cooked rice", "Steamed white rice or a meal."],
+            ["麵", "miàn", "noodles", "Noodles made from wheat or rice flour."],
+            ["水", "shuǐ", "water", "Clear liquid drink."],
+            ["茶", "chá", "tea", "Infused beverage from tea leaves."],
+            ["果", "guǒ", "fruit", "Sweet and fleshy product of a tree."],
+            ["菜", "cài", "vegetable / dish", "Plant-based food or prepared dish."],
+            ["肉", "ròu", "meat", "Animal flesh used as food."],
+            ["蛋", "dàn", "egg", "Bird's reproductive body used as food."],
+            ["奶", "nǎi", "milk", "White nutritional liquid."],
+            ["魚", "yú", "fish", "Aquatic animal used as food."],
+            ["吃", "chī", "eat", "To consume solid food."],
+            ["飲", "yǐn", "drink", "To swallow liquids."]
+        ],
+        time: [
+            ["日", "rì", "day", "A 24-hour period."],
+            ["月", "yuè", "month", "A calendar month."],
+            ["年", "nián", "year", "A 365-day period."],
+            ["時", "shí", "time / hour", "Specific point in time or duration."],
+            ["早", "zǎo", "early / morning", "Early in the day or morning time."],
+            ["晚", "wǎn", "night / evening", "The late part of the day."],
+            ["明", "míng", "tomorrow / bright", "The day after today."],
+            ["今", "jīn", "today", "This present day."],
+            ["去", "qù", "last (year/time)", "Past or gone."],
+            ["來", "lái", "next / coming", "Approaching future time."]
+        ],
+        places: [
+            ["國", "guó", "country", "A sovereign nation."],
+            ["家", "jiā", "home / family", "A house or family residence."],
+            ["校", "xiào", "school", "Educational institution."],
+            ["門", "mén", "door / gate", "Entrance or doorway."],
+            ["路", "lù", "road / street", "A pathway or street for transit."],
+            ["山", "shān", "mountain", "Natural high land elevation."],
+            ["水", "shuǐ", "river / water", "Body of water or river."],
+            ["店", "diàn", "shop / store", "Commercial establishment."],
+            ["室", "shì", "room", "An indoor space or room."]
+        ],
+        colors: [
+            ["白", "bái", "white", "Color of snow or clean milk."],
+            ["黑", "hēi", "black", "The darkest color, like night."],
+            ["紅", "hóng", "red", "Color of blood or ripe cherries."],
+            ["黃", "huáng", "yellow", "Color of gold or ripe lemons."],
+            ["藍", "lán", "blue", "Color of a clear daytime sky."],
+            ["綠", "lǜ", "green", "Color of fresh grass and leaves."]
+        ],
+        body: [
+            ["頭", "tóu", "head", "Upper part of the human body."],
+            ["眼", "yǎn", "eye", "Organ of vision."],
+            ["耳", "ěr", "ear", "Organ of hearing."],
+            ["口", "kǒu", "mouth", "Facial opening for speaking and eating."],
+            ["手", "shǒu", "hand", "End part of the arm."],
+            ["足", "zú", "foot", "Lower extremity of the leg."],
+            ["身", "shēn", "body", "The whole physical structure."]
+        ]
+    };
 
-        // 2 Strokes
-        ["人", "rén", "person", "A human being."],
-        ["入", "rù", "enter", "To go or come into something."],
-        ["八", "bā", "eight", "The numerical digit eight."],
-        ["十", "shí", "ten", "The numerical digit ten."],
-        ["了", "le", "completed action marker", "Particle indicating completed action."],
-        ["几", "jǐ", "how many / several", "Used to ask about quantity or small number."],
-        ["刀", "dāo", "knife", "A cutting tool or weapon."],
-        ["力", "lì", "strength / power", "Physical or mental power."],
-        ["又", "yòu", "again / also", "Indicates repetition or addition."],
-
-        // 3 Strokes
-        ["三", "sān", "three", "The numerical digit three."],
-        ["上", "shàng", "above / up", "Indicates a high position or going up."],
-        ["下", "xià", "below / down", "Indicates a low position or going down."],
-        ["大", "dà", "big", "Large in size, scale, or extent."],
-        ["小", "xiǎo", "small", "Little in size, scale, or age."],
-        ["山", "shān", "mountain", "A large natural elevation of the earth's surface."],
-        ["口", "kǒu", "mouth", "The mouth opening or an entrance."],
-        ["子", "zǐ", "child / son", "A descendant, offspring, or child."],
-        ["女", "nǚ", "female / woman", "Feminine gender or woman."],
-        ["馬", "mǎ", "horse", "A large hoofed mammal."],
-        ["門", "mén", "door / gate", "A hinged or sliding barrier for entry."],
-        ["飛", "fēi", "fly", "To move through the air using wings."],
-
-        // 4 Strokes
-        ["天", "tiān", "sky / heaven", "The space above the earth; the sky."],
-        ["日", "rì", "sun / day", "The star we orbit or a 24-hour day."],
-        ["月", "yuè", "moon / month", "Earth's satellite or a calendar month."],
-        ["水", "shuǐ", "water", "Clear, colorless liquid essential for life."],
-        ["火", "huǒ", "fire", "Combustion producing heat and light."],
-        ["木", "mù", "tree / wood", "A living tree or woody plant material."],
-        ["中", "zhōng", "middle / center", "The center or midway point."],
-        ["不", "bù", "not", "General negation adverb."],
-        ["文", "wén", "language / culture", "Writing, language, or culture."],
-        ["長", "cháng", "long", "Measuring a great distance from end to end."],
-        ["見", "jiàn", "see / meet", "To perceive with eyes or meet someone."],
-        ["開", "kāi", "open", "To open something closed."],
-        ["手", "shǒu", "hand", "The end part of a person's arm."],
-        ["友", "yǒu", "friend", "A companion linked by mutual affection."],
-        ["書", "shū", "book", "Bound pages containing text or illustrations."],
-        ["少", "shǎo", "few / little", "Small in amount, quantity, or degree."],
-        ["氣", "qì", "air / gas / spirit", "Invisible gaseous substance or breath/mood."],
-
-        // 5 Strokes
-        ["白", "bái", "white", "The color of milk or clean snow."],
-        ["本", "běn", "root / book origin", "The source, origin, or a bound volume."],
-        ["平", "píng", "flat / smooth", "Level, smooth, or without rough areas."],
-        ["東", "dōng", "east", "The direction toward the sunrise."],
-        ["車", "chē", "car / vehicle", "A wheeled transport vehicle."],
-        ["生", "shēng", "born / life / student", "To be born, give birth, or student life."],
-        ["用", "yòng", "use", "To employ for a specific purpose or function."],
-        ["他", "tā", "he / him", "Third-person masculine pronoun."],
-        ["她", "tā", "she / her", "Third-person feminine pronoun."],
-        ["去", "qù", "go", "To move from one place to another."],
-        ["四", "sì", "four", "The numerical digit four."],
-        ["五", "wǔ", "five", "The numerical digit five."],
-        ["半", "bàn", "half", "One of two equal parts of a whole."],
-        ["外", "wài", "outside", "External or outer part."],
-        ["打", "dǎ", "hit / play sports", "To strike, beat, or play a game with hands."],
-        ["出", "chū", "out / exit", "To move or come outward from inside."],
-
-        // 6 Strokes
-        ["地", "dì", "earth / ground", "The solid surface of the earth or soil."],
-        ["好", "hǎo", "good", "Having positive, pleasant, or favorable qualities."],
-        ["多", "duō", "many / much", "A large quantity or number."],
-        ["字", "zì", "character / word", "A written Chinese character or word."],
-        ["年", "nián", "year", "A 365-day period."],
-        ["我", "wǒ", "I / me", "First-person pronoun."],
-        ["你", "nǐ", "you", "Second-person pronoun."],
-        ["在", "zài", "at / in / on", "Indicating location or presence."],
-        ["會", "huì", "can / able to", "To have the skill or ability to do something."],
-        ["回", "huí", "return", "To come or go back to a place."],
-        ["吃", "chī", "eat", "To consume food."],
-        ["聽", "tīng", "listen", "To pay attention to sounds."],
-        ["買", "mǎi", "buy", "To purchase goods with money."],
-        ["同", "tóng", "same / together", "Identical, sharing, or alike."],
-        ["名", "míng", "name", "A title or word used to identify someone."],
-        ["向", "xiàng", "toward / direction", "Facing or moving in the direction of."],
-        ["早", "zǎo", "early / morning", "Happening before expected or early morning."],
-        ["老", "lǎo", "old", "Advanced in age or experience."],
-
-        // 7 Strokes
-        ["來", "lái", "come", "To arrive or move toward the speaker."],
-        ["時", "shí", "time / hour", "A specific point in time or duration."],
-        ["說", "shuō", "speak / say", "To express thoughts in words."],
-        ["學", "xué", "study / learn", "To acquire knowledge or skills."],
-        ["國", "guó", "country / nation", "A sovereign nation or state."],
-        ["到", "dào", "arrive / reach", "To reach a destination."],
-        ["那", "nà", "that", "Demonstrative pronoun pointing to distant items."],
-        ["走", "zǒu", "walk / go", "To move on foot."],
-        ["遠", "yuǎn", "far", "At a great distance away."],
-        ["近", "jìn", "near", "At a short distance away."],
-        ["雞", "jī", "chicken", "A common domesticated farm bird."],
-        ["兩", "liǎng", "two / both", "A pair or numerical amount of two."],
-        ["朋", "péng", "friend", "Companion or associate."],
-        ["體", "tǐ", "body", "The physical structure of a person."],
-        ["作", "zuò", "do / work", "To perform a task or create something."],
-        ["快", "kuài", "fast / happy", "Moving quickly or feeling joyful."],
-
-        // 8 Strokes & Up
-        ["明", "míng", "bright / clear", "Filled with light or easy to understand."],
-        ["爸", "bà", "dad / father", "Paternal parent."],
-        ["媽", "mā", "mum / mother", "Maternal parent."],
-        ["很", "hěn", "very", "Adverb of high degree."],
-        ["朋友", "péngyou", "friend", "A person attached by feelings of affection."],
-        ["老師", "lǎoshī", "teacher", "An instructor or educator."],
-        ["學生", "xuéshēng", "student", "A learner at a school."],
-        ["臺灣", "táiwān", "Taiwan", "The beautiful island of Taiwan."],
-        ["謝謝", "xièxie", "thank you", "Expression of gratitude."],
-        ["再見", "zàijiàn", "goodbye", "Standard farewell expression."]
-    ];
+    let currentDataset = [];
+    let score = 0, answered = false, currentQ = null, currentIdx = 0;
+    let currentModeKey = '';
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let score = 0, answered = false, currentQ = null;
-    let currentIdx = 0;
 
     function playSound(type) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -240,7 +278,26 @@
         }
     }
 
-    function startGame() {
+    function startMode(modeKey) {
+        currentModeKey = modeKey;
+        if (modeKey === 'all') {
+            currentDataset = [];
+            for (let key in categoryDB) {
+                currentDataset = currentDataset.concat(categoryDB[key]);
+            }
+            // Shuffle random mix
+            currentDataset.sort(() => Math.random() - 0.5);
+            document.getElementById('mode-title').innerText = "Mode: Random Mix";
+        } else if (modeKey === 'strokes') {
+            // Keep strictly sequential order starting from 一
+            currentDataset = [...categoryDB['strokes']];
+            document.getElementById('mode-title').innerText = "Mode: Least Strokes";
+        } else {
+            currentDataset = [...categoryDB[modeKey]];
+            currentDataset.sort(() => Math.random() - 0.5);
+            document.getElementById('mode-title').innerText = "Mode: " + modeKey.toUpperCase();
+        }
+
         currentIdx = 0;
         score = 0;
         document.getElementById('score').innerText = score;
@@ -249,11 +306,15 @@
         nextQ();
     }
 
+    function returnToHome() {
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+    }
+
     function nextQ() {
-        if (currentIdx >= charDB.length) {
-            alert("Quiz Complete! Your final score is " + score + "/" + charDB.length);
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('start-screen').style.display = 'block';
+        if (currentIdx >= currentDataset.length) {
+            alert("Great job! Mode completed! Final score: " + score + "/" + currentDataset.length);
+            returnToHome();
             return;
         }
 
@@ -261,14 +322,19 @@
         document.getElementById('next-btn').style.display = 'none';
         document.getElementById('explanation').style.display = 'none';
 
-        currentQ = charDB[currentIdx];
+        currentQ = currentDataset[currentIdx];
 
         document.getElementById('char').innerText = currentQ[0];
         document.getElementById('audio-btn').innerText = currentQ[1];
 
+        let masterPool = [];
+        for (let key in categoryDB) {
+            masterPool = masterPool.concat(categoryDB[key]);
+        }
+
         let options = [currentQ[2]];
         while(options.length < 4) {
-            let op = charDB[Math.floor(Math.random() * charDB.length)][2];
+            let op = masterPool[Math.floor(Math.random() * masterPool.length)][2];
             if(!options.includes(op)) options.push(op);
         }
         options.sort(() => Math.random() - 0.5);

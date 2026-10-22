@@ -396,7 +396,7 @@ const WORLD_MAPS = {
       {
         id: 'cosmologist_stephen', name: 'COSMOLOGIST STEPHEN', topic: 'COSMOLOGIST • UNIVERSE', x: 9, y: 15,
         hatColor: '#5f7478', shirtColor: '#4d5354',
-        fact: "COSMOLOGIST STEPHEN: Did you know? 63 Earths can fit inside Uranus!"
+        fact: "COSMOLOGIST STEPHEN: Did you know? 63 Earths can fit inside Uranus! And did you know? Uranus surface smells like rotten eggs due to hydrogen sulfide clouds. I have always wanted to have a closer look at Uranus."
       }
     ]
   },

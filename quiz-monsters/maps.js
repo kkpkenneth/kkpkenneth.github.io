@@ -391,6 +391,12 @@ const WORLD_MAPS = {
         id: 'cyclist_lance', name: 'CYCLIST LANCE', topic: 'CYCLIST • BIOMECHANICS', x: 13, y: 11,
         hatColor: '#f59e0b', shirtColor: '#fde68a',
         fact: "CYCLIST LANCE: Tendons connect skeletal muscles to bones, while Ligaments connect bones to other bones at your joints!"
+      },
+
+      {
+        id: 'cosmologist_stephen', name: 'COSMOLOGIST STEPHEN', topic: 'COSMOLOGIST • UNIVERSE', x: 9, y: 15,
+        hatColor: '#5f7478', shirtColor: '#4d5354',
+        fact: "COSMOLOGIST STEPHEN: Did you know? 63 Earths can fit inside Uranus!"
       }
     ]
   },
@@ -636,9 +642,9 @@ const WORLD_MAPS = {
         fact: "DJ NOVA: Dropping the bass! Capacitors store energy in an electric field, and Kirchhoff's Current Law states that current entering a node equals current leaving it!"
       },
       {
-        id: 'singer_aria', name: 'SINGER ARIA', topic: 'SINGER • VOCAL RESONANCE', x: 11, y: 5,
+        id: 'singer_paris', name: 'SINGER PARIS', topic: 'SINGER • VOCAL RESONANCE', x: 11, y: 5,
         hatColor: '#f43f5e', shirtColor: '#ffe4e6',
-        fact: "SINGER ARIA: Heating a gas until its atoms become ionized creates Plasma—the fourth state of matter! And the Kelvin scale starts at Absolute Zero!"
+        fact: "SINGER PARIS: Heating a gas until its atoms become ionized creates Plasma—the fourth state of matter! And the Kelvin scale starts at Absolute Zero! Do you know who was in Paris before?"
       },
       {
         id: 'guitarist_slash', name: 'GUITARIST AXEL', topic: 'GUITARIST • ELECTROMAGNETISM', x: 16, y: 5,

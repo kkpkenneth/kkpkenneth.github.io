@@ -70,9 +70,9 @@ const WORLD_MAPS = {
         fact: "MAVIS THE JIGGLYPUFF: ♪ Puuuff~ ♪ (Mavis sings a soothing 440 Hz lullaby! Sound waves are longitudinal mechanical waves that require a medium to travel!)"
       },
       {
-        id: 'doctor_house', name: 'DR. HOUSE', topic: 'DOCTOR • ANATOMY FACT', x: 13, y: 8,
+        id: 'professor_oak', name: 'PROFESSOR OAK', topic: 'PROFESSOR • MONSTER FACT', x: 13, y: 8,
         hatColor: '#0284c7', shirtColor: '#e0f2fe',
-        fact: "DR. HOUSE: As a medical doctor, I treat patients daily. Remember: Hemoglobin is the iron-containing protein in red blood cells that carries oxygen from the lungs!"
+        fact: "PROFESSOR OAK: As a professor, I research quiz monsters daily. Remember: You will encounter wild monsters if you walk into the tall grass!"
       },
       {
         id: 'officer_jenny', name: 'OFFICER JENNY', topic: 'POLICEMAN • LOGIC & LAWS', x: 19, y: 6,

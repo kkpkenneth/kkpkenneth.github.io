@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PokéQuiz DX - Partner &amp; Dex Modular RPG</title>
+  <title>Quiz Monsters - Partner &amp; Dex Modular RPG</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,7 +130,7 @@
     <div class="flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-2">
         <span id="headerStatusLed" class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white animate-pulse"></span>
-        <h1 class="text-xs sm:text-sm tracking-tighter text-amber-400 drop-shadow">POKéQUIZ DX</h1>
+        <h1 class="text-xs sm:text-sm tracking-tighter text-amber-400 drop-shadow">QUIZ MONSTERS</h1>
       </div>
     </div>
 
@@ -192,7 +192,7 @@
           Quiz Monsters
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Travel with a Single Active Partner • Open Dex to Switch Partners Anytime • Talk to people around you and learn facts!
+          Travel with Pikachu as your Starter Partner • Open Dex to Switch Partners Anytime • Talk to people around you and learn facts!
         </p>
 
         <div class="flex items-center justify-center gap-4 sm:gap-8 mb-6 bg-slate-900/80 border-2 border-slate-700 px-6 py-4 rounded-xl shadow-inner">
@@ -334,7 +334,7 @@
         <!-- PLAYER HUD BOX -->
         <div class="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 z-20 w-44 sm:w-72 retro-box p-1.5 sm:p-2.5">
           <div class="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
-            <span id="playerName" class="text-[8px] sm:text-xs font-bold tracking-tight truncate">VOLTBIT</span>
+            <span id="playerName" class="text-[8px] sm:text-xs font-bold tracking-tight truncate">PIKACHU</span>
             <span id="playerLevel" class="text-[8px] sm:text-[10px] text-slate-700 shrink-0">Lv14</span>
           </div>
           <div class="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
@@ -564,20 +564,20 @@
 
   <!-- MODAL 3: QUESTION EDITOR -->
   <div id="editorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
-    <div class="w-full max-w-2xl retro-box p-4 sm:p-5 max-h-[85vh] flex flex-col gap-3 overflow-y-auto">
+    <div class="w-full max-w-2xl retro-box p-4 sm:p-5 max-h-[85vh] flex flex-col gap-3 overflow-y-auto overflow-x-hidden">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
         <div>
           <h2 class="text-xs sm:text-sm font-bold text-slate-900">CUSTOM TRIVIA DECK EDITOR</h2>
-          <p class="text-[9px] text-slate-600 mt-0.5">Add classroom questions with Difficulty ratings (★1–★3) or load a JSON pack</p>
+          <p class="text-[9px] text-slate-600 mt-0.5">Add classroom questions with Difficulty ratings (★1–★2) or load a JSON pack</p>
         </div>
-        <button id="closeEditorBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+        <button id="closeEditorBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
       </div>
 
       <form id="addQuestionForm" class="bg-slate-100 border-2 border-slate-300 rounded p-3 flex flex-col gap-2.5">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <span class="text-[10px] font-bold text-indigo-800">ADD NEW QUESTION</span>
-          <div class="flex items-center gap-2">
-            <select id="qTypeSelect" class="border-2 border-slate-800 rounded px-2 py-1 text-[9px] bg-white text-slate-900">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span class="text-[10px] font-bold text-indigo-800 shrink-0">ADD NEW QUESTION</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full sm:w-auto">
+            <select id="qTypeSelect" class="w-full max-w-full border-2 border-slate-800 rounded px-2 py-1 text-[8px] sm:text-[9px] bg-white text-slate-900 font-bold truncate">
               <option value="GRASS">GRASS (Ecology &amp; Nature)</option>
               <option value="WATER">WATER (Ocean &amp; Earth)</option>
               <option value="FIRE">FIRE (Chemistry &amp; Physics)</option>
@@ -592,15 +592,14 @@
               <option value="BUG">BUG (Entomology &amp; Micro-Life)</option>
               <option value="ROCK">ROCK (Mineralogy &amp; Archaeology)</option>
               <option value="GHOST">GHOST (History &amp; Folklore)</option>
-              <option value="DRAGON">DRAGON (Mythology &amp; Epic Architecture)</option>
+              <option value="DRAGON">DRAGON (Mythology &amp; Architecture)</option>
               <option value="STEEL">STEEL (Engineering &amp; Metallurgy)</option>
               <option value="DARK">DARK (Economics, Law &amp; Governance)</option>
               <option value="FAIRY">FAIRY (Fine Arts &amp; Mythology)</option>
             </select>
-            <select id="qDiffSelect" class="border-2 border-slate-800 rounded px-2 py-1 text-[9px] bg-white text-slate-900">
+            <select id="qDiffSelect" class="w-full max-w-full border-2 border-slate-800 rounded px-2 py-1 text-[8px] sm:text-[9px] bg-white text-slate-900 font-bold truncate">
               <option value="1">★1 Easy (1.0x DMG)</option>
               <option value="2" selected>★★2 Medium (1.35x DMG)</option>
-              <option value="3">★★★3 Hard (1.75x DMG)</option>
             </select>
           </div>
         </div>
@@ -620,7 +619,7 @@
       <div class="bg-slate-100 border-2 border-slate-300 rounded p-3 flex flex-col gap-2">
         <div class="flex items-center justify-between">
           <span class="text-[10px] font-bold text-slate-800">JSON QUESTION BANK (IMPORT / EXPORT)</span>
-          <span id="totalQuestionsCount" class="text-[9px] bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-bold">32 Questions</span>
+          <span id="totalQuestionsCount" class="text-[9px] bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-bold">180 Questions</span>
         </div>
         <textarea id="jsonBankTextarea" rows="4" class="w-full border-2 border-slate-400 rounded p-2 text-slate-900 bg-white" style="font-family: var(--mono-font); font-size: 0.95rem;"></textarea>
         <div class="flex flex-wrap items-center justify-end gap-2">
@@ -638,7 +637,6 @@
   <script src="maps.js"></script>
   <script src="audio.js"></script>
   <script src="characters.js"></script>
-  
 
   <script>
     const state = {
@@ -679,10 +677,25 @@
         stepFrame: 0,
         stepsSinceBattle: 0
       },
+
+      // Partner Follower World State (Starts 1 tile behind player)
+      partnerWorld: {
+        gridX: 13,
+        gridY: 9,
+        startX: 13 * TILE_SIZE,
+        startY: 9 * TILE_SIZE,
+        targetX: 13 * TILE_SIZE,
+        targetY: 9 * TILE_SIZE,
+        pixelX: 13 * TILE_SIZE,
+        pixelY: 9 * TILE_SIZE,
+        hopOffsetY: 0,
+        dir: 'down'
+      },
+
       keysHeld: {},
 
       studio: {
-        selectedMonsterId: 'voltbit',
+        selectedMonsterId: 'pikachu',
         activeBrush: 'p',
         toolMode: 'BRUSH',
         mirrorX: false,
@@ -690,8 +703,298 @@
       }
     };
 
-    // Dynamically matches the canvas internal width to the container's aspect ratio (keeping height=320)
-    // Runs automatically before every overworld frame and via ResizeObserver so the very first frame is never squished!
+    /********************************************************************
+     * 1. HEAL SFX & 4 HABITAT BGM EXTENSION
+     * Hooks into `sfx` from audio.js to support Nurse Joy's heal jingle
+     * and distinct background music for MOUNTAIN, DESERT, BEACH & FOREST
+     ********************************************************************/
+    function setupAudioExtensions() {
+      if (typeof sfx === 'undefined') return;
+
+      if (typeof sfx.heal !== 'function') {
+        sfx.heal = function() {
+          if (this.sfxMuted) return;
+          if (typeof this.healFanfare === 'function') return this.healFanfare();
+          if (typeof this.playTone === 'function') {
+            const notes = [
+              { f: 987.77, d: 0.16, t: 0 },
+              { f: 987.77, d: 0.16, t: 180 },
+              { f: 987.77, d: 0.16, t: 360 },
+              { f: 830.61, d: 0.18, t: 540 },
+              { f: 1318.51, d: 0.45, t: 740 }
+            ];
+            notes.forEach(n => {
+              setTimeout(() => {
+                if (!this.sfxMuted) this.playTone(n.f, n.d, 'sine', 0.14);
+              }, n.t);
+            });
+          }
+        };
+      }
+
+      const HABITAT_BGM_TRACKS = {
+        MOUNTAIN: {
+          tempoMs: 260,
+          wave: 'triangle',
+          vol: 0.05,
+          notes: [220.00, 261.63, 293.66, 329.63, 392.00, 329.63, 293.66, 261.63, 196.00, 246.94, 293.66, 392.00]
+        },
+        DESERT: {
+          tempoMs: 210,
+          wave: 'sawtooth',
+          vol: 0.03,
+          notes: [293.66, 311.13, 369.99, 392.00, 440.00, 392.00, 369.99, 311.13, 261.63, 293.66, 311.13, 293.66]
+        },
+        BEACH: {
+          tempoMs: 220,
+          wave: 'sine',
+          vol: 0.07,
+          notes: [392.00, 493.88, 587.33, 659.25, 587.33, 493.88, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33]
+        },
+        FOREST: {
+          tempoMs: 200,
+          wave: 'square',
+          vol: 0.03,
+          notes: [329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 261.63, 293.66, 329.63, 392.00, 329.63]
+        }
+      };
+
+      const _origStartBGM = sfx.startBGM ? sfx.startBGM.bind(sfx) : null;
+      const _origStopBGM = sfx.stopBGM ? sfx.stopBGM.bind(sfx) : null;
+
+      sfx.stopBGM = function() {
+        if (this._habitatBgmTimer) {
+          clearInterval(this._habitatBgmTimer);
+          this._habitatBgmTimer = null;
+        }
+        if (_origStopBGM) _origStopBGM();
+      };
+
+      sfx.startBGM = function(mode) {
+        this.stopBGM();
+        if (this.bgmMuted) return;
+        if (typeof this.init === 'function') this.init();
+
+        const targetMode = (mode === 'OVERWORLD') ? state.currentMapId : mode;
+        const habitatTrack = HABITAT_BGM_TRACKS[targetMode];
+
+        if (habitatTrack && typeof this.playTone === 'function') {
+          let stepIdx = 0;
+          this._habitatBgmTimer = setInterval(() => {
+            if (this.bgmMuted) return;
+            const freq = habitatTrack.notes[stepIdx % habitatTrack.notes.length];
+            if (freq > 0) {
+              this.playTone(freq, (habitatTrack.tempoMs / 1000) * 0.85, habitatTrack.wave, habitatTrack.vol);
+            }
+            stepIdx++;
+          }, habitatTrack.tempoMs);
+        } else if (_origStartBGM) {
+          _origStartBGM(mode === 'CENTER' ? 'OVERWORLD' : mode);
+        }
+      };
+    }
+
+    /********************************************************************
+     * 2. OVERWORLD PARTNER FOLLOWER & NURSE JOY HEAL HOOKS
+     * Guaranteed to run regardless of external JS file load order
+     ********************************************************************/
+    function drawFollowerPartner(ctx, camX, camY) {
+      const partner = (typeof getActivePlayer === 'function')
+        ? getActivePlayer()
+        : (state.dex && state.dex[state.activeDexIndex]);
+      if (!partner || !state.partnerWorld) return;
+
+      const liveSpecies = (typeof MONSTER_SPECIES !== 'undefined'
+        ? MONSTER_SPECIES.find(m => m.id === partner.id)
+        : null) || partner;
+      const grid = liveSpecies.pixels || liveSpecies.grid || partner.pixels || partner.grid;
+      const palette = liveSpecies.palette || partner.palette;
+      if (!grid || !palette) return;
+
+      const p = state.playerWorld;
+      const pw = state.partnerWorld;
+
+      if (p.isStepping) {
+        const elapsed = performance.now() - p.stepStartTime;
+        const rawT = Math.min(1, Math.max(0, elapsed / p.stepDurationMs));
+        const easedT = typeof easeInOutCubic === 'function' ? easeInOutCubic(rawT) : rawT;
+        pw.pixelX = pw.startX + (pw.targetX - pw.startX) * easedT;
+        pw.pixelY = pw.startY + (pw.targetY - pw.startY) * easedT;
+        pw.hopOffsetY = -Math.sin(rawT * Math.PI) * 4;
+      } else {
+        pw.pixelX = pw.targetX;
+        pw.pixelY = pw.targetY;
+        pw.hopOffsetY = Math.sin(performance.now() / 220) * 1.5;
+      }
+
+      const screenX = Math.round(pw.pixelX - camX);
+      const screenY = Math.round(pw.pixelY - camY + pw.hopOffsetY);
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+      ctx.beginPath();
+      ctx.ellipse(
+        screenX + TILE_SIZE / 2,
+        Math.round(pw.pixelY - camY) + TILE_SIZE - 3,
+        TILE_SIZE * 0.32,
+        TILE_SIZE * 0.14,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+
+      const scale = (TILE_SIZE * 0.8) / 16;
+      const offsetX = screenX + (TILE_SIZE - 16 * scale) / 2;
+      const offsetY = screenY + (TILE_SIZE - 16 * scale) - 2;
+      const flipX = pw.dir === 'right';
+
+      for (let r = 0; r < grid.length; r++) {
+        const row = grid[r];
+        for (let c = 0; c < row.length; c++) {
+          const ch = row[c];
+          if (ch === '.' || ch === ' ' || !palette[ch]) continue;
+          ctx.fillStyle = palette[ch];
+          const drawCol = flipX ? (15 - c) : c;
+          ctx.fillRect(
+            Math.floor(offsetX + drawCol * scale),
+            Math.floor(offsetY + r * scale),
+            Math.ceil(scale),
+            Math.ceil(scale)
+          );
+        }
+      }
+    }
+
+    function setupOverworldHooks() {
+      if (typeof window.teleportPlayerToGrid === 'function') {
+        const _origTeleport = window.teleportPlayerToGrid;
+        window.teleportPlayerToGrid = function(gx, gy) {
+          _origTeleport(gx, gy);
+          if (state.partnerWorld) {
+            let px = gx;
+            let py = gy - 1;
+            if (typeof isTileBlocked === 'function' && isTileBlocked(px, py)) {
+              const candidates = [
+                { x: gx, y: gy + 1 },
+                { x: gx - 1, y: gy },
+                { x: gx + 1, y: gy }
+              ];
+              const free = candidates.find(c => !isTileBlocked(c.x, c.y));
+              if (free) { px = free.x; py = free.y; }
+              else { px = gx; py = gy; }
+            }
+            state.partnerWorld.gridX = px;
+            state.partnerWorld.gridY = py;
+            state.partnerWorld.startX = px * TILE_SIZE;
+            state.partnerWorld.startY = py * TILE_SIZE;
+            state.partnerWorld.targetX = px * TILE_SIZE;
+            state.partnerWorld.targetY = py * TILE_SIZE;
+            state.partnerWorld.pixelX = px * TILE_SIZE;
+            state.partnerWorld.pixelY = py * TILE_SIZE;
+            state.partnerWorld.hopOffsetY = 0;
+          }
+          if (state.screen === 'OVERWORLD' && typeof sfx !== 'undefined') {
+            sfx.startBGM('OVERWORLD');
+          }
+        };
+      }
+
+      if (typeof window.initiateOneBlockStep === 'function') {
+        const _origStep = window.initiateOneBlockStep;
+        window.initiateOneBlockStep = function(dir) {
+          const p = state.playerWorld;
+          const prevX = p.gridX;
+          const prevY = p.gridY;
+          const wasStepping = p.isStepping;
+
+          _origStep(dir);
+
+          if (!wasStepping && p.isStepping && (p.gridX !== prevX || p.gridY !== prevY)) {
+            const pw = state.partnerWorld;
+            pw.startX = pw.pixelX;
+            pw.startY = pw.pixelY;
+            pw.gridX = prevX;
+            pw.gridY = prevY;
+            pw.targetX = prevX * TILE_SIZE;
+            pw.targetY = prevY * TILE_SIZE;
+            pw.dir = dir;
+          }
+        };
+      }
+
+      if (typeof window.interactWithFacingNPC === 'function') {
+        window.interactWithFacingNPC = function() {
+          if (state.screen !== 'OVERWORLD' || state.busy || state.playerWorld.isStepping) return;
+          const npc = getFacingNPC();
+          if (npc) {
+            if (npc.healsParty || npc.name.includes('NURSE')) {
+              if (typeof sfx.heal === 'function') sfx.heal();
+              else sfx.npcChime();
+              state.dex.forEach(m => { m.hp = m.maxHp; });
+              syncAllUI();
+            } else {
+              sfx.npcChime();
+            }
+            setOverworldDialogue(npc.fact, npc.name, npc.topic);
+          } else {
+            const { tx, ty } = getFacingTileCoords();
+            const tile = getTileAt(tx, ty);
+            if (tile === 'W') {
+              sfx.blip();
+              setOverworldDialogue("Crystal-clear water! Remember: roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "OBSERVATION");
+            } else if (tile === 'G') {
+              sfx.blip();
+              setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
+            } else if (tile === 'H' || tile === 'D') {
+              const centerNpc = getCurrentMap().npcs.find(n => n.name.includes('NURSE'));
+              if (centerNpc) {
+                if (typeof sfx.heal === 'function') sfx.heal();
+                else sfx.npcChime();
+                state.dex.forEach(m => { m.hp = m.maxHp; });
+                syncAllUI();
+                setOverworldDialogue(centerNpc.fact, centerNpc.name, centerNpc.topic);
+                return;
+              }
+              sfx.blip();
+              setOverworldDialogue("The Research Center door is locked tight. Talk to nearby professionals to learn facts!", "RESEARCH HUB", "BUILDING");
+            } else {
+              sfx.blip();
+              setOverworldDialogue("Face any Doctor, Police Officer, or Ecologist until the [!] bubble appears above their head, then press SPACE or A!", "FIELD JOURNAL", "TIP");
+            }
+          }
+        };
+      }
+
+      if (typeof window.drawOverworldCanvas === 'function') {
+        const _origDrawOverworld = window.drawOverworldCanvas;
+        window.drawOverworldCanvas = function() {
+          _origDrawOverworld();
+
+          const canvas = document.getElementById('overworldCanvas');
+          if (!canvas || !state.partnerWorld) return;
+          const ctx = canvas.getContext('2d');
+          const p = state.playerWorld;
+          const mapWidthPx = MAP_COLS * TILE_SIZE;
+          const mapHeightPx = MAP_ROWS * TILE_SIZE;
+
+          let camX = p.pixelX + TILE_SIZE / 2 - canvas.width / 2;
+          let camY = p.pixelY + TILE_SIZE / 2 - canvas.height / 2;
+          camX = Math.max(0, Math.min(camX, mapWidthPx - canvas.width));
+          camY = Math.max(0, Math.min(camY, mapHeightPx - canvas.height));
+
+          drawFollowerPartner(ctx, camX, camY);
+
+          if (state.partnerWorld.pixelY < p.pixelY) {
+            const px = Math.round(p.pixelX - camX);
+            const py = Math.round(p.pixelY - camY + (p.hopOffsetY || 0));
+            if (typeof drawTrainerSprite === 'function') {
+              drawTrainerSprite(ctx, px, py, p.dir, p.isStepping ? p.stepFrame : 0);
+            } else if (typeof drawPlayerSprite === 'function') {
+              drawPlayerSprite(ctx, px, py, p.dir);
+            }
+          }
+        };
+      }
+    }
+
     function syncCanvasAspect() {
       const canvas = document.getElementById('overworldCanvas');
       if (!canvas) return;
@@ -706,7 +1009,6 @@
       }
     }
 
-    // Wrap overworldRenderLoop so syncCanvasAspect runs automatically before the very first frame is drawn
     if (typeof window.overworldRenderLoop === 'function') {
       const originalOverworldLoop = window.overworldRenderLoop;
       window.overworldRenderLoop = function(timestamp) {
@@ -727,11 +1029,23 @@
     }
 
     function initGame() {
-      refreshTitleScreenSprites();
-      state.dex = [createMonsterInstance(MONSTER_SPECIES[0])];
-      state.activeDexIndex = 0;
+      setupAudioExtensions();
+      setupOverworldHooks();
 
-      teleportPlayerToGrid(13, 10);
+      refreshTitleScreenSprites();
+
+      // Set Pikachu as the starter Pokémon (falls back to MONSTER_SPECIES[0] if not found)
+      const pikachuSpecies = (typeof MONSTER_SPECIES !== 'undefined'
+        ? MONSTER_SPECIES.find(m => m.id === 'pikachu' || (m.name && m.name.toUpperCase() === 'PIKACHU'))
+        : null) || MONSTER_SPECIES[0];
+
+      state.dex = [createMonsterInstance(pikachuSpecies)];
+      state.activeDexIndex = 0;
+      if (pikachuSpecies && pikachuSpecies.id) {
+        state.studio.selectedMonsterId = pikachuSpecies.id;
+      }
+
+      window.teleportPlayerToGrid(13, 10);
       initSpriteStudio();
       initQuestionEditor();
       syncAllUI();
@@ -739,13 +1053,11 @@
 
       window.addEventListener('resize', syncCanvasAspect);
 
-      // Watch #overworldViewport so the exact microsecond it unhides from Title or Battle, canvas aspect syncs
       const viewportEl = document.getElementById('overworldViewport');
       if (viewportEl && typeof ResizeObserver !== 'undefined') {
         new ResizeObserver(() => syncCanvasAspect()).observe(viewportEl);
       }
 
-      // Safe helper to bind events only if elements exist in DOM
       const bindClick = (id, handler) => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('click', handler);
@@ -771,7 +1083,7 @@
         });
       });
 
-      bindClick('btnInteractA', interactWithFacingNPC);
+      bindClick('btnInteractA', () => window.interactWithFacingNPC());
       bindClick('btnFight', showMoveSelectView);
       bindClick('btnBall', startCaptureBallSequence);
       bindClick('btnSwitch', showDexSwitchView);
@@ -789,7 +1101,7 @@
         const startHold = (e) => {
           e.preventDefault();
           state.keysHeld[dir] = true;
-          initiateOneBlockStep(dir);
+          window.initiateOneBlockStep(dir);
         };
         const endHold = () => { state.keysHeld[dir] = false; };
         btn.addEventListener('mousedown', startHold);
@@ -808,7 +1120,7 @@
         if (state.screen === 'OVERWORLD') {
           if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
           state.keysHeld[e.code] = true;
-          if (e.code === 'Space' || e.code === 'Enter') interactWithFacingNPC();
+          if (e.code === 'Space' || e.code === 'Enter') window.interactWithFacingNPC();
         }
       });
 

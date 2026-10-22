@@ -1,15 +1,13 @@
 /********************************************************************
  * battle.js
- * Trivia Combat Engine, Difficulty x Speed Math, HP Catch & Live MONSTER_SPECIES Binding
+ * Trivia Combat Engine, Auto-Save on Catch & 100% Dex Celebration
  ********************************************************************/
 
 function createMonsterInstance(template) {
-  // Find live species template so custom names/types from Studio are respected
   const liveSpecies = (typeof MONSTER_SPECIES !== 'undefined' ? MONSTER_SPECIES.find(m => m.id === template.id) : null) || template;
-
   const allTypes = Object.keys(ELEMENT_TYPES);
   const charSum = liveSpecies.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const consistentRandomType = allTypes[Math.floor(allTypes.length * Math.random())];
+  const consistentRandomType = allTypes[charSum % allTypes.length];
 
   return {
     ...structuredClone(liveSpecies),
@@ -20,6 +18,11 @@ function createMonsterInstance(template) {
 }
 
 function getActivePlayer() {
+  if (!state.dex || state.dex.length === 0) {
+    state.dex = [createMonsterInstance(MONSTER_SPECIES[0])];
+    state.activeDexIndex = 0;
+  }
+  if (state.activeDexIndex >= state.dex.length) state.activeDexIndex = 0;
   const dexMon = state.dex[state.activeDexIndex];
   const liveSpecies = MONSTER_SPECIES.find(m => m.id === dexMon.id);
   if (liveSpecies) {
@@ -55,13 +58,10 @@ function setupBattleEncounter(chosenSpecies) {
     playerWrapper.style.filter = 'none';
   }
 
-  // Safely hide ground shadow elements if present in DOM
-  document.querySelectorAll('.battle-platform, #playerPlatform, #enemyPlatform').forEach(el => {
-    if (el) el.classList.add('hidden');
-  });
+  setTimeout(() => sfx.pokemonCry(state.enemy.id), 350);
 
   showCommandView();
-  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared in ${getCurrentMap().name}! Choose your move or throw a BALL!`, 'WILD ENCOUNTER');
+  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared in ${getCurrentMap().name}! "${state.enemy.name}! ${state.enemy.name}~"`, 'WILD ENCOUNTER');
   syncAllUI();
 }
 
@@ -80,7 +80,7 @@ function syncAllUI() {
   const pTypeInfo = ELEMENT_TYPES[player.type];
   const pBadge = document.getElementById('playerTypeBadge');
   pBadge.textContent = pTypeInfo ? pTypeInfo.name : player.type;
-  pBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${pTypeInfo ? pTypeInfo.badgeClass : 'bg-slate-700'}`;
+  pBadge.className = `text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold ${pTypeInfo ? pTypeInfo.badgeClass : 'bg-slate-700'}`;
 
   const pRatio = Math.max(0, player.hp / player.maxHp);
   const pBar = document.getElementById('playerHpBar');
@@ -90,29 +90,11 @@ function syncAllUI() {
 
   const atkBonus = Math.min(6, state.streak);
   const atkMult = (1 + atkBonus * 0.15).toFixed(2);
-  document.getElementById('playerAtkStage').textContent = `ATK STAGE: +${atkBonus}`;
+  document.getElementById('playerAtkStage').textContent = `ATK: +${atkBonus}`;
 
   document.getElementById('streakCountText').textContent = `${state.streak} (${atkMult}x)`;
   document.getElementById('dexCountText').textContent = `${state.dex.length}/${MONSTER_SPECIES.length}`;
-  document.getElementById('btnSwitchSub').textContent = `DEX (${state.dex.length})`;
-
-  const dexSlotsEl = document.getElementById('headerDexSlots');
-  if (dexSlotsEl) {
-    dexSlotsEl.innerHTML = '';
-    for (let i = 0; i < MONSTER_SPECIES.length; i++) {
-      const mon = state.dex[i];
-      const dot = document.createElement('div');
-      if (mon) {
-        const isCurrent = i === state.activeDexIndex;
-        dot.className = `w-3.5 h-3.5 rounded-full border-2 ${isCurrent ? 'bg-amber-400 border-white scale-110' : 'bg-emerald-500 border-slate-200'}`;
-        dot.title = `${mon.name} (${mon.type}) - HP ${mon.hp}/${mon.maxHp}`;
-      } else {
-        dot.className = 'w-3.5 h-3.5 rounded-full border border-slate-600 bg-slate-800';
-        dot.title = 'Uncaught in Dex';
-      }
-      dexSlotsEl.appendChild(dot);
-    }
-  }
+  document.getElementById('btnSwitchSub').textContent = `DEX (${state.dex.length}/${MONSTER_SPECIES.length})`;
 
   if (enemy) {
     document.getElementById('enemyName').textContent = enemy.name;
@@ -120,7 +102,7 @@ function syncAllUI() {
     const eTypeInfo = ELEMENT_TYPES[enemy.type];
     const eBadge = document.getElementById('enemyTypeBadge');
     eBadge.textContent = eTypeInfo ? eTypeInfo.name : enemy.type;
-    eBadge.className = `text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo ? eTypeInfo.badgeClass : 'bg-slate-700'}`;
+    eBadge.className = `text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo ? eTypeInfo.badgeClass : 'bg-slate-700'}`;
 
     const alreadyOwned = state.dex.some(p => p.id === enemy.id);
     document.getElementById('enemyCaughtIcon').classList.toggle('hidden', !alreadyOwned);
@@ -133,16 +115,12 @@ function syncAllUI() {
 
     const catchProb = Math.round(calculateCatchProbability(enemy) * 100);
     const oddsLabel = document.getElementById('enemyCaptureOddsText');
-    oddsLabel.textContent = `CATCH RATE: ${catchProb}%`;
+    oddsLabel.textContent = `CATCH: ${catchProb}%`;
     document.getElementById('btnBallSub').textContent = `${catchProb}% CATCH RATE`;
 
-    if (catchProb >= 75) {
-      oddsLabel.className = 'text-emerald-700 font-bold';
-    } else if (catchProb >= 45) {
-      oddsLabel.className = 'text-amber-700 font-bold';
-    } else {
-      oddsLabel.className = 'text-slate-600';
-    }
+    if (catchProb >= 75) oddsLabel.className = 'text-emerald-700 font-bold';
+    else if (catchProb >= 45) oddsLabel.className = 'text-amber-700 font-bold';
+    else oddsLabel.className = 'text-slate-600';
   }
 }
 
@@ -155,9 +133,7 @@ function setDialogue(text, badgeText = 'BATTLE LOG') {
   state.typewriterTimer = setInterval(() => {
     el.textContent += text.charAt(idx);
     idx++;
-    if (idx >= text.length) {
-      clearInterval(state.typewriterTimer);
-    }
+    if (idx >= text.length) clearInterval(state.typewriterTimer);
   }, 14);
 }
 
@@ -168,9 +144,7 @@ function spawnFloatingText(target, text, colorClass = 'text-amber-300') {
   badge.textContent = text;
   container.innerHTML = '';
   container.appendChild(badge);
-  setTimeout(() => {
-    if (badge.parentNode) badge.remove();
-  }, 1150);
+  setTimeout(() => { if (badge.parentNode) badge.remove(); }, 1150);
 }
 
 function triggerSpriteAnimation(target, animClass) {
@@ -217,8 +191,8 @@ function renderMoveButtons() {
   const moveConfigs = [
     { title: 'NORMAL STRIKE', typeId: 'NORMAL', diff: 1, desc: 'Everyday Logic (★1 • Normal)' },
     { title: `${player.type} EASY STRIKE`, typeId: player.type, diff: 1, desc: `${primarySubject} (★1 • Easy STAB)` },
-    { title: `${player.type} HARD STRIKE`, typeId: player.type, diff: 3, desc: `${primarySubject} (★3 • Hard STAB)` },
-    { title: `${secondaryType} WILD STRIKE`, typeId: secondaryType, diff: 2, desc: `${secondarySubject} (★2 • Partner Move)` }
+    { title: `${player.type} MEDIUM STRIKE`, typeId: player.type, diff: 2, desc: `${primarySubject} (★★2 • Medium STAB)` },
+    { title: `${secondaryType} WILD STRIKE`, typeId: secondaryType, diff: 2, desc: `${secondarySubject} (★★2 • Partner Move)` }
   ];
 
   moveConfigs.forEach(cfg => {
@@ -255,9 +229,7 @@ function renderMoveButtons() {
 
 function pickRandomQuestion(elementType = null, difficulty = null) {
   let pool = state.questions;
-  if (elementType) {
-    pool = pool.filter(q => q.type === elementType);
-  }
+  if (elementType) pool = pool.filter(q => q.type === elementType);
   if (difficulty !== null) {
     const diffPool = pool.filter(q => q.difficulty === difficulty);
     if (diffPool.length > 0) pool = diffPool;
@@ -265,7 +237,6 @@ function pickRandomQuestion(elementType = null, difficulty = null) {
   if (pool.length === 0) pool = state.questions;
 
   const chosen = pool[Math.floor(Math.random() * pool.length)];
-
   const indexedOptions = chosen.options.map((text, idx) => ({
     text,
     isCorrect: idx === chosen.answer
@@ -275,7 +246,6 @@ function pickRandomQuestion(elementType = null, difficulty = null) {
     const j = Math.floor(Math.random() * (i + 1));
     [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
   }
-
   return { chosen, indexedOptions };
 }
 
@@ -302,9 +272,8 @@ function startCaptureBallSequence() {
   const pctText = Math.round(catchProb * 100);
 
   sfx.ballThrow();
-  
+
   const targetContainer = document.getElementById('enemyContainer');
-  
   if (targetContainer) {
     const flyingBall = document.createElement('div');
     flyingBall.className = 'absolute z-50 w-10 h-10 transition-all duration-600 ease-out pointer-events-none';
@@ -320,10 +289,7 @@ function startCaptureBallSequence() {
       flyingBall.style.bottom = '16px';
       flyingBall.style.transform = 'scale(0.8)';
     }, 40);
-
-    setTimeout(() => {
-      flyingBall.remove();
-    }, 620);
+    setTimeout(() => flyingBall.remove(), 620);
   }
 
   setDialogue(`Threw a Capture Ball at ${enemy.name}! (HP Catch Rate: ${pctText}%)...`, 'THROWING BALL');
@@ -361,11 +327,12 @@ function startCaptureBallSequence() {
             if (!alreadyInDex) {
               state.dex.push(createMonsterInstance(enemy));
             }
+            if (typeof saveGameProgress === 'function') saveGameProgress();
             syncAllUI();
-            setDialogue(`GOTCHA! ${enemy.name} was caught (${pctText}% odds) and added to your Dex! Returning to Overworld...`, 'CAPTURED! ★');
+            setDialogue(`GOTCHA! ${enemy.name} was caught and saved to your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`, 'CAPTURED! ★');
 
             setTimeout(() => {
-              returnToOverworldFromBattle(`GOTCHA! ${enemy.name} (${enemy.type}) registered in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
+              returnToOverworldFromBattle(`GOTCHA! ${enemy.name} (${enemy.type}) registered & auto-saved in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
             }, 2000);
           } else {
             sfx.wrongBuzzer();
@@ -391,13 +358,10 @@ function startCaptureBallSequence() {
               syncAllUI();
             }, 220);
 
-            setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG! Lower its HP to increase catch rate!`, 'BROKE FREE!');
-            setTimeout(() => {
-              state.busy = false;
-            }, 950);
+            setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG!`, 'BROKE FREE!');
+            setTimeout(() => { state.busy = false; }, 950);
           }
         };
-
         setTimeout(runNextShake, 600);
       }, 300);
     }
@@ -422,10 +386,7 @@ function launchQuizQuestion(elementType, difficulty, durationSeconds) {
 
   const diff = chosen.difficulty || difficulty;
   const diffBadge = document.getElementById('quizDifficultyBadge');
-  if (diff === 3) {
-    diffBadge.textContent = '★★★ HARD (1.75x DMG)';
-    diffBadge.className = 'text-[9px] px-2 py-1 rounded bg-red-200 text-red-950 font-bold border border-red-500';
-  } else if (diff === 2) {
+  if (diff >= 2) {
     diffBadge.textContent = '★★ MEDIUM (1.35x DMG)';
     diffBadge.className = 'text-[9px] px-2 py-1 rounded bg-purple-200 text-purple-950 font-bold border border-purple-500';
   } else {
@@ -502,9 +463,7 @@ function handleQuizAnswer(isCorrect, clickedBtn, isTimeout = false) {
     }
   });
 
-  setTimeout(() => {
-    resolveAttackOutcome(isCorrect, speedMult, isTimeout);
-  }, 650);
+  setTimeout(() => resolveAttackOutcome(isCorrect, speedMult, isTimeout), 650);
 }
 
 function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
@@ -532,10 +491,9 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
       syncAllUI();
     }, 200);
 
-    let msg = `${player.name} used ${state.selectedAttackType} STRIKE (★${diff} Diff × ${speedMult.toFixed(2)}x Speed)! `;
+    let msg = `${player.name} used ${state.selectedAttackType} STRIKE! `;
     if (typeMult > 1) msg += "SUPER EFFECTIVE! ";
     msg += `Dealt ${totalDmg} DMG!`;
-
     setDialogue(msg, 'DIRECT HIT!');
 
     setTimeout(() => {
@@ -543,7 +501,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
         sfx.captureFanfare();
         setDialogue(`Wild ${enemy.name} fainted! Returning to ${getCurrentMap().name}...`, 'VICTORY!');
         setTimeout(() => {
-          returnToOverworldFromBattle(`Victory! Defeated wild ${enemy.name} with ${totalDmg} DMG! Streak: ${state.streak}`);
+          returnToOverworldFromBattle(`Victory! Defeated wild ${enemy.name} with ${totalDmg} DMG!`);
         }, 1600);
       } else {
         state.busy = false;
@@ -584,7 +542,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
 }
 
 /********************************************************************
- * DEX SWITCHERS (BATTLE DRAWER & OVERWORLD MODAL)
+ * DEX SWITCHERS & 100% POKéDEX COMPLETION CELEBRATION
  ********************************************************************/
 function showDexSwitchView() {
   if (state.busy) return;
@@ -603,7 +561,7 @@ function showDexSwitchView() {
     const tInfo = ELEMENT_TYPES[displayType] || { name: displayType, badgeClass: 'bg-slate-700' };
 
     const card = document.createElement('button');
-    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : 'bg-white hover:bg-slate-100'} text-slate-900 p-2.5 flex items-center gap-2.5 text-left`;
+    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : 'bg-white hover:bg-slate-100'} text-slate-900 p-2.5 flex items-center gap-2.5 text-left w-full`;
     card.innerHTML = `
       <div class="w-12 h-12 shrink-0 bg-slate-200 rounded p-1 border border-slate-400">
         ${renderMonsterSVG(mon)}
@@ -624,17 +582,14 @@ function showDexSwitchView() {
         showCommandView();
         return;
       }
-      sfx.npcChime();
+      sfx.pokemonCry(mon.id);
       state.activeDexIndex = idx;
+      if (typeof saveGameProgress === 'function') saveGameProgress();
       const playerWrapper = document.getElementById('playerSpriteWrapper');
-      if (playerWrapper) {
-        playerWrapper.innerHTML = renderMonsterSVG(getActivePlayer());
-        playerWrapper.style.boxShadow = 'none';
-        playerWrapper.style.filter = 'none';
-      }
+      if (playerWrapper) playerWrapper.innerHTML = renderMonsterSVG(getActivePlayer());
       syncAllUI();
       showCommandView();
-      setDialogue(`Partner switched to ${displayName}! ${displayType}-type moves receive a 1.25x STAB bonus!`, 'PARTNER SWITCHED!');
+      setDialogue(`Partner switched to ${displayName}! "${displayName}! ${displayName}~"`, 'PARTNER SWITCHED!');
     });
     container.appendChild(card);
   });
@@ -659,18 +614,19 @@ function openOverworldDexModal() {
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-1">
-          <span class="text-[10px] font-bold truncate">${species.name}</span>
+          <span class="text-[10px] font-bold truncate">#${species.pokedexNo} ${species.name}</span>
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${species.type}</span>
         </div>
         <div class="text-[8px] text-slate-600 mt-1">
-          ${caughtMon ? `CAUGHT • HP ${caughtMon.hp}/${caughtMon.maxHp}${isCurrent ? '★ ACTIVE PARTNER' : '(CLICK TO SET PARTNER)'}` : 'UNCAUGHT • FIND IN TALL GRASS'}
+          ${caughtMon ? `CAUGHT • HP ${caughtMon.hp}/${caughtMon.maxHp} ${isCurrent ? '★ ACTIVE PARTNER' : '(CLICK TO SET PARTNER)'}` : 'UNCAUGHT • FIND IN TALL GRASS'}
         </div>
       </div>
     `;
     if (caughtMon) {
       card.addEventListener('click', () => {
-        sfx.npcChime();
+        sfx.pokemonCry(species.id);
         state.activeDexIndex = dexIndex;
+        if (typeof saveGameProgress === 'function') saveGameProgress();
         syncAllUI();
         openOverworldDexModal();
       });
@@ -679,6 +635,36 @@ function openOverworldDexModal() {
   });
 
   const modal = document.getElementById('overworldDexModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function checkAllMonstersCaughtCelebration() {
+  if (state.dex.length >= MONSTER_SPECIES.length && !state.celebrationShown) {
+    state.celebrationShown = true;
+    launchGrandCelebrationModal();
+  }
+}
+
+function launchGrandCelebrationModal() {
+  const modal = document.getElementById('congratsModal');
+  const stage = document.getElementById('floatingPokemonStage');
+  if (!modal || !stage) return;
+
+  sfx.grandVictoryFanfare();
+  stage.innerHTML = '';
+
+  MONSTER_SPECIES.forEach((mon, idx) => {
+    const floater = document.createElement('div');
+    floater.className = 'absolute w-12 h-12 sm:w-16 sm:h-16 pointer-events-none float-celebrate';
+    floater.style.left = `${(idx * 19) % 88 + 3}%`;
+    floater.style.top = `${(idx * 23) % 80 + 6}%`;
+    floater.style.animationDelay = `${(idx * 0.17).toFixed(2)}s`;
+    floater.style.animationDuration = `${3.2 + (idx % 4) * 0.6}s`;
+    floater.innerHTML = renderMonsterSVG(mon);
+    stage.appendChild(floater);
+  });
+
   modal.classList.remove('hidden');
   modal.classList.add('flex');
 }

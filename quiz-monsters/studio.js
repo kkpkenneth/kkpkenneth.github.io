@@ -1,6 +1,6 @@
 /********************************************************************
  * studio.js
- * SVG Renderer, Pixel Sprite Studio, Custom Questions & Auto-Save
+ * SVG Renderer, Pixel Sprite Studio, Custom Questions & Save/Reset System
  ********************************************************************/
 
 if (typeof MONSTER_PIXELS === 'undefined') {
@@ -9,7 +9,9 @@ if (typeof MONSTER_PIXELS === 'undefined') {
 
 function renderMonsterSVG(speciesOrInstance) {
   const monId = typeof speciesOrInstance === 'string' ? speciesOrInstance : (speciesOrInstance?.id || 'bulbasaur');
-  const art = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[monId]) ? MONSTER_PIXELS[monId] : (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[monId] : null);
+  const art = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[monId])
+    ? MONSTER_PIXELS[monId]
+    : (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[monId] : null);
   if (!art || !art.grid) return '<svg viewBox="0 0 16 16"></svg>';
 
   let rects = '';
@@ -26,33 +28,14 @@ function renderMonsterSVG(speciesOrInstance) {
 }
 
 function renderCaptureBallSVG(isCaught = false) {
-  // Switch top color depending on whether it's caught (emerald green) or throwing/uncaught (red)
-  const topColor = isCaught ? '#5e1e1e' : '#ef4444';
-  
+  const topColor = isCaught ? '#10b981' : '#ef4444';
   const ballArt = {
-    palette: {
-      r: topColor,      // Top half color (Red or Green)
-      w: '#f8fafc',     // Bottom half white
-      b: '#0f172a',     // Dark outline / center band
-      c: '#c4bfbe'      // Center button core
-    },
+    palette: { r: topColor, w: '#f8fafc', b: '#0f172a', c: '#fde047' },
     grid: [
-      "................",
-      "................",
-      "................",
-      ".....rrrrrr.....",
-      "....rrrrrrrr....",
-      "....rrrrrrrr....",
-      "...bbbbccbbbb...",
-      "...bbbbccbbbb...",
-      "....wwwwwwww....",
-      "....wwwwwwww....",
-      ".....wwwwww.....",
-      "................",
-      "................",
-      "................",
-      "................",
-      "................"
+      "................","................","................",".....rrrrrr.....",
+      "....rrrrrrrr....","....rrrrrrrr....","...bbbbccbbbb...","...bbbbccbbbb...",
+      "....wwwwwwww....","....wwwwwwww....",".....wwwwww.....","................",
+      "................","................","................","................"
     ]
   };
 
@@ -70,39 +53,82 @@ function renderCaptureBallSVG(isCaught = false) {
 }
 
 /********************************************************************
- * LOCALSTORAGE AUTO-SAVE & AUTO-LOAD SYSTEM
+ * LOCALSTORAGE SAVE, LOAD & RESET SYSTEM
  ********************************************************************/
-function saveGameProgress() {
-  const saveData = {
-    dex: state.dex,
-    activeDexIndex: state.activeDexIndex,
-    currentMapId: state.currentMapId,
-    gridX: state.playerWorld.gridX,
-    gridY: state.playerWorld.gridY,
-    questions: state.questions,
-    customPixels: MONSTER_PIXELS
-  };
-  localStorage.setItem('POKEQUIZ_DX_SAVE', JSON.stringify(saveData));
+const SAVE_STORAGE_KEY = 'POKEQUIZ_DX_SAVE_V6';
+
+function saveGameProgress(showToast = false) {
+  try {
+    const saveData = {
+      dex: state.dex,
+      activeDexIndex: state.activeDexIndex,
+      currentMapId: state.currentMapId,
+      gridX: state.playerWorld.gridX,
+      gridY: state.playerWorld.gridY,
+      streak: state.streak,
+      celebrationShown: state.celebrationShown || false,
+      questions: state.questions,
+      customPixels: MONSTER_PIXELS
+    };
+    localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(saveData));
+
+    if (showToast) {
+      sfx.npcChime();
+      const saveBtn = document.getElementById('saveGameBtn');
+      if (saveBtn) {
+        const orig = saveBtn.textContent;
+        saveBtn.textContent = '✓ SAVED!';
+        setTimeout(() => { saveBtn.textContent = orig; }, 1400);
+      }
+    }
+  } catch (e) {
+    console.error('Failed to save game progress:', e);
+  }
 }
 
 function loadGameProgress() {
   try {
-    const raw = localStorage.getItem('POKEQUIZ_DX_SAVE');
+    const raw = localStorage.getItem(SAVE_STORAGE_KEY);
     if (!raw) return false;
     const data = JSON.parse(raw);
-    if (data.dex && data.dex.length > 0) state.dex = data.dex;
-    if (typeof data.activeDexIndex === 'number') state.activeDexIndex = data.activeDexIndex;
-    if (data.currentMapId) state.currentMapId = data.currentMapId;
+    if (data.dex && Array.isArray(data.dex) && data.dex.length > 0) {
+      state.dex = data.dex;
+    }
+    if (typeof data.activeDexIndex === 'number') {
+      state.activeDexIndex = Math.min(data.activeDexIndex, state.dex.length - 1);
+    }
+    if (data.currentMapId && WORLD_MAPS[data.currentMapId]) {
+      state.currentMapId = data.currentMapId;
+    }
     if (typeof data.gridX === 'number' && typeof data.gridY === 'number') {
       teleportPlayerToGrid(data.gridX, data.gridY);
     }
-    if (data.questions && Array.isArray(data.questions)) state.questions = data.questions;
+    if (typeof data.streak === 'number') state.streak = data.streak;
+    if (typeof data.celebrationShown === 'boolean') state.celebrationShown = data.celebrationShown;
+    if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+      state.questions = data.questions;
+    }
     if (data.customPixels) MONSTER_PIXELS = data.customPixels;
     return true;
   } catch (e) {
     console.error('Failed to load save data:', e);
     return false;
   }
+}
+
+function resetGameSaveData() {
+  localStorage.removeItem(SAVE_STORAGE_KEY);
+  MONSTER_PIXELS = {};
+  state.currentMapId = 'CENTER';
+  state.dex = [createMonsterInstance(MONSTER_SPECIES[0])];
+  state.activeDexIndex = 0;
+  state.streak = 0;
+  state.celebrationShown = false;
+  state.questions = structuredClone(DEFAULT_QUESTIONS);
+  teleportPlayerToGrid(13, 10);
+  syncAllUI();
+  refreshTitleScreenSprites();
+  sfx.captureFanfare();
 }
 
 function initSpriteStudio() {
@@ -112,7 +138,7 @@ function initSpriteStudio() {
     MONSTER_SPECIES.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.id;
-      opt.textContent = `${m.name} (${m.type})`;
+      opt.textContent = `#${m.pokedexNo} ${m.name} (${m.type})`;
       sel.appendChild(opt);
     });
 
@@ -143,7 +169,7 @@ function initSpriteStudio() {
         species.name = e.target.value.toUpperCase().trim() || 'MONSTER';
         if (sel) {
           const opt = sel.querySelector(`option[value="${monId}"]`);
-          if (opt) opt.textContent = `${species.name} (${species.type})`;
+          if (opt) opt.textContent = `#${species.pokedexNo} ${species.name} (${species.type})`;
         }
         refreshStudioVisualsOnly();
       }
@@ -159,7 +185,7 @@ function initSpriteStudio() {
         species.type = e.target.value;
         if (sel) {
           const opt = sel.querySelector(`option[value="${monId}"]`);
-          if (opt) opt.textContent = `${species.name} (${species.type})`;
+          if (opt) opt.textContent = `#${species.pokedexNo} ${species.name} (${species.type})`;
         }
         refreshStudioVisualsOnly();
       }
@@ -197,17 +223,17 @@ function initSpriteStudio() {
 
   document.getElementById('openSpriteStudioBtn')?.addEventListener('click', () => {
     sfx.blip();
-    if (!state.studio.selectedMonsterId && typeof MONSTER_SPECIES !== 'undefined' && MONSTER_SPECIES.length > 0) {
-      state.studio.selectedMonsterId = MONSTER_SPECIES[0].id;
-      const studioSel = document.getElementById('studioMonsterSelect');
-      if (studioSel) studioSel.value = state.studio.selectedMonsterId;
-    }
     renderStudioEditor();
     document.getElementById('spriteStudioModal')?.classList.remove('hidden');
     document.getElementById('spriteStudioModal')?.classList.add('flex');
   });
 
-  document.getElementById('closeSpriteStudioBtn')?.addEventListener('click', () => { sfx.blip(); document.getElementById('spriteStudioModal')?.classList.add('hidden'); document.getElementById('spriteStudioModal')?.classList.remove('flex'); saveGameProgress(); });
+  document.getElementById('closeSpriteStudioBtn')?.addEventListener('click', () => {
+    sfx.blip();
+    document.getElementById('spriteStudioModal')?.classList.add('hidden');
+    document.getElementById('spriteStudioModal')?.classList.remove('flex');
+    saveGameProgress();
+  });
 
   document.getElementById('studioClearGridBtn')?.addEventListener('click', () => {
     sfx.blip();
@@ -234,7 +260,7 @@ function initSpriteStudio() {
   });
 
   window.addEventListener('mouseup', () => { state.studio.isPainting = false; });
-  
+
   if (typeof MONSTER_SPECIES !== 'undefined' && MONSTER_SPECIES.length > 0) {
     if (!state.studio.selectedMonsterId) state.studio.selectedMonsterId = MONSTER_SPECIES[0].id;
     renderStudioEditor();
@@ -262,10 +288,7 @@ function setPixelAt(gridArr, x, y, charKey) {
 }
 
 function renderStudioEditor() {
-  if (!state.studio.selectedMonsterId && typeof MONSTER_SPECIES !== 'undefined' && MONSTER_SPECIES.length > 0) {
-    state.studio.selectedMonsterId = MONSTER_SPECIES[0].id;
-  }
-  const monId = state.studio.selectedMonsterId;
+  const monId = state.studio.selectedMonsterId || (MONSTER_SPECIES[0] && MONSTER_SPECIES[0].id);
   if (!monId) return;
 
   if (!MONSTER_PIXELS[monId]) {
@@ -354,28 +377,36 @@ function refreshStudioGridColorsOnly() {
 function refreshStudioVisualsOnly() {
   const livePrev = document.getElementById('studioLivePreview');
   if (livePrev) livePrev.innerHTML = renderMonsterSVG(state.studio.selectedMonsterId);
-  refreshTitleScreenSprites();
+  if (typeof refreshTitleScreenSprites === 'function') refreshTitleScreenSprites();
   if (state.enemy) document.getElementById('enemySpriteWrapper').innerHTML = renderMonsterSVG(state.enemy);
   if (state.dex?.length > 0) document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(getActivePlayer());
-  
+
   const codeArea = document.getElementById('studioCodeTextarea');
   if (codeArea && typeof MONSTER_SPECIES !== 'undefined') {
     const monId = state.studio.selectedMonsterId;
     const species = MONSTER_SPECIES.find(m => m.id === monId);
     const art = MONSTER_PIXELS[monId];
-
     if (species && art) {
       const speciesCode = `  { id: '${species.id}', pokedexNo: ${species.pokedexNo}, name: '${species.name}', type: '${species.type}', baseHp: ${species.baseHp}, level: ${species.level} }`;
       const pixelCode = `  ${species.id}: ${JSON.stringify(art, null, 2).replace(/\n/g, '\n  ')}`;
-      
       codeArea.value = `// --- Retrofit Code for ${species.name} ---\n\n// 1. Update in MONSTER_SPECIES array:\n${speciesCode},\n\n// 2. Update in MONSTER_PIXELS object:\n${pixelCode}`;
     }
   }
 }
 
 function initQuestionEditor() {
-  document.getElementById('openEditorBtn')?.addEventListener('click', () => { sfx.blip(); syncJsonTextarea(); document.getElementById('editorModal')?.classList.remove('hidden'); document.getElementById('editorModal')?.classList.add('flex'); });
-  document.getElementById('closeEditorBtn')?.addEventListener('click', () => { sfx.blip(); document.getElementById('editorModal')?.classList.add('hidden'); document.getElementById('editorModal')?.classList.remove('flex'); saveGameProgress(); });
+  document.getElementById('openEditorBtn')?.addEventListener('click', () => {
+    sfx.blip();
+    syncJsonTextarea();
+    document.getElementById('editorModal')?.classList.remove('hidden');
+    document.getElementById('editorModal')?.classList.add('flex');
+  });
+  document.getElementById('closeEditorBtn')?.addEventListener('click', () => {
+    sfx.blip();
+    document.getElementById('editorModal')?.classList.add('hidden');
+    document.getElementById('editorModal')?.classList.remove('flex');
+    saveGameProgress();
+  });
 
   document.getElementById('addQuestionForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -383,7 +414,12 @@ function initQuestionEditor() {
       type: document.getElementById('qTypeSelect').value,
       difficulty: parseInt(document.getElementById('qDiffSelect').value, 10) || 2,
       q: document.getElementById('qPromptInput').value.trim(),
-      options: [document.getElementById('qOpt0').value.trim(), document.getElementById('qOpt1').value.trim(), document.getElementById('qOpt2').value.trim(), document.getElementById('qOpt3').value.trim()],
+      options: [
+        document.getElementById('qOpt0').value.trim(),
+        document.getElementById('qOpt1').value.trim(),
+        document.getElementById('qOpt2').value.trim(),
+        document.getElementById('qOpt3').value.trim()
+      ],
       answer: 0
     });
     sfx.attackHit(true);
@@ -396,4 +432,6 @@ function initQuestionEditor() {
 function syncJsonTextarea() {
   const jsonArea = document.getElementById('jsonBankTextarea');
   if (jsonArea) jsonArea.value = JSON.stringify(state.questions, null, 2);
+  const countEl = document.getElementById('totalQuestionsCount');
+  if (countEl) countEl.textContent = `${state.questions.length} Questions`;
 }

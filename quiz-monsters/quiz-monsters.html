@@ -59,15 +59,12 @@
     }
     .pixel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .pixel-checker {
-      background-color: #1e293b;
-      background-image: 
-        linear-gradient(45deg, #0f172a 25%, transparent 25%), 
-        linear-gradient(-45deg, #0f172a 25%, transparent 25%), 
-        linear-gradient(45deg, transparent 75%, #0f172a 75%), 
-        linear-gradient(-45deg, transparent 75%, #0f172a 75%);
-      background-size: 8px 8px;
-      background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    /* Force captured pokeball states to use a darker crimson red (#991b1b) instead of green */
+    .ball-captured,
+    #enemySpriteWrapper .bg-emerald-500,
+    #enemySpriteWrapper .bg-green-500 {
+      background-color: #991b1b !important;
+      border-color: #450a0a !important;
     }
 
     @keyframes idleBob { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
@@ -132,6 +129,7 @@
         <span id="headerStatusLed" class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white animate-pulse"></span>
         <h1 class="text-xs sm:text-sm tracking-tighter text-amber-400 drop-shadow">QUIZ MONSTERS</h1>
       </div>
+      <span id="saveToastBadge" class="hidden text-[8px] bg-emerald-900 text-emerald-300 border border-emerald-400 px-2 py-0.5 rounded">SAVED!</span>
     </div>
 
     <div class="flex items-center gap-2">
@@ -141,21 +139,27 @@
       </div>
       <div class="bg-slate-900 px-2 py-1.5 rounded border border-emerald-500/50 hidden md:flex items-center gap-1">
         <span class="text-[8px] text-slate-400">DEX:</span>
-        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/32</span>
+        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/52</span>
       </div>
     </div>
 
     <div class="flex items-center gap-1.5 flex-wrap">
-      <button id="openSpriteStudioBtn" class="pixel-btn bg-pink-600 hover:bg-pink-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5 flex items-center gap-1">
+      <button id="openSpriteStudioBtn" type="button" class="pixel-btn bg-pink-600 hover:bg-pink-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5 flex items-center gap-1">
         <span>🎨 SPRITE STUDIO</span>
       </button>
-      <button id="openEditorBtn" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5 flex items-center gap-1">
+      <button id="openEditorBtn" type="button" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5 flex items-center gap-1">
         <span>+QUIZ DECK</span>
       </button>
-      <button id="bgmToggleBtn" class="pixel-btn bg-emerald-700 hover:bg-emerald-600 text-emerald-200 text-[8px] sm:text-[9px] px-2 py-1.5">
+      <button id="saveGameBtn" type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
+        💾 SAVE
+      </button>
+      <button id="resetGameBtn" type="button" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
+        🔄 RESET
+      </button>
+      <button id="bgmToggleBtn" type="button" class="pixel-btn bg-emerald-700 hover:bg-emerald-600 text-emerald-200 text-[8px] sm:text-[9px] px-2 py-1.5">
         BGM: ON
       </button>
-      <button id="muteToggleBtn" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-2 py-1.5">
+      <button id="muteToggleBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-2 py-1.5">
         SFX: ON
       </button>
     </div>
@@ -180,7 +184,7 @@
     <section id="titleScreenView" class="relative w-full min-h-[500px] sm:min-h-[535px] rounded-lg border-4 border-slate-950 overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-between p-5 sm:p-8 text-center">
       <div class="crt-overlay absolute inset-0 z-10"></div>
       <div class="w-full flex justify-between items-center text-[9px] text-amber-300/80 z-20">
-        <span>★ VER 5.0 • SINGLE PARTNER &amp; DEX SYSTEM</span>
+        <span>★ VER 6.0 • 9 HABITATS &amp; 52 MONSTERS</span>
         <span>🎨 8-COLOR PIXEL STUDIO</span>
       </div>
 
@@ -192,25 +196,26 @@
           Quiz Monsters
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Travel with Pikachu as your Starter Partner • Open Dex to Switch Partners Anytime • Talk to people around you and learn facts!
+          Travel with Pikachu as your Starter Partner • Explore 9 Biomes • Talk to 46+ Specialists &amp; Wild Overworld Pokémon!
         </p>
 
+        <!-- TITLE MASCOTS: PIKACHU, BULBASAUR, CHARMANDER, SQUIRTLE -->
         <div class="flex items-center justify-center gap-4 sm:gap-8 mb-6 bg-slate-900/80 border-2 border-slate-700 px-6 py-4 rounded-xl shadow-inner">
-          <div id="titleSprite0" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle"></div>
-          <div id="titleSprite1" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.3s;"></div>
-          <div id="titleSprite2" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.6s;"></div>
-          <div id="titleSprite9" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.9s;"></div>
+          <div id="titleSprite0" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" title="Pikachu"></div>
+          <div id="titleSprite1" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.3s;" title="Bulbasaur"></div>
+          <div id="titleSprite2" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.6s;" title="Charmander"></div>
+          <div id="titleSprite9" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.9s;" title="Squirtle"></div>
         </div>
 
-        <button id="startGameBtn" class="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-base font-bold px-7 py-3.5 animate-bounce">
+        <button id="startGameBtn" type="button" class="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-base font-bold px-7 py-3.5 animate-bounce">
           ► PRESS START ADVENTURE
         </button>
       </div>
 
       <div class="w-full retro-box-dark p-3 z-20 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[8px] sm:text-[9px] text-slate-300">
         <div><span class="text-amber-400">EASED 1-TILE STEP:</span> WASD / ARROWS</div>
-        <div><span class="text-emerald-400">4 BIOME EXITS:</span> N / S / E / W BORDERS</div>
-        <div><span class="text-pink-400">PARTNER SYSTEM:</span> SWITCH VIA DEX</div>
+        <div><span class="text-emerald-400">9 BIOME MAPS:</span> N/S/E/W + DEEP ZONES</div>
+        <div><span class="text-pink-400">PARTNER SYSTEM:</span> FOLLOWS IN OVERWORLD</div>
       </div>
     </section>
 
@@ -229,12 +234,12 @@
           </div>
         </div>
 
-        <!-- OVERWORLD DEX & TITLE BUTTONS (TITLE STACKED BELOW DEX / PARTNER) -->
+        <!-- OVERWORLD DEX & TITLE BUTTONS -->
         <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 flex flex-col items-end gap-1.5">
-          <button id="overworldDexBtn" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
+          <button id="overworldDexBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
             DEX / PARTNER
           </button>
-          <button id="btnReturnTitle" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[7px] sm:text-[9px] px-2.5 py-1.5 sm:px-3 sm:py-2">
+          <button id="btnReturnTitle" type="button" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[7px] sm:text-[9px] px-2.5 py-1.5 sm:px-3 sm:py-2">
             TITLE
           </button>
         </div>
@@ -246,19 +251,19 @@
         <div class="absolute bottom-3 left-3 z-20 w-28 h-28 sm:w-32 sm:h-32 bg-slate-950/50 rounded-2xl border border-slate-700/70 backdrop-blur-[1px] flex items-center justify-center shadow-lg">
           <div class="grid grid-cols-3 gap-1 w-24 h-24 sm:w-28 sm:h-28 items-center justify-items-center">
             <div></div>
-            <button data-dir="up" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▲</button>
+            <button type="button" data-dir="up" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▲</button>
             <div></div>
-            <button data-dir="left" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">◀</button>
+            <button type="button" data-dir="left" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">◀</button>
             <div class="w-5 h-5 rounded-full bg-slate-900 border border-slate-600"></div>
-            <button data-dir="right" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▶</button>
+            <button type="button" data-dir="right" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▶</button>
             <div></div>
-            <button data-dir="down" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▼</button>
+            <button type="button" data-dir="down" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▼</button>
             <div></div>
           </div>
         </div>
 
         <div class="absolute bottom-3 right-3 z-20 flex flex-col items-end gap-1.5">
-          <button id="btnInteractA" class="pixel-btn bg-red-600/95 hover:bg-red-500 text-white px-3.5 py-2.5 sm:px-4 sm:py-3 flex flex-col items-center shadow-xl backdrop-blur-[1px]">
+          <button id="btnInteractA" type="button" class="pixel-btn bg-red-600/95 hover:bg-red-500 text-white px-3.5 py-2.5 sm:px-4 sm:py-3 flex flex-col items-center shadow-xl backdrop-blur-[1px]">
             <span class="text-[10px] sm:text-xs font-bold">A • TALK</span>
             <span class="text-[7px] sm:text-[8px] text-red-100">NPC FACT</span>
           </button>
@@ -292,18 +297,18 @@
         </div>
         <div class="crt-overlay absolute inset-0 z-10"></div>
 
-        <!-- ENEMY HUD BOX (Compact w-44 on mobile so it doesn't cover enemy sprite) -->
+        <!-- ENEMY HUD BOX -->
         <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 w-44 sm:w-64 retro-box p-1.5 sm:p-2.5">
           <div class="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
             <div class="flex items-center gap-1 truncate">
-              <span id="enemyCaughtIcon" class="hidden text-[8px] sm:text-[10px]" title="Already Caught in Dex">*</span>
-              <span id="enemyName" class="text-[8px] sm:text-xs font-bold tracking-tight truncate">CHARCOALON</span>
+              <span id="enemyCaughtIcon" class="hidden text-[8px] sm:text-[10px]" title="Already Caught in Dex">🔴</span>
+              <span id="enemyName" class="text-[8px] sm:text-xs font-bold tracking-tight truncate">CHARMANDER</span>
             </div>
             <span id="enemyLevel" class="text-[8px] sm:text-[10px] text-slate-700 shrink-0">Lv12</span>
           </div>
           <div class="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
             <span id="enemyTypeBadge" class="text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold bg-orange-600">FIRE</span>
-            <span id="enemyZoneHint" class="hidden sm:inline text-[8px] text-slate-600">WILD MONSTER</span>
+            <span id="enemyZoneHint" class="hidden sm:inline text-[8px] text-slate-600 truncate">WILD MONSTER</span>
           </div>
           <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
             <span class="text-[7px] sm:text-[8px] text-amber-400 font-bold px-0.5 sm:px-1">HP</span>
@@ -370,19 +375,19 @@
           </div>
 
           <div class="md:col-span-5 retro-box p-2.5 sm:p-3 grid grid-cols-2 gap-2.5">
-            <button id="btnFight" class="pixel-btn bg-red-600 hover:bg-red-500 text-white p-3 flex flex-col items-center justify-center gap-1">
+            <button id="btnFight" type="button" class="pixel-btn bg-red-600 hover:bg-red-500 text-white p-3 flex flex-col items-center justify-center gap-1">
               <span class="text-xs sm:text-sm font-bold">FIGHT</span>
               <span class="text-[8px] text-red-100">4 SUBJECT MOVES</span>
             </button>
-            <button id="btnBall" class="pixel-btn bg-amber-500 hover:bg-amber-400 text-slate-950 p-3 flex flex-col items-center justify-center gap-1">
+            <button id="btnBall" type="button" class="pixel-btn bg-amber-500 hover:bg-amber-400 text-slate-950 p-3 flex flex-col items-center justify-center gap-1">
               <span class="text-xs sm:text-sm font-bold">BALL</span>
               <span id="btnBallSub" class="text-[8px] text-slate-900">HP CATCH RATE</span>
             </button>
-            <button id="btnSwitch" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white p-3 flex flex-col items-center justify-center gap-1">
+            <button id="btnSwitch" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white p-3 flex flex-col items-center justify-center gap-1">
               <span class="text-xs sm:text-sm font-bold">SWITCH</span>
               <span id="btnSwitchSub" class="text-[8px] text-emerald-100">DEX (1)</span>
             </button>
-            <button id="btnRun" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white p-3 flex flex-col items-center justify-center gap-1">
+            <button id="btnRun" type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white p-3 flex flex-col items-center justify-center gap-1">
               <span class="text-xs sm:text-sm font-bold">RUN AWAY</span>
               <span class="text-[8px] text-sky-100">TO OVERWORLD</span>
             </button>
@@ -394,7 +399,7 @@
             <div class="text-[9px] sm:text-[10px] font-bold text-slate-700">
               ⚡ DAMAGE = QUESTION DIFFICULTY (★1–★2) × ANSWER SPEED (25s TIMER)
             </div>
-            <button id="backFromMovesBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
+            <button id="backFromMovesBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
           </div>
           <div id="moveButtonsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
         </div>
@@ -427,7 +432,7 @@
               <h2 class="text-xs sm:text-sm font-bold text-slate-900">SELECT DEX PARTNER</h2>
               <p class="text-[9px] text-slate-600 mt-0.5">Switch your active combat partner from registered Dex monsters!</p>
             </div>
-            <button id="backFromDexBtn" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
+            <button id="backFromDexBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
           </div>
           <div id="dexGridContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1 justify-items-center"></div>
         </div>
@@ -436,8 +441,8 @@
   </main>
 
   <footer class="w-full max-w-4xl mt-2 px-2 flex flex-wrap items-center justify-between text-[8px] sm:text-[9px] text-slate-400 gap-2">
-    <div>EXITS: NORTH=MOUNTAIN • EAST=DESERT • SOUTH=BEACH • WEST=FOREST</div>
-    <div>🎨 CLICK "SPRITE STUDIO" TO RENAME, CHANGE TYPES, PAINT &amp; EXPORT CODE</div>
+    <div>9 BIOMES: HUB • MOUNTAIN → GLACIER • DESERT → VOLCANO • BEACH → ABYSS • FOREST → SANCTUARY</div>
+    <div>🎨 CLICK "SPRITE STUDIO" TO CUSTOMIZE • 💾 SAVE STORES PROGRESS IN BROWSER</div>
   </footer>
 
   <!-- MODAL 1: SPRITE STUDIO -->
@@ -448,7 +453,7 @@
           <h2 class="text-xs sm:text-sm font-bold text-slate-900">🎨 16×16 PIXEL SPRITE STUDIO (RENAME &amp; TYPE)</h2>
           <p class="text-[8px] text-slate-600 mt-0.5">Change Monster Names &amp; Element Types • 8 Colors • Flood Fill &amp; Mirror X</p>
         </div>
-        <button id="closeSpriteStudioBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
+        <button id="closeSpriteStudioBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
       </div>
 
       <div class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2.5 min-h-0">
@@ -553,10 +558,10 @@
     <div class="w-full max-w-xl retro-box p-4 sm:p-5 flex flex-col gap-3">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
         <div>
-          <h2 class="text-xs sm:text-sm font-bold text-slate-900">DEX &amp; ACTIVE PARTNER</h2>
-          <p class="text-[9px] text-slate-600 mt-0.5">Click any registered monster in your Dex to set it as your active combat Partner!</p>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">DEX &amp; ACTIVE PARTNER (HABITAT GUIDE)</h2>
+          <p class="text-[9px] text-slate-600 mt-0.5">Click any registered monster to set it as your active Partner! Shows native capture habitat.</p>
         </div>
-        <button id="closeOverworldDexBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+        <button id="closeOverworldDexBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
       </div>
       <div id="overworldDexList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto p-1"></div>
     </div>
@@ -570,7 +575,7 @@
           <h2 class="text-xs sm:text-sm font-bold text-slate-900">CUSTOM TRIVIA DECK EDITOR</h2>
           <p class="text-[9px] text-slate-600 mt-0.5">Add classroom questions with Difficulty ratings (★1–★2) or load a JSON pack</p>
         </div>
-        <button id="closeEditorBtn" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
+        <button id="closeEditorBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
       </div>
 
       <form id="addQuestionForm" class="bg-slate-100 border-2 border-slate-300 rounded p-3 flex flex-col gap-2.5">
@@ -639,83 +644,355 @@
   <script src="characters.js"></script>
 
   <script>
-    const state = {
-      screen: 'TITLE',
-      currentMapId: 'CENTER',
-      questions: structuredClone(DEFAULT_QUESTIONS),
-      dex: [],             // Registered Dex monsters
-      activeDexIndex: 0,   // Current active partner index
-      enemy: null,
-      streak: 0,
-      selectedAttackType: 'ELECTRIC',
-      currentQuestion: null,
-      shuffledOptions: [],
-      timerInterval: null,
-      timeRemaining: 0,
-      maxTime: 25.0,
-      questionStartTime: 0,
-      busy: false,
-      typewriterTimer: null,
-      overworldTypewriterTimer: null,
+    // Safe initialization using window properties to avoid block-scoped redeclaration collisions
+    if (!window.SAVE_STORAGE_KEY) {
+      window.SAVE_STORAGE_KEY = 'pokequiz_dx_v6_save';
+    }
+    const SAFE_TILE_SIZE = (typeof TILE_SIZE !== 'undefined') ? TILE_SIZE : 32;
 
-      playerWorld: {
-        gridX: 13,
-        gridY: 10,
-        startX: 13 * TILE_SIZE,
-        startY: 10 * TILE_SIZE,
-        targetX: 13 * TILE_SIZE,
-        targetY: 10 * TILE_SIZE,
-        pixelX: 13 * TILE_SIZE,
-        pixelY: 10 * TILE_SIZE,
-        hopOffsetY: 0,
-        dir: 'down',
-        isStepping: false,
-        stepStartTime: 0,
-        stepDurationMs: 175,
-        stepPauseMs: 45,
-        lastStepEndTime: 0,
-        stepFrame: 0,
-        stepsSinceBattle: 0
-      },
-
-      // Partner Follower World State (Starts 1 tile behind player)
-      partnerWorld: {
-        gridX: 13,
-        gridY: 9,
-        startX: 13 * TILE_SIZE,
-        startY: 9 * TILE_SIZE,
-        targetX: 13 * TILE_SIZE,
-        targetY: 9 * TILE_SIZE,
-        pixelX: 13 * TILE_SIZE,
-        pixelY: 9 * TILE_SIZE,
-        hopOffsetY: 0,
-        dir: 'down'
-      },
-
-      keysHeld: {},
-
-      studio: {
-        selectedMonsterId: 'pikachu',
-        activeBrush: 'p',
-        toolMode: 'BRUSH',
-        mirrorX: false,
-        isPainting: false
+    function safeClone(obj) {
+      if (!obj) return [];
+      try {
+        return JSON.parse(JSON.stringify(obj));
+      } catch (e) {
+        return obj;
       }
-    };
+    }
+
+    if (!window.state) {
+      window.state = {
+        screen: 'TITLE',
+        currentMapId: 'CENTER',
+        questions: (typeof DEFAULT_QUESTIONS !== 'undefined') ? safeClone(DEFAULT_QUESTIONS) : [],
+        dex: [],
+        activeDexIndex: 0,
+        enemy: null,
+        streak: 0,
+        selectedAttackType: 'ELECTRIC',
+        currentQuestion: null,
+        shuffledOptions: [],
+        timerInterval: null,
+        timeRemaining: 0,
+        maxTime: 25.0,
+        questionStartTime: 0,
+        busy: false,
+        typewriterTimer: null,
+        overworldTypewriterTimer: null,
+
+        playerWorld: {
+          gridX: 13,
+          gridY: 10,
+          startX: 13 * SAFE_TILE_SIZE,
+          startY: 10 * SAFE_TILE_SIZE,
+          targetX: 13 * SAFE_TILE_SIZE,
+          targetY: 10 * SAFE_TILE_SIZE,
+          pixelX: 13 * SAFE_TILE_SIZE,
+          pixelY: 10 * SAFE_TILE_SIZE,
+          hopOffsetY: 0,
+          dir: 'down',
+          isStepping: false,
+          stepStartTime: 0,
+          stepDurationMs: 175,
+          stepPauseMs: 45,
+          lastStepEndTime: 0,
+          stepFrame: 0,
+          stepsSinceBattle: 0
+        },
+
+        partnerWorld: {
+          gridX: 13,
+          gridY: 9,
+          startX: 13 * SAFE_TILE_SIZE,
+          startY: 9 * SAFE_TILE_SIZE,
+          targetX: 13 * SAFE_TILE_SIZE,
+          targetY: 9 * SAFE_TILE_SIZE,
+          pixelX: 13 * SAFE_TILE_SIZE,
+          pixelY: 9 * SAFE_TILE_SIZE,
+          hopOffsetY: 0,
+          dir: 'down'
+        },
+
+        keysHeld: {},
+
+        studio: {
+          selectedMonsterId: 'pikachu',
+          activeBrush: 'p',
+          toolMode: 'BRUSH',
+          mirrorX: false,
+          isPainting: false
+        }
+      };
+    }
 
     /********************************************************************
-     * 1. HEAL SFX & 4 HABITAT BGM EXTENSION
-     * Hooks into `sfx` from audio.js to support Nurse Joy's heal jingle
-     * and distinct background music for MOUNTAIN, DESERT, BEACH & FOREST
+     * 1. MONSTER & HABITAT REGISTRATION HELPERS
+     ********************************************************************/
+    function registerAdditionalFirstStageMonsters() {
+      if (typeof MONSTER_SPECIES === 'undefined') return;
+
+      const template = MONSTER_SPECIES[0] || {};
+      const gridProp = template.pixels ? 'pixels' : (template.grid ? 'grid' : (template.art ? 'art' : 'pixels'));
+
+      const makeGrid = (primaryHex, secondaryHex, eyeHex = '#0f172a', bellyHex = '#fef08a') => ({
+        palette: { p: primaryHex, s: secondaryHex, e: eyeHex, b: bellyHex, w: '#ffffff', d: '#1e293b' },
+        rows: [
+          "....pppppppp....",
+          "...pssssssssp...",
+          "..pssssssssssp..",
+          "..pssewppwessp..",
+          "..psseeppeessp..",
+          "..pssssssssssp..",
+          "...psbbbbbbsp...",
+          "..ppsbbbbbbspp..",
+          "..psbbbbbbbbsp..",
+          "..psbbbbbbbbsp..",
+          "...psbbbbbbsp...",
+          "...ppsssssspp...",
+          "....pp....pp....",
+          "...ppp....ppp...",
+          "................",
+          "................"
+        ]
+      });
+
+      const EXTRA_FIRST_STAGE_MONSTERS = [
+        { id: 'eevee',     name: 'EEVEE',     type: 'NORMAL',   hp: 125, c1: '#b45309', c2: '#d97706', b: '#fef3c7' },
+        { id: 'snorlax',    name: 'SNORLAX',    type: 'NORMAL',   hp: 160, c1: '#0f172a', c2: '#1e3a8a', b: '#fef3c7' },
+        { id: 'onix',       name: 'ONIX',       type: 'ROCK',     hp: 140, c1: '#57534e', c2: '#78716c', b: '#a8a29e' },
+        { id: 'seel',       name: 'SEEL',       type: 'ICE',      hp: 125, c1: '#cbd5e1', c2: '#e2e8f0', b: '#f8fafc' },
+        { id: 'shellder',   name: 'SHELLDER',   type: 'WATER',    hp: 115, c1: '#6d28d9', c2: '#8b5cf6', b: '#f43f5e' },
+        { id: 'jynx',       name: 'JYNX',       type: 'ICE',      hp: 130, c1: '#be123c', c2: '#f43f5e', b: '#fde047' },
+        { id: 'lapras',     name: 'LAPRAS',     type: 'ICE',      hp: 150, c1: '#0284c7', c2: '#38bdf8', b: '#fef08a' },
+        { id: 'articuno',   name: 'ARTICUNO',   type: 'ICE',      hp: 165, c1: '#0369a1', c2: '#38bdf8', b: '#e0f2fe' },
+        { id: 'diglett',    name: 'DIGLETT',    type: 'GROUND',   hp: 110, c1: '#78350f', c2: '#92400e', b: '#f43f5e' },
+        { id: 'doduo',      name: 'DODUO',      type: 'FLYING',   hp: 120, c1: '#92400e', c2: '#b45309', b: '#fde68a' },
+        { id: 'kangaskhan', name: 'KANGASKHAN', type: 'NORMAL',   hp: 145, c1: '#78350f', c2: '#a16207', b: '#fef08a' },
+        { id: 'tauros',     name: 'TAUROS',     type: 'NORMAL',   hp: 140, c1: '#92400e', c2: '#d97706', b: '#78716c' },
+        { id: 'magmar',     name: 'MAGMAR',     type: 'FIRE',     hp: 135, c1: '#dc2626', c2: '#f97316', b: '#fde047' },
+        { id: 'moltres',    name: 'MOLTRES',    type: 'FIRE',     hp: 165, c1: '#ea580c', c2: '#facc15', b: '#fef08a' },
+        { id: 'krabby',     name: 'KRABBY',     type: 'WATER',    hp: 115, c1: '#dc2626', c2: '#fb7185', b: '#fde68a' },
+        { id: 'staryu',     name: 'STARYU',     type: 'WATER',    hp: 120, c1: '#b45309', c2: '#d97706', b: '#facc15' },
+        { id: 'horsea',     name: 'HORSEA',     type: 'WATER',    hp: 115, c1: '#0284c7', c2: '#38bdf8', b: '#fef08a' },
+        { id: 'goldeen',    name: 'GOLDEEN',    type: 'WATER',    hp: 120, c1: '#ef4444', c2: '#f8fafc', b: '#fde047' },
+        { id: 'magikarp',   name: 'MAGIKARP',   type: 'WATER',    hp: 100, c1: '#ea580c', c2: '#f97316', b: '#fde047' },
+        { id: 'slowpoke',   name: 'SLOWPOKE',   type: 'PSYCHIC',  hp: 135, c1: '#ec4899', c2: '#f472b6', b: '#fef3c7' },
+        { id: 'dratini',    name: 'DRATINI',    type: 'DRAGON',   hp: 130, c1: '#2563eb', c2: '#60a5fa', b: '#f8fafc' },
+        { id: 'zapdos',     name: 'ZAPDOS',     type: 'ELECTRIC', hp: 165, c1: '#ca8a04', c2: '#facc15', b: '#1e293b' },
+        { id: 'scyther',    name: 'SCYTHER',    type: 'BUG',      hp: 135, c1: '#15803d', c2: '#22c55e', b: '#fef08a' },
+        { id: 'pinsir',     name: 'PINSIR',     type: 'BUG',      hp: 135, c1: '#78350f', c2: '#a16207', b: '#e7e5e4' },
+        { id: 'tangela',    name: 'TANGELA',    type: 'GRASS',    hp: 125, c1: '#1d4ed8', c2: '#3b82f6', b: '#ef4444' },
+        { id: 'gastly',     name: 'GASTLY',     type: 'GHOST',    hp: 115, c1: '#3b0764', c2: '#6b21a8', b: '#d8b4fe' },
+        { id: 'drowzee',    name: 'DROWZEE',    type: 'PSYCHIC',  hp: 125, c1: '#ca8a04', c2: '#eab308', b: '#78350f' },
+        { id: 'grimer',     name: 'GRIMER',     type: 'POISON',   hp: 125, c1: '#581c87', c2: '#7e22ce', b: '#c084fc' },
+        { id: 'koffing',    name: 'KOFFING',    type: 'POISON',   hp: 125, c1: '#6b21a8', c2: '#9333ea', b: '#fef08a' },
+        { id: 'mewtwo',     name: 'MEWTWO',     type: 'PSYCHIC',  hp: 175, c1: '#cbd5e1', c2: '#e2e8f0', b: '#a855f7' },
+        { id: 'mew',        name: 'MEW',        type: 'PSYCHIC',  hp: 170, c1: '#f472b6', c2: '#fbcfe8', b: '#fce7f3' }
+      ];
+
+      EXTRA_FIRST_STAGE_MONSTERS.forEach(item => {
+        const exists = MONSTER_SPECIES.some(m => m.id === item.id || (m.name && m.name.toUpperCase() === item.name));
+        if (!exists) {
+          const g = makeGrid(item.c1, item.c2, '#0f172a', item.b);
+          const newMon = {
+            id: item.id,
+            name: item.name,
+            type: item.type,
+            maxHp: item.hp,
+            baseHp: item.hp,
+            level: 12,
+            palette: safeClone(g.palette),
+            pixels: safeClone(g.rows),
+            grid: safeClone(g.rows)
+          };
+          newMon[gridProp] = safeClone(g.rows);
+          MONSTER_SPECIES.push(newMon);
+        }
+      });
+    }
+
+    function findSpeciesObject(speciesOrId) {
+      if (typeof MONSTER_SPECIES === 'undefined' || !speciesOrId) return null;
+      if (typeof speciesOrId === 'string') {
+        const clean = speciesOrId.toLowerCase();
+        return MONSTER_SPECIES.find(m => m.id.toLowerCase() === clean || (m.name && m.name.toLowerCase() === clean)) || MONSTER_SPECIES[0];
+      }
+      return MONSTER_SPECIES.find(m => m.id === speciesOrId.id) || speciesOrId;
+    }
+
+    function getMonsterHabitatName(monsterId, monsterName) {
+      if (typeof WORLD_MAPS === 'undefined') return 'PALLET RESEARCH HUB';
+      const cleanId = (monsterId || '').toLowerCase();
+      const cleanName = (monsterName || '').toLowerCase();
+      for (const mapKey of Object.keys(WORLD_MAPS)) {
+        const mapObj = WORLD_MAPS[mapKey];
+        if (mapObj.encounters && mapObj.encounters.some(e => e.toLowerCase() === cleanId || e.toLowerCase() === cleanName)) {
+          return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
+        }
+      }
+      return 'PALLET RESEARCH HUB';
+    }
+
+    function replaceTallGrassWithHabitatInDOM() {
+      ['overworldDexList', 'dexGridContainer'].forEach(containerId => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const elements = container.querySelectorAll('*');
+        elements.forEach(el => {
+          if (el.children.length === 0 && /TALL GRASS|WILD HABITAT|HABITAT/i.test(el.textContent)) {
+            const card = el.closest('button') || el.parentElement;
+            const fullText = card ? card.textContent : '';
+            const matchedSpecies = (typeof MONSTER_SPECIES !== 'undefined')
+              ? MONSTER_SPECIES.find(m => fullText.toUpperCase().includes(m.name.toUpperCase()))
+              : null;
+            if (matchedSpecies) {
+              el.textContent = `📍 ${getMonsterHabitatName(matchedSpecies.id, matchedSpecies.name)}`;
+            }
+          }
+        });
+      });
+
+      const zoneHint = document.getElementById('enemyZoneHint');
+      if (zoneHint && window.state.enemy) {
+        zoneHint.textContent = getMonsterHabitatName(window.state.enemy.id, window.state.enemy.name);
+      }
+    }
+
+    /********************************************************************
+     * 2. ROBUST SVG-TO-CANVAS CACHE & RECT FALLBACK
+     ********************************************************************/
+    const _monsterCanvasImageCache = {};
+    const _monsterParsedRectsCache = {};
+
+    function getMonsterCanvasImage(speciesOrId) {
+      const species = findSpeciesObject(speciesOrId);
+      if (!species) return null;
+
+      const cacheKey = species.id + '_' + JSON.stringify(species.palette || {});
+      if (_monsterCanvasImageCache[cacheKey]) {
+        return _monsterCanvasImageCache[cacheKey];
+      }
+
+      if (typeof renderMonsterSVG === 'function') {
+        let svgMarkup = renderMonsterSVG(species);
+        if (svgMarkup) {
+          if (!svgMarkup.includes('xmlns=')) {
+            svgMarkup = svgMarkup.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+          }
+          if (!/width=/i.test(svgMarkup)) {
+            svgMarkup = svgMarkup.replace('<svg', '<svg width="64" height="64"');
+          }
+          const img = new Image();
+          img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMarkup);
+          _monsterCanvasImageCache[cacheKey] = img;
+
+          const rects = [];
+          const rectRegex = /<rect[^>]*>/gi;
+          let match;
+          while ((match = rectRegex.exec(svgMarkup)) !== null) {
+            const tag = match[0];
+            const x = parseFloat((tag.match(/x="([^"]+)"/) || [])[1] || 0);
+            const y = parseFloat((tag.match(/y="([^"]+)"/) || [])[1] || 0);
+            const w = parseFloat((tag.match(/width="([^"]+)"/) || [])[1] || 1);
+            const h = parseFloat((tag.match(/height="([^"]+)"/) || [])[1] || 1);
+            const fill = (tag.match(/fill="([^"]+)"/) || [])[1];
+            if (fill && fill !== 'none' && fill !== 'transparent') {
+              rects.push({ x, y, w, h, fill });
+            }
+          }
+          _monsterParsedRectsCache[cacheKey] = rects;
+          return img;
+        }
+      }
+      return null;
+    }
+
+    function drawMonsterOnCanvas(ctx, speciesOrId, screenX, screenY, flipX = false) {
+      const species = findSpeciesObject(speciesOrId);
+      if (!species) return;
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.38)';
+      ctx.beginPath();
+      ctx.ellipse(
+        screenX + SAFE_TILE_SIZE / 2,
+        screenY + SAFE_TILE_SIZE - 3,
+        SAFE_TILE_SIZE * 0.34,
+        SAFE_TILE_SIZE * 0.15,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+
+      const img = getMonsterCanvasImage(species);
+      const size = SAFE_TILE_SIZE * 0.88;
+      const dx = screenX + (SAFE_TILE_SIZE - size) / 2;
+      const dy = screenY + (SAFE_TILE_SIZE - size) - 2;
+
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.save();
+        if (flipX) {
+          ctx.translate(dx + size, dy);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, 0, 0, size, size);
+        } else {
+          ctx.drawImage(img, dx, dy, size, size);
+        }
+        ctx.restore();
+        return;
+      }
+
+      const cacheKey = species.id + '_' + JSON.stringify(species.palette || {});
+      const rects = _monsterParsedRectsCache[cacheKey];
+      if (rects && rects.length > 0) {
+        const scale = size / 16;
+        for (let i = 0; i < rects.length; i++) {
+          const r = rects[i];
+          ctx.fillStyle = r.fill;
+          const rx = flipX ? (16 - r.x - r.w) : r.x;
+          ctx.fillRect(
+            Math.floor(dx + rx * scale),
+            Math.floor(dy + r.y * scale),
+            Math.ceil(r.w * scale),
+            Math.ceil(r.h * scale)
+          );
+        }
+        return;
+      }
+
+      const grid = species.pixels || species.grid || species.art || species.rows;
+      const palette = species.palette;
+      if (grid && palette) {
+        const scale = size / 16;
+        for (let r = 0; r < grid.length; r++) {
+          const row = grid[r];
+          for (let c = 0; c < row.length; c++) {
+            const ch = row[c];
+            if (ch === '.' || ch === ' ' || !palette[ch]) continue;
+            ctx.fillStyle = palette[ch];
+            const drawCol = flipX ? (15 - c) : c;
+            ctx.fillRect(
+              Math.floor(dx + drawCol * scale),
+              Math.floor(dy + r * scale),
+              Math.ceil(scale),
+              Math.ceil(scale)
+            );
+          }
+        }
+      }
+    }
+
+    /********************************************************************
+     * 3. AUDIO & OVERWORLD HOOKS
      ********************************************************************/
     function setupAudioExtensions() {
       if (typeof sfx === 'undefined') return;
 
-      if (typeof sfx.heal !== 'function') {
-        sfx.heal = function() {
-          if (this.sfxMuted) return;
-          if (typeof this.healFanfare === 'function') return this.healFanfare();
-          if (typeof this.playTone === 'function') {
+      sfx.playHealWithBgmPause = function() {
+        const wasBgmPlaying = !this.bgmMuted;
+        if (wasBgmPlaying) this.stopBGM();
+
+        if (!this.sfxMuted) {
+          if (typeof this.heal === 'function') {
+            this.heal();
+          } else if (typeof this.playTone === 'function') {
             const notes = [
               { f: 987.77, d: 0.16, t: 0 },
               { f: 987.77, d: 0.16, t: 180 },
@@ -725,38 +1002,28 @@
             ];
             notes.forEach(n => {
               setTimeout(() => {
-                if (!this.sfxMuted) this.playTone(n.f, n.d, 'sine', 0.14);
+                if (!this.sfxMuted) this.playTone(n.f, n.d, 'sine', 0.15);
               }, n.t);
             });
           }
-        };
-      }
+        }
+
+        setTimeout(() => {
+          if (!this.bgmMuted && window.state.screen === 'OVERWORLD') {
+            this.startBGM('OVERWORLD');
+          }
+        }, 1250);
+      };
 
       const HABITAT_BGM_TRACKS = {
-        MOUNTAIN: {
-          tempoMs: 260,
-          wave: 'triangle',
-          vol: 0.05,
-          notes: [220.00, 261.63, 293.66, 329.63, 392.00, 329.63, 293.66, 261.63, 196.00, 246.94, 293.66, 392.00]
-        },
-        DESERT: {
-          tempoMs: 210,
-          wave: 'sawtooth',
-          vol: 0.03,
-          notes: [293.66, 311.13, 369.99, 392.00, 440.00, 392.00, 369.99, 311.13, 261.63, 293.66, 311.13, 293.66]
-        },
-        BEACH: {
-          tempoMs: 220,
-          wave: 'sine',
-          vol: 0.07,
-          notes: [392.00, 493.88, 587.33, 659.25, 587.33, 493.88, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33]
-        },
-        FOREST: {
-          tempoMs: 200,
-          wave: 'square',
-          vol: 0.03,
-          notes: [329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 261.63, 293.66, 329.63, 392.00, 329.63]
-        }
+        MOUNTAIN:  { tempoMs: 260, wave: 'triangle', vol: 0.05, notes: [220.00, 261.63, 293.66, 329.63, 392.00, 329.63, 293.66, 261.63, 196.00, 246.94, 293.66, 392.00] },
+        GLACIER:   { tempoMs: 240, wave: 'sine',     vol: 0.06, notes: [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 587.33, 698.46, 880.00, 783.99, 659.25, 523.25] },
+        DESERT:    { tempoMs: 210, wave: 'sawtooth', vol: 0.03, notes: [293.66, 311.13, 369.99, 392.00, 440.00, 392.00, 369.99, 311.13, 261.63, 293.66, 311.13, 293.66] },
+        VOLCANO:   { tempoMs: 175, wave: 'sawtooth', vol: 0.035,notes: [146.83, 164.81, 174.61, 196.00, 220.00, 196.00, 174.61, 164.81, 130.81, 146.83, 164.81, 146.83] },
+        BEACH:     { tempoMs: 220, wave: 'sine',     vol: 0.07, notes: [392.00, 493.88, 587.33, 659.25, 587.33, 493.88, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33] },
+        ABYSS:     { tempoMs: 300, wave: 'triangle', vol: 0.06, notes: [196.00, 246.94, 293.66, 369.99, 293.66, 246.94, 164.81, 196.00, 246.94, 293.66, 246.94, 196.00] },
+        FOREST:    { tempoMs: 200, wave: 'square',   vol: 0.03, notes: [329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 261.63, 293.66, 329.63, 392.00, 329.63] },
+        SANCTUARY: { tempoMs: 250, wave: 'triangle', vol: 0.05, notes: [329.63, 392.00, 493.88, 659.25, 587.33, 493.88, 392.00, 329.63, 293.66, 369.99, 440.00, 493.88] }
       };
 
       const _origStartBGM = sfx.startBGM ? sfx.startBGM.bind(sfx) : null;
@@ -775,7 +1042,7 @@
         if (this.bgmMuted) return;
         if (typeof this.init === 'function') this.init();
 
-        const targetMode = (mode === 'OVERWORLD') ? state.currentMapId : mode;
+        const targetMode = (mode === 'OVERWORLD') ? window.state.currentMapId : mode;
         const habitatTrack = HABITAT_BGM_TRACKS[targetMode];
 
         if (habitatTrack && typeof this.playTone === 'function') {
@@ -794,104 +1061,35 @@
       };
     }
 
-    /********************************************************************
-     * 2. OVERWORLD PARTNER FOLLOWER & NURSE JOY HEAL HOOKS
-     * Guaranteed to run regardless of external JS file load order
-     ********************************************************************/
-    function drawFollowerPartner(ctx, camX, camY) {
-      const partner = (typeof getActivePlayer === 'function')
-        ? getActivePlayer()
-        : (state.dex && state.dex[state.activeDexIndex]);
-      if (!partner || !state.partnerWorld) return;
-
-      const liveSpecies = (typeof MONSTER_SPECIES !== 'undefined'
-        ? MONSTER_SPECIES.find(m => m.id === partner.id)
-        : null) || partner;
-      const grid = liveSpecies.pixels || liveSpecies.grid || partner.pixels || partner.grid;
-      const palette = liveSpecies.palette || partner.palette;
-      if (!grid || !palette) return;
-
-      const p = state.playerWorld;
-      const pw = state.partnerWorld;
-
-      if (p.isStepping) {
-        const elapsed = performance.now() - p.stepStartTime;
-        const rawT = Math.min(1, Math.max(0, elapsed / p.stepDurationMs));
-        const easedT = typeof easeInOutCubic === 'function' ? easeInOutCubic(rawT) : rawT;
-        pw.pixelX = pw.startX + (pw.targetX - pw.startX) * easedT;
-        pw.pixelY = pw.startY + (pw.targetY - pw.startY) * easedT;
-        pw.hopOffsetY = -Math.sin(rawT * Math.PI) * 4;
-      } else {
-        pw.pixelX = pw.targetX;
-        pw.pixelY = pw.targetY;
-        pw.hopOffsetY = Math.sin(performance.now() / 220) * 1.5;
-      }
-
-      const screenX = Math.round(pw.pixelX - camX);
-      const screenY = Math.round(pw.pixelY - camY + pw.hopOffsetY);
-
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-      ctx.beginPath();
-      ctx.ellipse(
-        screenX + TILE_SIZE / 2,
-        Math.round(pw.pixelY - camY) + TILE_SIZE - 3,
-        TILE_SIZE * 0.32,
-        TILE_SIZE * 0.14,
-        0, 0, Math.PI * 2
-      );
-      ctx.fill();
-
-      const scale = (TILE_SIZE * 0.8) / 16;
-      const offsetX = screenX + (TILE_SIZE - 16 * scale) / 2;
-      const offsetY = screenY + (TILE_SIZE - 16 * scale) - 2;
-      const flipX = pw.dir === 'right';
-
-      for (let r = 0; r < grid.length; r++) {
-        const row = grid[r];
-        for (let c = 0; c < row.length; c++) {
-          const ch = row[c];
-          if (ch === '.' || ch === ' ' || !palette[ch]) continue;
-          ctx.fillStyle = palette[ch];
-          const drawCol = flipX ? (15 - c) : c;
-          ctx.fillRect(
-            Math.floor(offsetX + drawCol * scale),
-            Math.floor(offsetY + r * scale),
-            Math.ceil(scale),
-            Math.ceil(scale)
-          );
-        }
-      }
-    }
-
     function setupOverworldHooks() {
       if (typeof window.teleportPlayerToGrid === 'function') {
         const _origTeleport = window.teleportPlayerToGrid;
         window.teleportPlayerToGrid = function(gx, gy) {
           _origTeleport(gx, gy);
-          if (state.partnerWorld) {
-            let px = gx;
-            let py = gy - 1;
-            if (typeof isTileBlocked === 'function' && isTileBlocked(px, py)) {
-              const candidates = [
-                { x: gx, y: gy + 1 },
-                { x: gx - 1, y: gy },
-                { x: gx + 1, y: gy }
-              ];
-              const free = candidates.find(c => !isTileBlocked(c.x, c.y));
-              if (free) { px = free.x; py = free.y; }
-              else { px = gx; py = gy; }
-            }
-            state.partnerWorld.gridX = px;
-            state.partnerWorld.gridY = py;
-            state.partnerWorld.startX = px * TILE_SIZE;
-            state.partnerWorld.startY = py * TILE_SIZE;
-            state.partnerWorld.targetX = px * TILE_SIZE;
-            state.partnerWorld.targetY = py * TILE_SIZE;
-            state.partnerWorld.pixelX = px * TILE_SIZE;
-            state.partnerWorld.pixelY = py * TILE_SIZE;
-            state.partnerWorld.hopOffsetY = 0;
+          if (window.state.partnerWorld) {
+            const candidates = [
+              { x: gx, y: gy - 1 },
+              { x: gx, y: gy + 1 },
+              { x: gx - 1, y: gy },
+              { x: gx + 1, y: gy }
+            ];
+            const free = (typeof isTileBlocked === 'function')
+              ? candidates.find(c => !isTileBlocked(c.x, c.y))
+              : candidates[0];
+            const px = free ? free.x : gx;
+            const py = free ? free.y : gy;
+
+            window.state.partnerWorld.gridX = px;
+            window.state.partnerWorld.gridY = py;
+            window.state.partnerWorld.startX = px * SAFE_TILE_SIZE;
+            window.state.partnerWorld.startY = py * SAFE_TILE_SIZE;
+            window.state.partnerWorld.targetX = px * SAFE_TILE_SIZE;
+            window.state.partnerWorld.targetY = py * SAFE_TILE_SIZE;
+            window.state.partnerWorld.pixelX = px * SAFE_TILE_SIZE;
+            window.state.partnerWorld.pixelY = py * SAFE_TILE_SIZE;
+            window.state.partnerWorld.hopOffsetY = 0;
           }
-          if (state.screen === 'OVERWORLD' && typeof sfx !== 'undefined') {
+          if (window.state.screen === 'OVERWORLD' && typeof sfx !== 'undefined') {
             sfx.startBGM('OVERWORLD');
           }
         };
@@ -900,7 +1098,7 @@
       if (typeof window.initiateOneBlockStep === 'function') {
         const _origStep = window.initiateOneBlockStep;
         window.initiateOneBlockStep = function(dir) {
-          const p = state.playerWorld;
+          const p = window.state.playerWorld;
           const prevX = p.gridX;
           const prevY = p.gridY;
           const wasStepping = p.isStepping;
@@ -908,60 +1106,46 @@
           _origStep(dir);
 
           if (!wasStepping && p.isStepping && (p.gridX !== prevX || p.gridY !== prevY)) {
-            const pw = state.partnerWorld;
+            const pw = window.state.partnerWorld;
             pw.startX = pw.pixelX;
             pw.startY = pw.pixelY;
             pw.gridX = prevX;
             pw.gridY = prevY;
-            pw.targetX = prevX * TILE_SIZE;
-            pw.targetY = prevY * TILE_SIZE;
+            pw.targetX = prevX * SAFE_TILE_SIZE;
+            pw.targetY = prevY * SAFE_TILE_SIZE;
             pw.dir = dir;
           }
         };
       }
 
-      if (typeof window.interactWithFacingNPC === 'function') {
-        window.interactWithFacingNPC = function() {
-          if (state.screen !== 'OVERWORLD' || state.busy || state.playerWorld.isStepping) return;
-          const npc = getFacingNPC();
-          if (npc) {
-            if (npc.healsParty || npc.name.includes('NURSE')) {
-              if (typeof sfx.heal === 'function') sfx.heal();
-              else sfx.npcChime();
-              state.dex.forEach(m => { m.hp = m.maxHp; });
-              syncAllUI();
-            } else {
-              sfx.npcChime();
-            }
-            setOverworldDialogue(npc.fact, npc.name, npc.topic);
+      window.interactWithFacingNPC = function() {
+        if (window.state.screen !== 'OVERWORLD' || window.state.busy || window.state.playerWorld.isStepping) return;
+        const npc = getFacingNPC();
+        if (npc) {
+          if (npc.healsParty || npc.name.includes('NURSE')) {
+            if (typeof sfx.playHealWithBgmPause === 'function') sfx.playHealWithBgmPause();
+            else sfx.npcChime();
+            window.state.dex.forEach(m => { m.hp = m.maxHp; });
+            syncAllUI();
           } else {
-            const { tx, ty } = getFacingTileCoords();
-            const tile = getTileAt(tx, ty);
-            if (tile === 'W') {
-              sfx.blip();
-              setOverworldDialogue("Crystal-clear water! Remember: roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "OBSERVATION");
-            } else if (tile === 'G') {
-              sfx.blip();
-              setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
-            } else if (tile === 'H' || tile === 'D') {
-              const centerNpc = getCurrentMap().npcs.find(n => n.name.includes('NURSE'));
-              if (centerNpc) {
-                if (typeof sfx.heal === 'function') sfx.heal();
-                else sfx.npcChime();
-                state.dex.forEach(m => { m.hp = m.maxHp; });
-                syncAllUI();
-                setOverworldDialogue(centerNpc.fact, centerNpc.name, centerNpc.topic);
-                return;
-              }
-              sfx.blip();
-              setOverworldDialogue("The Research Center door is locked tight. Talk to nearby professionals to learn facts!", "RESEARCH HUB", "BUILDING");
-            } else {
-              sfx.blip();
-              setOverworldDialogue("Face any Doctor, Police Officer, or Ecologist until the [!] bubble appears above their head, then press SPACE or A!", "FIELD JOURNAL", "TIP");
-            }
+            sfx.npcChime();
           }
-        };
-      }
+          setOverworldDialogue(npc.fact, npc.name, npc.topic);
+        } else {
+          const { tx, ty } = getFacingTileCoords();
+          const tile = getTileAt(tx, ty);
+          sfx.blip();
+          if (tile === 'W') {
+            setOverworldDialogue("Crystal-clear water! Remember: roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "OBSERVATION");
+          } else if (tile === 'G') {
+            setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
+          } else if (tile === 'H' || tile === 'D') {
+            setOverworldDialogue("Professor's words echoed: \"Walking into someone's house without permission is known as trespassing and it is illegal!\"", "LOCKED HOUSE", "LAW & CIVICS");
+          } else {
+            setOverworldDialogue("Face any Specialist or Overworld Pokémon until the [!] bubble appears above their head, then press SPACE or A!", "FIELD JOURNAL", "TIP");
+          }
+        }
+      };
 
       if (typeof window.drawOverworldCanvas === 'function') {
         const _origDrawOverworld = window.drawOverworldCanvas;
@@ -969,29 +1153,191 @@
           _origDrawOverworld();
 
           const canvas = document.getElementById('overworldCanvas');
-          if (!canvas || !state.partnerWorld) return;
+          if (!canvas) return;
           const ctx = canvas.getContext('2d');
-          const p = state.playerWorld;
-          const mapWidthPx = MAP_COLS * TILE_SIZE;
-          const mapHeightPx = MAP_ROWS * TILE_SIZE;
+          const p = window.state.playerWorld;
+          const mapObj = getCurrentMap();
+          const mapWidthPx = MAP_COLS * SAFE_TILE_SIZE;
+          const mapHeightPx = MAP_ROWS * SAFE_TILE_SIZE;
 
-          let camX = p.pixelX + TILE_SIZE / 2 - canvas.width / 2;
-          let camY = p.pixelY + TILE_SIZE / 2 - canvas.height / 2;
+          let camX = p.pixelX + SAFE_TILE_SIZE / 2 - canvas.width / 2;
+          let camY = p.pixelY + SAFE_TILE_SIZE / 2 - canvas.height / 2;
           camX = Math.max(0, Math.min(camX, mapWidthPx - canvas.width));
           camY = Math.max(0, Math.min(camY, mapHeightPx - canvas.height));
 
-          drawFollowerPartner(ctx, camX, camY);
+          if (mapObj && Array.isArray(mapObj.npcs)) {
+            const bob = Math.sin(performance.now() / 200) * 2;
+            mapObj.npcs.forEach(npc => {
+              if (npc.isMonster || npc.monsterId) {
+                const tileX = Math.round(npc.x * SAFE_TILE_SIZE - camX);
+                const tileY = Math.round(npc.y * SAFE_TILE_SIZE - camY);
+                const tile = getTileAt(npc.x, npc.y);
+                ctx.fillStyle = (tile === 'P' || tile === 'E') ? mapObj.theme.path : mapObj.theme.groundA;
+                ctx.fillRect(tileX, tileY, SAFE_TILE_SIZE, SAFE_TILE_SIZE);
 
-          if (state.partnerWorld.pixelY < p.pixelY) {
-            const px = Math.round(p.pixelX - camX);
-            const py = Math.round(p.pixelY - camY + (p.hopOffsetY || 0));
-            if (typeof drawTrainerSprite === 'function') {
-              drawTrainerSprite(ctx, px, py, p.dir, p.isStepping ? p.stepFrame : 0);
-            } else if (typeof drawPlayerSprite === 'function') {
-              drawPlayerSprite(ctx, px, py, p.dir);
+                drawMonsterOnCanvas(ctx, npc.monsterId || npc.id, tileX, Math.round(tileY + bob), false);
+
+                const facing = (typeof getFacingNPC === 'function') ? getFacingNPC() : null;
+                if (facing && facing.id === npc.id) {
+                  ctx.fillStyle = '#f59e0b';
+                  ctx.beginPath();
+                  ctx.arc(tileX + 16, tileY - 6, 6, 0, Math.PI * 2);
+                  ctx.fill();
+                  ctx.fillStyle = '#0f172a';
+                  ctx.font = 'bold 9px monospace';
+                  ctx.fillText('!', tileX + 14, tileY - 3);
+                }
+              }
+            });
+          }
+
+          if (window.state.partnerWorld) {
+            const pw = window.state.partnerWorld;
+            if (p.isStepping) {
+              const elapsed = performance.now() - p.stepStartTime;
+              const rawT = Math.min(1, Math.max(0, elapsed / p.stepDurationMs));
+              const easedT = typeof easeInOutCubic === 'function' ? easeInOutCubic(rawT) : rawT;
+              pw.pixelX = pw.startX + (pw.targetX - pw.startX) * easedT;
+              pw.pixelY = pw.startY + (pw.targetY - pw.startY) * easedT;
+              pw.hopOffsetY = -Math.sin(rawT * Math.PI) * 4;
+            } else {
+              pw.pixelX = pw.targetX;
+              pw.pixelY = pw.targetY;
+              pw.hopOffsetY = Math.sin(performance.now() / 220) * 1.5;
+            }
+
+            const partner = (typeof getActivePlayer === 'function')
+              ? getActivePlayer()
+              : (window.state.dex && window.state.dex[window.state.activeDexIndex]);
+
+            if (partner) {
+              const sx = Math.round(pw.pixelX - camX);
+              const sy = Math.round(pw.pixelY - camY + pw.hopOffsetY);
+              drawMonsterOnCanvas(ctx, partner, sx, sy, pw.dir === 'right');
+            }
+
+            if (pw.pixelY < p.pixelY) {
+              const px = Math.round(p.pixelX - camX);
+              const py = Math.round(p.pixelY - camY + (p.hopOffsetY || 0));
+              if (typeof drawTrainerSprite === 'function') {
+                drawTrainerSprite(ctx, px, py, p.dir, p.isStepping ? p.stepFrame : 0);
+              } else if (typeof drawPlayerSprite === 'function') {
+                drawPlayerSprite(ctx, px, py, p.dir);
+              }
             }
           }
         };
+      }
+    }
+
+    function setupBattleAndDexHooks() {
+      ['syncAllUI', 'openOverworldDexModal', 'showDexSwitchView', 'setupBattleEncounter'].forEach(fnName => {
+        if (typeof window[fnName] === 'function') {
+          const _orig = window[fnName];
+          window[fnName] = function(...args) {
+            const res = _orig.apply(this, args);
+            replaceTallGrassWithHabitatInDOM();
+            return res;
+          };
+        }
+      });
+
+      const enemyWrapper = document.getElementById('enemySpriteWrapper');
+      if (enemyWrapper && typeof MutationObserver !== 'undefined') {
+        new MutationObserver(() => {
+          enemyWrapper.querySelectorAll('[fill="#22c55e"], [fill="#10b981"], [fill="#4ade80"], [fill="green"]').forEach(el => {
+            el.setAttribute('fill', '#991b1b');
+          });
+          enemyWrapper.querySelectorAll('.bg-emerald-500, .bg-green-500').forEach(el => {
+            el.classList.remove('bg-emerald-500', 'bg-green-500');
+            el.style.backgroundColor = '#991b1b';
+          });
+        }).observe(enemyWrapper, { childList: true, subtree: true, attributes: true });
+      }
+    }
+
+    /********************************************************************
+     * 4. SAVE & RESET
+     ********************************************************************/
+    function saveGameProgress() {
+      try {
+        const payload = {
+          currentMapId: window.state.currentMapId,
+          gridX: window.state.playerWorld.gridX,
+          gridY: window.state.playerWorld.gridY,
+          activeDexIndex: window.state.activeDexIndex,
+          streak: window.state.streak,
+          dexIds: window.state.dex.map(m => ({ id: m.id, hp: m.hp, maxHp: m.maxHp, level: m.level }))
+        };
+        localStorage.setItem(window.SAVE_STORAGE_KEY, JSON.stringify(payload));
+        if (typeof sfx !== 'undefined') sfx.blip();
+        const badge = document.getElementById('saveToastBadge');
+        if (badge) {
+          badge.textContent = 'GAME SAVED!';
+          badge.classList.remove('hidden');
+          setTimeout(() => badge.classList.add('hidden'), 2000);
+        }
+        if (window.state.screen === 'OVERWORLD') {
+          setOverworldDialogue('Progress saved! Your caught Dex partners, current map position, and streak have been stored.', 'SYSTEM SAVE', 'SAVED');
+        }
+      } catch (err) {
+        console.warn('Save error:', err);
+      }
+    }
+
+    function loadSavedGameProgress() {
+      try {
+        const raw = localStorage.getItem(window.SAVE_STORAGE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (data && Array.isArray(data.dexIds) && data.dexIds.length > 0) {
+          const restoredDex = [];
+          data.dexIds.forEach(savedMon => {
+            const sp = findSpeciesObject(savedMon.id);
+            if (sp) {
+              const inst = createMonsterInstance(sp);
+              inst.hp = savedMon.hp || inst.maxHp;
+              restoredDex.push(inst);
+            }
+          });
+          if (restoredDex.length > 0) {
+            window.state.dex = restoredDex;
+            window.state.activeDexIndex = Math.min(data.activeDexIndex || 0, restoredDex.length - 1);
+          }
+          if (data.currentMapId && WORLD_MAPS[data.currentMapId]) {
+            window.state.currentMapId = data.currentMapId;
+          }
+          if (typeof data.gridX === 'number' && typeof data.gridY === 'number') {
+            window.teleportPlayerToGrid(data.gridX, data.gridY);
+          }
+          return true;
+        }
+      } catch (err) {
+        console.warn('Load error:', err);
+      }
+      return false;
+    }
+
+    function resetGameProgress() {
+      if (!confirm('Reset all saved progress and return to Pallet Research Hub with Pikachu?')) return;
+      localStorage.removeItem(window.SAVE_STORAGE_KEY);
+      const pikachuSpecies = findSpeciesObject('pikachu') || MONSTER_SPECIES[0];
+      window.state.dex = [createMonsterInstance(pikachuSpecies)];
+      window.state.activeDexIndex = 0;
+      window.state.streak = 0;
+      window.state.currentMapId = 'CENTER';
+      window.teleportPlayerToGrid(13, 10);
+      syncAllUI();
+      updateOverworldHUD();
+      if (typeof sfx !== 'undefined') sfx.blip();
+      const badge = document.getElementById('saveToastBadge');
+      if (badge) {
+        badge.textContent = 'RESET COMPLETE!';
+        badge.classList.remove('hidden');
+        setTimeout(() => badge.classList.add('hidden'), 2000);
+      }
+      if (window.state.screen === 'OVERWORLD') {
+        setOverworldDialogue('Game progress reset! Starting fresh at Pallet Research Hub with Pikachu!', 'SYSTEM RESET', 'NEW GAME');
       }
     }
 
@@ -1009,43 +1355,62 @@
       }
     }
 
-    if (typeof window.overworldRenderLoop === 'function') {
-      const originalOverworldLoop = window.overworldRenderLoop;
-      window.overworldRenderLoop = function(timestamp) {
-        if (state.screen === 'OVERWORLD') {
-          syncCanvasAspect();
-        }
-        return originalOverworldLoop(timestamp);
-      };
-    }
-
+    /********************************************************************
+     * 5. TITLE SCREEN MASCOTS
+     ********************************************************************/
     function refreshTitleScreenSprites() {
-      [0, 1, 2, 9].forEach(idx => {
-        const el = document.getElementById(`titleSprite${idx}`);
-        if (el && MONSTER_SPECIES[idx]) {
-          el.innerHTML = renderMonsterSVG(MONSTER_SPECIES[idx]);
+      if (typeof MONSTER_SPECIES === 'undefined' || typeof renderMonsterSVG !== 'function') return;
+      const mascotConfigs = [
+        { slotId: 'titleSprite0', key: 'pikachu',    fallbackIdx: 0 },
+        { slotId: 'titleSprite1', key: 'bulbasaur',  fallbackIdx: 1 },
+        { slotId: 'titleSprite2', key: 'charmander', fallbackIdx: 2 },
+        { slotId: 'titleSprite9', key: 'squirtle',    fallbackIdx: 3 }
+      ];
+
+      mascotConfigs.forEach(({ slotId, key, fallbackIdx }) => {
+        const el = document.getElementById(slotId);
+        if (!el) return;
+        const species = MONSTER_SPECIES.find(
+          m => m.id.toLowerCase() === key || (m.name && m.name.toLowerCase() === key)
+        ) || MONSTER_SPECIES[fallbackIdx] || MONSTER_SPECIES[0];
+        if (species) {
+          el.innerHTML = renderMonsterSVG(species);
         }
       });
     }
 
     function initGame() {
+      registerAdditionalFirstStageMonsters();
       setupAudioExtensions();
       setupOverworldHooks();
+      setupBattleAndDexHooks();
+
+      if (typeof window.overworldRenderLoop === 'function') {
+        const originalOverworldLoop = window.overworldRenderLoop;
+        window.overworldRenderLoop = function(timestamp) {
+          if (window.state.screen === 'OVERWORLD') {
+            syncCanvasAspect();
+          }
+          return originalOverworldLoop(timestamp);
+        };
+      }
+
+      if (typeof MONSTER_SPECIES !== 'undefined') {
+        MONSTER_SPECIES.forEach(sp => getMonsterCanvasImage(sp));
+      }
 
       refreshTitleScreenSprites();
 
-      // Set Pikachu as the starter Pokémon (falls back to MONSTER_SPECIES[0] if not found)
-      const pikachuSpecies = (typeof MONSTER_SPECIES !== 'undefined'
-        ? MONSTER_SPECIES.find(m => m.id === 'pikachu' || (m.name && m.name.toUpperCase() === 'PIKACHU'))
-        : null) || MONSTER_SPECIES[0];
-
-      state.dex = [createMonsterInstance(pikachuSpecies)];
-      state.activeDexIndex = 0;
+      const pikachuSpecies = findSpeciesObject('pikachu') || MONSTER_SPECIES[0];
+      window.state.dex = [createMonsterInstance(pikachuSpecies)];
+      window.state.activeDexIndex = 0;
       if (pikachuSpecies && pikachuSpecies.id) {
-        state.studio.selectedMonsterId = pikachuSpecies.id;
+        window.state.studio.selectedMonsterId = pikachuSpecies.id;
       }
 
       window.teleportPlayerToGrid(13, 10);
+      loadSavedGameProgress();
+
       initSpriteStudio();
       initQuestionEditor();
       syncAllUI();
@@ -1064,6 +1429,8 @@
       };
 
       bindClick('startGameBtn', enterOverworldFromTitle);
+      bindClick('saveGameBtn', saveGameProgress);
+      bindClick('resetGameBtn', resetGameProgress);
       bindClick('overworldDexBtn', openOverworldDexModal);
       bindClick('closeOverworldDexBtn', () => {
         sfx.blip();
@@ -1072,10 +1439,10 @@
       });
 
       bindClick('btnReturnTitle', () => {
-        if (state.busy) return;
+        if (window.state.busy) return;
         sfx.blip();
         runShutterTransition('TITLE SCREEN...', () => {
-          state.screen = 'TITLE';
+          window.state.screen = 'TITLE';
           document.getElementById('overworldView').classList.add('hidden');
           document.getElementById('overworldView').classList.remove('flex');
           document.getElementById('titleScreenView').classList.remove('hidden');
@@ -1088,9 +1455,9 @@
       bindClick('btnBall', startCaptureBallSequence);
       bindClick('btnSwitch', showDexSwitchView);
       bindClick('btnRun', () => {
-        if (state.busy) return;
+        if (window.state.busy) return;
         sfx.blip();
-        returnToOverworldFromBattle(`Got away safely from wild ${state.enemy.name}!`);
+        returnToOverworldFromBattle(`Got away safely from wild ${window.state.enemy.name}!`);
       });
 
       bindClick('backFromMovesBtn', () => { sfx.blip(); showCommandView(); });
@@ -1100,10 +1467,10 @@
         const dir = btn.getAttribute('data-dir');
         const startHold = (e) => {
           e.preventDefault();
-          state.keysHeld[dir] = true;
+          window.state.keysHeld[dir] = true;
           window.initiateOneBlockStep(dir);
         };
-        const endHold = () => { state.keysHeld[dir] = false; };
+        const endHold = () => { window.state.keysHeld[dir] = false; };
         btn.addEventListener('mousedown', startHold);
         btn.addEventListener('touchstart', startHold, { passive: false });
         window.addEventListener('mouseup', endHold);
@@ -1112,19 +1479,19 @@
 
       window.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
-        if (state.screen === 'TITLE' && (e.code === 'Enter' || e.code === 'Space')) {
+        if (window.state.screen === 'TITLE' && (e.code === 'Enter' || e.code === 'Space')) {
           e.preventDefault();
           enterOverworldFromTitle();
           return;
         }
-        if (state.screen === 'OVERWORLD') {
+        if (window.state.screen === 'OVERWORLD') {
           if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
-          state.keysHeld[e.code] = true;
+          window.state.keysHeld[e.code] = true;
           if (e.code === 'Space' || e.code === 'Enter') window.interactWithFacingNPC();
         }
       });
 
-      window.addEventListener('keyup', (e) => { state.keysHeld[e.code] = false; });
+      window.addEventListener('keyup', (e) => { window.state.keysHeld[e.code] = false; });
 
       bindClick('bgmToggleBtn', (e) => {
         sfx.bgmMuted = !sfx.bgmMuted;
@@ -1132,7 +1499,7 @@
         e.currentTarget.classList.toggle('bg-emerald-700', !sfx.bgmMuted);
         e.currentTarget.classList.toggle('bg-slate-700', sfx.bgmMuted);
         if (sfx.bgmMuted) sfx.stopBGM();
-        else sfx.startBGM(state.screen === 'BATTLE' ? 'BATTLE' : (state.screen === 'OVERWORLD' ? 'OVERWORLD' : 'TITLE'));
+        else sfx.startBGM(window.state.screen === 'BATTLE' ? 'BATTLE' : (window.state.screen === 'OVERWORLD' ? 'OVERWORLD' : 'TITLE'));
       });
 
       bindClick('muteToggleBtn', (e) => {
@@ -1143,7 +1510,7 @@
         if (!sfx.sfxMuted) sfx.blip();
       });
 
-      requestAnimationFrame(overworldRenderLoop);
+      requestAnimationFrame(window.overworldRenderLoop);
     }
 
     window.addEventListener('load', initGame);

@@ -1,0 +1,311 @@
+<!DOCTYPE html><html lang="zh-TW"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Traditional Chinese Quiz (Taiwan)</title>    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+        }
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .game-screen { display: none; }
+        .big-character { font-size: 100px; font-weight: bold; margin: 20px 0; }
+        .phonetic-btn {
+            background-color: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-family: monospace;
+            margin: 10px;
+        }
+        .btn {
+            background-color: var(--accent);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--bg-color);
+        }
+        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .choice-btn {
+            background-color: #334155;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .choice-btn.correct { background-color: var(--correct) !important; }
+        .choice-btn.wrong { background-color: var(--wrong) !important; }
+        #explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid var(--accent);
+            text-align: left;
+        }
+        .next-btn { background-color: #64748b; color: white; margin-top: 20px; width: 100%; display: none; }
+    </style></head><body>
+<div class="container">
+    <div id="start-screen">
+        <h1>Traditional Chinese Quiz</h1>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px;">Sorted from least to most strokes</p>
+        <button class="btn" onclick="playSound('magic'); setTimeout(startGame, 500)">Start Quiz</button>
+    </div>
+    <div id="game-screen" class="game-screen">
+        <div>Score: <span id="score">0</span></div>
+        <div class="big-character" id="char">字</div>
+        <button class="phonetic-btn" id="audio-btn" onclick="playSound('click'); playCurrentAudio()">pīnyīn</button>
+        <div class="choices-grid" id="choices"></div>
+        <div id="explanation"></div>
+        <button class="btn next-btn" id="next-btn" onclick="playSound('click'); nextQ()">Next Question</button>
+    </div>
+</div>
+<script>
+    // Sorted strictly from least strokes to most strokes using Traditional Chinese characters (English meanings)
+    const charDB = [
+        // 1 Stroke
+        ["一", "yī", "one", "The numerical digit one."],
+
+        // 2 Strokes
+        ["人", "rén", "person", "A human being."],
+        ["入", "rù", "enter", "To go or come into something."],
+        ["八", "bā", "eight", "The numerical digit eight."],
+        ["十", "shí", "ten", "The numerical digit ten."],
+        ["了", "le", "completed action marker", "Particle indicating completed action."],
+        ["几", "jǐ", "how many / several", "Used to ask about quantity or small number."],
+        ["刀", "dāo", "knife", "A cutting tool or weapon."],
+        ["力", "lì", "strength / power", "Physical or mental power."],
+        ["又", "yòu", "again / also", "Indicates repetition or addition."],
+
+        // 3 Strokes
+        ["三", "sān", "three", "The numerical digit three."],
+        ["上", "shàng", "above / up", "Indicates a high position or going up."],
+        ["下", "xià", "below / down", "Indicates a low position or going down."],
+        ["大", "dà", "big", "Large in size, scale, or extent."],
+        ["小", "xiǎo", "small", "Little in size, scale, or age."],
+        ["山", "shān", "mountain", "A large natural elevation of the earth's surface."],
+        ["口", "kǒu", "mouth", "The mouth opening or an entrance."],
+        ["子", "zǐ", "child / son", "A descendant, offspring, or child."],
+        ["女", "nǚ", "female / woman", "Feminine gender or woman."],
+        ["馬", "mǎ", "horse", "A large hoofed mammal."],
+        ["門", "mén", "door / gate", "A hinged or sliding barrier for entry."],
+        ["飛", "fēi", "fly", "To move through the air using wings."],
+
+        // 4 Strokes
+        ["天", "tiān", "sky / heaven", "The space above the earth; the sky."],
+        ["日", "rì", "sun / day", "The star we orbit or a 24-hour day."],
+        ["月", "yuè", "moon / month", "Earth's satellite or a calendar month."],
+        ["水", "shuǐ", "water", "Clear, colorless liquid essential for life."],
+        ["火", "huǒ", "fire", "Combustion producing heat and light."],
+        ["木", "mù", "tree / wood", "A living tree or woody plant material."],
+        ["中", "zhōng", "middle / center", "The center or midway point."],
+        ["不", "bù", "not", "General negation adverb."],
+        ["文", "wén", "language / culture", "Writing, language, or culture."],
+        ["長", "cháng", "long", "Measuring a great distance from end to end."],
+        ["見", "jiàn", "see / meet", "To perceive with eyes or meet someone."],
+        ["開", "kāi", "open", "To open something closed."],
+        ["手", "shǒu", "hand", "The end part of a person's arm."],
+        ["友", "yǒu", "friend", "A companion linked by mutual affection."],
+        ["書", "shū", "book", "Bound pages containing text or illustrations."],
+        ["少", "shǎo", "few / little", "Small in amount, quantity, or degree."],
+        ["氣", "qì", "air / gas / spirit", "Invisible gaseous substance or breath/mood."],
+
+        // 5 Strokes
+        ["白", "bái", "white", "The color of milk or clean snow."],
+        ["本", "běn", "root / book origin", "The source, origin, or a bound volume."],
+        ["平", "píng", "flat / smooth", "Level, smooth, or without rough areas."],
+        ["東", "dōng", "east", "The direction toward the sunrise."],
+        ["車", "chē", "car / vehicle", "A wheeled transport vehicle."],
+        ["生", "shēng", "born / life / student", "To be born, give birth, or student life."],
+        ["用", "yòng", "use", "To employ for a specific purpose or function."],
+        ["他", "tā", "he / him", "Third-person masculine pronoun."],
+        ["她", "tā", "she / her", "Third-person feminine pronoun."],
+        ["去", "qù", "go", "To move from one place to another."],
+        ["四", "sì", "four", "The numerical digit four."],
+        ["五", "wǔ", "five", "The numerical digit five."],
+        ["半", "bàn", "half", "One of two equal parts of a whole."],
+        ["外", "wài", "outside", "External or outer part."],
+        ["打", "dǎ", "hit / play sports", "To strike, beat, or play a game with hands."],
+        ["出", "chū", "out / exit", "To move or come outward from inside."],
+
+        // 6 Strokes
+        ["地", "dì", "earth / ground", "The solid surface of the earth or soil."],
+        ["好", "hǎo", "good", "Having positive, pleasant, or favorable qualities."],
+        ["多", "duō", "many / much", "A large quantity or number."],
+        ["字", "zì", "character / word", "A written Chinese character or word."],
+        ["年", "nián", "year", "A 365-day period."],
+        ["我", "wǒ", "I / me", "First-person pronoun."],
+        ["你", "nǐ", "you", "Second-person pronoun."],
+        ["在", "zài", "at / in / on", "Indicating location or presence."],
+        ["會", "huì", "can / able to", "To have the skill or ability to do something."],
+        ["回", "huí", "return", "To come or go back to a place."],
+        ["吃", "chī", "eat", "To consume food."],
+        ["聽", "tīng", "listen", "To pay attention to sounds."],
+        ["買", "mǎi", "buy", "To purchase goods with money."],
+        ["同", "tóng", "same / together", "Identical, sharing, or alike."],
+        ["名", "míng", "name", "A title or word used to identify someone."],
+        ["向", "xiàng", "toward / direction", "Facing or moving in the direction of."],
+        ["早", "zǎo", "early / morning", "Happening before expected or early morning."],
+        ["老", "lǎo", "old", "Advanced in age or experience."],
+
+        // 7 Strokes
+        ["來", "lái", "come", "To arrive or move toward the speaker."],
+        ["時", "shí", "time / hour", "A specific point in time or duration."],
+        ["說", "shuō", "speak / say", "To express thoughts in words."],
+        ["學", "xué", "study / learn", "To acquire knowledge or skills."],
+        ["國", "guó", "country / nation", "A sovereign nation or state."],
+        ["到", "dào", "arrive / reach", "To reach a destination."],
+        ["那", "nà", "that", "Demonstrative pronoun pointing to distant items."],
+        ["走", "zǒu", "walk / go", "To move on foot."],
+        ["遠", "yuǎn", "far", "At a great distance away."],
+        ["近", "jìn", "near", "At a short distance away."],
+        ["雞", "jī", "chicken", "A common domesticated farm bird."],
+        ["兩", "liǎng", "two / both", "A pair or numerical amount of two."],
+        ["朋", "péng", "friend", "Companion or associate."],
+        ["體", "tǐ", "body", "The physical structure of a person."],
+        ["作", "zuò", "do / work", "To perform a task or create something."],
+        ["快", "kuài", "fast / happy", "Moving quickly or feeling joyful."],
+
+        // 8 Strokes & Up
+        ["明", "míng", "bright / clear", "Filled with light or easy to understand."],
+        ["爸", "bà", "dad / father", "Paternal parent."],
+        ["媽", "mā", "mum / mother", "Maternal parent."],
+        ["很", "hěn", "very", "Adverb of high degree."],
+        ["朋友", "péngyou", "friend", "A person attached by feelings of affection."],
+        ["老師", "lǎoshī", "teacher", "An instructor or educator."],
+        ["學生", "xuéshēng", "student", "A learner at a school."],
+        ["臺灣", "táiwān", "Taiwan", "The beautiful island of Taiwan."],
+        ["謝謝", "xièxie", "thank you", "Expression of gratitude."],
+        ["再見", "zàijiàn", "goodbye", "Standard farewell expression."]
+    ];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0, answered = false, currentQ = null;
+    let currentIdx = 0;
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+
+        if (type === 'magic') {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+        } else if (type === 'correct') {
+            osc.frequency.value = 800; osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            osc.frequency.value = 200; osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'click') {
+            osc.frequency.value = 600; osc.type = 'square';
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+    }
+
+    function startGame() {
+        currentIdx = 0;
+        score = 0;
+        document.getElementById('score').innerText = score;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        nextQ();
+    }
+
+    function nextQ() {
+        if (currentIdx >= charDB.length) {
+            alert("Quiz Complete! Your final score is " + score + "/" + charDB.length);
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+            return;
+        }
+
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+
+        currentQ = charDB[currentIdx];
+
+        document.getElementById('char').innerText = currentQ[0];
+        document.getElementById('audio-btn').innerText = currentQ[1];
+
+        let options = [currentQ[2]];
+        while(options.length < 4) {
+            let op = charDB[Math.floor(Math.random() * charDB.length)][2];
+            if(!options.includes(op)) options.push(op);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        const grid = document.getElementById('choices');
+        grid.innerHTML = '';
+        options.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = o;
+            btn.onclick = () => { playSound('click'); check(o, btn); };
+            grid.appendChild(btn);
+        });
+
+        currentIdx++;
+        setTimeout(playCurrentAudio, 300);
+    }
+
+    function check(val, btn) {
+        if(answered) return;
+        answered = true;
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(b => {
+            if(b.innerText === currentQ[2]) b.classList.add('correct');
+            else if(b === btn) b.classList.add('wrong');
+            b.disabled = true;
+        });
+        document.getElementById('explanation').innerHTML = "<strong>Explanation:</strong> " + currentQ[3];
+        document.getElementById('explanation').style.display = 'block';
+        if(val === currentQ[2]) { score++; playSound('correct'); } else { playSound('wrong'); }
+        document.getElementById('score').innerText = score;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function playCurrentAudio() {
+        const u = new SpeechSynthesisUtterance(currentQ[0]);
+        u.lang = 'zh-TW';
+        window.speechSynthesis.speak(u);
+    }
+</script></body></html>

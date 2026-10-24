@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOMAD RUN // FAMILY INTERFACE</title>
+    <style>
+        :root { --neon-blue: #00f3ff; --neon-pink: #ff00ff; --dark-bg: #0a0a0c; }
+        body { font-family: 'Courier New', monospace; background: var(--dark-bg); color: var(--neon-blue); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        #quiz-card { background: #111; border: 2px solid var(--neon-blue); padding: 25px; box-shadow: 0 0 20px rgba(0,243,255,0.2); width: 90%; max-width: 400px; text-align: center; }
+        #score-board { margin-bottom: 15px; font-weight: bold; color: var(--neon-pink); }
+        h2 { border-bottom: 1px solid var(--neon-pink); padding-bottom: 10px; text-transform: uppercase; font-size: 1.1rem; min-height: 3em; display: flex; align-items: center; justify-content: center; }
+        .option-btn { display: block; width: 100%; margin: 10px 0; padding: 12px; background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); cursor: pointer; text-transform: uppercase; }
+        .option-btn:hover { background: var(--neon-blue); color: black; }
+        #feedback { margin-top: 20px; padding: 10px; border: 1px solid var(--neon-pink); display: none; }
+        .correct { color: #00ff00; }
+        .incorrect { color: #ff0044; }
+        #next-btn { background: var(--neon-pink); color: white; border: none; padding: 10px; width: 100%; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-card">
+    <div id="score-board">DATA INTEGRITY: 0</div>
+    <h2 id="question-text">INITIALIZING...</h2>
+    <div id="options-area"></div>
+    <div id="feedback">
+        <p id="feedback-text"></p>
+        <button id="next-btn" onclick="nextQuestion()">NEXT SYNC</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const data = [
+        {w: "Father", q: "Who is the male parent?", e: "A male who has one or more children."},
+        {w: "Mother", q: "Who is the female parent?", e: "A female who has one or more children."},
+        {w: "Parents", q: "What do you call a mother and father together?", e: "The mother and father of an individual."},
+        {w: "Son", q: "What is a male child called?", e: "A male descendant."},
+        {w: "Daughter", q: "What is a female child called?", e: "A female descendant."},
+        {w: "Child", q: "What is a young human offspring called?", e: "A human being between birth and puberty."},
+        {w: "Children", q: "What is the plural of child?", e: "More than one young human descendant."},
+        {w: "Offspring", q: "What is the biological term for children?", e: "The immediate descendants of a person."},
+        {w: "Brother", q: "What is a male sibling called?", e: "A male who shares the same parents as another."},
+        {w: "Sister", q: "What is a female sibling called?", e: "A female who shares the same parents as another."},
+        {w: "Sibling", q: "Term for a brother or sister?", e: "Any person sharing at least one parent."},
+        {w: "Siblings", q: "Plural of sibling?", e: "Brothers and sisters collectively."},
+        {w: "Twins", q: "Two children born together?", e: "Two offspring from the same pregnancy."},
+        {w: "Twin brothers", q: "Two boys born together?", e: "Two male offspring, same pregnancy."},
+        {w: "Twin brother", q: "One male of a twin pair?", e: "One of a pair of male twins."},
+        {w: "Twin sisters", q: "Two girls born together?", e: "Two female offspring, same pregnancy."},
+        {w: "Twin sister", q: "One female of a twin pair?", e: "One of a pair of female twins."},
+        {w: "Younger brother", q: "Brother born after you?", e: "A brother junior in age."},
+        {w: "Older/Elder brother", q: "Brother born before you?", e: "A brother senior in age."},
+        {w: "Younger sister", q: "Sister born after you?", e: "A sister junior in age."},
+        {w: "Older/Elder sister", q: "Sister born before you?", e: "A sister senior in age."},
+        {w: "Grandfather", q: "Parent's father?", e: "The father of your father or mother."},
+        {w: "Grandmother", q: "Parent's mother?", e: "The mother of your father or mother."},
+        {w: "Grandparents", q: "Parents of your parents?", e: "Collective term for grandfathers and grandmothers."},
+        {w: "Grandson", q: "Child's son?", e: "The male child of your son or daughter."},
+        {w: "Granddaughter", q: "Child's daughter?", e: "The female child of your son or daughter."},
+        {w: "Grandchild", q: "Child of your child?", e: "A descendant of your son or daughter."},
+        {w: "Grandchildren", q: "Plural of grandchild?", e: "Collective descendants of your children."},
+        {w: "Great-grandfather", q: "Grandparent's father?", e: "Father of your grandfather or grandmother."},
+        {w: "Great-grandmother", q: "Grandparent's mother?", e: "Mother of your grandfather or grandmother."},
+        {w: "Great-grandchild", q: "Child of your grandchild?", e: "A descendant two generations removed."},
+        {w: "Adopted son", q: "Legally taken son?", e: "A son raised by parents but not born to them."},
+        {w: "Adopted daughter", q: "Legally taken daughter?", e: "A daughter raised by parents but not born to them."},
+        {w: "Adopted child", q: "Legally taken child?", e: "Any child legally made a family member."},
+        {w: "Half-brother", q: "Shared one parent?", e: "Male sibling sharing only one parent."},
+        {w: "Half-sister", q: "Shared one parent?", e: "Female sibling sharing only one parent."},
+        {w: "Stepfather", q: "Parent's new husband?", e: "Husband of your mother, not your father."},
+        {w: "Stepmother", q: "Parent's new wife?", e: "Wife of your father, not your mother."},
+        {w: "Stepbrother", q: "Stepparent's son?", e: "Son of your stepparent from prior relationship."},
+        {w: "Stepsister", q: "Stepparent's daughter?", e: "Daughter of your stepparent from prior relationship."},
+        {w: "Stepchild", q: "Partner's child?", e: "Child of one's spouse from prior relationship."},
+        {w: "Uncle", q: "Parent's brother?", e: "Brother of your mother or father."},
+        {w: "Aunt/Auntie", q: "Parent's sister?", e: "Sister of your mother or father."},
+        {w: "Nephew", q: "Sibling's son?", e: "Son of your brother or sister."},
+        {w: "Niece", q: "Sibling's daughter?", e: "Daughter of your brother or sister."},
+        {w: "Cousin", q: "Child of aunt/uncle?", e: "Child of your aunt or uncle."},
+        {w: "First cousin", q: "Child of parent's sibling?", e: "Child of your aunt or uncle."},
+        {w: "Second cousin", q: "Child of parent's cousin?", e: "Child of a parent's first cousin."},
+        {w: "Close relatives", q: "Most immediate family?", e: "Immediate family like parents and siblings."},
+        {w: "Distant relatives", q: "Extended family members?", e: "Family not immediate or closely related."},
+        {w: "Kin", q: "General family term?", e: "One's family and relations."},
+        {w: "Father-in-law", q: "Spouse's father?", e: "Father of your husband or wife."},
+        {w: "Mother-in-law", q: "Spouse's mother?", e: "Mother of your husband or wife."},
+        {w: "Son-in-law", q: "Daughter's husband?", e: "Husband of your daughter."},
+        {w: "Daughter-in-law", q: "Son's wife?", e: "Wife of your son."},
+        {w: "Brother-in-law", q: "Spouse's brother?", e: "Brother of spouse or husband of sibling."},
+        {w: "Sister-in-law", q: "Spouse's sister?", e: "Sister of spouse or wife of sibling."},
+        {w: "Wife", q: "Married female partner?", e: "Married woman relative to spouse."},
+        {w: "Concubine", q: "Historical secondary partner?", e: "Secondary status female partner."},
+        {w: "Husband", q: "Married male partner?", e: "Married man relative to spouse."},
+        {w: "Next of kin", q: "Closest living relative?", e: "Person most closely related by law."},
+        {w: "Piblings", q: "Aunts and uncles?", e: "Gender-neutral term for parent's siblings."},
+        {w: "Niblings", q: "Nieces and nephews?", e: "Gender-neutral term for sibling's children."}
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function update() {
+        const item = data[current];
+        document.getElementById("question-text").innerText = item.q;
+        const area = document.getElementById("options-area");
+        area.innerHTML = "";
+        document.getElementById("feedback").style.display = "none";
+
+        let options = [item.w];
+        while(options.length < 3) {
+            let rand = data[Math.floor(Math.random() * data.length)].w;
+            if(!options.includes(rand)) options.push(rand);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt;
+            btn.onclick = () => check(opt);
+            area.appendChild(btn);
+        });
+    }
+
+    function check(choice) {
+        const feedback = document.getElementById("feedback");
+        const text = document.getElementById("feedback-text");
+        feedback.style.display = "block";
+        if(choice === data[current].w) {
+            score += 10;
+            playTone(880, 'square', 0.2);
+            text.className = "correct";
+            text.innerText = "ACCESS GRANTED: " + data[current].e;
+        } else {
+            playTone(110, 'sawtooth', 0.5);
+            text.className = "incorrect";
+            text.innerText = "ACCESS DENIED: " + data[current].w + ". " + data[current].e;
+        }
+        document.getElementById("score-board").innerText = "DATA INTEGRITY: " + score;
+    }
+
+    function nextQuestion() {
+        current = (current + 1) % data.length;
+        update();
+    }
+
+    update();
+</script>
+</body>
+</html>

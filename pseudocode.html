@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pseudocode Loop Quiz</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+padding:20px;
+text-align:center;
+}
+
+#card{
+background:white;
+padding:20px;
+border-radius:12px;
+max-width:500px;
+margin:auto;
+box-shadow:0 3px 10px rgba(0,0,0,0.15);
+}
+
+button{
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:#4CAF50;
+color:white;
+font-size:16px;
+width:100%;
+}
+
+input{
+padding:10px;
+width:100%;
+font-size:16px;
+margin-top:10px;
+}
+
+.correct{color:green;font-weight:bold;}
+.wrong{color:red;font-weight:bold;}
+
+#progress{
+margin-bottom:10px;
+color:#555;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="card">
+
+<div id="progress"></div>
+
+<div id="question"></div>
+
+<input id="answer" placeholder="Type your answer">
+
+<button onclick="checkAnswer()">Check</button>
+
+<p id="result"></p>
+
+<button id="nextBtn" onclick="nextQuestion()" style="display:none">Next Question</button>
+
+</div>
+
+<script>
+
+const questions = [
+
+{q:"What will this output?<br><br>FOR X ← 1 TO 3<br>OUTPUT X<br>NEXT X",a:"123"},
+{q:"What will this output?<br><br>FOR X ← 2 TO 4<br>OUTPUT X<br>NEXT X",a:"234"},
+{q:"What will this output?<br><br>FOR X ← 1 TO 5<br>OUTPUT 1<br>NEXT X",a:"11111"},
+{q:"How many times does this loop run?<br><br>FOR X ← 1 TO 10",a:"10"},
+{q:"What will this output?<br><br>X ← 1<br>WHILE X ≤ 3<br>OUTPUT X<br>X ← X + 1<br>ENDWHILE",a:"123"},
+{q:"What will this output?<br><br>X ← 3<br>WHILE X > 0<br>OUTPUT X<br>X ← X - 1<br>ENDWHILE",a:"321"},
+{q:"How many times does this run?<br><br>FOR I ← 1 TO 4",a:"4"},
+{q:"What will this output?<br><br>FOR A ← 1 TO 3<br>OUTPUT 'Hi'<br>NEXT A",a:"HiHiHi"},
+{q:"What will this output?<br><br>X ← 0<br>REPEAT<br>OUTPUT X<br>X ← X + 1<br>UNTIL X = 3",a:"012"},
+{q:"How many outputs?<br><br>FOR C ← 5 TO 7",a:"3"},
+{q:"What will this output?<br><br>FOR X ← 1 TO 4<br>OUTPUT X * 2<br>NEXT X",a:"2468"},
+{q:"What will this output?<br><br>X ← 1<br>WHILE X ≤ 2<br>OUTPUT 'A'<br>X ← X + 1<br>ENDWHILE",a:"AA"},
+{q:"What will this output?<br><br>FOR I ← 1 TO 3<br>OUTPUT I + 1<br>NEXT I",a:"234"},
+{q:"What will this output?<br><br>FOR X ← 1 TO 3<br>OUTPUT X<br>OUTPUT X<br>NEXT X",a:"112233"},
+{q:"How many times does the loop run?<br><br>FOR N ← 2 TO 6",a:"5"},
+{q:"What will this output?<br><br>X ← 2<br>WHILE X ≤ 4<br>OUTPUT X<br>X ← X + 1<br>ENDWHILE",a:"234"},
+{q:"What will this output?<br><br>FOR A ← 1 TO 3<br>OUTPUT A * A<br>NEXT A",a:"149"},
+{q:"What will this output?<br><br>X ← 1<br>REPEAT<br>OUTPUT 'B'<br>X ← X + 1<br>UNTIL X = 4",a:"BBB"},
+{q:"What will this output?<br><br>FOR X ← 3 TO 5<br>OUTPUT X<br>NEXT X",a:"345"},
+{q:"What will this output?<br><br>FOR X ← 1 TO 3<br>OUTPUT 5<br>NEXT X",a:"555"}
+
+];
+
+let current = 0;
+let score = 0;
+
+function loadQuestion(){
+
+document.getElementById("progress").innerHTML =
+"Question "+(current+1)+" / "+questions.length;
+
+document.getElementById("question").innerHTML =
+questions[current].q;
+
+document.getElementById("answer").value="";
+document.getElementById("result").innerHTML="";
+document.getElementById("nextBtn").style.display="none";
+
+}
+
+function checkAnswer(){
+
+let user =
+document.getElementById("answer").value.replace(/\s/g,'');
+
+let correct =
+questions[current].a.replace(/\s/g,'');
+
+let result=document.getElementById("result");
+
+if(user===correct){
+
+result.innerHTML="✓ Correct";
+result.className="correct";
+score++;
+
+}else{
+
+result.innerHTML="✗ Correct answer: "+questions[current].a;
+result.className="wrong";
+
+}
+
+document.getElementById("nextBtn").style.display="block";
+
+}
+
+function nextQuestion(){
+
+current++;
+
+if(current<questions.length){
+
+loadQuestion();
+
+}else{
+
+document.getElementById("card").innerHTML=
+"<h2>Quiz Finished</h2>"+
+"<p>Your score: "+score+" / "+questions.length+"</p>";
+
+}
+
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>

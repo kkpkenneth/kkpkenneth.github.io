@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile-Friendly Geometry Explorer with TTS</title>
+<style>
+    :root {
+        --bg-color: #0f172a;
+        --panel-bg: #1e293b;
+        --text-color: #f8fafc;
+        --accent-color: #38bdf8;
+        --vertex-color: #facc15;
+        --centroid-color: #10b981;
+        --circumcenter-color: #a855f7;
+        --orthocenter-color: #f43f5e;
+        --incenter-color: #f97316;
+        --euler-color: #ffffff;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        max-width: 1150px;
+        width: 100%;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    canvas {
+        background-color: #0b1120;
+        border: 2px solid #334155;
+        border-radius: 12px;
+        cursor: grab;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        max-width: 100%; /* Ensures canvas scales down on phones */
+        height: auto;
+        touch-action: none; /* Prevents page scrolling when dragging on mobile */
+    }
+    
+    canvas:active {
+        cursor: grabbing;
+    }
+
+    .side-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        flex: 1;
+        min-width: 280px;
+        width: 100%;
+    }
+
+    .panel-box {
+        background-color: var(--panel-bg);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #334155;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        margin: 0;
+        color: var(--accent-color);
+        font-size: 1.3rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 1rem;
+    }
+
+    .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-right: 15px;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    /* Toggle Switches */
+    .toggle-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1rem;
+        user-select: none;
+    }
+
+    .toggle-label input {
+        margin-right: 12px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--accent-color);
+    }
+
+    /* Preset Buttons */
+    .preset-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .action-btn {
+        background-color: #334155;
+        color: var(--text-color);
+        border: 2px solid transparent;
+        padding: 12px 10px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        touch-action: manipulation;
+    }
+
+    .action-btn:hover { background-color: #475569; }
+    .action-btn.active { background-color: #0f172a; border-color: var(--accent-color); }
+    
+    .tts-btn {
+        background-color: var(--accent-color);
+        color: #0f172a;
+        font-weight: bold;
+        width: 100%;
+        margin-top: 10px;
+    }
+    .tts-btn:hover { background-color: #0ea5e9; }
+
+    /* Mobile adjustments */
+    @media (max-width: 600px) {
+        .preset-group { grid-template-columns: 1fr; }
+        canvas { border-radius: 8px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Fixed internal resolution, responsive display size -->
+    <canvas id="geometryCanvas" width="600" height="500"></canvas>
+    
+    <div class="side-panel">
+        
+        <!-- AUDIO / EXPLANATION -->
+        <div class="panel-box">
+            <div class="panel-header">
+                <h2>Audio Guide</h2>
+            </div>
+            <p style="font-size: 0.9rem; color: #cbd5e1; margin-top: 0;">
+                Euler's Line is a geometric phenomenon where the Orthocenter, Centroid, and Circumcenter always perfectly align on a single straight line.
+            </p>
+            <button class="action-btn tts-btn" onclick="speakExplanation()">🔊 Read Explanation</button>
+        </div>
+
+        <!-- SHAPE PRESETS -->
+        <div class="panel-box">
+            <div class="panel-header">
+                <h2>Shape Presets</h2>
+            </div>
+            <div class="preset-group">
+                <button class="action-btn preset-btn active" id="btn-freeform" onclick="setPreset('freeform')">Freeform</button>
+                <button class="action-btn preset-btn" id="btn-isosceles" onclick="setPreset('isosceles')">Isosceles</button>
+                <button class="action-btn preset-btn" id="btn-equilateral" onclick="setPreset('equilateral')">Equilateral</button>
+                <button class="action-btn preset-btn" id="btn-right" onclick="setPreset('right')">Right-Angled</button>
+            </div>
+        </div>
+
+        <!-- CONSTRUCTION LINES -->
+        <div class="panel-box">
+            <div class="panel-header">
+                <h2>Construction Lines</h2>
+            </div>
+            <div class="toggle-group" id="toggles-container">
+                <label class="toggle-label" style="color: var(--euler-color);">
+                    <input type="checkbox" id="toggle-euler" checked> Show Euler Line
+                </label>
+                <label class="toggle-label" style="color: var(--centroid-color);">
+                    <input type="checkbox" id="toggle-medians"> Show Medians
+                </label>
+                <label class="toggle-label" style="color: var(--circumcenter-color);">
+                    <input type="checkbox" id="toggle-perpendicular"> Show Perpendicular Bisectors
+                </label>
+                <label class="toggle-label" style="color: var(--orthocenter-color);">
+                    <input type="checkbox" id="toggle-altitudes"> Show Altitudes
+                </label>
+                <label class="toggle-label" style="color: var(--incenter-color);">
+                    <input type="checkbox" id="toggle-angle-bisectors"> Show Angle Bisectors
+                </label>
+            </div>
+        </div>
+
+        <!-- POINTS KEY -->
+        <div class="panel-box">
+            <div class="panel-header">
+                <h2>Points Key</h2>
+            </div>
+            <div class="legend-item">
+                <span class="dot" style="background-color: var(--vertex-color);"></span>
+                <span>Vertices (Drag Me!)</span>
+            </div>
+            <div class="legend-item">
+                <span class="dot" style="background-color: var(--centroid-color);"></span>
+                <span><strong>G:</strong> Centroid</span>
+            </div>
+            <div class="legend-item" id="key-circumcenter">
+                <span class="dot" style="background-color: var(--circumcenter-color);"></span>
+                <span><strong>O:</strong> Circumcenter</span>
+            </div>
+            <div class="legend-item" id="key-orthocenter">
+                <span class="dot" style="background-color: var(--orthocenter-color);"></span>
+                <span><strong>H:</strong> Orthocenter</span>
+            </div>
+            <div class="legend-item" id="key-incenter">
+                <span class="dot" style="background-color: var(--incenter-color);"></span>
+                <span><strong>I:</strong> Incenter</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // --- Text To Speech (Indian English) ---
+    let voices = [];
+    function loadVoices() {
+        voices = window.speechSynthesis.getVoices();
+    }
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+        loadVoices(); // Initial call
+    }
+
+    function speakText(text) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel(); // Stop current speech to prioritize new
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Attempt to find an Indian voice (en-IN or hi-IN)
+        const indianVoice = voices.find(v => v.lang === 'en-IN' || v.lang === 'hi-IN' || v.name.includes('India'));
+        if (indianVoice) {
+            utterance.voice = indianVoice;
+        }
+        
+        // Slightly slow down for clearer articulation
+        utterance.rate = 0.95; 
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function speakExplanation() {
+        const expl = "Welcome to the geometry explorer. The Euler Line is a special line where the Orthocenter, Centroid, and Circumcenter always perfectly align. Drag the yellow points to see it in action!";
+        speakText(expl);
+    }
+
+    // --- Canvas & Application Setup ---
+    const canvas = document.getElementById('geometryCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Toggles State
+    const toggles = {
+        euler: true,
+        medians: false,
+        perpendicular: false,
+        altitudes: false,
+        angleBisectors: false
+    };
+
+    // Bind checkboxes to state & TTS
+    function bindToggle(id, property, speakMsg) {
+        document.getElementById(id).addEventListener('change', (e) => { 
+            toggles[property] = e.target.checked; 
+            speakText(e.target.checked ? speakMsg + " On" : speakMsg + " Off");
+            render(); 
+        });
+    }
+
+    bindToggle('toggle-euler', 'euler', 'Euler Line');
+    bindToggle('toggle-medians', 'medians', 'Medians');
+    bindToggle('toggle-perpendicular', 'perpendicular', 'Perpendicular Bisectors');
+    bindToggle('toggle-altitudes', 'altitudes', 'Altitudes');
+    bindToggle('toggle-angle-bisectors', 'angleBisectors', 'Angle Bisectors');
+
+    // Vertices Array
+    let vertices = [];
+    let draggingVertex = null;
+    const vertexRadius = 15; // Made slightly larger for easier touch targeting
+
+    // Set Shape Presets
+    function setPreset(type) {
+        document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${type}`).classList.add('active');
+
+        // Spacing adjusted for 600x500 canvas
+        if (type === 'freeform') {
+            vertices = [ { x: 100, y: 380 }, { x: 500, y: 380 }, { x: 250, y: 100 } ];
+            speakText("Freeform Triangle selected.");
+        } else if (type === 'isosceles') {
+            vertices = [ { x: 100, y: 400 }, { x: 500, y: 400 }, { x: 300, y: 150 } ];
+            speakText("Isosceles Triangle selected. Two sides are equal.");
+        } else if (type === 'equilateral') {
+            vertices = [ { x: 150, y: 400 }, { x: 450, y: 400 }, { x: 300, y: 400 - 259.8 } ];
+            speakText("Equilateral Triangle selected. All centers overlap perfectly.");
+        } else if (type === 'right') {
+            vertices = [ { x: 150, y: 400 }, { x: 450, y: 400 }, { x: 150, y: 150 } ];
+            speakText("Right Angled Triangle selected. Watch the orthocenter snap to the corner.");
+        }
+
+        render();
+    }
+
+    // --- Math Calculations ---
+    function getDistance(p1, p2) { return Math.hypot(p1.x - p2.x, p1.y - p2.y); }
+    function getMidpoint(p1, p2) { return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }; }
+
+    function projectPointOnLine(P, A, B) {
+        const dx = B.x - A.x;
+        const dy = B.y - A.y;
+        const t = ((P.x - A.x) * dx + (P.y - A.y) * dy) / (dx * dx + dy * dy);
+        return { x: A.x + t * dx, y: A.y + t * dy };
+    }
+
+    function getPolygonCentroid(verts) {
+        let xSum = 0; let ySum = 0;
+        for (let i = 0; i < verts.length; i++) { xSum += verts[i].x; ySum += verts[i].y; }
+        return { x: xSum / verts.length, y: ySum / verts.length };
+    }
+
+    function getCircumcenter(A, B, C) {
+        const D = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+        if (Math.abs(D) < 0.0001) return null; 
+        const Ux = ((A.x**2 + A.y**2) * (B.y - C.y) + (B.x**2 + B.y**2) * (C.y - A.y) + (C.x**2 + C.y**2) * (A.y - B.y)) / D;
+        const Uy = ((A.x**2 + A.y**2) * (C.x - B.x) + (B.x**2 + B.y**2) * (A.x - C.x) + (C.x**2 + C.y**2) * (B.x - A.x)) / D;
+        return { x: Ux, y: Uy };
+    }
+
+    function getOrthocenter(G, O) {
+        if (!O) return null;
+        return { x: 3 * G.x - 2 * O.x, y: 3 * G.y - 2 * O.y };
+    }
+
+    function getIncenter(A, B, C) {
+        const a = getDistance(B, C);
+        const b = getDistance(A, C);
+        const c = getDistance(A, B);
+        const perimeter = a + b + c;
+        return {
+            x: (a * A.x + b * B.x + c * C.x) / perimeter,
+            y: (a * A.y + b * B.y + c * C.y) / perimeter
+        };
+    }
+
+    function getAngleBisectorFoot(A, B, C) {
+        const c = getDistance(A, B);
+        const b = getDistance(A, C);
+        return { x: (b * B.x + c * C.x) / (b + c), y: (b * B.y + c * C.y) / (b + c) };
+    }
+
+    // --- Drawing Functions ---
+    function drawLine(p1, p2, color, width = 2, dash = []) {
+        if(!p1 || !p2) return;
+        ctx.beginPath();
+        ctx.setLineDash(dash);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function drawInfiniteLineThroughPointWithNormal(P, A, B, color) {
+        let nx = -(B.y - A.y);
+        let ny = (B.x - A.x);
+        const len = Math.hypot(nx, ny);
+        nx /= len; ny /= len;
+        const p1 = { x: P.x - nx * 2000, y: P.y - ny * 2000 };
+        const p2 = { x: P.x + nx * 2000, y: P.y + ny * 2000 };
+        drawLine(p1, p2, color, 1.5, [4, 4]);
+    }
+
+    function drawInfiniteLine(p1, p2, color) {
+        if (!p1 || !p2) return;
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 8]); 
+
+        if (Math.abs(dx) < 0.0001) {
+            ctx.moveTo(p1.x, -2000);
+            ctx.lineTo(p1.x, 2000);
+        } else {
+            const m = dy / dx;
+            const b = p1.y - m * p1.x;
+            ctx.moveTo(-2000, m * -2000 + b);
+            ctx.lineTo(2000, m * 2000 + b);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function drawPoint(p, color, label, labelOffset = {x: 12, y: 12}) {
+        if (!p) return;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = color;
+        ctx.font = 'bold 16px "Segoe UI"';
+        ctx.fillText(label, p.x + labelOffset.x, p.y + labelOffset.y);
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Triangle
+        ctx.beginPath();
+        ctx.moveTo(vertices[0].x, vertices[0].y);
+        for (let i = 1; i < vertices.length; i++) {
+            ctx.lineTo(vertices[i].x, vertices[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.1)';
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Calculate Centers
+        const [A, B, C] = vertices;
+        const G = getPolygonCentroid(vertices);
+        const O = getCircumcenter(A, B, C);
+        const H = getOrthocenter(G, O);
+        const I = getIncenter(A, B, C);
+
+        const M_BC = getMidpoint(B, C);
+        const M_AC = getMidpoint(A, C);
+        const M_AB = getMidpoint(A, B);
+
+        // --- Construction Lines ---
+        if (toggles.medians) {
+            const color = 'rgba(16, 185, 129, 0.6)';
+            drawLine(A, M_BC, color, 1.5, [4, 4]);
+            drawLine(B, M_AC, color, 1.5, [4, 4]);
+            drawLine(C, M_AB, color, 1.5, [4, 4]);
+        }
+        if (toggles.perpendicular) {
+            const color = 'rgba(168, 85, 247, 0.6)';
+            drawInfiniteLineThroughPointWithNormal(M_BC, B, C, color);
+            drawInfiniteLineThroughPointWithNormal(M_AC, A, C, color);
+            drawInfiniteLineThroughPointWithNormal(M_AB, A, B, color);
+        }
+        if (toggles.altitudes) {
+            const color = 'rgba(244, 63, 94, 0.6)';
+            drawLine(A, projectPointOnLine(A, B, C), color, 1.5, [4, 4]);
+            drawLine(B, projectPointOnLine(B, A, C), color, 1.5, [4, 4]);
+            drawLine(C, projectPointOnLine(C, A, B), color, 1.5, [4, 4]);
+        }
+        if (toggles.angleBisectors) {
+            const color = 'rgba(249, 115, 22, 0.6)';
+            drawLine(A, getAngleBisectorFoot(A, B, C), color, 1.5, [4, 4]);
+            drawLine(B, getAngleBisectorFoot(B, A, C), color, 1.5, [4, 4]);
+            drawLine(C, getAngleBisectorFoot(C, A, B), color, 1.5, [4, 4]);
+        }
+        if (toggles.euler && O && H) {
+            drawInfiniteLine(O, H, 'rgba(255, 255, 255, 0.7)');
+        }
+
+        // --- Draw Center Points ---
+        drawPoint(O, '#a855f7', 'O', {x: 10, y: -10}); 
+        drawPoint(G, '#10b981', 'G', {x: 10, y: 15});  
+        drawPoint(H, '#f43f5e', 'H', {x: -25, y: -10});
+        drawPoint(I, '#f97316', 'I', {x: -20, y: 20});
+
+        // --- Draw Interactive Vertices ---
+        vertices.forEach((v) => {
+            ctx.beginPath();
+            ctx.arc(v.x, v.y, vertexRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#facc15';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        });
+    }
+
+    // --- Phone-Friendly Interaction Logic ---
+
+    // Correctly scale pointer coordinates based on CSS scaling vs internal resolution
+    function getPointerPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+
+        // Handle touch events
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        }
+
+        return { 
+            x: (clientX - rect.left) * scaleX, 
+            y: (clientY - rect.top) * scaleY 
+        };
+    }
+
+    function handleStart(e) {
+        const pos = getPointerPos(e);
+        for (let i = 0; i < vertices.length; i++) {
+            const v = vertices[i];
+            const dist = getDistance(pos, v);
+            // Give a generous hit area for fingers
+            if (dist < vertexRadius * 3) { 
+                draggingVertex = v;
+                document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+                break;
+            }
+        }
+    }
+
+    function handleMove(e) {
+        if (draggingVertex) {
+            e.preventDefault(); // Prevent screen scroll while dragging
+            const pos = getPointerPos(e);
+            draggingVertex.x = pos.x;
+            draggingVertex.y = pos.y;
+            render();
+        }
+    }
+
+    function handleEnd() { draggingVertex = null; }
+
+    // Mouse Events
+    canvas.addEventListener('mousedown', handleStart);
+    canvas.addEventListener('mousemove', handleMove);
+    canvas.addEventListener('mouseup', handleEnd);
+    canvas.addEventListener('mouseleave', handleEnd);
+
+    // Touch Events (passive: false needed to allow preventDefault)
+    canvas.addEventListener('touchstart', handleStart, { passive: false });
+    canvas.addEventListener('touchmove', handleMove, { passive: false });
+    canvas.addEventListener('touchend', handleEnd);
+    canvas.addEventListener('touchcancel', handleEnd);
+
+    // Initialization
+    setPreset('freeform');
+</script>
+</body>
+</html>

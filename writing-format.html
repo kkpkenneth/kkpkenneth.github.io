@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Formats Excerpt Quiz</title>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --primary-hover: #357ABD;
+            --correct: #2ECC71;
+            --incorrect: #E74C3C;
+            --bg-color: #F0F4F8;
+            --card-bg: #FFFFFF;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --excerpt-bg: #FDFEFE;
+            --excerpt-border: #BDC3C7;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .quiz-container {
+            background: var(--card-bg);
+            max-width: 650px;
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .screen.active {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { margin-top: 0; color: var(--primary); font-size: 1.8rem; }
+        p { line-height: 1.6; color: var(--text-light); }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 24px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            margin-top: 20px;
+            font-weight: bold;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn:active { transform: scale(0.97); }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: #FAFAFA;
+            border-bottom: 2px solid #EEEEEE;
+            font-weight: bold;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .question-prompt {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        /* Styling for the Excerpt */
+        .excerpt-box {
+            background-color: var(--excerpt-bg);
+            border: 1px solid var(--excerpt-border);
+            border-left: 5px solid var(--primary);
+            padding: 20px;
+            border-radius: 6px;
+            text-align: left;
+            font-family: 'Georgia', serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #34495E;
+            white-space: pre-line; /* Respects line breaks in the text */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #F8F9FA;
+            border: 2px solid #E9ECEF;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #E2E8F0; 
+            border-color: #CBD5E1;
+        }
+
+        .option-btn.correct {
+            background-color: #E8F8F5;
+            border-color: var(--correct);
+            color: #0A7E5E;
+        }
+
+        .option-btn.incorrect {
+            background-color: #FDEDED;
+            border-color: var(--incorrect);
+            color: #A11E1E;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .explanation-box {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #F8F9FA;
+            display: none;
+            text-align: left;
+            border-left: 5px solid var(--primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .score-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        @media (min-width: 550px) {
+            .options-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+            .screen { padding: 40px 30px; }
+            h1 { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <h1>Document Excerpt Quiz</h1>
+        <p>Read the text snippet and identify which type of document or writing format it belongs to.</p>
+        <p><em>Turn your volume up for sound effects!</em></p>
+        <button class="btn" onclick="startQuiz()">START QUIZ</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="screen" style="padding: 0;">
+        <div class="header-bar">
+            <span id="question-tracker">Q: 1/15</span>
+            <span id="score-tracker">Score: 0</span>
+        </div>
+        <div style="padding: 25px;">
+            <div class="question-prompt">Identify the format of this excerpt:</div>
+            
+            <!-- The Excerpt Box -->
+            <div class="excerpt-box" id="excerpt-text"></div>
+
+            <div class="options-grid" id="options-container">
+                <!-- Options injected by JS -->
+            </div>
+            
+            <div id="explanation-box" class="explanation-box">
+                <strong id="result-title"></strong>
+                <p id="explanation-text"></p>
+            </div>
+
+            <button id="next-btn" class="btn" style="display: none; width: 100%; max-width: 100%;" onclick="nextQuestion()">NEXT QUESTION</button>
+        </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="end-screen" class="screen">
+        <h1>Quiz Complete!</h1>
+        <div class="score-display" id="final-score">0/15</div>
+        <p id="final-message">Great job!</p>
+        <button class="btn" onclick="resetQuiz()">PLAY AGAIN</button>
+    </div>
+
+</div>
+
+<script>
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+
+    function playSound(type) {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+
+    const quizData = [
+        {
+            excerpt: "TO: All Staff\nFROM: Human Resources\nDATE: October 12\nSUBJECT: Updated Remote Work Policy\n\nPlease be advised that starting next month, the mandatory in-office days will shift from Tuesdays to Wednesdays. Ensure your calendars are updated accordingly.",
+            options: ["Memo (Memorandum)", "Press Release", "Letter", "Newsletter"],
+            correct: "Memo (Memorandum)",
+            explanation: "A <b>Memo</b> shares internal updates, policy changes, or announcements within an organization, typically featuring a standard 'To/From/Date/Subject' header."
+        },
+        {
+            excerpt: "FOR IMMEDIATE RELEASE\n\nAcme Corp Announces Revolutionary Solar Battery\n\nSEATTLE, WA – May 14, 2024 – Acme Corp, a leader in renewable energy, today unveiled a new battery system capable of storing solar energy for up to 30 days...",
+            options: ["Article", "Blog Post", "Press Release", "Social Media Copy"],
+            correct: "Press Release",
+            explanation: "A <b>Press Release</b> announces timely, noteworthy news from an organization directly to media outlets, often starting with 'FOR IMMEDIATE RELEASE' and a dateline."
+        },
+        {
+            excerpt: "Stop Wasting Time on Spreadsheets!\nJoin 10,000+ professionals saving 5 hours a week with our automated accounting tool.\n[ Start Your 14-Day Free Trial ]\nNo credit card required. Cancel anytime.",
+            options: ["Blog Post", "Landing Page Copy", "Proposal", "Listicle"],
+            correct: "Landing Page Copy",
+            explanation: "<b>Landing Page Copy</b> focuses entirely on persuading web visitors to take a single action, like buying or subscribing, using clear headlines and Call-To-Action buttons."
+        },
+        {
+            excerpt: "Client: TechFlow Inc.\nChallenge: TechFlow struggled with a 40% user churn rate within the first 30 days of software installation.\nSolution: By implementing our targeted onboarding sequence...\nResults: Churn decreased by 25% in three months.",
+            options: ["Literature Review", "Case Study", "Reports", "Essay"],
+            correct: "Case Study",
+            explanation: "A <b>Case Study</b> investigates a specific subject deeply to reveal real-world principles or outcomes, usually following a Challenge/Solution/Results format."
+        },
+        {
+            excerpt: "Call to order: 9:00 AM by Chairwoman Smith.\nAttendees: J. Doe, A. Lee, M. Chen.\nAgenda Item 1: Q3 Budget Approval. \nMotion to approve by J. Doe, seconded by M. Chen. Motion carried unanimously. Meeting adjourned at 10:15 AM.",
+            options: ["Minutes of a Meeting", "Reports", "Memo (Memorandum)", "Manual / Guide"],
+            correct: "Minutes of a Meeting",
+            explanation: "<b>Minutes of a Meeting</b> records the official, factual happenings, attendees, motions, and decisions of a professional meeting."
+        },
+        {
+            excerpt: "While Smith (2019) argues that microplastics primarily affect surface-level marine life, Jones and Wu (2021) demonstrate a deeper benthic impact. This paper synthesizes these conflicting findings to identify gaps in current oceanographic studies.",
+            options: ["Research Paper", "Literature Review", "Essay", "Case Study"],
+            correct: "Literature Review",
+            explanation: "A <b>Literature Review</b> evaluates and summarizes existing academic research on a specific question, comparing different scholars' findings."
+        },
+        {
+            excerpt: "7 Unbelievable Tricks to Keep Your Houseplants Alive\n\n1. The Ice Cube Method\nInstead of watering your orchids with a watering can, try placing three ice cubes on the soil.\n\n2. The Cinnamon Trick\nSprinkling cinnamon prevents fungal growth...",
+            options: ["Manual / Guide", "Listicle", "Blog Post", "Social Media Copy"],
+            correct: "Listicle",
+            explanation: "A <b>Listicle</b> combines a numbered list with an article format for easy online reading."
+        },
+        {
+            excerpt: "Project Overview: This document outlines the timeline and budget for the redesign of the municipal park.\nEstimated Cost: $145,000.\nDeliverables: We will provide new playground equipment, updated landscaping, and paving by August 30th. Please sign below to approve.",
+            options: ["Reports", "Case Study", "Proposal", "Email"],
+            correct: "Proposal",
+            explanation: "A <b>Proposal</b> pitches a business solution or project to stakeholders to win approval, sign-off, or funding."
+        },
+        {
+            excerpt: "To Whom It May Concern,\nI am writing to formally dispute the charge of $150.00 on my account dated June 4th. I cancelled this subscription well before the billing cycle renewed, and I expect a prompt refund to my original payment method.",
+            options: ["Review", "Complaint", "Letter", "Email"],
+            correct: "Complaint",
+            explanation: "A <b>Complaint</b> expresses formal dissatisfaction to a service provider to demand a resolution, such as a refund or repair."
+        },
+        {
+            excerpt: "Step 3: Align the locking tabs (Part C) with the base plate (Part A) and twist clockwise until you hear a click.\n⚠️ WARNING: Ensure the device is completely unplugged before attempting to attach the blade assembly to avoid severe injury.",
+            options: ["Manual / Guide", "Article", "Listicle", "Reports"],
+            correct: "Manual / Guide",
+            explanation: "A <b>Manual / Guide</b> provides step-by-step technical instructions and safety warnings for users to operate a product safely."
+        },
+        {
+            excerpt: "Methodology: We conducted a double-blind, randomized controlled trial with 400 adult participants over 12 weeks.\nResults: A paired t-test revealed a statistically significant difference (p < 0.05) between the control and experimental groups regarding sleep duration.",
+            options: ["Literature Review", "Research Paper", "Essay", "Reports"],
+            correct: "Research Paper",
+            explanation: "A <b>Research Paper</b> presents original, data-driven study results (like methodologies and statistical tests) within a formal academic framework."
+        },
+        {
+            excerpt: "Happy Friday, subscribers! ☕\nHere's your weekly roundup of the best marketing tips.\n\nIn this issue:\n• Google's latest algorithm update\n• 3 ways to boost email open rates\n• An exclusive 20% discount on our new course!",
+            options: ["Newsletter", "Blog Post", "Press Release", "Email"],
+            correct: "Newsletter",
+            explanation: "A <b>Newsletter</b> updates a subscriber list regularly with curated news, promotions, or insights."
+        },
+        {
+            excerpt: "The autumn leaves, a fragile gold,\nWhisper secrets to the cold.\nA fleeting dance upon the breeze,\nBefore they settle in the trees.",
+            options: ["Short Story / Novel", "Poetry", "Essay", "Biography / Autobiography"],
+            correct: "Poetry",
+            explanation: "<b>Poetry</b> uses rhythmic, artistic, and metaphorical language (like stanzas and rhyme) to evoke deep emotional responses."
+        },
+        {
+            excerpt: "Just dropped! 🚀 Our new limited-edition sneakers are finally here. Which colorway are you grabbing? Drop a 🔥 in the comments if you’re ready to step up your shoe game! Link in bio to shop. #Sneakerhead #NewRelease",
+            options: ["Social Media Copy", "Blog Post", "Landing Page Copy", "Listicle"],
+            correct: "Social Media Copy",
+            explanation: "<b>Social Media Copy</b> captures attention on social platforms using concise text, emojis, hashtags, and engagement-driven calls-to-action."
+        },
+        {
+            excerpt: "The door creaked open, revealing a room swallowed by shadows. Detective Miller tightened his grip on his flashlight. He had been chasing this lead for three weeks, and as he heard footsteps above him, he knew he wasn't alone in the house.",
+            options: ["Biography / Autobiography", "Short Story / Novel", "Essay", "Article"],
+            correct: "Short Story / Novel",
+            explanation: "A <b>Short Story / Novel</b> crafts fictional narrative worlds driven by plot, character, and theme."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const endScreen = document.getElementById('end-screen');
+    const excerptText = document.getElementById('excerpt-text');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationBox = document.getElementById('explanation-box');
+    const explanationText = document.getElementById('explanation-text');
+    const resultTitle = document.getElementById('result-title');
+    const nextBtn = document.getElementById('next-btn');
+    const questionTracker = document.getElementById('question-tracker');
+    const scoreTracker = document.getElementById('score-tracker');
+
+    function switchScreen(hideScreen, showScreen) {
+        hideScreen.classList.remove('active');
+        showScreen.classList.add('active');
+    }
+
+    function startQuiz() {
+        if (!audioCtx) audioCtx = new AudioContext();
+        currentQuestionIndex = 0;
+        score = 0;
+        updateTrackers();
+        switchScreen(startScreen, quizScreen);
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        explanationBox.style.display = 'none';
+        nextBtn.style.display = 'none';
+        optionsContainer.innerHTML = '';
+        
+        const currentQ = quizData[currentQuestionIndex];
+        excerptText.innerText = `"${currentQ.excerpt}"`;
+        questionTracker.innerText = `Q: ${currentQuestionIndex + 1}/${quizData.length}`;
+
+        currentQ.options.forEach(option => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.classList.add('option-btn');
+            button.onclick = () => selectAnswer(button, option, currentQ.correct, currentQ.explanation);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function selectAnswer(selectedButton, selectedText, correctText, explanation) {
+        const buttons = optionsContainer.querySelectorAll('.option-btn');
+        buttons.forEach(btn => btn.disabled = true);
+
+        const isCorrect = (selectedText === correctText);
+
+        if (isCorrect) {
+            selectedButton.classList.add('correct');
+            playSound('correct');
+            score++;
+            resultTitle.innerText = "Correct!";
+            resultTitle.style.color = "var(--correct)";
+            explanationBox.style.borderLeftColor = "var(--correct)";
+        } else {
+            selectedButton.classList.add('incorrect');
+            playSound('incorrect');
+            resultTitle.innerText = "Incorrect";
+            resultTitle.style.color = "var(--incorrect)";
+            explanationBox.style.borderLeftColor = "var(--incorrect)";
+            
+            buttons.forEach(btn => {
+                if (btn.innerText === correctText) btn.classList.add('correct');
+            });
+        }
+
+        updateTrackers();
+        explanationText.innerHTML = explanation;
+        explanationBox.style.display = 'block';
+        nextBtn.style.display = 'block';
+        
+        setTimeout(() => {
+            nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            endQuiz();
+        }
+    }
+
+    function updateTrackers() {
+        scoreTracker.innerText = `Score: ${score}`;
+    }
+
+    function endQuiz() {
+        switchScreen(quizScreen, endScreen);
+        document.getElementById('final-score').innerText = `${score}/${quizData.length}`;
+        
+        const msg = document.getElementById('final-message');
+        const percentage = score / quizData.length;
+        
+        if (percentage === 1) {
+            msg.innerText = "Flawless! You're a master of writing formats.";
+        } else if (percentage >= 0.7) {
+            msg.innerText = "Great job! You know your documents well.";
+        } else {
+            msg.innerText = "Good effort! Review the definitions and try again.";
+        }
+    }
+
+    function resetQuiz() {
+        switchScreen(endScreen, startScreen);
+    }
+</script>
+
+</body>
+</html>

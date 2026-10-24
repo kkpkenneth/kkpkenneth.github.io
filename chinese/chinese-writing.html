@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>文筆鑑賞挑戰</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .quiz-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 500px; }
+        button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 8px; text-align: left; transition: 0.2s; font-size: 16px; }
+        button:hover { background: #eef2f7; border-color: #007bff; }
+        #score-board { font-weight: bold; margin-bottom: 20px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="score-board">當前得分：0</div>
+    <div id="q-box"></div>
+</div>
+
+<script>
+    const data = [
+    // ... 原有的 5 題
+    { q: "關於風：哪一句描寫得更有動態感？", options: [{t: "風很大，吹得樹木搖晃。", p: 0}, {t: "狂風呼嘯，枝頭在風中瘋狂起舞。", p: 1}] },
+    { q: "關於夕陽：哪一句顏色描寫更美？", options: [{t: "太陽下山了，天空紅紅的。", p: 0}, {t: "夕陽如火，將天邊染成一片絢爛的晚霞。", p: 1}] },
+    { q: "關於大海：哪一句更具氣勢？", options: [{t: "海浪很大，一直拍打著岸邊。", p: 0}, {t: "怒濤洶湧，浪花咆哮著撞擊岩石。", p: 1}] },
+    { q: "關於春天：哪一句寫得更有生機？", options: [{t: "春天到了，花草都長出來了。", p: 0}, {t: "春回大地，萬物萌發，草木在細雨中甦醒。", p: 1}] },
+    { q: "關於雪景：哪一句畫面感更強？", options: [{t: "下雪了，地上白白的一片。", p: 0}, {t: "大雪紛飛，大地彷彿鋪上了一層厚厚的銀毯。", p: 1}] },
+    { q: "關於月亮：哪一句描寫更有意境？", options: [{t: "晚上的月亮很亮。", p: 0}, {t: "清冷的月光如水，靜靜地瀉在窗台上。", p: 1}] },
+    { q: "關於瀑布：哪一句描寫更壯觀？", options: [{t: "瀑布水流很快，聲音很大。", p: 0}, {t: "瀑布如銀河垂落，發出雷鳴般的轟響。", p: 1}] },
+    { q: "關於開心：哪一句情緒表達更豐富？", options: [{t: "我今天非常開心。", p: 0}, {t: "喜悅如泉水般在心中湧動，嘴角止不住地上揚。", p: 1}] },
+    { q: "關於緊張：哪一句寫得更有臨場感？", options: [{t: "我考試時很緊張。", p: 0}, {t: "心臟在胸腔內劇烈跳動，掌心滲出了細密的汗珠。", p: 1}] },
+    { q: "關於讀書：哪一句更吸引人？", options: [{t: "看書很有趣，能學到東西。", p: 0}, {t: "書中自有千秋，字句之間盡是浩瀚的智慧。", p: 1}] },
+    { q: "關於小雨：哪一句描寫更有細節？", options: [{t: "下起小雨，路面變濕了。", p: 0}, {t: "細雨如絲，悄無聲息地潤濕了大地。", p: 1}] },
+    { q: "關於夢想：哪一句更勵志？", options: [{t: "我要努力實現夢想。", p: 0}, {t: "追逐夢想的征途漫漫，但我會勇敢奔向遠方。", p: 1}] },
+    { q: "關於秋天：哪一句寫得更有詩意？", options: [{t: "秋天到了，樹葉變黃了。", p: 0}, {t: "秋風輕拂，金色的落葉像蝴蝶般翩翩起舞。", p: 1}] },
+    { q: "關於友情：哪一句寫得更真誠？", options: [{t: "我和他感情很好，會互相幫忙。", p: 0}, {t: "友情如陳年佳釀，歷久彌香，互助中見真情。", p: 1}] },
+    { q: "關於努力：哪一句更有說服力？", options: [{t: "只要努力，就會有成功。", p: 0}, {t: "汗水不會欺騙人，成功的果實永遠屬於耕耘者。", p: 1}] },
+    { q: "關於溪流：哪一句更具動態感？", options: [{t: "小溪在森林裡流動。", p: 0}, {t: "清澈的溪水跳躍著，歡快地穿梭在石縫之間。", p: 1}] },
+    { q: "關於閃電：哪一句描寫更震撼？", options: [{t: "天上閃了一下，接著打雷了。", p: 0}, {t: "閃電撕裂夜空，伴隨著震耳欲聾的轟鳴。", p: 1}] },
+    { q: "關於回憶：哪一句寫得更感性？", options: [{t: "我想起童年的趣事。", p: 0}, {t: "童年的記憶如星光閃爍，在歲月河床中流淌。", p: 1}] },
+    { q: "關於星空：哪一句寫得更遼闊？", options: [{t: "晚上的星星很多。", p: 0}, {t: "璀璨星河橫亙天際，如寶石般灑落無垠深空。", p: 1}] },
+    { q: "關於自信：哪一句寫得更有精神？", options: [{t: "我相信自己一定可以。", p: 0}, {t: "目光篤定，信心如盾，我無懼前方任何挑戰。", p: 1}] }
+];
+
+    let current = 0;
+    let score = 0;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(freq) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function handleAnswer(points) {
+        score += points;
+        playSound(points === 1 ? 880 : 220);
+        current++;
+        render();
+    }
+
+    function render() {
+        if (current >= data.length) {
+            document.getElementById('q-box').innerHTML = `<h3>測驗結束！總分：${score} / ${data.length}</h3>`;
+            return;
+        }
+
+        // 隨機排列選項
+        let opts = [...data[current].options].sort(() => Math.random() - 0.5);
+        
+        document.getElementById('score-board').innerText = `當前得分：${score}`;
+        document.getElementById('q-box').innerHTML = `
+            <p><strong>${current + 1}. ${data[current].q}</strong></p>
+            ${opts.map(o => `<button onclick="handleAnswer(${o.p})">${o.t}</button>`).join('')}
+        `;
+    }
+    render();
+</script>
+
+</body>
+</html>

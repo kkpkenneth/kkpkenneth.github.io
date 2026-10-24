@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digestive System Sticker Assembly</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --panel-bg: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --primary: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- Left Sidebar: Ordered List --- */
+        .sidebar {
+            width: 380px;
+            background-color: var(--panel-bg);
+            border-right: 2px solid var(--border-color);
+            padding: 30px;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .sidebar h1 {
+            font-size: 1.8rem;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .sidebar p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .ordered-list {
+            list-style: none;
+            counter-reset: organ-counter;
+        }
+
+        .ordered-list li {
+            position: relative;
+            padding-left: 45px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .ordered-list li::before {
+            counter-increment: organ-counter;
+            content: counter(organ-counter);
+            position: absolute;
+            left: 0;
+            top: -2px;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 6px rgba(59, 130, 246, 0.3);
+        }
+
+        .ordered-list h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            color: #1e293b;
+        }
+
+        .ordered-list span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .accessory-header {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--border-color);
+            color: #0f172a;
+            font-size: 1.2rem;
+        }
+
+        /* --- Right Canvas: Draggable Stickers --- */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            background-image: 
+                radial-gradient(#cbd5e1 1px, transparent 1px),
+                radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            overflow: hidden;
+        }
+
+        .canvas-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Sticker Base Styles */
+        .sticker {
+            position: absolute;
+            cursor: grab;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
+            transition: transform 0.1s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sticker:active {
+            cursor: grabbing;
+            transform: scale(1.05) rotate(-2deg);
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.2));
+        }
+
+        /* White die-cut border effect via SVG styling */
+        .sticker svg {
+            overflow: visible;
+        }
+        
+        .sticker-shape {
+            stroke: #ffffff;
+            stroke-width: 8;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+
+        .sticker-label {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #334155;
+            margin-top: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+
+        /* Build Area Indicator */
+        .build-zone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 700px;
+            border: 4px dashed #cbd5e1;
+            border-radius: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Left Sidebar: Ordered List -->
+    <aside class="sidebar">
+        <h1>Digestive System</h1>
+        <p>The sequential path food travels through the gastrointestinal (GI) tract.</p>
+
+        <ol class="ordered-list">
+            <li>
+                <h3>Mouth (Oral Cavity)</h3>
+                <span>Where digestion begins with chewing and salivary enzymes.</span>
+            </li>
+            <li>
+                <h3>Esophagus</h3>
+                <span>The muscular tube transporting food to the stomach via peristalsis.</span>
+            </li>
+            <li>
+                <h3>Stomach</h3>
+                <span>A J-shaped muscular sac that mixes food with acids to break it down into chyme.</span>
+            </li>
+            <li>
+                <h3>Small Intestine</h3>
+                <span>A long, winding tube where the majority of nutrient absorption takes place.</span>
+            </li>
+            <li>
+                <h3>Large Intestine</h3>
+                <span>Absorbs water and electrolytes. Includes the Ascending, Transverse, and Descending Colon.</span>
+            </li>
+            <li>
+                <h3>Rectum & Anus</h3>
+                <span>Stores and expels solid waste from the body.</span>
+            </li>
+        </ol>
+
+        <h2 class="accessory-header">Accessory Organs</h2>
+        <ul class="ordered-list" style="counter-reset: none; list-style: none;">
+            <li style="padding-left: 15px;">
+                <h3>Liver</h3>
+                <span>Produces bile to help digest fats.</span>
+            </li>
+            <li style="padding-left: 15px;">
+                <h3>Gallbladder</h3>
+                <span>Stores and concentrates bile from the liver.</span>
+            </li>
+            <li style="padding-left: 15px;">
+                <h3>Pancreas</h3>
+                <span>Produces digestive enzymes and neutralizes stomach acid.</span>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Right Canvas: Draggable Stickers -->
+    <main class="canvas-area" id="canvas">
+        <div class="canvas-header">Assemble the Organs Here!</div>
+        
+        <div class="build-zone">Assembly Zone</div>
+
+        <!-- 1. Mouth -->
+        <div class="sticker" style="top: 80px; left: 50px;">
+            <svg width="80" height="80" viewBox="-10 -10 100 100">
+                <!-- Profile of mouth cavity leading down to pharynx -->
+                <path d="M 10 30 C 30 20 60 20 70 40 C 80 60 60 80 50 100 L 30 100 C 30 70 40 60 20 50 Z" class="sticker-shape" fill="#fda4af"/>
+            </svg>
+            <div class="sticker-label">Mouth</div>
+        </div>
+
+        <!-- 2. Esophagus -->
+        <div class="sticker" style="top: 80px; left: 180px;">
+            <svg width="30" height="150" viewBox="-10 -10 50 170">
+                <rect x="10" y="0" width="15" height="150" rx="7" class="sticker-shape" fill="#fcd34d" />
+            </svg>
+            <div class="sticker-label">Esophagus</div>
+        </div>
+
+        <!-- 3. Stomach -->
+        <div class="sticker" style="top: 80px; left: 300px;">
+            <svg width="120" height="120" viewBox="-10 -10 140 140">
+                <!-- Accurate J-Shape -->
+                <path d="M40 0 C40 20 20 30 20 60 C20 100 80 120 110 80 C130 50 120 20 100 20 C90 20 80 30 80 40 C80 60 50 70 50 40 C50 20 60 10 60 0 Z" class="sticker-shape" fill="#f97316"/>
+            </svg>
+            <div class="sticker-label">Stomach</div>
+        </div>
+
+        <!-- 4. Liver -->
+        <div class="sticker" style="top: 280px; left: 50px;">
+            <svg width="150" height="90" viewBox="-10 -10 170 110">
+                <!-- Large right lobe, tapered left lobe -->
+                <path d="M10 50 C 10 20 60 10 140 40 C 160 50 150 80 110 80 C 70 80 30 90 10 50 Z" class="sticker-shape" fill="#991b1b" />
+            </svg>
+            <div class="sticker-label">Liver</div>
+        </div>
+
+        <!-- 5. Gallbladder -->
+        <div class="sticker" style="top: 280px; left: 250px;">
+            <svg width="40" height="60" viewBox="-10 -10 60 80">
+                <!-- Small Pear Shape -->
+                <path d="M 20 0 C 35 25 40 50 20 60 C 0 50 5 25 20 0 Z" class="sticker-shape" fill="#16a34a" />
+            </svg>
+            <div class="sticker-label">Gallbladder</div>
+        </div>
+
+        <!-- 6. Pancreas -->
+        <div class="sticker" style="top: 280px; left: 340px;">
+            <svg width="130" height="50" viewBox="-10 -10 150 70">
+                <!-- Lobular, tapered shape -->
+                <path d="M 20 20 Q 40 10 60 20 Q 80 10 100 20 Q 120 15 140 25 Q 130 40 110 35 Q 90 45 70 35 Q 50 45 30 35 Q 10 40 20 20 Z" class="sticker-shape" fill="#fde047" />
+            </svg>
+            <div class="sticker-label">Pancreas</div>
+        </div>
+
+        <!-- 7. Small Intestine -->
+        <div class="sticker" style="top: 450px; left: 50px;">
+            <svg width="140" height="200" viewBox="-10 -10 160 220">
+                <!-- Continuous, winding S-shape tube -->
+                <path d="M 40 10 C 120 10 120 50 70 60 C 20 70 20 110 70 120 C 120 130 120 170 40 180" fill="none" class="sticker-shape" stroke="#f472b6" stroke-width="25" />
+            </svg>
+            <div class="sticker-label">Small Intestine</div>
+        </div>
+
+        <!-- 8. Large Intestine -->
+        <div class="sticker" style="top: 450px; left: 250px;">
+            <svg width="180" height="180" viewBox="-20 -20 220 220">
+                <!-- Ascending, Transverse, Descending Arch -->
+                <path d="M 20 180 L 20 60 C 20 20 60 20 90 20 L 130 20 C 160 20 160 60 160 120 L 160 180" fill="none" class="sticker-shape" stroke="#854d0e" stroke-width="35" />
+                <path d="M 20 180 L 20 60 C 20 20 60 20 90 20 L 130 20 C 160 20 160 60 160 120 L 160 180" fill="none" stroke="#fef08a" stroke-width="10" stroke-dasharray="10 20" stroke-linecap="round"/>
+            </svg>
+            <div class="sticker-label">Large Intestine</div>
+        </div>
+
+        <!-- 9. Rectum & Anus -->
+        <div class="sticker" style="top: 450px; left: 480px;">
+            <svg width="60" height="100" viewBox="-10 -10 80 120">
+                <!-- Straight tube to sphincter -->
+                <path d="M 30 0 L 30 60 C 30 80 45 80 45 100 C 45 110 15 110 15 100 C 15 80 30 80 30 60 Z" class="sticker-shape" fill="#a16207" />
+                <circle cx="30" cy="100" r="12" fill="#312e81" />
+            </svg>
+            <div class="sticker-label">Rectum / Anus</div>
+        </div>
+
+    </main>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const stickers = document.querySelectorAll('.sticker');
+        let zIndexCounter = 100;
+
+        stickers.forEach(sticker => {
+            // Pointer events support both mouse and touch devices automatically
+            sticker.addEventListener('pointerdown', startDrag);
+        });
+
+        function startDrag(e) {
+            // Prevent default browser behaviors (like text selection) during drag
+            e.preventDefault();
+
+            const sticker = e.currentTarget;
+            
+            // Bring the actively dragged sticker to the front
+            sticker.style.zIndex = ++zIndexCounter;
+
+            const rect = sticker.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+
+            // Calculate where the user clicked *inside* the sticker bounds
+            const offsetX = e.clientX - rect.left;
+            const offsetY = e.clientY - rect.top;
+
+            // Capture the pointer to ensure smooth dragging if cursor leaves the element slightly
+            sticker.setPointerCapture(e.pointerId);
+
+            function onPointerMove(moveEvent) {
+                // Calculate new position relative to the canvas container
+                let newX = moveEvent.clientX - canvasRect.left - offsetX;
+                let newY = moveEvent.clientY - canvasRect.top - offsetY;
+
+                // Apply new coordinates
+                sticker.style.left = `${newX}px`;
+                sticker.style.top = `${newY}px`;
+            }
+
+            function onPointerUp(upEvent) {
+                sticker.releasePointerCapture(upEvent.pointerId);
+                document.removeEventListener('pointermove', onPointerMove);
+                document.removeEventListener('pointerup', onPointerUp);
+            }
+
+            // Bind move and up events to the document so the drag tracks smoothly everywhere
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+        }
+    </script>
+</body>
+</html>

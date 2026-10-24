@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Bar - Cocktail Alchemy</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d0d1a;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            background-image: radial-gradient(circle at 50% 0%, #2a0a3a 0%, #0d0d1a 60%);
+        }
+        h1 {
+            color: #ff00ff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(255, 0, 255, 0.6), 0 0 30px rgba(255, 0, 255, 0.3);
+            font-size: 36px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        p.subtitle {
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+            text-align: center;
+        }
+        
+        .top-controls {
+            margin-bottom: 20px;
+        }
+        
+        .toggle-btn {
+            background-color: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+        .toggle-btn:hover {
+            background-color: #00ffff;
+            color: #0d0d1a;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+
+        .workspace {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: rgba(20, 20, 35, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.1);
+            margin-bottom: 30px;
+            border: 2px dashed #ff00ff;
+            min-height: 120px;
+            width: 100%;
+            max-width: 600px;
+            backdrop-filter: blur(5px);
+        }
+        .slot {
+            width: 90px;
+            height: 90px;
+            background-color: #1a1a2e;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5);
+            border: 2px solid #333;
+        }
+        .slot.drag-over {
+            border-color: #00ffff;
+            background-color: #232342;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+        .slot:hover {
+            transform: scale(1.05);
+            border-color: #ff00ff;
+        }
+        .slot .element-name {
+            font-size: 12px;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+        .slot .placeholder {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+        }
+        .plus-sign {
+            font-size: 32px;
+            color: #00ffff;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        .inventory-container {
+            width: 100%;
+            max-width: 900px;
+        }
+        .inventory-title {
+            font-size: 18px;
+            color: #ff00ff;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-shadow: 0 0 5px rgba(255, 0, 255, 0.4);
+        }
+        .inventory {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .inventory::-webkit-scrollbar { width: 8px; }
+        .inventory::-webkit-scrollbar-track { background: #0d0d1a; border-radius: 4px; }
+        .inventory::-webkit-scrollbar-thumb { background: #ff00ff; border-radius: 4px; }
+        
+        .element-btn {
+            background-color: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: grab;
+            transition: all 0.2s;
+            width: 80px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+        .element-btn:active { cursor: grabbing; }
+        .element-btn:hover {
+            background-color: #232342;
+            border-color: #00ffff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+        .element-btn .emoji { font-size: 28px; margin-bottom: 5px; pointer-events: none; }
+        .element-btn .name { font-size: 12px; font-weight: bold; color: #ddd; pointer-events: none; text-align: center; line-height: 1.2; }
+
+        /* Guide Menu Modal */
+        .guide-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .guide-content {
+            background-color: #1a1a2e;
+            border: 2px solid #ff00ff;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+            position: relative;
+        }
+        .guide-content::-webkit-scrollbar { width: 8px; }
+        .guide-content::-webkit-scrollbar-track { background: #0d0d1a; }
+        .guide-content::-webkit-scrollbar-thumb { background: #00ffff; border-radius: 4px; }
+        
+        .guide-title {
+            color: #00ffff;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 10px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #ff00ff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .recipe-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .recipe-item {
+            background: #232342;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            border-left: 3px solid #00ffff;
+        }
+        @media (max-width: 600px) {
+            .recipe-list { grid-template-columns: 1fr; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.3s ease-in-out; border-color: #ff0000 !important; box-shadow: 0 0 15px rgba(255,0,0,0.5) !important; }
+        
+        @keyframes flash {
+            0% { box-shadow: 0 0 0px #00ffff; background-color: rgba(0, 255, 255, 0.3); }
+            100% { box-shadow: 0 0 40px rgba(0, 255, 255, 0); background-color: rgba(20, 20, 35, 0.8); }
+        }
+        .success-flash { animation: flash 0.8s ease-out; }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            background-color: #ff00ff;
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(255, 0, 255, 0.5);
+            transform: translateY(-100px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 1px;
+        }
+        #notification.show { transform: translateY(0); }
+        .notif-emoji { font-size: 24px; }
+    </style>
+</head>
+<body>
+
+    <div id="notification">
+        <span class="notif-emoji" id="notif-emoji"></span>
+        <span id="notif-text"></span>
+    </div>
+
+    <div class="guide-overlay" id="guideOverlay">
+        <div class="guide-content">
+            <button class="close-btn" onclick="toggleGuide()">✖</button>
+            <h2 class="guide-title">Recipe Answers Menu</h2>
+            <div class="recipe-list" id="recipeList">
+                </div>
+        </div>
+    </div>
+
+    <h1>Cocktail Alchemy</h1>
+    <p class="subtitle">Drag and drop spirits and mixers to discover classic cocktails!</p>
+
+    <div class="top-controls">
+        <button class="toggle-btn" onclick="toggleGuide()">Show Answers Menu</button>
+    </div>
+
+    <div class="workspace" id="workspace">
+        <div class="slot" id="slot1" ondrop="drop(event, 1)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" onclick="clearSlot(1)">
+            <span class="placeholder">Drop Here</span>
+        </div>
+        <div class="plus-sign">+</div>
+        <div class="slot" id="slot2" ondrop="drop(event, 2)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" onclick="clearSlot(2)">
+            <span class="placeholder">Drop Here</span>
+        </div>
+    </div>
+
+    <div class="inventory-container">
+        <div class="inventory-title">
+            <span>Bar Inventory</span>
+            <span>Unlocked: <span id="count">0</span> / 74</span>
+        </div>
+        <div class="inventory" id="inventory"></div>
+    </div>
+
+    <script>
+        const elementsDB = {
+            // Basic Ingredients (23)
+            'vodka': {id: 'vodka', name: 'Vodka', emoji: '🍸'},
+            'rum': {id: 'rum', name: 'Rum', emoji: '🍹'},
+            'gin': {id: 'gin', name: 'Gin', emoji: '🌲'},
+            'tequila': {id: 'tequila', name: 'Tequila', emoji: '🌵'},
+            'whiskey': {id: 'whiskey', name: 'Whiskey', emoji: '🥃'},
+            'vermouth': {id: 'vermouth', name: 'Vermouth', emoji: '🍷'},
+            'champagne': {id: 'champagne', name: 'Champagne', emoji: '🍾'},
+            'cola': {id: 'cola', name: 'Cola', emoji: '🥤'},
+            'soda': {id: 'soda', name: 'Soda Water', emoji: '🫧'},
+            'lemon': {id: 'lemon', name: 'Lemon', emoji: '🍋'},
+            'orange': {id: 'orange', name: 'Orange', emoji: '🍊'},
+            'pineapple': {id: 'pineapple', name: 'Pineapple', emoji: '🍍'},
+            'cranberry': {id: 'cranberry', name: 'Cranberry', emoji: '🍒'},
+            'coconut': {id: 'coconut', name: 'Coconut Milk', emoji: '🥥'},
+            'tomato': {id: 'tomato', name: 'Tomato', emoji: '🍅'},
+            'mint': {id: 'mint', name: 'Mint', emoji: '🌿'},
+            'coffee': {id: 'coffee', name: 'Coffee', emoji: '☕'},
+            'cream': {id: 'cream', name: 'Cream', emoji: '🥛'},
+            'sugar': {id: 'sugar', name: 'Syrup', emoji: '🍯'},
+            'salt': {id: 'salt', name: 'Salt', emoji: '🧂'},
+            'olive': {id: 'olive', name: 'Olive', emoji: '🫒'},
+            'ginger': {id: 'ginger', name: 'Ginger', emoji: '🫚'},
+            'ice': {id: 'ice', name: 'Ice', emoji: '🧊'},
+
+            // Cocktails (51)
+            'cuba_libre': {id: 'cuba_libre', name: 'Cuba Libre', emoji: '🥃'},
+            'mojito': {id: 'mojito', name: 'Mojito', emoji: '🌿'},
+            'malibu': {id: 'malibu', name: 'Malibu', emoji: '🥥'},
+            'pineapple_rum': {id: 'pineapple_rum', name: 'Pineapple Rum', emoji: '🍍'},
+            'daiquiri': {id: 'daiquiri', name: 'Daiquiri', emoji: '🍸'},
+            'pina_colada': {id: 'pina_colada', name: 'Piña Colada', emoji: '🍹'},
+            'screwdriver': {id: 'screwdriver', name: 'Screwdriver', emoji: '🍊'},
+            'bloody_mary': {id: 'bloody_mary', name: 'Bloody Mary', emoji: '🍅'},
+            'black_russian': {id: 'black_russian', name: 'Black Russian', emoji: '☕'},
+            'white_russian': {id: 'white_russian', name: 'White Russian', emoji: '🥛'},
+            'cape_codder': {id: 'cape_codder', name: 'Cape Codder', emoji: '🍒'},
+            'cosmopolitan': {id: 'cosmopolitan', name: 'Cosmopolitan', emoji: '🍸'},
+            'moscow_mule': {id: 'moscow_mule', name: 'Moscow Mule', emoji: '🫚'},
+            'lemon_drop': {id: 'lemon_drop', name: 'Lemon Drop', emoji: '🍋'},
+            'dirty_martini': {id: 'dirty_martini', name: 'Dirty Martini', emoji: '🫒'},
+            'martini': {id: 'martini', name: 'Martini', emoji: '🍸'},
+            'classic_martini': {id: 'classic_martini', name: 'Classic Martini', emoji: '🫒'},
+            'gin_sour': {id: 'gin_sour', name: 'Gin Sour', emoji: '🍋'},
+            'tom_collins': {id: 'tom_collins', name: 'Tom Collins', emoji: '🍹'},
+            'gin_rickey': {id: 'gin_rickey', name: 'Gin Rickey', emoji: '🫧'},
+            'old_fashioned': {id: 'old_fashioned', name: 'Old Fashioned', emoji: '🥃'},
+            'whiskey_sour': {id: 'whiskey_sour', name: 'Whiskey Sour', emoji: '🍋'},
+            'manhattan': {id: 'manhattan', name: 'Manhattan', emoji: '🍸'},
+            'irish_coffee': {id: 'irish_coffee', name: 'Irish Coffee', emoji: '☕'},
+            'highball': {id: 'highball', name: 'Highball', emoji: '🍺'},
+            'whiskey_cola': {id: 'whiskey_cola', name: 'Whiskey Cola', emoji: '🥤'},
+            'mint_julep': {id: 'mint_julep', name: 'Mint Julep', emoji: '🌿'},
+            'whiskey_ginger': {id: 'whiskey_ginger', name: 'Whiskey Ginger', emoji: '🫚'},
+            'margarita': {id: 'margarita', name: 'Margarita', emoji: '🍸'},
+            'salty_margarita': {id: 'salty_margarita', name: 'Salty Margarita', emoji: '🧂'},
+            'tequila_sunrise': {id: 'tequila_sunrise', name: 'Tequila Sunrise', emoji: '🌅'},
+            'tequila_soda': {id: 'tequila_soda', name: 'Tequila Soda', emoji: '🫧'},
+            'batanga': {id: 'batanga', name: 'Batanga', emoji: '🦇'},
+            'mimosa': {id: 'mimosa', name: 'Mimosa', emoji: '🥂'},
+            'french_75': {id: 'french_75', name: 'French 75', emoji: '🍾'},
+            'poinsettia': {id: 'poinsettia', name: 'Poinsettia', emoji: '🎄'},
+            'vermouth_soda': {id: 'vermouth_soda', name: 'Vermouth Soda', emoji: '🍷'},
+            'aperol_spritz': {id: 'aperol_spritz', name: 'Aperol Spritz', emoji: '🍹'},
+            'lemonade': {id: 'lemonade', name: 'Lemonade', emoji: '🍋'},
+            'mint_syrup': {id: 'mint_syrup', name: 'Mint Syrup', emoji: '🌿'},
+            'iced_coffee': {id: 'iced_coffee', name: 'Iced Coffee', emoji: '🧊'},
+            'iced_lemon': {id: 'iced_lemon', name: 'Iced Lemon', emoji: '🧊'},
+            'rum_rocks': {id: 'rum_rocks', name: 'Rum on the Rocks', emoji: '🥃'},
+            'vodka_rocks': {id: 'vodka_rocks', name: 'Vodka on the Rocks', emoji: '🥃'},
+            'whiskey_rocks': {id: 'whiskey_rocks', name: 'Whiskey on the Rocks', emoji: '🥃'},
+            'gin_rocks': {id: 'gin_rocks', name: 'Gin on the Rocks', emoji: '🥃'},
+            'tequila_rocks': {id: 'tequila_rocks', name: 'Tequila on the Rocks', emoji: '🥃'},
+            'rum_cream': {id: 'rum_cream', name: 'Rum Cream', emoji: '🥛'},
+            'irish_cream': {id: 'irish_cream', name: 'Irish Cream', emoji: '🥛'},
+            'latte': {id: 'latte', name: 'Latte', emoji: '☕'},
+            'cola_float': {id: 'cola_float', name: 'Cola Float', emoji: '🍨'},
+            'sparkling_lemon': {id: 'sparkling_lemon', name: 'Sparkling Lemon', emoji: '🫧'}
+        };
+
+        const rawRecipes = {
+            'rum,cola': 'cuba_libre',
+            'rum,mint': 'mojito',
+            'rum,coconut': 'malibu',
+            'rum,pineapple': 'pineapple_rum',
+            'rum,lemon': 'daiquiri',
+            'malibu,pineapple': 'pina_colada',
+            'vodka,orange': 'screwdriver',
+            'vodka,tomato': 'bloody_mary',
+            'vodka,coffee': 'black_russian',
+            'black_russian,cream': 'white_russian',
+            'vodka,cranberry': 'cape_codder',
+            'cape_codder,orange': 'cosmopolitan',
+            'vodka,ginger': 'moscow_mule',
+            'vodka,lemon': 'lemon_drop',
+            'vodka,olive': 'dirty_martini',
+            'gin,vermouth': 'martini',
+            'martini,olive': 'classic_martini',
+            'gin,lemon': 'gin_sour',
+            'gin_sour,soda': 'tom_collins',
+            'gin,soda': 'gin_rickey',
+            'whiskey,sugar': 'old_fashioned',
+            'whiskey,lemon': 'whiskey_sour',
+            'whiskey,vermouth': 'manhattan',
+            'whiskey,coffee': 'irish_coffee',
+            'whiskey,soda': 'highball',
+            'whiskey,cola': 'whiskey_cola',
+            'whiskey,mint': 'mint_julep',
+            'whiskey,ginger': 'whiskey_ginger',
+            'tequila,lemon': 'margarita',
+            'margarita,salt': 'salty_margarita',
+            'tequila,orange': 'tequila_sunrise',
+            'tequila,soda': 'tequila_soda',
+            'tequila,cola': 'batanga',
+            'champagne,orange': 'mimosa',
+            'champagne,lemon': 'french_75',
+            'champagne,cranberry': 'poinsettia',
+            'vermouth,soda': 'vermouth_soda',
+            'vermouth,orange': 'aperol_spritz',
+            'sugar,lemon': 'lemonade',
+            'sugar,mint': 'mint_syrup',
+            'ice,coffee': 'iced_coffee',
+            'ice,lemon': 'iced_lemon',
+            'rum,ice': 'rum_rocks',
+            'vodka,ice': 'vodka_rocks',
+            'whiskey,ice': 'whiskey_rocks',
+            'gin,ice': 'gin_rocks',
+            'tequila,ice': 'tequila_rocks',
+            'rum,cream': 'rum_cream',
+            'whiskey,cream': 'irish_cream',
+            'coffee,cream': 'latte',
+            'cola,cream': 'cola_float',
+            'soda,lemon': 'sparkling_lemon'
+        };
+
+        const recipes = {};
+        for (const [key, value] of Object.entries(rawRecipes)) {
+            recipes[key.split(',').sort().join(',')] = value;
+        }
+        
+        let unlockedElements = new Set([
+            'vodka', 'rum', 'gin', 'tequila', 'whiskey', 'vermouth', 'champagne',
+            'cola', 'soda', 'lemon', 'orange', 'pineapple', 'cranberry', 'coconut', 
+            'tomato', 'mint', 'coffee', 'cream', 'sugar', 'salt', 'olive', 'ginger', 'ice'
+        ]);
+        
+        let slot1Item = null;
+        let slot2Item = null;
+        let isProcessing = false;
+
+        function init() { 
+            renderInventory(); 
+            populateGuide();
+        }
+
+        function populateGuide() {
+            const listDiv = document.getElementById('recipeList');
+            for (const [key, result] of Object.entries(rawRecipes)) {
+                const parts = key.split(',');
+                const ing1 = elementsDB[parts[0]];
+                const ing2 = elementsDB[parts[1]];
+                const res = elementsDB[result];
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'recipe-item';
+                itemDiv.innerText = `${ing1.name} + ${ing2.name} = ${res.name} ${res.emoji}`;
+                listDiv.appendChild(itemDiv);
+            }
+        }
+
+        function toggleGuide() {
+            const overlay = document.getElementById('guideOverlay');
+            if(overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+            } else {
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function renderInventory() {
+            const inventoryDiv = document.getElementById('inventory');
+            inventoryDiv.innerHTML = '';
+            
+            unlockedElements.forEach(id => {
+                const el = elementsDB[id];
+                const btn = document.createElement('div');
+                btn.className = 'element-btn';
+                btn.draggable = true;
+                btn.dataset.id = id;
+                btn.ondragstart = dragStart;
+                
+                btn.innerHTML = `<div class="emoji">${el.emoji}</div><div class="name">${el.name}</div>`;
+                inventoryDiv.appendChild(btn);
+            });
+            document.getElementById('count').innerText = unlockedElements.size;
+        }
+
+        function dragStart(ev) {
+            ev.dataTransfer.setData("id", ev.target.dataset.id);
+            ev.dataTransfer.effectAllowed = "copy";
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            if(!isProcessing) ev.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function drop(ev, slotNum) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            if (isProcessing) return;
+
+            const id = ev.dataTransfer.getData("id");
+            if (!id) return;
+
+            if (slotNum === 1) slot1Item = id;
+            if (slotNum === 2) slot2Item = id;
+            
+            updateSlots();
+
+            if (slot1Item && slot2Item) {
+                processCombination();
+            }
+        }
+
+        function clearSlot(slotNum) {
+            if (isProcessing) return;
+            if (slotNum === 1) slot1Item = null;
+            if (slotNum === 2) slot2Item = null;
+            updateSlots();
+        }
+
+        function updateSlots() {
+            const s1 = document.getElementById('slot1');
+            const s2 = document.getElementById('slot2');
+            
+            s1.innerHTML = slot1Item ? `<div class="emoji">${elementsDB[slot1Item].emoji}</div><div class="element-name">${elementsDB[slot1Item].name}</div>` : '<span class="placeholder">Drop Here</span>';
+            s2.innerHTML = slot2Item ? `<div class="emoji">${elementsDB[slot2Item].emoji}</div><div class="element-name">${elementsDB[slot2Item].name}</div>` : '<span class="placeholder">Drop Here</span>';
+        }
+
+        function processCombination() {
+            isProcessing = true;
+            const attemptKey = [slot1Item, slot2Item].sort().join(',');
+            
+            setTimeout(() => {
+                if (recipes[attemptKey]) {
+                    const newId = recipes[attemptKey];
+                    const ws = document.getElementById('workspace');
+                    
+                    ws.classList.add('success-flash');
+                    setTimeout(() => ws.classList.remove('success-flash'), 800);
+
+                    if (!unlockedElements.has(newId)) {
+                        unlockedElements.add(newId);
+                        showNotification(`Mixed Successfully: ${elementsDB[newId].name}!`, elementsDB[newId].emoji);
+                        renderInventory();
+                    }
+                } else {
+                    document.getElementById('workspace').classList.add('shake');
+                    setTimeout(() => document.getElementById('workspace').classList.remove('shake'), 300);
+                }
+                
+                slot1Item = null;
+                slot2Item = null;
+                updateSlots();
+                isProcessing = false;
+                
+            }, 400); 
+        }
+
+        function showNotification(text, emoji) {
+            const notif = document.getElementById('notification');
+            document.getElementById('notif-text').innerText = text;
+            document.getElementById('notif-emoji').innerText = emoji;
+            
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3500);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: The Growling Grasslands</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --highlight-color: rgba(0, 255, 170, 0.25);
+            --btn-bg: #151b2b;
+            --btn-hover: #1f2940;
+            --btn-border: #2a3756;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .story-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b7a99;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            position: sticky;
+            top: 0;
+            background: rgba(11, 15, 25, 0.95);
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--btn-border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: #00ffaa;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            color: #ffffff;
+        }
+
+        #progress-bar {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            accent-color: #00ffaa;
+            align-self: center;
+        }
+
+        .text-seg {
+            transition: background-color 0.2s ease;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+
+        .speaking {
+            background-color: var(--highlight-color);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button onclick="playStory()">▶ Read</button>
+        <button onclick="stopAudio()">■ Stop</button>
+        <input type="range" id="progress-bar" min="0" max="100" value="0" step="1" oninput="seekStory(this.value)">
+    </div>
+
+    <div class="story-container" id="story-content">
+        <h1 class="text-seg" data-char="narrator">Chapter 6</h1>
+        <div class="subtitle text-seg" data-char="narrator">The Growling Grasslands</div>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The vast, endless expanse of the Growling Grasslands stretched out beneath a canopy of brilliant stars, completely empty save for the howling winds and a single, roaring bonfire.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="papa">"Ghen-ghen-ghenkiskhan!"</span>
+            <span class="text-seg" data-char="narrator">Papa Bataar bellowed joyfully into the night sky, stomping his boots in time with the crackling flames.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Around the fire, the rest of the friendly Bataar family—Mama Bataar, Sister Bataar, and Brother Bataar—danced and sang along, their laughter carrying over the plains. Puppy Bataar, who was in fact a giant, thick-coated, black hairy dog the size of a small bear, barked happily, tackling Kenjiro with cuddly enthusiasm.</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kenjiro">"I have to get stronger, Kame-kun,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro said, affectionately pushing the giant dog's heavy paws off his chest. He looked at the plush size AI turtle perching on his shoulder.</span>
+            <span class="text-seg" data-char="kenjiro">"That psychic rejection at the border of the Robot Metropolis... it was because I'm just an ordinary human, right? I don't have any kind of power."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Negative. My scans indicate latent energy within you,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun replied, his optical sensors scanning the dancing family.</span>
+            <span class="text-seg" data-char="kame">"You simply need to awaken your Extraordinary Trait, or ET. This is the optimal location for such training. The nomads of the Growling Grasslands specialize in wind-based telekinesis. Their empire was once one of the largest in the world, though now they live a more lively, free, and relaxed culture."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Determined to unlock this mysterious ET Kame-kun spoke of, Kenjiro threw himself into their way of life. For weeks, he trained with the Bataars. He learned to build heavy fabric tents to withstand the biting gales. He wrestled bare-chested against Brother Bataar in the tall grass. He replenished his energy by eating towering stacks of crispy, hot, meat-filled khuushuur prepared by Mama Bataar.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"I could really do without the horseback riding, though,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro groaned one evening, rubbing his sore thighs as he limped back to the camp.</span>
+            <span class="text-seg" data-char="kenjiro">"I really, really don't like riding horses. I still love horses, just not riding them."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Seeking spiritual guidance, the Bataars took him to their ancient, open-air temple. Kenjiro stepped up to a massive, brass prayer wheel, placing his hand against its cool, etched surface. As he spun the heavy cylinder, closing his eyes and desperately searching for the wind, he felt no breeze bending to his will. Instead, a strange, echoing resonance filled his mind, and a deep, ethereal voice whispered a distinct riddle:</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="system">"The wind moves the grass, but what connects the roots? Do not seek to push the storm; seek the mind that commands it."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">It was a subtle hint that the Extraordinary Trait dormant within him was something entirely different from the Bataar family's wind telekinesis.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Yet, despite all the intense training, the wrestling, and the deep meditation, Kenjiro stood before the bonfire one evening, staring at his hands in defeat. He tried to push a small pebble with his mind. Nothing happened. He couldn't squeeze out even a single drop of magic, superpower, or extraordinary energy.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"It's useless,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro sighed, dropping his arms.</span>
+            <span class="text-seg" data-char="kenjiro">"I don't have this ET you were talking about at all."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Papa Bataar walked over, his warm smile crinkling the corners of his eyes. He reached out and clamped a heavy, comforting hand onto Kenjiro's bare shoulder.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="papa">"Do not force the wind, young brother,"</span>
+            <span class="text-seg" data-char="narrator">Papa Bataar rumbled.</span>
+            <span class="text-seg" data-char="papa">"It blows only when it knows it is welcome."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The exact second Papa Bataar's skin touched his, a jolt of pure, blinding clarity shocked Kenjiro's brain. He wasn't just hearing Papa Bataar's voice; he could hear the man's inner thoughts, feel his joyful memories, and, most importantly, sense the well of wind-based telekinesis humming in his blood. Kenjiro gasped, his eyes flying open in shock as the foreign sensations flooded his mind.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Fascinating. Your ET is not wind manipulation,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun declared, his optical sensors whirring rapidly from Kenjiro's shoulder.</span>
+            <span class="text-seg" data-char="kame">"It is Telepathy! You have established a temporary neural link with his mind!"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Maintaining physical contact with Papa Bataar, Kenjiro focused his newly awakened telepathic link, temporarily "borrowing" the nomad's abilities. He thrust his free hand forward. A massive, telekinetic gale erupted from his palm, lifting the bonfire into a swirling, spectacular vortex of fire and wind that illuminated the entire grassland.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The Bataar family cheered in awe as Kenjiro held the flaming tornado aloft. For five glorious minutes, he commanded the sky, realizing that his true power wasn't just physical strength—it was the profound ability to connect with the strength of others.</span>
+        </p>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        let activeUtterances = []; 
+        let textSegments = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('story-content');
+            textSegments = Array.from(container.querySelectorAll('.text-seg'));
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.max = textSegments.length - 1;
+        });
+
+        function applyCharacterVoice(utterance, character) {
+            const voices = window.speechSynthesis.getVoices();
+            switch(character) {
+                case 'kenjiro':
+                    utterance.pitch = 1.2; 
+                    utterance.rate = 1; 
+                    utterance.volume = 1; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'kame':
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.15; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'ja-JP'; 
+                    
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語' || v.lang === 'ja-JP');
+                    if (kameVoice) utterance.voice = kameVoice;
+                    break;
+                    
+                case 'papa':
+                    utterance.pitch = 0.6; 
+                    utterance.rate = 0.95; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'system':
+                    utterance.pitch = 0.2; 
+                    utterance.rate = 0.9;  
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-GB'; 
+                    
+                    const systemVoice = voices.find(v => v.lang === 'en-GB' && (v.name.includes('Male') || v.name.includes('Arthur')));
+                    if (systemVoice) utterance.voice = systemVoice;
+                    break;
+
+                case 'narrator':
+                default:
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.0;
+                    utterance.volume = 0.9; 
+                    utterance.lang = 'en-US'; 
+                    break;
+            }
+        }
+
+        function playStory(startIndex = currentIndex) {
+            synth.cancel();
+            activeUtterances = []; 
+            currentIndex = startIndex;
+            const remainingSegments = textSegments.slice(currentIndex);
+            remainingSegments.forEach((segment) => {
+                const text = segment.innerText.trim();
+                if (!text) return;
+                const utterance = new SpeechSynthesisUtterance(text);
+                applyCharacterVoice(utterance, segment.getAttribute('data-char'));
+                utterance.onstart = () => {
+                    document.getElementById('progress-bar').value = textSegments.indexOf(segment);
+                    document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                    segment.classList.add('speaking');
+                    segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                synth.speak(utterance);
+            });
+        }
+
+        function seekStory(index) {
+            currentIndex = parseInt(index, 10);
+            if (synth.speaking) playStory(currentIndex);
+        }
+
+        function stopAudio() {
+            synth.cancel();
+            document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+        }
+        
+        // Ensures voices are loaded before trying to play, particularly for some browsers
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自然煉金術 (200種生物與元素)</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+        h1 {
+            color: #2ecc71;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+        }
+        p.subtitle {
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        
+        .workspace {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-bottom: 40px;
+            border: 2px dashed #444;
+            min-height: 120px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .slot {
+            width: 90px;
+            height: 90px;
+            background-color: #2c3e50;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+            border: 2px solid transparent;
+        }
+        .slot.drag-over {
+            border-color: #2ecc71;
+            background-color: #34495e;
+            transform: scale(1.05);
+        }
+        .slot:hover {
+            transform: scale(1.05);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 15px rgba(255,255,255,0.1);
+        }
+        .slot .element-name {
+            font-size: 13px;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #ddd;
+        }
+        .slot .placeholder {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .plus-sign {
+            font-size: 32px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .inventory-container {
+            width: 100%;
+            max-width: 900px;
+        }
+        .inventory-title {
+            font-size: 18px;
+            color: #2ecc71;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .inventory {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        /* Scrollbar styles */
+        .inventory::-webkit-scrollbar { width: 8px; }
+        .inventory::-webkit-scrollbar-track { background: #1e1e1e; border-radius: 4px; }
+        .inventory::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        
+        .element-btn {
+            background-color: #272727;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: grab;
+            transition: all 0.2s;
+            width: 70px;
+        }
+        .element-btn:active { cursor: grabbing; }
+        .element-btn:hover {
+            background-color: #333;
+            border-color: #2ecc71;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+        .element-btn .emoji { font-size: 28px; margin-bottom: 5px; pointer-events: none; }
+        .element-btn .name { font-size: 14px; font-weight: bold; color: #ddd; pointer-events: none; text-align: center; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.3s ease-in-out; border-color: #e74c3c !important; }
+        
+        @keyframes flash {
+            0% { box-shadow: 0 0 0px #2ecc71; background-color: #2ecc71; }
+            100% { box-shadow: 0 0 30px rgba(46, 204, 113, 0); background-color: #1e1e1e; }
+        }
+        .success-flash { animation: flash 0.8s ease-out; }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            background-color: #2ecc71;
+            color: #121212;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transform: translateY(-100px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #notification.show { transform: translateY(0); }
+        .notif-emoji { font-size: 24px; }
+    </style>
+</head>
+<body>
+
+    <div id="notification">
+        <span class="notif-emoji" id="notif-emoji"></span>
+        <span id="notif-text"></span>
+    </div>
+
+    <h1>自然煉金術</h1>
+    <p class="subtitle">從基本元素開始，拖曳合成出大自然的萬物生靈！</p>
+
+    <div class="workspace" id="workspace">
+        <div class="slot" id="slot1" ondrop="drop(event, 1)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" onclick="clearSlot(1)">
+            <span class="placeholder">拖曳至此</span>
+        </div>
+        <div class="plus-sign">+</div>
+        <div class="slot" id="slot2" ondrop="drop(event, 2)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" onclick="clearSlot(2)">
+            <span class="placeholder">拖曳至此</span>
+        </div>
+    </div>
+
+    <div class="inventory-container">
+        <div class="inventory-title">
+            <span>元素圖鑑</span>
+            <span>已解鎖：<span id="count">4</span> / 216</span>
+        </div>
+        <div class="inventory" id="inventory"></div>
+    </div>
+
+    <script>
+        const elementsDB = {"water": {"id": "water", "name": "水", "emoji": "💧"}, "fire": {"id": "fire", "name": "火", "emoji": "🔥"}, "earth": {"id": "earth", "name": "土", "emoji": "🪨"}, "air": {"id": "air", "name": "風", "emoji": "💨"}, "wind": {"id": "wind", "name": "狂風", "emoji": "🌬️"}, "steam": {"id": "steam", "name": "蒸氣", "emoji": "♨️"}, "mud": {"id": "mud", "name": "泥漿", "emoji": "🟤"}, "rain": {"id": "rain", "name": "雨", "emoji": "🌧️"}, "magma": {"id": "magma", "name": "岩漿", "emoji": "🌋"}, "smoke": {"id": "smoke", "name": "煙", "emoji": "💨"}, "sand": {"id": "sand", "name": "沙", "emoji": "🏜️"}, "energy": {"id": "energy", "name": "能量", "emoji": "⚡"}, "mountain": {"id": "mountain", "name": "山脈", "emoji": "⛰️"}, "ocean": {"id": "ocean", "name": "海洋", "emoji": "🌊"}, "cloud": {"id": "cloud", "name": "雲", "emoji": "☁️"}, "storm": {"id": "storm", "name": "暴風雨", "emoji": "⛈️"}, "lightning": {"id": "lightning", "name": "閃電", "emoji": "🌩️"}, "ice": {"id": "ice", "name": "冰", "emoji": "🧊"}, "snow": {"id": "snow", "name": "雪", "emoji": "❄️"}, "volcano": {"id": "volcano", "name": "火山", "emoji": "🌋"}, "desert": {"id": "desert", "name": "沙漠", "emoji": "🏜️"}, "island": {"id": "island", "name": "島嶼", "emoji": "🏝️"}, "sky": {"id": "sky", "name": "天空", "emoji": "🌌"}, "sun": {"id": "sun", "name": "太陽", "emoji": "☀️"}, "light": {"id": "light", "name": "光", "emoji": "✨"}, "lake": {"id": "lake", "name": "湖泊", "emoji": "🏞️"}, "river": {"id": "river", "name": "河流", "emoji": "🏞️"}, "swamp": {"id": "swamp", "name": "沼澤", "emoji": "🏞️"}, "stone": {"id": "stone", "name": "石頭", "emoji": "🪨"}, "ash": {"id": "ash", "name": "灰燼", "emoji": "⚫"}, "hole": {"id": "hole", "name": "洞穴", "emoji": "🕳️"}, "cave": {"id": "cave", "name": "山洞", "emoji": "🦇"}, "dark": {"id": "dark", "name": "黑暗", "emoji": "⬛"}, "moon": {"id": "moon", "name": "月亮", "emoji": "🌙"}, "night": {"id": "night", "name": "夜晚", "emoji": "🌃"}, "life": {"id": "life", "name": "生命", "emoji": "🧬"}, "bacteria": {"id": "bacteria", "name": "細菌", "emoji": "🦠"}, "plankton": {"id": "plankton", "name": "浮游生物", "emoji": "🦐"}, "plant": {"id": "plant", "name": "植物", "emoji": "🌱"}, "algae": {"id": "algae", "name": "藻類", "emoji": "🌿"}, "grass": {"id": "grass", "name": "草", "emoji": "🌾"}, "weed": {"id": "weed", "name": "雜草", "emoji": "🌿"}, "wood": {"id": "wood", "name": "木材", "emoji": "🪵"}, "vine": {"id": "vine", "name": "藤蔓", "emoji": "🌿"}, "bush": {"id": "bush", "name": "灌木", "emoji": "🪴"}, "tree": {"id": "tree", "name": "樹木", "emoji": "🌳"}, "forest": {"id": "forest", "name": "森林", "emoji": "🌲"}, "jungle": {"id": "jungle", "name": "叢林", "emoji": "🌴"}, "leaf": {"id": "leaf", "name": "樹葉", "emoji": "🍃"}, "branch": {"id": "branch", "name": "樹枝", "emoji": "🪵"}, "root": {"id": "root", "name": "樹根", "emoji": "🌱"}, "bark": {"id": "bark", "name": "樹皮", "emoji": "🪵"}, "flower": {"id": "flower", "name": "花朵", "emoji": "🌸"}, "petal": {"id": "petal", "name": "花瓣", "emoji": "🌸"}, "dust": {"id": "dust", "name": "灰塵", "emoji": "🌫️"}, "pollen": {"id": "pollen", "name": "花粉", "emoji": "🌼"}, "seed": {"id": "seed", "name": "種子", "emoji": "🌰"}, "fruit": {"id": "fruit", "name": "果實", "emoji": "🍎"}, "berry": {"id": "berry", "name": "莓果", "emoji": "🫐"}, "apple": {"id": "apple", "name": "蘋果", "emoji": "🍏"}, "nut": {"id": "nut", "name": "堅果", "emoji": "🥜"}, "mushroom": {"id": "mushroom", "name": "蘑菇", "emoji": "🍄"}, "fungus": {"id": "fungus", "name": "真菌", "emoji": "🦠"}, "moss": {"id": "moss", "name": "苔蘚", "emoji": "🌱"}, "fern": {"id": "fern", "name": "蕨類", "emoji": "🌿"}, "cactus": {"id": "cactus", "name": "仙人掌", "emoji": "🌵"}, "pine": {"id": "pine", "name": "松樹", "emoji": "🌲"}, "oak": {"id": "oak", "name": "橡樹", "emoji": "🌳"}, "bamboo": {"id": "bamboo", "name": "竹子", "emoji": "🎋"}, "lotus": {"id": "lotus", "name": "蓮花", "emoji": "🪷"}, "worm": {"id": "worm", "name": "蠕蟲", "emoji": "🪱"}, "insect": {"id": "insect", "name": "昆蟲", "emoji": "🪲"}, "ant": {"id": "ant", "name": "螞蟻", "emoji": "🐜"}, "bee": {"id": "bee", "name": "蜜蜂", "emoji": "🐝"}, "wasp": {"id": "wasp", "name": "黃蜂", "emoji": "🐝"}, "butterfly": {"id": "butterfly", "name": "蝴蝶", "emoji": "🦋"}, "moth": {"id": "moth", "name": "飛蛾", "emoji": "🦋"}, "caterpillar": {"id": "caterpillar", "name": "毛毛蟲", "emoji": "🐛"}, "beetle": {"id": "beetle", "name": "甲蟲", "emoji": "🪲"}, "ladybug": {"id": "ladybug", "name": "瓢蟲", "emoji": "🐞"}, "firefly": {"id": "firefly", "name": "螢火蟲", "emoji": "🪲"}, "spider": {"id": "spider", "name": "蜘蛛", "emoji": "🕷️"}, "scorpion": {"id": "scorpion", "name": "蠍子", "emoji": "🦂"}, "centipede": {"id": "centipede", "name": "蜈蚣", "emoji": "🐛"}, "millipede": {"id": "millipede", "name": "馬陸", "emoji": "🐛"}, "shell": {"id": "shell", "name": "貝殼", "emoji": "🐚"}, "snail": {"id": "snail", "name": "蝸牛", "emoji": "🐌"}, "slug": {"id": "slug", "name": "蛞蝓", "emoji": "🐌"}, "grasshopper": {"id": "grasshopper", "name": "蚱蜢", "emoji": "🦗"}, "cricket": {"id": "cricket", "name": "蟋蟀", "emoji": "🦗"}, "mantis": {"id": "mantis", "name": "螳螂", "emoji": "🦗"}, "coral": {"id": "coral", "name": "珊瑚", "emoji": "🪸"}, "sponge": {"id": "sponge", "name": "海綿", "emoji": "🧽"}, "jellyfish": {"id": "jellyfish", "name": "水母", "emoji": "🪼"}, "anemone": {"id": "anemone", "name": "海葵", "emoji": "🪸"}, "fish": {"id": "fish", "name": "魚", "emoji": "🐟"}, "squid": {"id": "squid", "name": "烏賊", "emoji": "🦑"}, "octopus": {"id": "octopus", "name": "章魚", "emoji": "🐙"}, "starfish": {"id": "starfish", "name": "海星", "emoji": "🪸"}, "egg": {"id": "egg", "name": "蛋", "emoji": "🥚"}, "clam": {"id": "clam", "name": "蛤蜊", "emoji": "🦪"}, "pearl": {"id": "pearl", "name": "珍珠", "emoji": "⚪"}, "oyster": {"id": "oyster", "name": "牡蠣", "emoji": "🦪"}, "shrimp": {"id": "shrimp", "name": "蝦", "emoji": "🦐"}, "crab": {"id": "crab", "name": "螃蟹", "emoji": "🦀"}, "lobster": {"id": "lobster", "name": "龍蝦", "emoji": "🦞"}, "seaweed": {"id": "seaweed", "name": "海帶", "emoji": "🥬"}, "kelp": {"id": "kelp", "name": "巨藻", "emoji": "🎋"}, "shark": {"id": "shark", "name": "鯊魚", "emoji": "🦈"}, "ray": {"id": "ray", "name": "魟魚", "emoji": "🐟"}, "salmon": {"id": "salmon", "name": "鮭魚", "emoji": "🐟"}, "trout": {"id": "trout", "name": "鱒魚", "emoji": "🐟"}, "reptile": {"id": "reptile", "name": "爬蟲類", "emoji": "🦎"}, "snake": {"id": "snake", "name": "蛇", "emoji": "🐍"}, "eel": {"id": "eel", "name": "鰻魚", "emoji": "🐍"}, "mammal": {"id": "mammal", "name": "哺乳類", "emoji": "🐁"}, "field": {"id": "field", "name": "田野", "emoji": "🌾"}, "horse": {"id": "horse", "name": "馬", "emoji": "🐎"}, "seahorse": {"id": "seahorse", "name": "海馬", "emoji": "🐟"}, "clownfish": {"id": "clownfish", "name": "小丑魚", "emoji": "🐠"}, "pufferfish": {"id": "pufferfish", "name": "河豚", "emoji": "🐡"}, "anglerfish": {"id": "anglerfish", "name": "鮟鱇魚", "emoji": "🐟"}, "amphibian": {"id": "amphibian", "name": "兩棲類", "emoji": "🐸"}, "frog": {"id": "frog", "name": "青蛙", "emoji": "🐸"}, "toad": {"id": "toad", "name": "蟾蜍", "emoji": "🐸"}, "salamander": {"id": "salamander", "name": "蠑螈", "emoji": "🦎"}, "newt": {"id": "newt", "name": "水螈", "emoji": "🦎"}, "lizard": {"id": "lizard", "name": "蜥蜴", "emoji": "🦎"}, "gecko": {"id": "gecko", "name": "壁虎", "emoji": "🦎"}, "rainbow": {"id": "rainbow", "name": "彩虹", "emoji": "🌈"}, "chameleon": {"id": "chameleon", "name": "變色龍", "emoji": "🦎"}, "iguana": {"id": "iguana", "name": "鬣蜥", "emoji": "🦎"}, "poison": {"id": "poison", "name": "毒液", "emoji": "🧪"}, "viper": {"id": "viper", "name": "毒蛇", "emoji": "🐍"}, "cobra": {"id": "cobra", "name": "眼鏡蛇", "emoji": "🐍"}, "python": {"id": "python", "name": "蟒蛇", "emoji": "🐍"}, "turtle": {"id": "turtle", "name": "烏龜", "emoji": "🐢"}, "tortoise": {"id": "tortoise", "name": "陸龜", "emoji": "🐢"}, "sea_turtle": {"id": "sea_turtle", "name": "海龜", "emoji": "🐢"}, "crocodile": {"id": "crocodile", "name": "鱷魚", "emoji": "🐊"}, "alligator": {"id": "alligator", "name": "短吻鱷", "emoji": "🐊"}, "dinosaur": {"id": "dinosaur", "name": "恐龍", "emoji": "🦖"}, "bird": {"id": "bird", "name": "鳥", "emoji": "🐦"}, "nest": {"id": "nest", "name": "鳥巢", "emoji": "🪹"}, "duck": {"id": "duck", "name": "鴨子", "emoji": "🦆"}, "goose": {"id": "goose", "name": "鵝", "emoji": "🪿"}, "swan": {"id": "swan", "name": "天鵝", "emoji": "🦢"}, "pelican": {"id": "pelican", "name": "鵜鶘", "emoji": "🐦"}, "flamingo": {"id": "flamingo", "name": "火烈鳥", "emoji": "🦩"}, "seagull": {"id": "seagull", "name": "海鷗", "emoji": "🐦"}, "eagle": {"id": "eagle", "name": "老鷹", "emoji": "🦅"}, "hawk": {"id": "hawk", "name": "獵鷹", "emoji": "🦅"}, "falcon": {"id": "falcon", "name": "游隼", "emoji": "🦅"}, "owl": {"id": "owl", "name": "貓頭鷹", "emoji": "🦉"}, "woodpecker": {"id": "woodpecker", "name": "啄木鳥", "emoji": "🐦"}, "parrot": {"id": "parrot", "name": "鸚鵡", "emoji": "🦜"}, "macaw": {"id": "macaw", "name": "金剛鸚鵡", "emoji": "🦜"}, "cockatoo": {"id": "cockatoo", "name": "鳳頭鸚鵡", "emoji": "🦜"}, "pigeon": {"id": "pigeon", "name": "鴿子", "emoji": "🕊️"}, "dove": {"id": "dove", "name": "白鴿", "emoji": "🕊️"}, "crow": {"id": "crow", "name": "烏鴉", "emoji": "🐦‍⬛"}, "raven": {"id": "raven", "name": "渡鴉", "emoji": "🐦‍⬛"}, "ostrich": {"id": "ostrich", "name": "鴕鳥", "emoji": "🐦"}, "emu": {"id": "emu", "name": "鴯鶓", "emoji": "🐦"}, "penguin": {"id": "penguin", "name": "企鵝", "emoji": "🐧"}, "peacock": {"id": "peacock", "name": "孔雀", "emoji": "🦚"}, "turkey": {"id": "turkey", "name": "火雞", "emoji": "🦃"}, "grain": {"id": "grain", "name": "穀物", "emoji": "🌾"}, "chicken": {"id": "chicken", "name": "雞", "emoji": "🐔"}, "rooster": {"id": "rooster", "name": "公雞", "emoji": "🐓"}, "hummingbird": {"id": "hummingbird", "name": "蜂鳥", "emoji": "🐦"}, "sparrow": {"id": "sparrow", "name": "麻雀", "emoji": "🐦"}, "mouse": {"id": "mouse", "name": "老鼠", "emoji": "🐁"}, "rabbit": {"id": "rabbit", "name": "兔子", "emoji": "🐇"}, "fox": {"id": "fox", "name": "狐狸", "emoji": "🦊"}, "wolf": {"id": "wolf", "name": "狼", "emoji": "🐺"}, "dog": {"id": "dog", "name": "狗", "emoji": "🐕"}, "cat": {"id": "cat", "name": "貓", "emoji": "🐈"}, "honey": {"id": "honey", "name": "蜂蜜", "emoji": "🍯"}, "bear": {"id": "bear", "name": "熊", "emoji": "🐻"}, "polar_bear": {"id": "polar_bear", "name": "北極熊", "emoji": "🐻‍❄️"}, "panda": {"id": "panda", "name": "熊貓", "emoji": "🐼"}, "lion": {"id": "lion", "name": "獅子", "emoji": "🦁"}, "tiger": {"id": "tiger", "name": "老虎", "emoji": "🐅"}, "leopard": {"id": "leopard", "name": "豹", "emoji": "🐆"}, "cheetah": {"id": "cheetah", "name": "獵豹", "emoji": "🐆"}, "hyena": {"id": "hyena", "name": "鬣狗", "emoji": "🐕"}, "deer": {"id": "deer", "name": "鹿", "emoji": "🦌"}, "moose": {"id": "moose", "name": "駝鹿", "emoji": "🦌"}, "elk": {"id": "elk", "name": "麋鹿", "emoji": "🦌"}, "zebra": {"id": "zebra", "name": "斑馬", "emoji": "🦓"}, "donkey": {"id": "donkey", "name": "驢", "emoji": "🫏"}, "cow": {"id": "cow", "name": "牛", "emoji": "🐄"}, "sheep": {"id": "sheep", "name": "綿羊", "emoji": "🐑"}, "goat": {"id": "goat", "name": "山羊", "emoji": "🐐"}, "pig": {"id": "pig", "name": "豬", "emoji": "🐖"}, "wild_boar": {"id": "wild_boar", "name": "野豬", "emoji": "🐗"}, "elephant": {"id": "elephant", "name": "大象", "emoji": "🐘"}, "rhino": {"id": "rhino", "name": "犀牛", "emoji": "🦏"}, "hippo": {"id": "hippo", "name": "河馬", "emoji": "🦛"}, "giraffe": {"id": "giraffe", "name": "長頸鹿", "emoji": "🦒"}, "camel": {"id": "camel", "name": "駱駝", "emoji": "🐪"}, "kangaroo": {"id": "kangaroo", "name": "袋鼠", "emoji": "🦘"}, "koala": {"id": "koala", "name": "無尾熊", "emoji": "🐨"}, "sloth": {"id": "sloth", "name": "樹懶", "emoji": "🦥"}, "monkey": {"id": "monkey", "name": "猴子", "emoji": "🐒"}, "ape": {"id": "ape", "name": "猩猩", "emoji": "🦍"}, "gorilla": {"id": "gorilla", "name": "大猩猩", "emoji": "🦍"}, "chimpanzee": {"id": "chimpanzee", "name": "黑猩猩", "emoji": "🐒"}, "bat": {"id": "bat", "name": "蝙蝠", "emoji": "🦇"}, "beaver": {"id": "beaver", "name": "河狸", "emoji": "🦫"}, "otter": {"id": "otter", "name": "水獺", "emoji": "🦦"}, "seal": {"id": "seal", "name": "海豹", "emoji": "🦭"}, "walrus": {"id": "walrus", "name": "海象", "emoji": "🦭"}, "whale": {"id": "whale", "name": "鯨魚", "emoji": "🐳"}, "dolphin": {"id": "dolphin", "name": "海豚", "emoji": "🐬"}};
+        const recipes = {"air,air": "wind", "fire,water": "steam", "earth,water": "lake", "air,water": "rain", "earth,fire": "magma", "air,fire": "smoke", "air,earth": "hole", "fire,fire": "energy", "earth,earth": "mountain", "water,water": "ocean", "air,steam": "cloud", "rain,wind": "storm", "cloud,energy": "lightning", "water,wind": "ice", "ice,rain": "snow", "magma,mountain": "volcano", "sand,sand": "desert", "ocean,volcano": "island", "air,cloud": "sky", "fire,sky": "sun", "energy,sun": "light", "mountain,water": "river", "mud,water": "swamp", "magma,water": "stone", "earth,smoke": "ash", "hole,mountain": "cave", "cave,sky": "dark", "sky,stone": "moon", "moon,sky": "night", "energy,water": "life", "life,mud": "bacteria", "bacteria,water": "plankton", "earth,life": "plant", "plankton,plant": "algae", "earth,plant": "grass", "grass,water": "weed", "plant,stone": "wood", "plant,wood": "vine", "plant,plant": "bush", "bush,wood": "tree", "tree,tree": "forest", "forest,rain": "jungle", "tree,wind": "leaf", "earth,tree": "branch", "tree,water": "root", "leaf,wood": "bark", "light,plant": "flower", "flower,wind": "petal", "earth,wind": "dust", "dust,flower": "pollen", "flower,pollen": "seed", "flower,tree": "fruit", "bush,fruit": "berry", "fruit,tree": "apple", "seed,tree": "nut", "bacteria,earth": "worm", "mud,mushroom": "fungus", "mud,plant": "moss", "plant,swamp": "fern", "desert,plant": "cactus", "snow,tree": "pine", "grass,tree": "oak", "tree,weed": "bamboo", "flower,lake": "lotus", "air,worm": "insect", "grass,insect": "grasshopper", "flower,insect": "bee", "bee,fire": "wasp", "flower,worm": "butterfly", "butterfly,dark": "moth", "butterfly,leaf": "caterpillar", "earth,insect": "beetle", "beetle,flower": "ladybug", "beetle,light": "firefly", "insect,wood": "spider", "sand,spider": "scorpion", "earth,worm": "centipede", "centipede,earth": "millipede", "life,stone": "egg", "shell,worm": "snail", "mud,snail": "slug", "dark,grasshopper": "cricket", "insect,leaf": "mantis", "ocean,plant": "seaweed", "bacteria,ocean": "sponge", "life,water": "jellyfish", "coral,flower": "anemone", "life,plankton": "fish", "fish,water": "squid", "earth,squid": "octopus", "fish,night": "starfish", "egg,ocean": "clam", "sand,shell": "pearl", "clam,pearl": "oyster", "insect,ocean": "shrimp", "ocean,spider": "crab", "crab,ocean": "lobster", "forest,seaweed": "kelp", "fish,ocean": "shark", "sand,shark": "ray", "fish,river": "salmon", "fish,lake": "trout", "egg,swamp": "reptile", "reptile,worm": "snake", "ocean,snake": "eel", "energy,reptile": "dinosaur", "earth,grass": "field", "field,mammal": "cow", "horse,ocean": "seahorse", "anemone,fish": "clownfish", "air,fish": "pufferfish", "fish,light": "anglerfish", "fish,mud": "amphibian", "amphibian,insect": "frog", "earth,frog": "toad", "amphibian,fire": "salamander", "salamander,water": "newt", "reptile,stone": "lizard", "leaf,lizard": "gecko", "light,rain": "rainbow", "lizard,rainbow": "chameleon", "island,lizard": "iguana", "bacteria,swamp": "poison", "poison,snake": "viper", "desert,snake": "cobra", "jungle,snake": "python", "reptile,shell": "turtle", "desert,turtle": "tortoise", "ocean,turtle": "sea_turtle", "reptile,river": "crocodile", "crocodile,swamp": "alligator", "air,reptile": "bird", "bird,grass": "nest", "bird,lake": "duck", "bird,duck": "goose", "duck,light": "swan", "bird,fish": "pelican", "bird,shrimp": "flamingo", "bird,ocean": "seagull", "bird,mountain": "eagle", "eagle,forest": "hawk", "hawk,wind": "falcon", "bird,dark": "owl", "bird,wood": "woodpecker", "bird,jungle": "parrot", "parrot,rainbow": "macaw", "cloud,parrot": "cockatoo", "bird,stone": "pigeon", "light,pigeon": "dove", "bird,field": "crow", "crow,dark": "raven", "bird,sand": "ostrich", "grass,ostrich": "emu", "bird,ice": "penguin", "bird,leaf": "peacock", "bird,bush": "turkey", "grass,seed": "grain", "bird,grain": "chicken", "chicken,sun": "rooster", "bird,flower": "hummingbird", "bird,weed": "sparrow", "hole,mammal": "mouse", "grass,mammal": "kangaroo", "chicken,mammal": "fox", "mammal,moon": "wolf", "field,wolf": "dog", "mammal,mouse": "cat", "bee,flower": "honey", "honey,mammal": "bear", "bear,ice": "polar_bear", "bamboo,bear": "panda", "mammal,sand": "lion", "jungle,mammal": "tiger", "tiger,tree": "leopard", "leopard,wind": "cheetah", "desert,dog": "hyena", "leaf,mammal": "giraffe", "deer,snow": "moose", "deer,mountain": "elk", "grass,horse": "zebra", "horse,mountain": "donkey", "cloud,mammal": "sheep", "mammal,stone": "rhino", "mammal,mud": "pig", "forest,pig": "wild_boar", "mammal,tree": "monkey", "mammal,river": "otter", "desert,mammal": "camel", "mammal,vine": "sloth", "jungle,monkey": "ape", "ape,stone": "gorilla", "ape,forest": "chimpanzee", "air,mammal": "bat", "mammal,wood": "beaver", "ice,mammal": "seal", "seal,stone": "walrus", "mammal,ocean": "whale", "fish,mammal": "dolphin"};
+        
+        let unlockedElements = new Set(['water', 'fire', 'earth', 'air']);
+        let slot1Item = null;
+        let slot2Item = null;
+        let isProcessing = false;
+
+        function init() { renderInventory(); }
+
+        function renderInventory() {
+            const inventoryDiv = document.getElementById('inventory');
+            inventoryDiv.innerHTML = '';
+            
+            unlockedElements.forEach(id => {
+                const el = elementsDB[id];
+                const btn = document.createElement('div');
+                btn.className = 'element-btn';
+                btn.draggable = true;
+                btn.dataset.id = id;
+                btn.ondragstart = dragStart;
+                
+                btn.innerHTML = `<div class="emoji">${el.emoji}</div><div class="name">${el.name}</div>`;
+                inventoryDiv.appendChild(btn);
+            });
+            document.getElementById('count').innerText = unlockedElements.size;
+        }
+
+        function dragStart(ev) {
+            ev.dataTransfer.setData("id", ev.target.dataset.id);
+            ev.dataTransfer.effectAllowed = "copy";
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            if(!isProcessing) ev.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function drop(ev, slotNum) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            if (isProcessing) return;
+
+            const id = ev.dataTransfer.getData("id");
+            if (!id) return;
+
+            if (slotNum === 1) slot1Item = id;
+            if (slotNum === 2) slot2Item = id;
+            
+            updateSlots();
+
+            if (slot1Item && slot2Item) {
+                processCombination();
+            }
+        }
+
+        function clearSlot(slotNum) {
+            if (isProcessing) return;
+            if (slotNum === 1) slot1Item = null;
+            if (slotNum === 2) slot2Item = null;
+            updateSlots();
+        }
+
+        function updateSlots() {
+            const s1 = document.getElementById('slot1');
+            const s2 = document.getElementById('slot2');
+            
+            s1.innerHTML = slot1Item ? `<div class="emoji">${elementsDB[slot1Item].emoji}</div><div class="element-name">${elementsDB[slot1Item].name}</div>` : '<span class="placeholder">拖曳至此</span>';
+            s2.innerHTML = slot2Item ? `<div class="emoji">${elementsDB[slot2Item].emoji}</div><div class="element-name">${elementsDB[slot2Item].name}</div>` : '<span class="placeholder">拖曳至此</span>';
+        }
+
+        function processCombination() {
+            isProcessing = true;
+            const attemptKey = [slot1Item, slot2Item].sort().join(',');
+            
+            setTimeout(() => {
+                if (recipes[attemptKey]) {
+                    const newId = recipes[attemptKey];
+                    const ws = document.getElementById('workspace');
+                    
+                    ws.classList.add('success-flash');
+                    setTimeout(() => ws.classList.remove('success-flash'), 800);
+
+                    if (!unlockedElements.has(newId)) {
+                        unlockedElements.add(newId);
+                        showNotification(`解鎖新生命：${elementsDB[newId].name}！`, elementsDB[newId].emoji);
+                        renderInventory();
+                    }
+                } else {
+                    document.getElementById('workspace').classList.add('shake');
+                    setTimeout(() => document.getElementById('workspace').classList.remove('shake'), 300);
+                }
+                
+                slot1Item = null;
+                slot2Item = null;
+                updateSlots();
+                isProcessing = false;
+                
+            }, 400); 
+        }
+
+        function showNotification(text, emoji) {
+            const notif = document.getElementById('notification');
+            document.getElementById('notif-text').innerText = text;
+            document.getElementById('notif-emoji').innerText = emoji;
+            
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3500);
+        }
+
+        init();
+    </script>
+</body>
+</html>

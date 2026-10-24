@@ -1,0 +1,62 @@
+
+<!DOCTYPE>
+<html>
+<head>
+	<title>Time and date</title>
+	<link rel="icon" href="images/clock.jpg" type="images/jpg" sizes="16x16">
+		<link href="https://fonts.googleapis.com/css2?family=Kumbhz+sans&display=swap"  rel="styesheet">
+		<style>
+	#txt{
+	font-size: 5em;
+	word-wrap: break-word;
+	}
+
+	a{
+	color: gold;
+	}
+
+	a:hover{
+	color: gold: crimson;
+	background-color: white;
+	}
+
+	html{
+		background-color: #FF033E;
+		text-align: center;
+		padding-top: 250px;
+		color: #FFFFFF;
+		font-family: 'kumbh sans',serif;
+	}
+</style>
+		<div id='clock'></div>
+
+		<script>
+			function startTime() {
+				var today =new Date();
+				var d = today.getDate();
+				var n = today.getMonth()+1;
+				var y = today.getFullYear();
+				var h = today.getHours();
+				var m = today.getMinutes();
+				var s = today.getSeconds();
+				m = checkTime(m);
+				s = checkTime(s);
+				h = checkTime(h);
+				d = checkTime(d);
+				n = checkTime(n);
+
+				document.getElementById('txt').innerHTML = d +"/"+ n +"/"+ y +"&ndsp" + h + ":" + m + ":" + s ;
+				var t =setTimeout(startTime, 500);
+			}
+			function checkTime(i) {
+				if (i < 10) {i = "0" + i}; // add zero in front of number < 10
+				return i;
+			}
+		</script>
+		 </head>
+
+		 <body onload="startTime()">
+		 </body> 
+		 </html>
+
+	

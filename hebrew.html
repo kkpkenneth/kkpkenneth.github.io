@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Hebrew Language Journal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lora', serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e3dac9; margin: 0; color: #4a4a4a; }
+        #quiz-card { background: #fdfaf6; padding: 50px; border-radius: 2px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; border-top: 5px solid #556b2f; }
+        h1, h2 { font-family: 'Playfair Display', serif; color: #556b2f; }
+        .phonetic { font-size: 0.9rem; color: #888; font-style: italic; margin-bottom: 20px; direction: ltr; }
+        .option { display: block; width: 100%; padding: 15px; margin: 12px 0; border: 1px solid #cbbbb0; background: #fdfaf6; color: #4a4a4a; cursor: pointer; transition: 0.2s; text-align: right; }
+        .option:hover { background: #e3dac9; }
+        #next-btn { margin-top: 20px; padding: 10px 30px; background: #556b2f; color: #fdfaf6; border: none; cursor: pointer; display: none; }
+        #stats { font-size: 0.8rem; color: #cc6633; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-card">
+    <div id="screen">
+        <h1>Hebrew Language Journal</h1>
+        <p>Master your travel phrases.</p>
+        <button id="start-btn" style="padding:10px 25px; background:#556b2f; color:#fdfaf6; border:none; cursor:pointer;" onclick="startGame()">Start Session</button>
+    </div>
+</div>
+
+<script>
+    const synth = window.speechSynthesis;
+    const quizData = [
+        { q: "שלום, מה שלומך?", p: "Shalom, ma shlomcha?", a: "Hello, how are you?", opts: ["Hello, how are you?", "Good morning.", "Goodbye."] },
+        { q: "נעים להכיר.", p: "Na'im lehakir.", a: "Nice to meet you.", opts: ["Nice to meet you.", "See you later.", "I am fine."] },
+        { q: "מה השם שלך?", p: "Ma hashem shelcha?", a: "What is your name?", opts: ["What is your job?", "What is your name?", "Where are you?"] },
+        { q: "מאיפה אתה?", p: "Me'ayin ata?", a: "Where are you from?", opts: ["Where are you from?", "Who are you?", "How are you?"] },
+        { q: "איך היה היום שלך?", p: "Eich haya hayom shelcha?", a: "How was your day?", opts: ["How is your job?", "How was your day?", "What is your plan?"] },
+        { q: "אני מרגיש טוב.", p: "Ani margish tov.", a: "I am doing well.", opts: ["I am doing well.", "I am tired.", "I am hungry."] },
+        { q: "מה אתה עושה?", p: "Ma ata ose?", a: "What do you do?", opts: ["Where do you go?", "What do you do?", "How do you do?"] },
+        { q: "איפה התחנה?", p: "Eifo hatahana?", a: "Where is the station?", opts: ["Where is the station?", "Where is the hotel?", "Where is the bank?"] },
+        { q: "אתה יכול לעזור לי?", p: "Ata yachol la'azor li?", a: "Can you help me?", opts: ["Can you see me?", "Can you help me?", "Can you hear me?"] },
+        { q: "מה השעה?", p: "Ma hasha'a?", a: "What time is it?", opts: ["What time is it?", "What day is it?", "Where is the time?"] },
+        { q: "כמה זה עולה?", p: "Kama ze ole?", a: "How much is this?", opts: ["How much is this?", "Where is this?", "What is this?"] },
+        { q: "אני הייתי רוצה את זה.", p: "Ani hayiti rotze et ze.", a: "I would like that.", opts: ["I want this.", "I would like that.", "I like that."] },
+        { q: "איפה השירותים?", p: "Eifo hasherutim?", a: "Where is the bathroom?", opts: ["Where is the hotel?", "Where is the bathroom?", "Where is the street?"] },
+        { q: "אתה מדבר אנגלית?", p: "Ata medaber anglit?", a: "Do you speak English?", opts: ["Do you speak Hebrew?", "Do you speak English?", "Do you speak Spanish?"] },
+        { q: "אני לא מבין.", p: "Ani lo mevin.", a: "I do not understand.", opts: ["I do not understand.", "I do not know.", "I do not like it."] },
+        { q: "אתה יכול לחזור על זה?", p: "Ata yachol lachazor al ze?", a: "Can you repeat that?", opts: ["Can you repeat that?", "Can you read that?", "Can you write that?"] },
+        { q: "מה זה אומר?", p: "Ma ze omer?", a: "What does this mean?", opts: ["What do you say?", "What does this mean?", "Where is this?"] },
+        { q: "אני סטודנט.", p: "Ani student.", a: "I am a student.", opts: ["I am a teacher.", "I am a student.", "I am a traveler."] },
+        { q: "מה העבודה שלך?", p: "Ma ha'avoda shelcha?", a: "What is your job?", opts: ["What is your name?", "What is your job?", "Where is your office?"] },
+        { q: "איפה אתה גר?", p: "Eifo ata gar?", a: "Where do you live?", opts: ["Where do you go?", "Where do you live?", "Where do you work?"] },
+        { q: "אני אוהב לטייל.", p: "Ani ohev letayel.", a: "I love to travel.", opts: ["I love to eat.", "I love to learn.", "I love to travel."] },
+        { q: "זה מאוד מעניין.", p: "Ze me'od me'anyen.", a: "That is very interesting.", opts: ["That is very good.", "That is very interesting.", "That is very big."] },
+        { q: "מה אתה עושה עכשיו?", p: "Ma ata ose achshav?", a: "What are you doing?", opts: ["What are you doing?", "What do you want?", "What did you say?"] },
+        { q: "נתראה מאוחר יותר.", p: "Nitra'eh me'uchar yoter.", a: "See you later today.", opts: ["See you tomorrow.", "See you later today.", "Goodbye."] },
+        { q: "שיהיה לך יום טוב.", p: "Sheyihye lecha yom tov.", a: "Have a good day.", opts: ["Good morning.", "Have a good day.", "Good night."] },
+        { q: "תודה רבה.", p: "Toda raba.", a: "Thank you so much.", opts: ["You are welcome.", "Thank you so much.", "Please."] },
+        { q: "אתה מאוד אדיב.", p: "Ata me'od adiv.", a: "You are very kind.", opts: ["You are very smart.", "You are very kind.", "You are very funny."] },
+        { q: "סליחה, בבקשה.", p: "Slicha, bevakasha.", a: "Excuse me, please.", opts: ["Excuse me, please.", "Sorry.", "Thank you."] },
+        { q: "אני מאוד רעב.", p: "Ani me'od ra'ev.", a: "I am very hungry.", opts: ["I am very thirsty.", "I am very hungry.", "I am very tired."] },
+        { q: "בוא נאכל עכשיו.", p: "Bo nochal achshav.", a: "Let us eat now.", opts: ["Let us go now.", "Let us eat now.", "Let us sleep now."] },
+        { q: "איפה המלון?", p: "Eifo hamalon?", a: "Where is the hotel?", opts: ["Where is the house?", "Where is the hotel?", "Where is the airport?"] },
+        { q: "אני צריך מונית.", p: "Ani tzarich monit.", a: "I need a taxi.", opts: ["I need a car.", "I need a taxi.", "I need help."] },
+        { q: "האם הכיסא הזה תפוס?", p: "Ha'im hakise haze tafus?", a: "Is this seat taken?", opts: ["Are you busy?", "Is this seat taken?", "Where is my seat?"] },
+        { q: "אפשר לשבת כאן?", p: "Efshar lashevet kan?", a: "Can I sit here?", opts: ["Can I stand here?", "Can I sit here?", "Can I wait here?"] },
+        { q: "מה יש לארוחת צהריים?", p: "Ma yesh le'aruchat tzohorayim?", a: "What is for lunch?", opts: ["What is for breakfast?", "What is for dinner?", "What is for lunch?"] },
+        { q: "אני רוצה ללמוד.", p: "Ani rotze lilmod.", a: "I want to learn.", opts: ["I want to go.", "I want to eat.", "I want to learn."] },
+        { q: "זה רעיון טוב.", p: "Ze ra'ayon tov.", a: "That is a good idea.", opts: ["That is a good day.", "That is a good idea.", "That is true."] },
+        { q: "אתה אוהב את זה?", p: "Ata ohev et ze?", a: "Do you like this?", opts: ["Do you want this?", "Do you like this?", "Do you have this?"] },
+        { q: "זה מאוד יפה.", p: "Ze me'od yafe.", a: "It is very beautiful.", opts: ["It is very big.", "It is very beautiful.", "It is very expensive."] },
+        { q: "מה התוכנית שלך?", p: "Ma hatohnit shelcha?", a: "What is your plan?", opts: ["What is your name?", "What is your plan?", "How are you?"] },
+        { q: "אני הולך הביתה.", p: "Ani holech habayta.", a: "I will go home.", opts: ["I will go to work.", "I will go home.", "I will travel."] },
+        { q: "נהיה מאוחר.", p: "Nihya me'uchar.", a: "It is getting late.", opts: ["It is getting cold.", "It is getting late.", "It is getting dark."] },
+        { q: "אתה מוכן עכשיו?", p: "Ata muchan achshav?", a: "Are you ready now?", opts: ["Are you ready now?", "Are you happy?", "Are you here?"] },
+        { q: "בוא נלך לשם.", p: "Bo nelech lesham.", a: "Let us go there.", opts: ["Let us eat.", "Let us go there.", "Let us leave."] },
+        { q: "זה לא נכון.", p: "Ze lo nachon.", a: "That is not right.", opts: ["That is not good.", "That is not right.", "That is not true."] },
+        { q: "אתה יכול להראות לי?", p: "Ata yachol lehar'ot li?", a: "Can you show me?", opts: ["Can you tell me?", "Can you show me?", "Can you help me?"] },
+        { q: "מה אמרת?", p: "Ma amarta?", a: "What did you say?", opts: ["What did you do?", "What did you say?", "What do you want?"] },
+        { q: "יש לי שאלה.", p: "Yesh li she'ela.", a: "I have a question.", opts: ["I have a doubt.", "I have a question.", "I have a problem."] },
+        { q: "אני מאוד מאושר.", p: "Ani me'od me'ushar.", a: "I am very happy.", opts: ["I am very sad.", "I am very happy.", "I am very tired."] },
+        { q: "נדבר בקרוב.", p: "Nedaber bekarov.", a: "Talk to you soon.", opts: ["Goodbye.", "Talk to you soon.", "See you later."] }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function startGame() { 
+        current = 0;
+        score = 0;
+        render(); 
+    }
+
+    function render() {
+        const data = quizData[current];
+        document.getElementById('screen').innerHTML = `
+            <div id="stats">Progress: ${current + 1} / ${quizData.length} | Score: ${score}</div>
+            <h2>${data.q}</h2>
+            <div class="phonetic">${data.p}</div>
+            <div id="options"></div>
+            <button id="next-btn" onclick="nextQuestion()">Next</button>
+        `;
+        
+        setTimeout(() => {
+            const msg = new SpeechSynthesisUtterance(data.q);
+            msg.lang = 'he-IL';
+            synth.speak(msg);
+        }, 500);
+
+        data.opts.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'option';
+            btn.innerText = o;
+            btn.onclick = () => {
+                document.querySelectorAll('.option').forEach(b => b.disabled = true);
+                if(o === data.a) {
+                    score++;
+                    btn.style.backgroundColor = "#e3dac9";
+                } else {
+                    btn.style.backgroundColor = "#fdece6";
+                }
+                document.getElementById('next-btn').style.display = "inline-block";
+            };
+            document.getElementById('options').appendChild(btn);
+        });
+    }
+
+    function nextQuestion() {
+        current++;
+        if(current < quizData.length) render();
+        else document.getElementById('quiz-card').innerHTML = `<h1>Session Complete</h1><p>Final Score: ${score} / ${quizData.length}</p>`;
+    }
+</script>
+</body>
+</html>

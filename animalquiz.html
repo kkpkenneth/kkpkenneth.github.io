@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Emoji Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .question span.emoji {
+            font-size: 32px;
+            margin-right: 15px;
+        }
+        .question input {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+        .question input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .question input.correct {
+            border-color: #28a745;
+            background-color: #e9f5ee;
+        }
+        .question input.incorrect {
+            border-color: #dc3545;
+            background-color: #f8e9ea;
+        }
+        .question span.correct-answer {
+            color: #28a745;
+            font-size: 14px;
+            margin-left: 10px;
+            display: none;
+        }
+        .submit-button {
+            padding: 12px 25px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        #results span.score-number {
+            color: #28a745;
+            font-size: 32px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Guess the Animals</h1>
+    <div id="quiz-form">
+        </div>
+    <button class="submit-button" onclick="checkAnswers()">Check Answers</button>
+    <div id="results"></div>
+</div>
+
+<script>
+    const animals = [
+        { emoji: '🐶', name: 'dog' },
+        { emoji: '🐱', name: 'cat' },
+        { emoji: '🐭', name: 'mouse' },
+        { emoji: '🐹', name: 'hamster' },
+        { emoji: '🐰', name: 'rabbit' },
+        { emoji: '🦊', name: 'fox' },
+        { emoji: '🐻', name: 'bear' },
+        { emoji: '🐼', name: 'panda' },
+        { emoji: '🐨', name: 'koala' },
+        { emoji: '🐯', name: 'tiger' },
+        { emoji: '🦁', name: 'lion' },
+        { emoji: '🐮', name: 'cow' },
+        { emoji: '🐷', name: 'pig' },
+        { emoji: '🐸', name: 'frog' },
+        { emoji: '🐒', name: 'monkey' },
+        { emoji: '🐔', name: 'chicken' },
+        { emoji: '🦆', name: 'duck' },
+        { emoji: '🦉', name: 'owl' },
+        { emoji: '🐬', name: 'dolphin' },
+        { emoji: '🐠', name: 'fish' }
+    ];
+
+    function generateQuiz() {
+        const quizForm = document.getElementById('quiz-form');
+        let htmlContent = '';
+        animals.forEach((animal, index) => {
+            htmlContent += `
+                <div class="question">
+                    <span class="emoji">${animal.emoji}</span>
+                    <input type="text" id="answer-${index}" data-correct-answer="${animal.name}" placeholder="Type here...">
+                </div>
+            `;
+        });
+        quizForm.innerHTML = htmlContent;
+    }
+
+    function checkAnswers() {
+        let score = 0;
+        const totalQuestions = animals.length;
+        const allInputs = document.querySelectorAll('#quiz-form input');
+
+        allInputs.forEach(input => {
+            const userAnswer = input.value.trim().toLowerCase();
+            const correctAnswer = input.getAttribute('data-correct-answer').toLowerCase();
+
+            // Reset classes
+            input.classList.remove('correct', 'incorrect');
+            const feedbackSpan = input.nextElementSibling;
+            if (feedbackSpan) {
+                feedbackSpan.remove();
+            }
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                input.classList.add('correct');
+            } else {
+                input.classList.add('incorrect');
+                // Create a span to show the correct answer
+                const correctAnswerSpan = document.createElement('span');
+                correctAnswerSpan.className = 'correct-answer';
+                correctAnswerSpan.textContent = ` (Correct: ${correctAnswer})`;
+                correctAnswerSpan.style.display = 'inline';
+                input.parentNode.appendChild(correctAnswerSpan);
+            }
+        });
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `Your Score: <span class="score-number">${score}</span> / ${totalQuestions}`;
+    }
+
+    // Generate the quiz on page load
+    document.addEventListener('DOMContentLoaded', generateQuiz);
+</script>
+
+</body>
+</html>

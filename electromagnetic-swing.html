@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Electromagnetic Swing Challenge</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c14; color: #00f2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ffcc00; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.4rem; color: #ffcc00; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ffcc0055; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-left { border-color: #00f2ff; background: transparent; color: #00f2ff; }
+        .btn-left:hover { background: #00f2ff; color: #000; }
+        .btn-right { border-color: #ff00ff; background: transparent; color: #ff00ff; }
+        .btn-right:hover { background: #ff00ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">MISSION SCORE: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE TO START.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">INITIALIZE SYSTEM</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+        { q: "What fundamental force drives an electromagnetic swing?", a: ["Lorentz force", "Gravitational pull"], correct: "Lorentz force", exp: "A current-carrying wire in a magnetic field experiences a Lorentz force, causing it to move." },
+        { q: "Which rule helps determine the direction of the swing's movement?", a: ["Fleming's Left-Hand Rule", "Right-Hand Grip Rule"], correct: "Fleming's Left-Hand Rule", exp: "Fleming's Left-Hand Rule is used to find the direction of thrust or force on a conductor in a magnetic field." },
+        { q: "What happens to the swing if you reverse the direction of the electric current?", a: ["Swings the opposite way", "Swings stop completely"], correct: "Swings the opposite way", exp: "Reversing the current reverses the direction of the Lorentz force." },
+        { q: "What happens if you reverse the poles of the magnet?", a: ["Swings the opposite way", "Swings higher"], correct: "Swings the opposite way", exp: "Reversing the magnetic field also reverses the direction of the resulting force." },
+        { q: "What is required to make the swing move?", a: ["Magnetic field and current", "Only a strong magnet"], correct: "Magnetic field and current", exp: "Both a magnetic field and an electric current are needed to produce the Lorentz force." },
+        { q: "How can you increase the swing's maximum deflection height?", a: ["Increase the current", "Use a lighter magnet"], correct: "Increase the current", exp: "Higher current increases the magnitude of the magnetic force, pushing the swing further." },
+        { q: "What type of current causes the swing to continuously oscillate back and forth?", a: ["Alternating Current (AC)", "Direct Current (DC)"], correct: "Alternating Current (AC)", exp: "AC constantly reverses direction, causing the magnetic force to alternate and the swing to oscillate." },
+        { q: "If a DC source is used, what will the swing do?", a: ["Deflect to one side", "Oscillate continuously"], correct: "Deflect to one side", exp: "A constant DC current provides a constant force in one direction, holding the swing at an angle." },
+        { q: "Which component usually provides the magnetic field in a lab setup?", a: ["Horseshoe magnet", "Battery pack"], correct: "Horseshoe magnet", exp: "A horseshoe magnet provides a strong, uniform magnetic field between its North and South poles." },
+        { q: "What material should the swing wire be made of?", a: ["Copper", "Plastic"], correct: "Copper", exp: "Copper is an excellent conductor of electricity, which is required for the current to flow." },
+        { q: "What happens if the wire is placed exactly parallel to the magnetic field?", a: ["No force is exerted", "It swings faster"], correct: "No force is exerted", exp: "The magnetic force is zero when the current is parallel to the magnetic field lines." },
+        { q: "According to Fleming's Left-Hand Rule, what does the index finger represent?", a: ["Magnetic Field", "Current"], correct: "Magnetic Field", exp: "Index finger = Magnetic Field, Middle finger = Current, Thumb = Thrust/Force." },
+        { q: "According to Fleming's Left-Hand Rule, what does the middle finger represent?", a: ["Current direction", "Force direction"], correct: "Current direction", exp: "The middle finger points in the direction of conventional electric current." },
+        { q: "If you increase the strength of the magnet, what happens?", a: ["Larger swing deflection", "Wire gets hotter"], correct: "Larger swing deflection", exp: "A stronger magnetic field increases the Lorentz force acting on the wire." },
+        { q: "The electromagnetic swing demonstrates the basic principle behind what device?", a: ["Electric Motor", "Electric Generator"], correct: "Electric Motor", exp: "Motors work by passing current through a magnetic field to create physical motion." },
+        { q: "What equation represents the force on the wire?", a: ["F = BIL", "F = ma"], correct: "F = BIL", exp: "Force = Magnetic Flux Density (B) × Current (I) × Length of wire in field (L)." },
+        { q: "What is conventional current?", a: ["Positive to Negative", "Negative to Positive"], correct: "Positive to Negative", exp: "Conventional current flows from the positive terminal to the negative terminal." },
+        { q: "If both the current and the magnetic field are reversed, what happens?", a: ["Swings the same way", "Swings the opposite way"], correct: "Swings the same way", exp: "Reversing both components cancels out the change, resulting in force in the original direction." },
+        { q: "Why shouldn't you leave a DC electromagnetic swing on for too long?", a: ["The wire will overheat", "The magnet will break"], correct: "The wire will overheat", exp: "A high continuous current will cause the unresisted bare wire to heat up rapidly (Joule heating)." },
+        { q: "What does the thumb represent in Fleming's Left-Hand Rule?", a: ["Direction of Force", "Direction of Voltage"], correct: "Direction of Force", exp: "The thumb points in the direction of the physical thrust or motion." }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.8;
+        msg.pitch = 0.5;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(200, 'square', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 50);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "CORRECT" : "INCORRECT") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(600, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "MISSION SCORE: " + score;
+                        
+                        setTimeout(nextQuestion, 2500);
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

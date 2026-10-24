@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>8-World Pixel RPG</title>
+    <style>
+        :root {
+            --pSize: 12px; /* The "1mm" pixel box */
+            --world-bg: #0d0221;
+            --accent: #9b59b6;
+        }
+
+        body { 
+            background: #000; color: white; font-family: 'Courier New', monospace;
+            margin: 0; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; height: 100vh; overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 480px; height: 480px;
+            border: 4px solid #333;
+            background-color: var(--world-bg);
+            display: grid;
+            grid-template-columns: repeat(40, 1fr);
+            grid-template-rows: repeat(40, 1fr);
+            image-rendering: pixelated;
+        }
+
+        /* The Hero (Mewtwo-style Sprite) */
+        #player {
+            grid-column: 20; grid-row: 20;
+            width: var(--pSize); height: var(--pSize);
+            background: #fff;
+            box-shadow: 0 5px #d1d1e0, 5px 5px #9b59b6, -5px 5px #d1d1e0; /* Simple 8-bit body */
+            z-index: 100;
+            transition: all 0.1s ease;
+            filter: drop-shadow(0 0 5px var(--accent));
+        }
+
+        /* World UI */
+        #ui {
+            width: 480px; padding: 15px; background: #1a1a1a;
+            display: flex; justify-content: space-between; border-top: 2px solid #444;
+        }
+
+        .world-tag { color: var(--accent); font-weight: bold; text-transform: uppercase; }
+
+        /* Environmental Pixels (Obstacles/Grass) */
+        .entity { width: 100%; height: 100%; }
+        .grass { background: rgba(255,255,255,0.1); }
+        .portal { background: #fff; box-shadow: 0 0 15px #fff; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <div>HP: <span id="hp">100</span></div>
+        <div class="world-tag" id="world-name">World 1: Psychic Void</div>
+        <div>LVL: <span id="lvl">1</span></div>
+    </div>
+
+    <div id="game-container" id="grid">
+        <div id="player"></div>
+    </div>
+
+    <div style="margin-top: 10px; font-size: 12px; color: #666;">
+        Use WASD to Move | Touch Portals to Change Worlds
+    </div>
+
+<script>
+    const player = document.getElementById('player');
+    const worldNameDisplay = document.getElementById('world-name');
+    const container = document.getElementById('game-container');
+    
+    let pPos = { x: 20, y: 20 };
+    let currentWorld = 0;
+
+    const worlds = [
+        { name: "Psychic Void", bg: "#0d0221", accent: "#9b59b6", boss: "Mewtwo" },
+        { name: "Magma Core", bg: "#2b0000", accent: "#ff4500", boss: "Groudon" },
+        { name: "Deep Ocean", bg: "#001a33", accent: "#00bfff", boss: "Kyogre" },
+        { name: "Emerald Sky", bg: "#002b11", accent: "#2ecc71", boss: "Rayquaza" },
+        { name: "Static Wasteland", bg: "#1a1a00", accent: "#f1c40f", boss: "Zapdos" },
+        { name: "Frozen Tundra", bg: "#1a2a3a", accent: "#a2d2ff", boss: "Articuno" },
+        { name: "Shadow Realm", bg: "#111111", accent: "#6c5ce7", boss: "Giratina" },
+        { name: "Golden Temple", bg: "#2c2c00", accent: "#ffd700", boss: "Ho-Oh" }
+    ];
+
+    function updateWorld() {
+        const w = worlds[currentWorld];
+        document.documentElement.style.setProperty('--world-bg', w.bg);
+        document.documentElement.style.setProperty('--accent', w.accent);
+        worldNameDisplay.innerText = `World ${currentWorld + 1}: ${w.name}`;
+        
+        // Clear old environmental pixels
+        document.querySelectorAll('.entity').forEach(e => e.remove());
+        
+        // Spawn a random portal
+        spawnEntity(Math.floor(Math.random()*30)+5, Math.floor(Math.random()*30)+5, 'portal');
+        
+        // Spawn decorative "1mm" grass/stars
+        for(let i=0; i<20; i++) {
+            spawnEntity(Math.floor(Math.random()*40), Math.floor(Math.random()*40), 'grass');
+        }
+    }
+
+    function spawnEntity(x, y, type) {
+        const ent = document.createElement('div');
+        ent.className = `entity ${type}`;
+        ent.style.gridColumn = x;
+        ent.style.gridRow = y;
+        if(type === 'portal') ent.id = 'active-portal';
+        container.appendChild(ent);
+    }
+
+    function movePlayer(dx, dy) {
+        const newX = pPos.x + dx;
+        const newY = pPos.y + dy;
+
+        if (newX > 0 && newX <= 40 && newY > 0 && newY <= 40) {
+            pPos.x = newX;
+            pPos.y = newY;
+            player.style.gridColumn = pPos.x;
+            player.style.gridRow = pPos.y;
+
+            // Check Collision with Portal
+            const portal = document.getElementById('active-portal');
+            if (portal) {
+                const px = parseInt(portal.style.gridColumn);
+                const py = parseInt(portal.style.gridRow);
+                if (pPos.x === px && pPos.y === py) {
+                    currentWorld = (currentWorld + 1) % 8;
+                    updateWorld();
+                }
+            }
+        }
+    }
+
+    window.addEventListener('keydown', (e) => {
+        switch(e.key.toLowerCase()) {
+            case 'w': movePlayer(0, -1); break;
+            case 's': movePlayer(0, 1); break;
+            case 'a': movePlayer(-1, 0); break;
+            case 'd': movePlayer(1, 0); break;
+        }
+    });
+
+    updateWorld();
+</script>
+</body>
+</html>

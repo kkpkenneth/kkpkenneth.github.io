@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>數字字首挑戰賽</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .quiz-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; text-align: center; }
+        button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #007bff; background: #fff; cursor: pointer; border-radius: 8px; font-size: 18px; transition: 0.3s; }
+        button:hover { background: #007bff; color: white; }
+        #score-board { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #333; }
+        .word-display { font-size: 28px; font-weight: bold; margin: 20px 0; color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="score-board">得分：0</div>
+    <div id="q-box">
+        <div class="word-display" id="word">載入中...</div>
+        <div id="options"></div>
+    </div>
+</div>
+
+<script>
+    const data = [
+        // 1 (Uni-, Mon-, Mono-)
+            { word: "Unicycle", correct: "1" }, { word: "Monologue", correct: "1" }, { word: "Uniform", correct: "1" }, { word: "Union", correct: "1" }, { word: "Monarch", correct: "1" },
+            { word: "Unique", correct: "1" }, { word: "Unison", correct: "1" }, { word: "Monopoly", correct: "1" }, { word: "Universe", correct: "1" }, { word: "Unit", correct: "1" },
+
+            // 2 (Bi-, Di-)
+            { word: "Bicycle", correct: "2" }, { word: "Bilingual", correct: "2" }, { word: "Biped", correct: "2" }, { word: "Dioxide", correct: "2" }, { word: "Bifocal", correct: "2" },
+            { word: "Binary", correct: "2" }, { word: "Biannual", correct: "2" }, { word: "Dilemma", correct: "2" }, { word: "Bisect", correct: "2" }, { word: "Biplane", correct: "2" },
+
+            // 3 (Tri-)
+            { word: "Triangle", correct: "3" }, { word: "Tricycle", correct: "3" }, { word: "Triplet", correct: "3" }, { word: "Trident", correct: "3" }, { word: "Trimester", correct: "3" },
+            { word: "Triathlon", correct: "3" }, { word: "Trio", correct: "3" }, { word: "Trilateral", correct: "3" }, { word: "Trilingual", correct: "3" }, { word: "Tripod", correct: "3" },
+
+            // 4 (Quad-, Quart-)
+            { word: "Quadrilateral", correct: "4" }, { word: "Quarter", correct: "4" }, { word: "Quadruplet", correct: "4" }, { word: "Quadrant", correct: "4" }, { word: "Quadruple", correct: "4" },
+            { word: "Quartet", correct: "4" }, { word: "Quadrangle", correct: "4" }, { word: "Quadriped", correct: "4" }, { word: "Quart", correct: "4" }, { word: "Quadraphonic", correct: "4" },
+
+            // 5 (Pent-, Quint-)
+            { word: "Pentagon", correct: "5" }, { word: "Quintet", correct: "5" }, { word: "Pentathlon", correct: "5" }, { word: "Quintuplet", correct: "5" }, { word: "Pentagram", correct: "5" },
+            { word: "Pentane", correct: "5" }, { word: "Quintuple", correct: "5" }, { word: "Pentad", correct: "5" }, { word: "Pentatonic", correct: "5" }, { word: "Quintessence", correct: "5" },
+
+            // 6 (Hex-, Sex-)
+            { word: "Hexagon", correct: "6" }, { word: "Hexameter", correct: "6" }, { word: "Hexapod", correct: "6" }, { word: "Sexagenarian", correct: "6" }, { word: "Hexagram", correct: "6" },
+            { word: "Hexahedron", correct: "6" }, { word: "Sextet", correct: "6" }, { word: "Sextant", correct: "6" }, { word: "Hexyl", correct: "6" }, { word: "Hexanoic", correct: "6" },
+
+            // 7 (Sept-, Hept-)
+            { word: "September", correct: "7" }, { word: "Heptagon", correct: "7" }, { word: "Septuplet", correct: "7" }, { word: "Heptathlon", correct: "7" }, { word: "Septennial", correct: "7" },
+            { word: "Heptad", correct: "7" }, { word: "Septet", correct: "7" }, { word: "Septuagenarian", correct: "7" }, { word: "Heptagon", correct: "7" }, { word: "Septenary", correct: "7" },
+
+            // 8 (Oct-)
+            { word: "Octagon", correct: "8" }, { word: "Octopus", correct: "8" }, { word: "Octave", correct: "8" }, { word: "October", correct: "8" }, { word: "Octet", correct: "8" },
+            { word: "Octogenarian", correct: "8" }, { word: "Octal", correct: "8" }, { word: "Octagon", correct: "8" }, { word: "Octopod", correct: "8" }, { word: "Octahedron", correct: "8" },
+
+            // 9 (Non-, Nov-)
+            { word: "November", correct: "9" }, { word: "Nonagon", correct: "9" }, { word: "Nonagenarian", correct: "9" }, { word: "Nonillion", correct: "9" }, { word: "Nonuplet", correct: "9" },
+            { word: "Nonary", correct: "9" }, { word: "Nonillionth", correct: "9" }, { word: "Nones", correct: "9" }, { word: "Nonadic", correct: "9" }, { word: "Nonuplicate", correct: "9" },
+
+            // 10 (Dec-)
+            { word: "Decade", correct: "10" }, { word: "Decimal", correct: "10" }, { word: "Decagon", correct: "10" }, { word: "Decathlon", correct: "10" }, { word: "December", correct: "10" },
+            { word: "Decimate", correct: "10" }, { word: "Deciliter", correct: "10" }, { word: "Decigram", correct: "10" }, { word: "Decennial", correct: "10" }, { word: "Decapod", correct: "10" }
+    ];
+
+    let current = 0;
+    let score = 0;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(freq) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function handleAnswer(choice) {
+        if (choice === data[current].correct) {
+            score++;
+            playSound(880);
+        } else {
+            playSound(220);
+        }
+        current++;
+        render();
+    }
+
+    function render() {
+        if (current >= data.length) {
+            document.getElementById('q-box').innerHTML = `<h3>測驗結束！總分：${score} / ${data.length}</h3>`;
+            return;
+        }
+        document.getElementById('score-board').innerText = `得分：${score}`;
+        document.getElementById('word').innerText = data[current].word;
+        
+        const options = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+        document.getElementById('options').innerHTML = options
+            .map(opt => `<button onclick="handleAnswer('${opt}')">${opt}</button>`).join('');
+    }
+    render();
+</script>
+
+</body>
+</html>

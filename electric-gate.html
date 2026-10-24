@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Electric Control Gate Challenge</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c14; color: #00f2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ffcc00; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.4rem; color: #ffcc00; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ffcc0055; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-left { border-color: #00f2ff; background: transparent; color: #00f2ff; }
+        .btn-left:hover { background: #00f2ff; color: #000; }
+        .btn-right { border-color: #ff00ff; background: transparent; color: #ff00ff; }
+        .btn-right:hover { background: #ff00ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">MISSION SCORE: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE TO START.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">INITIALIZE SYSTEM</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+        { q: "Which electronic logic gate outputs HIGH (1) only if all inputs are HIGH (1)?", a: ["AND Gate", "OR Gate"], correct: "AND Gate", exp: "An AND gate requires every input to be true to produce a true output." },
+        { q: "In a MOSFET transistor, which terminal acts as the 'control gate' for electricity?", a: ["The Gate", "The Drain"], correct: "The Gate", exp: "Voltage applied to the gate terminal dictates whether current can flow between the source and drain." },
+        { q: "Which logic gate outputs LOW (0) only if all inputs are LOW (0)?", a: ["OR Gate", "AND Gate"], correct: "OR Gate", exp: "An OR gate outputs true (1) if at least one single input is true." },
+        { q: "What component prevents a physical automatic gate from crushing a car or person?", a: ["Photoelectric Sensor", "Limit Switch"], correct: "Photoelectric Sensor", exp: "Photo sensors shoot an infrared beam across the path; if broken, the control board stops or reverses the motor." },
+        { q: "Which gate is known as a 'Universal Gate' because it can be combined to build any other logic gate?", a: ["NAND Gate", "XOR Gate"], correct: "NAND Gate", exp: "NAND (and NOR) gates are universal because combinations of them can replicate the functions of AND, OR, and NOT gates." },
+        { q: "What does the NOT gate do to an electrical signal?", a: ["Inverts it", "Amplifies it"], correct: "Inverts it", exp: "A NOT gate (or inverter) changes a HIGH signal to LOW, and a LOW signal to HIGH." },
+        { q: "Which logic gate outputs HIGH (1) only when its two inputs are different from each other?", a: ["XOR Gate", "NOR Gate"], correct: "XOR Gate", exp: "The Exclusive-OR (XOR) gate requires exactly one input to be HIGH to output HIGH." },
+        { q: "What mechanism tells an automatic electric gate motor that it has reached the fully open or closed position?", a: ["Limit Switch", "Overload Relay"], correct: "Limit Switch", exp: "Limit switches are mechanically triggered at the end of the gate's travel, cutting power to the motor." },
+        { q: "How does a modern digital logic gate physically process signals on a microchip?", a: ["Using Transistors", "Using Capacitors"], correct: "Using Transistors", exp: "Logic gates are built using interconnected microscopic transistors that act as electronic switches." },
+        { q: "Applying a positive voltage to the control gate of an N-channel enhancement MOSFET will:", a: ["Turn it ON", "Turn it OFF"], correct: "Turn it ON", exp: "A positive gate-to-source voltage creates a conductive electron channel, allowing current to flow." }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.8;
+        msg.pitch = 0.5;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(200, 'square', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 50);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "CORRECT" : "INCORRECT") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(600, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "MISSION SCORE: " + score;
+                        
+                        setTimeout(nextQuestion, 4000); // slightly longer delay to read longer explanations
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

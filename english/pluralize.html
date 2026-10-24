@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Questions: Plural Nouns Master Quiz</title>
+    <style>
+        :root {
+            --primary: #e67e22;
+            --primary-hover: #d35400;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --gray: #bdc3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--white);
+            max-width: 850px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 25px 20px 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quiz-header h2 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+            color: #ecf0f1;
+        }
+
+        .grammar-rules {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            border-right: 4px solid var(--primary);
+        }
+
+        .grammar-rules span {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.2);
+            height: 6px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-body {
+            padding: 40px 30px;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .question-text span.target-word {
+            display: inline-block;
+            color: var(--primary);
+            font-weight: bold;
+            padding: 0 5px;
+            text-transform: lowercase;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fdf2e9;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 28px;
+        }
+
+        .feedback.success { color: var(--success); }
+        .feedback.error { color: var(--danger); }
+
+        .quiz-footer {
+            padding: 20px 30px;
+            background-color: var(--light);
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .next-btn {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .next-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 50px 30px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .results-msg {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .restart-btn {
+            background-color: var(--success);
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-area">
+            <div class="quiz-header">
+                <h2>Plural Nouns Master Quiz</h2>
+                
+                <!-- Grammar Reference Rules -->
+                <div class="grammar-rules">
+                    <span>-s, -sh, -ch, -x, -z:</span> Add <b>-es</b> (bus &rarr; buses)<br>
+                    <span>Consonant + Y:</span> Change Y to I and add <b>-es</b> (city &rarr; cities)<br>
+                    <span>Vowel + Y:</span> Just add <b>-s</b> (boy &rarr; boys)<br>
+                    <span>-f or -fe:</span> Often change to <b>-ves</b> (wolf &rarr; wolves)<br>
+                    <span>No Change:</span> sheep, deer, species, series, fish<br>
+                    <span>Irregulars:</span> man &rarr; men, child &rarr; children, tooth &rarr; teeth
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div class="question-meta">
+                    <span id="question-counter">Question 1 of 100</span>
+                    <span id="score-counter">Score: 0</span>
+                </div>
+                
+                <div class="question-text" id="question-text">
+                    <!-- Question injected via JS -->
+                </div>
+
+                <div class="options-grid" id="options-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question &rarr;</button>
+            </div>
+        </div>
+
+        <div class="results-container" id="results-area">
+            <h2>Quiz Complete!</h2>
+            <div class="results-score" id="final-score">0 / 100</div>
+            <div class="results-msg" id="final-msg">Great effort!</div>
+            <button class="restart-btn" onclick="startQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // 100 Questions covering all pluralization rules
+        const rawQuestions = [
+            // 1-10: Basic Regulars (+s)
+            { q: "What is the plural form of <span class='target-word'>cat</span>?", options: ["cats", "cates", "caties", "catties"], a: "cats" },
+            { q: "What is the plural form of <span class='target-word'>dog</span>?", options: ["doges", "dogies", "dogs", "dog"], a: "dogs" },
+            { q: "What is the plural form of <span class='target-word'>book</span>?", options: ["bookes", "books", "bookies", "book"], a: "books" },
+            { q: "What is the plural form of <span class='target-word'>tree</span>?", options: ["trees", "treees", "treies", "treese"], a: "trees" },
+            { q: "What is the plural form of <span class='target-word'>apple</span>?", options: ["applies", "apple", "apples", "applees"], a: "apples" },
+            { q: "What is the plural form of <span class='target-word'>car</span>?", options: ["car", "cars", "cares", "carries"], a: "cars" },
+            { q: "What is the plural form of <span class='target-word'>house</span>?", options: ["houses", "house", "housies", "housses"], a: "houses" },
+            { q: "What is the plural form of <span class='target-word'>computer</span>?", options: ["computeres", "computers", "computeries", "computer"], a: "computers" },
+            { q: "What is the plural form of <span class='target-word'>pen</span>?", options: ["penses", "pen", "pennies", "pens"], a: "pens" },
+            { q: "What is the plural form of <span class='target-word'>phone</span>?", options: ["phones", "phone", "phonies", "phonees"], a: "phones" },
+
+            // 11-20: Sibilants (+es)
+            { q: "What is the plural form of <span class='target-word'>bus</span>?", options: ["buss", "buses", "busies", "bus"], a: "buses" },
+            { q: "What is the plural form of <span class='target-word'>box</span>?", options: ["boxs", "boxies", "boxes", "box"], a: "boxes" },
+            { q: "What is the plural form of <span class='target-word'>watch</span>?", options: ["watchs", "watchies", "watches", "watch"], a: "watches" },
+            { q: "What is the plural form of <span class='target-word'>brush</span>?", options: ["brushs", "brushes", "brushies", "brush"], a: "brushes" },
+            { q: "What is the plural form of <span class='target-word'>glass</span>?", options: ["glass", "glasses", "glasss", "glassies"], a: "glasses" },
+            { q: "What is the plural form of <span class='target-word'>class</span>?", options: ["classs", "classies", "classes", "class"], a: "classes" },
+            { q: "What is the plural form of <span class='target-word'>fox</span>?", options: ["foxs", "foxes", "foxies", "fox"], a: "foxes" },
+            { q: "What is the plural form of <span class='target-word'>dish</span>?", options: ["dishs", "dishes", "dishies", "dish"], a: "dishes" },
+            { q: "What is the plural form of <span class='target-word'>wish</span>?", options: ["wishs", "wishies", "wishes", "wish"], a: "wishes" },
+            { q: "What is the plural form of <span class='target-word'>match</span>?", options: ["matchs", "matchies", "matches", "match"], a: "matches" },
+
+            // 21-30: Consonant + Y (-ies)
+            { q: "What is the plural form of <span class='target-word'>city</span>?", options: ["citys", "cities", "citees", "cityies"], a: "cities" },
+            { q: "What is the plural form of <span class='target-word'>baby</span>?", options: ["babys", "babies", "babees", "babyies"], a: "babies" },
+            { q: "What is the plural form of <span class='target-word'>lady</span>?", options: ["ladys", "ladies", "ladees", "ladyies"], a: "ladies" },
+            { q: "What is the plural form of <span class='target-word'>story</span>?", options: ["storys", "storeys", "stories", "storie"], a: "stories" },
+            { q: "What is the plural form of <span class='target-word'>party</span>?", options: ["partys", "parties", "partees", "partyies"], a: "parties" },
+            { q: "What is the plural form of <span class='target-word'>country</span>?", options: ["countrys", "countries", "countrees", "countryies"], a: "countries" },
+            { q: "What is the plural form of <span class='target-word'>fly</span>?", options: ["flys", "flies", "flees", "flyies"], a: "flies" },
+            { q: "What is the plural form of <span class='target-word'>sky</span>?", options: ["skys", "skies", "skees", "skyies"], a: "skies" },
+            { q: "What is the plural form of <span class='target-word'>library</span>?", options: ["librarys", "libraries", "librarees", "libraryies"], a: "libraries" },
+            { q: "What is the plural form of <span class='target-word'>berry</span>?", options: ["berrys", "berries", "berrees", "berryies"], a: "berries" },
+
+            // 31-40: Vowel + Y (+s)
+            { q: "What is the plural form of <span class='target-word'>boy</span>?", options: ["boys", "boies", "boyes", "boyies"], a: "boys" },
+            { q: "What is the plural form of <span class='target-word'>toy</span>?", options: ["toys", "toies", "toyes", "toyies"], a: "toys" },
+            { q: "What is the plural form of <span class='target-word'>day</span>?", options: ["days", "daies", "dayes", "dayies"], a: "days" },
+            { q: "What is the plural form of <span class='target-word'>key</span>?", options: ["keys", "keies", "keyes", "keyies"], a: "keys" },
+            { q: "What is the plural form of <span class='target-word'>monkey</span>?", options: ["monkeys", "monkeies", "monkeyes", "monkeyies"], a: "monkeys" },
+            { q: "What is the plural form of <span class='target-word'>guy</span>?", options: ["guys", "guies", "guyes", "guyies"], a: "guys" },
+            { q: "What is the plural form of <span class='target-word'>tray</span>?", options: ["trays", "traies", "trayes", "trayies"], a: "trays" },
+            { q: "What is the plural form of <span class='target-word'>play</span>?", options: ["plays", "plaies", "playes", "playies"], a: "plays" },
+            { q: "What is the plural form of <span class='target-word'>ray</span>?", options: ["rays", "raies", "rayes", "rayies"], a: "rays" },
+            { q: "What is the plural form of <span class='target-word'>turkey</span>?", options: ["turkeys", "turkeies", "turkeyes", "turkeyies"], a: "turkeys" },
+
+            // 41-50: -f/-fe to -ves
+            { q: "What is the plural form of <span class='target-word'>leaf</span>?", options: ["leafs", "leaves", "leafes", "leavs"], a: "leaves" },
+            { q: "What is the plural form of <span class='target-word'>thief</span>?", options: ["thiefs", "thieves", "thiefes", "thievs"], a: "thieves" },
+            { q: "What is the plural form of <span class='target-word'>wife</span>?", options: ["wifes", "wives", "wifies", "wivs"], a: "wives" },
+            { q: "What is the plural form of <span class='target-word'>knife</span>?", options: ["knifes", "knives", "knifies", "knivs"], a: "knives" },
+            { q: "What is the plural form of <span class='target-word'>half</span>?", options: ["halfs", "halves", "halfes", "halvs"], a: "halves" },
+            { q: "What is the plural form of <span class='target-word'>wolf</span>?", options: ["wolfs", "wolves", "wolfes", "wolvs"], a: "wolves" },
+            { q: "What is the plural form of <span class='target-word'>calf</span>?", options: ["calfs", "calves", "calfes", "calvs"], a: "calves" },
+            { q: "What is the plural form of <span class='target-word'>life</span>?", options: ["lifes", "lives", "lifies", "livs"], a: "lives" },
+            { q: "What is the plural form of <span class='target-word'>loaf</span>?", options: ["loafs", "loaves", "loafes", "loavs"], a: "loaves" },
+            { q: "What is the plural form of <span class='target-word'>elf</span>?", options: ["elfs", "elves", "elfes", "elvs"], a: "elves" },
+
+            // 51-57: -f/-fe exceptions (just +s)
+            { q: "What is the plural form of <span class='target-word'>roof</span>?", options: ["roofs", "rooves", "roofes", "roovs"], a: "roofs" },
+            { q: "What is the plural form of <span class='target-word'>chef</span>?", options: ["chefs", "cheves", "chefes", "chevs"], a: "chefs" },
+            { q: "What is the plural form of <span class='target-word'>chief</span>?", options: ["chiefs", "chieves", "chiefes", "chievs"], a: "chiefs" },
+            { q: "What is the plural form of <span class='target-word'>belief</span>?", options: ["beliefs", "believes", "beliefes", "believs"], a: "beliefs" },
+            { q: "What is the plural form of <span class='target-word'>cliff</span>?", options: ["cliffs", "clives", "cliffes", "clivs"], a: "cliffs" },
+            { q: "What is the plural form of <span class='target-word'>safe</span>?", options: ["safes", "saves", "safies", "savs"], a: "safes" },
+            { q: "What is the plural form of <span class='target-word'>proof</span>?", options: ["proofs", "prooves", "proofes", "proovs"], a: "proofs" },
+
+            // 58-67: True Irregulars (Vowel change / +en)
+            { q: "What is the plural form of <span class='target-word'>man</span>?", options: ["mans", "men", "mens", "manes"], a: "men" },
+            { q: "What is the plural form of <span class='target-word'>woman</span>?", options: ["womans", "women", "womens", "womanes"], a: "women" },
+            { q: "What is the plural form of <span class='target-word'>child</span>?", options: ["childs", "children", "childes", "childrens"], a: "children" },
+            { q: "What is the plural form of <span class='target-word'>person</span>?", options: ["persons", "people", "peoples", "persones"], a: "people" },
+            { q: "What is the plural form of <span class='target-word'>foot</span>?", options: ["foots", "feet", "feets", "footes"], a: "feet" },
+            { q: "What is the plural form of <span class='target-word'>tooth</span>?", options: ["tooths", "teeth", "teeths", "toothes"], a: "teeth" },
+            { q: "What is the plural form of <span class='target-word'>goose</span>?", options: ["gooses", "geese", "geeses", "goosies"], a: "geese" },
+            { q: "What is the plural form of <span class='target-word'>mouse</span>?", options: ["mouses", "mice", "mices", "mousies"], a: "mice" },
+            { q: "What is the plural form of <span class='target-word'>louse</span>?", options: ["louses", "lice", "lices", "lousies"], a: "lice" },
+            { q: "What is the plural form of <span class='target-word'>ox</span>?", options: ["oxs", "oxen", "oxes", "oxens"], a: "oxen" },
+
+            // 68-77: No Change Plurals
+            { q: "What is the plural form of <span class='target-word'>sheep</span>?", options: ["sheeps", "sheep", "sheepes", "shoop"], a: "sheep" },
+            { q: "What is the plural form of <span class='target-word'>deer</span>?", options: ["deers", "deer", "deeres", "deeri"], a: "deer" },
+            { q: "What is the plural form of <span class='target-word'>fish</span>?", options: ["fish", "fishes", "fishs", "fishies"], a: "fish" }, // Fish is standard for same species
+            { q: "What is the plural form of <span class='target-word'>moose</span>?", options: ["mooses", "moose", "meese", "moosies"], a: "moose" },
+            { q: "What is the plural form of <span class='target-word'>aircraft</span>?", options: ["aircrafts", "aircraft", "aircraftes", "aircrafties"], a: "aircraft" },
+            { q: "What is the plural form of <span class='target-word'>species</span>?", options: ["specie", "species", "specieses", "speci"], a: "species" },
+            { q: "What is the plural form of <span class='target-word'>series</span>?", options: ["serie", "series", "serieses", "seri"], a: "series" },
+            { q: "What is the plural form of <span class='target-word'>salmon</span>?", options: ["salmons", "salmon", "salmones", "salmini"], a: "salmon" },
+            { q: "What is the plural form of <span class='target-word'>trout</span>?", options: ["trouts", "trout", "troutes", "treet"], a: "trout" },
+            { q: "What is the plural form of <span class='target-word'>swine</span>?", options: ["swines", "swine", "swinees", "sween"], a: "swine" },
+
+            // 78-87: Nouns ending in -o (+s or +es)
+            { q: "What is the plural form of <span class='target-word'>tomato</span>?", options: ["tomatos", "tomatoes", "tomatoies", "tomatoe"], a: "tomatoes" },
+            { q: "What is the plural form of <span class='target-word'>potato</span>?", options: ["potatos", "potatoes", "potatoies", "potatoe"], a: "potatoes" },
+            { q: "What is the plural form of <span class='target-word'>hero</span>?", options: ["heros", "heroes", "heroies", "heroe"], a: "heroes" },
+            { q: "What is the plural form of <span class='target-word'>volcano</span>?", options: ["volcanos", "volcanoes", "volcanoies", "volcanoe"], a: "volcanoes" },
+            { q: "What is the plural form of <span class='target-word'>piano</span>?", options: ["pianos", "pianoes", "pianoies", "pianoe"], a: "pianos" },
+            { q: "What is the plural form of <span class='target-word'>photo</span>?", options: ["photos", "photoes", "photoies", "photoe"], a: "photos" },
+            { q: "What is the plural form of <span class='target-word'>zoo</span>?", options: ["zoos", "zooes", "zooies", "zooe"], a: "zoos" },
+            { q: "What is the plural form of <span class='target-word'>radio</span>?", options: ["radios", "radioes", "radioies", "radioe"], a: "radios" },
+            { q: "What is the plural form of <span class='target-word'>video</span>?", options: ["videos", "videoes", "videoies", "videoe"], a: "videos" },
+            { q: "What is the plural form of <span class='target-word'>studio</span>?", options: ["studios", "studioes", "studioies", "studioe"], a: "studios" },
+
+            // 88-100: Latin / Greek Roots & Complex Words
+            { q: "What is the plural form of <span class='target-word'>cactus</span>?", options: ["cactuses", "cacti", "cactus", "cacties"], a: "cacti" },
+            { q: "What is the plural form of <span class='target-word'>fungus</span>?", options: ["funguses", "fungi", "fungus", "fungies"], a: "fungi" },
+            { q: "What is the plural form of <span class='target-word'>syllabus</span>?", options: ["syllabuses", "syllabi", "syllabus", "syllabies"], a: "syllabi" },
+            { q: "What is the plural form of <span class='target-word'>analysis</span>?", options: ["analysises", "analyses", "analysi", "analysis"], a: "analyses" },
+            { q: "What is the plural form of <span class='target-word'>crisis</span>?", options: ["crisises", "crises", "crisi", "crisis"], a: "crises" },
+            { q: "What is the plural form of <span class='target-word'>basis</span>?", options: ["basises", "bases", "basi", "basis"], a: "bases" },
+            { q: "What is the plural form of <span class='target-word'>thesis</span>?", options: ["thesises", "theses", "thesi", "thesis"], a: "theses" },
+            { q: "What is the plural form of <span class='target-word'>datum</span>?", options: ["datums", "data", "dati", "datum"], a: "data" },
+            { q: "What is the plural form of <span class='target-word'>medium</span>?", options: ["mediums", "media", "medii", "medium"], a: "media" },
+            { q: "What is the plural form of <span class='target-word'>phenomenon</span>?", options: ["phenomenons", "phenomena", "phenomeni", "phenomenones"], a: "phenomena" },
+            { q: "What is the plural form of <span class='target-word'>criterion</span>?", options: ["criterions", "criteria", "criterii", "criterionies"], a: "criteria" },
+            { q: "What is the plural form of <span class='target-word'>appendix</span>?", options: ["appendixes", "appendices", "appendixs", "appendi"], a: "appendices" },
+            { q: "What is the plural form of <span class='target-word'>index</span>?", options: ["indexs", "indices", "indexi", "indixes"], a: "indices" }
+        ];
+
+        let currentIndex = 0;
+        let currentScore = 0;
+
+        const questionTextEl = document.getElementById('question-text');
+        const optionsGridEl = document.getElementById('options-grid');
+        const nextBtnEl = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        
+        const quizAreaEl = document.getElementById('quiz-area');
+        const resultsAreaEl = document.getElementById('results-area');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalMsgEl = document.getElementById('final-msg');
+
+        // Helper: Shuffle Array (Fisher-Yates)
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            currentIndex = 0;
+            currentScore = 0;
+            quizAreaEl.style.display = 'block';
+            resultsAreaEl.style.display = 'none';
+            
+            // Optional: Shuffle the 100 questions so the order is random every time!
+            // shuffle(rawQuestions); 
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Reset UI
+            feedbackEl.innerText = "";
+            feedbackEl.className = "feedback";
+            nextBtnEl.style.display = "none";
+            optionsGridEl.innerHTML = "";
+
+            const qData = rawQuestions[currentIndex];
+            questionTextEl.innerHTML = qData.q;
+            questionCounterEl.innerText = `Question ${currentIndex + 1} of ${rawQuestions.length}`;
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            progressBarEl.style.width = `${(currentIndex / rawQuestions.length) * 100}%`;
+
+            let shuffledOptions = shuffle([...qData.options]);
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(opt, btn, qData.a);
+                optionsGridEl.appendChild(btn);
+            });
+        }
+
+        function selectOption(selected, btnEl, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selected === correct) {
+                btnEl.classList.add('correct');
+                feedbackEl.innerText = "Correct! Well done.";
+                feedbackEl.className = "feedback success";
+                currentScore++;
+            } else {
+                btnEl.classList.add('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct plural is: ${correct}`;
+                feedbackEl.className = "feedback error";
+                
+                allBtns.forEach(btn => {
+                    if (btn.innerText === correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            
+            if (currentIndex === rawQuestions.length - 1) {
+                nextBtnEl.innerHTML = "See Results &rarr;";
+            } else {
+                nextBtnEl.innerHTML = "Next Question &rarr;";
+            }
+            
+            nextBtnEl.style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < rawQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizAreaEl.style.display = 'none';
+            resultsAreaEl.style.display = 'block';
+            
+            finalScoreEl.innerText = `${currentScore} / ${rawQuestions.length}`;
+            
+            const percentage = (currentScore / rawQuestions.length) * 100;
+            if (percentage === 100) {
+                finalMsgEl.innerText = "Perfect! You're an absolute master of plurals!";
+            } else if (percentage >= 80) {
+                finalMsgEl.innerText = "Excellent job! You successfully navigated many tricky irregulars.";
+            } else if (percentage >= 60) {
+                finalMsgEl.innerText = "Good effort! Review the rules for Latin roots and '-f' endings.";
+            } else {
+                finalMsgEl.innerText = "Keep studying! English plurals can be strange, but practice helps.";
+            }
+        }
+
+        // Init
+        startQuiz();
+    </script>
+</body>
+</html>

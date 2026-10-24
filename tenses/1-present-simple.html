@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Present Simple Challenge</title>
+    <style>
+        :root {
+            --primary: #2E7D32; /* Forest Green */
+            --primary-dark: #1B5E20;
+            --success: #43A047; /* Mint Green */
+            --success-dark: #2E7D32;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #E8F5E9; /* Light green tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Present Simple Tense</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Present Simple
+        const rules = {
+            1: {
+                title: "Level 1: The Easiest!",
+                text: "Look for signal words like 'always', 'usually', or 'every day'! For the pronouns 'I', 'You', 'We', and 'They', just use the normal base verb. No 's' is needed!"
+            },
+            2: {
+                title: "Level 2: The 'S' Rule",
+                text: "Third Person Singular! If the subject is 'He', 'She', or 'It', you MUST add '-s' or '-es' to the verb. Again, watch out for routine signal words!"
+            },
+            3: {
+                title: "Level 3: Saying 'No'",
+                text: "Negative statements! Use 'do not' for I/You/We/They. Use 'does not' for He/She/It. Important: the main verb goes back to its base form with no 's'!"
+            },
+            4: {
+                title: "Level 4: Yes/No Questions",
+                text: "To ask a question, put 'Do' (for I/You/We/They) or 'Does' (for He/She/It) at the start. Keep the main verb in its normal base form!"
+            },
+            5: {
+                title: "Level 5: Plural vs. Singular Nouns",
+                text: "If a noun is plural (like 'dogs'), treat it like 'They' (base verb). If a noun is singular (like 'the dog'), treat it like 'He/She/It' (add -s/-es)!"
+            },
+            6: {
+                title: "Level 6: WH- Questions",
+                text: "Start with a WH- word (What, Where, Why), then add Do/Does, then the subject, and finally the base verb. You are at the hardest level now!"
+            }
+        };
+
+        // 100 Questions Database for Present Simple (Every sentence has a signal word!)
+        const qData = [
+            // Level 1: I, You, We, They (1-16)
+            [1, "I ___ every morning.", "run", "runs"],
+            [1, "You always ___ apples.", "like", "likes"],
+            [1, "We usually ___ football on Sundays.", "play", "plays"],
+            [1, "They ___ in a big house normally.", "live", "lives"],
+            [1, "I often ___ books at night.", "read", "reads"],
+            [1, "You always ___ very fast.", "walk", "walks"],
+            [1, "We ___ our hands every time.", "wash", "washes"],
+            [1, "They ___ English every day.", "speak", "speaks"],
+            [1, "I generally ___ pizza on Fridays.", "eat", "eats"],
+            [1, "You usually ___ the answer.", "know", "knows"],
+            [1, "We often ___ to music.", "listen", "listens"],
+            [1, "They ___ their homework every night.", "do", "does"],
+            [1, "I always ___ a pen with me.", "have", "has"],
+            [1, "You ___ TV every evening.", "watch", "watches"],
+            [1, "We normally ___ early.", "sleep", "sleeps"],
+            [1, "They ___ cars every day.", "drive", "drives"],
+
+            // Level 2: He, She, It (17-33)
+            [2, "He ___ to school every morning.", "goes", "go"],
+            [2, "She ___ the guitar on weekends.", "plays", "play"],
+            [2, "It ___ in the yard every day.", "runs", "run"],
+            [2, "He usually ___ his teeth.", "brushes", "brush"],
+            [2, "She often ___ a bird there.", "sees", "see"],
+            [2, "It always ___ loud noises.", "makes", "make"],
+            [2, "He ___ his mom every Sunday.", "helps", "help"],
+            [2, "She ___ in the sky every day.", "flies", "fly"],
+            [2, "It normally ___ very fast.", "works", "work"],
+            [2, "He always ___ a new car.", "has", "have"],
+            [2, "She ___ breakfast at 8 every morning.", "eats", "eat"],
+            [2, "It usually ___ under the bed.", "hides", "hide"],
+            [2, "He always ___ glasses.", "wears", "wear"],
+            [2, "She ___ a lot of water every day.", "drinks", "drink"],
+            [2, "It usually ___ cold in winter.", "gets", "get"],
+            [2, "He always ___ to be a doctor.", "wants", "want"],
+            [2, "She ___ hard every night.", "studies", "study"],
+
+            // Level 3: Negatives (34-50)
+            [3, "I normally ___ like broccoli.", "do not", "does not"],
+            [3, "He ___ play tennis on Sundays.", "does not", "do not"],
+            [3, "They ___ know the way usually.", "do not", "does not"],
+            [3, "She ___ eat meat on Fridays.", "does not", "do not"],
+            [3, "We ___ want to go every time.", "do not", "does not"],
+            [3, "It often ___ rain in summer.", "does not", "do not"],
+            [3, "You usually ___ look happy.", "do not", "does not"],
+            [3, "He ___ speak French generally.", "does not", "do not"],
+            [3, "I usually ___ have any money.", "do not", "does not"],
+            [3, "She ___ watch scary movies on weekends.", "does not", "do not"],
+            [3, "They ___ sleep late on Mondays.", "do not", "does not"],
+            [3, "It normally ___ matter.", "does not", "do not"],
+            [3, "We normally ___ need help.", "do not", "does not"],
+            [3, "He ___ wake up early every day.", "does not", "do not"],
+            [3, "I often ___ remember his name.", "do not", "does not"],
+            [3, "She ___ drive a car every day.", "does not", "do not"],
+            [3, "They ___ work on weekends.", "do not", "does not"],
+
+            // Level 4: Yes/No Questions (51-67)
+            [4, "___ you like ice cream usually?", "Do", "Does"],
+            [4, "___ he play soccer every week?", "Does", "Do"],
+            [4, "___ they visit here generally?", "Do", "Does"],
+            [4, "___ she work every Friday?", "Does", "Do"],
+            [4, "___ it snow in winter normally?", "Does", "Do"],
+            [4, "___ we have a test every month?", "Do", "Does"],
+            [4, "___ I always look okay?", "Do", "Does"],
+            [4, "___ he walk a dog every evening?", "Does", "Do"],
+            [4, "___ she speak Spanish often?", "Does", "Do"],
+            [4, "___ they know us well usually?", "Do", "Does"],
+            [4, "___ it cost a lot generally?", "Does", "Do"],
+            [4, "___ you want some tea normally?", "Do", "Does"],
+            [4, "___ he read books every night?", "Does", "Do"],
+            [4, "___ she sing well generally?", "Does", "Do"],
+            [4, "___ they travel often?", "Do", "Does"],
+            [4, "___ it always make sense?", "Does", "Do"],
+            [4, "___ we go now usually?", "Do", "Does"],
+
+            // Level 5: Nouns (Plural vs Singular) (68-84)
+            [5, "The dog often ___ loudly.", "barks", "bark"],
+            [5, "The dogs often ___ loudly.", "bark", "barks"],
+            [5, "My brother ___ hard every day.", "works", "work"],
+            [5, "My brothers ___ hard every day.", "work", "works"],
+            [5, "The cat usually ___ milk.", "drinks", "drink"],
+            [5, "Cats usually ___ milk.", "drink", "drinks"],
+            [5, "The sun always ___ in the east.", "rises", "rise"],
+            [5, "Birds often ___ in the sky.", "fly", "flies"],
+            [5, "The bird often ___ in the sky.", "flies", "fly"],
+            [5, "Sarah and John ___ to music every night.", "listen", "listens"],
+            [5, "Sarah ___ to music every night.", "listens", "listen"],
+            [5, "My friend ___ in London every winter.", "lives", "live"],
+            [5, "My friends ___ in London every winter.", "live", "lives"],
+            [5, "The teacher ___ us math every day.", "teaches", "teach"],
+            [5, "The teachers ___ us math every day.", "teach", "teaches"],
+            [5, "That boy always ___ fast.", "runs", "run"],
+            [5, "Those boys always ___ fast.", "run", "runs"],
+
+            // Level 6: WH- Questions & Harder combinations (85-100)
+            [6, "Where ___ you usually live?", "do", "does"],
+            [6, "What ___ she want every time?", "does", "do"],
+            [6, "Why ___ they cry every night?", "do", "does"],
+            [6, "How ___ it work normally?", "does", "do"],
+            [6, "When ___ we usually leave?", "do", "does"],
+            [6, "Where ___ he go every Sunday?", "does", "do"],
+            [6, "What ___ I need every morning?", "do", "does"],
+            [6, "Why ___ she always smile?", "does", "do"],
+            [6, "When ___ the train usually arrive?", "does", "do"],
+            [6, "How often ___ they visit?", "do", "does"],
+            [6, "What time ___ the movie usually start?", "does", "do"],
+            [6, "Where ___ your parents always go?", "do", "does"],
+            [6, "Why ___ the baby sleep so much every day?", "does", "do"],
+            [6, "What ___ Tom and Jerry do every episode?", "do", "does"],
+            [6, "How much ___ this usually cost?", "does", "do"],
+            [6, "Who ___ you usually want to see?", "do", "does"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

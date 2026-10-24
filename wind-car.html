@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wind Car Challenge</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c14; color: #00f2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ffcc00; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.4rem; color: #ffcc00; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ffcc0055; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-left { border-color: #00f2ff; background: transparent; color: #00f2ff; }
+        .btn-left:hover { background: #00f2ff; color: #000; }
+        .btn-right { border-color: #ff00ff; background: transparent; color: #ff00ff; }
+        .btn-right:hover { background: #ff00ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">MISSION SCORE: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE TO START.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">INITIALIZE SYSTEM</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+        { q: "What provides the primary propulsive force for a basic sail-driven toy wind car?", a: ["Aerodynamic drag on the sail", "Magnetic levitation"], correct: "Aerodynamic drag on the sail", exp: "The wind exerts a physical force (drag) against the surface area of the sail, pushing the car forward." },
+        { q: "What is the popular recreational sport of racing large wind-powered cars on beaches or dry lakes called?", a: ["Land Sailing", "Drafting"], correct: "Land Sailing", exp: "Land sailing (or land yachting) involves using a wheeled vehicle powered by the wind through a sail." },
+        { q: "Can a wind-powered car with a standard static sail travel directly straight into the wind (upwind)?", a: ["No, it would be pushed backward", "Yes, using advanced aerodynamics"], correct: "No, it would be pushed backward", exp: "While sailboats and land yachts can zig-zag (tack) at an angle into the wind, they cannot sail directly into the wind with a static sail." },
+        { q: "The famous 'Blackbird' wind-powered vehicle achieved a physics feat many thought impossible. What was it?", a: ["Driving directly downwind faster than the wind", "Flying without wings"], correct: "Driving directly downwind faster than the wind", exp: "The Blackbird proved that a wind-powered vehicle can travel directly downwind faster than the wind pushing it." },
+        { q: "How did the Blackbird achieve speeds faster than the wind while traveling downwind?", a: ["A propeller linked to the wheels pushes air backward", "It used a hidden electric battery"], correct: "A propeller linked to the wheels pushes air backward", exp: "The wind pushes the car, turning the wheels, which spins a large propeller. The propeller acts as a fan, thrusting air backward to accelerate the car further." },
+        { q: "When designing a DIY toy wind car, what is the most important factor for maximizing its speed?", a: ["Minimizing friction and weight", "Using the heaviest materials possible"], correct: "Minimizing friction and weight", exp: "Lowering friction (especially in the axles) and keeping the chassis light allows the wind's force to accelerate the car more easily." },
+        { q: "What happens if you mount a battery-powered fan on a cart and aim it directly at a sail that is also mounted on the cart?", a: ["The cart will not move", "The cart will move forward rapidly"], correct: "The cart will not move", exp: "Due to Newton's Third Law, the force of the fan pushing the air is canceled out by the air pushing the sail. It is an enclosed system." },
+        { q: "In a wind car, the kinetic energy of the moving air is transferred into what type of energy?", a: ["Mechanical kinetic energy", "Thermal energy"], correct: "Mechanical kinetic energy", exp: "The energy of the moving wind is transferred into the physical, moving energy (mechanical kinetic) of the vehicle itself." },
+        { q: "Why do high-speed land yachts have very wide wheelbases?", a: ["To prevent the wind from tipping them over", "To reduce aerodynamic drag"], correct: "To prevent the wind from tipping them over", exp: "Wind pushing against a tall sail creates a large overturning moment (leverage). A wide stance resists this tipping force." },
+        { q: "If you want a toy wind car to catch more wind, what should you do to the sail?", a: ["Increase its surface area", "Make it completely rigid and flat"], correct: "Increase its surface area", exp: "A larger surface area intercepts more moving air molecules, transferring a greater overall pushing force to the car." }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.8;
+        msg.pitch = 0.5;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(200, 'square', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 50);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "CORRECT" : "INCORRECT") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(600, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "MISSION SCORE: " + score;
+                        
+                        setTimeout(nextQuestion, 4000); 
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

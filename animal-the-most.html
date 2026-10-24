@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Superlatives Quiz</title>
+    <style>
+        :root {
+            --primary: #15803d;
+            --primary-hover: #166534;
+            --bg: #fefae0;
+            --card-bg: #ffffff;
+            --text: #283618;
+            --success: #386641;
+            --error: #bc4749;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(#dda15e 0.75px, transparent 0.75px), radial-gradient(#dda15e 0.75px, var(--bg) 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(40, 54, 24, 0.15);
+            border: 3px solid #dda15e;
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        p {
+            color: #606c38;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .question-box {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 1.2rem 0;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .option-btn {
+            background-color: #fefae0;
+            color: var(--text);
+            border: 2px solid #dda15e;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #faedcd;
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success) !important;
+            color: white !important;
+            border-color: var(--success) !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--error) !important;
+            color: white !important;
+            border-color: var(--error) !important;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #606c38;
+            font-size: 0.9rem;
+        }
+
+        #feedback-container {
+            margin-top: 1rem;
+            min-height: 5rem;
+        }
+
+        #feedback {
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        #explanation {
+            font-size: 0.88rem;
+            color: #475569;
+            line-height: 1.35;
+        }
+
+        #human-comparison {
+            font-size: 0.85rem;
+            color: #bc6c25;
+            font-weight: 600;
+            margin-top: 0.4rem;
+            line-height: 1.35;
+        }
+
+        .next-btn {
+            margin-top: 1rem;
+            background-color: #dda15e;
+            color: #283618;
+        }
+
+        .next-btn:hover {
+            background-color: #bc6c25;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Starting Screen -->
+        <div id="start-screen">
+            <h1>Safari Superlatives 🦁🌿</h1>
+            <p>Explore the wild! Test your knowledge of the largest, smallest, fastest, heaviest, and slowest animals with numeric facts and human comparisons.</p>
+            <button class="btn" onclick="startQuiz()">Start Safari Expedition</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="stats">
+                <span id="question-counter">Question 1/15</span>
+                <span id="score-counter">Score: 0</span>
+            </div>
+            <div id="question-box" class="question-box">Question text goes here</div>
+            <div id="options-container" class="options-grid"></div>
+            <div id="feedback-container">
+                <div id="feedback"></div>
+                <div id="explanation"></div>
+                <div id="human-comparison"></div>
+            </div>
+            <button id="next-btn" class="btn next-btn hidden" onclick="loadNextQuestion()">Next Expedition Stop</button>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="hidden">
+            <h1>Expedition Complete! 🦒🎉</h1>
+            <p id="final-score-text">You finished the safari successfully.</p>
+            <button class="btn" onclick="resetQuiz()">Explore Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API Sound Synthesizer
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+
+            if (type === 'correct') {
+                playTone(523.25, 0.1, 0);     // C5
+                playTone(659.25, 0.15, 0.1);  // E5
+            } else if (type === 'incorrect') {
+                playTone(200, 0.2, 0, 'sawtooth');
+                playTone(150, 0.2, 0.1, 'sawtooth');
+            } else if (type === 'complete') {
+                playTone(523.25, 0.1, 0);     // C5
+                playTone(659.25, 0.1, 0.1);   // E5
+                playTone(783.99, 0.1, 0.2);   // G5
+                playTone(1046.50, 0.3, 0.3);  // C6
+            }
+        }
+
+        function playTone(freq, duration, delay, waveType = 'sine') {
+            setTimeout(() => {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = waveType;
+                osc.frequency.value = freq;
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }, delay * 1000);
+        }
+
+        // Quiz Data Bank with numbers, explanations, and adult human comparisons
+        const quizData = [
+            // OVERALL ANIMALS
+            {
+                q: "What is the overall largest and heaviest animal on Earth?",
+                options: ["African Bush Elephant", "Blue Whale", "Whale Shark", "Saltwater Crocodile"],
+                answer: "Blue Whale",
+                explanation: "The Blue Whale can reach lengths up to 30 meters (98 feet) and weigh a massive 200 tonnes.",
+                comparison: "👤 vs Human: 17.6x longer and 2,857x heavier than an average adult human (70 kg)!"
+            },
+            {
+                q: "What is the overall fastest animal in the world during its hunting dive?",
+                options: ["Cheetah", "Peregrine Falcon", "Black Marlin", "Golden Eagle"],
+                answer: "Peregrine Falcon",
+                explanation: "The Peregrine Falcon reaches diving speeds exceeding 320 km/h (200 mph) when swooping down on prey.",
+                comparison: "👤 vs Human: Travels faster than a high-speed bullet train compared to a human's top sprint (~36 km/h)."
+            },
+            {
+                q: "What is the overall smallest vertebrate animal in the world?",
+                options: ["Paedophryne amauensis (Micro frog)", "Etruscan Shrew", "Bumblebee Bat", "Paedocypris progenetica (Fish)"],
+                answer: "Paedophryne amauensis (Micro frog)",
+                explanation: "This tiny micro-frog from Papua New Guinea has an average adult body size of just 7.7 millimeters (0.3 inches).",
+                comparison: "👤 vs Human: ~221 times smaller than an adult human height."
+            },
+
+            // MAMMALS
+            {
+                q: "What is the largest land mammal?",
+                options: ["Hippopotamus", "White Rhinoceros", "African Bush Elephant", "Giraffe"],
+                answer: "African Bush Elephant",
+                explanation: "The African Bush Elephant grows up to 7 meters (23 feet) long and can weigh up to 10.4 tonnes.",
+                comparison: "👤 vs Human: About 4x longer and 148x heavier than an average adult human."
+            },
+            {
+                q: "What is the fastest land mammal?",
+                options: ["Lion", "Pronghorn", "Cheetah", "Black Mamba"],
+                answer: "Cheetah",
+                explanation: "The Cheetah can sprint across short distances reaching maximum land speeds of up to 120 km/h (75 mph).",
+                comparison: "👤 vs Human: Runs fast enough to legally drive on a highway, vastly outpacing human sprinting."
+            },
+            {
+                q: "What is the smallest mammal in the world by mass/size?",
+                options: ["Kitti's Hog-nosed Bat & Etruscan Shrew", "House Mouse", "Pygmy Jerboa", "Eastern Pipistrelle"],
+                answer: "Kitti's Hog-nosed Bat & Etruscan Shrew",
+                explanation: "Both weigh an incredible 1.5 to 2 grams, with the bumblebee bat measuring around 29–33 millimeters.",
+                comparison: "👤 vs Human: An adult human is roughly 35,000 to 46,000 times heavier than these tiny mammals."
+            },
+            {
+                q: "What is the slowest moving mammal?",
+                options: ["Garden Snail", "Three-toed Sloth", "Galapagos Giant Tortoise", "Slow Loris"],
+                answer: "Three-toed Sloth",
+                explanation: "The Three-toed Sloth creeps through the canopy at a top speed of roughly 0.15 km/h (0.09 mph).",
+                comparison: "👤 vs Human: A human walking casually moves over 30 times faster than a sloth's top speed."
+            },
+
+            // FISH
+            {
+                q: "What is the largest species of fish in the ocean?",
+                options: ["Great White Shark", "Blue Whale", "Whale Shark", "Giant Oceanic Manta Ray"],
+                answer: "Whale Shark",
+                explanation: "The Whale Shark grows up to 18.8 meters (61.7 feet) long and weighs over 20 tonnes.",
+                comparison: "👤 vs Human: Nearly 11 times longer and 285 times heavier than an adult human."
+            },
+            {
+                q: "What is the smallest species of fish in the world?",
+                options: ["Paedocypris progenetica", "Dwarf Pygmy Goby", "Neon Tetra", "Paedophryne amauensis"],
+                answer: "Paedocypris progenetica",
+                explanation: "Mature females of this Indonesian freshwater fish measure a mere 7.9 millimeters (0.31 inches) in length.",
+                comparison: "👤 vs Human: A human is roughly 215 times longer than this miniature fish."
+            },
+            {
+                q: "What is the fastest swimming fish in the ocean?",
+                options: ["Sailfish", "Swordfish", "Black Marlin", "Yellowfin Tuna"],
+                answer: "Black Marlin",
+                explanation: "The Black Marlin can achieve breathtaking sprint swimming speeds up to 129 km/h (80 mph).",
+                comparison: "👤 vs Human: Swims faster than highway speed limits, completely unmatched by human Olympic swimmers (~8 km/h)."
+            },
+            {
+                q: "What is the slowest moving fish?",
+                options: ["Catfish", "Seahorse", "Carp", "Goldfish"],
+                answer: "Seahorse",
+                explanation: "Seahorses are famously slow, with the Dwarf Seahorse moving at about 1.5 meters (5 feet) per hour.",
+                comparison: "👤 vs Human: A human crawls or walks thousands of times faster than this tiny swimming creature."
+            },
+
+            // BIRDS
+            {
+                q: "What is the largest bird alive today?",
+                options: ["Emu", "Wandering Albatross", "Common Ostrich", "Andean Condor"],
+                answer: "Common Ostrich",
+                explanation: "The Common Ostrich towers up to 2.8 meters (9.2 feet) tall and weighs up to 156 kg (344 lbs).",
+                comparison: "👤 vs Human: Stands 1.6 times taller and weighs more than twice as much as a standard adult human."
+            },
+            {
+                q: "What is the smallest bird in the world?",
+                options: ["Weebill", "Bee Hummingbird", "Bush Tit", "Goldcrest"],
+                answer: "Bee Hummingbird",
+                explanation: "The Bee Hummingbird measures just 5.7 cm (2.25 inches) long and weighs a minuscule 1.6 grams.",
+                comparison: "👤 vs Human: An adult human is about 43,750 times heavier than this tiny bird."
+            },
+            {
+                q: "What is the fastest running land bird (unable to fly)?",
+                options: ["Cassowary", "Greater Rhea", "Common Ostrich", "Emu"],
+                answer: "Common Ostrich",
+                explanation: "When running across open plains, the Common Ostrich can sustain speeds up to 70 km/h (43 mph).",
+                comparison: "👤 vs Human: Runs twice as fast as the fastest human sprinter (Usain Bolt's peak ~44 km/h)."
+            },
+
+            // REPTILES
+            {
+                q: "What is the largest living reptile?",
+                options: ["Green Anaconda", "Saltwater Crocodile", "Komodo Dragon", "Leatherback Sea Turtle"],
+                answer: "Saltwater Crocodile",
+                explanation: "Male Saltwater Crocodiles can exceed 6 meters (20 feet) in length and weigh up to 1,000 kg (2,200 lbs).",
+                comparison: "👤 vs Human: Over 3.5 times longer and weighs as much as 14 average adult humans combined."
+            },
+            {
+                q: "What is the smallest reptile in the world?",
+                options: ["Brookesia micra & Jaragua Sphaero Lizard", "Mourning Gecko", "Garter Snake", "Green Anole"],
+                answer: "Brookesia micra & Jaragua Sphaero Lizard",
+                explanation: "These micro-reptiles measure just 14 to 16 millimeters (about 0.6 inches) long from snout to tail.",
+                comparison: "👤 vs Human: An adult human's finger is roughly 100 times longer than these tiny lizards."
+            },
+            {
+                q: "What is the fastest running lizard species?",
+                options: ["Perente Monitor Lizard", "Bearded Dragon", "Green Iguana", "Common Basilisk"],
+                answer: "Perente Monitor Lizard",
+                explanation: "The Perente monitor lizard can blast across short distances at speeds reaching up to 40 km/h (25 mph).",
+                comparison: "👤 vs Human: Sprints faster than the average human jogger over short bursts."
+            },
+            {
+                q: "What is the slowest moving reptile?",
+                options: ["Galapagos Giant Tortoise", "Gila Monster", "Alligator Snapping Turtle", "Corn Snake"],
+                answer: "Galapagos Giant Tortoise",
+                explanation: "The Galapagos Giant Tortoise plods along at an unhurried average speed of roughly 0.3 km/h (0.2 mph).",
+                comparison: "👤 vs Human: A human walking normally moves about 15 times faster than a giant tortoise."
+            },
+
+            // AMPHIBIANS
+            {
+                q: "What is the largest amphibian in the world?",
+                options: ["Cane Toad", "Chinese Giant Salamander", "Goliath Frog", "Axolotl"],
+                answer: "Chinese Giant Salamander",
+                explanation: "The Chinese Giant Salamander can grow up to 1.8 meters (5.9 feet) long and weigh up to 50 kg (110 lbs).",
+                comparison: "👤 vs Human: Roughly the same height/length as an adult human, and weighs about 70% of a human body weight."
+            },
+            {
+                q: "What is the smallest amphibian (and smallest vertebrate)?",
+                options: ["Paedophryne amauensis (Frog)", "Red-backed Salamander", "Green Tree Frog", "Dart Frog"],
+                answer: "Paedophryne amauensis (Frog)",
+                explanation: "At only 7.7 millimeters long, this tiny frog matches the record for the smallest vertebrate on Earth.",
+                comparison: "👤 vs Human: Over 220 times smaller than an adult human."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+        const totalQuestionsPerGame = 15;
+
+        function startQuiz() {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            questions = [...quizData].sort(() => Math.random() - 0.5).slice(0, totalQuestionsPerGame);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endQuiz();
+                return;
+            }
+
+            const qData = questions[currentQuestionIndex];
+            document.getElementById('question-box').innerText = qData.q;
+            document.getElementById('question-counter').innerText = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+            document.getElementById('score-counter').innerText = `Score: ${score}`;
+            document.getElementById('feedback').innerText = '';
+            document.getElementById('explanation').innerText = '';
+            document.getElementById('human-comparison').innerText = '';
+            document.getElementById('next-btn').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            optionsContainer.style.pointerEvents = "auto";
+
+            const shuffledOptions = [...qData.options].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = option;
+                btn.onclick = () => selectAnswer(btn, option, qData.answer, qData.explanation, qData.comparison);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(button, selected, correct, explanation, comparison) {
+            const optionsContainer = document.getElementById('options-container');
+            const buttons = optionsContainer.getElementsByTagName('button');
+            
+            optionsContainer.style.pointerEvents = "none";
+
+            for (let btn of buttons) {
+                if (btn.innerText === correct) {
+                    btn.classList.add('correct');
+                }
+            }
+
+            const feedbackEl = document.getElementById('feedback');
+            const explanationEl = document.getElementById('explanation');
+            const comparisonEl = document.getElementById('human-comparison');
+
+            if (selected === correct) {
+                score++;
+                button.classList.add('correct');
+                playSound('correct');
+                feedbackEl.innerText = "Correct! Great job.";
+                feedbackEl.style.color = "var(--success)";
+            } else {
+                button.classList.add('incorrect');
+                playSound('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct answer is: ${correct}`;
+                feedbackEl.style.color = "var(--error)";
+            }
+
+            explanationEl.innerText = explanation;
+            comparisonEl.innerText = comparison;
+            document.getElementById('score-counter').innerText = `Score: ${score}`;
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function endQuiz() {
+            playSound('complete');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score-text').innerText = `Amazing work! You scored ${score} out of ${questions.length}.`;
+        }
+
+        function resetQuiz() {
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

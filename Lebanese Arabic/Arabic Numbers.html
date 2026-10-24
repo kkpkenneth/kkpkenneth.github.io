@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arabic Numbers Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fff8e6, #e0f7ff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      color: #2c3e50;
+    }
+
+    .card {
+      background: white;
+      padding: 20px 30px;
+      margin: 15px 0;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 18px;
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .arabic-number {
+      font-size: 42px;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    .western-number {
+      font-size: 18px;
+      color: #2c3e50;
+    }
+
+    #quiz-number {
+      font-size: 80px;
+      margin: 20px 0;
+      color: #e67e22;
+      font-weight: bold;
+    }
+
+    #choices button {
+      background-color: #1abc9c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    #choices button:hover {
+      background-color: #16a085;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 500px) {
+      #quiz-number { font-size: 60px; }
+      .row { font-size: 16px; }
+      #choices button { font-size: 14px; padding: 10px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Arabic Numbers Quiz</h1>
+
+  <div class="card" style="text-align:center;">
+    <h2>Guess the Number</h2>
+    <div id="quiz-number">٠</div>
+    <div id="choices"></div>
+  </div>
+
+  <div class="card">
+    <h2>Reference Table</h2>
+    <div class="row"><span class="arabic-number">٠</span> <span class="western-number">0 — Sifr</span></div>
+    <div class="row"><span class="arabic-number">١</span> <span class="western-number">1 — Wahed</span></div>
+    <div class="row"><span class="arabic-number">٢</span> <span class="western-number">2 — Etneen</span></div>
+    <div class="row"><span class="arabic-number">٣</span> <span class="western-number">3 — Talata</span></div>
+    <div class="row"><span class="arabic-number">٤</span> <span class="western-number">4 — Arba’a</span></div>
+    <div class="row"><span class="arabic-number">٥</span> <span class="western-number">5 — Khamsa</span></div>
+    <div class="row"><span class="arabic-number">٦</span> <span class="western-number">6 — Sitta</span></div>
+    <div class="row"><span class="arabic-number">٧</span> <span class="western-number">7 — Sab’a</span></div>
+    <div class="row"><span class="arabic-number">٨</span> <span class="western-number">8 — Thamaniya</span></div>
+    <div class="row"><span class="arabic-number">٩</span> <span class="western-number">9 — Tis’a</span></div>
+  </div>
+
+  <script>
+    const numbers = [
+      { arabic: "٠", digit: "0", p: "Sifr" },
+      { arabic: "١", digit: "1", p: "Wahed" },
+      { arabic: "٢", digit: "2", p: "Etneen" },
+      { arabic: "٣", digit: "3", p: "Talata" },
+      { arabic: "٤", digit: "4", p: "Arba’a" },
+      { arabic: "٥", digit: "5", p: "Khamsa" },
+      { arabic: "٦", digit: "6", p: "Sitta" },
+      { arabic: "٧", digit: "7", p: "Sab’a" },
+      { arabic: "٨", digit: "8", p: "Thamaniya" },
+      { arabic: "٩", digit: "9", p: "Tis’a" }
+    ];
+
+    let correctAnswer = null;
+
+    function newQuestion() {
+      const qIndex = Math.floor(Math.random() * numbers.length);
+      correctAnswer = numbers[qIndex];
+
+      let options = [correctAnswer];
+      while (options.length < 4) {
+        let r = numbers[Math.floor(Math.random() * numbers.length)];
+        if (!options.includes(r)) options.push(r);
+      }
+
+      options.sort(() => Math.random() - 0.5);
+
+      document.getElementById("quiz-number").innerHTML = correctAnswer.arabic;
+      const box = document.getElementById("choices");
+      box.innerHTML = "";
+
+      options.forEach(opt => {
+        let btn = document.createElement("button");
+        btn.innerHTML = `${opt.digit} (${opt.p})`;
+        btn.onclick = () => {
+          if(opt === correctAnswer){
+            alert("✅ Correct!");
+          } else {
+            alert(`❌ Wrong! Correct answer: ${correctAnswer.digit} (${correctAnswer.p})`);
+          }
+          newQuestion();
+        };
+        box.appendChild(btn);
+      });
+    }
+
+    window.onload = newQuestion;
+  </script>
+
+</body>
+</html>

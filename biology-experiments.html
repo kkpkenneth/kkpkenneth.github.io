@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experimental Design Lab</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --correct: #10b981;
+            --wrong: #ef4444;
+            --iv-color: #8b5cf6;
+            --dv-color: #ec4899;
+            --ctrl-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .lab-container {
+            background-color: var(--surface);
+            max-width: 800px;
+            width: 100%;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-board {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--correct);
+        }
+
+        .scenario-box {
+            background: #334155;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid var(--accent);
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .iv-title { color: var(--iv-color); }
+        .dv-title { color: var(--dv-color); }
+        .ctrl-title { color: var(--ctrl-color); }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-option {
+            background-color: #1e293b;
+            color: var(--text);
+            border: 2px solid #475569;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-option:hover { background-color: #334155; }
+
+        /* Selected States */
+        .btn-option.selected-iv { border-color: var(--iv-color); background-color: rgba(139, 92, 246, 0.2); }
+        .btn-option.selected-dv { border-color: var(--dv-color); background-color: rgba(236, 72, 153, 0.2); }
+        .btn-option.selected-ctrl { border-color: var(--ctrl-color); background-color: rgba(245, 158, 11, 0.2); }
+
+        /* Results States */
+        .btn-option.correct { background-color: rgba(16, 185, 129, 0.2); border-color: var(--correct); }
+        .btn-option.wrong { background-color: rgba(239, 68, 68, 0.2); border-color: var(--wrong); opacity: 0.5; }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover { background-color: var(--accent-hover); }
+        .action-btn:disabled { background-color: #475569; cursor: not-allowed; }
+
+        .feedback-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .feedback-box.show { display: block; animation: fadeIn 0.4s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="lab-container">
+    <div class="header">
+        <h2 style="margin:0;">Experiment <span id="progressText">1/5</span></h2>
+        <div class="score-board">Score: <span id="scoreDisplay">0</span></div>
+    </div>
+
+    <div class="scenario-box">
+        <strong>Scenario (<span id="topicName">Topic</span>):</strong><br>
+        <span id="scenarioText">Loading...</span>
+    </div>
+
+    <div class="category-title iv-title">1. Independent Variable (What you change)</div>
+    <div class="options-grid" id="ivGrid"></div>
+
+    <div class="category-title dv-title">2. Dependent Variable (What you measure)</div>
+    <div class="options-grid" id="dvGrid"></div>
+
+    <div class="category-title ctrl-title">3. Control Group (Your baseline)</div>
+    <div class="options-grid" id="ctrlGrid"></div>
+
+    <div id="feedbackBox" class="feedback-box"></div>
+
+    <button id="verifyBtn" class="action-btn" onclick="verifyDesign()">Verify Design</button>
+    <button id="nextBtn" class="action-btn" style="display:none;" onclick="nextScenario()">Next Experiment ➔</button>
+</div>
+
+<script>
+    const scenarios = [
+        {
+            topic: "Botany",
+            text: "You want to know if different wavelengths (colors) of light affect the rate of photosynthesis in aquatic plants.",
+            iv: { options: ["Water temperature", "Wavelength of light", "Plant species", "Oxygen produced"], correct: 1 },
+            dv: { options: ["Number of leaves", "Wavelength of light", "Oxygen produced", "Amount of water"], correct: 2 },
+            ctrl: { options: ["Plant in complete dark", "Plant under normal white light", "Plant with no water", "A plastic plant"], correct: 1 },
+            explanation: "You change the <b>wavelength of light</b> (IV) to see how it affects the <b>oxygen produced</b> (DV). A plant under <b>normal white light</b> (Control) gives you a normal baseline to compare against."
+        },
+        {
+            topic: "Microbiology",
+            text: "You are testing a new antibiotic against E. coli bacteria to see what dose is most effective at killing it.",
+            iv: { options: ["Bacterial growth rate", "E. coli strain", "Antibiotic concentration", "Incubation temp"], correct: 2 },
+            dv: { options: ["Zone of inhibition (bacteria killed)", "Type of antibiotic", "Size of petri dish", "Amount of agar"], correct: 0 },
+            ctrl: { options: ["Different bacteria", "No antibiotic added", "Double antibiotic", "Kept in fridge"], correct: 1 },
+            explanation: "You manipulate the <b>antibiotic concentration</b> (IV) and measure the <b>zone of inhibition</b> (DV). A dish with <b>no antibiotic</b> (Control) proves the bacteria grows fine without your intervention."
+        },
+        {
+            topic: "Physiology",
+            text: "You hypothesize that caffeine increases the heart rate of Daphnia (water fleas).",
+            iv: { options: ["Daphnia age", "Heartbeats per minute", "Caffeine concentration", "Water volume"], correct: 2 },
+            dv: { options: ["Caffeine concentration", "Swimming speed", "Heartbeats per minute", "Lifespan"], correct: 2 },
+            ctrl: { options: ["Pure water (no caffeine)", "Lethal dose of caffeine", "Immersed in coffee", "Dead Daphnia"], correct: 0 },
+            explanation: "You change the <b>caffeine concentration</b> (IV) and measure the <b>heartbeats per minute</b> (DV). Daphnia in <b>pure water</b> (Control) show the natural, unaltered heart rate."
+        },
+        {
+            topic: "Ecology",
+            text: "You are investigating if agricultural fertilizer runoff causes excessive algae growth in local ponds.",
+            iv: { options: ["Fish population", "Algae density", "Amount of fertilizer", "Pond depth"], correct: 2 },
+            dv: { options: ["Amount of fertilizer", "Algae density", "Water temperature", "Sunlight exposure"], correct: 1 },
+            ctrl: { options: ["Pond with no algae", "Double fertilizer", "No fertilizer added", "Dried up pond"], correct: 2 },
+            explanation: "You alter the <b>amount of fertilizer</b> (IV) to measure the resulting <b>algae density</b> (DV). A pond with <b>no fertilizer</b> (Control) establishes the normal algae levels."
+        },
+        {
+            topic: "Biochemistry",
+            text: "You are testing how different pH levels affect the breakdown of hydrogen peroxide by the enzyme catalase.",
+            iv: { options: ["Enzyme concentration", "pH level", "Volume of oxygen bubbles", "Time taken"], correct: 1 },
+            dv: { options: ["pH level", "Room temperature", "Volume of oxygen bubbles", "Type of acid"], correct: 2 },
+            ctrl: { options: ["Neutral pH 7", "No enzyme present", "Different enzyme", "Boiling water"], correct: 0 },
+            explanation: "You adjust the <b>pH level</b> (IV) and measure the <b>volume of oxygen bubbles</b> produced (DV). A reaction at a <b>neutral pH 7</b> (Control) acts as a standard biological baseline."
+        }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let selections = { iv: null, dv: null, ctrl: null };
+
+    function init() {
+        loadScenario();
+    }
+
+    function loadScenario() {
+        const s = scenarios[currentIndex];
+        document.getElementById('progressText').innerText = `${currentIndex + 1}/${scenarios.length}`;
+        document.getElementById('topicName').innerText = s.topic;
+        document.getElementById('scenarioText').innerText = s.text;
+        
+        selections = { iv: null, dv: null, ctrl: null };
+        
+        renderGrid('iv', s.iv.options);
+        renderGrid('dv', s.dv.options);
+        renderGrid('ctrl', s.ctrl.options);
+
+        resetUI();
+    }
+
+    function renderGrid(type, options) {
+        const grid = document.getElementById(`${type}Grid`);
+        grid.innerHTML = '';
+        options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(type, index, btn);
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectOption(type, index, btnElement) {
+        // Prevent changing answers after verifying
+        if (document.getElementById('verifyBtn').style.display === 'none') return;
+
+        selections[type] = index;
+        
+        // Remove selection class from siblings
+        const siblings = document.getElementById(`${type}Grid`).children;
+        for(let sibling of siblings) {
+            sibling.classList.remove(`selected-${type}`);
+        }
+        
+        // Add to clicked
+        btnElement.classList.add(`selected-${type}`);
+        checkReady();
+    }
+
+    function checkReady() {
+        const verifyBtn = document.getElementById('verifyBtn');
+        if (selections.iv !== null && selections.dv !== null && selections.ctrl !== null) {
+            verifyBtn.disabled = false;
+        } else {
+            verifyBtn.disabled = true;
+        }
+    }
+
+    function verifyDesign() {
+        const s = scenarios[currentIndex];
+        let correctCount = 0;
+
+        // Check IV
+        const ivBtns = document.getElementById('ivGrid').children;
+        if (selections.iv === s.iv.correct) { ivBtns[selections.iv].classList.add('correct'); correctCount++; }
+        else { ivBtns[selections.iv].classList.add('wrong'); ivBtns[s.iv.correct].classList.add('correct'); }
+
+        // Check DV
+        const dvBtns = document.getElementById('dvGrid').children;
+        if (selections.dv === s.dv.correct) { dvBtns[selections.dv].classList.add('correct'); correctCount++; }
+        else { dvBtns[selections.dv].classList.add('wrong'); dvBtns[s.dv.correct].classList.add('correct'); }
+
+        // Check Control
+        const ctrlBtns = document.getElementById('ctrlGrid').children;
+        if (selections.ctrl === s.ctrl.correct) { ctrlBtns[selections.ctrl].classList.add('correct'); correctCount++; }
+        else { ctrlBtns[selections.ctrl].classList.add('wrong'); ctrlBtns[s.ctrl.correct].classList.add('correct'); }
+
+        // Update Score
+        score += (correctCount * 50);
+        document.getElementById('scoreDisplay').innerText = score;
+
+        // Show Feedback
+        const feedback = document.getElementById('feedbackBox');
+        feedback.innerHTML = `<strong>You got ${correctCount}/3 correct!</strong><br><br>${s.explanation}`;
+        feedback.style.backgroundColor = correctCount === 3 ? "rgba(16, 185, 129, 0.2)" : "rgba(245, 158, 11, 0.2)";
+        feedback.classList.add('show');
+
+        // Toggle Buttons
+        document.getElementById('verifyBtn').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function resetUI() {
+        document.getElementById('verifyBtn').style.display = 'block';
+        document.getElementById('verifyBtn').disabled = true;
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('feedbackBox').className = 'feedback-box';
+        document.getElementById('feedbackBox').style.display = 'none';
+    }
+
+    function nextScenario() {
+        currentIndex++;
+        if (currentIndex < scenarios.length) {
+            loadScenario();
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        const container = document.querySelector('.lab-container');
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px 0;">
+                <h1 style="color: var(--correct); font-size: 3rem; margin-bottom: 10px;">Lab Complete! 🔬</h1>
+                <h2>Final Score: ${score} / 750</h2>
+                <p style="color: #94a3b8; font-size: 1.2rem; max-width: 500px; margin: 20px auto;">
+                    Great job applying the scientific method across Botany, Microbiology, Physiology, Ecology, and Biochemistry!
+                </p>
+                <button class="action-btn" style="max-width: 300px; margin: 30px auto;" onclick="location.reload()">Restart Lab</button>
+            </div>
+        `;
+    }
+
+    // Start App
+    init();
+</script>
+
+</body>
+</html>

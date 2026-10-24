@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚇 港鐵 99 站 IQ 題終極挑戰</title>
+<style>
+  :root {
+    --mtr-red: #e2231a;
+    --mtr-bg: #f9f9f9;
+    --text-dark: #333;
+    --text-light: #666;
+  }
+  
+  body {
+    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background-color: #eef2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .app-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+  }
+
+  .header {
+    background-color: var(--mtr-red);
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .progress {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-top: 5px;
+    font-weight: bold;
+  }
+
+  .card-container {
+    padding: 30px 20px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 200px;
+  }
+
+  .question-box {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .answer-box {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .answer-box.show {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .station-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--mtr-red);
+    margin: 0;
+  }
+
+  .explanation {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-top: 5px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 30px;
+  }
+
+  button {
+    flex: 1;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  .btn-reveal {
+    background-color: var(--text-dark);
+    color: white;
+  }
+  
+  .btn-reveal:hover {
+    background-color: #1a1a1a;
+  }
+
+  .btn-next {
+    background-color: var(--mtr-red);
+    color: white;
+    display: none;
+  }
+
+  .btn-next:hover {
+    background-color: #b71811;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <h2>🚇 港鐵 99 站爛 Gag 大全</h2>
+    <div class="progress" id="progress-text">準備開始...</div>
+  </div>
+  
+  <div class="card-container">
+    <div class="question-box" id="question-text">載入中...</div>
+    
+    <div class="answer-box" id="answer-box">
+      <p class="station-name" id="answer-station"></p>
+      <p class="explanation" id="answer-exp"></p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-reveal" id="btn-reveal" onclick="revealAnswer()">㩒我開估！</button>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">下一題 ➔</button>
+  </div>
+</div>
+
+<script>
+  // 終極 99 個港鐵站 IQ 題 / 爛 Gag 題庫
+  const mtrQuestions = [
+    // 荃灣綫
+    { q: "老公十分靚仔。", a: "美孚", exp: "（美夫）" },
+    { q: "有邊個地鐵站係永遠都唔會直？", a: "荃灣", exp: "（全彎）" },
+    { q: "邊個站最惡、最鍾意打交？", a: "佐敦", exp: "（阻住晒 / 阻噸）" },
+    { q: "皇帝個仔叫咩名？", a: "太子", exp: "（太子爺）" },
+    { q: "最多電腦同黃金買嘅海邊？", a: "深水埗", exp: "（深水步）" },
+    { q: "又長又多沙嘅海灣？", a: "長沙灣", exp: "（長沙灣）" },
+    { q: "荔枝生咗一隻角？", a: "荔枝角", exp: "（荔枝角）" },
+    { q: "睇荔枝嘅好風景？", a: "荔景", exp: "（荔景）" },
+    { q: "一個姓葵，一個叫芳？", a: "葵芳", exp: "（葵芳）" },
+    { q: "葵花好興旺？", a: "葵興", exp: "（葵興）" },
+    { q: "好大個狗竇嘅入口？", a: "大窩口", exp: "（大窩口）" },
+    { q: "最喜歡中間個圈圈？", a: "中環", exp: "（中環）" },
+    { q: "沙灘上面有張好尖嘅咀？", a: "尖沙咀", exp: "（尖沙咀）" },
+    { q: "又充滿油又充滿麻？", a: "油麻地", exp: "（油麻地）" },
+    { q: "全香港最旺嘅角落？", a: "旺角", exp: "（旺角）" },
+
+    // 觀塘綫
+    { q: "睇住人哋食糖？", a: "觀塘", exp: "（觀糖）" },
+    { q: "邊一隻狗最威水，但係唔識吠？", a: "黃大仙", exp: "（汪大仙）" },
+    { q: "全香港最富有嘅地鐵站係邊個？", a: "鑽石山", exp: "（成座山都係鑽石）" },
+    { q: "又快樂又富有？", a: "樂富", exp: "（樂富）" },
+    { q: "落雨之後天上會有咩？", a: "彩虹", exp: "（彩虹）" },
+    { q: "牛頭上面有啲咩？", a: "牛頭角", exp: "（牛頭角）" },
+    { q: "九條龍住喺邊個海灣？", a: "九龍灣", exp: "（九龍灣）" },
+    { q: "充滿生油嘅池塘？", a: "油塘", exp: "（油塘）" },
+    { q: "黃色嘅大船？", a: "黃埔", exp: "（黃埔）" },
+    { q: "藍色嘅農田？", a: "藍田", exp: "（藍田）" },
+    { q: "石頭夾住條尾？", a: "石硤尾", exp: "（石硤尾）" },
+    { q: "調整風景嘅山嶺？", a: "調景嶺", exp: "（調景嶺）" },
+    { q: "姓何同姓文一齊種田？", a: "何文田", exp: "（何文田）" },
+
+    // 港島綫
+    { q: "多啦A夢最鍾意去邊個站？", a: "銅鑼灣", exp: "（因為有銅鑼燒）" },
+    { q: "邊個站最唔貼地？", a: "堅尼地城", exp: "（堅離地城）" },
+    { q: "媽祖娘娘保佑邊度？", a: "天后", exp: "（天后廟）" },
+    { q: "有支大炮嘅山？", a: "炮台山", exp: "（炮台山）" },
+    { q: "香港最北嘅角落？", a: "北角", exp: "（其實唔係最北，但叫北角）" },
+    { q: "鰂魚游水嘅地方？", a: "鰂魚涌", exp: "（鰂魚涌）" },
+    { q: "以前有糖廠，依家有大商場？", a: "太古", exp: "（太古城）" },
+    { q: "西邊海灣嘅一條河？", a: "西灣河", exp: "（西灣河）" },
+    { q: "用來隔水嘅海灣？", a: "筲箕灣", exp: "（筲箕灣）" },
+    { q: "開滿杏花嘅屋邨？", a: "杏花邨", exp: "（杏花邨）" },
+    { q: "充滿木柴嘅海灣？", a: "柴灣", exp: "（柴灣）" },
+    { q: "中環對上係咩環？", a: "上環", exp: "（上環）" },
+    { q: "西邊嘅兵營？", a: "西營盤", exp: "（西營盤）" },
+    { q: "最高學府站？", a: "香港大學", exp: "（HKU）" },
+    { q: "海灣生咗個細路？", a: "灣仔", exp: "（灣仔）" },
+
+    // 東鐵綫
+    { q: "秋天燒嘢食必備嘅嘢？", a: "火炭", exp: "（BBQ 點少得火炭）" },
+    { q: "游完水要做咩？", a: "上水", exp: "（上水）" },
+    { q: "點解宇宙冇戰爭？", a: "太和", exp: "（太和平）" },
+    { q: "點解食飯要叫埋大家？", a: "大圍", exp: "（大圍）" },
+    { q: "麵粉做嘅山嶺？", a: "粉嶺", exp: "（粉嶺）" },
+    { q: "黃金做嘅大鐘？", a: "金鐘", exp: "（金鐘）" },
+    { q: "九條龍一齊浸溫泉？", a: "九龍塘", exp: "（九龍塘）" },
+    { q: "紅色嘅神龕？", a: "紅磡", exp: "（紅磡）" },
+    { q: "好多沙嘅農田？", a: "沙田", exp: "（沙田）" },
+    { q: "讀完中學去邊度？", a: "大學", exp: "（大學）" },
+    { q: "大埔買餸最大嘅地方？", a: "大埔墟", exp: "（大埔墟）" },
+    { q: "姓羅嘅湖？", a: "羅湖", exp: "（羅湖）" },
+    { q: "騎完馬跌咗落水？", a: "落馬洲", exp: "（落馬）" },
+    { q: "睇書展同動漫展要去邊度？", a: "會展", exp: "（會展）" },
+    { q: "旺角嘅東邊？", a: "旺角東", exp: "（旺角東）" },
+    { q: "最多馬跑嘅地方？", a: "馬場", exp: "（馬場）" },
+
+    // 屯馬綫
+    { q: "聽落好似外國人名嘅站？", a: "柯士甸", exp: "（Austin）" },
+    { q: "原來好開朗？", a: "元朗", exp: "（元朗）" },
+    { q: "一百萬個健康？", a: "兆康", exp: "（兆康）" },
+    { q: "天上啲水圍住你？", a: "天水圍", exp: "（天水圍）" },
+    { q: "永遠都考第一嘅城市？", a: "第一城", exp: "（City One）" },
+    { q: "車公住喺邊度？", a: "車公廟", exp: "（車公廟）" },
+    { q: "舊機場喺邊度？", a: "啟德", exp: "（啟德）" },
+    { q: "宋帝昺去過嘅大台？", a: "宋皇臺", exp: "（宋皇臺）" },
+    { q: "番薯（土瓜）生喺海邊？", a: "土瓜灣", exp: "（土瓜灣）" },
+    { q: "向南邊唱歌？", a: "南昌", exp: "（南唱）" },
+    { q: "石頭造嘅大門？", a: "石門", exp: "（石門）" },
+    { q: "永遠都平安？", a: "恆安", exp: "（恆安）" },
+    { q: "烏鴉、溪水同埋沙灘？", a: "烏溪沙", exp: "（烏溪沙）" },
+    { q: "囤積貨物嘅大門？", a: "屯門", exp: "（屯門）" },
+    { q: "馬背上面嗰座山？", a: "馬鞍山", exp: "（馬鞍山）" },
+    { q: "好大個水坑？", a: "大水坑", exp: "（大水坑）" },
+    { q: "包圍住沙田？", a: "沙田圍", exp: "（沙田圍）" },
+    { q: "顯示出一條小路？", a: "顯徑", exp: "（顯徑）" },
+    { q: "尖沙咀嘅細佬？", a: "尖東", exp: "（尖東）" },
+    { q: "荃灣嘅左邊？", a: "荃灣西", exp: "（荃灣西）" },
+    { q: "錦上添咩路？", a: "錦上路", exp: "（錦上路）" },
+    { q: "開朗嘅屏風？", a: "朗屏", exp: "（朗屏）" },
+
+    // 東涌綫及機場快綫
+    { q: "咩站最香？", a: "香港", exp: "（香呀！）" },
+    { q: "咩衫係綠色？", a: "青衣", exp: "（青衣）" },
+    { q: "運動員最想去嘅比賽？", a: "奧運", exp: "（奧運）" },
+    { q: "好開心嘅澳門？", a: "欣澳", exp: "（欣澳 / 充滿陽光）" },
+    { q: "向東邊衝過去？", a: "東涌", exp: "（東衝）" },
+    { q: "九條大龍？", a: "九龍", exp: "（九龍）" },
+    { q: "飛機嘅屋企？", a: "機場", exp: "（機場）" },
+    { q: "睇韓星演唱會最大個館？", a: "博覽館", exp: "（亞洲國際博覽館）" },
+
+    // 將軍澳綫
+    { q: "將軍游水嘅海灣？", a: "將軍澳", exp: "（將軍澳）" },
+    { q: "跌落坑渠嘅入口？", a: "坑口", exp: "（坑口）" },
+    { q: "全部都係寶石嘅樹林？", a: "寶琳", exp: "（寶琳）" },
+    { q: "全香港最健康嘅城市？", a: "康城", exp: "（LOHAS 康城）" },
+
+    // 南港島綫
+    { q: "殺人鯨同熊貓住喺邊？", a: "海洋公園", exp: "（海洋公園）" },
+    { q: "黃色竹樹生喺水坑？", a: "黃竹坑", exp: "（黃竹坑）" },
+    { q: "利益向住東邊？", a: "利東", exp: "（利東）" },
+    { q: "海邊好開心嘅半島？", a: "海怡半島", exp: "（海怡半島）" },
+
+    // 迪士尼綫
+    { q: "米奇老鼠搭地鐵會去邊個站？", a: "迪士尼", exp: "（迪士尼）" }
+  ];
+
+  let currentPool = [];
+  let currentIndex = 0;
+
+  // 初始化遊戲（打亂題目順序）
+  function initGame() {
+    currentPool = [...mtrQuestions].sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    showQuestion();
+  }
+
+  // 顯示題目
+  function showQuestion() {
+    const qData = currentPool[currentIndex];
+    
+    document.getElementById("question-text").innerHTML = qData.q;
+    document.getElementById("answer-station").innerText = qData.a;
+    document.getElementById("answer-exp").innerText = qData.exp;
+    
+    document.getElementById("progress-text").innerText = `第 ${currentIndex + 1} 題 / 共 99 站`;
+    
+    // 重置介面狀態
+    document.getElementById("answer-box").classList.remove("show");
+    document.getElementById("btn-reveal").style.display = "block";
+    document.getElementById("btn-next").style.display = "none";
+  }
+
+  // 開估
+  function revealAnswer() {
+    document.getElementById("answer-box").classList.add("show");
+    document.getElementById("btn-reveal").style.display = "none";
+    document.getElementById("btn-next").style.display = "block";
+  }
+
+  // 下一題
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex >= currentPool.length) {
+      alert("太癲喇！你竟然玩晒 99 個站！🏆\n即將重新洗牌開始。");
+      initGame();
+    } else {
+      showQuestion();
+    }
+  }
+
+  // 網頁載入後立即執行
+  window.onload = initGame;
+</script>
+
+</body>
+</html>

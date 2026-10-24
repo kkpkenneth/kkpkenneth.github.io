@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Voice Studio</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: #151b2b;
+            --text-color: #c4cde0;
+            --accent-color: #00ffaa;
+            --border-color: #2a3756;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #8a9bbd;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--accent-color);
+        }
+
+        .value-display {
+            min-width: 40px;
+            text-align: right;
+            font-family: monospace;
+            color: var(--accent-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            flex-grow: 1;
+        }
+
+        button:hover {
+            background-color: var(--border-color);
+            color: #fff;
+        }
+
+        pre {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: #a6accd;
+            height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Controls Panel -->
+        <div class="panel">
+            <h2>Voice Controls</h2>
+            
+            <div class="form-group">
+                <label for="char-name">Character Name (e.g., John Doe, Jane Doe)</label>
+                <input type="text" id="char-name" placeholder="narrator">
+            </div>
+
+            <div class="form-group">
+                <label for="voice-select">System Voice</label>
+                <select id="voice-select"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Pitch</label>
+                <div class="slider-group">
+                    <input type="range" id="pitch" min="0" max="2" step="0.1" value="1" oninput="updateVal('pitch-val', this.value)">
+                    <span class="value-display" id="pitch-val">1.0</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Rate (Speed)</label>
+                <div class="slider-group">
+                    <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1" oninput="updateVal('rate-val', this.value)">
+                    <span class="value-display" id="rate-val">1.0</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Volume</label>
+                <div class="slider-group">
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="1" oninput="updateVal('volume-val', this.value)">
+                    <span class="value-display" id="volume-val">1.0</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="test-text">Test Phrase</label>
+                <textarea id="test-text">Yoo-hoo! Sleeping Beauty! Wakey wakey! My favorite country is Niger.</textarea>
+            </div>
+
+            <div class="button-group">
+                <button onclick="testVoice()">▶ Test Voice</button>
+                <button onclick="addCharacter()">+ Add to Code</button>
+            </div>
+            <div class="button-group">
+                <button onclick="clearCode()" style="color: #ff6b6b; border-color: #5c2b2b;">Clear Code</button>
+            </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="panel">
+            <h2>Generated Output</h2>
+            <pre id="code-output">Loading...</pre>
+        </div>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        const voiceSelect = document.getElementById('voice-select');
+        let voices = [];
+        let savedCharacters = [];
+
+        // Load voices into dropdown
+        function populateVoices() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+            
+            voices.forEach((voice, i) => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = i;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        populateVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoices;
+        }
+
+        // Update slider number display
+        function updateVal(id, val) {
+            document.getElementById(id).innerText = parseFloat(val).toFixed(1);
+        }
+
+        // Test the current settings
+        function testVoice() {
+            synth.cancel(); // stop current speaking
+
+            const text = document.getElementById('test-text').value;
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            const selectedVoiceIndex = voiceSelect.value;
+            if (voices[selectedVoiceIndex]) {
+                utterance.voice = voices[selectedVoiceIndex];
+            }
+            
+            utterance.pitch = parseFloat(document.getElementById('pitch').value);
+            utterance.rate = parseFloat(document.getElementById('rate').value);
+            utterance.volume = parseFloat(document.getElementById('volume').value);
+
+            synth.speak(utterance);
+        }
+
+        // Add character to the array and regenerate code
+        function addCharacter() {
+            let charName = document.getElementById('char-name').value.trim().toLowerCase();
+            if (!charName) charName = 'narrator';
+
+            const pitch = document.getElementById('pitch').value;
+            const rate = document.getElementById('rate').value;
+            const volume = document.getElementById('volume').value;
+            
+            const selectedVoiceIndex = voiceSelect.value;
+            let voiceName = '';
+            let voiceLang = 'en-US';
+            
+            if (voices[selectedVoiceIndex]) {
+                voiceName = voices[selectedVoiceIndex].name;
+                voiceLang = voices[selectedVoiceIndex].lang;
+            }
+
+            // Check if character already exists and replace, or push new
+            const existingIndex = savedCharacters.findIndex(c => c.name === charName);
+            const charData = { name: charName, pitch, rate, volume, voiceName, voiceLang };
+            
+            if (existingIndex >= 0) {
+                savedCharacters[existingIndex] = charData;
+            } else {
+                savedCharacters.push(charData);
+            }
+
+            renderCode();
+        }
+
+        function clearCode() {
+            savedCharacters = [];
+            renderCode();
+        }
+
+        // Generate the JS code string
+        function renderCode() {
+            let code = `function applyCharacterVoice(utterance, character) {
+    const voices = window.speechSynthesis.getVoices();
+
+    switch(character) {`;
+
+            savedCharacters.forEach(char => {
+                code += `
+        case '${char.name}':
+            utterance.pitch = ${char.pitch}; 
+            utterance.rate = ${char.rate}; 
+            utterance.volume = ${char.volume}; 
+            utterance.lang = '${char.voiceLang}'; 
+            
+            const ${char.name}Voice = voices.find(v => v.name === '${char.voiceName}');
+            if (${char.name}Voice) utterance.voice = ${char.name}Voice;
+            break;
+`;
+            });
+
+            // Add default fallback if not explicitly defined
+            if (!savedCharacters.find(c => c.name === 'narrator')) {
+                code += `
+        case 'narrator':
+        default:
+            utterance.pitch = 1.0; 
+            utterance.rate = 1.0;
+            utterance.volume = 1.0; 
+            break;`;
+            } else {
+                code += `
+        default:
+            break;`;
+            }
+
+            code += `
+    }
+}`;
+
+            document.getElementById('code-output').innerText = code;
+        }
+
+        // Initial render
+        renderCode();
+    </script>
+</body>
+</html>

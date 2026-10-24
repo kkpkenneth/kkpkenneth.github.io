@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Zoo Tycoon</title>
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/4/49/Waves_pattern_background.jpg') repeat;
+            background-color: lightgreen;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Search Bar Container */
+        #control-panel {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            display: flex; /* Makes the button sit next to the input */
+            gap: 5px;
+        }
+
+        /* --- Custom Autocomplete Styles --- */
+        #autocomplete-container {
+            position: relative; /* CRITICAL: Allows absolute positioning of the list below it */
+            display: inline-block;
+        }
+
+        #animalInput {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #999;
+            width: 160px;
+        }
+        
+        /* The custom list that enforces the 10-item scroll */
+        #custom-suggestions {
+            position: absolute;
+            top: 100%; /* Positions the list right below the input */
+            left: 0;
+            width: 100%; /* Matches input width */
+            z-index: 100;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            
+            /* KEY STYLES FOR SCROLLING */
+            max-height: 220px; /* Approximately 10 items at ~22px height each */
+            overflow-y: auto;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: capitalize;
+        }
+
+        .suggestion-item:hover, .suggestion-item.active {
+            background-color: #eee;
+        }
+        /* --- End Custom Autocomplete Styles --- */
+
+        #addAnimalBtn {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #addAnimalBtn:hover {
+            background-color: #27ae60;
+        }
+
+        .mover {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background-size: cover;
+            background-position: center;
+            transition: top 0.4s ease-out, left 0.4s ease-out;
+        }
+
+        .failed-load {
+            background-color: #e74c3c;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <div id="autocomplete-container">
+            <input type="text" id="animalInput" placeholder="Enter animal name..." />
+            
+            <ul id="custom-suggestions" style="display:none;">
+                </ul>
+        </div>
+        <button id="addAnimalBtn">Add Animal</button>
+    </div>
+
+    <script>
+        const SCALE_FACTOR = 0.1;
+        const stepDistance = 25;
+        const intervalDuration = 1000;
+
+        // Using your local paths (Ensure these files exist in an 'images' folder!)
+        const animalImageLinks = {
+            lion: 'images/lion.png',
+            zebra: 'images/zebra.png',
+            giraffe: 'images/giraffe.png',
+            elephant: 'images/elephant.png',
+            cheetah: 'images/cheetah.png',
+            penguin: 'images/penguin.png',
+            rhino: 'images/rhino.png',
+            hippo: 'images/hippo.png',
+            tiger: 'images/tiger.png',
+            panda: 'images/panda.png',
+            leopard: 'images/leopard.png', 
+            buffalo: 'images/buffalo.png',
+            seal: 'images/seal.png',
+            fox: 'images/fox.png',
+            monkey: 'images/monkey.png'
+        };
+        
+        const allAnimals = Object.keys(animalImageLinks);
+
+        // --- MOVEMENT/Mover FUNCTIONS (Same as previous step) ---
+        function moveDivRandomDegrees(divElement) {
+            let currentX = divElement.offsetLeft;
+            let currentY = divElement.offsetTop;
+            const randomAngle = Math.random() * 2 * Math.PI;
+            const deltaX = stepDistance * Math.cos(randomAngle);
+            const deltaY = stepDistance * Math.sin(randomAngle);
+            currentX += deltaX;
+            currentY += deltaY;
+            const w = divElement.clientWidth;
+            const h = divElement.clientHeight;
+            const maxW = window.innerWidth - w;
+            const maxH = window.innerHeight - h;
+            currentX = Math.min(Math.max(currentX, 0), maxW);
+            currentY = Math.min(Math.max(currentY, 0), maxH);
+            divElement.style.left = currentX + 'px';
+            divElement.style.top = currentY + 'px';
+        }
+
+        function startMovement(divElement) {
+            setInterval(() => {
+                moveDivRandomDegrees(divElement);
+            }, intervalDuration);
+        }
+
+        function createMover(animalName) {
+            const imageUrl = animalImageLinks[animalName];
+            if (!imageUrl) {
+                console.error(`No image link found for ${animalName}`);
+                return;
+            }
+
+            const div = document.createElement('div');
+            div.classList.add('mover');
+
+            const img = new Image();
+            
+            img.onload = function() {
+                const naturalW = img.naturalWidth || 100;
+                const naturalH = img.naturalHeight || 100;
+                const scaledW = naturalW * SCALE_FACTOR;
+                const scaledH = naturalH * SCALE_FACTOR;
+                
+                div.style.backgroundImage = `url('${imageUrl}')`;
+                div.style.width = scaledW + 'px';
+                div.style.height = scaledH + 'px';
+                div.style.transform = `translate(-${scaledW / 2}px, -${scaledH / 2}px)`;
+                document.body.appendChild(div);
+                startMovement(div);
+                console.log(`Added ${animalName} at size ${scaledW.toFixed(0)}x${scaledH.toFixed(0)}.`);
+            };
+
+            img.onerror = function() {
+                const FALLBACK_SIZE = 60;
+                div.classList.add('failed-load');
+                div.style.width = FALLBACK_SIZE + 'px';
+                div.style.height = FALLBACK_SIZE + 'px';
+                div.style.transform = `translate(-${FALLBACK_SIZE / 2}px, -${FALLBACK_SIZE / 2}px)`;
+                document.body.appendChild(div);
+                startMovement(div);
+                console.error(`Failed to load image for ${animalName}. Check your 'images' folder!`);
+            };
+
+            img.src = imageUrl;
+        }
+
+        // --- CUSTOM AUTOCOMPLETE LOGIC (The part that replaced datalist) ---
+        const animalInput = document.getElementById('animalInput');
+        const suggestionsList = document.getElementById('custom-suggestions');
+
+        function updateSuggestions() {
+            const inputValue = animalInput.value.toLowerCase();
+            suggestionsList.innerHTML = ''; // Clear previous suggestions
+
+            if (inputValue.length === 0) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            let foundCount = 0;
+            
+            for (const animal of allAnimals) {
+                // Filter: Check if animal name starts with the input value
+                if (animal.startsWith(inputValue)) {
+                    if (foundCount >= 10) { 
+                        break; // LIMIT: Stop after 10 items
+                    }
+                    
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('suggestion-item');
+                    // Display name with capitalization, but use lowercase for data-value
+                    listItem.textContent = animal.charAt(0).toUpperCase() + animal.slice(1); 
+                    listItem.setAttribute('data-value', animal);
+
+                    // Click handler to select the item
+                    listItem.addEventListener('click', function() {
+                        animalInput.value = this.getAttribute('data-value');
+                        suggestionsList.style.display = 'none';
+                    });
+
+                    suggestionsList.appendChild(listItem);
+                    foundCount++;
+                }
+            }
+
+            // Show or hide the list based on results
+            suggestionsList.style.display = (foundCount > 0) ? 'block' : 'none';
+        }
+        
+        animalInput.addEventListener('input', updateSuggestions);
+
+        // Hide suggestions when clicking anywhere else
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('autocomplete-container').contains(e.target)) {
+                suggestionsList.style.display = 'none';
+            }
+        });
+        
+        // Add animal on button click
+        document.getElementById('addAnimalBtn').addEventListener('click', () => {
+            const animalName = animalInput.value.trim().toLowerCase();
+            
+            if (animalImageLinks[animalName]) {
+                createMover(animalName);
+                animalInput.value = '';
+                suggestionsList.style.display = 'none'; // Clear list after adding
+            } else {
+                alert(`'${animalName.charAt(0).toUpperCase() + animalName.slice(1)}' is unknown or misspelled! Try typing a name.`);
+            }
+        });
+    </script>
+</body>
+</html>

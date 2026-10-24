@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lebanese Verbs Quiz</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fff8f0, #f0fff8);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 { text-align: center; margin: 20px 0; color: #2c3e50; }
+  .card {
+    background: white; padding: 20px 30px; margin: 15px 0;
+    border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    width: 90%; max-width: 700px;
+  }
+  #quiz-item { font-size: 50px; margin: 20px 0; color: #e67e22; font-weight: bold; }
+  #choices button {
+    background-color: #1abc9c; color: white; border: none;
+    border-radius: 10px; padding: 12px 18px; margin: 8px;
+    font-size: 16px; cursor: pointer; transition: 0.2s;
+  }
+  #choices button:hover { background-color: #16a085; transform: scale(1.05); }
+  .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 18px; }
+  .row:last-child { border-bottom: none; }
+  .term { font-weight: bold; color: #34495e; }
+  .meaning { color: #2c3e50; }
+  @media (max-width: 500px) {
+    #quiz-item { font-size: 40px; }
+    .row { font-size: 16px; }
+    #choices button { font-size: 14px; padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Lebanese Verbs Quiz</h1>
+
+<div class="card" style="text-align:center;">
+  <h2>Guess the Meaning</h2>
+  <div id="quiz-item">example</div>
+  <div id="choices"></div>
+</div>
+
+<div class="card">
+  <h2>Reference Table</h2>
+  <div id="table-rows"></div>
+</div>
+
+<script>
+const verbs = [
+  { term:"ra7", meaning:"Go" },
+  { term:"ja", meaning:"Come" },
+  { term:"kallim", meaning:"Talk/Speak" },
+  { term:"ishta3mal", meaning:"Use" },
+  { term:"shrab", meaning:"Drink" },
+  { term:"akala", meaning:"Eat" },
+  { term:"ktib", meaning:"Write" },
+  { term:"qra", meaning:"Read" },
+  { term:"fata7", meaning:"Open" },
+  { term:"sakkar", meaning:"Close" },
+  { term:"sima3", meaning:"Listen/Hear" },
+  { term:"shouf", meaning:"See/Look" },
+  { term:"la3ib", meaning:"Play" },
+  { term:"n3as", meaning:"Sleep" },
+  { term:"hass", meaning:"Feel" },
+  { term:"sharrah", meaning:"Explain" },
+  { term:"3mal", meaning:"Do/Make" },
+  { term:"raja3", meaning:"Return" },
+  { term:"wasa3", meaning:"Expand/Stretch" },
+  { term:"7abb", meaning:"Love/Like" }
+];
+
+let correctAnswer = null;
+
+function renderTable() {
+  const table = document.getElementById("table-rows");
+  table.innerHTML = "";
+  verbs.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `<span class="term">${item.term}</span> <span class="meaning">${item.meaning}</span>`;
+    table.appendChild(row);
+  });
+}
+
+function newQuestion() {
+  const qIndex = Math.floor(Math.random() * verbs.length);
+  correctAnswer = verbs[qIndex];
+
+  let options = [correctAnswer];
+  while (options.length < 4) {
+    let r = verbs[Math.floor(Math.random() * verbs.length)];
+    if (!options.includes(r)) options.push(r);
+  }
+
+  options.sort(() => Math.random() - 0.5);
+
+  document.getElementById("quiz-item").innerText = correctAnswer.term;
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  options.forEach(opt => {
+    let btn = document.createElement("button");
+    btn.innerText = opt.meaning;
+    btn.onclick = () => {
+      if(opt === correctAnswer){
+        alert("✅ Correct!");
+      } else {
+        alert(`❌ Wrong! Correct answer: ${correctAnswer.meaning}`);
+      }
+      newQuestion();
+    };
+    box.appendChild(btn);
+  });
+}
+
+window.onload = () => { 
+  renderTable();
+  newQuestion();
+};
+</script>
+
+</body>
+</html>

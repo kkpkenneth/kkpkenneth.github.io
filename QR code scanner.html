@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon QR Code Scanner</title>
+    <style>
+        /* ... (Keep all existing styles for body, h1, container, nav-bar, pokemon-card, etc.) ... */
+        body {
+            font-family: 'Pokemon Solid', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        @font-face {
+            font-family: 'Pokemon Solid';
+            src: url('https://raw.githubusercontent.com/Type-Design/Pokemon-Solid/main/Pokemon%20Solid.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        h1 {
+            color: #cc0000;
+            text-shadow: 2px 2px #ffde00;
+            margin-bottom: 20px;
+            font-size: 3em;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Navigation --- */
+        .nav-bar {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .nav-bar button {
+            background-color: #0077b6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 0 5px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-bar button:hover, .nav-bar button.active {
+            background-color: #cc0000;
+        }
+
+        /* --- Page Sections --- */
+        .app-section {
+            display: none;
+            padding-top: 10px;
+        }
+
+        .app-section.active {
+            display: block;
+        }
+
+        /* --- Scanner Area (The main addition) --- */
+        #reader {
+            width: 100%;
+            border: 2px solid #ffde00;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hide the manual input area */
+        #manual-scan-input { display: none; }
+        
+        .scan-controls {
+            margin-top: 15px;
+        }
+
+        /* --- Collection Display --- */
+        #collection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .pokemon-card {
+            width: 120px;
+            padding: 10px;
+            border: 3px solid #ffde00;
+            background-color: #f7f7f7;
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .pokemon-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .pokemon-card p {
+            font-weight: bold;
+            margin: 5px 0 0;
+            color: #cc0000;
+        }
+
+        /* --- Info and Status --- */
+        #status-message {
+            margin: 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        #reset-button {
+            background-color: #333;
+            margin-top: 20px;
+        }
+        #reset-button:hover {
+            background-color: #111;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Pokémon Collector!</h1>
+
+        <div class="nav-bar">
+            <button id="nav-scan" onclick="showSection('scan', this)" class="active">Scan Code</button>
+            <button id="nav-collection" onclick="showSection('collection', this)">View Collection</button>
+        </div>
+
+        <p id="status-message"></p>
+
+        <div id="scan-section" class="app-section active">
+            <h2>Live QR Scanner</h2>
+            <div id="reader"></div> 
+            <div class="scan-controls">
+                <p id="scan-feedback">Click 'Scan Code' to grant camera access and start scanning.</p>
+                <div id="manual-scan-input">
+                    <input type="text" id="qr-input" placeholder="Enter Pokémon ID (e.g., 1, 4, 7)">
+                    <button class="capture-button" onclick="scanCode()">Capture Pokémon!</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="collection-section" class="app-section">
+            <h2>Collected Pokémon 🎒</h2>
+            <div id="collection">
+                <p>Loading your collection...</p>
+            </div>
+            <button id="reset-button" onclick="resetCollection()">Reset Collection (Clear Cookies)</button>
+        </div>
+        
+    </div>
+
+    <script>
+        // --- 1. CONFIGURATION ---
+        const COOKIE_NAME = 'pokemon_collection';
+        const MAX_POKEMON = 151;
+        const POKEMON_DATA = [
+            { id: 1, name: "Bulbasaur" },
+            { id: 4, name: "Charmander" },
+            { id: 7, name: "Squirtle" },
+            { id: 25, name: "Pikachu" },
+            { id: 6, name: "Charizard" },
+            { id: 16, name: "Pidgey" },
+            { id: 13, name: "Weedle" },
+            { id: 150, name: "Mewtwo" }
+        ];
+        
+        // GLOBAL SCANNER INSTANCE
+        let html5QrCode = null;
+
+        // --- 2. COOKIE/STORAGE FUNCTIONS (Unchanged) ---
+        function loadCollection() {
+            const cookieValue = Cookies.get(COOKIE_NAME);
+            return cookieValue ? JSON.parse(cookieValue) : [];
+        }
+
+        function saveCollection(collection) {
+            Cookies.set(COOKIE_NAME, JSON.stringify(collection), { expires: 365 });
+        }
+        
+        // --- 3. QR SCANNING LOGIC (New/Updated) ---
+        
+        /**
+         * The callback function that runs every time a QR code is successfully scanned.
+         * @param {string} decodedText - The data encoded in the QR code (should be a Pokémon ID).
+         * @param {object} decodedResult - Detailed result object from the library.
+         */
+        function onScanSuccess(decodedText, decodedResult) {
+            // Stop scanning immediately after the first successful scan
+            stopScanner();
+            
+            // Treat the decoded text as the Pokémon ID
+            const qrData = parseInt(decodedText.trim()); 
+            
+            // Use the original scanCode logic for processing
+            processScannedPokemon(qrData);
+
+            // Re-start the scanner if still on the scan page
+            // Note: In a production app, you might wait for a user click to rescan.
+            if (document.getElementById('scan-section').classList.contains('active')) {
+                startScanner();
+            }
+        }
+
+        /**
+         * Handles the capture logic after a successful scan.
+         * @param {number} pokemonId - The ID of the Pokémon to process.
+         */
+        function processScannedPokemon(pokemonId) {
+            const statusMessage = document.getElementById('status-message');
+
+            if (isNaN(pokemonId) || pokemonId < 1 || pokemonId > MAX_POKEMON) {
+                statusMessage.textContent = "Invalid QR data scanned. Must be a Pokémon ID (1-151).";
+                statusMessage.style.color = 'red';
+                return;
+            }
+
+            let collection = loadCollection();
+            
+            if (collection.includes(pokemonId)) {
+                statusMessage.textContent = `You already have Pokémon #${pokemonId}! Try another scan.`;
+                statusMessage.style.color = 'orange';
+            } else {
+                collection.push(pokemonId);
+                collection.sort((a, b) => a - b);
+                saveCollection(collection);
+
+                const newPokemon = POKEMON_DATA.find(p => p.id === pokemonId) || { name:

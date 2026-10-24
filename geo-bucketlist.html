@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Traveler Scorecard</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --accent: #00ffaa;
+            --card-bg: #151b2b;
+        }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 600px; width: 100%; }
+        #score-board { text-align: center; font-size: 1.5rem; margin-bottom: 20px; color: var(--accent); font-weight: bold; }
+        .item { background: var(--card-bg); margin: 5px 0; padding: 10px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; }
+        .item.checked { opacity: 0.5; text-decoration: line-through; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Geo-Traveler Scorecard</h1>
+    <div id="score-board">Geo-Score: 0 / 50</div>
+    <div id="list"></div>
+</div>
+
+<script>
+    const sites = [
+        "Door to Hell, Turkmenistan", "Giant’s Causeway, Northern Ireland", "Mount Kelimutu, Indonesia", 
+        "Stuðlagil Canyon, Iceland", "Devil’s Tower, USA", "Reynisfjara Beach, Iceland", 
+        "Fly Geyser, USA", "Thingvellir Rift Valley, Iceland", "Parícutin Volcano, Mexico", 
+        "Faial Badlands, Portugal", "The Wave, USA", "Bryce Canyon Hoodoos, USA", 
+        "Marble Caves, Chile", "Charyn Canyon, Kazakhstan", "Cappadocia Chimneys, Turkey", 
+        "Tsingy de Bemaraha, Madagascar", "Chocolate Hills, Philippines", "The Pinnacles, Australia", 
+        "Valley of Balls, Kazakhstan", "White Desert, Egypt", "Flysch of Zumaia, Spain", 
+        "Moeraki Boulders, New Zealand", "Badlands NP, USA", "Grand Canyon, USA", 
+        "Pont d’Arc, France", "Old Man of Storr, Scotland", "Trollpikken, Norway", 
+        "Arches NP, USA", "Bungle Bungle Range, Australia", "Spitzkoppe, Namibia", 
+        "Salar de Uyuni, Bolivia", "Danakil Depression, Ethiopia", "Pamukkale, Turkey", 
+        "Zhangye Danxia, China", "Spotted Lake, Canada", "Cueva de los Cristales, Mexico", 
+        "Hierve el Agua, Mexico", "Mammoth Hot Springs, USA", "Krishna’s Butter Ball, India", 
+        "Golden Rock, Myanmar", "Kjeragbolten, Norway", "Meteora, Greece", 
+        "Sigiriya Rock, Sri Lanka", "Split Apple Rock, New Zealand", "Uluru, Australia", 
+        "Manpupuner, Russia", "Pillars of Hercules, Antigua", "Moon Hill, China", 
+        "Bletterbach Canyon, Italy", "Tiramisu Rock, Kazakhstan"
+    ];
+
+    const listDiv = document.getElementById('list');
+    const scoreDiv = document.getElementById('score-board');
+
+    function updateScore() {
+        const checked = document.querySelectorAll('.item.checked').length;
+        scoreDiv.innerText = `Geo-Score: ${checked} / 50 (${Math.round(checked/50*100)}%)`;
+    }
+
+    sites.forEach((name, i) => {
+        const div = document.createElement('div');
+        const checked = localStorage.getItem(`site-${i}`) === 'true';
+        div.className = `item ${checked ? 'checked' : ''}`;
+        div.innerHTML = `<strong>${i + 1}.</strong> &nbsp; ${name}`;
+        div.onclick = () => {
+            div.classList.toggle('checked');
+            localStorage.setItem(`site-${i}`, div.classList.contains('checked'));
+            updateScore();
+        };
+        listDiv.appendChild(div);
+    });
+    updateScore();
+</script>
+
+</body>
+</html>

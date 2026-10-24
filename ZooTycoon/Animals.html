@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Animal World</title>
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            background: url('images/background.png') repeat;
+            background-color: black;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Animals Button */
+        #toggleShopBtn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 11px 79px;
+            border: none;
+            background-color: darkslategray;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 11;
+        }
+
+        /* Shop Panel */
+        #shop-content {
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            width: 200px;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: visibility 0.3s, opacity 0.3s, transform 0.3s;
+        }
+
+        #shop-content.visible {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #filterInput {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #999;
+            width: 90%;
+            margin-bottom: 10px;
+        }
+
+        #animal-list {
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .animal-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+            transition: background-color 0.1s;
+        }
+
+        .animal-item:last-child {
+            border-bottom: none;
+        }
+
+        .animal-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .animal-item.hidden {
+            display: none;
+        }
+
+        /* Movable Animals */
+        .mover {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background-size: cover;
+            background-position: center;
+            transition: top 0.4s ease-out, left 0.4s ease-out;
+            cursor: grab;
+        }
+
+        .mover.dragging {
+            transition: none !important;
+            cursor: grabbing;
+            z-index: 50;
+        }
+
+        .failed-load {
+            background-color: #e74c3c;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    
+    <button id="toggleShopBtn" onclick="toggleShop();playAudio()">Animals</button>
+
+    <div id="shop-content">
+        <input type="text" id="filterInput" placeholder="Filter by name..." oninput="filterList()">
+        <ul id="animal-list"></ul>
+    </div>
+
+    <script>
+        function playAudio() { 
+            var a = document.getElementById("myAudio");
+            if (a.paused) {
+                a.play().catch(e => console.log("Audio playback prevented by browser: ", e));
+            }
+        }
+
+        function toggleShop() {
+            const shopContent = document.getElementById('shop-content');
+            shopContent.classList.toggle('visible');
+        }
+
+        const SCALE_FACTOR = 0.1;
+        const stepDistance = 25;
+        const intervalDuration = 1000;
+
+        const animalImageLinks = {
+            lion: 'images/lion.png',
+            zebra: 'images/zebra.png',
+            giraffe: 'images/giraffe.png',
+            elephant: 'images/elephant.png',
+            cheetah: 'images/cheetah.png',
+            penguin: 'images/penguin.png',
+            rhino: 'images/rhino.png',
+            hippo: 'images/hippo.png',
+            tiger: 'images/tiger.png',
+            panda: 'images/panda.png',
+            leopard: 'images/leopard.png',
+            buffalo: 'images/buffalo.png',
+            gorilla: 'images/gorilla.png',
+            monkey: 'images/monkey.png',
+            crocodile: 'images/crocodile.png',
+            camel: 'images/camel.png',
+            parrot: 'images/parrot.png',
+            wolf: 'images/wolf.png',
+        };
+        
+        const allAnimals = Object.keys(animalImageLinks);
+
+        let currentDrag = null; 
+        let offsetX, offsetY;    
+
+        // Random movement logic
+        function moveDivRandomDegrees(divElement) {
+            let currentX = divElement.offsetLeft;
+            let currentY = divElement.offsetTop;
+            const randomAngle = Math.random() * 2 * Math.PI;
+            const deltaX = stepDistance * Math.cos(randomAngle);
+            const deltaY = stepDistance * Math.sin(randomAngle);
+            currentX += deltaX;
+            currentY += deltaY;
+            const w = divElement.clientWidth;
+            const h = divElement.clientHeight;
+            const maxW = window.innerWidth - w;
+            const maxH = window.innerHeight - h;
+            currentX = Math.min(Math.max(currentX, 0), maxW);
+            currentY = Math.min(Math.max(currentY, 0), maxH);
+            divElement.style.left = currentX + 'px';
+            divElement.style.top = currentY + 'px';
+        }
+
+        function startMovement(divElement) {
+            divElement.movementInterval = setInterval(() => {
+                moveDivRandomDegrees(divElement);
+            }, intervalDuration);
+        }
+
+        // --- DRAGGING HANDLERS (Mouse + Touch) ---
+        function dragStart(e) {
+            e.preventDefault();
+            const mover = this;
+
+            clearInterval(mover.movementInterval);
+            mover.movementInterval = null;
+
+            currentDrag = mover;
+            currentDrag.classList.add('dragging');
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            offsetX = clientX - mover.offsetLeft;
+            offsetY = clientY - mover.offsetTop;
+        }
+
+        function dragMove(e) {
+            if (!currentDrag) return;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            let newX = clientX - offsetX;
+            let newY = clientY - offsetY;
+
+            const w = currentDrag.clientWidth;
+            const h = currentDrag.clientHeight;
+            const maxW = window.innerWidth - w;
+            const maxH = window.innerHeight - h;
+
+            newX = Math.min(Math.max(newX, 0), maxW);
+            newY = Math.min(Math.max(newY, 0), maxH);
+
+            currentDrag.style.left = newX + 'px';
+            currentDrag.style.top = newY + 'px';
+        }
+
+        function dragEnd() {
+            if (!currentDrag) return;
+            currentDrag.classList.remove('dragging');
+            startMovement(currentDrag);
+            currentDrag = null;
+        }
+
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('touchmove', dragMove, { passive: false });
+        document.addEventListener('touchend', dragEnd);
+
+        // Create animal mover
+        function createMover(animalName) {
+            const imageUrl = animalImageLinks[animalName];
+            if (!imageUrl) {
+                console.error(`No image link found for ${animalName}`);
+                return;
+            }
+
+            const div = document.createElement('div');
+            div.classList.add('mover');
+
+            div.addEventListener('mousedown', dragStart);
+            div.addEventListener('touchstart', dragStart, { passive: false });
+
+            const img = new Image();
+            img.onload = function() {
+                const naturalW = img.naturalWidth || 100;
+                const naturalH = img.naturalHeight || 100;
+                const scaledW = naturalW * SCALE_FACTOR;
+                const scaledH = naturalH * SCALE_FACTOR;
+
+                div.style.backgroundImage = `url('${imageUrl}')`;
+                div.style.width = scaledW + 'px';
+                div.style.height = scaledH + 'px';
+                div.style.transform = `translate(-${scaledW / 2}px, -${scaledH / 2}px)`;
+                document.body.appendChild(div);
+                startMovement(div);
+            };
+
+            img.onerror = function() {
+                const FALLBACK_SIZE = 60;
+                div.classList.add('failed-load');
+                div.style.width = FALLBACK_SIZE + 'px';
+                div.style.height = FALLBACK_SIZE + 'px';
+                div.style.transform = `translate(-${FALLBACK_SIZE / 2}px, -${FALLBACK_SIZE / 2}px)`;
+                document.body.appendChild(div);
+                startMovement(div);
+                console.error(`Failed to load image for ${animalName}.`);
+            };
+
+            img.src = imageUrl;
+        }
+
+        // Populate shop list
+        const animalListContainer = document.getElementById('animal-list');
+        const filterInput = document.getElementById('filterInput');
+
+        function initializeAnimalList() {
+            animalListContainer.innerHTML = ''; 
+            for (const animal of allAnimals) {
+                const listItem = document.createElement('li');
+                listItem.classList.add('animal-item');
+                listItem.textContent = animal.charAt(0).toUpperCase() + animal.slice(1);
+                listItem.setAttribute('data-name', animal);
+
+                listItem.addEventListener('click', function() {
+                    createMover(animal);
+                    toggleShop(); 
+                });
+
+                animalListContainer.appendChild(listItem);
+            }
+        }
+        
+        function filterList() {
+            const filterValue = filterInput.value.toLowerCase();
+            const items = animalListContainer.getElementsByClassName('animal-item');
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const animalName = item.getAttribute('data-name');
+                if (animalName.includes(filterValue)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            }
+        }
+
+        initializeAnimalList();
+    </script>
+
+    <audio loop id="myAudio">
+        <source src="images/aquarium_music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+</body>
+</html>

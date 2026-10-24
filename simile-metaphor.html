@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>譬喻法挑戰賽 (含語音)</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; }
+        .quiz-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .stats { display: flex; justify-content: space-between; font-weight: bold; color: #555; margin-bottom: 20px; }
+        .sentence { font-size: 20px; margin: 20px 0; color: #333; font-weight: 600; min-height: 80px; }
+        button { display: block; width: 100%; padding: 18px; margin: 12px 0; border: none; border-radius: 12px; cursor: pointer; font-size: 17px; background-color: #007bff; color: white; transition: 0.2s; }
+        button:active { background-color: #0056b3; transform: scale(0.97); }
+        #speakBtn { background-color: #28a745; margin-bottom: 20px; }
+        #feedback { font-size: 18px; font-weight: bold; height: 25px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-card">
+    <div class="stats">
+        <span id="score">得分：0</span>
+        <span id="progress">題數：1/6</span>
+    </div>
+    <div class="sentence" id="sentence">載入中...</div>
+    
+    <button id="speakBtn">🔊 聽題目 (印度口音)</button>
+    
+    <div id="options">
+        <button onclick="checkAnswer('明喻')">明喻 (含有：像、好像)</button>
+        <button onclick="checkAnswer('隱喻')">隱喻 (含有：是、為)</button>
+    </div>
+    <div id="feedback"></div>
+</div>
+
+<script>
+    const questions = [
+        { s: "這場大雨像斷了線的珍珠。", a: "明喻" },
+        { s: "老師是我們人生的明燈。", a: "隱喻" },
+        { s: "他的笑容好比溫暖的陽光。", a: "明喻" },
+        { s: "時間就是金錢。", a: "隱喻" },
+        { s: "弟弟跑得像一隻小獵豹。", a: "明喻" },
+        { s: "這本書是知識的寶庫。", a: "隱喻" }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    // 語音朗讀功能
+    document.getElementById('speakBtn').addEventListener('click', () => {
+        const text = document.getElementById('sentence').innerText;
+        const msg = new SpeechSynthesisUtterance(text);
+        
+        // 設定語言為印度英語
+        msg.lang = 'en-IN';
+        
+        // 嘗試選取印度口音語音包
+        const voices = window.speechSynthesis.getVoices();
+        const indianVoice = voices.find(v => v.lang === 'en-IN' || v.name.toLowerCase().includes('india'));
+        if (indianVoice) msg.voice = indianVoice;
+        
+        window.speechSynthesis.speak(msg);
+    });
+
+    function loadQuestion() {
+        if (current >= questions.length) {
+            document.querySelector('.quiz-card').innerHTML = `<h2>挑戰結束！</h2><h3>最終得分：${score} / ${questions.length}</h3><button onclick="location.reload()">重新開始</button>`;
+            return;
+        }
+        document.getElementById('sentence').innerText = questions[current].s;
+        document.getElementById('progress').innerText = `題數：${current + 1}/${questions.length}`;
+        document.getElementById('feedback').innerText = "";
+    }
+
+    function checkAnswer(choice) {
+        const feedback = document.getElementById('feedback');
+        if (choice === questions[current].a) {
+            score++;
+            document.getElementById('score').innerText = `得分：${score}`;
+            feedback.style.color = "#28a745";
+            feedback.innerText = "答對了！";
+        } else {
+            feedback.style.color = "#dc3545";
+            feedback.innerText = "答錯了！";
+        }
+        
+        setTimeout(() => {
+            current++;
+            loadQuestion();
+        }, 1000);
+    }
+
+    // 初始化載入
+    loadQuestion();
+    // 確保瀏覽器載入語音庫
+    window.speechSynthesis.onvoiceschanged = () => {};
+</script>
+</body>
+</html>

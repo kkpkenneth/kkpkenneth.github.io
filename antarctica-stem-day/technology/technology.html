@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penguin Path - 8-Bit Antarctic Code Game</title>
+    <style>
+        :root {
+            --bg-sky: #e0f7fa;
+            --panel-bg: #ffffff;
+            --primary: #0288d1;
+            --accent: #ffeb3b;
+            --text: #01579b;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #b3e5fc, #e0f7fa);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #01579b;
+            text-shadow: 2px 2px 0px #fff;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 2rem;
+        }
+        h1 img { width: 40px; height: 40px; vertical-align: middle; image-rendering: pixelated; }
+        p { color: #0277bd; margin-top: 0; font-size: 1.1rem; font-weight: bold; }
+
+        .game-layout {
+            display: flex;
+            gap: 25px;
+            max-width: 950px;
+            width: 100%;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            background: var(--panel-bg);
+            border: 4px solid var(--primary);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(2, 136, 209, 0.3);
+            text-align: center;
+        }
+
+        canvas {
+            display: block;
+            background: #b3e5fc;
+            border-radius: 8px;
+            margin: 0 auto;
+            border: 3px solid #81d4fa;
+            image-rendering: pixelated;
+        }
+
+        .coding-panel {
+            background: var(--panel-bg);
+            border: 4px solid #ffb300;
+            border-radius: 12px;
+            padding: 20px;
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(255, 179, 0, 0.3);
+        }
+
+        .coding-panel h3 {
+            margin-top: 0;
+            color: #ff8f00;
+            border-bottom: 3px dashed #ffe082;
+            padding-bottom: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .level-indicator {
+            background-color: #fff8e1;
+            color: #f57c00;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            border: 2px solid #ffe082;
+            font-size: 1rem;
+        }
+
+        /* Sprite Command Palette Grid */
+        .toolbox-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .sprite-btn {
+            background-color: #e1f5fe;
+            color: #01579b;
+            border: 3px solid #0288d1;
+            padding: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 0 #0277bd;
+            transition: all 0.1s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .sprite-btn img {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+            margin-bottom: 4px;
+        }
+
+        .sprite-btn:hover { background-color: #b3e5fc; }
+        .sprite-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0277bd; }
+
+        .loop-sprite-btn {
+            background-color: #f3e5f5;
+            border-color: #ab47bc;
+            color: #7b1fa2;
+            box-shadow: 0 4px 0 #7b1fa2;
+            grid-column: span 3;
+            flex-direction: row;
+            gap: 10px;
+        }
+        .loop-sprite-btn:hover { background-color: #e1bee7; }
+
+        .program-stack {
+            background: #f1f8e9;
+            border: 3px dashed #aed581;
+            border-radius: 10px;
+            min-height: 140px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* C-Loop Block for Sprite Icons */
+        .c-block-container {
+            background-color: #f3e5f5;
+            border-left: 6px solid #ab47bc;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .c-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #7b1fa2;
+            margin-bottom: 6px;
+        }
+
+        .c-block-header input {
+            width: 35px;
+            padding: 2px;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #ba68c8;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #7b1fa2;
+        }
+
+        .c-block-body {
+            background-color: #ffffff;
+            border-left: 3px dashed #ce93d8;
+            margin-left: 10px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-height: 35px;
+            border-radius: 6px;
+        }
+
+        .queued-block {
+            background-color: #e1f5fe;
+            color: #01579b;
+            padding: 5px 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-left: 4px solid #0288d1;
+        }
+
+        .queued-block img {
+            width: 20px;
+            height: 20px;
+            image-rendering: pixelated;
+            vertical-align: middle;
+        }
+
+        button { cursor: pointer; font-family: inherit; }
+        .queued-block button, .c-block-header button {
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            border-radius: 4px;
+            color: #c62828;
+            font-weight: bold;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+            transition: all 0.1s;
+        }
+
+        .run-btn { background-color: #66bb6a; color: white; box-shadow: 0 4px 0 #388e3c; }
+        .run-btn:hover { background-color: #81c784; }
+        .run-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #388e3c; }
+        
+        .clear-btn { background-color: #ef5350; color: white; box-shadow: 0 4px 0 #c62828; }
+        .clear-btn:hover { background-color: #e57373; }
+        .clear-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #c62828; }
+
+        .status-msg {
+            margin-top: 12px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 25px;
+            font-size: 1rem;
+            text-shadow: 1px 1px 0 #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1><img src="king-penguin.png" alt="King Penguin"> Penguin Path: 8-Bit Adventure</h1>
+    <p>Tap 8-bit sprite blocks to guide the king penguin!</p>
+
+    <div class="game-layout">
+        <!-- Visual Game Screen -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div id="statusText" class="status-msg"></div>
+        </div>
+
+        <!-- Block Programming Panel -->
+        <div class="coding-panel">
+            <div id="levelIndicator" class="level-indicator">Level 1: Very Easy</div>
+
+            <h3>Sprite Toolbox</h3>
+            <div class="toolbox-grid">
+                <button class="sprite-btn" onclick="addBlock('MOVE')" title="Step Forward">
+                    <img src="icon-move.png" alt="Move"> Step
+                </button>
+                <button class="sprite-btn" onclick="addBlock('TURN_RIGHT')" title="Turn Right">
+                    <img src="icon-right.png" alt="Right"> Right
+                </button>
+                <button class="sprite-btn" onclick="addBlock('TURN_LEFT')" title="Turn Left">
+                    <img src="icon-left.png" alt="Left"> Left
+                </button>
+                <button class="sprite-btn loop-sprite-btn" onclick="addCBlock()" title="Repeat Loop">
+                    <img src="icon-loop.png" alt="Loop"> <span>Repeat Loop</span>
+                </button>
+            </div>
+
+            <h3>Program Sequence</h3>
+            <div id="programStack" class="program-stack">
+                <span style="color: #7986cb; font-size: 0.85rem; text-align: center; margin-top: 30px;" id="emptyMsg">Tap sprite buttons above!</span>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn clear-btn" onclick="clearProgram()">Clear</button>
+                <button class="action-btn run-btn" onclick="runProgram()">▶ GO!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const tileSize = 80;
+
+        // Image Assets Loading (8-Bit Sprites)
+        const assets = {};
+        const assetFiles = {
+            penguin: 'king-penguin.png',
+            fish: 'fish.png',
+            move: 'icon-move.png',
+            right: 'icon-right.png',
+            left: 'icon-left.png',
+            loop: 'icon-loop.png'
+        };
+
+        let loadedCount = 0;
+        const totalAssets = Object.keys(assetFiles).length;
+
+        for (let key in assetFiles) {
+            assets[key] = new Image();
+            assets[key].src = assetFiles[key];
+            assets[key].onload = () => {
+                loadedCount++;
+                if (loadedCount === totalAssets) {
+                    drawGame();
+                }
+            };
+        }
+
+        // Web Audio API Sound Effects for actions
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            let now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.04);
+                gainNode.gain.setValueAtTime(0.08, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+                osc.start(now); osc.stop(now + 0.04);
+            } else if (type === 'move') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
+                gainNode.gain.setValueAtTime(0.15, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now); osc.stop(now + 0.08);
+            } else if (type === 'turn') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(160, now + 0.07);
+                gainNode.gain.setValueAtTime(0.12, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
+                osc.start(now); osc.stop(now + 0.07);
+            } else if (type === 'win') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.setValueAtTime(450, now + 0.1);
+                osc.frequency.setValueAtTime(600, now + 0.2);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'splash') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+                gainNode.gain.setValueAtTime(0.15, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+        }
+
+        // 10 Progressive Levels (Level 3 is now a 4-tile long line to encourage loop use; Level 6 is fixed for a clear path)
+        const levels = [
+            { name: "Level 1: Very Easy", start: { x: 0, y: 0, dir: 1 }, grid: [[1, 1, 2, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]] },
+            { name: "Level 2: Easy Turn", start: { x: 0, y: 0, dir: 1 }, grid: [[1, 1, 1, 1, 1], [0, 0, 0, 0, 1], [0, 0, 0, 0, 2], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]] },
+            { name: "Level 3: Loop Practice", start: { x: 0, y: 0, dir: 1 }, grid: [[1, 1, 1, 1, 2], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]] },
+            { name: "Level 4: Zigzag", start: { x: 0, y: 0, dir: 1 }, grid: [[1, 1, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 1, 1], [0, 0, 0, 0, 1], [0, 0, 0, 0, 2]] },
+            { name: "Level 5: The Corner", start: { x: 4, y: 0, dir: 2 }, grid: [[0, 0, 0, 0, 1], [0, 0, 0, 0, 1], [0, 0, 0, 0, 1], [0, 0, 0, 0, 1], [2, 1, 1, 1, 1]] },
+            { name: "Level 6: Double Turn", start: { x: 0, y: 0, dir: 1 }, grid: [[1, 1, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 1, 2], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]] },
+            { name: "Level 7: The Corridor", start: { x: 0, y: 0, dir: 2 }, grid: [[1, 0, 0, 0, 0], [1, 0, 0, 0, 0], [1, 0, 0, 0, 0], [1, 0, 0, 0, 0], [2, 1, 1, 1, 1]] },
+            { name: "Level 8: Staircase", start: { x: 0, y: 0, dir: 1 }, grid: [[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 0], [0, 0, 0, 1, 1], [0, 0, 0, 0, 2]] },
+            { name: "Level 9: The Labyrinth", start: { x: 0, y: 0, dir: 1 }, grid: [[1, 1, 1, 0, 0], [0, 0, 1, 1, 1], [0, 0, 0, 0, 1], [1, 1, 1, 1, 1], [2, 1, 0, 0, 0]] },
+            { name: "Level 10: Master Path", start: { x: 2, y: 4, dir: 0 }, grid: [[2, 1, 1, 1, 1], [0, 0, 0, 0, 1], [1, 1, 1, 1, 1], [1, 0, 0, 0, 0], [1, 1, 1, 0, 0]] }
+        ];
+
+        let currentLevelIdx = 0;
+        let penguin = { x: 0, y: 0, dir: 1 };
+        let currentGrid = [];
+        let programQueue = [];
+        let isRunning = false;
+
+        function loadLevel(index) {
+            currentLevelIdx = index;
+            const lvl = levels[index];
+            penguin = { ...lvl.start };
+            currentGrid = lvl.grid.map(row => [...row]);
+            document.getElementById("levelIndicator").innerText = lvl.name;
+            document.getElementById("statusText").innerText = "";
+            drawGame();
+        }
+
+        function resetGame() {
+            const lvl = levels[currentLevelIdx];
+            penguin = { ...lvl.start };
+            document.getElementById("statusText").innerText = "";
+            drawGame();
+        }
+
+        function addBlock(type) {
+            if (isRunning) return;
+            playSound('click');
+            programQueue.push(type);
+            renderProgramStack();
+        }
+
+        function addCBlock() {
+            if (isRunning) return;
+            playSound('click');
+            programQueue.push({ type: 'LOOP', count: 3, body: ['MOVE'] });
+            renderProgramStack();
+        }
+
+        function updateLoopCount(index, val) {
+            let parsed = parseInt(val);
+            if (isNaN(parsed) || parsed < 1) parsed = 1;
+            if (parsed > 10) parsed = 10;
+            programQueue[index].count = parsed;
+        }
+
+        function addInnerBlock(loopIndex, type) {
+            if (isRunning) return;
+            playSound('click');
+            programQueue[loopIndex].body.push(type);
+            renderProgramStack();
+        }
+
+        function removeBlock(index) {
+            if (isRunning) return;
+            playSound('click');
+            programQueue.splice(index, 1);
+            renderProgramStack();
+        }
+
+        function removeInnerBlock(loopIndex, innerIndex) {
+            if (isRunning) return;
+            playSound('click');
+            programQueue[loopIndex].body.splice(innerIndex, 1);
+            renderProgramStack();
+        }
+
+        function clearProgram() {
+            if (isRunning) return;
+            playSound('click');
+            programQueue = [];
+            renderProgramStack();
+            resetGame();
+        }
+
+        function getIconFilename(block) {
+            if (block === 'MOVE') return 'icon-move.png';
+            if (block === 'TURN_RIGHT') return 'icon-right.png';
+            if (block === 'TURN_LEFT') return 'icon-left.png';
+            return '';
+        }
+
+        function renderProgramStack() {
+            const stackEl = document.getElementById("programStack");
+            stackEl.innerHTML = "";
+            if (programQueue.length === 0) {
+                stackEl.innerHTML = '<span style="color: #7986cb; font-size: 0.85rem; text-align: center; margin-top: 30px;" id="emptyMsg">Tap sprite buttons above!</span>';
+                return;
+            }
+            programQueue.forEach((item, index) => {
+                if (typeof item === 'string') {
+                    const div = document.createElement("div");
+                    div.className = "queued-block";
+                    div.innerHTML = `<span>${index + 1}. <img src="${getIconFilename(item)}" alt="${item}"></span> <button onclick="removeBlock(${index})">X</button>`;
+                    stackEl.appendChild(div);
+                } else if (item.type === 'LOOP') {
+                    const cDiv = document.createElement("div");
+                    cDiv.className = "c-block-container";
+                    
+                    let innerHtml = `
+                        <div class="c-block-header">
+                            <span><img src="icon-loop.png" style="width:16px;height:16px;vertical-align:middle;image-rendering:pixelated;"> <input type="number" min="1" max="10" value="${item.count}" onchange="updateLoopCount(${index}, this.value)"> {</span>
+                            <button onclick="removeBlock(${index})">Del</button>
+                        </div>
+                        <div class="c-block-body">
+                    `;
+
+                    item.body.forEach((innerBlock, innerIdx) => {
+                        innerHtml += `<div class="queued-block" style="background:#e1f5fe; color:#01579b; border-left-color:#0288d1; font-size:0.9rem;"><span><img src="${getIconFilename(innerBlock)}" alt="${innerBlock}"></span> <button onclick="removeInnerBlock(${index}, ${innerIdx})">X</button></div>`;
+                    });
+
+                    innerHtml += `
+                        </div>
+                        <div style="margin-top: 5px; display: flex; gap: 4px;">
+                            <button style="background:#e1f5fe; border:1px solid #0288d1; padding:2px 4px; border-radius:4px;" onclick="addInnerBlock(${index}, 'MOVE')"><img src="icon-move.png" style="width:16px;height:16px;image-rendering:pixelated;"></button>
+                            <button style="background:#e1f5fe; border:1px solid #0288d1; padding:2px 4px; border-radius:4px;" onclick="addInnerBlock(${index}, 'TURN_RIGHT')"><img src="icon-right.png" style="width:16px;height:16px;image-rendering:pixelated;"></button>
+                            <button style="background:#e1f5fe; border:1px solid #0288d1; padding:2px 4px; border-radius:4px;" onclick="addInnerBlock(${index}, 'TURN_LEFT')"><img src="icon-left.png" style="width:16px;height:16px;image-rendering:pixelated;"></button>
+                        </div>
+                        <div style="color: #7b1fa2; font-size: 0.9rem; font-weight: bold; margin-top: 2px; text-align: right;">}</div>
+                    `;
+                    cDiv.innerHTML = innerHtml;
+                    stackEl.appendChild(cDiv);
+                }
+            });
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 5; c++) {
+                    let x = c * tileSize;
+                    let y = r * tileSize;
+
+                    ctx.fillStyle = "#e1f5fe";
+                    ctx.fillRect(x, y, tileSize, tileSize);
+
+                    if (currentGrid[r][c] === 1 || currentGrid[r][c] === 2) {
+                        ctx.fillStyle = "#ffffff"; 
+                        ctx.beginPath();
+                        ctx.roundRect(x + 5, y + 5, tileSize - 10, tileSize - 10, 14);
+                        ctx.fill();
+                        ctx.strokeStyle = "#81d4fa";
+                        ctx.lineWidth = 3;
+                        ctx.stroke();
+                    }
+
+                    if (currentGrid[r][c] === 2) {
+                        if (assets.fish.complete && assets.fish.naturalWidth !== 0) {
+                            ctx.drawImage(assets.fish, x + 16, y + 16, 48, 48);
+                        } else {
+                            ctx.font = "28px monospace";
+                            ctx.textAlign = "center";
+                            ctx.textBaseline = "middle";
+                            ctx.fillText("🐟", x + tileSize / 2, y + tileSize / 2);
+                        }
+                    }
+                }
+            }
+
+            let px = penguin.x * tileSize + tileSize / 2;
+            let py = penguin.y * tileSize + tileSize / 2;
+            
+            ctx.save();
+            ctx.translate(px, py);
+            let rotationAngle = 0; 
+            if (penguin.dir === 2) rotationAngle = Math.PI / 2;       // Down
+            else if (penguin.dir === 3) rotationAngle = Math.PI;      // Left
+            else if (penguin.dir === 0) rotationAngle = -Math.PI / 2; // Up
+            
+            ctx.rotate(rotationAngle);
+            
+            if (assets.penguin.complete && assets.penguin.naturalWidth !== 0) {
+                ctx.drawImage(assets.penguin, -26, -26, 52, 52);
+            } else {
+                ctx.font = "20px monospace";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#000000";
+                ctx.fillText("🐧", 0, 0);
+            }
+            ctx.restore();
+        }
+
+        async function runProgram() {
+            if (isRunning || programQueue.length === 0) return;
+            isRunning = true;
+            resetGame();
+            
+            let statusEl = document.getElementById("statusText");
+            statusEl.style.color = "#01579b";
+            statusEl.innerText = "[RUNNING] Penguin is marching!";
+
+            let expandedQueue = [];
+            for (let item of programQueue) {
+                if (typeof item === 'string') {
+                    expandedQueue.push(item);
+                } else if (item.type === 'LOOP') {
+                    for (let i = 0; i < item.count; i++) {
+                        for (let innerBlock of item.body) {
+                            expandedQueue.push(innerBlock);
+                        }
+                    }
+                }
+            }
+
+            for (let block of expandedQueue) {
+                await new Promise(resolve => setTimeout(resolve, 600));
+
+                if (block === 'MOVE') {
+                    playSound('move');
+                    if (penguin.dir === 1) penguin.x += 1;      // Right (Forward)
+                    else if (penguin.dir === 2) penguin.y += 1; // Down
+                    else if (penguin.dir === 3) penguin.x -= 1; // Left
+                    else if (penguin.dir === 0) penguin.y -= 1; // Up
+                } else if (block === 'TURN_RIGHT') {
+                    playSound('turn');
+                    penguin.dir = (penguin.dir + 1) % 4;
+                } else if (block === 'TURN_LEFT') {
+                    playSound('turn');
+                    penguin.dir = (penguin.dir + 3) % 4;
+                }
+
+                drawGame();
+
+                if (penguin.x < 0 || penguin.x > 4 || penguin.y < 0 || penguin.y > 4) {
+                    playSound('splash');
+                    statusEl.style.color = "#d32f2f";
+                    statusEl.innerText = "[FAIL] Stepped off the ice!";
+                    isRunning = false;
+                    return;
+                }
+
+                if (currentGrid[penguin.y][penguin.x] === 0) {
+                    playSound('splash');
+                    statusEl.style.color = "#d32f2f";
+                    statusEl.innerText = "[FAIL] Into the chilly water!";
+                    isRunning = false;
+                    return;
+                }
+
+                if (currentGrid[penguin.y][penguin.x] === 2) {
+                    playSound('win');
+                    statusEl.style.color = "#2e7d32";
+                    statusEl.innerText = "[SUCCESS] Level Complete!";
+                    isRunning = false;
+                    
+                    setTimeout(() => {
+                        if (currentLevelIdx < levels.length - 1) {
+                            loadLevel(currentLevelIdx + 1);
+                            clearProgram();
+                        } else {
+                            statusEl.innerText = "[CONGRATS] Beat all 10 levels!";
+                        }
+                    }, 1500);
+                    return;
+                }
+            }
+
+            if (!statusEl.innerText.includes("Complete") && !statusEl.innerText.includes("FAIL")) {
+                statusEl.style.color = "#e65100";
+                statusEl.innerText = "[STOPPED] Didn't reach the fish. Try again!";
+            }
+            isRunning = false;
+        }
+
+        loadLevel(0);
+    </script>
+
+</body>
+</html>

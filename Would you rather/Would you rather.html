@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Would You Rather Visit...</title>
+    <style>
+        :root { --primary: #2563eb; --secondary: #db2777; --bg: #0a0c10; --accent: #fbbf24; }
+        
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: radial-gradient(circle at center, #1e293b 0%, #0a0c10 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; color: #f1f5f9; 
+            overflow: hidden;
+        }
+
+        /* --- START OVERLAY --- */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.6s ease;
+        }
+
+        #start-btn {
+            padding: 18px 48px; font-size: 1.25rem; font-weight: 800;
+            background: var(--primary); color: white; border: none;
+            border-radius: 50px; cursor: pointer; letter-spacing: 1px;
+            box-shadow: 0 0 40px rgba(37, 99, 235, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+        }
+        #start-btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(37, 99, 235, 0.6); }
+
+        /* --- MAIN CARD --- */
+        .card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%; max-width: 500px; padding: 2.5rem; 
+            border-radius: 28px; text-align: center; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative; 
+            z-index: 10;
+        }
+        
+        .sound-toggle { 
+            position: absolute; top: 20px; left: 20px; 
+            background: rgba(255, 255, 255, 0.1); border: none; 
+            border-radius: 50%; width: 40px; height: 40px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            transition: 0.2s; color: white;
+        }
+
+        .options-container { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 2rem; }
+        
+        .choice-btn { 
+            position: relative; overflow: hidden; padding: 1.5rem; 
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; 
+            background: rgba(255, 255, 255, 0.05); cursor: pointer; 
+            font-size: 1.15rem; font-weight: 600; color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .choice-btn:hover:not(:disabled) { 
+            border-color: var(--primary); transform: translateY(-3px); 
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stats-bar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--primary); opacity: 0.3; width: 0%; transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1); z-index: 0; }
+        .btn-text { position: relative; z-index: 1; display: flex; justify-content: space-between; width: 100%; }
+        .percent-tag { font-weight: 800; color: #60a5fa; opacity: 0; transition: opacity 0.5s; }
+        .show-percent { opacity: 1; }
+
+        .hidden { display: none; }
+        #next-btn { margin-top: 30px; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.2s; width: 100%; }
+        #next-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+        /* --- LEADERBOARD & MOBILE MENU --- */
+        #leaderboard {
+            position: fixed; top: 20px; right: 20px; width: 240px;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+            padding: 20px; z-index: 100; max-height: 85vh; overflow-y: auto;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #leaderboard h3 { margin: 0 0 15px 0; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; }
+        .leader-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; color: #cbd5e1; padding: 4px 0; }
+        
+        #menu-toggle {
+            display: none; position: fixed; top: 20px; right: 20px; z-index: 150;
+            background: var(--primary); border: none; color: white; 
+            padding: 10px 18px; border-radius: 50px; cursor: pointer; font-weight: 700;
+        }
+
+        @media (max-width: 900px) {
+            #menu-toggle { display: block; }
+            #leaderboard { transform: translateX(300px); top: 75px; right: 15px; width: 200px; }
+            #leaderboard.open { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="start-overlay">
+    <h1 style="margin-bottom: 0.5rem;">Would you rather visit...</h1>
+    <div id="top-three-container" style="margin-bottom: 2.5rem; color: #94a3b8; font-size: 0.9rem;">
+        <p id="top-three-text">Discovering your world favorites...</p>
+    </div>
+    <button id="start-btn" onclick="startGame()">START</button>
+</div>
+
+<button id="menu-toggle" onclick="toggleMenu()">🌏</button>
+
+<div id="leaderboard">
+    <h3>World Favorites</h3>
+    <div id="leader-list"></div>
+</div>
+
+<div class="card">
+    <button class="sound-toggle" onclick="toggleMute()" id="muteBtn">
+        <svg id="speakerIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </button>
+    
+    <div id="game-content">
+        <h2 style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;">Would you rather...</h2>
+        <h1 id="scenario-text" style="margin: 0.5rem 0 1.5rem 0; font-size: 1.75rem;">Loading...</h1>
+        
+        <div class="options-container">
+            <button class="choice-btn" id="btnA" onclick="handleVote('a')">
+                <div id="barA" class="stats-bar"></div>
+                <div class="btn-text">
+                    <span id="textA">...</span>
+                    <span id="percentA" class="percent-tag">0%</span>
+                </div>
+            </button>
+            <button class="choice-btn" id="btnB" onclick="handleVote('b')">
+                <div id="barB" class="stats-bar"></div>
+                <div class="btn-text">
+                    <span id="textB">...</span>
+                    <span id="percentB" class="percent-tag">0%</span>
+                </div>
+            </button>
+        </div>
+        <p id="total-votes" style="margin-top: 20px; font-size: 0.85rem; color: #64748b; min-height: 1.2rem;"></p>
+        <button id="next-btn" onclick="nextQuestion()" class="hidden">Next →</button>
+    </div>
+</div>
+
+<script>
+    const PANTRY_ID = "c91611d3-d56e-45ee-bd65-d2fb7fbc4a54"; 
+    const BASKET_NAME = "global_country_rankings_final";
+    const API_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
+
+    const countryPool = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Democratic Republic of Congo", "Republic of Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Vatican City", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+        ];
+
+    const scenarioPool = [
+        "Live forever in...",
+        "Start a career in...",
+        "Eat the food of...",
+        "Attend school in...",
+        "Explore the nature of...",
+        "Spend a holiday in...",
+        "Retire peacefully in...",
+        "Discover the history of...",
+        "Experience the nightlife in...",
+        "Buy a house in...",
+        "Go on a road trip across...",
+        "Master the language of...",
+        "Study the architecture in...",
+        "Hike through...",
+        "Live your dream life in...",
+        "Take a spontaneous 24-hour trip to...",
+        "Go on an extreme backpacking adventure in...",
+        "Experience the local street food of...",
+        "Go on a luxury honeymoon in...",
+        "Move your remote work office to...",
+        "Spend a snowy winter in...",
+        "Celebrate New Year's Eve in...",
+        "Hike the highest mountain in...",
+        "Learn the national language of...",
+        "Attend a massive music festival in...",
+        "Film a travel documentary in...",
+        "Win a free one-way ticket to...",
+        "Become a famous influencer in...",
+        "Search for hidden treasure in...",
+        "Host a global sports event in...",
+        "Volunteer for a year in...",
+        "Open a small beach cafe in...",
+        "Spend an entire summer in...",
+        "Explore the deepest jungles of...",
+        "Join a traditional local festival in...",
+        "Go on a high-speed train tour of...",
+        "Escape a zombie apocalypse in...",
+        "Learn ancient secrets in...",
+        "Open a boutique hotel in...",
+        "Survive a week in the wild in...",
+        "Compete in a reality TV show in...",
+        "Build a secret mountain base in...",
+        "Go on a world-class shopping spree in...",
+        "Take your family on a cruise to...",
+        "Write a best-selling novel in...",
+        "Go scuba diving in the waters of..."
+    ];
+
+    const sfx = {
+        vote: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+        next: new Audio('https://assets.mixkit.co/active_storage/sfx/2579/2579-preview.mp3')
+    };
+    const bgMusic = new Audio('bgm.mp3');
+    bgMusic.loop = true;
+
+    let isMuted = false;
+    let globalData = {}; 
+    let currentMatch = { scenario: "", a: "", b: "" };
+
+    async function startGame() {
+        document.getElementById('start-overlay').style.opacity = '0';
+        setTimeout(() => document.getElementById('start-overlay').style.display = 'none', 600);
+        bgMusic.play().catch(() => {});
+        init();
+    }
+
+    async function init() {
+        try {
+            const response = await fetch(API_URL);
+            let rawData = response.ok ? await response.json() : {};
+            // Filter out junk metadata
+            globalData = Object.fromEntries(
+                Object.entries(rawData).filter(([key]) => !key.includes('object') && !key.includes('metadata'))
+            );
+            updateLeaderboard();
+            generateNewMatch();
+        } catch (e) { generateNewMatch(); }
+    }
+
+    function generateNewMatch() {
+        const scenario = scenarioPool[Math.floor(Math.random() * scenarioPool.length)];
+        let a = countryPool[Math.floor(Math.random() * countryPool.length)];
+        let b;
+        do { b = countryPool[Math.floor(Math.random() * countryPool.length)]; } while (a === b);
+
+        currentMatch = { scenario, a, b };
+        showQuestion();
+    }
+
+    function showQuestion() {
+        document.getElementById('next-btn').classList.add('hidden');
+        document.getElementById('scenario-text').innerText = currentMatch.scenario;
+        document.getElementById('textA').innerText = currentMatch.a;
+        document.getElementById('textB').innerText = currentMatch.b;
+        
+        document.getElementById('barA').style.width = '0%';
+        document.getElementById('barB').style.width = '0%';
+        document.getElementById('percentA').classList.remove('show-percent');
+        document.getElementById('percentB').classList.remove('show-percent');
+        document.getElementById('total-votes').innerText = "";
+        document.querySelectorAll('.choice-btn').forEach(b => b.disabled = false);
+    }
+
+    async function handleVote(choice) {
+        if (!isMuted) sfx.vote.play();
+        const winner = choice === 'a' ? currentMatch.a : currentMatch.b;
+        document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+        globalData[winner] = (globalData[winner] || 0) + 1;
+        updateLeaderboard();
+
+        const scoreA = globalData[currentMatch.a] || 0;
+        const scoreB = globalData[currentMatch.b] || 0;
+        const total = scoreA + scoreB;
+        let pA = total > 0 ? Math.round((scoreA/total)*100) : 50;
+        let pB = 100 - pA;
+
+        document.getElementById('barA').style.width = pA + '%';
+        document.getElementById('barB').style.width = pB + '%';
+        document.getElementById('percentA').innerText = pA + '%';
+        document.getElementById('percentB').innerText = pB + '%';
+        document.getElementById('percentA').classList.add('show-percent');
+        document.getElementById('percentB').classList.add('show-percent');
+        
+        document.getElementById('total-votes').innerHTML = `${currentMatch.a}: ${scoreA} | ${currentMatch.b}: ${scoreB}`;
+        document.getElementById('next-btn').classList.remove('hidden');
+
+        fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(globalData) });
+    }
+
+    function nextQuestion() {
+        if (!isMuted) sfx.next.play();
+        generateNewMatch();
+    }
+
+    function updateLeaderboard() {
+        const sorted = Object.entries(globalData)
+            .filter(([n]) => !n.includes('object'))
+            .sort((a, b) => b[1] - a[1]);
+            
+        if (sorted.length >= 3) {
+            document.getElementById('top-three-text').innerHTML = `
+                <span style="color: #ffd700">🥇 ${sorted[0][0]}</span> &nbsp; 
+                <span style="color: #c0c0c0">🥈 ${sorted[1][0]}</span> &nbsp; 
+                <span style="color: #cd7f32">🥉 ${sorted[2][0]}</span>
+            `;
+        }
+
+        const list = document.getElementById('leader-list');
+        list.innerHTML = '';
+        sorted.forEach(([name, score], idx) => {
+            const div = document.createElement('div');
+            div.className = 'leader-item';
+            div.innerHTML = `<span>${idx < 3 ? ['🥇','🥈','🥉'][idx] : idx+1+'.'} ${name}</span><span>${score}</span>`;
+            list.appendChild(div);
+        });
+    }
+
+    function toggleMenu() { document.getElementById('leaderboard').classList.toggle('open'); }
+    function toggleMute() {
+        isMuted = !isMuted;
+        isMuted ? bgMusic.pause() : bgMusic.play();
+    }
+</script>
+</body>
+</html>

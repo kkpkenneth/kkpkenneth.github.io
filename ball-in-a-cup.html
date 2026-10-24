@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Ball in a Cup</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: linear-gradient(to bottom, #87CEEB, #e0f6ff); 
+            touch-action: none; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        #ui { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            color: #333; 
+            pointer-events: none; 
+        }
+        h2 { margin: 0 0 5px 0; }
+        p { margin: 0 0 10px 0; }
+        .score-board {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <h2>Ball in a Cup</h2>
+        <p>Swipe or move your mouse quickly to swing the ball.</p>
+        <div class="score-board">Score: <span id="score">0</span></div>
+    </div>
+
+    <!-- Include Three.js for 3D rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // 1. Setup Scene, Camera, and Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // CHANGED: Pulled camera back from 12 to 16 to accommodate the longer string
+        camera.position.z = 16;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 10, 5);
+        scene.add(directionalLight);
+
+        // 3. Create Cup (Handle and Bowl)
+        const cupGroup = new THREE.Group();
+        scene.add(cupGroup);
+
+        const woodMat = new THREE.MeshStandardMaterial({ color: 0xd2a679, roughness: 0.9 });
+        woodMat.side = THREE.DoubleSide; // Render inside of the bowl
+
+        // Handle
+        const handleGeo = new THREE.CylinderGeometry(0.3, 0.3, 4, 16);
+        const handle = new THREE.Mesh(handleGeo, woodMat);
+        handle.position.y = -1.5;
+        cupGroup.add(handle);
+
+        // Bowl (open cylinder)
+        const bowlGeo = new THREE.CylinderGeometry(1.5, 0.5, 2, 32, 1, true); 
+        const bowl = new THREE.Mesh(bowlGeo, woodMat);
+        bowl.position.y = 1.5;
+        cupGroup.add(bowl);
+        
+        // Bowl Bottom
+        const bowlBottomGeo = new THREE.CircleGeometry(0.5, 32);
+        const bowlBottom = new THREE.Mesh(bowlBottomGeo, woodMat);
+        bowlBottom.rotation.x = Math.PI / 2;
+        bowlBottom.position.y = 0.5;
+        cupGroup.add(bowlBottom);
+
+        // 4. Create Ball
+        const ballRadius = 0.8;
+        const ballGeo = new THREE.SphereGeometry(ballRadius, 32, 32);
+        const redMat = new THREE.MeshStandardMaterial({ color: 0xcc2222, roughness: 0.4 });
+        const ball = new THREE.Mesh(ballGeo, redMat);
+        scene.add(ball);
+
+        // 5. Create String
+        const stringMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+        const stringGeo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0), 
+            new THREE.Vector3(0, -5, 0)
+        ]);
+        const string = new THREE.Line(stringGeo, stringMat);
+        scene.add(string);
+
+        // 6. Physics & State Variables
+        // CHANGED: Increased string length from 7 to 12
+        const stringLength = 12;
+        let ballVel = new THREE.Vector3(0, 0, 0);
+        let ballPos = new THREE.Vector3(0, -stringLength, 0);
+        const gravity = new THREE.Vector3(0, -0.015, 0);
+        let inCup = false;
+        let score = 0;
+        const scoreEl = document.getElementById('score');
+
+        // 7. Interaction Logic (Mouse & Touch)
+        let targetCupPos = new THREE.Vector3(0, -2, 0);
+
+        function updateMouseTarget(x, y) {
+            // Map screen coordinates to 3D space
+            const mouseX = (x / window.innerWidth) * 2 - 1;
+            const mouseY = -(y / window.innerHeight) * 2 + 1;
+            targetCupPos.x = mouseX * 10;
+            targetCupPos.y = mouseY * 8;
+        }
+
+        document.addEventListener('mousemove', (e) => updateMouseTarget(e.clientX, e.clientY));
+        document.addEventListener('touchmove', (e) => updateMouseTarget(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+
+        // 8. Custom Physics Engine
+        function updatePhysics() {
+            // Smoothly move cup toward cursor
+            cupGroup.position.lerp(targetCupPos, 0.15);
+
+            // Subtle rotation based on movement speed
+            cupGroup.rotation.x = (targetCupPos.y - cupGroup.position.y) * 0.1;
+            cupGroup.rotation.z = -(targetCupPos.x - cupGroup.position.x) * 0.1;
+
+            const cupBase = new THREE.Vector3().copy(cupGroup.position);
+            cupBase.y -= 3.5; // Attach string to the bottom of the handle
+
+            if (!inCup) {
+                // Apply Gravity & Drag
+                ballVel.add(gravity);
+                ballVel.multiplyScalar(0.995);
+                ballPos.add(ballVel);
+
+                // String Tension Constraint
+                const diff = new THREE.Vector3().subVectors(ballPos, cupBase);
+                const dist = diff.length();
+
+                if (dist > stringLength) {
+                    diff.normalize().multiplyScalar(stringLength);
+                    ballPos.copy(cupBase).add(diff);
+                    
+                    // Reflect velocity along the string normal (pendulum swing effect)
+                    const normal = diff.normalize();
+                    const dot = ballVel.dot(normal);
+                    if (dot > 0) {
+                        ballVel.sub(normal.multiplyScalar(dot));
+                    }
+                }
+
+                // Win Condition Collision Detection
+                const cupTop = new THREE.Vector3().copy(cupGroup.position);
+                cupTop.y += 2.0; 
+
+                const distToCup = ballPos.distanceTo(cupTop);
+                // If ball is near the opening, moving downward, and physically above the bowl
+                if (distToCup < 1.5 && ballVel.y < 0 && ballPos.y > cupGroup.position.y + 0.5) {
+                    inCup = true;
+                    score++;
+                    scoreEl.innerText = score;
+                    ballVel.set(0, 0, 0); // Stop ball
+                }
+            } else {
+                // Keep ball resting inside the cup
+                ballPos.copy(cupGroup.position);
+                // CHANGED: Increased from 1.0 to 1.8 so it rests higher up in the cup
+                ballPos.y += 1.8; 
+                
+                // Shake abruptly to pop the ball back out
+                if (Math.abs(cupGroup.position.y - targetCupPos.y) > 1.5) {
+                    inCup = false;
+                    ballVel.y = 0.4; // Toss upward
+                }
+            }
+
+            ball.position.copy(ballPos);
+
+            // Update String Geometry points
+            const positions = string.geometry.attributes.position.array;
+            positions[0] = cupBase.x;
+            positions[1] = cupBase.y;
+            positions[2] = cupBase.z;
+            positions[3] = ball.position.x;
+            positions[4] = ball.position.y;
+            positions[5] = ball.position.z;
+            string.geometry.attributes.position.needsUpdate = true;
+        }
+
+        // 9. Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            updatePhysics();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 10. Handle Window Resizing
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

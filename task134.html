@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kids Coloring Book</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .canvas {
+      border: 1px solid #000;
+    }
+    .color-selector {
+      display: flex;
+      justify-content: center;
+    }
+    .color {
+      width: 30px;
+      height: 30px;
+      margin: 5px;
+      cursor: pointer;
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kids Coloring Book</h1>
+  
+  <div class="color-selector">
+    <div class="color" style="background-color: red;" onclick="selectColor('red')"></div>
+    <div class="color" style="background-color: blue;" onclick="selectColor('blue')"></div>
+    <div class="color" style="background-color: green;" onclick="selectColor('green')"></div>
+    <div class="color" style="background-color: yellow;" onclick="selectColor('yellow')"></div>
+  </div>
+
+  <canvas id="canvas" class="canvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    let selectedColor = 'black';
+    let isDrawing = false;
+
+    // Function to handle the click event on colors
+    function selectColor(color) {
+      selectedColor = color;
+    }
+
+    // Function to handle the mouse movement event on the canvas
+    function draw(event) {
+      if (!isDrawing) return;
+
+      const x = event.clientX - canvas.getBoundingClientRect().left;
+      const y = event.clientY - canvas.getBoundingClientRect().top;
+
+      context.fillStyle = selectedColor;
+      context.fillRect(x, y, 10, 10);
+    }
+
+    // Attach event listeners to the canvas
+    canvas.addEventListener('mousedown', () => isDrawing = true);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mousemove', draw);
+
+  </script>
+</body>
+</html>

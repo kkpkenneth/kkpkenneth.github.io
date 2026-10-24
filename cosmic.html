@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Interactive Cosmic Events & Eclipse Simulator</title>
+    <style>
+        :root {
+            --bg-deep: #03050c;
+            --accent-cyan: #00d2ff;
+            --accent-purple: #9b59b6;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            touch-action: none;
+        }
+
+        header {
+            text-align: center;
+            padding: 10px;
+            background: rgba(5, 8, 20, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .nav-tab.active {
+            background: var(--accent-purple);
+            color: white;
+            border-color: var(--accent-purple);
+        }
+
+        #main-layout {
+            display: flex;
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .view-screen.active {
+            display: flex;
+        }
+
+        #sim-container {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            background: radial-gradient(circle at center, #0d1224 0%, #03050c 100%);
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Side Panel for Events */
+        #side-panel {
+            width: 300px;
+            background: rgba(15, 12, 41, 0.95);
+            border-left: 1px solid rgba(155, 89, 182, 0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+            transition: transform 0.3s ease;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+        }
+
+        .panel-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .event-category-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin: 10px 0 5px 5px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .event-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .event-item:hover, .event-item:active {
+            background: rgba(155, 89, 182, 0.2);
+            border-color: var(--accent-purple);
+            transform: translateX(-2px);
+        }
+
+        .event-item .date {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .event-item .title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin: 2px 0;
+        }
+
+        /* Controls Bottom Bar */
+        .controls {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(15, 12, 41, 0.85);
+            border: 1px solid rgba(155, 89, 182, 0.4);
+            padding: 8px 12px;
+            border-radius: 10px;
+            display: flex;
+            gap: 8px;
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        button {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            border: 1px solid #c9a5ff;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(201, 165, 255, 0.6);
+        }
+
+        button.active {
+            background: linear-gradient(to right, #00d2ff, #3a7bd5);
+            border-color: #00d2ff;
+        }
+
+        /* Eclipse Model Specific UI Controls */
+        .eclipse-controls {
+            position: absolute;
+            bottom: 20px;
+            background: rgba(15, 12, 41, 0.85);
+            border: 1px solid var(--accent-cyan);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+            max-width: 320px;
+            width: 90%;
+            align-items: center;
+        }
+
+        .eclipse-controls label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .eclipse-controls input[type=range] {
+            width: 100%;
+            accent-color: var(--accent-cyan);
+        }
+
+        /* Modal Popup Window */
+        #modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(3, 5, 12, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #modal-card {
+            background: #0f0c29;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+            text-align: left;
+        }
+
+        #modal-title {
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        #modal-date {
+            font-size: 0.8rem;
+            color: var(--accent-purple);
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        #modal-desc {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        #panelToggle {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 30;
+            background: var(--accent-purple);
+            border: none;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            #side-panel {
+                position: absolute;
+                top: 0; right: 0; bottom: 0;
+                width: 260px;
+                transform: translateX(100%);
+            }
+            #side-panel.open { transform: translateX(0); }
+            #panelToggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌌 Cosmic Simulator</h1>
+        <div class="nav-tabs">
+            <button class="nav-tab active" id="tab-simulator" onclick="switchView('simulator')">Solar System</button>
+            <button class="nav-tab" id="tab-eclipse" onclick="switchView('eclipse')">Eclipse Model</button>
+        </div>
+    </header>
+
+    <button id="panelToggle" onclick="togglePanel()">📅 Events</button>
+
+    <div id="main-layout">
+        
+        <!-- View 1: Solar System Simulator -->
+        <div class="view-screen active" id="view-simulator">
+            <div id="sim-container">
+                <canvas id="spaceCanvas"></canvas>
+                <div class="controls">
+                    <button id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+                    <button onclick="resetSim()">🔄 Reset</button>
+                </div>
+            </div>
+
+            <!-- Side Panel Containing the Event Forecast List -->
+            <div id="side-panel">
+                <div class="panel-header">
+                    <span>Forecast Index (2026–2036)</span>
+                    <span style="cursor:pointer;" onclick="togglePanel()">✕</span>
+                </div>
+                <div class="event-list">
+                    <div class="event-category-title">Eclipses</div>
+                    <div class="event-item" onclick="triggerEvent('eclipse', 'Total & Partial Solar Eclipse', 'August 12, 2026', 'Europe and the UK experience a deep partial eclipse (up to 96% coverage) near sunset, while totality crosses Spain, Iceland, and Greenland.')">
+                        <div class="date">August 12, 2026</div>
+                        <div class="title">🌑 Solar Eclipse</div>
+                    </div>
+                    <div class="event-item" onclick="triggerEvent('eclipse', 'Great North African Total Eclipse', 'August 2, 2027', 'One of the longest total solar eclipses of the 21st century, yielding up to 6 minutes and 23 seconds of totality over Luxor, Egypt.')">
+                        <div class="date">August 2, 2027</div>
+                        <div class="title">🌑 North African Total Eclipse</div>
+                    </div>
+                    <div class="event-item" onclick="triggerEvent('eclipse', 'Australian Total Solar Eclipse', 'July 22, 2028', 'A major total solar eclipse sweeping directly across popular regions including Sydney, Australia and parts of New Zealand.')">
+                        <div class="date">July 22, 2028</div>
+                        <div class="title">🌑 Australian Total Eclipse</div>
+                    </div>
+
+                    <div class="event-category-title">Planetary Oppositions</div>
+                    <div class="event-item" onclick="triggerEvent('opposition', 'Saturn at Opposition', 'September 21, 2026', 'Saturn is in opposition, meaning Earth is directly positioned in a straight line between the Sun and Saturn.')" data-target="Saturn">
+                        <div class="date">September 21, 2026</div>
+                        <div class="title">🪐 Saturn Opposition</div>
+                    </div>
+                    <div class="event-item" onclick="triggerEvent('opposition', 'Neptune at Opposition', 'September 25-26, 2026', 'Neptune reaches opposition, forming a direct straight-line alignment with the Sun and Earth.')" data-target="Neptune">
+                        <div class="date">September 25-26, 2026</div>
+                        <div class="title">🪐 Neptune Opposition</div>
+                    </div>
+                    <div class="event-item" onclick="triggerEvent('opposition', 'Uranus at Opposition', 'November 25, 2026', 'Uranus reaches opposition, aligning directly opposite the Sun from Earth perspective.')" data-target="Uranus">
+                        <div class="date">November 25, 2026</div>
+                        <div class="title">🪐 Uranus Opposition</div>
+                    </div>
+                    <div class="event-item" onclick="triggerEvent('opposition', 'Mars at Opposition', 'February 19, 2027', 'Mars lines up directly opposite the Sun with Earth in the middle, offering optimal viewing conditions.')" data-target="Mars">
+                        <div class="date">February 19, 2027</div>
+                        <div class="title">🪐 Mars Opposition</div>
+                    </div>
+
+                    <div class="event-category-title">Meteor Showers</div>
+                    <div class="event-item" onclick="triggerEvent('meteor', 'Perseid Meteor Shower Peak', 'August 12-13, 2026', 'Debris from Comet Swift-Tuttle burns up in Earth atmosphere, producing up to 60-100 shooting stars per hour.')">
+                        <div class="date">August 12-13, 2026</div>
+                        <div class="title">☄️ Perseids Peak</div>
+                    </div>
+                    <div class="event-item" onclick="triggerEvent('meteor', 'Orionids Peak', 'October 21-22, 2026', 'Stardust left behind by Halley Comet creates swift, bright meteors.')">
+                        <div class="date">October 21-22, 2026</div>
+                        <div class="title">☄️ Orionids Peak</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 2: Dedicated Eclipse Model Page -->
+        <div class="view-screen" id="view-eclipse">
+            <canvas id="eclipseCanvas"></canvas>
+            <div class="eclipse-controls">
+                <label>Moon Orbital Alignment Slider</label>
+                <input type="range" id="eclipseSlider" min="0" max="100" value="50" oninput="updateEclipseModel(this.value)">
+                <div id="eclipseStatus" style="font-size:0.8rem; color:var(--accent-cyan); font-weight:bold;">Alignment Phase: Partial / Aligning</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Explanatory Popup Modal -->
+    <div id="modal-overlay" onclick="closeModal()">
+        <div id="modal-card" onclick="event.stopPropagation()">
+            <h2 id="modal-title">Event Title</h2>
+            <span id="modal-date">Date</span>
+            <p id="modal-desc">Description goes here...</p>
+            <button onclick="closeModal()" style="width:100%; padding: 10px;">Resume Simulation</button>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching controller
+        function switchView(viewName) {
+            document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            
+            if(viewName === 'simulator') {
+                document.getElementById('view-simulator').classList.add('active');
+                document.getElementById('tab-simulator').classList.add('active');
+                document.getElementById('panelToggle').style.display = 'block';
+            } else {
+                document.getElementById('view-eclipse').classList.add('active');
+                document.getElementById('tab-eclipse').classList.add('active');
+                document.getElementById('panelToggle').style.display = 'none';
+                document.getElementById('side-panel').classList.remove('open');
+                resizeEclipseCanvas();
+            }
+        }
+
+        // --- SOLAR SYSTEM SIMULATOR LOGIC ---
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        function resize() {
+            width = canvas.width = canvas.parentElement.clientWidth;
+            height = canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', () => { resize(); resizeEclipseCanvas(); });
+        resize();
+
+        function togglePanel() {
+            document.getElementById('side-panel').classList.toggle('open');
+        }
+
+        const stars = [];
+        for (let i = 0; i < 250; i++) {
+            stars.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 1.5, alpha: Math.random() });
+        }
+
+        const planets = [
+            { name: 'Mercury', distance: 55, radius: 3, speed: 0.04, color: '#b2bec3', angle: Math.random() * Math.PI * 2 },
+            { name: 'Venus', distance: 85, radius: 5, speed: 0.015, color: '#fdcb6e', angle: Math.random() * Math.PI * 2 },
+            { name: 'Earth', distance: 125, radius: 6, speed: 0.01, color: '#0984e3', angle: Math.random() * Math.PI * 2, hasMoon: true, moonAngle: 0 },
+            { name: 'Mars', distance: 165, radius: 4, speed: 0.008, color: '#d63031', angle: Math.random() * Math.PI * 2 },
+            { name: 'Jupiter', distance: 220, radius: 11, speed: 0.004, color: '#e17055', angle: Math.random() * Math.PI * 2 },
+            { name: 'Saturn', distance: 280, radius: 9, speed: 0.003, color: '#ffeaa7', angle: Math.random() * Math.PI * 2, hasRings: true },
+            { name: 'Uranus', distance: 340, radius: 7, speed: 0.002, color: '#00cec9', angle: Math.random() * Math.PI * 2 },
+            { name: 'Neptune', distance: 395, radius: 7, speed: 0.0015, color: '#0984e3', angle: Math.random() * Math.PI * 2 },
+        ];
+
+        let isPaused = false;
+        let activeEvent = null;
+        let eventNameText = "";
+        let targetPlanetName = "";
+        let meteorParticles = [];
+
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').classList.toggle('active', isPaused);
+            document.getElementById('pauseBtn').innerText = isPaused ? '▶ Resume' : '⏸ Pause';
+        }
+
+        function resetSim() {
+            activeEvent = null;
+            eventNameText = "";
+            targetPlanetName = "";
+            meteorParticles = [];
+            isPaused = false;
+            document.getElementById('pauseBtn').classList.remove('active');
+            document.getElementById('pauseBtn').innerText = '⏸ Pause';
+        }
+
+        function triggerEvent(type, name, date, desc) {
+            isPaused = true;
+            document.getElementById('pauseBtn').classList.add('active');
+            document.getElementById('pauseBtn').innerText = '▶ Resume';
+
+            activeEvent = type;
+            eventNameText = name;
+
+            if (type === 'opposition') {
+                if (name.includes('Saturn')) targetPlanetName = 'Saturn';
+                else if (name.includes('Neptune')) targetPlanetName = 'Neptune';
+                else if (name.includes('Uranus')) targetPlanetName = 'Uranus';
+                else if (name.includes('Mars')) targetPlanetName = 'Mars';
+            } else {
+                targetPlanetName = "";
+            }
+            
+            if (type === 'meteor') {
+                meteorParticles = [];
+                for (let i = 0; i < 80; i++) {
+                    meteorParticles.push({
+                        x: Math.random() * width, y: -50 - Math.random() * 150,
+                        vx: 6 + Math.random() * 4, vy: 8 + Math.random() * 4, length: 20 + Math.random() * 25
+                    });
+                }
+            }
+
+            document.getElementById('modal-title').innerText = name;
+            document.getElementById('modal-date').innerText = "Scheduled Date: " + date;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-overlay').style.display = 'flex';
+            
+            if (window.innerWidth <= 768) { togglePanel(); }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            ctx.fillStyle = "#ffffff";
+            stars.forEach(star => {
+                ctx.globalAlpha = star.alpha;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#f39c12';
+            ctx.fillStyle = '#f39c12';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            planets.forEach(planet => {
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, planet.distance, 0, Math.PI * 2);
+                ctx.stroke();
+
+                if (!isPaused) { planet.angle += planet.speed; }
+
+                const x = centerX + Math.cos(planet.angle) * planet.distance;
+                const y = centerY + Math.sin(planet.angle) * planet.distance;
+
+                if (planet.hasRings) {
+                    ctx.strokeStyle = "rgba(255, 234, 167, 0.4)";
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.arc(x, y, planet.radius + 4, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = planet.color;
+                ctx.beginPath();
+                ctx.arc(x, y, planet.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (planet.hasMoon) {
+                    if (!isPaused) planet.moonAngle += 0.05;
+                    const moonX = x + Math.cos(planet.moonAngle) * 10;
+                    const moonY = y + Math.sin(planet.moonAngle) * 10;
+
+                    if (activeEvent === 'eclipse' && planet.name === 'Earth') {
+                        ctx.fillStyle = "#111";
+                        ctx.beginPath();
+                        ctx.arc(x - 2, y - 2, 3.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.fillStyle = "#b2bec3";
+                        ctx.beginPath();
+                        ctx.arc(moonX, moonY, 1.2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                ctx.fillStyle = "rgba(255,255,255,0.5)";
+                ctx.font = "9px sans-serif";
+                ctx.fillText(planet.name, x + 8, y + 3);
+            });
+
+            if (activeEvent) {
+                ctx.fillStyle = "rgba(15, 12, 41, 0.8)";
+                ctx.fillRect(15, 15, width > 500 ? 320 : width - 30, 50);
+                ctx.strokeStyle = "rgba(0, 210, 255, 0.5)";
+                ctx.strokeRect(15, 15, width > 500 ? 320 : width - 30, 50);
+
+                ctx.fillStyle = "#00d2ff";
+                ctx.font = "bold 11px sans-serif";
+                ctx.fillText("SELECTED EVENT:", 25, 32);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "12px sans-serif";
+                ctx.fillText(eventNameText, 25, 48);
+            }
+
+            if (activeEvent === 'eclipse') {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            if (activeEvent === 'meteor') {
+                ctx.strokeStyle = "rgba(0, 210, 255, 0.8)";
+                ctx.lineWidth = 1.5;
+                meteorParticles.forEach(m => {
+                    m.x += m.vx; m.y += m.vy;
+                    ctx.beginPath();
+                    ctx.moveTo(m.x, m.y);
+                    ctx.lineTo(m.x - m.length, m.y - m.length);
+                    ctx.stroke();
+                });
+            }
+
+            if (activeEvent === 'opposition' && targetPlanetName) {
+                const earth = planets.find(p => p.name === 'Earth');
+                const target = planets.find(p => p.name === targetPlanetName);
+                
+                if (earth && target) {
+                    const ex = centerX + Math.cos(earth.angle) * earth.distance;
+                    const ey = centerY + Math.sin(earth.angle) * earth.distance;
+
+                    ctx.strokeStyle = "rgba(255, 118, 117, 0.7)";
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    const extX = centerX + (ex - centerX) * 2.2;
+                    const extY = centerY + (ey - centerY) * 2.2;
+                    ctx.lineTo(extX, extY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+
+        // --- DEDICATED ECLIPSE MODEL LOGIC ---
+        const eCanvas = document.getElementById('eclipseCanvas');
+        const eCtx = eCanvas.getContext('2d');
+
+        function resizeEclipseCanvas() {
+            eCanvas.width = eCanvas.parentElement.clientWidth;
+            eCanvas.height = eCanvas.parentElement.clientHeight;
+            updateEclipseModel(document.getElementById('eclipseSlider').value);
+        }
+
+        function updateEclipseModel(val) {
+            const eW = eCanvas.width;
+            const eH = eCanvas.height;
+            eCtx.clearRect(0, 0, eW, eH);
+
+            const sunX = eW * 0.25;
+            const sunY = eH * 0.5;
+            const earthX = eW * 0.75;
+            const earthY = eH * 0.5;
+
+            // Map slider (0 to 100) to Moon vertical position offset
+            // slider 50 = perfect center alignment (Total Eclipse)
+            const progress = (val - 50) / 50; // range -1 to 1
+            const maxOffset = 120;
+            const moonX = sunX + (earthX - sunX) * 0.75;
+            const moonY = sunY + (progress * maxOffset);
+
+            // Draw Sun light cone / rays
+            eCtx.fillStyle = "rgba(243, 156, 18, 0.1)";
+            eCtx.beginPath();
+            eCtx.moveTo(sunX, sunY - 40);
+            eCtx.lineTo(earthX, earthY - 80);
+            eCtx.lineTo(earthX, earthY + 80);
+            eCtx.lineTo(sunX, sunY + 40);
+            eCtx.fill();
+
+            // Draw Sun
+            eCtx.shadowBlur = 40;
+            eCtx.shadowColor = '#f39c12';
+            eCtx.fillStyle = '#f39c12';
+            eCtx.beginPath();
+            eCtx.arc(sunX, sunY, 45, 0, Math.PI * 2);
+            eCtx.fill();
+            eCtx.shadowBlur = 0;
+
+            // Draw Earth
+            eCtx.fillStyle = '#0984e3';
+            eCtx.beginPath();
+            eCtx.arc(earthX, earthY, 35, 0, Math.PI * 2);
+            eCtx.fill();
+
+            // Draw Moon
+            eCtx.fillStyle = '#b2bec3';
+            eCtx.beginPath();
+            eCtx.arc(moonX, moonY, 14, 0, Math.PI * 2);
+            eCtx.fill();
+
+            // Calculate alignment status text
+            let statusText = "No Eclipse (Moon out of alignment)";
+            const distFromCenter = Math.abs(moonY - sunY);
+            if (distFromCenter < 5) {
+                statusText = "🌑 TOTAL SOLAR ECLIPSE (Perfect Alignment)";
+                eCtx.fillStyle = "rgba(0,0,0,0.6)";
+                eCtx.fillRect(earthX - 15, earthY - 35, 30, 70);
+            } else if (distFromCenter < 20) {
+                statusText = "🌗 Annular / Partial Solar Eclipse";
+            }
+            document.getElementById('eclipseStatus').innerText = "Status: " + statusText;
+        }
+    </script>
+</body>
+</html>

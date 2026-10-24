@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lebanese Modal Verbs Quiz (Romanized)</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f0f0ff, #e0ffe0);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #2c3e50;
+  }
+  .card {
+    background: white;
+    padding: 20px 30px;
+    margin: 15px 0;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    width: 90%;
+    max-width: 700px;
+  }
+  #quiz-modal {
+    font-size: 50px;
+    margin: 20px 0;
+    color: #e67e22;
+    font-weight: bold;
+  }
+  #choices button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  #choices button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+  }
+  .row:last-child { border-bottom: none; }
+  .arabic { font-size: 22px; font-weight: bold; color: #34495e; }
+  .english { font-size: 16px; color: #2c3e50; }
+  @media (max-width: 500px) {
+    #quiz-modal { font-size: 40px; }
+    .row { font-size: 16px; }
+    #choices button { font-size: 14px; padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Lebanese Modal Verbs Quiz (Romanized)</h1>
+
+<div class="card" style="text-align:center;">
+  <h2>Guess the Meaning</h2>
+  <div id="quiz-modal">baddé</div>
+  <div id="choices"></div>
+</div>
+
+<div class="card">
+  <h2>Modal Verbs Reference Table (Lebanese)</h2>
+  <div class="row"><span class="arabic">ana baddé</span> <span class="english">I want</span></div>
+  <div class="row"><span class="arabic">inte/inti baddak/baddik</span> <span class="english">You want</span></div>
+  <div class="row"><span class="arabic">huwwe/hi baddo/baddha</span> <span class="english">He/She wants</span></div>
+  <div class="row"><span class="arabic">nehna baddna</span> <span class="english">We want</span></div>
+  <div class="row"><span class="arabic">honne baddhon/baddhen</span> <span class="english">They want</span></div>
+
+  <div class="row"><span class="arabic">ana lazem</span> <span class="english">I must</span></div>
+  <div class="row"><span class="arabic">inte/inti lazem</span> <span class="english">You must</span></div>
+  <div class="row"><span class="arabic">huwwe/hi lazem</span> <span class="english">He/She must</span></div>
+  <div class="row"><span class="arabic">nehna lazem</span> <span class="english">We must</span></div>
+  <div class="row"><span class="arabic">honne lazem</span> <span class="english">They must</span></div>
+
+  <div class="row"><span class="arabic">ana fiyé</span> <span class="english">I can</span></div>
+  <div class="row"><span class="arabic">inte/inti fiyek</span> <span class="english">You can</span></div>
+  <div class="row"><span class="arabic">huwwe/hi fiyé</span> <span class="english">He/She can</span></div>
+  <div class="row"><span class="arabic">nehna fiyna</span> <span class="english">We can</span></div>
+  <div class="row"><span class="arabic">honne fiyhon/fiyhen</span> <span class="english">They can</span></div>
+</div>
+
+<script>
+const modals = [
+  { roman: "ana baddé", meaning: "I want" },
+  { roman: "inte/inti baddak/baddik", meaning: "You want" },
+  { roman: "huwwe/hi baddo/baddha", meaning: "He/She wants" },
+  { roman: "nehna baddna", meaning: "We want" },
+  { roman: "honne baddhon/baddhen", meaning: "They want" },
+  { roman: "ana lazem", meaning: "I must" },
+  { roman: "inte/inti lazem", meaning: "You must" },
+  { roman: "huwwe/hi lazem", meaning: "He/She must" },
+  { roman: "nehna lazem", meaning: "We must" },
+  { roman: "honne lazem", meaning: "They must" },
+  { roman: "ana fiyé", meaning: "I can" },
+  { roman: "inte/inti fiyek", meaning: "You can" },
+  { roman: "huwwe/hi fiyé", meaning: "He/She can" },
+  { roman: "nehna fiyna", meaning: "We can" },
+  { roman: "honne fiyhon/fiyhen", meaning: "They can" }
+];
+
+let correctAnswer = null;
+
+function newQuestion() {
+  const qIndex = Math.floor(Math.random() * modals.length);
+  correctAnswer = modals[qIndex];
+
+  let options = [correctAnswer];
+  while (options.length < 4) {
+    let r = modals[Math.floor(Math.random() * modals.length)];
+    if (!options.includes(r)) options.push(r);
+  }
+
+  options.sort(() => Math.random() - 0.5);
+
+  document.getElementById("quiz-modal").innerHTML = correctAnswer.roman;
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  options.forEach(opt => {
+    let btn = document.createElement("button");
+    btn.innerHTML = opt.meaning;
+    btn.onclick = () => {
+      if(opt === correctAnswer){
+        alert("✅ Correct!");
+      } else {
+        alert(`❌ Wrong! Correct answer: ${correctAnswer.meaning}`);
+      }
+      newQuestion();
+    };
+    box.appendChild(btn);
+  });
+}
+
+window.onload = newQuestion;
+</script>
+
+</body>
+</html>

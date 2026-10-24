@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<style type="text/css">
+  body{
+    height: 800px;
+    width: 800px;
+  }
+      #drag-1, #drag-2, #drag-3 , #drag-4, #drag-5, #drag-6, #drag-7, #drag-8, #drag-9, #drag-10, #drag-11, #drag-12, #drag-13, #drag-14{
+      
+      width: 0%;
+      min-height: 0;
+      margin: 1rem 0 0 1rem;
+      color: blue;
+      padding: 0%;
+      background-color: skyblue;
+      touch-action: none;
+      user-select: none;
+      transform: translate(0px, 0px);
+      display: inline-block;
+      left: 20%;
+      top: 100px;
+      margin: 50px;
+      position: relative;
+}
+
+        #next,#back{
+            padding: 100% 10px 100% 10px;
+            background-color:#AFB4E0 ;
+            transform: translate(0%, -50%);
+            color:#000000 ;
+            text-decoration: none;
+          }
+
+          #next{
+            position: absolute;
+            top: 50%;
+            right: 0px;
+          }
+
+          #back{
+            position: absolute;
+            top: 50%;
+            left: 0px;
+
+          }
+         
+          a:hover {
+            background-color: #FEFBFC;
+          }
+
+           #next2{
+            position: absolute;
+            top: 0%;
+            right: 0px;
+            border-bottom-left-radius: 5px ;
+          }
+
+          #back2{
+            position: absolute;
+            top:  0%;
+            left: 0px;
+            border-bottom-right-radius: 5px;
+
+          }
+
+  #next2,#back2{
+     padding: 7px 10px 7px 10px;
+            background-color:#AFB4E0 ;
+            transform: translate(0%, 0%);
+            color:#000000 ;
+            text-decoration: none;
+            display: none;
+          }
+
+  @media only screen and (max-width: 600px) {
+
+  body{
+    height: 400px;
+    width: 400px;
+  }
+  #next2,#back2{
+   display: block;
+          }        
+
+  #next,#back{
+        display: none;
+      }
+    </style>
+
+
+</style>
+</head>
+<body>
+  <div id="drag-5" class="draggable">
+   <img  src="Images/draggable/Head2.png" width="300px" alt="head1">
+  </div>
+  <div id="drag-4" class="draggable">
+   <img  src="Images/draggable/Head1.png" width="300px" alt="head1">
+  </div>
+  <div id="drag-1" class="draggable">
+   <img src="Images/draggable/Mouth1.png" width="100px" alt="head1">
+  </div>
+  <div id="drag-2" class="draggable">
+   <img  src="Images/draggable/Ears1a.png" width="75px" alt="head1">
+</div>
+  <div id="drag-3" class="draggable">
+   <img  src="Images/draggable/Ears1b.png" width="75px" alt="head1">
+  </div>
+  <div id="drag-6" class="draggable">
+   <img  src="Images/draggable/Ears2b.png" width="75px" alt="head1">
+  </div>
+  <div id="drag-7" class="draggable">
+   <img  src="Images/draggable/Ears2a.png" width="75px" alt="head1">
+  </div>
+   <div id="drag-8" class="draggable">
+   <img  src="Images/draggable/Eyes2a.png" width="20px" alt="head1">
+  </div>
+   <div id="drag-9" class="draggable">
+   <img  src="Images/draggable/Eyes2b.png" width="20px" alt="head1">
+  </div>
+   <div id="drag-10" class="draggable">
+   <img  src="Images/draggable/Eyes1a.png" width="50px" alt="head1">
+  </div>
+    <div id="drag-11" class="draggable">
+   <img  src="Images/draggable/Eyes1b.png" width="50px" alt="head1">
+  </div>
+    <div id="drag-12" class="draggable">
+   <img src="Images/draggable/Mouth2.png" width="100px" alt="head1">
+  </div>
+    <div id="drag-13" class="draggable">
+   <img src="Images/draggable/Carrot.png" width="100px" alt="head1">
+  </div>
+    <div id="drag-14" class="draggable">
+   <img src="Images/draggable/Brocorli.png" width="100px" alt="head1">
+  </div>
+  
+  
+<script type="module">
+import interact from 
+'https://cdn.interactjs.io/v1.10.11/interactjs/index.js'
+
+interact('.item').draggable({
+  listeners: {
+    move (event) {
+      console.log(event.pageX,
+                  event.pageY)
+    }
+  }
+})
+
+// target elements with the "draggable" class
+interact('.draggable')
+  .draggable({
+    // enable inertial throwing
+    inertia: true,
+    // keep the element within the area of it's parent
+    modifiers: [
+      interact.modifiers.restrictRect({
+        restriction: 'parent',
+        endOnly: true
+      })
+    ],
+    // enable autoScroll
+    autoScroll: true,
+
+    listeners: {
+      // call this function on every dragmove event
+      move: dragMoveListener,
+
+      // call this function on every dragend event
+      end (event) {
+        var textEl = event.target.querySelector('p')
+
+        textEl && (textEl.textContent =
+          'moved a distance of ' +
+          (Math.sqrt(Math.pow(event.pageX - event.x0, 2) +
+                     Math.pow(event.pageY - event.y0, 2) | 0))
+            .toFixed(2) + 'px')
+      }
+    }
+  })
+
+function dragMoveListener (event) {
+  var target = event.target
+  // keep the dragged position in the data-x/data-y attributes
+  var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+  var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+
+  // translate the element
+  target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+
+  // update the posiion attributes
+  target.setAttribute('data-x', x)
+  target.setAttribute('data-y', y)
+}
+
+// this function is used later in the resizing and gesture demos
+window.dragMoveListener = dragMoveListener
+</script>
+ <a id="back" href="task69.html">Back</a>  
+
+<a id="next" href="task71.html">Next</a> 
+
+<a id="back2" href="task69.html">◀</a> 
+
+<a id="next2" href="task71.html">▶</a> 
+</body>
+</body>
+
+
+</html>

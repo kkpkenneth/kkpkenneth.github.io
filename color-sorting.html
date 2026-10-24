@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Animated Full-Spectrum Color Sort</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --accent-color: #00ffcc;
+            --board-size: 90vmin;
+            --max-board-size: 600px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        p {
+            color: #aaaaaa;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* Style for the active toggle button */
+        button.active-toggle {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 20px #fff;
+        }
+
+        #moves {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-left: 10px;
+        }
+
+        /* --- 20x20 ABSOLUTE POSITIONING GRID --- */
+        #game-board {
+            position: relative;
+            width: var(--board-size);
+            max-width: var(--max-board-size);
+            height: var(--board-size);
+            max-height: var(--max-board-size);
+            background: #000;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+
+        .cell {
+            position: absolute;
+            width: 5%; /* 100% / 20 = 5% */
+            height: 5%;
+            cursor: pointer;
+            /* Cubic bezier adds a satisfying "snap" to the end of the flight animation */
+            transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        top 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        transform 0.1s, 
+                        box-shadow 0.1s;
+            border: 1px solid #111; /* Creates the grid gaps */
+        }
+
+        .cell:hover {
+            transform: scale(1.15);
+            z-index: 10 !important;
+            box-shadow: 0 0 8px rgba(255,255,255,0.7);
+            border: none;
+        }
+
+        /* Highlight for the currently selected cell */
+        .cell.selected {
+            transform: scale(1.25);
+            z-index: 20 !important;
+            border: 2px solid #fff;
+            box-shadow: 0 0 20px #fff;
+        }
+
+        /* Cells currently in flight */
+        .cell.moving {
+            z-index: 15;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border: none;
+        }
+
+        /* Indicator for the 4 locked anchor corners */
+        .cell.locked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 4px #000;
+        }
+
+        .cell.locked {
+            cursor: not-allowed;
+            z-index: 1;
+        }
+        
+        .cell.locked:hover {
+            transform: none;
+            box-shadow: none;
+            border: 1px solid #111;
+        }
+
+        /* Overlay for winning */
+        #win-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #win-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #win-overlay h2 {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px var(--accent-color);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Full-Spectrum Sort</h1>
+        <p>Click a cell, then click another to watch them swap. Restore the gradient!</p>
+    </div>
+
+    <div class="controls">
+        <button onclick="shuffleGrid()">Shuffle</button>
+        <button id="toggleBtn" onclick="toggleSolution()" style="border-color: #f1c40f; color: #f1c40f;">Show Solution</button>
+        <button onclick="solveGrid()" style="border-color: #ff007f; color: #ff007f;">Solve</button>
+        <div id="moves">Moves: 0</div>
+    </div>
+
+    <div id="game-board"></div>
+
+    <div id="win-overlay">
+        <h2>SPECTRUM ALIGNED</h2>
+        <p id="win-message" style="font-size: 1.2rem; color: #fff; margin-bottom: 30px;"></p>
+        <button onclick="initGame()">Play Again</button>
+    </div>
+
+    <script>
+        const SIZE = 20;
+        const TOTAL_CELLS = SIZE * SIZE;
+        const board = document.getElementById('game-board');
+        const movesDisplay = document.getElementById('moves');
+        const winOverlay = document.getElementById('win-overlay');
+        const winMessage = document.getElementById('win-message');
+        const toggleBtn = document.getElementById('toggleBtn');
+
+        let cells = []; 
+        let selectedCell = null;
+        let moves = 0;
+        let isGameActive = true;
+        let isShowingSolution = false;
+
+        // Generates a color involving ALL hues across the X axis, and lightness across the Y axis
+        function calculateColor(x, y) {
+            const hue = (x / (SIZE - 1)) * 360; // 0 to 360 degrees
+            const lightness = 85 - (y / (SIZE - 1)) * 70; // 85% (bright) down to 15% (dark)
+            return `hsl(${hue}, 100%, ${lightness}%)`;
+        }
+
+        // Converts a 1D index (0-399) into 2D X/Y coordinates
+        function getCoords(index) {
+            return {
+                x: index % SIZE,
+                y: Math.floor(index / SIZE)
+            };
+        }
+
+        // Updates the CSS absolute positioning of a cell based on its current array index
+        function updateCellDOMPosition(cell) {
+            const coords = getCoords(cell.currentPos);
+            cell.element.style.left = `${coords.x * 5}%`; // 5% width per cell
+            cell.element.style.top = `${coords.y * 5}%`;
+        }
+
+        // Moves a cell specifically to its true target (used for peeking)
+        function positionCellAtTarget(cell) {
+            const coords = getCoords(cell.id);
+            cell.element.style.left = `${coords.x * 5}%`;
+            cell.element.style.top = `${coords.y * 5}%`;
+        }
+
+        // Initialize the board
+        function initGame() {
+            board.innerHTML = '';
+            cells = [];
+            moves = 0;
+            movesDisplay.innerText = `Moves: 0`;
+            isGameActive = true;
+            isShowingSolution = false;
+            selectedCell = null;
+            
+            toggleBtn.innerText = "Show Solution";
+            toggleBtn.classList.remove('active-toggle');
+            winOverlay.classList.remove('active');
+
+            for (let i = 0; i < TOTAL_CELLS; i++) {
+                const coords = getCoords(i);
+                const isLocked = (i === 0) || (i === SIZE - 1) || (i === TOTAL_CELLS - SIZE) || (i === TOTAL_CELLS - 1);
+                
+                const cellElement = document.createElement('div');
+                cellElement.className = 'cell';
+                if (isLocked) cellElement.classList.add('locked');
+                cellElement.style.backgroundColor = calculateColor(coords.x, coords.y);
+
+                const cellData = {
+                    id: i,              // Target position
+                    currentPos: i,      // Where it is right now
+                    isLocked: isLocked,
+                    element: cellElement
+                };
+
+                // Add click listener
+                cellElement.addEventListener('click', () => handleCellClick(cellData));
+
+                board.appendChild(cellElement);
+                cells.push(cellData);
+                
+                // Set initial positioning
+                updateCellDOMPosition(cellData);
+            }
+
+            // Small delay to allow the DOM to render the perfect grid before scattering it
+            setTimeout(shuffleGrid, 500);
+        }
+
+        // Toggles the correct answer view without ending the game
+        function toggleSolution() {
+            if (!isGameActive) return;
+
+            isShowingSolution = !isShowingSolution;
+
+            if (isShowingSolution) {
+                // Showing solution
+                toggleBtn.innerText = "Hide Solution";
+                toggleBtn.classList.add('active-toggle');
+                
+                // Deselect any active cell
+                if (selectedCell) {
+                    selectedCell.element.classList.remove('selected');
+                    selectedCell = null;
+                }
+
+                // Send cells to their final targets
+                cells.forEach(c => positionCellAtTarget(c));
+            } else {
+                // Hiding solution (restoring game state)
+                toggleBtn.innerText = "Show Solution";
+                toggleBtn.classList.remove('active-toggle');
+
+                // Return cells to their current shuffled positions
+                cells.forEach(c => updateCellDOMPosition(c));
+            }
+        }
+
+        function handleCellClick(clickedCell) {
+            // Block clicks if the game is over, the cell is locked, or the solution is currently being peeked
+            if (!isGameActive || clickedCell.isLocked || isShowingSolution) return;
+
+            // Select first cell
+            if (!selectedCell) {
+                selectedCell = clickedCell;
+                selectedCell.element.classList.add('selected');
+            } 
+            // Select second cell & Swap
+            else {
+                if (selectedCell !== clickedCell) {
+                    swapCells(selectedCell, clickedCell);
+                    moves++;
+                    movesDisplay.innerText = `Moves: ${moves}`;
+                    checkWin();
+                }
+                
+                selectedCell.element.classList.remove('selected');
+                selectedCell = null;
+            }
+        }
+
+        function swapCells(cellA, cellB) {
+            // Apply a temporary class to pop them up via z-index during the flight animation
+            cellA.element.classList.add('moving');
+            cellB.element.classList.add('moving');
+
+            // Swap their logical positions
+            const tempPos = cellA.currentPos;
+            cellA.currentPos = cellB.currentPos;
+            cellB.currentPos = tempPos;
+
+            // Trigger CSS transition
+            updateCellDOMPosition(cellA);
+            updateCellDOMPosition(cellB);
+
+            // Remove the pop-up class after the transition finishes (0.4s)
+            setTimeout(() => {
+                cellA.element.classList.remove('moving');
+                cellB.element.classList.remove('moving');
+            }, 400);
+        }
+
+        function shuffleGrid() {
+            if (isShowingSolution) toggleSolution(); // Reset toggle if active
+            
+            if (selectedCell) {
+                selectedCell.element.classList.remove('selected');
+                selectedCell = null;
+            }
+
+            moves = 0;
+            movesDisplay.innerText = `Moves: 0`;
+
+            // Filter out the locked corners
+            let unlockedCells = cells.filter(c => !c.isLocked);
+            let positions = unlockedCells.map(c => c.currentPos);
+
+            // Fisher-Yates Shuffle on the positions
+            for (let i = positions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [positions[i], positions[j]] = [positions[j], positions[i]];
+            }
+
+            // Apply new positions and trigger mass animation
+            unlockedCells.forEach((c, index) => {
+                c.currentPos = positions[index];
+                updateCellDOMPosition(c);
+            });
+        }
+
+        function solveGrid() {
+            if (!isGameActive) return;
+            if (isShowingSolution) toggleSolution(); // Reset toggle if active
+            
+            if (selectedCell) {
+                selectedCell.element.classList.remove('selected');
+                selectedCell = null;
+            }
+
+            // Send everyone home
+            cells.forEach(c => {
+                c.currentPos = c.id;
+                updateCellDOMPosition(c);
+            });
+
+            checkWin(true);
+        }
+
+        function checkWin(autoSolved = false) {
+            const isWin = cells.every(c => c.id === c.currentPos);
+
+            if (isWin) {
+                isGameActive = false;
+                
+                // Wait for the final animation to finish before showing the overlay
+                setTimeout(() => {
+                    winOverlay.classList.add('active');
+                    if (autoSolved) {
+                        winMessage.innerText = "Better luck sorting it yourself next time!";
+                    } else {
+                        winMessage.innerText = `You sorted all 400 hues in ${moves} moves!`;
+                    }
+                }, 500); 
+            }
+        }
+
+        // Boot the game
+        initGame();
+    </script>
+</body>
+</html>

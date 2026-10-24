@@ -1,0 +1,146 @@
+<html>
+<head>
+  
+<style type="text/css">
+  
+  @import "nib"
+
+h1{
+  text-align: center;
+  padding: 50px;
+}
+
+[draggable]
+  user-select none
+
+.drag-list
+  overflow hidden
+  margin 10px auto
+  width 500px
+  border 1px solid #ccc
+
+.drag-item
+  float left
+  padding 50px 20px
+  width 25%
+  text-align center
+  color #555
+  background #ddd
+  border 1px solid #ccc
+  box-sizing border-box
+  transition 0.25s
+
+.drag-start
+  opacity 0.8
+
+.drag-enter
+  opacity 0.5
+  transform scale(0.9)
+</style>
+</head>
+<body>
+h1 Drag and Drop HTML5
+
+.drag-list
+  .drag-item(draggable="true") A
+  .drag-item(draggable="true") B
+  .drag-item(draggable="true") C
+  .drag-item(draggable="true") D
+  .drag-item(draggable="true") E
+  .drag-item(draggable="true") F
+  .drag-item(draggable="true") G
+  .drag-item(draggable="true") H
+  .drag-item(draggable="true") I
+  .drag-item(draggable="true") J
+  .drag-item(draggable="true") K
+  .drag-item(draggable="true") L
+  <script type="text/javascript">
+    function DragNSort (config) {
+  this.$activeItem = null;
+  this.$container = config.container;
+  this.$items = this.$container.querySelectorAll('.' + config.itemClass);
+  this.dragStartClass = config.dragStartClass;
+  this.dragEnterClass = config.dragEnterClass;
+}
+
+DragNSort.prototype.removeClasses = function () {
+  [].forEach.call(this.$items, function ($item) {
+    $item.classList.remove(this.dragStartClass, this.dragEnterClass);
+  }.bind(this));
+};
+
+DragNSort.prototype.on = function (elements, eventType, handler) {
+  [].forEach.call(elements, function (element) {
+    element.addEventListener(eventType, handler.bind(element, this), false);
+  }.bind(this));
+};
+
+DragNSort.prototype.onDragStart = function (_this, event) {
+  _this.$activeItem = this;
+
+  this.classList.add(_this.dragStartClass);
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/html', this.innerHTML);
+};
+
+DragNSort.prototype.onDragEnd = function (_this) {
+  this.classList.remove(_this.dragStartClass);
+};
+
+DragNSort.prototype.onDragEnter = function (_this) {
+  this.classList.add(_this.dragEnterClass);
+};
+
+DragNSort.prototype.onDragLeave = function (_this) {
+  this.classList.remove(_this.dragEnterClass);
+};
+
+DragNSort.prototype.onDragOver = function (_this, event) {
+  if (event.preventDefault) {
+  event.preventDefault();
+  }
+
+  event.dataTransfer.dropEffect = 'move';
+
+  return false;
+};
+
+DragNSort.prototype.onDrop = function (_this, event) {
+  if (event.stopPropagation) {
+    event.stopPropagation();
+  }
+
+  if (_this.$activeItem !== this) {
+    _this.$activeItem.innerHTML = this.innerHTML;
+    this.innerHTML = event.dataTransfer.getData('text/html');
+  }
+
+  _this.removeClasses();
+
+  return false;
+};
+
+DragNSort.prototype.bind = function () {
+  this.on(this.$items, 'dragstart', this.onDragStart);
+  this.on(this.$items, 'dragend', this.onDragEnd);
+  this.on(this.$items, 'dragover', this.onDragOver);
+  this.on(this.$items, 'dragenter', this.onDragEnter);
+  this.on(this.$items, 'dragleave', this.onDragLeave);
+  this.on(this.$items, 'drop', this.onDrop);
+};
+
+DragNSort.prototype.init = function () {
+  this.bind();
+};
+
+// Instantiate
+var draggable = new DragNSort({
+  container: document.querySelector('.drag-list'),
+  itemClass: 'drag-item',
+  dragStartClass: 'drag-start',
+  dragEnterClass: 'drag-enter'
+});
+draggable.init();
+  </script>
+  </body>
+</html>

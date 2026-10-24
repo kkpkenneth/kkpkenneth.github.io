@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: The Infinity Palace</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --highlight-color: rgba(0, 255, 170, 0.25);
+            --btn-bg: #151b2b;
+            --btn-hover: #1f2940;
+            --btn-border: #2a3756;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .story-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b7a99;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            position: sticky;
+            top: 0;
+            background: rgba(11, 15, 25, 0.95);
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--btn-border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: #00ffaa;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            color: #ffffff;
+        }
+
+        #progress-bar {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            accent-color: #00ffaa;
+            align-self: center;
+        }
+
+        .text-seg {
+            transition: background-color 0.2s ease;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+
+        .speaking {
+            background-color: var(--highlight-color);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button onclick="playStory()">▶ Read</button>
+        <button onclick="stopAudio()">■ Stop</button>
+        <input type="range" id="progress-bar" min="0" max="100" value="0" step="1" oninput="seekStory(this.value)">
+    </div>
+
+    <div class="story-container" id="story-content">
+        <h1 class="text-seg" data-char="narrator">Chapter 4</h1>
+        <div class="subtitle text-seg" data-char="narrator">The Infinity Palace</div>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The neon skyline of the cyber-metropolis faded into a shimmering distortion as Kenjiro stepped through the hidden gateway. Before them stood the Infinity Palace—an expansive, highly sophisticated maze constructed of polished dark granite, towering crimson-lacquered pillars, and sweeping giwa-tiled roofs. From the outside, the structure had appeared no larger than a standard courtyard, but inside, its static corridors stretched for miles, a mathematically impossible labyrinth of traditional elegance housed within a perceptually confined space.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"It doesn't shift or change... but the internal dimensions completely defy the external boundaries,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro muttered, instinctively gripping the straps of his pack. He looked down at the fabric, then back at the sprawling architecture, noting the hard-light energy screens that perfectly mimicked translucent mulberry paper.</span>
+            <span class="text-seg" data-char="kenjiro">"Wait. The spatial compression... this is the exact same tech."</span>
+        </p>
+        
+        <p>
+            <span class="text-seg" data-char="kame">"Correct,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun, the single, small AI turtle resting on his shoulder, chimed in, his sensors tracking the intricate, vibrantly painted dancheong patterns on the massive wooden eaves above.</span>
+            <span class="text-seg" data-char="kame">"The Infinity Palace is the origin point of your alternate space backpack. It is an architectural marvel of spatial compression, designed by the Emperor to house an expansive, perfectly controlled environment inside a localized perimeter."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Deep within the sprawling maze, surrounded by mathematically flawless gardens of silver-leafed red pine and smooth jade stones, sat Princess Kim-chi. She was staring blankly at a holographic lotus that hovered over a jade-green celadon pedestal in perfect, unchanging symmetry.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kimchi">"It is without a single flaw, isn't it?"</span>
+            <span class="text-seg" data-char="narrator">Princess Kim-chi spoke softly, her voice laced with an elegant, rhythmic cadence. She didn't look up as Kenjiro approached.</span>
+            <span class="text-seg" data-char="kimchi">"Not a single petal out of place. My abeoji—my father—ensures that nothing in this vast palace ever experiences the wind, or blight, or asymmetry. He has locked the spatial coordinates so I can never leave this perfect enclosure."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"It sounds like a museum,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro replied gently, stepping into the immaculate courtyard.</span>
+            <span class="text-seg" data-char="kenjiro">"Or a sprawling, pristine prison."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kimchi">"Geuraeyo, it is both,"</span>
+            <span class="text-seg" data-char="narrator">she sighed, standing up and brushing off her immaculate silk robes, her accent sharpening slightly with emotion.</span>
+            <span class="text-seg" data-char="kimchi">"He believes that by perfectly controlling the environment, by removing all risk and variance, he can culture ultimate perfection. And he has. But perfection is sterile. It is a dead end."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">She walked to the edge of the courtyard, looking out at the endless, static corridors of the palace walls.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kimchi">"I don't want a perfectly controlled vacuum. I want the freedom to explore the chaotic diversity of success. I want to see a flower that grows crooked because it had to fight for the sunlight. I want the freedom to fail, because only then can you discover something truly new. Geugeosi jinjja salm-iya—that is real life."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Your father's architecture is flawless, but rigidly contained,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun stated, his blue optics whirring as he analyzed the courtyard's forcefield.</span>
+            <span class="text-seg" data-char="kame">"However, since Kenjiro's backpack shares the same foundational spatial code, we can introduce a localized variable anomaly. A burst of chaotic data to tear a hole in his spatial compression."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"We're going to break you out of here,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro smiled, unzipping the pack as a swirling vortex of disorganized, chaotic space tore through the sterile courtyard walls.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Princess Kim-chi stepped toward the rift, the immaculate lighting of the palace instantly giving way to the unpredictable, vibrant glow of the outside world. She paused at the threshold, turning back to Kenjiro with a look of fierce resolve.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kimchi">"Thank you, Kenjiro,"</span>
+            <span class="text-seg" data-char="narrator">Princess Kim-chi said, her chin held high.</span>
+            <span class="text-seg" data-char="kimchi">"But I won't be following you. I have spent my entire life confined in someone else's perfectly designed world. Now, it is time for me to discover my own future, on my own terms."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Before turning away, she reached into the folds of her silk robes and tossed a small, beautifully crafted earthen onggi jar to Kenjiro.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kimchi">"A parting gift,"</span>
+            <span class="text-seg" data-char="narrator">she smiled warmly.</span>
+            <span class="text-seg" data-char="kimchi">"Real, aged kimchi. Let its heat remind you that the best things in life require a little time, pressure, and spice."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"I bet it's fierily delicious,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro grinned, admiring the jar before carefully stowing it into his alternate space backpack.</span>
+            <span class="text-seg" data-char="kenjiro">"We'll savor it. Good luck out there, Princess."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">With a graceful bow, she stepped through the anomaly, leaving the perfection of the Infinity Palace behind to embrace the beautiful, chaotic unknown.</span>
+        </p>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        let activeUtterances = []; 
+        let textSegments = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('story-content');
+            textSegments = Array.from(container.querySelectorAll('.text-seg'));
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.max = textSegments.length - 1;
+        });
+
+        function applyCharacterVoice(utterance, character) {
+            const voices = window.speechSynthesis.getVoices();
+            switch(character) {
+                case 'kenjiro':
+                    utterance.pitch = 1.2; 
+                    utterance.rate = 1; 
+                    utterance.volume = 1; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'kame':
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.15; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'ja-JP'; 
+                    
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語' || v.lang === 'ja-JP');
+                    if (kameVoice) utterance.voice = kameVoice;
+                    break;
+                    
+                case 'kimchi':
+                    utterance.pitch = 1.1; 
+                    utterance.rate = 1.05; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'ko-KR'; 
+                    
+                    const kimchiVoice = voices.find(v => v.lang === 'ko-KR');
+                    if (kimchiVoice) utterance.voice = kimchiVoice;
+                    break;
+
+                case 'system':
+                    utterance.pitch = 0.2; 
+                    utterance.rate = 0.9;  
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-GB'; 
+                    
+                    const systemVoice = voices.find(v => v.lang === 'en-GB' && (v.name.includes('Male') || v.name.includes('Arthur')));
+                    if (systemVoice) utterance.voice = systemVoice;
+                    break;
+
+                case 'narrator':
+                default:
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.0;
+                    utterance.volume = 0.9; 
+                    utterance.lang = 'en-US'; 
+                    break;
+            }
+        }
+
+        function playStory(startIndex = currentIndex) {
+            synth.cancel();
+            activeUtterances = []; 
+            currentIndex = startIndex;
+            const remainingSegments = textSegments.slice(currentIndex);
+            remainingSegments.forEach((segment) => {
+                const text = segment.innerText.trim();
+                if (!text) return;
+                const utterance = new SpeechSynthesisUtterance(text);
+                applyCharacterVoice(utterance, segment.getAttribute('data-char'));
+                utterance.onstart = () => {
+                    document.getElementById('progress-bar').value = textSegments.indexOf(segment);
+                    document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                    segment.classList.add('speaking');
+                    segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                synth.speak(utterance);
+            });
+        }
+
+        function seekStory(index) {
+            currentIndex = parseInt(index, 10);
+            if (synth.speaking) playStory(currentIndex);
+        }
+
+        function stopAudio() {
+            synth.cancel();
+            document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+        }
+        
+        // Ensures voices are loaded before trying to play, particularly for some browsers
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+    </script>
+</body>
+</html>

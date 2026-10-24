@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Food Vocabulary Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+    }
+
+    .blank-input {
+      border: 2px solid #9ca3af;
+      border-radius: 6px;
+      padding: 4px 8px;
+      text-align: center;
+      font-weight: 600;
+      color: #1f2937;
+      transition: all 0.2s;
+      min-width: 100px;
+    }
+
+    .correct {
+      border-color: #059669;
+      background-color: #d1fae5;
+    }
+
+    .incorrect {
+      border-color: #dc2626;
+      background-color: #fee2e2;
+    }
+
+    /* 🔲 Square food image style */
+    .food-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;  /* makes it a perfect square */
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      background-color: #f1f5f9;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6 flex items-start justify-center">
+
+  <div id="quiz-container" class="w-full max-w-3xl bg-white shadow-2xl rounded-xl p-6 sm:p-10">
+    <header class="text-center mb-10">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">Basic Food Vocabulary Quiz 🍽️</h1>
+      <p class="text-lg text-gray-600">Type the correct name of each food shown below.</p>
+    </header>
+
+    <section id="quiz-area" class="space-y-8"></section>
+
+    <div class="mt-10 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center">
+      <div id="score-display" class="text-xl font-semibold text-gray-700 mb-4 sm:mb-0">Score: 0 / 10</div>
+
+      <div class="space-x-4 flex flex-wrap justify-center sm:justify-start">
+        <button onclick="showAnswers()" id="showAnswersButton" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 transform hover:scale-105 mb-2 sm:mb-0">Reveal All</button>
+        <button onclick="resetQuiz()" id="resetButton" class="px-6 py-3 bg-gray-300 text-gray-800 font-bold rounded-lg shadow-md hover:bg-gray-400 transition duration-150">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quizContent = [
+      { text: "This is a [Banana], a yellow tropical fruit rich in potassium.", answer: "Banana", image: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg" },
+      { text: "This is an [Apple], a round fruit that can be red, green, or yellow.", answer: "Apple", image: "https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" },
+      { text: "This is [Bread], a staple food made from flour and water, usually baked.", answer: "Bread", image: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Sliced_bread.jpg" },
+      { text: "This is [Cheese], a dairy product made from milk curds.", answer: "Cheese", image: "https://upload.wikimedia.org/wikipedia/commons/a/a6/Cheese_platter.jpg" },
+      { text: "This is [Rice], a cereal grain that is a staple in many Asian cuisines.", answer: "Rice", image: "https://upload.wikimedia.org/wikipedia/commons/6/6f/Cooked_rice_in_a_bowl.jpg" },
+      { text: "This is [Pizza], an Italian dish made with dough, tomato sauce, and cheese.", answer: "Pizza", image: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Supreme_pizza.jpg" },
+      { text: "This is [Egg], often eaten boiled or fried for breakfast.", answer: "Egg", image: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Egg_in_pan.jpg" },
+      { text: "This is [Fish], a source of protein often grilled or fried.", answer: "Fish", image: "https://upload.wikimedia.org/wikipedia/commons/3/3b/Grilled_fish_dish.jpg" },
+      { text: "This is [Carrot], an orange root vegetable rich in vitamin A.", answer: "Carrot", image: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Carrots.jpg" },
+      { text: "This is [Watermelon], a large green fruit with juicy red flesh.", answer: "Watermelon", image: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Watermelons.jpg" }
+    ];
+
+    let total = quizContent.length;
+
+    function initializeQuiz() {
+      const quizArea = document.getElementById('quiz-area');
+      quizArea.innerHTML = '';
+      quizContent.forEach((item) => {
+        const q = document.createElement('div');
+        q.className = "p-6 bg-gray-50 border border-gray-200 rounded-xl shadow-sm";
+
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = item.answer;
+        img.className = "food-image";
+        q.appendChild(img);
+
+        const qText = document.createElement('p');
+        qText.className = "text-lg text-gray-700 mb-3";
+        const parts = item.text.split(/\[(.*?)\]/g);
+        parts.forEach((p, index) => {
+          if (index % 2 === 1) {
+            const input = document.createElement('input');
+            input.type = "text";
+            input.className = "blank-input mx-1";
+            input.dataset.answer = item.answer.toLowerCase();
+            qText.appendChild(input);
+          } else {
+            qText.appendChild(document.createTextNode(p));
+          }
+        });
+        q.appendChild(qText);
+
+        const btn = document.createElement('button');
+        btn.textContent = "Check";
+        btn.className = "px-3 py-1 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700";
+        btn.onclick = () => checkAnswer(q);
+        q.appendChild(btn);
+
+        quizArea.appendChild(q);
+      });
+      updateScore();
+    }
+
+    function checkAnswer(qBlock) {
+      const input = qBlock.querySelector('input');
+      const answer = input.dataset.answer;
+      const val = input.value.trim().toLowerCase();
+      input.classList.remove('correct', 'incorrect');
+      if (val === answer) {
+        input.classList.add('correct');
+        input.disabled = true;
+      } else {
+        input.classList.add('incorrect');
+        input.value = input.dataset.answer.charAt(0).toUpperCase() + input.dataset.answer.slice(1);
+        input.disabled = true;
+      }
+      updateScore();
+    }
+
+    function updateScore() {
+      const inputs = document.querySelectorAll('.blank-input');
+      const correctCount = Array.from(inputs).filter(i => i.classList.contains('correct')).length;
+      document.getElementById('score-display').textContent = `Score: ${correctCount} / ${total}`;
+    }
+
+    function showAnswers() {
+      document.querySelectorAll('.blank-input').forEach(i => {
+        i.value = i.dataset.answer.charAt(0).toUpperCase() + i.dataset.answer.slice(1);
+        i.classList.add('correct');
+        i.disabled = true;
+      });
+      updateScore();
+    }
+
+    function resetQuiz() {
+      initializeQuiz();
+    }
+
+    window.onload = initializeQuiz;
+  </script>
+</body>
+</html>

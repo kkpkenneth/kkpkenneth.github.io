@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancient Civilizations - Continuous Gradual Continental Timelines</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Custom slider thumb with floating pointer tooltip */
+        input[type=range]::-webkit-slider-thumb {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            border: 3px solid #f59e0b;
+            position: relative;
+            z-index: 10;
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Header -->
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-black tracking-wider text-amber-400 flex items-center gap-2">
+                    <span>🏛️</span> Gradual Continental Timelines
+                </h1>
+                <p class="text-xs text-slate-400">Smooth Continuous Timeline Across All 7 Continents</p>
+            </div>
+            
+            <!-- Audio Toggle & Legend Button -->
+            <div class="flex items-center gap-3">
+                <button id="audio-toggle" onclick="toggleAudio()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow">
+                    <span id="audio-icon">🔊</span> <span id="audio-text">Sound Enabled</span>
+                </button>
+                <button onclick="toggleModal('legend-modal')" class="bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                    <span>🗺️</span> Continent Colors
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl w-full mx-auto px-4 py-8 flex-grow flex flex-col gap-6">
+
+        <!-- Gradual Master Slider Dashboard with Dynamic Floating Pointer -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-emerald-500 to-blue-500"></div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        Continuous Chronology Engine
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2 font-cinzel">
+                        Year Explorer: <span id="master-year-label" class="text-amber-400">3000 BCE</span>
+                    </h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="stepSlider(-100)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition">
+                        ◀ -100 Years
+                    </button>
+                    <button onclick="stepSlider(100)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition">
+                        +100 Years ▶
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gradual Slider with Following Pointer Tooltip -->
+            <div class="relative pt-8 pb-4">
+                <!-- Floating Year Pointer Tooltip -->
+                <div id="slider-pointer" class="absolute -top-1 -translate-x-1/2 bg-amber-500 text-slate-950 font-bold text-xs px-2.5 py-1 rounded-md shadow-lg transition-all pointer-events-none whitespace-nowrap z-30">
+                    3000 BCE
+                    <div class="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-amber-500 rotate-45"></div>
+                </div>
+
+                <!-- Continuous Range Slider (3500 BCE (-3500) to 2000 CE (2000)) -->
+                <input type="range" id="master-slider" min="-3500" max="2000" value="-3000" step="1" 
+                       class="w-full h-3 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-amber-500 transition-all relative z-20"
+                       oninput="onSliderMove(this.value)" onchange="onSliderCommit(this.value)">
+                
+                <!-- Axis Scale Ticks -->
+                <div class="flex justify-between text-[11px] text-slate-400 font-semibold px-1 mt-3">
+                    <span>3500 BCE</span>
+                    <span>2000 BCE</span>
+                    <span>1000 BCE</span>
+                    <span>1 BCE</span>
+                    <span>1000 CE</span>
+                    <span>2000 CE</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7 Parallel Continents Timeline Tracks -->
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-slate-300 font-cinzel flex items-center gap-2">
+                    <span>⚡</span> 7 Parallel Continental Timeline Tracks
+                </h3>
+                <span class="text-xs text-slate-400">Each continent runs its own independent continuous chronological timeline</span>
+            </div>
+
+            <!-- 7 Grid Columns (One for each continent) -->
+            <div id="parallel-tracks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
+                <!-- Populated dynamically via script -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Continent Color Legend Modal -->
+    <div id="legend-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-amber-400 font-cinzel">Continent Color Guide</h3>
+                <button onclick="toggleModal('legend-modal')" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            <div class="space-y-3 text-sm" id="legend-list">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="mt-6 text-right">
+                <button onclick="toggleModal('legend-modal')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition">
+                    Got It
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Civilization Detail Modal -->
+    <div id="civ-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+            <button onclick="toggleModal('civ-modal')" class="absolute right-4 top-4 text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+            
+            <div id="modal-continent-badge" class="inline-block text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3">Continent</div>
+            <h3 id="modal-civ-title" class="text-2xl font-bold text-white font-cinzel mb-1">Civilization Name</h3>
+            <p id="modal-civ-years" class="text-amber-400 font-semibold text-sm mb-4">c. Years BCE - CE</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Historical Overview</h4>
+                    <p id="modal-civ-desc" class="text-slate-300 text-sm leading-relaxed"></p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Major Achievements</h4>
+                    <ul id="modal-civ-achievements" class="space-y-1 text-xs text-slate-300 list-disc list-inside"></ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-right">
+                <button onclick="toggleModal('civ-modal')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs px-4 py-2 rounded-lg transition">
+                    Close Details
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900/60 border-t border-slate-800 py-4 text-center text-xs text-slate-400">
+        Gradual Continental Timelines &bull; World Civilizations Explorer
+    </footer>
+
+    <!-- Application Script & Web Audio Synthesizer -->
+    <script>
+        // Web Audio API Synthesizer for Immersive Soundscapes
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true;
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+
+            if (type === 'tick') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                gain.gain.setValueAtTime(0.02, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                osc.start(now);
+                osc.stop(now + 0.04);
+            } else if (type === 'select') {
+                const notes = [440, 554.37, 659.25];
+                notes.forEach((freq, idx) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'triangle';
+                    o.frequency.setValueAtTime(freq, now + (idx * 0.04));
+                    g.gain.setValueAtTime(0.04, now + (idx * 0.04));
+                    g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.04) + 0.15);
+                    o.start(now + (idx * 0.04));
+                    o.stop(now + (idx * 0.04) + 0.15);
+                });
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('audio-icon');
+            const text = document.getElementById('audio-text');
+            if (soundEnabled) {
+                icon.textContent = '🔊';
+                text.textContent = 'Sound Enabled';
+                playSound('tick');
+            } else {
+                icon.textContent = '🔇';
+                text.textContent = 'Sound Muted';
+            }
+        }
+
+        function toggleModal(modalId) {
+            playSound('tick');
+            const modal = document.getElementById(modalId);
+            modal.classList.toggle('hidden');
+        }
+
+        // 7 Continents Color Config
+        const continentConfig = {
+            "Africa": { hex: "#f59e0b", badgeClass: "bg-amber-500/20 text-amber-400 border-amber-500/30", borderClass: "border-amber-500/40", hoverBorder: "hover:border-amber-400" },
+            "Asia": { hex: "#ef4444", badgeClass: "bg-red-500/20 text-red-400 border-red-500/30", borderClass: "border-red-500/40", hoverBorder: "hover:border-red-400" },
+            "Europe": { hex: "#3b82f6", badgeClass: "bg-blue-500/20 text-blue-400 border-blue-500/30", borderClass: "border-blue-500/40", hoverBorder: "hover:border-blue-400" },
+            "North America": { hex: "#10b981", badgeClass: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", borderClass: "border-emerald-500/40", hoverBorder: "hover:border-emerald-400" },
+            "South America": { hex: "#ec4899", badgeClass: "bg-pink-500/20 text-pink-400 border-pink-500/30", borderClass: "border-pink-500/40", hoverBorder: "hover:border-pink-400" },
+            "Oceania": { hex: "#8b5cf6", badgeClass: "bg-purple-500/20 text-purple-400 border-purple-500/30", borderClass: "border-purple-500/40", hoverBorder: "hover:border-purple-400" },
+            "Antarctica": { hex: "#06b6d4", badgeClass: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30", borderClass: "border-cyan-500/40", hoverBorder: "hover:border-cyan-400" }
+        };
+
+        // Comprehensive Continuous Database for Each Continent with Start/End Years
+        const continentCivilizations = {
+            "Africa": [
+                { name: "Pristine Wilderness / Pre-Dynastic", start: -3500, end: -3100, desc: "Early pastoral and hunter-gatherer communities along the Nile and Sahara regions.", achievements: ["Rock art traditions", "Early cattle domestication", "Saharan riverine migration"] },
+                { name: "Ancient Egypt (Early Dynastic & Old Kingdom)", start: -3100, end: -2181, desc: "Unification of Upper and Lower Egypt under Narmer, monumental pyramid engineering at Giza.", achievements: ["Pyramids of Giza", "Hieroglyphic writing system", "Centralized Pharaonic state"] },
+                { name: "First Intermediate & Middle Kingdom", start: -2181, end: -1650, desc: "Reunification, classical arts, literature, and extensive southern trade with Nubia.", achievements: ["Classical Egyptian literature", "Faiyum irrigation projects", "Expansive Nubian trade"] },
+                { name: "New Kingdom (Egyptian Empire)", start: -1550, end: -1069, desc: "The Golden Age of imperial power, featuring Hatshepsut, Ramses II, and the Valley of the Kings.", achievements: ["Valley of the Kings tombs", "Temples of Karnak & Abu Simbel", "Imperial military dominance"] },
+                { name: "Kingdom of Kush (Napatan Era)", start: -1070, end: -590, desc: "Nubian kingdom ruling Egypt as the 25th Dynasty and building pyramids at Jebel Barkal.", achievements: ["25th Dynasty Pharaohs", "Pyramids of Jebel Barkal", "Iron metallurgy expansion"] },
+                { name: "Kingdom of Kush (Meroitic Period)", start: -590, end: 350, desc: "Capital shifted to Meroë; flourishing iron production and independent Meroitic script.", achievements: ["Pyramids of Meroë", "Independent Meroitic alphabet", "Vast iron smelting furnaces"] },
+                { name: "Kingdom of Aksum", start: 100, end: 940, desc: "Major East African trading empire connecting the Roman Empire and India, minting distinct currency.", achievements: ["Monolithic obelisks (Stelae)", "Distinct gold/silver coinage", "Early adoption of Christianity"] },
+                { name: "Ghana Empire & Swahili Coast", start: 300, end: 1200, desc: "West African gold-trading empire and flourishing East African maritime mercantile city-states.", achievements: ["Trans-Saharan gold trade", "Swahili coral-stone architecture", "Islamic scholarship integration"] },
+                { name: "Great Zimbabwe & Mali Empire", start: 1200, end: 1600, desc: "Famed for massive dry-stone architecture and Mansa Musa's legendary wealth and scholarship.", achievements: ["Great Zimbabwe stone walls", "Mansa Musa's gold pilgrimage", "Timbuktu University of Sankore"] },
+                { name: "Kingdom of Benin & Ashanti Empire", start: 1500, end: 2000, desc: "Renowned for exquisite brass casting, military organization, and modern African statecraft.", achievements: ["Benin Bronze sculptures", "Ashika golden stool traditions", "Advanced West African statecraft"] }
+            ],
+            "South America": [
+                { name: "Early Pre-Ceramic Coastal Communities", start: -3500, end: -3000, desc: "Early maritime hunter-gatherers and fishing communities along the Peruvian coast.", achievements: ["Marine resource harvesting", "Early woven cordage", "Shell midden settlements"] },
+                { name: "Norte Chico Civilization (Caral)", start: -3000, end: -1800, desc: "Complex pre-Columbian society featuring massive monumental architecture without pottery.", achievements: ["Monumental pyramid complexes", "Early irrigation canals", "Quipu record-keeping systems"] },
+                { name: "Andean Formative Period & Chavín", start: -1800, end: -200, desc: "Introduction of pottery, maize agriculture, and widespread Chavín religious iconography.", achievements: ["Subterranean temple galleries", "Maize and potato agriculture", "Master gold and silver metalwork"] },
+                { name: "Paracas & Early Nazca Culture", start: -700, end: 200, desc: "Coastal Peruvian societies renowned for exquisite textiles, trepanation medicine, and early geoglyphs.", achievements: ["Master textile weaving & embroidery", "Advanced cranial surgery", "Early geoglyph traditions"] },
+                { name: "Nazca & Moche Civilizations", start: 100, end: 800, desc: "Famous for the mysterious Nazca Lines geoglyphs and the Moche's exquisite portrait ceramics.", achievements: ["Nazca Lines geoglyphs", "Moche portrait pottery", "Huaca del Sol pyramids"] },
+                { name: "Wari & Tiwanaku Empires", start: 500, end: 1000, desc: "Dominant Andean highland empires pioneering administrative road networks and terrace agriculture.", achievements: ["High-altitude terrace agriculture", "State administrative architecture", "Polychrome textile arts"] },
+                { name: "Inca Empire (Tawantinsuyu)", start: 1438, end: 1533, desc: "Largest empire in pre-Columbian America, featuring Machu Picchu and vast Andean road systems.", achievements: ["Machu Picchu stone engineering", "Qhapaq Ñan road network", "Quipu knot-record system"] },
+                { name: "Colonial Era & Indigenous Resilience", start: 1530, end: 2000, desc: "Blending of Andean indigenous heritage with Spanish/European history, leading to independent republics.", achievements: ["Preservation of Quechua/Aymara", "Andean resistance movements", "Rich modern cultural synthesis"] }
+            ],
+            "Asia": [
+                { name: "Early Neolithic River Cultures (Yangshao/Longshan)", start: -3500, end: -2000, desc: "Early farming villages along the Yellow River mastering pottery, jade carving, and silk.", achievements: ["Painted pottery traditions", "Early jade carving", "Sericulture (silk production)"] },
+                { name: "Indus Valley Civilization (Harappan)", start: -2500, end: -1500, desc: "Advanced Bronze Age civilization in South Asia renowned for urban planning and sanitation.", achievements: ["Grid-based city planning", "Underground brick drainage", "Standardized weights & measures"] },
+                { name: "Xia & Shang Dynasty China", start: -2070, end: -1046, desc: "Early Chinese dynasties mastering bronze metallurgy, chariot warfare, and oracle bone writing.", achievements: ["Oracle bone script", "Mastery of bronze casting", "Chariot warfare"] },
+                { name: "Mesopotamian Empires (Sumer, Babylon, Assyria)", start: -3000, end: -539, desc: "Cradle of civilization in the Fertile Crescent, inventing cuneiform writing and legal codes.", achievements: ["Invention of Cuneiform", "Code of Hammurabi", "Vast imperial administrative systems"] },
+                { name: "Zhou Dynasty & Vedic Period India", start: -1046, end: -256, desc: "Philosophical golden age in China (Confucianism, Daoism) and Vedic composition in India.", achievements: ["Confucianism & Daoism", "Iron metallurgy revolution", "Vedic Sanskrit literature"] },
+                { name: "Maurya Empire & Qin/Han Dynasty", start: -321, end: 220, desc: "Unification of India under Ashoka and China under Qin/Han (Great Wall, Silk Road).", achievements: ["Ashoka's Edicts of tolerance", "Great Wall of China & Terracotta Army", "Invention of paper & Silk Road"] },
+                { name: "Gupta Empire & Tang/Song Dynasties", start: 320, end: 1279, desc: "Golden ages of science (zero/decimal system), poetry, printing, gunpowder, and compass navigation.", achievements: ["Decimal system & zero", "Invention of gunpowder & printing", "Magnetic compass navigation"] },
+                { name: "Khmer Empire (Angkor Wat) & Mongol Empire", start: 802, end: 1912, desc: "Construction of Angkor Wat; Mongol Empire; Ming/Qing Dynasties and Tokugawa Japan.", achievements: ["Angkor Wat temple complex", "The Forbidden City in Beijing", "Tokugawa artistic flowering"] }
+            ],
+            "Europe": [
+                { name: "Early Neolithic & Megalithic Builders", start: -3500, end: -2000, desc: "Construction of monumental megalithic structures like Stonehenge and passage tombs across Europe.", achievements: ["Stonehenge construction", "Newgrange passage tomb", "Early copper metallurgy"] },
+                { name: "Minoan & Mycenaean Civilizations", start: -2600, end: -1100, desc: "Bronze Age Aegean civilizations on Crete and mainland Greece featuring palaces and Linear B script.", achievements: ["Palace of Knossos", "Cyclopean citadel walls", "Linear B deciphered script"] },
+                { name: "Ancient Greece (Archaic & Classical)", start: -800, end: -323, desc: "Birthplace of democracy, philosophy, theater, and the Olympic Games in independent city-states.", achievements: ["Athenian democratic governance", "Western philosophy & mathematics", "The Parthenon architecture"] },
+                { name: "Roman Republic & Empire (Pax Romana)", start: -509, end: 476, desc: "Vast Mediterranean-spanning empire noted for monumental architecture, roads, and civil law.", achievements: ["Roman Colosseum & Aqueducts", "Corpus Juris Civilis (Law)", "Vast road and postal networks"] },
+                { name: "Byzantine Empire & Early Middle Ages", start: 476, end: 1453, desc: "Continuation of the Roman Empire in the East centered on Constantinople; rise of feudal Europe.", achievements: ["Hagia Sophia architecture", "Justinian Code of Law", "Illuminated manuscripts"] },
+                { name: "High Middle Ages & Renaissance", start: 1000, end: 1600, desc: "Construction of Gothic cathedrals, founding of universities, and the birth of the Renaissance.", achievements: ["Gothic cathedrals (Notre-Dame)", "Founding of European universities", "Italian Renaissance art and printing"] },
+                { name: "Enlightenment, Industrial Era & Modern Europe", start: 1600, end: 2000, desc: "Scientific revolution, industrialization, and modern democratic nation-states.", achievements: ["Scientific Revolution & Physics", "Industrial Revolution", "Universal Human Rights charters"] }
+            ],
+            "North America": [
+                { name: "Archaic Hunter-Gatherers & Early Horticulturalists", start: -3500, end: -1500, desc: "Early indigenous communities developing regional trade, riverine foraging, and shell mounds.", achievements: ["Early horticulture", "Poverty Point earthworks", "Extensive riverine trade"] },
+                { name: "Olmec Civilization (Mesoamerica's Mother Culture)", start: -1400, end: -400, desc: "Tropical lowlands civilization constructing massive ceremonial centers and colossal stone heads.", achievements: ["Colossal basalt stone heads", "Mesoamerican calendar systems", "Early ritual ballgames"] },
+                { name: "Zapotec & Teotihuacan Civilizations", start: -500, end: 900, desc: "Hilltop metropolis of Monte Albán and the massive central Mexican city of Teotihuacan.", achievements: ["Monte Albán hilltop city", "Pyramid of the Sun & Moon", "Zapotec writing system"] },
+                { name: "Classic Maya Civilization", start: 250, end: 900, desc: "Mesoamerican civilization noted for fully developed hieroglyphic writing, art, and astronomy.", achievements: ["Advanced Long Count calendar", "Sophisticated hieroglyphic writing", "Stepped pyramid temples (Tikal)"] },
+                { name: "Mississippian Culture & Cahokia", start: 800, end: 1600, desc: "Mound-building Native American civilization featuring the massive metropolis of Cahokia.", achievements: ["Cahokia Monks Mound", "Extensive continental trade", "Complex chiefdom structures"] },
+                { name: "Ancestral Puebloan Cliff Dwellings", start: 200, end: 1300, desc: "Southwestern Native American culture famed for cliff dwellings carved into sandstone canyons.", achievements: ["Mesa Verde cliff palaces", "Chaco Canyon solar observatories", "Dry-land farming techniques"] },
+                { name: "Modern United States, Canada & Mexico", start: 1600, end: 2000, desc: "Formation of modern democratic industrial nations rooted in indigenous heritage and immigration.", achievements: ["Constitutional democracies", "Technological innovation", "Multicultural societal integration"] }
+            ],
+            "Oceania": [
+                { name: "Early Lapita Ancestors & Voyagers", start: -1600, end: -1000, desc: "Pioneering maritime Austronesian voyagers migrating through Island Melanesia.", achievements: ["Distinct dentate pottery", "Outrigger canoe voyaging", "Seafaring colonization"] },
+                { name: "Polynesian Maritime Expansion", start: -1000, end: 500, desc: "Sailors mastering deep-ocean navigation and settling remote Pacific archipelagos.", achievements: ["Celestial navigation mastery", "Double-hulled voyaging canoes", "Colonization of Western Polynesia"] },
+                { name: "East Polynesian Expansion (Hawaii, Rapa Nui, Aotearoa)", start: 300, end: 1300, desc: "Settlement of remote eastern triangles including Hawaii, Easter Island, and New Zealand.", achievements: ["Long-distance trans-oceanic navigation", "Monumental Moai carving", "Polynesian migration to Aotearoa"] },
+                { name: "Tu'i Tonga Maritime Empire", start: 950, end: 1865, desc: "Thriving maritime empire based in Tonga exerting political and cultural influence across Polynesia.", achievements: ["Ha'amonga 'a Maui trilithon", "Extensive Pacific tribute network", "Polynesian imperial governance"] },
+                { name: "Modern Pacific Nations & Commonwealths", start: 1800, end: 2000, desc: "Independent island nations, Australia, and New Zealand balancing ancient traditions with modern governance.", achievements: ["Preservation of Wayfinding traditions", "Modern Pacific parliamentary democracies", "Environmental conservation leadership"] }
+            ],
+            "Antarctica": [
+                { name: "Pristine Glacial Continent", start: -3500, end: 1820, desc: "Unexplored and untouched glacial wilderness devoid of human presence, preserving ancient ice cores.", achievements: ["Pristine ice sheet formation", "Marine ecosystem sanctuary", "Scientific time capsule"] },
+                { name: "Heroic Age of Antarctic Exploration", start: 1820, end: 1959, desc: "Pioneering polar expeditions by explorers like Amundsen, Scott, and Shackleton mapping the ice.", achievements: ["First reaching the South Pole", "Endurance expedition survival", "Mapping uncharted coastlines"] },
+                { name: "Modern Scientific Era & Antarctic Treaty", start: 1959, end: 2000, desc: "Establishment of the Antarctic Treaty System dedicating the continent entirely to peaceful science.", achievements: ["The Antarctic Treaty System", "Pioneering climate ice-core research", "Global environmental protection"] }
+            ]
+        };
+
+        // Initialize App
+        function initApp() {
+            // Populate Legend Modal
+            const legendList = document.getElementById('legend-list');
+            legendList.innerHTML = Object.keys(continentConfig).map(cont => {
+                const conf = continentConfig[cont];
+                return `<div class="flex items-center justify-between p-2 rounded-lg bg-slate-950/50 border border-slate-800">
+                    <span class="font-semibold text-slate-200">${cont}</span>
+                    <span class="w-4 h-4 rounded-full shadow" style="background-color: ${conf.hex};"></span>
+                </div>`;
+            }).join('');
+
+            updateMasterDisplay(-3000);
+        }
+
+        function formatYear(yearNum) {
+            if (yearNum < 0) {
+                return `${Math.abs(yearNum)} BCE`;
+            } else if (yearNum === 0) {
+                return `1 CE`;
+            } else {
+                return `${yearNum} CE`;
+            }
+        }
+
+        function onSliderMove(val) {
+            updateMasterDisplay(parseInt(val));
+        }
+
+        function onSliderCommit(val) {
+            playSound('select');
+            updateMasterDisplay(parseInt(val));
+        }
+
+        function stepSlider(amount) {
+            const slider = document.getElementById('master-slider');
+            let newVal = parseInt(slider.value) + amount;
+            if (newVal < parseInt(slider.min)) newVal = parseInt(slider.min);
+            if (newVal > parseInt(slider.max)) newVal = parseInt(slider.max);
+            slider.value = newVal;
+            playSound('select');
+            updateMasterDisplay(newVal);
+        }
+
+        function updateMasterDisplay(currentYear) {
+            // Update Year Label & Floating Pointer Position
+            document.getElementById('master-year-label').textContent = formatYear(currentYear);
+            
+            const slider = document.getElementById('master-slider');
+            const min = parseInt(slider.min);
+            const max = parseInt(slider.max);
+            const percent = (currentYear - min) / (max - min);
+            
+            const pointer = document.getElementById('slider-pointer');
+            const sliderWidth = slider.offsetWidth;
+            // Calculate pixel position dynamically
+            const pointerLeft = percent * sliderWidth;
+            pointer.style.left = `${Math.max(20, Math.min(sliderWidth - 20, pointerLeft))}px`;
+            pointer.textContent = formatYear(currentYear);
+
+            // Render 7 parallel continental tracks
+            const container = document.getElementById('parallel-tracks-container');
+            const continents = Object.keys(continentConfig);
+
+            container.innerHTML = continents.map(cont => {
+                const conf = continentConfig[cont];
+                const civsInContinent = continentCivilizations[cont];
+
+                // Find active civilization for the current year
+                const activeCiv = civsInContinent.find(c => currentYear >= c.start && currentYear <= c.end) || {
+                    name: "Dormant / Era Transition",
+                    start: currentYear,
+                    end: currentYear,
+                    desc: "Transition between established eras or undocumented local traditions in this epoch.",
+                    achievements: ["Regional adaptation", "Oral storytelling traditions", "Sustainable local ecology"]
+                };
+
+                return `
+                <div class="bg-slate-900/80 border ${conf.borderClass} ${conf.hoverBorder} rounded-2xl p-4 flex flex-col justify-between transition-all duration-200 shadow-xl relative overflow-hidden group">
+                    <!-- Top color indicator bar -->
+                    <div class="absolute top-0 left-0 right-0 h-1.5" style="background-color: ${conf.hex};"></div>
+
+                    <div>
+                        <!-- Continent Name & Badge -->
+                        <div class="flex justify-between items-center mb-2 pt-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${conf.badgeClass}">
+                                ${cont}
+                            </span>
+                            <span class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${conf.hex};"></span>
+                        </div>
+
+                        <!-- Active Civilization Title -->
+                        <h4 class="text-base font-bold text-white font-cinzel mb-1 group-hover:text-amber-300 transition line-clamp-2">
+                            ${activeCiv.name}
+                        </h4>
+                        <p class="text-[11px] text-amber-400 font-semibold mb-3">c. ${formatYear(activeCiv.start)} – ${formatYear(activeCiv.end)}</p>
+
+                        <!-- Description -->
+                        <p class="text-xs text-slate-300 leading-relaxed mb-4 line-clamp-3">
+                            ${activeCiv.desc}
+                        </p>
+                    </div>
+
+                    <!-- Action Button to View Details -->
+                    <button onclick='openCivModal(${JSON.stringify(activeCiv)}, "${cont}", "${conf.hex}", "${conf.badgeClass}")' class="w-full bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-semibold py-2 px-3 rounded-xl border border-slate-700 transition flex items-center justify-center gap-1 shadow">
+                        <span>🔍</span> View Details
+                    </button>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function openCivModal(civ, continent, hexColor, badgeClass) {
+            playSound('tick');
+            document.getElementById('modal-continent-badge').textContent = continent;
+            document.getElementById('modal-continent-badge').className = `inline-block text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3 border ${badgeClass}`;
+            
+            document.getElementById('modal-civ-title').textContent = civ.name;
+            document.getElementById('modal-civ-years').textContent = `c. ${formatYear(civ.start)} – ${formatYear(civ.end)}`;
+            document.getElementById('modal-civ-desc').textContent = civ.desc;
+
+            const achList = document.getElementById('modal-civ-achievements');
+            achList.innerHTML = civ.achievements.map(a => `<li>${a}</li>`).join('');
+
+            toggleModal('civ-modal');
+        }
+
+        // Initialize on load
+        window.onload = initApp;
+    </script>
+</body>
+</html>

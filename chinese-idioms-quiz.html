@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>文筆鑑賞挑戰</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: #f4f4f9; 
+            margin: 0; 
+        }
+        .quiz-container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            width: 90%; 
+            max-width: 500px; 
+            text-align: center;
+        }
+        .quiz-container p {
+            text-align: left;
+        }
+        button { 
+            display: block; 
+            width: 100%; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            background: #fff; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            text-align: left; 
+            transition: 0.2s; 
+            font-size: 16px; 
+        }
+        button:hover { 
+            background: #eef2f7; 
+            border-color: #007bff; 
+        }
+        .start-btn {
+            text-align: center;
+            background: #007bff;
+            color: white;
+            border: none;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .start-btn:hover {
+            background: #0056b3;
+        }
+        #score-board { 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            color: #555; 
+            text-align: left;
+        }
+        #quiz-screen {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 背景音樂 -->
+<audio id="bgm" src="classical.mp3" loop></audio>
+
+<!-- 開始畫面 -->
+<div class="quiz-container" id="start-screen">
+    <h2>文筆鑑賞挑戰</h2>
+    <p style="text-align: center; color: #666;">總共 50 題，準備好測試你的成語實力了嗎？</p>
+    <button class="start-btn" onclick="startGame()">開始測驗</button>
+</div>
+
+<!-- 測驗畫面 -->
+<div class="quiz-container" id="quiz-screen">
+    <div id="score-board">當前得分：0</div>
+    <div id="q-box"></div>
+</div>
+
+<script>
+    const data = [
+        { q: "形容人做事不慌不忙，非常有把握。", a: "他從容不迫，鎮定自若。" },
+        { q: "形容人說話囉嗦，反覆說同樣的話。", a: "他喋喋不休，老調重彈。" },
+        { q: "形容聲音非常響亮，傳得很遠。", a: "他聲如洪鐘，響徹雲霄。" },
+        { q: "形容做事情非常認真，一點也不馬虎。", a: "他一絲不苟，腳踏實地。" },
+        { q: "形容東西非常破舊，快要不能用了。", a: "這已是破爛不堪，陳舊老朽。" },
+        { q: "形容情況非常危險，就在那一瞬間。", a: "當時千鈞一髮，命懸一線。" },
+        { q: "形容人很有學問，懂得很多。", a: "他博學多才，學富五車。" },
+        { q: "形容天氣非常熱，像被火烤一樣。", a: "今日烈日炎炎，揮汗如雨。" },
+        { q: "形容人做事很快，一點也不拖延。", a: "他雷厲風行，乾淨俐落。" },
+        { q: "形容人說話很幽默，讓大家發笑。", a: "他幽默風趣，妙語如珠。" },
+        { q: "形容心情非常難過，心像碎了一樣。", a: "他痛心疾首，肝腸寸斷。" },
+        { q: "形容人非常有禮貌，態度很客氣。", a: "他謙謙君子，彬彬有禮。" },
+        { q: "形容環境非常安靜，沒有聲音。", a: "這裡萬籟俱寂，靜若無人。" },
+        { q: "形容人做事很小心，怕出錯。", a: "他謹小慎微，如履薄冰。" },
+        { q: "形容人很有自信，不害怕失敗。", a: "他信心滿滿，義無反顧。" },
+        { q: "形容人群聚集在一起，非常熱鬧。", a: "他們人山人海，摩肩接踵。" },
+        { q: "形容事情變得非常複雜，很難解決。", a: "情況錯綜複雜，棘手難辦。" },
+        { q: "形容人很有志氣，想要做大事。", a: "他志存高遠，壯志凌雲。" },
+        { q: "形容人走路很輕，怕吵到別人。", a: "他腳步輕盈，悄無聲息。" },
+        { q: "形容天氣很冷，手腳都凍僵了。", a: "天寒地凍，滴水成冰。" },
+        { q: "形容人很有毅力，不怕困難。", a: "他持之以恆，百折不撓。" },
+        { q: "形容人對事情看得很清楚，不被騙。", a: "他明察秋毫，洞若觀火。" },
+        { q: "形容人很有名，大家都知道他。", a: "他家喻戶曉，名聞遐邇。" },
+        { q: "形容事情突然發生，讓人意外。", a: "這件事突如其來，措手不及。" },
+        { q: "形容人很懶，什麼事都不想做。", a: "他好吃懶做，遊手好閒。" },
+        { q: "形容人很富有，家裡很有錢。", a: "他腰纏萬貫，富甲一方。" },
+        { q: "形容事情做得非常完美，沒缺點。", a: "他盡善盡美，無懈可擊。" },
+        { q: "形容人很有勇氣，不怕壞人。", a: "他大義凜然，無所畏懼。" },
+        { q: "形容東西很珍貴，很難得。", a: "這稀世珍寶，價值連城。" },
+        { q: "形容人因為生氣，全身都在發抖。", a: "他怒髮衝冠，渾身顫抖。" },
+        { q: "形容做事情要從小處開始，慢慢累積。", a: "積沙成塔，聚腋成裘。" },
+        { q: "形容人做事情不考慮後果，很衝動。", a: "他魯莽行事，不計後果。" },
+        { q: "形容天氣一直下雨，沒完沒了。", a: "陰雨連綿，沒完沒了。" },
+        { q: "形容人看東西很專注，什麼都沒注意到。", a: "他目不轉睛，渾然忘我。" },
+        { q: "形容人的想法很特別，跟大家不一樣。", a: "他別出心裁，獨樹一幟。" },
+        { q: "形容這件事已經說過很多次了。", a: "這件事老生常談，不厭其煩。" },
+        { q: "形容人對於過去的事情感到後悔。", a: "他悔不當初，追悔莫及。" },
+        { q: "形容這地方以前很熱鬧，現在卻很冷清。", a: "這裡門可羅雀，冷冷清清。" },
+        { q: "形容做事情要一步一步來，不能急。", a: "循序漸進，水到渠成。" },
+        { q: "形容人很膽小，什麼都不敢做。", a: "他膽小如鼠，畏首畏尾。" },
+        { q: "形容人很有氣質，給人感覺很好。", a: "他儀態萬千，氣宇軒昂。" },
+        { q: "形容事情已經定下來了，不能改了。", a: "這件事板上釘釘，不容置疑。" },
+        { q: "形容東西非常小，看得不清楚。", a: "這微不足道，細如毫芒。" },
+        { q: "形容這是一個很大的挑戰，很難贏。", a: "這是一場硬仗，勝負難料。" },
+        { q: "形容做事情要大家一起幫忙才會成功。", a: "眾志成城，其利斷金。" },
+        { q: "形容這地方到處都是垃圾，很髒。", a: "這裡髒亂不堪，污穢滿地。" },
+        { q: "形容人學習知識要從頭開始。", a: "循序漸進，由淺入深。" },
+        { q: "形容人非常大方，願意分享。", a: "他慷慨解囊，樂善好施。" },
+        { q: "形容人因為害怕，臉色都變了。", a: "他面如土色，驚魂未定。" },
+        { q: "形容雖然遇到困難，但最後還是成功了。", a: "歷經磨難，終成大器。" }
+    ];
+
+    const allAnswers = data.map(item => item.a);
+
+    let current = 0;
+    let score = 0;
+    let audioCtx;
+
+    function startGame() {
+        // 切換畫面
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+
+        // 初始化音效 (必須在使用者點擊後建立)
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // 播放背景音樂
+        const bgm = document.getElementById('bgm');
+        bgm.volume = 0.3; // 將背景音樂調小聲一點，避免蓋過音效
+        bgm.play().catch(e => console.log("BGM 播放失敗：", e));
+
+        render();
+    }
+
+    function playSound(freq) {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function handleAnswer(points) {
+        score += points;
+        playSound(points === 1 ? 880 : 220);
+        current++;
+        render();
+    }
+
+    function render() {
+        if (current >= data.length) {
+            document.getElementById('q-box').innerHTML = `<h3 style="text-align:center;">測驗結束！總分：${score} / ${data.length}</h3>`;
+            document.getElementById('score-board').style.display = 'none';
+            return;
+        }
+
+        const currentData = data[current];
+        const correctAns = currentData.a;
+        
+        let distractors = [];
+        while (distractors.length < 3) {
+            let randomIndex = Math.floor(Math.random() * allAnswers.length);
+            let randomAns = allAnswers[randomIndex];
+            if (randomAns !== correctAns && !distractors.includes(randomAns)) {
+                distractors.push(randomAns);
+            }
+        }
+
+        let options = [
+            { t: correctAns, p: 1 },
+            { t: distractors[0], p: 0 },
+            { t: distractors[1], p: 0 },
+            { t: distractors[2], p: 0 }
+        ];
+
+        options.sort(() => Math.random() - 0.5);
+        
+        document.getElementById('score-board').innerText = `當前得分：${score}`;
+        document.getElementById('q-box').innerHTML = `
+            <p><strong>${current + 1}. ${currentData.q}</strong></p>
+            ${options.map(o => `<button onclick="handleAnswer(${o.p})">${o.t}</button>`).join('')}
+        `;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Spellcaster: A-Z Mythical Beasts</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Nunito:wght@400;700&display=swap');
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #0f0c29;
+        background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+        color: white;
+        font-family: 'Nunito', sans-serif;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        touch-action: none;
+    }
+
+    #game-container {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        height: 100%;
+        max-height: 800px;
+        background: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        border: 2px solid #5a4b81;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: rgba(15, 12, 41, 0.95);
+        z-index: 10;
+        text-align: center;
+        transition: opacity 0.3s;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 3rem;
+        margin-bottom: 10px;
+        color: #e0c3fc;
+        text-shadow: 0 0 10px #8ec5fc;
+    }
+
+    h2 {
+        font-family: 'Cinzel', serif;
+        color: #ffb75e;
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .char-btn {
+        background: rgba(74, 0, 224, 0.3);
+        border: 2px solid #c9a5ff;
+        color: white;
+        font-size: 1.2rem;
+        padding: 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .char-btn img {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+    }
+
+    .char-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px #c9a5ff;
+        background: rgba(142, 45, 226, 0.5);
+    }
+
+    button {
+        background: linear-gradient(to right, #8e2de2, #4a00e0);
+        border: 2px solid #c9a5ff;
+        color: white;
+        font-size: 1.5rem;
+        padding: 15px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px #c9a5ff;
+    }
+
+    #ui-layer {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none;
+    }
+
+    .health-bar-container {
+        position: absolute;
+        top: 20px;
+        width: 250px;
+        background: rgba(0,0,0,0.6);
+        border: 2px solid #555;
+        border-radius: 10px;
+        padding: 5px;
+    }
+
+    #player-ui { left: 20px; }
+    #monster-ui { right: 20px; text-align: right; }
+
+    .health-bar-fill {
+        height: 20px;
+        border-radius: 5px;
+        transition: width 0.2s;
+    }
+
+    #player-hp { background: #4facfe; width: 100%; }
+    #monster-hp { background: #ff0844; width: 100%; }
+
+    .name-tag {
+        font-family: 'Cinzel', serif;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 2px black;
+    }
+
+    #level-display {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: 'Cinzel', serif;
+        font-size: 1.5rem;
+        color: gold;
+        text-shadow: 0 0 5px orange;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        h1 { font-size: 2rem; }
+        .btn-container { gap: 15px; margin-top: 20px; }
+        .char-btn { padding: 15px; font-size: 1rem; }
+        .char-btn img { width: 50px; height: 50px; }
+        .health-bar-container { width: 120px; top: 10px; }
+        #player-ui { left: 10px; }
+        #monster-ui { right: 10px; }
+        .name-tag { font-size: 0.9rem; }
+        .health-bar-fill { height: 12px; }
+        #level-display { font-size: 1.2rem; top: 10px; width: 100%; pointer-events: none; }
+        #start-screen p { font-size: 1rem !important; }
+    }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui-layer" class="hidden">
+        <div class="health-bar-container" id="player-ui">
+            <div class="name-tag" id="player-name">Sorcerer</div>
+            <div style="background: #333; border-radius: 5px;">
+                <div class="health-bar-fill" id="player-hp"></div>
+            </div>
+        </div>
+        
+        <div id="level-display">Level: A</div>
+
+        <div class="health-bar-container" id="monster-ui">
+            <div class="name-tag" id="monster-name">Ammit</div>
+            <div style="background: #333; border-radius: 5px; display: flex; justify-content: flex-end;">
+                <div class="health-bar-fill" id="monster-hp"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-screen" class="overlay">
+        <h1>Spellcaster</h1>
+        <p style="font-size: 1.2rem; max-width: 600px;">Trace the glowing runes to attack the mythical beasts! Faster tracing deals more damage.</p>
+        <div class="btn-container">
+            <button class="char-btn" onclick="startGame('M')">
+                <img src="wizard-1.png" alt="Sorcerer" onerror="this.style.display='none'">
+                Sorcerer
+            </button>
+            <button class="char-btn" onclick="startGame('F')">
+                <img src="witch-1.png" alt="Witch" onerror="this.style.display='none'">
+                Witch
+            </button>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="overlay hidden">
+        <h1 style="color: #ff4b4b;">Defeated</h1>
+        <p>The beasts overwhelmed your magic.</p>
+        <button onclick="location.reload()" style="margin-top: 20px;">Try Again</button>
+    </div>
+
+    <div id="victory-screen" class="overlay hidden">
+        <h1 style="color: #56ab2f;">Victory!</h1>
+        <p>You have conquered all 26 Mythical Beasts.</p>
+        <button onclick="location.reload()" style="margin-top: 20px;">Play Again</button>
+    </div>
+</div>
+
+<script>
+    // Initialize DOM Elements
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const startScreen = document.getElementById('start-screen');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const victoryScreen = document.getElementById('victory-screen');
+    const uiLayer = document.getElementById('ui-layer');
+    const playerHpBar = document.getElementById('player-hp');
+    const monsterHpBar = document.getElementById('monster-hp');
+    const playerNameTxt = document.getElementById('player-name');
+    const monsterNameTxt = document.getElementById('monster-name');
+    const levelDisplay = document.getElementById('level-display');
+
+    // Initialize Higher-Res Data Arrays for smoother curves
+    const letterPaths = {
+        'A': [ [[2,0], [0,4]], [[2,0], [4,4]], [[1,2], [3,2]] ],
+        'B': [ [[0,0], [0,4]], [[0,0], [2,0], [3,0.2], [3.8,1], [3,1.8], [2,2], [0,2]], [[0,2], [2,2], [3,2.2], [3.8,3], [3,3.8], [2,4], [0,4]] ],
+        'C': [ [[4,0.5], [3,0], [1,0], [0.2,0.8], [0,2], [0.2,3.2], [1,4], [3,4], [4,3.5]] ],
+        'D': [ [[0,0], [0,4]], [[0,0], [2,0], [3,0.4], [3.8,1.5], [3.8,2.5], [3,3.6], [2,4], [0,4]] ],
+        'E': [ [[0,0], [0,4]], [[0,0], [4,0]], [[0,2], [3,2]], [[0,4], [4,4]] ],
+        'F': [ [[0,0], [0,4]], [[0,0], [4,0]], [[0,2], [3,2]] ],
+        'G': [ [[4,1], [3.5,0.2], [2.5,0], [1,0.2], [0.2,1], [0,2], [0.2,3], [1,3.8], [2.5,4], [3.8,3.2], [4,2.5], [2.5,2.5]] ],
+        'H': [ [[0,0], [0,4]], [[4,0], [4,4]], [[0,2], [4,2]] ],
+        'I': [ [[2,0], [2,4]], [[1,0], [3,0]], [[1,4], [3,4]] ],
+        'J': [ [[4,0], [4,2.5], [3.5,3.5], [2.5,4], [1.5,4], [0.5,3.5], [0,2.5]] ],
+        'K': [ [[0,0], [0,4]], [[4,0], [0,2]], [[0,2], [4,4]] ],
+        'L': [ [[0,0], [0,4], [4,4]] ],
+        'M': [ [[0,4], [0,0], [2,2], [4,0], [4,4]] ],
+        'N': [ [[0,4], [0,0], [4,4], [4,0]] ],
+        'O': [ [[2,0], [0.8,0.3], [0,1.5], [0,2.5], [0.8,3.7], [2,4], [3.2,3.7], [4,2.5], [4,1.5], [3.2,0.3], [2,0]] ],
+        'P': [ [[0,0], [0,4]], [[0,0], [2,0], [3,0.2], [3.8,1], [3,1.8], [2,2], [0,2]] ],
+        'Q': [ [[2,0], [0.8,0.3], [0,1.5], [0,2.5], [0.8,3.7], [2,4], [3.2,3.7], [4,2.5], [4,1.5], [3.2,0.3], [2,0]], [[2.5,2.5], [4,4]] ],
+        'R': [ [[0,0], [0,4]], [[0,0], [2,0], [3,0.2], [3.8,1], [3,1.8], [2,2], [0,2]], [[1.5,2], [4,4]] ],
+        'S': [ [[4,1], [3,0], [1.5,0], [0.5,0.8], [0.5,1.5], [1.5,2], [3,2.5], [3.8,3.2], [3.5,4], [1.5,4], [0,3]] ],
+        'T': [ [[2,0], [2,4]], [[0,0], [4,0]] ],
+        'U': [ [[0,0], [0,2.5], [0.5,3.5], [1.5,4], [2.5,4], [3.5,3.5], [4,2.5], [4,0]] ],
+        'V': [ [[0,0], [2,4], [4,0]] ],
+        'W': [ [[0,0], [1,4], [2,2], [3,4], [4,0]] ],
+        'X': [ [[0,0], [4,4]], [[4,0], [0,4]] ],
+        'Y': [ [[0,0], [2,2]], [[4,0], [2,2], [2,4]] ],
+        'Z': [ [[0,0], [4,0], [0,4], [4,4]] ]
+    };
+
+    const monsters = [
+        { letter: 'A', name: 'Ammit', icon: '🐊' },
+        { letter: 'B', name: 'Banshee', icon: '👻' },
+        { letter: 'C', name: 'Chimera', icon: '🦁' },
+        { letter: 'D', name: 'Dragon', icon: '🐉' },
+        { letter: 'E', name: 'Elf', icon: '🧝' },
+        { letter: 'F', name: 'Fairy', icon: '🧚' },
+        { letter: 'G', name: 'Golem', icon: '🪨' },
+        { letter: 'H', name: 'Hydra', icon: '🐍' },
+        { letter: 'I', name: 'Imp', icon: '👿' },
+        { letter: 'J', name: 'Jiangsi', icon: '🧛‍♂️' },
+        { letter: 'K', name: 'Kraken', icon: '🦑' },
+        { letter: 'L', name: 'Leviathan', icon: '🐋' },
+        { letter: 'M', name: 'Minotaur', icon: '🐂' },
+        { letter: 'N', name: 'Naga', icon: '🐍' },
+        { letter: 'O', name: 'Ogre', icon: '👹' },
+        { letter: 'P', name: 'Pegasus', icon: '🦄' },
+        { letter: 'Q', name: 'Quetzalcoatl', icon: '🪶' },
+        { letter: 'R', name: 'Raiju', icon: '⚡' },
+        { letter: 'S', name: 'Sphinx', icon: '🐈' },
+        { letter: 'T', name: 'Troll', icon: '🧌' },
+        { letter: 'U', name: 'Unicorn', icon: '🦄' },
+        { letter: 'V', name: 'Vampire', icon: '🧛' },
+        { letter: 'W', name: 'Wendigo', icon: '🦌' },
+        { letter: 'X', name: 'Xanthus', icon: '🐎' },
+        { letter: 'Y', name: 'Yeti', icon: '🦍' },
+        { letter: 'Z', name: 'Zombie', icon: '🧟' }
+    ];
+
+    // Initialize Game State Variables
+    let gameState = 'START'; 
+    let level = 0;
+    let player = { type: 'M', hp: 300, maxHp: 300, baseDamage: 40, x: 100, y: 300, state: 'idle', stateTimer: 0 };
+    let monster = { ...monsters[0], hp: 100, maxHp: 100, attackTimer: 3000, maxTimer: 3000, x: 700, y: 300 };
+    let lastTime = 0;
+    
+    let tracePoints = []; 
+    let intendedStrokes = []; 
+    let currentTargetPoint = 0;
+    let isDrawing = false;
+    let traceStartTime = 0;
+    const TOLERANCE = 45; 
+
+    let projectiles = [];
+    let floatTexts = [];
+    let particles = [];
+
+    // Initialize Sizing Variables
+    let width, height;
+    let traceBoxSize = 250;
+
+    // Setup Resize Handler
+    function resize() {
+        width = canvas.width = canvas.offsetWidth || window.innerWidth;
+        height = canvas.height = canvas.offsetHeight || window.innerHeight;
+        traceBoxSize = Math.min(250, Math.min(width, height) * 0.7);
+        
+        if (gameState === 'PLAYING') {
+            buildTracePoints(monster.letter);
+        }
+    }
+    window.addEventListener('resize', resize);
+    resize(); 
+
+    // Setup Images
+    const wizardSprites = {
+        idle: new Image(), prep: new Image(), cast: new Image(), recover: new Image()
+    };
+    wizardSprites.idle.src = 'wizard-1.png';
+    wizardSprites.prep.src = 'wizard-2.png';
+    wizardSprites.cast.src = 'wizard-3.png';
+    wizardSprites.recover.src = 'wizard-4.png';
+    const wizardSpellImg = new Image(); wizardSpellImg.src = 'wizard-spell.png';
+
+    const witchSprites = {
+        idle: new Image(), prep: new Image(), cast: new Image(), recover: new Image()
+    };
+    witchSprites.idle.src = 'witch-1.png';
+    witchSprites.prep.src = 'witch-2.png';
+    witchSprites.cast.src = 'witch-3.png';
+    witchSprites.recover.src = 'witch-4.png';
+    const witchSpellImg = new Image(); witchSpellImg.src = 'witch-spell.png';
+
+    // Setup Audio & TTS
+    let availableVoices = [];
+    if ('speechSynthesis' in window) {
+        const loadVoices = () => {
+            availableVoices = window.speechSynthesis.getVoices();
+        };
+        loadVoices();
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    let audioCtx;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playTone(freq, type, duration, vol=0.1) {
+        if (!audioCtx) return null;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+
+        osc.onended = () => {
+            osc.disconnect();
+            gain.disconnect();
+        };
+        return osc;
+    }
+
+    function playSoundEffect(effect) {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        
+        if (effect === 'playerShoot') {
+            const osc = playTone(400, 'sine', 0.4, 0.2);
+            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+        } else if (effect === 'monsterShoot') {
+            const osc = playTone(150, 'sawtooth', 0.4, 0.2);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.3);
+        } else if (effect === 'hit') {
+            const osc = playTone(100, 'square', 0.2, 0.2);
+            osc.frequency.exponentialRampToValueAtTime(20, now + 0.1);
+        } else if (effect === 'levelUp') {
+            playTone(440, 'sine', 0.3, 0.1); 
+            setTimeout(() => playTone(554.37, 'sine', 0.3, 0.1), 100); 
+            setTimeout(() => playTone(659.25, 'sine', 0.6, 0.1), 200); 
+        } else if (effect === 'gameOver') {
+            playTone(200, 'sawtooth', 1.0, 0.3);
+            setTimeout(() => playTone(150, 'sawtooth', 1.5, 0.3), 300);
+        }
+    }
+
+    function pronounceLetter(letter) {
+        if ('speechSynthesis' in window) {
+            try {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(letter);
+                
+                let targetVoice = availableVoices.find(v => v.lang === 'en-PK' || v.lang === 'ur-PK');
+                if (!targetVoice) targetVoice = availableVoices.find(v => v.lang.startsWith('en-IN') || v.lang === 'hi-IN');
+
+                if (targetVoice) utterance.voice = targetVoice;
+                else utterance.lang = 'en-US';
+
+                utterance.rate = 0.85; 
+                utterance.pitch = 1.1; 
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.warn("Speech synthesis error", e);
+            }
+        }
+    }
+
+    // Core Game Functions
+    function startGame(charType) {
+        initAudio(); 
+        
+        player.type = charType;
+        player.state = 'idle';
+        player.stateTimer = 0;
+        
+        playerNameTxt.innerText = charType === 'M' ? 'Sorcerer' : 'Witch';
+        startScreen.classList.add('hidden');
+        uiLayer.classList.remove('hidden');
+
+        level = 0;
+        player.maxHp = 300;
+        player.hp = player.maxHp;
+        
+        resize();
+        
+        loadLevel(0);
+        gameState = 'PLAYING';
+        lastTime = performance.now();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function loadLevel(lvl) {
+        if (lvl >= monsters.length) {
+            gameState = 'END';
+            uiLayer.classList.add('hidden');
+            victoryScreen.classList.remove('hidden');
+            playSoundEffect('levelUp');
+            return;
+        }
+        
+        const mBase = monsters[lvl];
+        monster.letter = mBase.letter;
+        monster.name = mBase.name;
+        monster.icon = mBase.icon;
+        
+        monster.maxHp = Math.floor(100 * Math.pow(1.15, lvl));
+        monster.hp = monster.maxHp;
+        monster.maxTimer = Math.max(1500, 3500 - (lvl * 50));
+        monster.attackTimer = monster.maxTimer;
+
+        monsterNameTxt.innerText = monster.name;
+        levelDisplay.innerText = `Level: ${monster.letter}`;
+        
+        updateHealthBars();
+        buildTracePoints(monster.letter);
+    }
+
+    function buildTracePoints(letter) {
+        const strokes = letterPaths[letter] || letterPaths['A'];
+        tracePoints = [];
+        intendedStrokes = [];
+        
+        const boxX = (width / 2) - (traceBoxSize / 2);
+        const isPortrait = height > width;
+        const boxY = (height / 2) - (traceBoxSize / 2) + (isPortrait ? height * 0.15 : 20);
+
+        for (let stroke of strokes) {
+            let strokePts = [];
+            for (let i = 0; i < stroke.length; i++) {
+                const pt = stroke[i];
+                const mappedPt = {
+                    x: boxX + (pt[0] / 4) * traceBoxSize,
+                    y: boxY + (pt[1] / 4) * traceBoxSize
+                };
+                strokePts.push(mappedPt);
+                
+                if (i > 0) {
+                    const prev = strokePts[i-1];
+                    const dist = Math.hypot(mappedPt.x - prev.x, mappedPt.y - prev.y);
+                    
+                    let steps = Math.floor(dist / 10);
+                    if (isNaN(steps) || steps < 1) steps = 1;
+                    if (steps > 150) steps = 150; 
+                    
+                    for (let j = 1; j <= steps; j++) {
+                        tracePoints.push({
+                            x: prev.x + (mappedPt.x - prev.x) * (j / steps),
+                            y: prev.y + (mappedPt.y - prev.y) * (j / steps),
+                            isStart: false
+                        });
+                    }
+                } else {
+                    tracePoints.push({
+                        x: mappedPt.x,
+                        y: mappedPt.y,
+                        isStart: true
+                    });
+                }
+            }
+            intendedStrokes.push(strokePts);
+        }
+        fullResetTrace();
+    }
+
+    function fullResetTrace() {
+        currentTargetPoint = 0;
+        traceStartTime = 0;
+        isDrawing = false;
+    }
+
+    function updateHealthBars() {
+        playerHpBar.style.width = Math.max(0, (player.hp / player.maxHp) * 100) + '%';
+        monsterHpBar.style.width = Math.max(0, (monster.hp / monster.maxHp) * 100) + '%';
+    }
+
+    function getPointerPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function handlePointerDown(e) {
+        if (gameState !== 'PLAYING') return;
+        isDrawing = true;
+        const pos = getPointerPos(e);
+        
+        if (currentTargetPoint === 0 && traceStartTime === 0) {
+            traceStartTime = performance.now();
+        }
+        
+        checkTraceProgress(pos);
+    }
+
+    function handlePointerMove(e) {
+        if (gameState !== 'PLAYING' || !isDrawing) return;
+        e.preventDefault();
+        
+        const pos = getPointerPos(e);
+        checkTraceProgress(pos);
+    }
+
+    function handlePointerUp(e) {
+        if (gameState !== 'PLAYING') return;
+        isDrawing = false;
+    }
+
+    function checkTraceProgress(pos) {
+        if (currentTargetPoint >= tracePoints.length) return;
+        
+        let target = tracePoints[currentTargetPoint];
+        let dist = Math.hypot(pos.x - target.x, pos.y - target.y);
+        
+        while (dist < TOLERANCE && currentTargetPoint < tracePoints.length) {
+            currentTargetPoint++;
+            
+            if (audioCtx && currentTargetPoint % 3 === 0) {
+                const pct = currentTargetPoint / tracePoints.length;
+                playTone(400 + (pct * 800), 'sine', 0.1, 0.05);
+            }
+            
+            if (currentTargetPoint >= tracePoints.length) {
+                finishTrace();
+                isDrawing = false; 
+                break;
+            }
+            
+            target = tracePoints[currentTargetPoint];
+            dist = Math.hypot(pos.x - target.x, pos.y - target.y);
+        }
+    }
+
+    function finishTrace() {
+        const timeTaken = performance.now() - traceStartTime;
+        const idealTime = tracePoints.length * 20 + 400; 
+        
+        let multiplier = idealTime / timeTaken;
+        multiplier = Math.max(0.5, Math.min(multiplier, 2.5)); 
+        
+        const damage = Math.floor(player.baseDamage * multiplier);
+        
+        let rating = "GOOD!";
+        let color = "#e0c3fc";
+        if (multiplier >= 2.0) { rating = "PERFECT!"; color = "#f6d365"; }
+        else if (multiplier <= 0.8) { rating = "SLOW..."; color = "#ffb347"; }
+
+        addFloatingText(rating, width/2, height/2 - 50, color);
+        
+        playSoundEffect('playerShoot'); 
+        pronounceLetter(monster.letter); 
+
+        player.state = 'cast';
+        player.stateTimer = 250;
+
+        projectiles.push({
+            x: player.x + 40, y: player.y, 
+            targetX: monster.x, targetY: monster.y,
+            speed: 800,
+            damage: damage,
+            isPlayer: true,
+            color: '#4facfe'
+        });
+
+        fullResetTrace();
+    }
+
+    function addFloatingText(text, x, y, color) {
+        floatTexts.push({ text, x, y, color, life: 1.0, dy: -30 });
+    }
+
+    function spawnParticles(x, y, color) {
+        for(let i=0; i<15; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 300,
+                vy: (Math.random() - 0.5) * 300,
+                life: 0.5 + Math.random() * 0.5,
+                color: color
+            });
+        }
+    }
+
+    canvas.addEventListener('mousedown', handlePointerDown);
+    canvas.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+    canvas.addEventListener('touchstart', handlePointerDown, {passive: false});
+    canvas.addEventListener('touchmove', handlePointerMove, {passive: false});
+    window.addEventListener('touchend', handlePointerUp);
+
+    function gameLoop(timestamp) {
+        if (gameState !== 'PLAYING') return;
+        
+        let dt = (timestamp - lastTime) / 1000; 
+        lastTime = timestamp;
+        
+        if (isNaN(dt) || dt <= 0) dt = 0.016;
+        if (dt > 0.1) dt = 0.1;
+
+        update(dt);
+        draw();
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function update(dt) {
+        if (player.stateTimer > 0) {
+            player.stateTimer -= dt * 1000;
+            if (player.stateTimer <= 0) {
+                if (player.state === 'cast') {
+                    player.state = 'recover';
+                    player.stateTimer = 250;
+                } else if (player.state === 'recover') {
+                    player.state = isDrawing ? 'prep' : 'idle';
+                }
+            }
+        } else {
+            player.state = isDrawing ? 'prep' : 'idle';
+        }
+
+        if (monster.hp > 0) {
+            monster.attackTimer -= dt * 1000;
+            if (monster.attackTimer <= 0) {
+                monster.attackTimer = monster.maxTimer;
+                
+                playSoundEffect('monsterShoot'); 
+
+                const mDamage = Math.floor(10 + (level * 3));
+                projectiles.push({
+                    x: monster.x - 40, y: monster.y, 
+                    targetX: player.x, targetY: player.y,
+                    speed: 600,
+                    damage: mDamage,
+                    isPlayer: false,
+                    color: '#ff0844'
+                });
+            }
+        }
+
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            let p = projectiles[i];
+            const dx = p.targetX - p.x;
+            const dy = p.targetY - p.y;
+            const dist = Math.hypot(dx, dy);
+            
+            if (dist < p.speed * dt) {
+                spawnParticles(p.targetX, p.targetY, p.color);
+                addFloatingText("-" + p.damage, p.targetX, p.targetY - 50, p.color);
+                playSoundEffect('hit'); 
+                
+                if (p.isPlayer) {
+                    if (monster.hp > 0) {
+                        monster.hp -= p.damage;
+                        if (monster.hp <= 0) {
+                            levelUp();
+                        }
+                    }
+                } else {
+                    player.hp -= p.damage;
+                    if (player.hp <= 0) {
+                        player.hp = 0;
+                        gameState = 'END';
+                        uiLayer.classList.add('hidden');
+                        gameOverScreen.classList.remove('hidden');
+                        playSoundEffect('gameOver'); 
+                    }
+                }
+                updateHealthBars();
+                projectiles.splice(i, 1);
+            } else {
+                p.x += (dx / dist) * p.speed * dt;
+                p.y += (dy / dist) * p.speed * dt;
+            }
+        }
+
+        for (let i = floatTexts.length - 1; i >= 0; i--) {
+            floatTexts[i].life -= dt;
+            floatTexts[i].y += floatTexts[i].dy * dt;
+            if (floatTexts[i].life <= 0) floatTexts.splice(i, 1);
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].life -= dt * 2;
+            particles[i].x += particles[i].vx * dt;
+            particles[i].y += particles[i].vy * dt;
+            if (particles[i].life <= 0) particles.splice(i, 1);
+        }
+        
+        const isPortrait = height > width;
+        if (isPortrait) {
+            player.x = width * 0.25;
+            player.y = height * 0.20;
+            monster.x = width * 0.75;
+            monster.y = height * 0.20;
+        } else {
+            player.x = width * 0.15;
+            player.y = height * 0.55;
+            monster.x = width * 0.85;
+            monster.y = height * 0.55;
+        }
+    }
+
+    function levelUp() {
+        level++;
+        player.hp = Math.min(player.maxHp, player.hp + (player.maxHp * 0.3)); 
+        playSoundEffect('levelUp'); 
+        loadLevel(level);
+        addFloatingText("LEVEL CLEAR!", width/2, height/2 - 120, '#56ab2f');
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        const pScale = 1 + Math.sin(performance.now() / 300) * 0.03;
+        ctx.save();
+        ctx.translate(player.x, player.y);
+        ctx.scale(pScale, pScale);
+
+        let activeSprites = player.type === 'M' ? wizardSprites : witchSprites;
+        let img = activeSprites[player.state];
+        if (img && img.complete && img.width > 0) {
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        } else {
+            ctx.fillStyle = player.type === 'M' ? '#8e2de2' : '#c9a5ff';
+            ctx.fillRect(-25, -40, 50, 80);
+        }
+        ctx.restore();
+
+        const isPortrait = height > width;
+        const mBaseScale = isPortrait ? 0.7 : 1; 
+        const mScale = mBaseScale + Math.sin(performance.now() / 400 + 1) * 0.05;
+        
+        ctx.save();
+        ctx.translate(monster.x, monster.y);
+        ctx.scale(mScale, mScale);
+        ctx.font = "80px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(monster.icon, 0, 0);
+        ctx.restore();
+
+        drawTracingArea();
+
+        for (let p of projectiles) {
+            if (p.isPlayer) {
+                let spellImg = player.type === 'M' ? wizardSpellImg : witchSpellImg;
+                if (spellImg.complete && spellImg.width > 0) {
+                    ctx.drawImage(spellImg, p.x - spellImg.width / 2, p.y - spellImg.height / 2);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                }
+            } else {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        for (let p of particles) {
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        ctx.font = "bold 24px 'Nunito', sans-serif";
+        for (let ft of floatTexts) {
+            ctx.globalAlpha = Math.max(0, ft.life);
+            ctx.fillStyle = ft.color;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = "black";
+            ctx.fillText(ft.text, ft.x, ft.y);
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    function drawTracingArea() {
+        const boxX = (width / 2) - (traceBoxSize / 2);
+        const isPortrait = height > width;
+        const boxY = (height / 2) - (traceBoxSize / 2) + (isPortrait ? height * 0.15 : 20);
+
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.strokeStyle = "#5a4b81";
+        ctx.lineWidth = 2;
+        ctx.fillRect(boxX, boxY, traceBoxSize, traceBoxSize);
+        ctx.strokeRect(boxX, boxY, traceBoxSize, traceBoxSize);
+
+        if (intendedStrokes.length === 0) return;
+
+        // Draw Base Rune (Track)
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+        ctx.lineWidth = traceBoxSize * 0.06;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        for (let stroke of intendedStrokes) {
+            if (stroke.length < 2) continue;
+            ctx.moveTo(stroke[0].x, stroke[0].y);
+            for (let i = 1; i < stroke.length; i++) {
+                ctx.lineTo(stroke[i].x, stroke[i].y);
+            }
+        }
+        ctx.stroke();
+
+        if (currentTargetPoint > 0) {
+            ctx.strokeStyle = "#56ab2f";
+            ctx.lineWidth = traceBoxSize * 0.06;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#56ab2f";
+            ctx.beginPath();
+            for (let i = 0; i < currentTargetPoint; i++) {
+                const pt = tracePoints[i];
+                if (pt.isStart) {
+                    ctx.moveTo(pt.x, pt.y);
+                } else {
+                    ctx.lineTo(pt.x, pt.y);
+                }
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            const tip = tracePoints[currentTargetPoint - 1];
+            ctx.beginPath();
+            ctx.arc(tip.x, tip.y, traceBoxSize * 0.03, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffb75e";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#ffb75e";
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+        } else if (tracePoints.length > 0) {
+            const tip = tracePoints[0];
+            const pulse = Math.sin(performance.now() / 150) * 3;
+            ctx.beginPath();
+            ctx.arc(tip.x, tip.y, (traceBoxSize * 0.03) + pulse, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "#ffffff";
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    }
+</script>
+</body>
+</html>

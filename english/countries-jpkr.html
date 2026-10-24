@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Countries: Korean & Japanese to English Quiz</title>
+    <style>
+        :root {
+            --primary: #2980b9;
+            --primary-hover: #2471a3;
+            --secondary: #27ae60;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #fdfefe;
+            --white: #ffffff;
+            --gray: #bdc3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ecf0f1;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--white);
+            max-width: 900px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quiz-header h2 {
+            margin-bottom: 10px;
+            font-size: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .settings-bar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .settings-bar label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.3);
+            height: 6px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-body {
+            padding: 40px 30px;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .vocab-display {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #fdf2e9;
+            border-radius: 15px;
+            border: 2px dashed #edbb99;
+        }
+
+        .country-word-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .lang-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .lang-row span {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .hint-text {
+            font-size: 1.2rem;
+            color: #d35400;
+            font-weight: bold;
+            background: var(--white);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .tts-btn-large {
+            background: var(--white);
+            border: 2px solid var(--gray);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--primary);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tts-btn-large:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .lang-row span { font-size: 2.2rem; }
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #ebf5fb;
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .tts-btn-small {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn.correct .tts-btn-small,
+        .option-btn.incorrect .tts-btn-small {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .tts-btn-small:hover {
+            background: rgba(0,0,0,0.15);
+            transform: scale(1.1);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 25px;
+            min-height: 30px;
+        }
+
+        .feedback.success { color: var(--success); }
+        .feedback.error { color: var(--danger); }
+
+        .quiz-footer {
+            padding: 20px 30px;
+            background-color: var(--light);
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+
+        .next-btn, .start-btn {
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            padding: 12px 35px;
+            font-size: 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .next-btn { display: none; }
+        .next-btn:hover, .start-btn:hover { background-color: #219a52; }
+
+        #start-screen {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        #start-screen p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 40px 30px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .analytics-container {
+            background-color: #f4f6f7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--gray);
+        }
+
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .analytics-table th, .analytics-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .analytics-table th {
+            background-color: var(--dark);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .correct-row { color: var(--success); font-weight: bold; }
+        .incorrect-row { color: var(--danger); font-weight: bold; }
+
+        .stats-summary {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 15px;">World Countries Quiz</h1>
+            <h2>Korean & Japanese &rarr; English</h2>
+            <p>Can you identify all 197 countries by their Korean and Japanese names? Your speed and accuracy will be tracked!</p>
+            <button class="start-btn" onclick="startQuiz()">Start the Global Tour</button>
+        </div>
+
+        <!-- Interactive Quiz Area -->
+        <div id="quiz-area" style="display: none;">
+            <div class="quiz-header">
+                <h2>Global Geography Challenge</h2>
+                <div class="settings-bar">
+                    <label>
+                        <input type="checkbox" id="auto-tts" checked>
+                        Auto-play languages on new question
+                    </label>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div class="question-meta">
+                    <span id="question-counter">Question 1 of 197</span>
+                    <span id="score-counter">Score: 0</span>
+                </div>
+                
+                <div class="vocab-display">
+                    <div class="country-word-container">
+                        <!-- Korean Row -->
+                        <div class="lang-row">
+                            <span id="target-ko">아프가니스탄</span>
+                            <button class="tts-btn-large" id="ko-tts-btn" title="Listen to Korean">🇰🇷 🔊</button>
+                        </div>
+                        <!-- Japanese Row -->
+                        <div class="lang-row">
+                            <span id="target-ja">アフガニスタン</span>
+                            <button class="tts-btn-large" id="ja-tts-btn" title="Listen to Japanese">🇯🇵 🔊</button>
+                        </div>
+                    </div>
+                    <div class="hint-text" id="target-hint">Hint: Loading...</div>
+                </div>
+
+                <div class="options-grid" id="options-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Country &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Results Area -->
+        <div class="results-container" id="results-area">
+            <h2 style="font-size: 2.5rem;">Global Tour Complete!</h2>
+            <div class="results-score" id="final-score">0 / 197</div>
+            <p style="font-size: 1.2rem; color: #555;" id="final-msg">Analytics Report:</p>
+            
+            <div id="analytics-area"></div>
+
+            <button class="start-btn" onclick="location.reload()">Restart Global Tour</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Array of 197 Countries with Korean, Japanese, and Geographical Hints
+        const countryList = [
+            { c: "Afghanistan", ko: "아프가니스탄", ja: "アフガニスタン", h: "Landlocked country in Asia" },
+            { c: "Albania", ko: "알바니아", ja: "アルバニア", h: "Coastal country in Europe" },
+            { c: "Algeria", ko: "알제리", ja: "アルジェリア", h: "Coastal country in Africa" },
+            { c: "Andorra", ko: "안도라", ja: "アンドラ", h: "Landlocked country in Europe" },
+            { c: "Angola", ko: "앙골라", ja: "アンゴラ", h: "Coastal country in Africa" },
+            { c: "Antigua and Barbuda", ko: "앤티가 바부다", ja: "アンティグア・バーブーダ", h: "Island nation in North America" },
+            { c: "Argentina", ko: "아르헨티나", ja: "アルゼンチン", h: "Coastal country in South America" },
+            { c: "Armenia", ko: "아르메니아", ja: "アルメニア", h: "Landlocked country in Asia" },
+            { c: "Australia", ko: "호주", ja: "オーストラリア", h: "Continental island nation in Oceania" },
+            { c: "Austria", ko: "오스트리아", ja: "オーストリア", h: "Landlocked country in Europe" },
+            { c: "Azerbaijan", ko: "아제르바이잔", ja: "アゼルバイジャン", h: "Landlocked country in Asia" },
+            { c: "Bahamas", ko: "바하마", ja: "バハマ", h: "Island nation in North America" },
+            { c: "Bahrain", ko: "바레인", ja: "バーレーン", h: "Island nation in Asia" },
+            { c: "Bangladesh", ko: "방글라데시", ja: "バングラデシュ", h: "Coastal country in Asia" },
+            { c: "Barbados", ko: "바베이도스", ja: "バルバドス", h: "Island nation in North America" },
+            { c: "Belarus", ko: "벨라루스", ja: "ベラルーシ", h: "Landlocked country in Europe" },
+            { c: "Belgium", ko: "벨기에", ja: "ベルギー", h: "Coastal country in Europe" },
+            { c: "Belize", ko: "벨리즈", ja: "ベリーズ", h: "Coastal country in North America" },
+            { c: "Benin", ko: "베냉", ja: "ベナン", h: "Coastal country in Africa" },
+            { c: "Bhutan", ko: "부탄", ja: "ブータン", h: "Landlocked country in Asia" },
+            { c: "Bolivia", ko: "볼리비아", ja: "ボリビア", h: "Landlocked country in South America" },
+            { c: "Bosnia and Herzegovina", ko: "보스니아 헤르체고비나", ja: "ボスニア・ヘルツェゴビナ", h: "Coastal country in Europe" },
+            { c: "Botswana", ko: "보츠와나", ja: "ボツワナ", h: "Landlocked country in Africa" },
+            { c: "Brazil", ko: "브라질", ja: "ブラジル", h: "Coastal country in South America" },
+            { c: "Brunei", ko: "브루나이", ja: "ブルネイ", h: "Coastal country in Asia" },
+            { c: "Bulgaria", ko: "불가리아", ja: "ブルガ리아", h: "Coastal country in Europe" },
+            { c: "Burkina Faso", ko: "부르키나파소", ja: "ブルキナファソ", h: "Landlocked country in Africa" },
+            { c: "Burundi", ko: "부룬디", ja: "ブルンジ", h: "Landlocked country in Africa" },
+            { c: "Cabo Verde", ko: "카보베르데", ja: "カーボベルデ", h: "Island nation in Africa" },
+            { c: "Cambodia", ko: "캄보디아", ja: "カンボジア", h: "Coastal country in Asia" },
+            { c: "Cameroon", ko: "카메룬", ja: "カメルーン", h: "Coastal country in Africa" },
+            { c: "Canada", ko: "캐나다", ja: "カナダ", h: "Coastal country in North America" },
+            { c: "Central African Republic", ko: "중앙아프리카 공화국", ja: "中央アフリカ共和国", h: "Landlocked country in Africa" },
+            { c: "Chad", ko: "차드", ja: "チャド", h: "Landlocked country in Africa" },
+            { c: "Chile", ko: "칠레", ja: "チリ", h: "Coastal country in South America" },
+            { c: "China", ko: "중국", ja: "中国", h: "Coastal country in Asia" },
+            { c: "Colombia", ko: "콜롬비아", ja: "コロンビア", h: "Coastal country in South America" },
+            { c: "Comoros", ko: "코모로", ja: "コモロ", h: "Island nation in Africa" },
+            { c: "Congo (Brazzaville)", ko: "콩고 공화국", ja: "コンゴ共和国", h: "Coastal country in Africa" },
+            { c: "Costa Rica", ko: "코스타리카", ja: "コスタリカ", h: "Coastal country in North America" },
+            { c: "Croatia", ko: "크로아티아", ja: "クロアチア", h: "Coastal country in Europe" },
+            { c: "Cuba", ko: "쿠바", ja: "キューバ", h: "Island nation in North America" },
+            { c: "Cyprus", ko: "키프로스", ja: "キプロス", h: "Island nation in Europe / Asia" },
+            { c: "Czechia", ko: "체코", ja: "チェコ", h: "Landlocked country in Europe" },
+            { c: "Democratic Republic of the Congo", ko: "콩고 민주 공화국", ja: "コンゴ民主共和国", h: "Coastal country in Africa" },
+            { c: "Denmark", ko: "덴마크", ja: "デンマーク", h: "Coastal country in Europe" },
+            { c: "Djibouti", ko: "지부티", ja: "ジブチ", h: "Coastal country in Africa" },
+            { c: "Dominica", ko: "도미니카 연방", ja: "ドミニカ国", h: "Island nation in North America" },
+            { c: "Dominican Republic", ko: "도미니카 공화국", ja: "ドミニカ共和国", h: "Island nation in North America" },
+            { c: "Ecuador", ko: "에콰도르", ja: "エクアドル", h: "Coastal country in South America" },
+            { c: "Egypt", ko: "이집트", ja: "エジプト", h: "Coastal country in Africa" },
+            { c: "El Salvador", ko: "엘살바도르", ja: "エルサルバドル", h: "Coastal country in North America" },
+            { c: "Equatorial Guinea", ko: "적도 기니", ja: "赤道ギニア", h: "Coastal country in Africa" },
+            { c: "Eritrea", ko: "에리트레아", ja: "エリト리아", h: "Coastal country in Africa" },
+            { c: "Estonia", ko: "에스토니아", ja: "エストニア", h: "Coastal country in Europe" },
+            { c: "Eswatini", ko: "에스와티니", ja: "エスワティニ", h: "Landlocked country in Africa" },
+            { c: "Ethiopia", ko: "에티오피아", ja: "エチオピア", h: "Landlocked country in Africa" },
+            { c: "Fiji", ko: "피지", ja: "フィジー", h: "Island nation in Oceania" },
+            { c: "Finland", ko: "핀란드", ja: "フィンランド", h: "Coastal country in Europe" },
+            { c: "France", ko: "프랑스", ja: "フランス", h: "Coastal country in Europe" },
+            { c: "Gabon", ko: "가봉", ja: "ガボン", h: "Coastal country in Africa" },
+            { c: "Gambia", ko: "감비아", ja: "ガンビア", h: "Coastal country in Africa" },
+            { c: "Georgia", ko: "조지아", ja: "ジョージア", h: "Coastal country in Asia / Europe" },
+            { c: "Germany", ko: "독일", ja: "ドイツ", h: "Coastal country in Europe" },
+            { c: "Ghana", ko: "가나", ja: "ガーナ", h: "Coastal country in Africa" },
+            { c: "Greece", ko: "그리스", ja: "ギリシャ", h: "Coastal country in Europe" },
+            { c: "Grenada", ko: "그레나다", ja: "グレナダ", h: "Island nation in North America" },
+            { c: "Guatemala", ko: "과테말라", ja: "グアテマラ", h: "Coastal country in North America" },
+            { c: "Guinea", ko: "기니", ja: "ギニア", h: "Coastal country in Africa" },
+            { c: "Guinea-Bissau", ko: "기니비사우", ja: "ギニアビサウ", h: "Coastal country in Africa" },
+            { c: "Guyana", ko: "가이아나", ja: "ガイアナ", h: "Coastal country in South America" },
+            { c: "Haiti", ko: "아이티", ja: "ハイチ", h: "Island nation in North America" },
+            { c: "Honduras", ko: "온두라스", ja: "ホンジュラス", h: "Coastal country in North America" },
+            { c: "Hungary", ko: "헝가리", ja: "ハンガリー", h: "Landlocked country in Europe" },
+            { c: "Iceland", ko: "아이슬란드", ja: "アイスランド", h: "Island nation in Europe" },
+            { c: "India", ko: "인도", ja: "インド", h: "Coastal country in Asia" },
+            { c: "Indonesia", ko: "인도네시아", ja: "インドネシア", h: "Island nation in Asia" },
+            { c: "Iran", ko: "이란", ja: "イラン", h: "Coastal country in Asia" },
+            { c: "Iraq", ko: "이라크", ja: "イラク", h: "Coastal country in Asia" },
+            { c: "Ireland", ko: "아일랜드", ja: "アイルランド", h: "Island nation in Europe" },
+            { c: "Israel", ko: "이스라엘", ja: "イスラエル", h: "Coastal country in Asia" },
+            { c: "Italy", ko: "이탈리아", ja: "イタリア", h: "Coastal country in Europe" },
+            { c: "Ivory Coast", ko: "코트디부아르", ja: "コートジボワール", h: "Coastal country in Africa" },
+            { c: "Jamaica", ko: "자메이카", ja: "ジャマイカ", h: "Island nation in North America" },
+            { c: "Japan", ko: "일본", ja: "日本", h: "Island nation in Asia" },
+            { c: "Jordan", ko: "요르단", ja: "ヨルダン", h: "Coastal country in Asia" },
+            { c: "Kazakhstan", ko: "카자흐스탄", ja: "カザフスタン", h: "Landlocked country in Asia" },
+            { c: "Kenya", ko: "케냐", ja: "ケニア", h: "Coastal country in Africa" },
+            { c: "Kiribati", ko: "키리바시", ja: "キリバス", h: "Island nation in Oceania" },
+            { c: "Kosovo", ko: "코소보", ja: "コソボ", h: "Landlocked country in Europe" },
+            { c: "Kuwait", ko: "쿠웨이트", ja: "クウェート", h: "Coastal country in Asia" },
+            { c: "Kyrgyzstan", ko: "키르기스스탄", ja: "キルギス", h: "Landlocked country in Asia" },
+            { c: "Laos", ko: "라오스", ja: "ラオス", h: "Landlocked country in Asia" },
+            { c: "Latvia", ko: "라트비아", ja: "ラトビア", h: "Coastal country in Europe" },
+            { c: "Lebanon", ko: "레바논", ja: "レバノン", h: "Coastal country in Asia" },
+            { c: "Lesotho", ko: "레소토", ja: "レソト", h: "Landlocked country in Africa" },
+            { c: "Liberia", ko: "라이베리아", ja: "リベリア", h: "Coastal country in Africa" },
+            { c: "Libya", ko: "리비아", ja: "リビア", h: "Coastal country in Africa" },
+            { c: "Liechtenstein", ko: "리히텐슈타인", ja: "リヒテンシュタイン", h: "Landlocked country in Europe" },
+            { c: "Lithuania", ko: "리투아니아", ja: "リトアニア", h: "Coastal country in Europe" },
+            { c: "Luxembourg", ko: "룩셈부르크", ja: "ルクセンブルク", h: "Landlocked country in Europe" },
+            { c: "Madagascar", ko: "마다가스카르", ja: "マダガスカル", h: "Island nation in Africa" },
+            { c: "Malawi", ko: "말라위", ja: "マラウイ", h: "Landlocked country in Africa" },
+            { c: "Malaysia", ko: "말레이시아", ja: "マレーシア", h: "Coastal country in Asia" },
+            { c: "Maldives", ko: "몰디브", ja: "モルディブ", h: "Island nation in Asia" },
+            { c: "Mali", ko: "말리", ja: "マリ", h: "Landlocked country in Africa" },
+            { c: "Malta", ko: "몰타", ja: "マルタ", h: "Island nation in Europe" },
+            { c: "Marshall Islands", ko: "마셜 제도", ja: "マーシャル諸島", h: "Island nation in Oceania" },
+            { c: "Mauritania", ko: "모리타니", ja: "モーリタニア", h: "Coastal country in Africa" },
+            { c: "Mauritius", ko: "모리셔스", ja: "モーリシャス", h: "Island nation in Africa" },
+            { c: "Mexico", ko: "멕시코", ja: "メキシコ", h: "Coastal country in North America" },
+            { c: "Micronesia", ko: "미크로네시아", ja: "ミクロネシア", h: "Island nation in Oceania" },
+            { c: "Moldova", ko: "몰도바", ja: "モルドバ", h: "Landlocked country in Europe" },
+            { c: "Monaco", ko: "모나코", ja: "モナコ", h: "Coastal country in Europe" },
+            { c: "Mongolia", ko: "몽골", ja: "モンゴル", h: "Landlocked country in Asia" },
+            { c: "Montenegro", ko: "몬테네그로", ja: "モンテネグロ", h: "Coastal country in Europe" },
+            { c: "Morocco", ko: "모로코", ja: "モロッコ", h: "Coastal country in Africa" },
+            { c: "Mozambique", ko: "모잠비크", ja: "モザンビーク", h: "Coastal country in Africa" },
+            { c: "Myanmar", ko: "미얀마", ja: "ミャンマー", h: "Coastal country in Asia" },
+            { c: "Namibia", ko: "나미비아", ja: "ナミビア", h: "Coastal country in Africa" },
+            { c: "Nauru", ko: "나우루", ja: "ナウル", h: "Island nation in Oceania" },
+            { c: "Nepal", ko: "네팔", ja: "ネパール", h: "Landlocked country in Asia" },
+            { c: "Netherlands", ko: "네덜란드", ja: "オランダ", h: "Coastal country in Europe" },
+            { c: "New Zealand", ko: "뉴질랜드", ja: "ニュージーランド", h: "Island nation in Oceania" },
+            { c: "Nicaragua", ko: "니카라과", ja: "ニカラグア", h: "Coastal country in North America" },
+            { c: "Niger", ko: "니제르", ja: "ニジェール", h: "Landlocked country in Africa" },
+            { c: "Nigeria", ko: "나이지리아", ja: "ナイジェ리아", h: "Coastal country in Africa" },
+            { c: "North Korea", ko: "북한", ja: "北朝鮮", h: "Coastal country in Asia" },
+            { c: "North Macedonia", ko: "북마케도니아", ja: "北マケドニア", h: "Landlocked country in Europe" },
+            { c: "Norway", ko: "노르웨이", ja: "ノルウェー", h: "Coastal country in Europe" },
+            { c: "Oman", ko: "오만", ja: "オマーン", h: "Coastal country in Asia" },
+            { c: "Pakistan", ko: "파키스탄", ja: "パキスタン", h: "Coastal country in Asia" },
+            { c: "Palau", ko: "팔라우", ja: "パラオ", h: "Island nation in Oceania" },
+            { c: "Palestine", ko: "팔레스타인", ja: "パレスチナ", h: "Coastal country in Asia" },
+            { c: "Panama", ko: "파나마", ja: "パナマ", h: "Coastal country in North America" },
+            { c: "Papua New Guinea", ko: "파푸아뉴기니", ja: "パプアニューギニア", h: "Island nation in Oceania" },
+            { c: "Paraguay", ko: "파라과이", ja: "パラグアイ", h: "Landlocked country in South America" },
+            { c: "Peru", ko: "페루", ja: "ペルー", h: "Coastal country in South America" },
+            { c: "Philippines", ko: "필리핀", ja: "フィリピン", h: "Island nation in Asia" },
+            { c: "Poland", ko: "폴란드", ja: "ポーランド", h: "Coastal country in Europe" },
+            { c: "Portugal", ko: "포르투갈", ja: "ポルトガル", h: "Coastal country in Europe" },
+            { c: "Qatar", ko: "카타르", ja: "カタール", h: "Coastal country in Asia" },
+            { c: "Romania", ko: "루마니아", ja: "ルーマニア", h: "Coastal country in Europe" },
+            { c: "Russia", ko: "러시아", ja: "ロシア", h: "Coastal country in Europe / Asia" },
+            { c: "Rwanda", ko: "르완다", ja: "ルワンダ", h: "Landlocked country in Africa" },
+            { c: "Saint Kitts and Nevis", ko: "세인트키츠 네비스", ja: "セントクリストファー・ネイビス", h: "Island nation in North America" },
+            { c: "Saint Lucia", ko: "세인트루시아", ja: "セントルシア", h: "Island nation in North America" },
+            { c: "Saint Vincent and the Grenadines", ko: "세인트빈센트 그레나딘", ja: "セントビンセント・グレナディーン", h: "Island nation in North America" },
+            { c: "Samoa", ko: "사모아", ja: "サ모ア", h: "Island nation in Oceania" },
+            { c: "San Marino", ko: "산마리노", ja: "サンマリノ", h: "Landlocked country in Europe" },
+            { c: "Sao Tome and Principe", ko: "상투메 프린시페", ja: "サントメ・プリンシペ", h: "Island nation in Africa" },
+            { c: "Saudi Arabia", ko: "사우디아라비아", ja: "サウジアラ비ア", h: "Coastal country in Asia" },
+            { c: "Senegal", ko: "세네갈", ja: "セネガル", h: "Coastal country in Africa" },
+            { c: "Serbia", ko: "세르비아", ja: "セルビア", h: "Landlocked country in Europe" },
+            { c: "Seychelles", ko: "세이셸", ja: "セーシェル", h: "Island nation in Africa" },
+            { c: "Sierra Leone", ko: "시에라리온", ja: "シエラレオネ", h: "Coastal country in Africa" },
+            { c: "Singapore", ko: "싱가포르", ja: "シンガポール", h: "Island nation in Asia" },
+            { c: "Slovakia", ko: "슬로바키아", ja: "スロバキア", h: "Landlocked country in Europe" },
+            { c: "Slovenia", ko: "슬로베니아", ja: "スロベニア", h: "Coastal country in Europe" },
+            { c: "Solomon Islands", ko: "솔로몬 제도", ja: "ソロモン諸島", h: "Island nation in Oceania" },
+            { c: "Somalia", ko: "소말리아", ja: "ソマリア", h: "Coastal country in Africa" },
+            { c: "South Africa", ko: "남아프리카 공화국", ja: "南アフリカ", h: "Coastal country in Africa" },
+            { c: "South Korea", ko: "한국", ja: "韓国", h: "Coastal country in Asia" },
+            { c: "South Sudan", ko: "남수단", ja: "南スーダン", h: "Landlocked country in Africa" },
+            { c: "Spain", ko: "스페인", ja: "スペイン", h: "Coastal country in Europe" },
+            { c: "Sri Lanka", ko: "스리랑카", ja: "スリランカ", h: "Island nation in Asia" },
+            { c: "Sudan", ko: "수단", ja: "スーダン", h: "Coastal country in Africa" },
+            { c: "Suriname", ko: "수리남", ja: "スリナム", h: "Coastal country in South America" },
+            { c: "Sweden", ko: "스웨덴", ja: "スウェーデン", h: "Coastal country in Europe" },
+            { c: "Switzerland", ko: "스위스", ja: "スイス", h: "Landlocked country in Europe" },
+            { c: "Syria", ko: "시리아", ja: "シリア", h: "Coastal country in Asia" },
+            { c: "Taiwan", ko: "대만", ja: "台湾", h: "Island nation in Asia" },
+            { c: "Tajikistan", ko: "타지키스탄", ja: "タジキスタン", h: "Landlocked country in Asia" },
+            { c: "Tanzania", ko: "탄자니아", ja: "タンザニア", h: "Coastal country in Africa" },
+            { c: "Thailand", ko: "태국", ja: "タイ", h: "Coastal country in Asia" },
+            { c: "Timor-Leste", ko: "동티모르", ja: "東ティモール", h: "Island nation in Asia" },
+            { c: "Togo", ko: "토고", ja: "トーゴ", h: "Coastal country in Africa" },
+            { c: "Tonga", ko: "통가", ja: "トンガ", h: "Island nation in Oceania" },
+            { c: "Trinidad and Tobago", ko: "트리니다드 토바고", ja: "トリニダード・トバゴ", h: "Island nation in North / South America" },
+            { c: "Tunisia", ko: "튀니지", ja: "チュニジア", h: "Coastal country in Africa" },
+            { c: "Turkey", ko: "튀르키예", ja: "トルコ", h: "Coastal country in Europe / Asia" },
+            { c: "Turkmenistan", ko: "투르크메니스탄", ja: "トルクメニスタン", h: "Landlocked country in Asia" },
+            { c: "Tuvalu", ko: "투발루", ja: "ツバル", h: "Island nation in Oceania" },
+            { c: "Uganda", ko: "우간다", ja: "ウガンダ", h: "Landlocked country in Africa" },
+            { c: "Ukraine", ko: "우크라이나", ja: "ウクライナ", h: "Coastal country in Europe" },
+            { c: "United Arab Emirates", ko: "아랍에미리트", ja: "アラブ首長国連邦", h: "Coastal country in Asia" },
+            { c: "United Kingdom", ko: "영국", ja: "イギリス", h: "Island nation in Europe" },
+            { c: "United States", ko: "미국", ja: "アメリカ", h: "Coastal country in North America" },
+            { c: "Uruguay", ko: "우루과이", ja: "ウルグアイ", h: "Coastal country in South America" },
+            { c: "Uzbekistan", ko: "우즈베키스탄", ja: "ウズベキスタン", h: "Landlocked country in Asia" },
+            { c: "Vanuatu", ko: "바누아투", ja: "バヌアツ", h: "Island nation in Oceania" },
+            { c: "Vatican City", ko: "바티칸 시국", ja: "バチカン市国", h: "Landlocked country in Europe" },
+            { c: "Venezuela", ko: "베네수엘라", ja: "ベネズエラ", h: "Coastal country in South America" },
+            { c: "Vietnam", ko: "베트남", ja: "ベトナム", h: "Coastal country in Asia" },
+            { c: "Yemen", ko: "예멘", ja: "イエメン", h: "Coastal country in Asia" },
+            { c: "Zambia", ko: "잠비아", ja: "ザンビア", h: "Landlocked country in Africa" },
+            { c: "Zimbabwe", ko: "짐바브웨", ja: "ジンバブエ", h: "Landlocked country in Africa" }
+        ];
+
+        let quizSequence = [];
+        let currentIndex = 0;
+        let currentScore = 0;
+        let questionStartTime = 0;
+        let analyticsData = [];
+
+        const targetKoEl = document.getElementById('target-ko');
+        const targetJaEl = document.getElementById('target-ja');
+        const targetHintEl = document.getElementById('target-hint');
+        const koTtsBtn = document.getElementById('ko-tts-btn');
+        const jaTtsBtn = document.getElementById('ja-tts-btn');
+        const optionsGridEl = document.getElementById('options-grid');
+        const nextBtnEl = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        const autoTtsCheckbox = document.getElementById('auto-tts');
+
+        const synth = window.speechSynthesis;
+
+        function speak(text, lang) {
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.9; 
+            synth.speak(utterance);
+        }
+
+        function shuffle(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function generateOptions(correctAnswer) {
+            let allCountries = countryList.map(v => v.c);
+            let incorrectPool = allCountries.filter(c => c !== correctAnswer);
+            shuffle(incorrectPool);
+            
+            let options = [correctAnswer, incorrectPool[0], incorrectPool[1], incorrectPool[2]];
+            return shuffle(options);
+        }
+
+        function startQuiz() {
+            speak("", "en-US"); // Unlock Audio Context
+            quizSequence = shuffle([...countryList]);
+            analyticsData = []; // Reset analytics
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            feedbackEl.innerText = "";
+            feedbackEl.className = "feedback";
+            nextBtnEl.style.display = "none";
+            optionsGridEl.innerHTML = "";
+
+            const qData = quizSequence[currentIndex];
+            
+            targetKoEl.innerText = qData.ko;
+            targetJaEl.innerText = qData.ja;
+            targetHintEl.innerText = `Hint: ${qData.h}`;
+            
+            koTtsBtn.onclick = () => speak(qData.ko, 'ko-KR');
+            jaTtsBtn.onclick = () => speak(qData.ja, 'ja-JP');
+
+            // Auto-play Korean then Japanese if checked
+            if (autoTtsCheckbox.checked) {
+                speak(qData.ko, 'ko-KR');
+                setTimeout(() => {
+                    speak(qData.ja, 'ja-JP');
+                }, 1500);
+            }
+
+            questionCounterEl.innerText = `Question ${currentIndex + 1} of ${quizSequence.length}`;
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            progressBarEl.style.width = `${(currentIndex / quizSequence.length) * 100}%`;
+
+            const currentOptions = generateOptions(qData.c);
+
+            currentOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                
+                const textSpan = document.createElement('span');
+                textSpan.innerText = opt;
+                btn.appendChild(textSpan);
+
+                const ttsSmallBtn = document.createElement('button');
+                ttsSmallBtn.className = 'tts-btn-small';
+                ttsSmallBtn.innerText = '🔊';
+                ttsSmallBtn.title = "Listen to English";
+                ttsSmallBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    speak(opt, 'en-US');
+                };
+                btn.appendChild(ttsSmallBtn);
+
+                btn.onclick = () => selectOption(opt, btn, qData.c);
+                optionsGridEl.appendChild(btn);
+            });
+
+            // Start timer for this question
+            questionStartTime = Date.now();
+        }
+
+        function selectOption(selected, btnEl, correct) {
+            // Calculate time taken
+            const timeTaken = (Date.now() - questionStartTime) / 1000;
+            const qData = quizSequence[currentIndex];
+            
+            const isCorrect = (selected === correct);
+
+            // Record Analytics
+            analyticsData.push({
+                ko: qData.ko,
+                ja: qData.ja,
+                en: qData.c,
+                time: timeTaken,
+                isCorrect: isCorrect
+            });
+
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                btnEl.classList.add('correct');
+                feedbackEl.innerText = `Correct! - ${timeTaken.toFixed(1)}s`;
+                feedbackEl.className = "feedback success";
+                currentScore++;
+            } else {
+                btnEl.classList.add('incorrect');
+                feedbackEl.innerText = `Incorrect. The correct country is: ${correct}`;
+                feedbackEl.className = "feedback error";
+                
+                allBtns.forEach(btn => {
+                    if (btn.querySelector('span').innerText === correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreCounterEl.innerText = `Score: ${currentScore}`;
+            
+            if (currentIndex === quizSequence.length - 1) {
+                nextBtnEl.innerHTML = "See Final Results &rarr;";
+            } else {
+                nextBtnEl.innerHTML = "Next Country &rarr;";
+            }
+            
+            nextBtnEl.style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < quizSequence.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-area').style.display = 'none';
+            document.getElementById('results-area').style.display = 'block';
+            document.getElementById('final-score').innerText = `${currentScore} / ${quizSequence.length}`;
+            
+            // Calculate Percentages
+            const percentageCorrect = (currentScore / quizSequence.length) * 100;
+            const percentageWrong = 100 - percentageCorrect;
+            
+            // Build Analytics Table
+            // Sort by time taken (shortest to longest)
+            analyticsData.sort((a, b) => a.time - b.time);
+
+            let analyticsHTML = `
+                <div class="stats-summary">
+                    <div style="color: var(--success); font-size: 1.5rem; font-weight: bold;">Correct: ${percentageCorrect.toFixed(1)}%</div>
+                    <div style="color: var(--danger); font-size: 1.5rem; font-weight: bold;">Wrong: ${percentageWrong.toFixed(1)}%</div>
+                </div>
+                <div class="analytics-container">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Korean</th>
+                                <th>Japanese</th>
+                                <th>English</th>
+                                <th>Time Taken</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            analyticsData.forEach(item => {
+                const rowClass = item.isCorrect ? 'correct-row' : 'incorrect-row';
+                const resultText = item.isCorrect ? '✓ Correct' : '✗ Wrong';
+                
+                analyticsHTML += `
+                    <tr class="${rowClass}">
+                        <td>${item.ko}</td>
+                        <td>${item.ja}</td>
+                        <td>${item.en}</td>
+                        <td>${item.time.toFixed(2)} s</td>
+                        <td>${resultText}</td>
+                    </tr>
+                `;
+            });
+
+            analyticsHTML += `</tbody></table></div>`;
+            document.getElementById('analytics-area').innerHTML = analyticsHTML;
+        }
+    </script>
+</body>
+</html>

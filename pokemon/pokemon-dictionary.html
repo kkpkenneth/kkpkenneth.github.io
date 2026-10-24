@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Species Quiz</title>
+    <style>
+        :root {
+            --primary: #ffcb05;
+            --secondary: #3b4cca;
+            --background: #f0f0f0;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --locked: #cccccc;
+            --success: #4caf50;
+            --danger: #f44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            min-height: 80vh;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0.5rem;
+            width: 100%;
+            max-width: 300px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            background-color: #ffde59;
+        }
+        button:disabled {
+            background-color: var(--locked);
+            border-color: #999;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Level Selection Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        .level-btn {
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Quiz UI */
+        .pokemon-number {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .sprite-container {
+            width: 200px;
+            height: 200px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            border: 5px solid var(--secondary);
+        }
+        .sprite-container img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+        }
+        
+        /* Pokemon Types */
+        .types-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .type-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Official Pokemon Type Colors */
+        .type-normal { background-color: #A8A77A; }
+        .type-fire { background-color: #EE8130; }
+        .type-water { background-color: #6390F0; }
+        .type-electric { background-color: #F7D02C; }
+        .type-grass { background-color: #7AC74C; }
+        .type-ice { background-color: #96D9D6; }
+        .type-fighting { background-color: #C22E28; }
+        .type-poison { background-color: #A33EA1; }
+        .type-ground { background-color: #E2BF65; }
+        .type-flying { background-color: #A98FF3; }
+        .type-psychic { background-color: #F95587; }
+        .type-bug { background-color: #A6B91A; }
+        .type-rock { background-color: #B6A136; }
+        .type-ghost { background-color: #735797; }
+        .type-dragon { background-color: #6F35FC; }
+        .type-dark { background-color: #705746; }
+        .type-steel { background-color: #B7B7CE; }
+        .type-fairy { background-color: #D685AD; }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .options-grid button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .options-grid button small {
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .progress {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        /* Loader */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--secondary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<audio id="bgm" src="pokemon-bgm.mp3" loop></audio>
+
+<div class="container">
+    
+    <div id="start-screen" class="screen active">
+        <h1>Pokémon Species Quiz</h1>
+        <p style="margin-bottom: 2rem;">Test your knowledge! Can you guess the true species category for all 1025 Pokémon?</p>
+        <button onclick="goToLevels()">Start Game</button>
+    </div>
+
+    <div id="level-screen" class="screen">
+        <h2>Select Generation</h2>
+        <div class="grid" id="level-grid"></div>
+        <button onclick="showScreen('start-screen')" style="margin-top: 2rem; max-width: 200px;">Back</button>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div class="progress" id="quiz-progress">1 / 10</div>
+        
+        <div id="loading-indicator" style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 300px;">
+            <div class="loader"></div>
+            <p style="margin-top: 1rem;">Catching data from PokéAPI...</p>
+        </div>
+
+        <div id="quiz-content" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div id="pokemon-number" class="pokemon-number">#001</div>
+            <div class="sprite-container">
+                <img id="pokemon-sprite" src="" alt="Pokemon Sprite">
+            </div>
+            <div id="pokemon-types" class="types-container"></div>
+            <div class="question-text" id="question-text">What Pokemon is Pikachu?</div>
+            <div class="options-grid" id="options-grid"></div>
+        </div>
+    </div>
+
+    <div id="result-screen" class="screen">
+        <h2 id="result-title">Generation Complete!</h2>
+        <h3 id="result-score">Score: 8 / 10</h3>
+        <p id="result-message" style="margin-bottom: 2rem;"></p>
+        <button onclick="goToLevels()">Back to Levels</button>
+    </div>
+
+</div>
+
+<script>
+    // --- APP STATE & CONFIG ---
+    const SPEECH_ENABLED = true;
+    const QUESTIONS_PER_LEVEL = 10;
+    const PASSING_SCORE = 7; 
+    
+    const GENERATIONS = [
+        { gen: 1, start: 1, end: 151, name: "Kanto" },
+        { gen: 2, start: 152, end: 251, name: "Johto" },
+        { gen: 3, start: 252, end: 386, name: "Hoenn" },
+        { gen: 4, start: 387, end: 493, name: "Sinnoh" },
+        { gen: 5, start: 494, end: 649, name: "Unova" },
+        { gen: 6, start: 650, end: 721, name: "Kalos" },
+        { gen: 7, start: 722, end: 809, name: "Alola" },
+        { gen: 8, start: 810, end: 905, name: "Galar" },
+        { gen: 9, start: 906, end: 1025, name: "Paldea" }
+    ];
+
+    // REPLACE THIS with the output from your dictionary-builder.html tool!
+    const GENUS_DICT_BY_ID = {
+    1: { en: "Seed", zh: "種子" }, // Bulbasaur
+    2: { en: "Seed", zh: "種子" }, // Ivysaur
+    3: { en: "Seed", zh: "種子" }, // Venusaur
+    4: { en: "Lizard", zh: "蜥蜴" }, // Charmander
+    5: { en: "Flame", zh: "火焰" }, // Charmeleon
+    6: { en: "Flame", zh: "火焰" }, // Charizard
+    7: { en: "Tiny Turtle", zh: "小龜" }, // Squirtle
+    8: { en: "Turtle", zh: "龜" }, // Wartortle
+    9: { en: "Shellfish", zh: "甲殼" }, // Blastoise
+    10: { en: "Worm", zh: "蟲寶寶" }, // Caterpie
+    11: { en: "Cocoon", zh: "蛹" }, // Metapod
+    12: { en: "Butterfly", zh: "蝴蝶" }, // Butterfree
+    13: { en: "Hairy Bug", zh: "毛毛蟲" }, // Weedle
+    14: { en: "Cocoon", zh: "蛹" }, // Kakuna
+    15: { en: "Poison Bee", zh: "毒蜂" }, // Beedrill
+    16: { en: "Tiny Bird", zh: "小鳥" }, // Pidgey
+    17: { en: "Bird", zh: "鳥" }, // Pidgeotto
+    18: { en: "Bird", zh: "鳥" }, // Pidgeot
+    19: { en: "Mouse", zh: "鼠" }, // Rattata
+    20: { en: "Mouse", zh: "鼠" }, // Raticate
+    21: { en: "Tiny Bird", zh: "小鳥" }, // Spearow
+    22: { en: "Beak", zh: "鳥嘴" }, // Fearow
+    23: { en: "Snake", zh: "蛇" }, // Ekans
+    24: { en: "Cobra", zh: "眼鏡蛇" }, // Arbok
+    25: { en: "Mouse", zh: "鼠" }, // Pikachu
+    26: { en: "Mouse", zh: "鼠" }, // Raichu
+    27: { en: "Mouse", zh: "鼠" }, // Sandshrew
+    28: { en: "Mouse", zh: "鼠" }, // Sandslash
+    29: { en: "Poison Pin", zh: "毒針" }, // Nidoran♀
+    30: { en: "Poison Pin", zh: "毒針" }, // Nidorina
+    31: { en: "Drill", zh: "鑽錐" }, // Nidoqueen
+    32: { en: "Poison Pin", zh: "毒針" }, // Nidoran♂
+    33: { en: "Poison Pin", zh: "毒針" }, // Nidorino
+    34: { en: "Drill", zh: "鑽錐" }, // Nidoking
+    35: { en: "Fairy", zh: "妖精" }, // Clefairy
+    36: { en: "Fairy", zh: "妖精" }, // Clefable
+    37: { en: "Fox", zh: "狐狸" }, // Vulpix
+    38: { en: "Fox", zh: "狐狸" }, // Ninetales
+    39: { en: "Balloon", zh: "氣球" }, // Jigglypuff
+    40: { en: "Balloon", zh: "氣球" }, // Wigglytuff
+    41: { en: "Bat", zh: "蝙蝠" }, // Zubat
+    42: { en: "Bat", zh: "蝙蝠" }, // Golbat
+    43: { en: "Weed", zh: "雜草" }, // Oddish
+    44: { en: "Weed", zh: "雜草" }, // Gloom
+    45: { en: "Flower", zh: "花" }, // Vileplume
+    46: { en: "Mushroom", zh: "蘑菇" }, // Paras
+    47: { en: "Mushroom", zh: "蘑菇" }, // Parasect
+    48: { en: "Insect", zh: "昆蟲" }, // Venonat
+    49: { en: "Poison Moth", zh: "毒蛾" }, // Venomoth
+    50: { en: "Mole", zh: "鼴鼠" }, // Diglett
+    51: { en: "Mole", zh: "鼴鼠" }, // Dugtrio
+    52: { en: "Scratch Cat", zh: "妖怪貓" }, // Meowth
+    53: { en: "Classy Cat", zh: "暹羅貓" }, // Persian
+    54: { en: "Duck", zh: "鴨" }, // Psyduck
+    55: { en: "Duck", zh: "鴨" }, // Golduck
+    56: { en: "Pig Monkey", zh: "豬猴" }, // Mankey
+    57: { en: "Pig Monkey", zh: "豬猴" }, // Primeape
+    58: { en: "Puppy", zh: "小狗" }, // Growlithe
+    59: { en: "Legendary", zh: "傳說" }, // Arcanine
+    60: { en: "Tadpole", zh: "蝌蚪" }, // Poliwag
+    61: { en: "Tadpole", zh: "蝌蚪" }, // Poliwhirl
+    62: { en: "Tadpole", zh: "蝌蚪" }, // Poliwrath
+    63: { en: "Psi", zh: "念力" }, // Abra
+    64: { en: "Psi", zh: "念力" }, // Kadabra
+    65: { en: "Psi", zh: "念力" }, // Alakazam
+    66: { en: "Superpower", zh: "怪力" }, // Machop
+    67: { en: "Superpower", zh: "怪力" }, // Machoke
+    68: { en: "Superpower", zh: "怪力" }, // Machamp
+    69: { en: "Flower", zh: "花" }, // Bellsprout
+    70: { en: "Flycatcher", zh: "捕蠅草" }, // Weepinbell
+    71: { en: "Flycatcher", zh: "捕蠅草" }, // Victreebel
+    72: { en: "Jellyfish", zh: "水母" }, // Tentacool
+    73: { en: "Jellyfish", zh: "水母" }, // Tentacruel
+    74: { en: "Rock", zh: "岩石" }, // Geodude
+    75: { en: "Rock", zh: "岩石" }, // Graveler
+    76: { en: "Megaton", zh: "重量級" }, // Golem
+    77: { en: "Fire Horse", zh: "火馬" }, // Ponyta
+    78: { en: "Fire Horse", zh: "火馬" }, // Rapidash
+    79: { en: "Dopey", zh: "憨憨" }, // Slowpoke
+    80: { en: "Hermit Crab", zh: "寄居蟹" }, // Slowbro
+    81: { en: "Magnet", zh: "磁鐵" }, // Magnemite
+    82: { en: "Magnet", zh: "磁鐵" }, // Magneton
+    83: { en: "Wild Duck", zh: "野鴨" }, // Farfetch’d
+    84: { en: "Twin Bird", zh: "雙子鳥" }, // Doduo
+    85: { en: "Triple Bird", zh: "三子鳥" }, // Dodrio
+    86: { en: "Sea Lion", zh: "海獅" }, // Seel
+    87: { en: "Sea Lion", zh: "海獅" }, // Dewgong
+    88: { en: "Sludge", zh: "污泥" }, // Grimer
+    89: { en: "Sludge", zh: "污泥" }, // Muk
+    90: { en: "Bivalve", zh: "雙殼貝" }, // Shellder
+    91: { en: "Bivalve", zh: "雙殼貝" }, // Cloyster
+    92: { en: "Gas", zh: "氣體" }, // Gastly
+    93: { en: "Gas", zh: "氣體" }, // Haunter
+    94: { en: "Shadow", zh: "影子" }, // Gengar
+    95: { en: "Rock Snake", zh: "岩石蛇" }, // Onix
+    96: { en: "Hypnosis", zh: "催眠" }, // Drowzee
+    97: { en: "Hypnosis", zh: "催眠" }, // Hypno
+    98: { en: "River Crab", zh: "蟹" }, // Krabby
+    99: { en: "Pincer", zh: "鉗子" }, // Kingler
+    100: { en: "Ball", zh: "球" }, // Voltorb
+    101: { en: "Ball", zh: "球" }, // Electrode
+    102: { en: "Egg", zh: "蛋" }, // Exeggcute
+    103: { en: "Coconut", zh: "椰子" }, // Exeggutor
+    104: { en: "Lonely", zh: "孤獨" }, // Cubone
+    105: { en: "Bone Keeper", zh: "愛骨" }, // Marowak
+    106: { en: "Kicking", zh: "踢腿" }, // Hitmonlee
+    107: { en: "Punching", zh: "拳擊" }, // Hitmonchan
+    108: { en: "Licking", zh: "舔舔" }, // Lickitung
+    109: { en: "Poison Gas", zh: "毒氣" }, // Koffing
+    110: { en: "Poison Gas", zh: "毒氣" }, // Weezing
+    111: { en: "Spikes", zh: "尖刺" }, // Rhyhorn
+    112: { en: "Drill", zh: "鑽錐" }, // Rhydon
+    113: { en: "Egg", zh: "蛋" }, // Chansey
+    114: { en: "Vine", zh: "藤蔓" }, // Tangela
+    115: { en: "Parent", zh: "親子" }, // Kangaskhan
+    116: { en: "Dragon", zh: "龍" }, // Horsea
+    117: { en: "Dragon", zh: "龍" }, // Seadra
+    118: { en: "Goldfish", zh: "金魚" }, // Goldeen
+    119: { en: "Goldfish", zh: "金魚" }, // Seaking
+    120: { en: "Star Shape", zh: "星星" }, // Staryu
+    121: { en: "Mysterious", zh: "謎" }, // Starmie
+    122: { en: "Barrier", zh: "障礙" }, // Mr. Mime
+    123: { en: "Mantis", zh: "螳螂" }, // Scyther
+    124: { en: "Human Shape", zh: "人形" }, // Jynx
+    125: { en: "Electric", zh: "電擊" }, // Electabuzz
+    126: { en: "Spitfire", zh: "吐火" }, // Magmar
+    127: { en: "Stag Beetle", zh: "鍬形蟲" }, // Pinsir
+    128: { en: "Wild Bull", zh: "暴牛" }, // Tauros
+    129: { en: "Fish", zh: "魚" }, // Magikarp
+    130: { en: "Atrocious", zh: "凶惡" }, // Gyarados
+    131: { en: "Transport", zh: "乘載" }, // Lapras
+    132: { en: "Transform", zh: "變身" }, // Ditto
+    133: { en: "Evolution", zh: "進化" }, // Eevee
+    134: { en: "Bubble Jet", zh: "吐泡" }, // Vaporeon
+    135: { en: "Lightning", zh: "雷雨" }, // Jolteon
+    136: { en: "Flame", zh: "火焰" }, // Flareon
+    137: { en: "Virtual", zh: "虛擬" }, // Porygon
+    138: { en: "Spiral", zh: "螺旋" }, // Omanyte
+    139: { en: "Spiral", zh: "螺旋" }, // Omastar
+    140: { en: "Shellfish", zh: "甲殼" }, // Kabuto
+    141: { en: "Shellfish", zh: "甲殼" }, // Kabutops
+    142: { en: "Fossil", zh: "化石" }, // Aerodactyl
+    143: { en: "Sleeping", zh: "瞌睡" }, // Snorlax
+    144: { en: "Freeze", zh: "冷凍" }, // Articuno
+    145: { en: "Electric", zh: "電擊" }, // Zapdos
+    146: { en: "Flame", zh: "火焰" }, // Moltres
+    147: { en: "Dragon", zh: "龍" }, // Dratini
+    148: { en: "Dragon", zh: "龍" }, // Dragonair
+    149: { en: "Dragon", zh: "龍" }, // Dragonite
+    150: { en: "Genetic", zh: "基因" }, // Mewtwo
+    151: { en: "New Species", zh: "新種" }, // Mew
+    152: { en: "Leaf", zh: "葉子" }, // Chikorita
+    153: { en: "Leaf", zh: "葉子" }, // Bayleef
+    154: { en: "Herb", zh: "香草" }, // Meganium
+    155: { en: "Fire Mouse", zh: "火鼠" }, // Cyndaquil
+    156: { en: "Volcano", zh: "火山" }, // Quilava
+    157: { en: "Volcano", zh: "火山" }, // Typhlosion
+    158: { en: "Big Jaw", zh: "大顎" }, // Totodile
+    159: { en: "Big Jaw", zh: "大顎" }, // Croconaw
+    160: { en: "Big Jaw", zh: "大顎" }, // Feraligatr
+    161: { en: "Scout", zh: "放哨" }, // Sentret
+    162: { en: "Long Body", zh: "長體" }, // Furret
+    163: { en: "Owl", zh: "貓頭鷹" }, // Hoothoot
+    164: { en: "Owl", zh: "貓頭鷹" }, // Noctowl
+    165: { en: "Five Star", zh: "五星" }, // Ledyba
+    166: { en: "Five Star", zh: "五星" }, // Ledian
+    167: { en: "String Spit", zh: "吐絲" }, // Spinarak
+    168: { en: "Long Leg", zh: "長腿" }, // Ariados
+    169: { en: "Bat", zh: "蝙蝠" }, // Crobat
+    170: { en: "Angler", zh: "鮟鱇" }, // Chinchou
+    171: { en: "Light", zh: "發光" }, // Lanturn
+    172: { en: "Tiny Mouse", zh: "小鼠" }, // Pichu
+    173: { en: "Star Shape", zh: "星星" }, // Cleffa
+    174: { en: "Balloon", zh: "氣球" }, // Igglybuff
+    175: { en: "Spike Ball", zh: "針球" }, // Togepi
+    176: { en: "Happiness", zh: "幸福" }, // Togetic
+    177: { en: "Tiny Bird", zh: "小鳥" }, // Natu
+    178: { en: "Mystic", zh: "精靈" }, // Xatu
+    179: { en: "Wool", zh: "綿毛" }, // Mareep
+    180: { en: "Wool", zh: "綿毛" }, // Flaaffy
+    181: { en: "Light", zh: "發光" }, // Ampharos
+    182: { en: "Flower", zh: "花" }, // Bellossom
+    183: { en: "Aqua Mouse", zh: "水鼠" }, // Marill
+    184: { en: "Aqua Rabbit", zh: "水兔" }, // Azumarill
+    185: { en: "Imitation", zh: "模仿" }, // Sudowoodo
+    186: { en: "Frog", zh: "青蛙" }, // Politoed
+    187: { en: "Cottonweed", zh: "綿草" }, // Hoppip
+    188: { en: "Cottonweed", zh: "綿草" }, // Skiploom
+    189: { en: "Cottonweed", zh: "綿草" }, // Jumpluff
+    190: { en: "Long Tail", zh: "長尾" }, // Aipom
+    191: { en: "Seed", zh: "種子" }, // Sunkern
+    192: { en: "Sun", zh: "太陽" }, // Sunflora
+    193: { en: "Clear Wing", zh: "薄翼" }, // Yanma
+    194: { en: "Water Fish", zh: "水魚" }, // Wooper
+    195: { en: "Water Fish", zh: "水魚" }, // Quagsire
+    196: { en: "Sun", zh: "太陽" }, // Espeon
+    197: { en: "Moonlight", zh: "月光" }, // Umbreon
+    198: { en: "Darkness", zh: "黑暗" }, // Murkrow
+    199: { en: "Royal", zh: "王者" }, // Slowking
+    200: { en: "Screech", zh: "夜鳴" }, // Misdreavus
+    201: { en: "Symbol", zh: "符號" }, // Unown
+    202: { en: "Patient", zh: "忍耐" }, // Wobbuffet
+    203: { en: "Long Neck", zh: "長頸" }, // Girafarig
+    204: { en: "Bagworm", zh: "蓑衣蟲" }, // Pineco
+    205: { en: "Bagworm", zh: "蓑衣蟲" }, // Forretress
+    206: { en: "Land Snake", zh: "地蛇" }, // Dunsparce
+    207: { en: "Fly Scorpion", zh: "飛蠍" }, // Gligar
+    208: { en: "Iron Snake", zh: "鐵蛇" }, // Steelix
+    209: { en: "Fairy", zh: "妖精" }, // Snubbull
+    210: { en: "Fairy", zh: "妖精" }, // Granbull
+    211: { en: "Balloon", zh: "氣球" }, // Qwilfish
+    212: { en: "Pincer", zh: "鉗子" }, // Scizor
+    213: { en: "Mold", zh: "發酵" }, // Shuckle
+    214: { en: "Single Horn", zh: "獨角" }, // Heracross
+    215: { en: "Sharp Claw", zh: "鉤爪" }, // Sneasel
+    216: { en: "Little Bear", zh: "小熊" }, // Teddiursa
+    217: { en: "Hibernator", zh: "冬眠" }, // Ursaring
+    218: { en: "Lava", zh: "熔岩" }, // Slugma
+    219: { en: "Lava", zh: "熔岩" }, // Magcargo
+    220: { en: "Pig", zh: "豬" }, // Swinub
+    221: { en: "Swine", zh: "馱豬" }, // Piloswine
+    222: { en: "Coral", zh: "珊瑚" }, // Corsola
+    223: { en: "Jet", zh: "噴射" }, // Remoraid
+    224: { en: "Jet", zh: "噴射" }, // Octillery
+    225: { en: "Delivery", zh: "搬運" }, // Delibird
+    226: { en: "Kite", zh: "風箏" }, // Mantine
+    227: { en: "Armor Bird", zh: "盔甲鳥" }, // Skarmory
+    228: { en: "Dark", zh: "陰暗" }, // Houndour
+    229: { en: "Dark", zh: "陰暗" }, // Houndoom
+    230: { en: "Dragon", zh: "龍" }, // Kingdra
+    231: { en: "Long Nose", zh: "長鼻" }, // Phanpy
+    232: { en: "Armor", zh: "鎧甲" }, // Donphan
+    233: { en: "Virtual", zh: "虛擬" }, // Porygon2
+    234: { en: "Big Horn", zh: "大角" }, // Stantler
+    235: { en: "Painter", zh: "畫畫" }, // Smeargle
+    236: { en: "Scuffle", zh: "打架" }, // Tyrogue
+    237: { en: "Handstand", zh: "倒立" }, // Hitmontop
+    238: { en: "Kiss", zh: "親吻" }, // Smoochum
+    239: { en: "Electric", zh: "電擊" }, // Elekid
+    240: { en: "Live Coal", zh: "火種" }, // Magby
+    241: { en: "Milk Cow", zh: "奶牛" }, // Miltank
+    242: { en: "Happiness", zh: "幸福" }, // Blissey
+    243: { en: "Thunder", zh: "雷" }, // Raikou
+    244: { en: "Volcano", zh: "火山" }, // Entei
+    245: { en: "Aurora", zh: "極光" }, // Suicune
+    246: { en: "Rock Skin", zh: "岩石" }, // Larvitar
+    247: { en: "Hard Shell", zh: "硬殼" }, // Pupitar
+    248: { en: "Armor", zh: "鎧甲" }, // Tyranitar
+    249: { en: "Diving", zh: "潛水" }, // Lugia
+    250: { en: "Rainbow", zh: "虹" }, // Ho-Oh
+    251: { en: "Time Travel", zh: "穿越時空" }, // Celebi
+    252: { en: "Wood Gecko", zh: "木守宮" }, // Treecko
+    253: { en: "Wood Gecko", zh: "木守宮" }, // Grovyle
+    254: { en: "Forest", zh: "密林" }, // Sceptile
+    255: { en: "Chick", zh: "雛雞" }, // Torchic
+    256: { en: "Young Fowl", zh: "幼禽" }, // Combusken
+    257: { en: "Blaze", zh: "猛火" }, // Blaziken
+    258: { en: "Mud Fish", zh: "沼魚" }, // Mudkip
+    259: { en: "Mud Fish", zh: "沼魚" }, // Marshtomp
+    260: { en: "Mud Fish", zh: "沼魚" }, // Swampert
+    261: { en: "Bite", zh: "咬住" }, // Poochyena
+    262: { en: "Bite", zh: "咬住" }, // Mightyena
+    263: { en: "Tiny Raccoon", zh: "豆狸" }, // Zigzagoon
+    264: { en: "Rushing", zh: "猛衝" }, // Linoone
+    265: { en: "Worm", zh: "蟲寶寶" }, // Wurmple
+    266: { en: "Cocoon", zh: "蛹" }, // Silcoon
+    267: { en: "Butterfly", zh: "蝴蝶" }, // Beautifly
+    268: { en: "Cocoon", zh: "蛹" }, // Cascoon
+    269: { en: "Poison Moth", zh: "毒蛾" }, // Dustox
+    270: { en: "Water Weed", zh: "浮萍" }, // Lotad
+    271: { en: "Jolly", zh: "樂天" }, // Lombre
+    272: { en: "Carefree", zh: "樂天" }, // Ludicolo
+    273: { en: "Acorn", zh: "橡實" }, // Seedot
+    274: { en: "Wily", zh: "捉弄" }, // Nuzleaf
+    275: { en: "Wicked", zh: "邪惡" }, // Shiftry
+    276: { en: "Tiny Swallow", zh: "幼燕" }, // Taillow
+    277: { en: "Swallow", zh: "燕子" }, // Swellow
+    278: { en: "Seagull", zh: "海鷗" }, // Wingull
+    279: { en: "Water Bird", zh: "水鳥" }, // Pelipper
+    280: { en: "Feeling", zh: "感受" }, // Ralts
+    281: { en: "Emotion", zh: "感情" }, // Kirlia
+    282: { en: "Embrace", zh: "包容" }, // Gardevoir
+    283: { en: "Pond Skater", zh: "水黽" }, // Surskit
+    284: { en: "Eyeball", zh: "眼珠" }, // Masquerain
+    285: { en: "Mushroom", zh: "蘑菇" }, // Shroomish
+    286: { en: "Mushroom", zh: "蘑菇" }, // Breloom
+    287: { en: "Slacker", zh: "懶猴" }, // Slakoth
+    288: { en: "Wild Monkey", zh: "狂暴猴" }, // Vigoroth
+    289: { en: "Lazy", zh: "怕麻煩" }, // Slaking
+    290: { en: "Trainee", zh: "新人" }, // Nincada
+    291: { en: "Ninja", zh: "忍者" }, // Ninjask
+    292: { en: "Shed", zh: "空殼" }, // Shedinja
+    293: { en: "Whisper", zh: "耳語" }, // Whismur
+    294: { en: "Big Voice", zh: "大聲" }, // Loudred
+    295: { en: "Loud Noise", dist: "噪音", zh: "噪音" }, // Exploud
+    296: { en: "Guts", zh: "毅力" }, // Makuhita
+    297: { en: "Arm Thrust", zh: "猛推" }, // Hariyama
+    298: { en: "Polka Dot", zh: "水珠" }, // Azurill
+    299: { en: "Compass", zh: "羅盤" }, // Nosepass
+    300: { en: "Kitten", zh: "小貓" }, // Skitty
+    301: { en: "Prim", zh: "裝乖" }, // Delcatty
+    302: { en: "Darkness", zh: "黑暗" }, // Sableye
+    303: { en: "Deceiver", zh: "欺騙" }, // Mawile
+    304: { en: "Iron Armor", zh: "鐵甲" }, // Aron
+    305: { en: "Iron Armor", zh: "鐵甲" }, // Lairon
+    306: { en: "Iron Armor", zh: "鐵甲" }, // Aggron
+    307: { en: "Meditate", zh: "冥想" }, // Meditite
+    308: { en: "Meditate", zh: "冥想" }, // Medicham
+    309: { en: "Lightning", zh: "閃電" }, // Electrike
+    310: { en: "Discharge", zh: "放電" }, // Manectric
+    311: { en: "Cheering", zh: "加油" }, // Plusle
+    312: { en: "Cheering", zh: "加油" }, // Minun
+    313: { en: "Firefly", zh: "螢火蟲" }, // Volbeat
+    314: { en: "Firefly", zh: "螢火蟲" }, // Illumise
+    315: { en: "Thorn", zh: "荊棘" }, // Roselia
+    316: { en: "Stomach", zh: "胃袋" }, // Gulpin
+    317: { en: "Poison Bag", zh: "毒袋" }, // Swalot
+    318: { en: "Savage", zh: "凶暴" }, // Carvanha
+    319: { en: "Brutal", zh: "兇殘" }, // Sharpedo
+    320: { en: "Ball Whale", zh: "球鯨" }, // Wailmer
+    321: { en: "Float Whale", zh: "浮鯨" }, // Wailord
+    322: { en: "Numb", zh: "遲鈍" }, // Numel
+    323: { en: "Eruption", zh: "噴火" }, // Camerupt
+    324: { en: "Coal", zh: "煤炭" }, // Torkoal
+    325: { en: "Bounce", zh: "彈簧" }, // Spoink
+    326: { en: "Manipulate", zh: "操縱" }, // Grumpig
+    327: { en: "Spot Panda", zh: "斑點熊貓" }, // Spinda
+    328: { en: "Ant Pit", zh: "蟻獅" }, // Trapinch
+    329: { en: "Vibration", zh: "振動" }, // Vibrava
+    330: { en: "Mystic", zh: "精靈" }, // Flygon
+    331: { en: "Cactus", zh: "仙人掌" }, // Cacnea
+    332: { en: "Scarecrow", zh: "稻草人" }, // Cacturne
+    333: { en: "Cotton Bird", zh: "綿鳥" }, // Swablu
+    334: { en: "Humming", zh: "哼唱" }, // Altaria
+    335: { en: "Cat Ferret", zh: "貓鼬" }, // Zangoose
+    336: { en: "Fang Snake", zh: "牙蛇" }, // Seviper
+    337: { en: "Meteorite", zh: "隕石" }, // Lunatone
+    338: { en: "Meteorite", zh: "隕石" }, // Solrock
+    339: { en: "Whiskers", zh: "泥鰍" }, // Barboach
+    340: { en: "Whiskers", zh: "泥鰍" }, // Whiscash
+    341: { en: "Ruffian", zh: "流氓" }, // Corphish
+    342: { en: "Rogue", zh: "暴徒" }, // Crawdaunt
+    343: { en: "Clay Doll", zh: "土偶" }, // Baltoy
+    344: { en: "Clay Doll", zh: "土偶" }, // Claydol
+    345: { en: "Sea Lily", zh: "海百合" }, // Lileep
+    346: { en: "Barnacle", zh: "藤壺" }, // Cradily
+    347: { en: "Old Shrimp", zh: "古蝦" }, // Anorith
+    348: { en: "Plate", zh: "甲冑" }, // Armaldo
+    349: { en: "Fish", zh: "魚" }, // Feebas
+    350: { en: "Tender", zh: "慈愛" }, // Milotic
+    351: { en: "Weather", zh: "天氣" }, // Castform
+    352: { en: "Color Swap", zh: "變色" }, // Kecleon
+    353: { en: "Puppet", zh: "木偶" }, // Shuppet
+    354: { en: "Marionette", zh: "布偶" }, // Banette
+    355: { en: "Requiem", zh: "迎送" }, // Duskull
+    356: { en: "Beckon", zh: "招手" }, // Dusclops
+    357: { en: "Fruit", zh: "水果" }, // Tropius
+    358: { en: "Wind Chime", zh: "風鈴" }, // Chimecho
+    359: { en: "Disaster", zh: "災禍" }, // Absol
+    360: { en: "Bright", zh: "開朗" }, // Wynaut
+    361: { en: "Snow Hat", zh: "雪笠" }, // Snorunt
+    362: { en: "Face", zh: "臉孔" }, // Glalie
+    363: { en: "Clap", zh: "拍手" }, // Spheal
+    364: { en: "Ball Roll", zh: "滾球" }, // Sealeo
+    365: { en: "Ice Break", zh: "破冰" }, // Walrein
+    366: { en: "Bivalve", zh: "雙殼貝" }, // Clamperl
+    367: { en: "Deep Sea", zh: "深海" }, // Huntail
+    368: { en: "South Sea", zh: "南海" }, // Gorebyss
+    369: { en: "Longevity", zh: "長壽" }, // Relicanth
+    370: { en: "Rendezvous", zh: "相聚" }, // Luvdisc
+    371: { en: "Rock Head", zh: "堅硬腦袋" }, // Bagon
+    372: { en: "Endurance", zh: "忍耐" }, // Shelgon
+    373: { en: "Dragon", zh: "龍" }, // Salamence
+    374: { en: "Iron Ball", zh: "鐵球" }, // Beldum
+    375: { en: "Iron Claw", zh: "鐵爪" }, // Metang
+    376: { en: "Iron Leg", zh: "鐵腿" }, // Metagross
+    377: { en: "Rock Peak", zh: "岩山" }, // Regirock
+    378: { en: "Iceberg", zh: "冰山" }, // Regice
+    379: { en: "Iron", zh: "黑鐵" }, // Registeel
+    380: { en: "Eon", zh: "無限" }, // Latias
+    381: { en: "Eon", zh: "無限" }, // Latios
+    382: { en: "Sea Basin", zh: "海底盆地" }, // Kyogre
+    383: { en: "Continent", zh: "大陸" }, // Groudon
+    384: { en: "Sky High", zh: "天空" }, // Rayquaza
+    385: { en: "Wish", zh: "祈願" }, // Jirachi
+    386: { en: "DNA", zh: "DNA" }, // Deoxys
+    387: { en: "Tiny Leaf", zh: "若葉" }, // Turtwig
+    388: { en: "Grove", zh: "樹叢" }, // Grotle
+    389: { en: "Continent", zh: "大陸" }, // Torterra
+    390: { en: "Chimp", zh: "小猴" }, // Chimchar
+    391: { en: "Playful", zh: "調皮" }, // Monferno
+    392: { en: "Flame", zh: "火焰" }, // Infernape
+    393: { en: "Penguin", zh: "企鵝" }, // Piplup
+    394: { en: "Penguin", zh: "企鵝" }, // Prinplup
+    395: { en: "Emperor", zh: "皇帝" }, // Empoleon
+    396: { en: "Starling", zh: "椋鳥" }, // Starly
+    397: { en: "Starling", zh: "椋鳥" }, // Staravia
+    398: { en: "Predator", zh: "猛禽" }, // Staraptor
+    399: { en: "Plump Mouse", zh: "圓鼠" }, // Bidoof
+    400: { en: "Beaver", zh: "海狸" }, // Bibarel
+    401: { en: "Cricket", zh: "蟋蟀" }, // Kricketot
+    402: { en: "Cricket", zh: "蟋蟀" }, // Kricketune
+    403: { en: "Flash", zh: "閃光" }, // Shinx
+    404: { en: "Spark", zh: "電光" }, // Luxio
+    405: { en: "Gleam Eyes", zh: "透視" }, // Luxray
+    406: { en: "Bud", zh: "花苞" }, // Budew
+    407: { en: "Bouquet", zh: "花束" }, // Roserade
+    408: { en: "Head Butt", zh: "頭錘" }, // Cranidos
+    409: { en: "Head Butt", zh: "頭錘" }, // Rampardos
+    410: { en: "Shield", zh: "護盾" }, // Shieldon
+    411: { en: "Shield", zh: "護盾" }, // Bastiodon
+    412: { en: "Bagworm", zh: "蓑衣蟲" }, // Burmy
+    413: { en: "Bagworm", zh: "蓑衣蟲" }, // Wormadam
+    414: { en: "Moth", zh: "蛾" }, // Mothim
+    415: { en: "Tiny Bee", zh: "小蜂" }, // Combee
+    416: { en: "Beehive", zh: "蜂巢" }, // Vespiquen
+    417: { en: "EleSquirrel", zh: "電松鼠" }, // Pachirisu
+    418: { en: "Sea Weasel", zh: "海鼬" }, // Buizel
+    419: { en: "Sea Weasel", zh: "海鼬" }, // Floatzel
+    420: { en: "Cherry", zh: "櫻桃" }, // Cherubi
+    421: { en: "Blossom", zh: "櫻花" }, // Cherrim
+    422: { en: "Sea Slug", zh: "海兔" }, // Shellos
+    423: { en: "Sea Slug", zh: "海兔" }, // Gastrodon
+    424: { en: "Long Tail", zh: "長尾" }, // Ambipom
+    425: { en: "Balloon", zh: "氣球" }, // Drifloon
+    426: { en: "Blimp", zh: "熱氣球" }, // Drifblim
+    427: { en: "Rabbit", zh: "兔子" }, // Buneary
+    428: { en: "Rabbit", zh: "兔子" }, // Lopunny
+    429: { en: "Magical", zh: "魔法" }, // Mismagius
+    430: { en: "Big Boss", zh: "大老闆" }, // Honchkrow
+    431: { en: "Catty", zh: "裝乖" }, // Glameow
+    432: { en: "Tiger Cat", zh: "虎斑貓" }, // Purugly
+    433: { en: "Bell", zh: "鈴鐺" }, // Chingling
+    434: { en: "Skunk", zh: "臭鼬" }, // Stunky
+    435: { en: "Skunk", zh: "臭鼬" }, // Skuntank
+    436: { en: "Bronze", zh: "青銅" }, // Bronzor
+    437: { en: "Bronze Bell", zh: "銅鐘" }, // Bronzong
+    438: { en: "Bonsai", zh: "盆栽" }, // Bonsly
+    439: { en: "Mime", zh: "默劇" }, // Mime Jr.
+    440: { en: "Playhouse", zh: "家家酒" }, // Happiny
+    441: { en: "Music Note", zh: "音符" }, // Chatot
+    442: { en: "Forbidden", zh: "封印" }, // Spiritomb
+    443: { en: "Land Shark", zh: "陸鯊" }, // Gible
+    444: { en: "Cave", zh: "洞穴" }, // Gabite
+    445: { en: "Mach", zh: "音速" }, // Garchomp
+    446: { en: "Big Eater", zh: "大胃王" }, // Munchlax
+    447: { en: "Emanation", zh: "波紋" }, // Riolu
+    448: { en: "Aura", zh: "波導" }, // Lucario
+    449: { en: "Hippo", zh: "河馬" }, // Hippopotas
+    450: { en: "Heavyweight", zh: "重量級" }, // Hippowdon
+    451: { en: "Scorpion", zh: "蠍子" }, // Skorupi
+    452: { en: "Ogre Scorpion", zh: "巨蠍" }, // Drapion
+    453: { en: "Toxic Mouth", zh: "毒擊" }, // Croagunk
+    454: { en: "Toxic Mouth", zh: "毒擊" }, // Toxicroak
+    455: { en: "Bug Catcher", zh: "捕蟲" }, // Carnivine
+    456: { en: "Wing Fish", zh: "翼魚" }, // Finneon
+    457: { en: "Neon", zh: "霓虹" }, // Lumineon
+    458: { en: "Kite", zh: "風箏" }, // Mantyke
+    459: { en: "Frost Tree", zh: "樹冰" }, // Snover
+    460: { en: "Frost Tree", zh: "樹冰" }, // Abomasnow
+    461: { en: "Sharp Claw", zh: "鉤爪" }, // Weavile
+    462: { en: "Magnet Area", zh: "磁場" }, // Magnezone
+    463: { en: "Licking", zh: "舔舔" }, // Lickilicky
+    464: { en: "Drill", zh: "鑽錐" }, // Rhyperior
+    465: { en: "Vine", zh: "藤蔓" }, // Tangrowth
+    466: { en: "Thunderbolt", zh: "雷電" }, // Electivire
+    467: { en: "Blast", zh: "爆焰" }, // Magmortar
+    468: { en: "Jubilee", zh: "祝福" }, // Togekiss
+    469: { en: "Ogre Darner", zh: "咬人" }, // Yanmega
+    470: { en: "Verdant", zh: "新綠" }, // Leafeon
+    471: { en: "Fresh Snow", zh: "粉雪" }, // Glaceon
+    472: { en: "Fang Scorpion", zh: "牙蠍" }, // Gliscor
+    473: { en: "Twin Tusk", zh: "雙牙" }, // Mamoswine
+    474: { en: "Virtual", zh: "虛擬" }, // Porygon-Z
+    475: { en: "Blade", zh: "利刃" }, // Gallade
+    476: { en: "Compass", zh: "羅盤" }, // Probopass
+    477: { en: "Gripper", zh: "抓握" }, // Dusknoir
+    478: { en: "Snow Land", zh: "雪國" }, // Froslass
+    479: { en: "Plasma", zh: "電離子" }, // Rotom
+    480: { en: "Knowledge", zh: "知識" }, // Uxie
+    481: { en: "Emotion", zh: "感情" }, // Mesprit
+    482: { en: "Willpower", zh: "意志" }, // Azelf
+    483: { en: "Temporal", zh: "時間" }, // Dialga
+    484: { en: "Spatial", zh: "空間" }, // Palkia
+    485: { en: "Lava Dome", zh: "火山口" }, // Heatran
+    486: { en: "Colossal", zh: "巨大" }, // Regigigas
+    487: { en: "Renegade", zh: "反抗" }, // Giratina
+    488: { en: "Lunar", zh: "新月" }, // Cresselia
+    489: { en: "Sea Drifter", zh: "浮游" }, // Phione
+    490: { en: "Seafaring", zh: "迴游" }, // Manaphy
+    491: { en: "Pitch-Black", zh: "暗黑" }, // Darkrai
+    492: { en: "Gratitude", zh: "感謝" }, // Shaymin
+    493: { en: "Alpha", zh: "創造" }, // Arceus
+    494: { en: "Victory", zh: "勝利" }, // Victini
+    495: { en: "Grass Snake", zh: "草蛇" }, // Snivy
+    496: { en: "Grass Snake", zh: "草蛇" }, // Servine
+    497: { en: "Regal", zh: "皇家" }, // Serperior
+    498: { en: "Fire Pig", zh: "火豬" }, // Tepig
+    499: { en: "Fire Pig", zh: "火豬" }, // Pignite
+    500: { en: "Mega Fire Pig", zh: "大火豬" }, // Emboar
+    501: { en: "Sea Otter", zh: "海獺" }, // Oshawott
+    502: { en: "Discipline", zh: "修行" }, // Dewott
+    503: { en: "Formidable", zh: "威嚴" }, // Samurott
+    504: { en: "Scout", zh: "放哨" }, // Patrat
+    505: { en: "Lookout", zh: "警戒" }, // Watchog
+    506: { en: "Puppy", zh: "小狗" }, // Lillipup
+    507: { en: "Loyal Dog", zh: "忠犬" }, // Herdier
+    508: { en: "Big-Hearted", zh: "寬容" }, // Stoutland
+    509: { en: "Devious", zh: "壞心眼" }, // Purrloin
+    510: { en: "Cruel", zh: "冷酷" }, // Liepard
+    511: { en: "Grass Monkey", zh: "草猴" }, // Pansage
+    512: { en: "Thorn Monkey", zh: "刺猴" }, // Simisage
+    513: { en: "High Temp", zh: "高溫" }, // Pansear
+    514: { en: "Ember", zh: "火花" }, // Simisear
+    515: { en: "Spray", zh: "水花" }, // Panpour
+    516: { en: "Geyser", zh: "放水" }, // Simipour
+    517: { en: "Dream Eater", zh: "食夢" }, // Munna
+    518: { en: "Drowsing", zh: "半夢半醒" }, // Musharna
+    519: { en: "Tiny Pigeon", zh: "小鴿子" }, // Pidove
+    520: { en: "Wild Pigeon", zh: "野鴿" }, // Tranquill
+    521: { en: "Proud", zh: "自豪" }, // Unfezant
+    522: { en: "Electrified", zh: "帶電" }, // Blitzle
+    523: { en: "Thunderbolt", zh: "雷電" }, // Zebstrika
+    524: { en: "Mantle", zh: "地幔" }, // Roggenrola
+    525: { en: "Ore", zh: "礦石" }, // Boldore
+    526: { en: "Compressed", zh: "高壓" }, // Gigalith
+    527: { en: "Bat", zh: "蝙蝠" }, // Woobat
+    528: { en: "Courting", zh: "求愛" }, // Swoobat
+    529: { en: "Mole", zh: "鼴鼠" }, // Drilbur
+    530: { en: "Subterrene", zh: "地底" }, // Excadrill
+    531: { en: "Hearing", zh: "聽力" }, // Audino
+    532: { en: "Muscular", zh: "筋骨" }, // Timburr
+    533: { en: "Muscular", zh: "筋骨" }, // Gurdurr
+    534: { en: "Muscular", zh: "筋骨" }, // Conkeldurr
+    535: { en: "Tadpole", zh: "蝌蚪" }, // Tympole
+    536: { en: "Vibration", zh: "振動" }, // Palpitoad
+    537: { en: "Vibration", zh: "振動" }, // Seismitoad
+    538: { en: "Judo", zh: "柔道" }, // Throh
+    539: { en: "Karate", zh: "空手道" }, // Sawk
+    540: { en: "Sewing", zh: "裁縫" }, // Sewaddle
+    541: { en: "Leaf-Wrapped", zh: "包葉" }, // Swadloon
+    542: { en: "Nurturing", zh: "育兒" }, // Leavanny
+    543: { en: "Centipede", zh: "蜈蚣" }, // Venipede
+    544: { en: "Curlipede", zh: "繭蚣" }, // Whirlipede
+    545: { en: "Megapede", zh: "巨蚣" }, // Scolipede
+    546: { en: "Cotton Puff", zh: "棉球" }, // Cottonee
+    547: { en: "Windveiled", zh: "風妖" }, // Whimsicott
+    548: { en: "Bulb", zh: "根部" }, // Petilil
+    549: { en: "Flowering", zh: "花飾" }, // Lilligant
+    550: { en: "Hostile", zh: "粗暴" }, // Basculin
+    551: { en: "Desert Croc", zh: "沙漠鱷魚" }, // Sandile
+    552: { en: "Desert Croc", zh: "沙漠鱷魚" }, // Krokorok
+    553: { en: "Intimidation", zh: "威嚇" }, // Krookodile
+    554: { en: "Zen Charm", zh: "不倒翁" }, // Darumaka
+    555: { en: "Blazing", zh: "炎上" }, // Darmanitan
+    556: { en: "Cactus", zh: "仙人掌" }, // Maractus
+    557: { en: "Rock Inn", zh: "石居" }, // Dwebble
+    558: { en: "Stone Home", zh: "岩居" }, // Crustle
+    559: { en: "Shedding", zh: "蛻皮" }, // Scraggy
+    560: { en: "Hoodlum", zh: "惡棍" }, // Scrafty
+    561: { en: "Avianoid", zh: "鳥神" }, // Sigilyph
+    562: { en: "Spirit", zh: "魂魄" }, // Yamask
+    563: { en: "Coffin", zh: "棺材" }, // Cofagrigus
+    564: { en: "Prototurtle", zh: "古龜" }, // Tirtouga
+    565: { en: "Prototurtle", zh: "古龜" }, // Carracosta
+    566: { en: "First Bird", zh: "始祖鳥" }, // Archen
+    567: { en: "First Bird", zh: "始祖鳥" }, // Archeops
+    568: { en: "Trash Bag", zh: "垃圾袋" }, // Trubbish
+    569: { en: "Trash Heap", zh: "垃圾場" }, // Garbodor
+    570: { en: "Tricky Fox", zh: "惡狐" }, // Zorua
+    571: { en: "Illusion Fox", zh: "妖狐" }, // Zoroark
+    572: { en: "Chinchilla", zh: "栗鼠" }, // Minccino
+    573: { en: "Scarf", zh: "圍巾" }, // Cinccino
+    574: { en: "Fixation", zh: "凝視" }, // Gothita
+    575: { en: "Manipulate", zh: "操縱" }, // Gothorita
+    576: { en: "Astral Body", zh: "天體" }, // Gothitelle
+    577: { en: "Cell", zh: "細胞" }, // Solosis
+    578: { en: "Mitosis", zh: "分割" }, // Duosion
+    579: { en: "Multiplying", zh: "增生" }, // Reuniclus
+    580: { en: "Water Bird", zh: "水鳥" }, // Ducklett
+    581: { en: "White Bird", zh: "白鳥" }, // Swanna
+    582: { en: "Fresh Snow", zh: "新雪" }, // Vanillite
+    583: { en: "Icy Snow", zh: "冰雪" }, // Vanillish
+    584: { en: "Snowstorm", zh: "暴風雪" }, // Vanilluxe
+    585: { en: "Season", zh: "季節" }, // Deerling
+    586: { en: "Season", zh: "季節" }, // Sawsbuck
+    587: { en: "Sky Squirrel", zh: "飛鼠" }, // Emolga
+    588: { en: "Clamping", zh: "嚼嚼" }, // Karrablast
+    589: { en: "Cavalry", zh: "騎兵" }, // Escavalier
+    590: { en: "Mushroom", zh: "蘑菇" }, // Foongus
+    591: { en: "Mushroom", zh: "蘑菇" }, // Amoonguss
+    592: { en: "Floating", zh: "漂浮" }, // Frillish
+    593: { en: "Floating", zh: "漂浮" }, // Jellicent
+    594: { en: "Caring", zh: "看護" }, // Alomomola
+    595: { en: "Attaching", zh: "貼附" }, // Joltik
+    596: { en: "EleSpider", zh: "電蜘蛛" }, // Galvantula
+    597: { en: "Thorn Seed", zh: "刺球" }, // Ferroseed
+    598: { en: "Thorn Pod", zh: "刺盤" }, // Ferrothorn
+    599: { en: "Gear", zh: "齒輪" }, // Klink
+    600: { en: "Gear", zh: "齒輪" }, // Klang
+    601: { en: "Gear", zh: "齒輪" }, // Klinklang
+    602: { en: "EleFish", zh: "電魚" }, // Tynamo
+    603: { en: "EleFish", zh: "電魚" }, // Eelektrik
+    604: { en: "EleFish", zh: "電魚" }, // Eelektross
+    605: { en: "Cerebral", zh: "大腦" }, // Elgyem
+    606: { en: "Cerebral", zh: "大腦" }, // Beheeyem
+    607: { en: "Candle", zh: "蠟燭" }, // Litwick
+    608: { en: "Lamp", zh: "燈火" }, // Lampent
+    609: { en: "Luring", zh: "引誘" }, // Chandelure
+    610: { en: "Tusk", zh: "牙" }, // Axew
+    611: { en: "Axe Jaw", zh: "斧顎" }, // Fraxure
+    612: { en: "Axe Jaw", zh: "斧顎" }, // Haxorus
+    613: { en: "Chill", zh: "結凍" }, // Cubchoo
+    614: { en: "Freezing", zh: "凍結" }, // Beartic
+    615: { en: "Crystallizing", zh: "結晶" }, // Cryogonal
+    616: { en: "Snail", zh: "蝸牛" }, // Shelmet
+    617: { en: "Shell Out", zh: "脫殼" }, // Accelgor
+    618: { en: "Trap", zh: "陷阱" }, // Stunfisk
+    619: { en: "Martial Arts", zh: "武術" }, // Mienfoo
+    620: { en: "Martial Arts", zh: "武術" }, // Mienshao
+    621: { en: "Cave", zh: "洞穴" }, // Druddigon
+    622: { en: "Automaton", zh: "泥偶" }, // Golett
+    623: { en: "Automaton", zh: "泥偶" }, // Golurk
+    624: { en: "Sharp Blade", zh: "利刃" }, // Pawniard
+    625: { en: "Sword Blade", zh: "刀刃" }, // Bisharp
+    626: { en: "Bash Buffalo", zh: "撞擊牛" }, // Bouffalant
+    627: { en: "Eaglet", zh: "雛鷹" }, // Rufflet
+    628: { en: "Valiant", zh: "勇猛" }, // Braviary
+    629: { en: "Diapered", zh: "尿布" }, // Vullaby
+    630: { en: "Bone Vulture", zh: "骨鷹" }, // Mandibuzz
+    631: { en: "Anteater", zh: "食蟻獸" }, // Heatmor
+    632: { en: "Iron Ant", zh: "鐵蟻" }, // Durant
+    633: { en: "Irate", zh: "粗暴" }, // Deino
+    634: { en: "Hostile", zh: "粗暴" }, // Zweilous
+    635: { en: "Brutal", zh: "凶暴" }, // Hydreigon
+    636: { en: "Torch", zh: "火把" }, // Larvesta
+    637: { en: "Sun", zh: "太陽" }, // Volcarona
+    638: { en: "Iron Will", zh: "鐵心" }, // Cobalion
+    639: { en: "Cavern", zh: "岩窟" }, // Terrakion
+    640: { en: "Grassland", zh: "草原" }, // Virizion
+    641: { en: "Cyclone", zh: "旋風" }, // Tornadus
+    642: { en: "Bolt Strike", zh: "雷擊" }, // Thundurus
+    643: { en: "Vast White", zh: "白陽" }, // Reshiram
+    644: { en: "Deep Black", zh: "黑陰" }, // Zekrom
+    645: { en: "Abundance", zh: "豐饒" }, // Landorus
+    646: { en: "Boundary", zh: "境界" }, // Kyurem
+    647: { en: "Colt", zh: "小馬" }, // Keldeo
+    648: { en: "Melody", zh: "旋律" }, // Meloetta
+    649: { en: "Paleozoic", zh: "古生代" }, // Genesect
+    650: { en: "Spiny Nut", zh: "栗子" }, // Chespin
+    651: { en: "Spiny Armor", zh: "刺鎧" }, // Quilladin
+    652: { en: "Spiny Armor", zh: "刺鎧" }, // Chesnaught
+    653: { en: "Fox", zh: "狐狸" }, // Fennekin
+    654: { en: "Fox", zh: "狐狸" }, // Braixen
+    655: { en: "Fox", zh: "狐狸" }, // Delphox
+    656: { en: "Bubble Frog", zh: "泡蛙" }, // Froakie
+    657: { en: "Bubble Frog", zh: "泡蛙" }, // Frogadier
+    658: { en: "Ninja", zh: "忍者" }, // Greninja
+    659: { en: "Digging", zh: "挖掘" }, // Bunnelby
+    660: { en: "Digging", zh: "挖掘" }, // Diggersby
+    661: { en: "Tiny Robin", zh: "小鴝" }, // Fletchling
+    662: { en: "Ember", zh: "火花" }, // Fletchinder
+    663: { en: "Scorching", zh: "烈火" }, // Talonflame
+    664: { en: "Scatterdust", zh: "粉蝶蟲" }, // Scatterbug
+    665: { en: "Scatterdust", zh: "粉蝶蟲" }, // Spewpa
+    666: { en: "Scale", zh: "鱗粉" }, // Vivillon
+    667: { en: "Lion Cub", zh: "幼獅" }, // Litleo
+    668: { en: "Royal", zh: "王者" }, // Pyroar
+    669: { en: "Single Bloom", zh: "單花" }, // Flabébé
+    670: { en: "Single Bloom", zh: "單花" }, // Floette
+    671: { en: "Garden", zh: "花園" }, // Florges
+    672: { en: "Mount", zh: "坐騎" }, // Skiddo
+    673: { en: "Mount", zh: "坐騎" }, // Gogoat
+    674: { en: "Playful", zh: "頑皮" }, // Pancham
+    675: { en: "Daunting", zh: "流氓" }, // Pangoro
+    676: { en: "Poodle", zh: "貴賓犬" }, // Furfrou
+    677: { en: "Restraint", zh: "自制" }, // Espurr
+    678: { en: "Constraint", zh: "抑制" }, // Meowstic
+    679: { en: "Sword", zh: "刀劍" }, // Honedge
+    680: { en: "Sword", zh: "刀劍" }, // Doublade
+    681: { en: "Royal Sword", zh: "王劍" }, // Aegislash
+    682: { en: "Perfume", zh: "香水" }, // Spritzee
+    683: { en: "Fragrance", zh: "芳香" }, // Aromatisse
+    684: { en: "Cotton Candy", zh: "棉花糖" }, // Swirlix
+    685: { en: "Meringue", zh: "鮮奶油" }, // Slurpuff
+    686: { en: "Revolving", zh: "迴轉" }, // Inkay
+    687: { en: "Overturning", zh: "逆轉" }, // Malamar
+    688: { en: "Two-Handed", zh: "雙手" }, // Binacle
+    689: { en: "Collective", zh: "集合" }, // Barbaracle
+    690: { en: "Mock Kelp", zh: "擬態海藻" }, // Skrelp
+    691: { en: "Mock Kelp", zh: "擬態海藻" }, // Dragalge
+    692: { en: "Water Gun", zh: "水槍" }, // Clauncher
+    693: { en: "Howitzer", zh: "發射器" }, // Clawitzer
+    694: { en: "Generator", zh: "發電" }, // Helioptile
+    695: { en: "Generator", zh: "發電" }, // Heliolisk
+    696: { en: "Royal Heir", zh: "幼君" }, // Tyrunt
+    697: { en: "Despot", zh: "暴君" }, // Tyrantrum
+    698: { en: "Tundra", zh: "凍原" }, // Amaura
+    699: { en: "Tundra", zh: "凍原" }, // Aurorus
+    700: { en: "Intertwining", zh: "連結" }, // Sylveon
+    701: { en: "Wrestling", zh: "摔角" }, // Hawlucha
+    702: { en: "Antenna", zh: "天線" }, // Dedenne
+    703: { en: "Jewel", zh: "寶石" }, // Carbink
+    704: { en: "Soft Tissue", zh: "軟體" }, // Goomy
+    705: { en: "Soft Tissue", zh: "軟體" }, // Sliggoo
+    706: { en: "Dragon", zh: "龍" }, // Goodra
+    707: { en: "Key Ring", zh: "鑰匙圈" }, // Klefki
+    708: { en: "Stump", zh: "樹株" }, // Phantump
+    709: { en: "Elder Tree", zh: "老樹" }, // Trevenant
+    710: { en: "Pumpkin", zh: "南瓜" }, // Pumpkaboo
+    711: { en: "Pumpkin", zh: "南瓜" }, // Gourgeist
+    712: { en: "Ice Chunk", zh: "冰塊" }, // Bergmite
+    713: { en: "Iceberg", zh: "冰山" }, // Avalugg
+    714: { en: "Sound Wave", zh: "音波" }, // Noibat
+    715: { en: "Sound Wave", zh: "音波" }, // Noivern
+    716: { en: "Life", zh: "生命" }, // Xerneas
+    717: { en: "Destruction", zh: "破壞" }, // Yveltal
+    718: { en: "Order", zh: "秩序" }, // Zygarde
+    719: { en: "Jewel", zh: "寶石" }, // Diancie
+    720: { en: "Mischief", zh: "淘氣" }, // Hoopa
+    721: { en: "Steam", zh: "蒸汽" }, // Volcanion
+    722: { en: "Grass Quill", zh: "草羽" }, // Rowlet
+    723: { en: "Blade Quill", zh: "刃葉" }, // Dartrix
+    724: { en: "Arrow Quill", zh: "箭羽" }, // Decidueye
+    725: { en: "Fire Cat", zh: "火貓" }, // Litten
+    726: { en: "Fire Cat", zh: "火貓" }, // Torracat
+    727: { en: "Heel", zh: "反派" }, // Incineroar
+    728: { en: "Sea Lion", zh: "海獅" }, // Popplio
+    729: { en: "Pop Star", zh: "偶像" }, // Brionne
+    730: { en: "Soloist", zh: "歌唱者" }, // Primarina
+    731: { en: "Woodpecker", zh: "啄木鳥" }, // Pikipek
+    732: { en: "Bugle Beak", zh: "喇叭喙" }, // Trumbeak
+    733: { en: "Cannon", zh: "大炮" }, // Toucannon
+    734: { en: "Loitering", zh: "徘徊" }, // Yungoos
+    735: { en: "Stakeout", zh: "蹲守" }, // Gumshoos
+    736: { en: "Larva", zh: "幼蟲" }, // Grubbin
+    737: { en: "Battery", zh: "蓄電池" }, // Charjabug
+    738: { en: "Stag Beetle", zh: "鍬形蟲" }, // Vikavolt
+    739: { en: "Boxing", zh: "拳擊" }, // Crabrawler
+    740: { en: "Woolly Crab", zh: "毛蟹" }, // Crabominable
+    741: { en: "Dancing", zh: "舞蹈" }, // Oricorio
+    742: { en: "Bee Fly", zh: "蜂虻" }, // Cutiefly
+    743: { en: "Bee Fly", zh: "蜂虻" }, // Ribombee
+    744: { en: "Puppy", zh: "小狗" }, // Rockruff
+    745: { en: "Wolf", zh: "狼" }, // Lycanroc
+    746: { en: "Small Fry", zh: "小魚" }, // Wishiwashi
+    747: { en: "Brutal Star", zh: "非夢星" }, // Mareanie
+    748: { en: "Brutal Star", zh: "非夢星" }, // Toxapex
+    749: { en: "Donkey", zh: "驢子" }, // Mudbray
+    750: { en: "Draft Horse", zh: "輓馬" }, // Mudsdale
+    751: { en: "Water Bubble", zh: "水泡" }, // Dewpider
+    752: { en: "Water Bubble", zh: "水泡" }, // Araquanid
+    753: { en: "Sickle Grass", zh: "鐮草" }, // Fomantis
+    754: { en: "Bloom Sickle", zh: "花鐮" }, // Lurantis
+    755: { en: "Illuminating", zh: "發光" }, // Morelull
+    756: { en: "Illuminating", zh: "發光" }, // Shiinotic
+    757: { en: "Toxic Lizard", zh: "毒蜥" }, // Salandit
+    758: { en: "Toxic Lizard", zh: "毒蜥" }, // Salazzle
+    759: { en: "Flailing", zh: "掙扎" }, // Stufful
+    760: { en: "Strong Arm", zh: "強腕" }, // Bewear
+    761: { en: "Fruit", zh: "水果" }, // Bounsweet
+    762: { en: "Fruit", zh: "水果" }, // Steenee
+    763: { en: "Fruit", zh: "水果" }, // Tsareena
+    764: { en: "Posy Picker", zh: "摘花" }, // Comfey
+    765: { en: "Sage", zh: "賢者" }, // Oranguru
+    766: { en: "Teamwork", zh: "合作" }, // Passimian
+    767: { en: "Turn Tail", zh: "逃跑" }, // Wimpod
+    768: { en: "Hard Scale", zh: "硬甲" }, // Golisopod
+    769: { en: "Sand Heap", zh: "沙丘" }, // Sandygast
+    770: { en: "Sand Castle", zh: "沙堡" }, // Palossand
+    771: { en: "Sea Cucumber", zh: "海參" }, // Pyukumuku
+    772: { en: "Synthetic", zh: "人工" }, // Type: Null
+    773: { en: "Synthetic", zh: "人工" }, // Silvally
+    774: { en: "Meteor", zh: "流星" }, // Minior
+    775: { en: "Drowsing", zh: "半夢半醒" }, // Komala
+    776: { en: "Blast Turtle", zh: "爆炸龜" }, // Turtonator
+    777: { en: "Roly-Poly", zh: "圓球" }, // Togedemaru
+    778: { en: "Disguise", zh: "畫皮" }, // Mimikyu
+    779: { en: "Gnash Teeth", zh: "磨牙" }, // Bruxish
+    780: { en: "Placid", zh: "悠游" }, // Drampa
+    781: { en: "Sea Creeper", zh: "海草" }, // Dhelmise
+    782: { en: "Scaly", zh: "鱗片" }, // Jangmo-o
+    783: { en: "Scaly", zh: "鱗片" }, // Hakamo-o
+    784: { en: "Scaly", zh: "鱗片" }, // Kommo-o
+    785: { en: "Land Spirit", zh: "土地神" }, // Tapu Koko
+    786: { en: "Land Spirit", zh: "土地神" }, // Tapu Lele
+    787: { en: "Land Spirit", zh: "土地神" }, // Tapu Bulu
+    788: { en: "Land Spirit", zh: "土地神" }, // Tapu Fini
+    789: { en: "Nebula", zh: "星雲" }, // Cosmog
+    790: { en: "Protostar", zh: "星之子" }, // Cosmoem
+    791: { en: "Sunne", zh: "吞噬太陽" }, // Solgaleo
+    792: { en: "Moone", zh: "邀引月亮" }, // Lunala
+    793: { en: "Parasite", zh: "寄生" }, // Nihilego
+    794: { en: "Swollen", zh: "膨脹" }, // Buzzwole
+    795: { en: "Lissome", zh: "豔麗" }, // Pheromosa
+    796: { en: "Glowing", zh: "燈飾" }, // Xurkitree
+    797: { en: "Launch", zh: "發射" }, // Celesteela
+    798: { en: "Drawn Sword", zh: "拔刀" }, // Kartana
+    799: { en: "Junkivore", zh: "惡食" }, // Guzzlord
+    800: { en: "Prism", zh: "稜鏡" }, // Necrozma
+    801: { en: "Artificial", zh: "人造" }, // Magearna
+    802: { en: "Gloomdweller", zh: "棲影" }, // Marshadow
+    803: { en: "Poison Pin", zh: "毒針" }, // Poipole
+    804: { en: "Poison Pin", zh: "毒針" }, // Naganadel
+    805: { en: "Rampart", zh: "石牆" }, // Stakataka
+    806: { en: "Fireworks", zh: "煙火" }, // Blacephalon
+    807: { en: "Thunderclap", zh: "迅雷" }, // Zeraora
+    808: { en: "Hex Nut", zh: "螺帽" }, // Meltan
+    809: { en: "Hex Nut", zh: "螺帽" }, // Melmetal
+    810: { en: "Chimp", zh: "小猴" }, // Grookey
+    811: { en: "Beat", zh: "節拍" }, // Thwackey
+    812: { en: "Drummer", zh: "鼓手" }, // Rillaboom
+    813: { en: "Rabbit", zh: "兔子" }, // Scorbunny
+    814: { en: "Rabbit", zh: "兔子" }, // Raboot
+    815: { en: "Striker", zh: "前鋒" }, // Cinderace
+    816: { en: "Water Lizard", zh: "水蜥" }, // Sobble
+    817: { en: "Water Lizard", zh: "水蜥" }, // Drizzile
+    818: { en: "Secret Agent", zh: "特務" }, // Inteleon
+    819: { en: "Cheeky", zh: "貪吃" }, // Skwovet
+    820: { en: "Greedy", zh: "貪心" }, // Greedent
+    821: { en: "Tiny Bird", zh: "小鳥" }, // Rookidee
+    822: { en: "Raven", zh: "烏鴉" }, // Corvisquire
+    823: { en: "Raven", zh: "烏鴉" }, // Corviknight
+    824: { en: "Larva", zh: "幼蟲" }, // Blipbug
+    825: { en: "Radome", zh: "天線罩" }, // Dottler
+    826: { en: "Seven Spot", zh: "七星" }, // Orbeetle
+    827: { en: "Fox", zh: "狐狸" }, // Nickit
+    828: { en: "Fox", zh: "狐狸" }, // Thievul
+    829: { en: "Flowering", zh: "花飾" }, // Gossifleur
+    830: { en: "Cotton Bloom", zh: "棉花飾" }, // Eldegoss
+    831: { en: "Sheep", zh: "綿羊" }, // Wooloo
+    832: { en: "Sheep", zh: "綿羊" }, // Dubwool
+    833: { en: "Snapping", zh: "咬住" }, // Chewtle
+    834: { en: "Bite", zh: "咬住" }, // Drednaw
+    835: { en: "Puppy", zh: "小狗" }, // Yamper
+    836: { en: "Dog", zh: "狗" }, // Boltund
+    837: { en: "Coal", zh: "煤炭" }, // Rolycoly
+    838: { en: "Coal", zh: "煤炭" }, // Carkol
+    839: { en: "Coal", zh: "煤炭" }, // Coalossal
+    840: { en: "Apple Core", zh: "蘋果" }, // Applin
+    841: { en: "Apple Wing", zh: "蘋果翅" }, // Flapple
+    842: { en: "Apple Nectar", zh: "蘋果汁" }, // Appletun
+    843: { en: "Sand Snake", zh: "沙蛇" }, // Silicobra
+    844: { en: "Sand Snake", zh: "沙蛇" }, // Sandaconda
+    845: { en: "Gulp", zh: "一口吞" }, // Cramorant
+    846: { en: "Rush", zh: "突擊" }, // Arrokuda
+    847: { en: "Skewer", zh: "串刺" }, // Barraskewda
+    848: { en: "Baby", zh: "嬰兒" }, // Toxel
+    849: { en: "Punk", zh: "龐克" }, // Toxtricity
+    850: { en: "Radiator", zh: "發熱" }, // Sizzlipede
+    851: { en: "Radiator", zh: "發熱" }, // Centiskorch
+    852: { en: "Tantrum", zh: "鬧脾氣" }, // Clobbopus
+    853: { en: "Jujitsu", zh: "柔術" }, // Grapploct
+    854: { en: "Black Tea", zh: "紅茶" }, // Sinistea
+    855: { en: "Black Tea", zh: "紅茶" }, // Polteageist
+    856: { en: "Calm", zh: "平靜" }, // Hatenna
+    857: { en: "Serene", zh: "寧靜" }, // Hattrem
+    858: { en: "Silent", zh: "寂靜" }, // Hatterene
+    859: { en: "Wily", zh: "捉弄" }, // Impidimp
+    860: { en: "Devious", zh: "壞心眼" }, // Morgrem
+    861: { en: "Bulk Up", zh: "健美" }, // Grimmsnarl
+    862: { en: "Blocking", zh: "攔截" }, // Obstagoon
+    863: { en: "Viking", zh: "維京" }, // Perrserker
+    864: { en: "Coral", zh: "珊瑚" }, // Cursola
+    865: { en: "Wild Duck", zh: "野鴨" }, // Sirfetch’d
+    866: { en: "Comedian", zh: "喜劇" }, // Mr. Rime
+    867: { en: "Grudge", zh: "怨念" }, // Runerigus
+    868: { en: "Cream", zh: "鮮奶油" }, // Milcery
+    869: { en: "Cream", zh: "鮮奶油" }, // Alcremie
+    870: { en: "Formation", zh: "陣型" }, // Falinks
+    871: { en: "Sea Urchin", zh: "海膽" }, // Pincurchin
+    872: { en: "Worm", zh: "蟲寶寶" }, // Snom
+    873: { en: "Frost Moth", zh: "冰霜蛾" }, // Frosmoth
+    874: { en: "Big Rock", zh: "巨石" }, // Stonjourner
+    875: { en: "Penguin", zh: "企鵝" }, // Eiscue
+    876: { en: "Emotion", zh: "感情" }, // Indeedee
+    877: { en: "Two-Sided", zh: "雙面" }, // Morpeko
+    878: { en: "Copperderm", zh: "銅象" }, // Cufant
+    879: { en: "Copperderm", zh: "銅象" }, // Copperajah
+    880: { en: "Fossil", zh: "化石" }, // Dracozolt
+    881: { en: "Fossil", zh: "化石" }, // Arctozolt
+    882: { en: "Fossil", zh: "化石" }, // Dracovish
+    883: { en: "Fossil", zh: "化石" }, // Arctovish
+    884: { en: "Alloy", zh: "合金" }, // Duraludon
+    885: { en: "Lingering", zh: "怨念" }, // Dreepy
+    886: { en: "Caretaker", zh: "照料" }, // Drakloak
+    887: { en: "Stealth", zh: "隱形" }, // Dragapult
+    888: { en: "Warrior", zh: "強者" }, // Zacian
+    889: { en: "Warrior", zh: "強者" }, // Zamazenta
+    890: { en: "Gigantic", zh: "極巨" }, // Eternatus
+    891: { en: "Wushu", zh: "武術" }, // Kubfu
+    892: { en: "Wushu", zh: "武術" }, // Urshifu
+    893: { en: "Rogue Monkey", zh: "惡猿" }, // Zarude
+    894: { en: "Electron", zh: "電子" }, // Regieleki
+    895: { en: "Dragon Orb", zh: "龍玉" }, // Regidrago
+    896: { en: "Wild Horse", zh: "暴馬" }, // Glastrier
+    897: { en: "Swift Horse", zh: "駿馬" }, // Spectrier
+    898: { en: "King", zh: "國王" }, // Calyrex
+    899: { en: "Big Horn", zh: "大角" }, // Wyrdeer
+    900: { en: "Axe", zh: "斧頭" }, // Kleavor
+    901: { en: "Peat", zh: "泥炭" }, // Ursaluna
+    902: { en: "Big Fish", zh: "大魚" }, // Basculegion
+    903: { en: "Free Climb", zh: "攀崖" }, // Sneasler
+    904: { en: "Pin Cluster", zh: "千針" }, // Overqwil
+    905: { en: "Love-Hate", zh: "慈愛" }, // Enamorus
+    906: { en: "Grass Cat", zh: "草貓" }, // Sprigatito
+    907: { en: "Grass Cat", zh: "草貓" }, // Floragato
+    908: { en: "Magician", zh: "魔術師" }, // Meowscarada
+    909: { en: "Fire Croc", zh: "火鱷" }, // Fuecoco
+    910: { en: "Fire Croc", zh: "火鱷" }, // Crocalor
+    911: { en: "Singer", zh: "歌手" }, // Skeledirge
+    912: { en: "Duckling", zh: "小鴨" }, // Quaxly
+    913: { en: "Practicing", zh: "練習" }, // Quaxwell
+    914: { en: "Dancer", zh: "舞者" }, // Quaquaval
+    915: { en: "Hog", zh: "豬" }, // Lechonk
+    916: { en: "Hog", zh: "豬" }, // Oinkologne
+    917: { en: "String Ball", zh: "線球" }, // Tarountula
+    918: { en: "Trap", zh: "陷阱" }, // Spidops
+    919: { en: "Grasshopper", zh: "蚱蜢" }, // Nymble
+    920: { en: "Grasshopper", zh: "蚱蜢" }, // Lokix
+    921: { en: "Mouse", zh: "鼠" }, // Pawmi
+    922: { en: "Mouse", zh: "鼠" }, // Pawmo
+    923: { en: "Hands-On", zh: "觸摸" }, // Pawmot
+    924: { en: "Couple", zh: "一對" }, // Tandemaus
+    925: { en: "Family", zh: "家族" }, // Maushold
+    926: { en: "Puppy", zh: "小狗" }, // Fidough
+    927: { en: "Dog", zh: "狗" }, // Dachsbun
+    928: { en: "Olive", zh: "橄欖" }, // Smoliv
+    929: { en: "Olive", zh: "橄欖" }, // Dolliv
+    930: { en: "Olive", zh: "橄欖" }, // Arboliva
+    931: { en: "Parrot", zh: "鸚鵡" }, // Squawkabilly
+    932: { en: "Rock Salt", zh: "岩鹽" }, // Nacli
+    933: { en: "Rock Salt", zh: "岩鹽" }, // Naclstack
+    934: { en: "Rock Salt", zh: "岩鹽" }, // Garganacl
+    935: { en: "Fire Child", zh: "火之子" }, // Charcadet
+    936: { en: "Fire Warrior", zh: "火戰士" }, // Armarouge
+    937: { en: "Fire Blades", zh: "火劍客" }, // Ceruledge
+    938: { en: "EleTadpole", zh: "電蝌蚪" }, // Tadbulb
+    939: { en: "EleFrog", zh: "電蛙" }, // Bellibolt
+    940: { en: "Storm Petrel", zh: "海燕" }, // Wattrel
+    941: { en: "Frigatebird", zh: "軍艦鳥" }, // Kilowattrel
+    942: { en: "Rascal", zh: "小流氓" }, // Maschiff
+    943: { en: "Boss", zh: "老大" }, // Mabosstiff
+    944: { en: "Toxic Mouse", zh: "毒鼠" }, // Shroodle
+    945: { en: "Toxic Monkey", zh: "毒猴" }, // Grafaiai
+    946: { en: "Tumbleweed", zh: "風滾草" }, // Bramblin
+    947: { en: "Tumbleweed", zh: "風滾草" }, // Brambleghast
+    948: { en: "Woodear", zh: "木耳" }, // Toedscool
+    949: { en: "Woodear", zh: "木耳" }, // Toedscruel
+    950: { en: "Ambush", zh: "伏擊" }, // Klawf
+    951: { en: "Spicy Pepper", zh: "辣椒" }, // Capsakid
+    952: { en: "Spicy Pepper", zh: "辣椒" }, // Scovillain
+    953: { en: "Rolling", zh: "滾動" }, // Rellor
+    954: { en: "Rolling", zh: "滾動" }, // Rabsca
+    955: { en: "Frill", zh: "褶邊" }, // Flittle
+    956: { en: "Ostrich", zh: "鴕鳥" }, // Espathra
+    957: { en: "Metalsmith", zh: "金工" }, // Tinkatink
+    958: { en: "Hammer", zh: "錘子" }, // Tinkatuff
+    959: { en: "Hammer", zh: "錘子" }, // Tinkaton
+    960: { en: "Garden Eel", zh: "花園鰻" }, // Wiglett
+    961: { en: "Garden Eel", zh: "花園鰻" }, // Wugtrio
+    962: { en: "Item Drop", zh: "掉落物" }, // Bombirdier
+    963: { en: "Dolphin", zh: "海豚" }, // Finizen
+    964: { en: "Dolphin", zh: "海豚" }, // Palafin
+    965: { en: "Single-Cyl", zh: "單氣缸" }, // Varoom
+    966: { en: "Multi-Cyl", zh: "多氣缸" }, // Revavroom
+    967: { en: "Mount", zh: "坐騎" }, // Cyclizar
+    968: { en: "Earthworm", zh: "蚯蚓" }, // Orthworm
+    969: { en: "Ore", zh: "礦石" }, // Glimmet
+    970: { en: "Ore", zh: "礦石" }, // Glimmora
+    971: { en: "Ghost Dog", zh: "鬼犬" }, // Greavard
+    972: { en: "Ghost Dog", zh: "鬼犬" }, // Houndstone
+    973: { en: "Synchronize", zh: "同步" }, // Flamigo
+    974: { en: "Terra Whale", zh: "陸鯨" }, // Cetoddle
+    975: { en: "Terra Whale", zh: "陸鯨" }, // Cetitan
+    976: { en: "Jettison", zh: "切割" }, // Veluza
+    977: { en: "Big Catfish", zh: "大鯰魚" }, // Dondozo
+    978: { en: "Mimicry", zh: "擬態" }, // Tatsugiri
+    979: { en: "Rage Monkey", zh: "憤怒猴" }, // Annihilape
+    980: { en: "Spiny Fish", zh: "刺魚" }, // Clodsire
+    981: { en: "Long Neck", zh: "長頸" }, // Farigiraf
+    982: { en: "Land Snake", zh: "地蛇" }, // Dudunsparce
+    983: { en: "Big Blade", zh: "大劍" }, // Kingambit
+    984: { en: "Paradox", zh: "悖謬" }, // Great Tusk
+    985: { en: "Paradox", zh: "悖謬" }, // Scream Tail
+    986: { en: "Paradox", zh: "悖謬" }, // Brute Bonnet
+    987: { en: "Paradox", zh: "悖謬" }, // Flutter Mane
+    988: { en: "Paradox", zh: "悖謬" }, // Slither Wing
+    989: { en: "Paradox", zh: "悖謬" }, // Sandy Shocks
+    990: { en: "Paradox", zh: "悖謬" }, // Iron Treads
+    991: { en: "Paradox", zh: "悖謬" }, // Iron Bundle
+    992: { en: "Paradox", zh: "悖謬" }, // Iron Hands
+    993: { en: "Paradox", zh: "悖謬" }, // Iron Jugulis
+    994: { en: "Paradox", zh: "悖謬" }, // Iron Moth
+    995: { en: "Paradox", zh: "悖謬" }, // Iron Thorns
+    996: { en: "Ice Fin", zh: "冰鰭" }, // Frigibax
+    997: { en: "Ice Fin", zh: "冰鰭" }, // Arctibax
+    998: { en: "Ice Dragon", zh: "冰龍" }, // Baxcalibur
+    999: { en: "Coin Chest", zh: "寶箱" }, // Gimmighoul
+    1000: { en: "Coin Entity", zh: "硬幣" }, // Gholdengo
+    1001: { en: "Ruinous", zh: "災厄" }, // Wo-Chien
+    1002: { en: "Ruinous", zh: "災厄" }, // Chien-Pao
+    1003: { en: "Ruinous", zh: "災厄" }, // Ting-Lu
+    1004: { en: "Ruinous", zh: "災厄" }, // Chi-Yu
+    1005: { en: "Paradox", zh: "悖謬" }, // Roaring Moon
+    1006: { en: "Paradox", zh: "悖謬" }, // Iron Valiant
+    1007: { en: "Paradox", zh: "悖謬" }, // Koraidon
+    1008: { en: "Paradox", zh: "悖謬" }, // Miraidon
+    1009: { en: "Paradox", zh: "悖謬" }, // Walking Wake
+    1010: { en: "Paradox", zh: "悖謬" }, // Iron Leaves
+    1011: { en: "Candy Apple", zh: "糖蘋果" }, // Dipplin
+    1012: { en: "Matcha", zh: "抹茶" }, // Poltchageist
+    1013: { en: "Matcha", zh: "抹茶" }, // Sinistcha
+    1014: { en: "Retainer", zh: "家臣" }, // Okidogi
+    1015: { en: "Retainer", zh: "家臣" }, // Munkidori
+    1016: { en: "Retainer", zh: "家臣" }, // Fezandipiti
+    1017: { en: "Mask", zh: "面具" }, // Ogerpon
+    1018: { en: "Alloy", zh: "合金" }, // Archaludon
+    1019: { en: "Apple Hydra", zh: "蜜蘋果" }, // Hydrapple
+    1020: { en: "Paradox", zh: "悖謬" }, // Gouging Fire
+    1021: { en: "Paradox", zh: "悖謬" }, // Raging Bolt
+    1022: { en: "Paradox", zh: "悖謬" }, // Iron Boulder
+    1023: { en: "Paradox", zh: "悖謬" }, // Iron Crown
+    1024: { en: "Tera", zh: "太晶" }, // Terapagos
+    1025: { en: "Subjugation", zh: "支配" }, // Pecharunt
+};
+
+    };
+
+    // Fallbacks for the incorrect multiple-choice buttons
+    const FALLBACK_GENERA = [
+        { en: "Mouse", zh: "老鼠" }, { en: "Seed", zh: "種子" }, { en: "Lizard", zh: "蜥蜴" }, 
+        { en: "Flame", zh: "火焰" }, { en: "Tiny Turtle", zh: "小龜" }, { en: "Worm", zh: "蟲寶寶" }, 
+        { en: "Cocoon", zh: "蛹" }, { en: "Bird", zh: "雀鳥" }, { en: "Snake", zh: "蛇" }, 
+        { en: "Poison Bee", zh: "毒蜂" }, { en: "Fairy", zh: "妖精" }, { en: "Fox", zh: "狐狸" }, 
+        { en: "Bat", zh: "蝙蝠" }, { en: "Weed", zh: "雜草" }, { en: "Mushroom", zh: "蘑菇" }, 
+        { en: "Insect", zh: "昆蟲" }, { en: "Hairy Bug", zh: "毛毛蟲" }, { en: "Dragon", zh: "龍" }, 
+        { en: "Bivalve", zh: "雙殼貝" }, { en: "Rock Snake", zh: "岩石蛇" }, { en: "Magnet", zh: "磁鐵" }, 
+        { en: "Wild Duck", zh: "野鴨" }, { en: "Sea Lion", zh: "海獅" }, { en: "Sludge", zh: "污泥" }, 
+        { en: "Crab", zh: "螃蟹" }, { en: "Bone Keeper", zh: "骨頭" }, { en: "Star Shape", zh: "星星" }, 
+        { en: "Virtual", zh: "虛擬" }, { en: "Spiral", zh: "螺旋" }, { en: "Fossil", zh: "化石" }
+    ];
+
+    let unlockedGens = 1;
+    let currentGen = 1;
+    let quizQueue = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let currentCorrectAnswer = { en: "", zh: "" };
+
+    function init() {
+        loadSaveData();
+    }
+
+    function loadSaveData() {
+        const saved = localStorage.getItem('pokeQuizSave');
+        if (saved) {
+            unlockedGens = JSON.parse(saved).unlockedGens;
+        }
+    }
+
+    function saveProgress(genCompleted) {
+        if (genCompleted >= unlockedGens && genCompleted < 9) {
+            unlockedGens = genCompleted + 1;
+            localStorage.setItem('pokeQuizSave', JSON.stringify({ unlockedGens: unlockedGens }));
+        }
+    }
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.speechSynthesis.cancel(); 
+    }
+
+    function goToLevels() {
+        const bgm = document.getElementById('bgm');
+        if (bgm.paused) {
+            bgm.volume = 0.25; 
+            bgm.play().catch(e => console.log("Audio play blocked by browser:", e));
+        }
+
+        const grid = document.getElementById('level-grid');
+        grid.innerHTML = '';
+
+        GENERATIONS.forEach(g => {
+            const btn = document.createElement('button');
+            btn.className = 'level-btn';
+            const isUnlocked = g.gen <= unlockedGens;
+            
+            btn.innerHTML = `Gen ${g.gen}<br><small>${g.name}</small>`;
+            btn.disabled = !isUnlocked;
+            
+            if (isUnlocked) {
+                btn.onclick = () => startQuiz(g.gen);
+            }
+            grid.appendChild(btn);
+        });
+
+        showScreen('level-screen');
+    }
+
+    function startQuiz(gen) {
+        currentGen = gen;
+        score = 0;
+        currentQuestionIndex = 0;
+        
+        const genData = GENERATIONS.find(g => g.gen === gen);
+        
+        let pool = [];
+        for(let i = genData.start; i <= genData.end; i++) pool.push(i);
+        pool = shuffleArray(pool).slice(0, QUESTIONS_PER_LEVEL);
+        
+        quizQueue = pool;
+        showScreen('quiz-screen');
+        loadNextQuestion();
+    }
+
+    async function loadNextQuestion() {
+        if (currentQuestionIndex >= quizQueue.length) {
+            endQuiz();
+            return;
+        }
+
+        document.getElementById('quiz-progress').innerText = `${currentQuestionIndex + 1} / ${QUESTIONS_PER_LEVEL}`;
+        
+        document.getElementById('quiz-content').style.display = 'none';
+        document.getElementById('loading-indicator').style.display = 'flex';
+
+        const pokemonId = quizQueue[currentQuestionIndex];
+
+        try {
+            const displayId = pokemonId.toString().padStart(3, '0');
+            document.getElementById('pokemon-number').innerText = `#${displayId}`;
+
+            const speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
+            const speciesData = await speciesResponse.json();
+
+            const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+            const pokemonData = await pokemonResponse.json();
+
+            const typesContainer = document.getElementById('pokemon-types');
+            typesContainer.innerHTML = '';
+            pokemonData.types.forEach(t => {
+                const typeName = t.type.name;
+                const typeSpan = document.createElement('span');
+                typeSpan.innerText = typeName;
+                typeSpan.className = `type-badge type-${typeName}`;
+                typesContainer.appendChild(typeSpan);
+            });
+
+            const nameEntryEn = speciesData.names.find(n => n.language.name === 'en');
+            const nameEn = nameEntryEn ? nameEntryEn.name : speciesData.name;
+
+            const nameEntryZh = speciesData.names.find(n => n.language.name === 'zh-Hant') || speciesData.names.find(n => n.language.name === 'zh-Hans');
+            const nameZh = nameEntryZh ? nameEntryZh.name : "";
+            const displayQuestionName = nameZh ? `${nameEn} (${nameZh})` : nameEn;
+
+            // PULL FROM OFFLINE ID DICTIONARY
+            let dictEntry = GENUS_DICT_BY_ID[pokemonId];
+            
+            // Setup English
+            let finalEn = "";
+            if (dictEntry && dictEntry.en && dictEntry.en.trim() !== "") {
+                finalEn = dictEntry.en;
+            } else {
+                const genusEntryEn = speciesData.genera.find(g => g.language.name === 'en');
+                finalEn = genusEntryEn ? genusEntryEn.genus.replace(/ Pok[eé]mon/i, '').trim() : "Unknown";
+            }
+
+            // Setup Chinese
+            let finalZh = "";
+            if (dictEntry && dictEntry.zh && dictEntry.zh.trim() !== "") {
+                finalZh = dictEntry.zh;
+            } else {
+                finalZh = `未定義 (${finalEn})`; // Warning text if you forgot to add the translation
+            }
+
+            currentCorrectAnswer = { en: finalEn, zh: finalZh };
+
+            const spriteUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
+
+            let options = generateOptions(currentCorrectAnswer);
+
+            document.getElementById('pokemon-sprite').src = spriteUrl;
+            document.getElementById('question-text').innerHTML = `What Pokemon is <strong>${displayQuestionName}</strong>?`;
+            
+            const optionsGrid = document.getElementById('options-grid');
+            optionsGrid.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.innerHTML = `<span>${opt.en}</span><small>${opt.zh}</small>`;
+                btn.onclick = () => handleAnswer(opt.en === currentCorrectAnswer.en, nameEn);
+                optionsGrid.appendChild(btn);
+            });
+
+            document.getElementById('loading-indicator').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'flex';
+
+            if (SPEECH_ENABLED) {
+                speakText(`What Pokemon is ${nameEn}?`);
+            }
+
+        } catch (error) {
+            console.error("Failed to load Pokémon data", error);
+            document.getElementById('question-text').innerText = "Error loading data. Retrying...";
+            setTimeout(loadNextQuestion, 2000);
+        }
+    }
+
+    function generateOptions(correctAnswer) {
+        let optionsMap = new Map();
+        optionsMap.set(correctAnswer.en, correctAnswer);
+        
+        while(optionsMap.size < 4) {
+            let randomWrong = FALLBACK_GENERA[Math.floor(Math.random() * FALLBACK_GENERA.length)];
+            if(!optionsMap.has(randomWrong.en)) {
+                optionsMap.set(randomWrong.en, randomWrong);
+            }
+        }
+        return shuffleArray(Array.from(optionsMap.values()));
+    }
+
+    function handleAnswer(isCorrect, pokemonName) {
+        window.speechSynthesis.cancel();
+
+        if (isCorrect) {
+            score++;
+            speakText(`Correct! ${pokemonName} is a ${currentCorrectAnswer.en} Pokemon.`);
+        } else {
+            speakText(`Incorrect. ${pokemonName} is actually a ${currentCorrectAnswer.en} Pokemon.`);
+        }
+
+        currentQuestionIndex++;
+        
+        setTimeout(loadNextQuestion, 1500); 
+    }
+
+    function endQuiz() {
+        showScreen('result-screen');
+        const passed = score >= PASSING_SCORE;
+        
+        document.getElementById('result-title').innerText = passed ? "Level Cleared!" : "Level Failed!";
+        document.getElementById('result-title').style.color = passed ? "var(--success)" : "var(--danger)";
+        document.getElementById('result-score').innerText = `Score: ${score} / ${QUESTIONS_PER_LEVEL}`;
+        
+        const msgEl = document.getElementById('result-message');
+        if (passed) {
+            msgEl.innerText = currentGen < 9 ? "Great job! The next generation has been unlocked." : "You are a Pokémon Master! All generations cleared!";
+            saveProgress(currentGen);
+        } else {
+            msgEl.innerText = `You need at least ${PASSING_SCORE} points to unlock the next generation. Try again!`;
+        }
+        
+        speakText(document.getElementById('result-title').innerText + " You scored " + score + " out of " + QUESTIONS_PER_LEVEL);
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function speakText(text) {
+        if (!('speechSynthesis' in window)) return;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    window.onload = init;
+
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mario Game</title>
+    <style>
+        #game-container {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            border: 1px solid black;
+        }
+
+        #mario {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            position: absolute;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mario Game</h1>
+
+    <div id="game-container">
+        <div id="mario"></div>
+    </div>
+
+    <script>
+        var mario = document.getElementById('mario');
+        var jumpHeight = 100;
+        var isJumping = false;
+        var jumpStartPos = parseInt(mario.style.bottom) || 0;
+        var gravity = 3;
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowUp' && !isJumping) {
+                isJumping = true;
+                var jumpInterval = setInterval(function() {
+                    var currentPosition = parseInt(mario.style.bottom) || 0;
+                    if (currentPosition - jumpStartPos >= jumpHeight) {
+                        clearInterval(jumpInterval);
+                        isJumping = false;
+                    } else {
+                        mario.style.bottom = (currentPosition + gravity) + 'px';
+                    }
+                }, 10);
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            if (event.key === 'ArrowUp') {
+                // Stop jumping if the up arrow key is released prematurely
+                isJumping = false;
+            }
+        });
+    </script>
+</body>
+</html>

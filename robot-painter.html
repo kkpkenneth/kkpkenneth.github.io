@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Robot Painter Studio</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #1a1a1a; color: #00ff9d; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ff0055; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.4rem; color: #ff0055; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ff005555; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-left { border-color: #00ff9d; background: transparent; color: #00ff9d; }
+        .btn-left:hover { background: #00ff9d; color: #000; }
+        .btn-right { border-color: #00d4ff; background: transparent; color: #00d4ff; }
+        .btn-right:hover { background: #00d4ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">ARTISTIC REPUTATION: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE CANVAS.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">START PAINTING</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+        { q: "What is the primary medium for a robot painter?", a: ["Pigment-based inks", "Dry sand"], correct: "Pigment-based inks", exp: "Precision ink nozzles allow for high-resolution control on the canvas." },
+        { q: "What color model do robot printers typically use?", a: ["CMYK", "RGB"], correct: "CMYK", exp: "Cyan, Magenta, Yellow, and Key (Black) are standard for additive pigment mixing." },
+        { q: "How does a robot achieve texture in paintings?", a: ["Impasto stacking", "Airbrushing"], correct: "Impasto stacking", exp: "By layering thick dollops of paint, the robot mimics the texture of oil paintings." },
+        { q: "What is a 'gantry system' in art robots?", a: ["Movement frame", "Paint mixer"], correct: "Movement frame", exp: "A gantry allows the robot head to move precisely across the X and Y axes." },
+        { q: "What is a common challenge for robot painters?", a: ["Drying time", "Getting bored"], correct: "Drying time", exp: "Robots must wait for layers to set to prevent unwanted color bleeding." },
+        { q: "What technique uses dots to create an image?", a: ["Pointillism", "Line-art"], correct: "Pointillism", exp: "Robot arms can place thousands of individual dots to simulate gradients." },
+        { q: "What does an 'end-effector' do on a painting robot?", a: ["Holds the brush", "Processes code"], correct: "Holds the brush", exp: "The end-effector is the specialized tool or brush-holder at the end of the arm." },
+        { q: "Why use AI for brushwork?", a: ["Dynamic variance", "Saving electricity"], correct: "Dynamic variance", exp: "AI helps emulate the natural, imperfect strokes of human artists." },
+        { q: "What is the color wheel's opposite of blue?", a: ["Orange", "Green"], correct: "Orange", exp: "Orange is the complementary color to blue, creating high contrast." },
+        { q: "What is the 'canvas' surface called?", a: ["Substrate", "Interface"], correct: "Substrate", exp: "The substrate is the material (canvas, paper, or wall) the robot paints upon." },
+
+        { q: "Which sensor helps a robot keep distance from the canvas?", a: ["LiDAR/Ultrasonic", "Thermal camera"], correct: "LiDAR/Ultrasonic", exp: "Distance sensors ensure the nozzle maintains a consistent height for paint flow." },
+        { q: "What is 'G-Code' in robotic art?", a: ["Movement instructions", "Paint color codes"], correct: "Movement instructions", exp: "G-Code is the language that tells the robotic arm exactly where to move." },
+        { q: "What are secondary colors?", a: ["Purple, Green, Orange", "Red, Yellow, Blue"], correct: "Purple, Green, Orange", exp: "Secondary colors are created by mixing two primary colors together." },
+        { q: "What is a 'warm' color?", a: ["Red/Yellow", "Blue/Violet"], correct: "Red/Yellow", exp: "Warm colors are associated with heat, sunlight, and fire." },
+        { q: "How does a robot clean its brush?", a: ["Solvent stations", "Sandpaper"], correct: "Solvent stations", exp: "Automated wash-and-dry stations remove old pigment before changing colors." },
+        { q: "What defines 'High-Key' lighting?", a: ["Bright, light values", "Dark, moody tones"], correct: "Bright, light values", exp: "High-key paintings use mostly light, bright colors to create a feeling of lightness." },
+        { q: "What is a 'palette' for a robot?", a: ["Color supply system", "The robot's feet"], correct: "Color supply system", exp: "The palette is the centralized system where the robot draws its ink or paint supply." },
+        { q: "Why is calibration important?", a: ["Alignment accuracy", "Battery life"], correct: "Alignment accuracy", exp: "If the robot isn't calibrated, the brush may miss the target coordinates entirely." },
+        { q: "What is a 'monochromatic' painting?", a: ["One color, varied tones", "Black and white only"], correct: "One color, varied tones", exp: "It uses a single base color and adds white, black, or gray to create different tints and shades." },
+        { q: "What is the main goal of 'Vision Systems' in art bots?", a: ["Identifying subjects", "Mixing paint"], correct: "Identifying subjects", exp: "Cameras allow the robot to 'see' the canvas and adjust its strokes in real-time." },
+
+        { q: "What is 'Hue'?", a: ["The pure color", "The brightness"], correct: "The pure color", exp: "Hue is the name of a color, like red, blue, or yellow, on the color wheel." },
+        { q: "What is 'Opacity' in painting?", a: ["Transparency level", "Paint viscosity"], correct: "Transparency level", exp: "Opacity determines how much of the underlying layer is visible through the paint." },
+        { q: "What is 'Saturation'?", a: ["Intensity of color", "The paint density"], correct: "Intensity of color", exp: "Saturation refers to the vividness or purity of a color." },
+        { q: "What is 'Value' in art?", a: ["Lightness or darkness", "Price of the art"], correct: "Lightness or darkness", exp: "Value describes the relative lightness or darkness of a color, independent of its hue." },
+        { q: "What is a 'Glaze'?", a: ["Thin, transparent layer", "A thick, textured layer"], correct: "Thin, transparent layer", exp: "Glazing involves applying a thin, oily paint to create depth and luminous color." },
+        { q: "What is a 'Complementary' color scheme?", a: ["Opposite colors", "Neighboring colors"], correct: "Opposite colors", exp: "Colors opposite each other on the color wheel, like red and green, create high contrast." },
+        { q: "What is an 'Analogous' color scheme?", a: ["Colors side-by-side", "Contrasting colors"], correct: "Colors side-by-side", exp: "Analogous colors sit next to each other on the wheel, creating a calm, harmonious look." },
+        { q: "What is a 'Triptych'?", a: ["Three-panel artwork", "A painting of a tripod"], correct: "Three-panel artwork", exp: "A triptych consists of three separate panels that form a single cohesive image." },
+        { q: "What does 'Vanishing Point' refer to?", a: ["Linear perspective", "A missing paintbrush"], correct: "Linear perspective", exp: "It is the point where parallel lines appear to converge in a painting to create depth." },
+        { q: "What is 'Chiaroscuro'?", a: ["Contrast of light/dark", "A robot motor brand"], correct: "Contrast of light/dark", exp: "It is an art technique used to create strong volume and drama through light and shadow." },
+        { q: "What is the 'Medium' in painting?", a: ["The binder/liquid", "The subject matter"], correct: "The binder/liquid", exp: "The medium is the substance (like oil, acrylic, or water) that holds the pigment together." },
+        { q: "What is a 'Wash'?", a: ["Very thin paint layer", "A cleaning cycle"], correct: "Very thin paint layer", exp: "A wash is paint diluted with a solvent to create a translucent, watercolor-like effect." },
+        { q: "What is 'Composition'?", a: ["Arrangement of elements", "The speed of the robot"], correct: "Arrangement of elements", exp: "Composition is how the parts of a picture are organized to create a pleasing whole." },
+        { q: "What is 'Foreshortening'?", a: ["Distorting depth", "Shrinking the canvas"], correct: "Distorting depth", exp: "It is a technique used to create the illusion of an object receding strongly into the distance." },
+        { q: "What are 'Earth Tones'?", a: ["Browns, ochres, tans", "Neon colors"], correct: "Browns, ochres, tans", exp: "These are colors derived from natural pigments like clay, dirt, and minerals." }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.8;
+        msg.pitch = 0.5;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(300, 'triangle', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 50);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "EXCELLENT STROKE" : "SMUDGE DETECTED") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(800, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "ARTISTIC REPUTATION: " + score;
+                        setTimeout(nextQuestion, 2500);
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

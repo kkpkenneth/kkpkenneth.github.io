@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Student Assessor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        textarea {
+            height: 180px;
+            resize: vertical;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Comprehensive Student Assessor</h2>
+
+    <div class="grid-layout">
+        <div class="form-group">
+            <label for="studentName">Student Name:</label>
+            <input type="text" id="studentName" placeholder="e.g., Taylor Smith">
+        </div>
+
+        <div class="form-group">
+            <label for="pronoun">Pronouns:</label>
+            <select id="pronoun">
+                <option value="they">They / Them</option>
+                <option value="he">He / Him</option>
+                <option value="she">She / Her</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="performance">Overall Performance:</label>
+            <select id="performance">
+                <option value="has shown outstanding academic performance this term">Excellent</option>
+                <option value="has demonstrated a solid understanding of the core material">Good</option>
+                <option value="has an average grasp of the subjects but could push further">Average</option>
+                <option value="is currently struggling with several core concepts">Needs Improvement</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="homework">Homework & Assignments:</label>
+            <select id="homework">
+                <option value="consistently completes assignments on time with high quality">Always on time & detailed</option>
+                <option value="usually submits assignments on time">Mostly on time</option>
+                <option value="frequently misses deadlines for assignments">Often late / Incomplete</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="participation">Class Participation:</label>
+            <select id="participation">
+                <option value="a highly active participant in class discussions">Highly Active</option>
+                <option value="someone who participates moderately during lessons">Moderate</option>
+                <option value="quiet during group activities and could benefit from speaking up more">Quiet / Reserved</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="attitude">General Attitude:</label>
+            <select id="attitude">
+                <option value="maintains an incredibly positive and respectful attitude">Positive & Respectful</option>
+                <option value="is generally polite and attentive">Polite & Attentive</option>
+                <option value="can sometimes be distracted during lectures">Easily Distracted</option>
+                <option value="sometimes struggles to maintain focus and can be disruptive">Disruptive</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="teamwork">Teamwork & Collaboration:</label>
+            <select id="teamwork">
+                <option value="is a natural leader during group projects">Natural Leader</option>
+                <option value="collaborates effectively and supports peers">Great Team Player</option>
+                <option value="prefers working independently over group tasks">Prefers Solo Work</option>
+                <option value="needs encouragement to share responsibilities in a group">Struggles in Groups</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="problemSolving">Problem Solving:</label>
+            <select id="problemSolving">
+                <option value="shows excellent, creative problem-solving skills">Creative & Analytical</option>
+                <option value="approaches challenges logically and steadily">Logical</option>
+                <option value="frequently requires guidance when faced with complex tasks">Needs Guidance</option>
+            </select>
+        </div>
+
+        <div class="form-group full-width">
+            <button onclick="generateReport()">Generate Report</button>
+        </div>
+
+        <div class="form-group full-width">
+            <label for="outputBox">Generated Paragraph:</label>
+            <textarea id="outputBox" placeholder="Your customized report will appear here..."></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    function generateReport() {
+        const nameInput = document.getElementById('studentName').value.trim();
+        const name = nameInput !== "" ? nameInput : "The student";
+        
+        const pronounType = document.getElementById('pronoun').value;
+        const perf = document.getElementById('performance').value;
+        const hw = document.getElementById('homework').value;
+        const part = document.getElementById('participation').value;
+        const att = document.getElementById('attitude').value;
+        const team = document.getElementById('teamwork').value;
+        const prob = document.getElementById('problemSolving').value;
+
+        // Grammar handling
+        let subPro = "They"; // Subject pronoun (capitalized)
+        let subProLower = "they"; // Subject pronoun (lowercase)
+        
+        if (pronounType === "he") {
+            subPro = "He";
+            subProLower = "he";
+        } else if (pronounType === "she") {
+            subPro = "She";
+            subProLower = "she";
+        }
+
+        // Constructing the narrative flow
+        const sentence1 = `${name} ${perf}.`;
+        const sentence2 = `When it comes to coursework, ${subProLower} ${hw}.`;
+        const sentence3 = `In the classroom, ${name} is ${part} and ${att}.`;
+        const sentence4 = `During collaborative exercises, ${subProLower} ${team}.`;
+        const sentence5 = `Furthermore, when tackling new academic challenges, ${name} ${prob}.`;
+        
+        // Combine into the final report
+        const finalReport = `${sentence1} ${sentence2} ${sentence3} ${sentence4} ${sentence5}`;
+
+        document.getElementById('outputBox').value = finalReport;
+    }
+</script>
+
+</body>
+</html>

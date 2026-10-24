@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCSE Biology: Bioenergetics Speed Quiz</title>
+<style>
+    :root {
+        --primary: #16a34a; /* Green */
+        --primary-hover: #15803d;
+        --bg: #f0fdf4;
+        --card-bg: #ffffff;
+        --correct: #10b981;
+        --wrong: #ef4444;
+        --text-main: #1e293b;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    #quiz-app {
+        background-color: var(--card-bg);
+        max-width: 650px;
+        width: 100%;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    h1, h2 { margin-top: 0; }
+    h1 { color: var(--primary); text-align: center; }
+    .hidden { display: none !important; }
+    
+    .btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    .btn:hover { background-color: var(--primary-hover); }
+    
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    #timer { color: var(--wrong); font-size: 1.2rem; }
+    
+    #question-text { font-size: 1.3rem; margin-bottom: 20px; line-height: 1.4; }
+    
+    .option-btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 10px;
+        background-color: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 16px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-main);
+    }
+    .option-btn:hover:not(:disabled) {
+        background-color: #e2e8f0;
+        border-color: #cbd5e1;
+    }
+    .option-btn:disabled { cursor: not-allowed; }
+    
+    .correct-ans { background-color: #d1fae5 !important; border-color: var(--correct) !important; color: #065f46; }
+    .wrong-ans { background-color: #fee2e2 !important; border-color: var(--wrong) !important; color: #991b1b; }
+    
+    #explanation {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #dcfce7;
+        border-left: 5px solid var(--primary);
+        border-radius: 0 8px 8px 0;
+        line-height: 1.5;
+    }
+    #score-text { font-size: 1.5rem; text-align: center; margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div id="quiz-app">
+    <div id="start-screen">
+        <h1>GCSE Biology: Bioenergetics</h1>
+        <p style="text-align: center; font-size: 1.1rem; margin-bottom: 30px;">
+            50 questions covering Photosynthesis, Respiration, Response to Exercise, and Metabolism.<br><br>
+            <strong>Time Limit:</strong> 15 seconds per question.
+        </p>
+        <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="header-bar">
+            <span id="question-count">Question: 1/50</span>
+            <span id="timer">15s</span>
+        </div>
+        <h2 id="question-text"></h2>
+        <div id="options-container"></div>
+        <div id="explanation" class="hidden"></div>
+        <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="end-screen" class="hidden">
+        <h1>Quiz Complete!</h1>
+        <div id="score-text">You scored <strong id="final-score"></strong> out of 50.</div>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // Photosynthesis Basics
+        {q: "What is the word equation for photosynthesis?", o: ["Oxygen + Glucose -> Carbon dioxide + Water", "Carbon dioxide + Water -> Glucose + Oxygen", "Glucose + Water -> Carbon dioxide + Oxygen", "Carbon dioxide + Oxygen -> Glucose + Water"], a: 1, e: "Plants use CO2 and water, along with light energy, to produce glucose and oxygen."},
+        {q: "What is the balanced symbol equation for photosynthesis?", o: ["C6H12O6 + 6O2 -> 6CO2 + 6H2O", "6CO2 + 6H2O -> C6H12O6 + 6O2", "CO2 + H2O -> C6H12O6 + O2", "6H2O + 6O2 -> 6CO2 + C6H12O6"], a: 1, e: "6 molecules of carbon dioxide and 6 of water produce 1 molecule of glucose and 6 of oxygen."},
+        {q: "Is photosynthesis an endothermic or exothermic reaction?", o: ["Exothermic", "Endothermic", "Isothermic", "Combustion"], a: 1, e: "It is endothermic because it takes in energy from the environment (light) to occur."},
+        {q: "Which green pigment absorbs light energy in a plant cell?", o: ["Carotene", "Chloroplast", "Chlorophyll", "Melanin"], a: 2, e: "Chlorophyll is the green pigment found inside chloroplasts that absorbs light."},
+        {q: "Where in a plant cell does photosynthesis occur?", o: ["Nucleus", "Mitochondria", "Ribosomes", "Chloroplasts"], a: 3, e: "Chloroplasts contain the chlorophyll necessary to absorb light for the reaction."},
+        {q: "How does water enter the plant for photosynthesis?", o: ["Absorbed by the leaves from the air", "Absorbed by the roots from the soil", "Produced during respiration", "Through the stomata"], a: 1, e: "Water is absorbed by root hair cells via osmosis and transported up the xylem."},
+        {q: "How does carbon dioxide enter a leaf?", o: ["Through the roots", "Through the xylem", "Through stomata by diffusion", "Through the waxy cuticle"], a: 2, e: "CO2 diffuses from the air into the leaf through tiny pores called stomata."},
+        
+        // Uses of Glucose
+        {q: "What is the primary use of the glucose produced in photosynthesis?", o: ["To make the plant green", "For cellular respiration to release energy", "To absorb water", "To release oxygen"], a: 1, e: "Both plants and animals use glucose in respiration to release energy for cellular activities."},
+        {q: "Which complex carbohydrate do plants convert glucose into for storage?", o: ["Glycogen", "Starch", "Cellulose", "Sucrose"], a: 1, e: "Starch is insoluble, making it ideal for long-term storage in roots, stems, and leaves."},
+        {q: "Why don't plants store glucose directly?", o: ["It is too heavy", "It is insoluble and would dry out the cell", "It is soluble and would affect osmosis (causing cells to swell)", "It evaporates too quickly"], a: 2, e: "Glucose is soluble; if stored, it would draw too much water into the cell by osmosis."},
+        {q: "What do plants use to strengthen their cell walls?", o: ["Starch", "Lipids", "Cellulose", "Proteins"], a: 2, e: "Glucose is converted into cellulose to build strong cell walls."},
+        {q: "Which ions do plants absorb from the soil to combine with glucose to make amino acids?", o: ["Sodium ions", "Nitrate ions", "Chloride ions", "Potassium ions"], a: 1, e: "Nitrate ions (containing nitrogen) are required to make amino acids, which are then built into proteins."},
+        {q: "What do plants turn glucose into for storage in seeds?", o: ["Lipids (fats and oils)", "Starch", "Cellulose", "Vitamins"], a: 0, e: "Lipids provide a concentrated store of energy for the germinating seed."},
+        
+        // Limiting Factors
+        {q: "What is a 'limiting factor' in photosynthesis?", o: ["Something that prevents the plant from growing roots", "A factor that stops the reaction going any faster", "A chemical that destroys chlorophyll", "The maximum amount of oxygen produced"], a: 1, e: "The limiting factor is the condition that is in shortest supply, preventing the rate from increasing."},
+        {q: "Which of the following is NOT a common limiting factor for photosynthesis?", o: ["Light intensity", "Temperature", "Oxygen concentration", "Carbon dioxide concentration"], a: 2, e: "Oxygen is a product, not a reactant; the main limiting factors are light, CO2, temperature, and chlorophyll amount."},
+        {q: "If you increase light intensity, the rate of photosynthesis increases until...", o: ["The plant dies", "Another factor becomes the limiting factor", "The plant runs out of oxygen", "It turns dark"], a: 1, e: "Eventually, light stops being the issue and something else (like CO2 or temperature) limits the rate."},
+        {q: "How does temperature affect the rate of photosynthesis?", o: ["Rate increases as temperature increases, until enzymes denature", "Rate constantly increases with temperature indefinitely", "Temperature has no effect", "Rate decreases as temperature increases"], a: 0, e: "Photosynthesis is controlled by enzymes, which work faster as it gets warmer but denature if it gets too hot (around 45°C)."},
+        {q: "What happens to the enzymes if a plant gets too hot?", o: ["They freeze", "They multiply", "They denature and the active site changes shape", "They turn into starch"], a: 2, e: "Denatured enzymes can no longer bind to the substrate, causing photosynthesis to stop."},
+        {q: "What might cause a plant to have less chlorophyll?", o: ["A disease like TMV or a lack of magnesium", "Too much light", "Too much carbon dioxide", "Excess water"], a: 0, e: "Diseases or nutrient deficiencies can cause chlorosis (yellowing), reducing the plant's ability to photosynthesise."},
+        {q: "Which equation represents the inverse square law for light intensity?", o: ["Light intensity ∝ distance^2", "Light intensity ∝ 1 / distance^2", "Light intensity ∝ distance", "Light intensity ∝ 1 / distance"], a: 1, e: "As distance increases, light intensity decreases in proportion to the square of the distance."},
+        {q: "If a lamp is moved twice as far away from a plant, the light intensity becomes:", o: ["Half as much", "A quarter as much", "Twice as much", "Four times as much"], a: 1, e: "Due to the inverse square law, 1 / (2^2) = 1/4 of the original light intensity."},
+        {q: "Why do farmers use greenhouses?", o: ["To keep the plants completely dark", "To artificially create ideal conditions and maximize the rate of photosynthesis", "To prevent plants from producing oxygen", "To stop photosynthesis occurring"], a: 1, e: "They control temp, light, and CO2 to get faster growth and higher crop yields."},
+        {q: "How can farmers artificially increase CO2 levels in a greenhouse?", o: ["By leaving the door open", "By using a paraffin heater", "By painting the glass black", "By watering the plants more"], a: 1, e: "As paraffin burns, it releases CO2 as a by-product while also providing heat."},
+        
+        // Cellular Respiration
+        {q: "What is cellular respiration?", o: ["Breathing in oxygen and breathing out CO2", "An exothermic reaction transferring energy from glucose", "An endothermic reaction making glucose", "The process of digesting food in the stomach"], a: 1, e: "Respiration happens continuously in all living cells to supply all the energy needed for living processes."},
+        {q: "Is respiration an exothermic or endothermic process?", o: ["Exothermic", "Endothermic", "Both", "Neither"], a: 0, e: "Respiration releases (transfers) energy to the environment, making it exothermic."},
+        {q: "Which organelle is the main site of aerobic respiration?", o: ["Nucleus", "Ribosome", "Mitochondria", "Chloroplast"], a: 2, e: "Mitochondria contain the enzymes needed for aerobic respiration."},
+        {q: "What is the word equation for aerobic respiration?", o: ["Glucose -> Lactic acid", "Glucose + Oxygen -> Carbon dioxide + Water", "Carbon dioxide + Water -> Glucose + Oxygen", "Glucose -> Ethanol + Carbon dioxide"], a: 1, e: "It is the exact opposite of the photosynthesis equation."},
+        {q: "Why is aerobic respiration the most efficient way to transfer energy?", o: ["It happens instantly", "It fully oxidises the glucose molecule", "It doesn't use oxygen", "It occurs outside the cell"], a: 1, e: "Because glucose is fully broken down, it releases a large amount of energy."},
+        {q: "Which is a use of the energy transferred by respiration?", o: ["Building larger molecules from smaller ones", "Muscle contraction in animals", "Maintaining body temperature in mammals", "All of the above"], a: 3, e: "Energy is used for chemical reactions, movement, and keeping warm."},
+        
+        // Anaerobic Respiration
+        {q: "When does anaerobic respiration usually take place in human muscles?", o: ["While sleeping", "During vigorous exercise when not enough oxygen is supplied", "After eating a heavy meal", "When it is very cold"], a: 1, e: "When the body cannot supply oxygen to muscles fast enough, they start respiring anaerobically."},
+        {q: "What is the product of anaerobic respiration in animal muscles?", o: ["Ethanol and CO2", "Carbon dioxide and water", "Lactic acid", "Glucose"], a: 2, e: "Glucose is incompletely broken down into lactic acid."},
+        {q: "Why does anaerobic respiration transfer much less energy than aerobic respiration?", o: ["Because no glucose is used", "Because the oxidation of glucose is incomplete", "Because it happens in the lungs", "Because lactic acid absorbs energy"], a: 1, e: "Since the glucose isn't fully broken apart, only a small amount of the potential energy is released."},
+        {q: "What effect does lactic acid have on muscles?", o: ["It makes them stronger", "It causes muscle fatigue and stops them contracting efficiently", "It makes them stretch further", "It turns them into fast-twitch muscles"], a: 1, e: "A build-up of lactic acid lowers the pH, leading to pain and fatigue."},
+        {q: "What is the word equation for anaerobic respiration in plant and yeast cells?", o: ["Glucose -> Lactic acid", "Glucose -> Ethanol + Carbon dioxide", "Glucose + Oxygen -> Water + Carbon dioxide", "Glucose -> Starch"], a: 1, e: "Unlike animals, plants and fungi produce ethanol and CO2 without oxygen."},
+        {q: "What is anaerobic respiration in yeast cells commonly called?", o: ["Oxidation", "Transpiration", "Fermentation", "Digestion"], a: 2, e: "Fermentation has immense economic value in the food and drink industry."},
+        {q: "In the food and drink industry, what is the CO2 from yeast fermentation used for?", o: ["Making alcoholic drinks", "Making bread rise", "Creating yogurt", "Flavouring cheese"], a: 1, e: "The trapped carbon dioxide bubbles are what make bread dough rise."},
+        {q: "What is the ethanol from yeast fermentation used to make?", o: ["Bread", "Alcoholic drinks like beer and wine", "Cheese", "Fizzy water"], a: 1, e: "The ethanol is the alcohol found in alcoholic beverages."},
+        
+        // Response to Exercise
+        {q: "What happens to your heart rate during exercise?", o: ["It decreases", "It stays the same", "It increases", "It stops"], a: 2, e: "Heart rate increases to pump blood, delivering more oxygen and glucose to muscles faster."},
+        {q: "Why does your breathing rate and breath volume increase during exercise?", o: ["To lose water vapor", "To bring more oxygen into the blood and remove more carbon dioxide", "To cool the lungs down", "To produce more lactic acid"], a: 1, e: "More oxygen is needed for increased aerobic respiration in the muscles."},
+        {q: "What happens if insufficient oxygen reaches the muscles during exercise?", o: ["The muscles stop working immediately", "The body relies entirely on photosynthesis", "The muscles begin to respire anaerobically", "The heart stops beating"], a: 2, e: "Anaerobic respiration kicks in to supply some energy when oxygen is scarce."},
+        {q: "What is 'oxygen debt'?", o: ["The amount of oxygen you breathe in while resting", "The extra oxygen your body needs to react with the build-up of lactic acid to remove it", "The lack of oxygen in the atmosphere", "The oxygen used by the brain during a test"], a: 1, e: "You keep breathing heavily after exercise to 'repay' the oxygen needed to break down toxic lactic acid."},
+        
+        // Metabolism and Liver function
+        {q: "What is 'metabolism'?", o: ["The rate at which you digest food", "The sum of all the chemical reactions that happen in a cell or the body", "Only the reactions that break down molecules", "The process of sweating"], a: 1, e: "Metabolism includes thousands of reactions, including respiration, digestion, and synthesis."},
+        {q: "What is the energy released by respiration used for in metabolism?", o: ["To break down enzymes", "For the continual enzyme-controlled processes of metabolism that synthesise new molecules", "To freeze water in cells", "To stop chemical reactions"], a: 1, e: "Energy is used to build large molecules from smaller ones (like making proteins from amino acids)."},
+        {q: "In human metabolism, glucose is converted into which storage molecule?", o: ["Starch", "Cellulose", "Glycogen", "Lactic acid"], a: 2, e: "Humans and other animals store excess glucose as glycogen, mainly in the liver and muscles."},
+        {q: "What is a lipid molecule made from?", o: ["One glycerol molecule and three fatty acid molecules", "Three glycerol and one fatty acid", "Many amino acids", "Many glucose molecules"], a: 0, e: "This formation of lipids is a key metabolic reaction."},
+        {q: "Excess proteins in the diet are broken down into what chemical for excretion?", o: ["Glucose", "Lactic acid", "Urea", "Carbon dioxide"], a: 2, e: "The liver breaks down excess amino acids into toxic urea, which is then excreted in urine by the kidneys."},
+        {q: "Which organ is responsible for removing lactic acid from the blood?", o: ["Heart", "Lungs", "Liver", "Kidneys"], a: 2, e: "Blood transports lactic acid from the muscles to the liver, where it is converted back into glucose."},
+        {q: "If the converted glucose in the liver isn't needed right away, what happens to it?", o: ["It is exhaled", "It is stored as glycogen", "It is turned into urea", "It is turned into bone"], a: 1, e: "The liver safely stores the glucose as glycogen until blood sugar levels drop."}
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 15;
+    let isAnswered = false;
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const endScreen = document.getElementById('end-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationDiv = document.getElementById('explanation');
+    const nextBtn = document.getElementById('next-btn');
+    const timerDisplay = document.getElementById('timer');
+    const qCountDisplay = document.getElementById('question-count');
+
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        clearInterval(timerInterval);
+        isAnswered = false;
+        timeLeft = 15;
+        timerDisplay.textContent = timeLeft + "s";
+        timerDisplay.style.color = "var(--text-main)";
+        
+        explanationDiv.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        optionsContainer.innerHTML = '';
+        
+        const qData = quizData[currentQuestionIndex];
+        qCountDisplay.textContent = `Question: ${currentQuestionIndex + 1}/50`;
+        questionText.textContent = qData.q;
+        
+        qData.o.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = option;
+            btn.onclick = () => selectAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft + "s";
+            if (timeLeft <= 5) timerDisplay.style.color = "var(--wrong)";
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeOut();
+            }
+        }, 1000);
+    }
+
+    function selectAnswer(selectedIndex, btn) {
+        if (isAnswered) return;
+        isAnswered = true;
+        clearInterval(timerInterval);
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        
+        allBtns.forEach(b => b.disabled = true); 
+        
+        if (selectedIndex === qData.a) {
+            btn.classList.add('correct-ans');
+            score++;
+            explanationDiv.innerHTML = `<strong>Correct!</strong> ${qData.e}`;
+        } else {
+            btn.classList.add('wrong-ans');
+            allBtns[qData.a].classList.add('correct-ans');
+            explanationDiv.innerHTML = `<strong>Incorrect.</strong> ${qData.e}`;
+        }
+        
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function handleTimeOut() {
+        if (isAnswered) return;
+        isAnswered = true;
+        
+        const qData = quizData[currentQuestionIndex];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+        
+        allBtns[qData.a].classList.add('correct-ans');
+        explanationDiv.innerHTML = `<strong>Time's up!</strong> ${qData.e}`;
+        explanationDiv.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        quizScreen.classList.add('hidden');
+        endScreen.classList.remove('hidden');
+        document.getElementById('final-score').textContent = score;
+    }
+</script>
+
+</body>
+</html>

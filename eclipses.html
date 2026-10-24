@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Solar & Lunar Eclipse Simulator</title>
+    <style>
+        :root {
+            --bg-deep: #03050c;
+            --accent-cyan: #00d2ff;
+            --accent-purple: #9b59b6;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            touch-action: none;
+        }
+
+        header {
+            text-align: center;
+            padding: 10px;
+            background: rgba(5, 8, 20, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        #main-layout {
+            display: flex;
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #sim-container {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            background: radial-gradient(circle at center, #0d1224 0%, #03050c 100%);
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Perspective Preview Boxes Container */
+        .preview-container {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .preview-box {
+            background: rgba(15, 12, 41, 0.9);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 10px;
+            width: 105px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .preview-box h4 {
+            margin: 0 0 6px 0;
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .preview-canvas {
+            background: #000;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto;
+            width: 70px;
+            height: 70px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .preview-label {
+            margin-top: 6px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* Side Panel for Event Controls */
+        #side-panel {
+            width: 300px;
+            background: rgba(15, 12, 41, 0.95);
+            border-left: 1px solid rgba(155, 89, 182, 0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+            transition: transform 0.3s ease;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+        }
+
+        .panel-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .event-category-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin: 8px 0 4px 4px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .event-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .event-item:hover, .event-item:active {
+            background: rgba(155, 89, 182, 0.2);
+            border-color: var(--accent-purple);
+            transform: translateX(-2px);
+        }
+
+        .event-item .title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin: 0 0 2px 0;
+            color: var(--accent-cyan);
+        }
+
+        .event-item .desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* Status Info Overlay */
+        #status-box {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(15, 12, 41, 0.8);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+            max-width: 250px;
+        }
+
+        #status-box span {
+            color: var(--accent-cyan);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        #panelToggle {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 30;
+            background: var(--accent-purple);
+            border: none;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            #main-layout { flex-direction: column; }
+            #side-panel {
+                position: absolute;
+                top: 0; right: 0; bottom: 0;
+                width: 260px;
+                transform: translateX(100%);
+            }
+            #side-panel.open { transform: translateX(0); }
+            #panelToggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌌 Solar & Lunar Eclipse Simulator</h1>
+    </header>
+
+    <button id="panelToggle" onclick="togglePanel()">📅 Eclipses</button>
+
+    <div id="main-layout">
+        <div id="sim-container">
+            <div id="status-box">
+                <span id="eventName">Normal Revolution</span>
+                <div id="eventDesc" style="color: #94a3b8; font-size: 0.7rem;">Earth revolving & rotating, Moon orbiting Earth.</div>
+            </div>
+
+            <!-- Perspective Previews Container -->
+            <div class="preview-container">
+                <div class="preview-box">
+                    <h4>Sun From Earth</h4>
+                    <canvas id="earth-view-canvas" class="preview-canvas" width="70" height="70"></canvas>
+                    <div id="earth-preview-label" class="preview-label">Normal Sun</div>
+                </div>
+                <div class="preview-box">
+                    <h4>Moon From Earth</h4>
+                    <canvas id="moon-view-canvas" class="preview-canvas" width="70" height="70"></canvas>
+                    <div id="moon-preview-label" class="preview-label">Full Moon</div>
+                </div>
+            </div>
+
+            <canvas id="spaceCanvas"></canvas>
+        </div>
+
+        <!-- Side Panel for Eclipses -->
+        <div id="side-panel">
+            <div class="panel-header">
+                <span>Eclipse Types</span>
+                <span style="cursor:pointer;" onclick="togglePanel()">✕</span>
+            </div>
+            <div class="event-list">
+                
+                <div class="event-category-title">Solar Eclipses</div>
+                <div class="event-item" onclick="setEclipseState('solar-total', 'Total Solar Eclipse', 'Moon is closer to Earth, fully blocking the Sun disc.')">
+                    <div class="title">🌑 Total Solar Eclipse</div>
+                    <div class="desc">Moon closer to Earth, full block.</div>
+                </div>
+                <div class="event-item" onclick="setEclipseState('solar-partial', 'Partial Solar Eclipse', 'Moon covers only a portion of the Sun disc.')">
+                    <div class="title">🌗 Partial Solar Eclipse</div>
+                    <div class="desc">Moon partially covers the Sun.</div>
+                </div>
+                <div class="event-item" onclick="setEclipseState('solar-annular', 'Annular Solar Eclipse', 'Moon is further away in its elliptical orbit, appearing smaller with a ring of fire.')">
+                    <div class="title">⭕ Annular Solar Eclipse</div>
+                    <div class="desc">Moon further away, ring of fire.</div>
+                </div>
+
+                <div class="event-category-title">Lunar Eclipses</div>
+                <div class="event-item" onclick="setEclipseState('lunar-total', 'Total Lunar Eclipse', 'Moon passes entirely through Earth umbra shadow, turning coppery-red.')">
+                    <div class="title">🌕 Total Lunar Eclipse</div>
+                    <div class="desc">Blood moon total shadow passage.</div>
+                </div>
+                <div class="event-item" onclick="setEclipseState('lunar-partial', 'Partial Lunar Eclipse', 'Only a part of the Moon enters Earth dark umbral shadow.')">
+                    <div class="title">🌔 Partial Lunar Eclipse</div>
+                    <div class="desc">Part of Moon enters Earth shadow.</div>
+                </div>
+                <div class="event-item" onclick="setEclipseState('lunar-penumbral', 'Penumbral Lunar Eclipse', 'Moon passes through Earth lighter penumbral shadow (subtle dimming).')">
+                    <div class="title">🌖 Penumbral Lunar Eclipse</div>
+                    <div class="desc">Subtle shading across lunar surface.</div>
+                </div>
+
+                <div class="event-category-title">Reset</div>
+                <div class="event-item" onclick="setEclipseState('normal', 'Normal Revolution', 'Continuous orbital mechanics of the Sun-Earth-Moon system.')">
+                    <div class="title">▶ Resume Normal Orbit</div>
+                    <div class="desc">Let celestial bodies revolve & rotate.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const earthCanvas = document.getElementById('earth-view-canvas');
+        const eCtx = earthCanvas.getContext('2d');
+
+        const moonCanvas = document.getElementById('moon-view-canvas');
+        const mCtx = moonCanvas.getContext('2d');
+
+        let width, height;
+        function resize() {
+            width = canvas.width = canvas.parentElement.clientWidth;
+            height = canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function togglePanel() {
+            document.getElementById('side-panel').classList.toggle('open');
+        }
+
+        const stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 1.5,
+                alpha: Math.random()
+            });
+        }
+
+        let currentMode = 'normal';
+        let earthAngle = 0;
+        let moonAngle = 0;
+        let earthRotation = 0;
+
+        const earthOrbitRadius = 180;
+        // Variable moon distance from Earth for total vs annular representation
+        let moonOrbitRadius = 35; 
+
+        function setEclipseState(mode, name, desc) {
+            currentMode = mode;
+            document.getElementById('eventName').innerText = name;
+            document.getElementById('eventDesc').innerText = desc;
+
+            if (mode.startsWith('solar')) {
+                earthAngle = 0; 
+                moonAngle = Math.PI;
+                // Total solar eclipse: Moon is closer (smaller distance in 2D top-down view or larger apparent size)
+                // Annular solar eclipse: Moon is further away in its elliptical orbit (larger distance from Earth)
+                if (mode === 'solar-annular') {
+                    moonOrbitRadius = 50; // further away
+                } else {
+                    moonOrbitRadius = 32; // closer
+                }
+            } else if (mode.startsWith('lunar')) {
+                earthAngle = 0; 
+                moonAngle = 0; 
+                moonOrbitRadius = 35;
+            } else {
+                moonOrbitRadius = 35;
+            }
+
+            if (window.innerWidth <= 768) {
+                togglePanel();
+            }
+        }
+
+        function updatePreviews() {
+            [eCtx, mCtx].forEach(c => {
+                c.save();
+                c.clearRect(0, 0, 70, 70);
+                c.beginPath();
+                c.arc(35, 35, 35, 0, Math.PI * 2);
+                c.clip();
+            });
+
+            // 1. Sun From Earth Preview
+            eCtx.fillStyle = '#f39c12';
+            eCtx.beginPath();
+            eCtx.arc(35, 35, 24, 0, Math.PI * 2);
+            eCtx.fill();
+
+            if (currentMode === 'solar-total') {
+                eCtx.fillStyle = '#111';
+                eCtx.beginPath();
+                eCtx.arc(35, 35, 25, 0, Math.PI * 2); // Larger block covering entire sun
+                eCtx.fill();
+                document.getElementById('earth-preview-label').innerText = "Total Block";
+            } else if (currentMode === 'solar-partial') {
+                eCtx.fillStyle = '#111';
+                eCtx.beginPath();
+                eCtx.arc(44, 26, 20, 0, Math.PI * 2);
+                eCtx.fill();
+                document.getElementById('earth-preview-label').innerText = "Partial Block";
+            } else if (currentMode === 'solar-annular') {
+                eCtx.fillStyle = '#111';
+                eCtx.beginPath();
+                eCtx.arc(35, 35, 16, 0, Math.PI * 2); // Smaller moon leaves ring of fire visible
+                eCtx.fill();
+                document.getElementById('earth-preview-label').innerText = "Ring of Fire";
+            } else {
+                document.getElementById('earth-preview-label').innerText = "Normal Sun";
+            }
+
+            // 2. Moon From Earth Preview
+            mCtx.fillStyle = '#b2bec3';
+            mCtx.beginPath();
+            mCtx.arc(35, 35, 24, 0, Math.PI * 2);
+            mCtx.fill();
+
+            if (currentMode === 'lunar-total') {
+                mCtx.fillStyle = 'rgba(192, 57, 43, 0.9)';
+                mCtx.beginPath();
+                mCtx.arc(35, 35, 24, 0, Math.PI * 2);
+                mCtx.fill();
+                document.getElementById('moon-preview-label').innerText = "Blood Moon";
+            } else if (currentMode === 'lunar-partial') {
+                mCtx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                mCtx.beginPath();
+                mCtx.arc(48, 35, 18, 0, Math.PI * 2);
+                mCtx.fill();
+                document.getElementById('moon-preview-label').innerText = "Partial Shadow";
+            } else if (currentMode === 'lunar-penumbral') {
+                mCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                mCtx.beginPath();
+                mCtx.arc(44, 35, 21, 0, Math.PI * 2);
+                mCtx.fill();
+                document.getElementById('moon-preview-label').innerText = "Subtle Dim";
+            } else {
+                document.getElementById('moon-preview-label').innerText = "Full Moon";
+            }
+
+            eCtx.restore();
+            mCtx.restore();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            ctx.fillStyle = "#ffffff";
+            stars.forEach(star => {
+                ctx.globalAlpha = star.alpha;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Draw Sun
+            ctx.shadowBlur = 40;
+            ctx.shadowColor = '#f39c12';
+            ctx.fillStyle = '#f39c12';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = "rgba(243, 156, 18, 0.1)";
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 60, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Earth Orbit Line
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, earthOrbitRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            if (currentMode === 'normal') {
+                earthAngle += 0.008;
+                moonAngle += 0.04;
+            }
+            earthRotation += 0.03;
+
+            const earthX = centerX + Math.cos(earthAngle) * earthOrbitRadius;
+            const earthY = centerY + Math.sin(earthAngle) * earthOrbitRadius;
+
+            ctx.strokeStyle = "rgba(0, 210, 255, 0.3)";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(earthX, earthY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Moon Orbit Line around Earth (radius reflects current elliptical position)
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, moonOrbitRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const moonX = earthX + Math.cos(moonAngle) * moonOrbitRadius;
+            const moonY = earthY + Math.sin(moonAngle) * moonOrbitRadius + (currentMode === 'solar-partial' ? 10 : 0);
+
+            // Draw Shadows
+            if (currentMode.startsWith('solar')) {
+                ctx.fillStyle = currentMode === 'solar-annular' ? "rgba(0, 0, 0, 0.15)" : "rgba(0, 0, 0, 0.35)";
+                ctx.beginPath();
+                ctx.moveTo(moonX, moonY - 10);
+                ctx.lineTo(earthX, earthY - 20);
+                ctx.lineTo(earthX, earthY + 20);
+                ctx.lineTo(moonX, moonY + 10);
+                ctx.fill();
+            } else if (currentMode.startsWith('lunar')) {
+                const shadowAngle = Math.atan2(earthY - centerY, earthX - centerX);
+                ctx.fillStyle = currentMode === 'lunar-penumbral' ? "rgba(0, 0, 0, 0.15)" : "rgba(0, 0, 0, 0.4)";
+                ctx.beginPath();
+                ctx.moveTo(earthX, earthY - 15);
+                ctx.lineTo(earthX + Math.cos(shadowAngle) * 100, earthY + Math.sin(shadowAngle) * 100 - 30);
+                ctx.lineTo(earthX + Math.cos(shadowAngle) * 100, earthY + Math.sin(shadowAngle) * 100 + 30);
+                ctx.lineTo(earthX, earthY + 15);
+                ctx.fill();
+            }
+
+            // Draw Earth Body
+            ctx.save();
+            ctx.translate(earthX, earthY);
+            ctx.rotate(earthRotation);
+            ctx.fillStyle = '#0984e3';
+            ctx.beginPath();
+            ctx.arc(0, 0, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, -12);
+            ctx.lineTo(0, 12);
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw Moon Body (Scale visual size slightly smaller for annular representation)
+            const moonRadius = currentMode === 'solar-annular' ? 3.5 : 5;
+            ctx.fillStyle = currentMode === 'lunar-total' ? '#c0392b' : '#b2bec3';
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, moonRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Labels
+            ctx.fillStyle = "rgba(255,255,255,0.7)";
+            ctx.font = "10px sans-serif";
+            ctx.fillText("Sun", centerX - 10, centerY - 40);
+            ctx.fillText("Earth", earthX + 16, earthY + 4);
+            ctx.fillText("Moon", moonX + 8, moonY + 3);
+
+            updatePreviews();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

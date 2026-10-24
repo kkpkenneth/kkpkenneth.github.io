@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HTML Color Stroop Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1e272e;
+            color: #d2dae2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.1s ease;
+            /* Prevent pull to refresh on mobile */
+            overscroll-behavior-y: contain; 
+        }
+
+        .container {
+            background: #2d3436;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #f5f6fa;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #a4b0be;
+        }
+
+        .highlight {
+            color: #00a8ff;
+            font-weight: bold;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #f5f6fa;
+        }
+
+        .target-word {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin: 40px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            /* Prevent text selection while tapping quickly */
+            user-select: none; 
+        }
+
+        /* 2x2 Grid for the 4 choices */
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            font-size: 1.1rem;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s, filter 0.1s;
+            /* Prevent double-tap zoom on phones */
+            touch-action: manipulation; 
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background-color: #00a8ff;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0097e6;
+        }
+
+        .btn-secondary {
+            background-color: #485460;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #575f68;
+        }
+
+        .btn-choice {
+            background-color: #485460;
+            color: #f5f6fa;
+        }
+
+        .btn-choice:hover {
+            background-color: #575f68;
+        }
+
+        /* Revision Area Styles */
+        .revision-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-height: 50vh;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding-right: 5px;
+        }
+
+        .revision-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .revision-container::-webkit-scrollbar-thumb {
+            background-color: #a4b0be;
+            border-radius: 4px;
+        }
+
+        .color-card {
+            background: #1e272e;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #d2dae2;
+        }
+
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Flash effects for right/wrong */
+        body.flash-correct { background-color: #05c46b; }
+        body.flash-incorrect { background-color: #ff3f34; }
+
+        /* Screen visibility toggles */
+        .screen { display: none; }
+        .screen.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="start-screen" class="screen active">
+            <h1>HTML Stroop Test</h1>
+            <p>Your brain will try to read the word. You must fight it.</p>
+            <p>Click the button that matches the <span class="highlight">INK COLOR</span> of the word, not what the word says.</p>
+            <p>You have <strong>60 seconds</strong>.</p>
+            <button class="btn-primary" id="start-btn">Start Game</button>
+            <button class="btn-secondary" id="revision-btn">Study Colors</button>
+        </div>
+
+        <div id="revision-screen" class="screen">
+            <h1>Color Reference</h1>
+            <p>Learn the HTML colors before you play!</p>
+            <div class="revision-container" id="revision-container">
+                <!-- Color cards injected here via JS -->
+            </div>
+            <button class="btn-primary" id="back-btn">Back to Menu</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="stats-bar">
+                <div id="time-display">Time: 60s</div>
+                <div id="score-display">Score: 0</div>
+            </div>
+            
+            <div class="target-word" id="target-word">Ready</div>
+            
+            <div class="choices-grid" id="choices-grid">
+                <!-- Buttons injected via JS -->
+            </div>
+        </div>
+
+        <div id="end-screen" class="screen">
+            <h1>Time's Up!</h1>
+            <p>Your Final Score:</p>
+            <h2 style="font-size: 3rem; color: #00a8ff; margin: 10px 0;" id="final-score">0</h2>
+            <p id="assessment"></p>
+            <button class="btn-primary" id="retry-btn">Play Again</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Web Audio API for synthesized sound effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            // Browsers require audio context to be resumed after user interaction
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                // A quick, high-pitched "blip"
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+                oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+
+            } else if (type === 'incorrect') {
+                // A low, flat "buzzer"
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(150, audioCtx.currentTime); 
+                
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // Dictionary of distinct HTML colors
+        const colors = [
+                // Reds & Pinks
+                { name: 'Crimson', hex: '#DC143C' },
+                { name: 'Red', hex: '#FF0000' },
+                { name: 'Fire Brick', hex: '#B22222' },
+                { name: 'Dark Red', hex: '#8B0000' },
+                { name: 'Pink', hex: '#FFC0CB' },
+                { name: 'Hot Pink', hex: '#FF69B4' },
+                { name: 'Deep Pink', hex: '#FF1493' },
+                { name: 'Pale Violet Red', hex: '#DB7093' },
+
+                // Oranges & Yellows
+                { name: 'Tomato', hex: '#FF6347' },
+                { name: 'Coral', hex: '#FF7F50' },
+                { name: 'Orange', hex: '#FFA500' },
+                { name: 'Dark Orange', hex: '#FF8C00' },
+                { name: 'Gold', hex: '#FFD700' },
+                { name: 'Yellow', hex: '#FFFF00' },
+                { name: 'Khaki', hex: '#F0E68C' },
+                { name: 'Dark Khaki', hex: '#BDB76B' },
+
+                // Greens
+                { name: 'Chartreuse', hex: '#7FFF00' },
+                { name: 'Lawn Green', hex: '#7CFC00' },
+                { name: 'Lime', hex: '#00FF00' },
+                { name: 'Lime Green', hex: '#32CD32' },
+                { name: 'Pale Green', hex: '#98FB98' },
+                { name: 'Medium Spring Green', hex: '#00FA9A' },
+                { name: 'Spring Green', hex: '#00FF7F' },
+                { name: 'Medium Sea Green', hex: '#3CB371' },
+                { name: 'Sea Green', hex: '#2E8B57' },
+                { name: 'Forest Green', hex: '#228B22' },
+                { name: 'Green', hex: '#008000' },
+                { name: 'Dark Green', hex: '#006400' },
+                { name: 'Yellow Green', hex: '#9ACD32' },
+                { name: 'Olive Drab', hex: '#6B8E23' },
+                { name: 'Olive', hex: '#808000' },
+                { name: 'Dark Olive Green', hex: '#556B2F' },
+
+                // Cyans & Blues
+                { name: 'Cyan', hex: '#00FFFF' },
+                { name: 'Aquamarine', hex: '#7FFFD4' },
+                { name: 'Turquoise', hex: '#40E0D0' },
+                { name: 'Medium Turquoise', hex: '#48D1CC' },
+                { name: 'Dark Turquoise', hex: '#00CED1' },
+                { name: 'CadetBlue', hex: '#5F9EA0' },
+                { name: 'Teal', hex: '#008080' },
+                { name: 'Steel Blue', hex: '#4682B4' },
+                { name: 'Light Sky Blue', hex: '#87CEFA' },
+                { name: 'Deep Sky Blue', hex: '#00BFFF' },
+                { name: 'Dodger Blue', hex: '#1E90FF' },
+                { name: 'Cornflower Blue', hex: '#6495ED' },
+                { name: 'Royal Blue', hex: '#4169E1' },
+                { name: 'Blue', hex: '#0000FF' },
+                { name: 'Medium Blue', hex: '#0000CD' },
+                { name: 'Dark Blue', hex: '#00008B' },
+                { name: 'Navy', hex: '#000080' },
+                { name: 'Midnight Blue', hex: '#191970' },
+
+                // Purples & Violets
+                { name: 'Lavender', hex: '#E6E6FA' },
+                { name: 'Plum', hex: '#DDA0DD' },
+                { name: 'Violet', hex: '#EE82EE' },
+                { name: 'Orchid', hex: '#DA70D6' },
+                { name: 'Fuchsia', hex: '#FF00FF' },
+                { name: 'Medium Orchid', hex: '#BA55D3' },
+                { name: 'Medium Purple', hex: '#9370DB' },
+                { name: 'Blue Violet', hex: '#8A2BE2' },
+                { name: 'Dark Violet', hex: '#9400D3' },
+                { name: 'Dark Orchid', hex: '#9932CC' },
+                { name: 'Dark Magenta', hex: '#8B008B' },
+                { name: 'Purple', hex: '#800080' },
+                { name: 'Indigo', hex: '#4B0082' },
+                { name: 'Slate Blue', hex: '#6A5ACD' },
+                { name: 'Dark Slate Blue', hex: '#483D8B' },
+
+                // Browns
+                { name: 'Burlywood', hex: '#DEB887' },
+                { name: 'Tan', hex: '#D2B48C' },
+                { name: 'Rosy Brown', hex: '#BC8F8F' },
+                { name: 'Sandy Brown', hex: '#F4A460' },
+                { name: 'Goldenrod', hex: '#DAA520' },
+                { name: 'Dark Goldenrod', hex: '#B8860B' },
+                { name: 'Peru', hex: '#CD853F' },
+                { name: 'Chocolate', hex: '#D2691E' },
+                { name: 'Saddle Brown', hex: '#8B4513' },
+                { name: 'Sienna', hex: '#A0522D' },
+                { name: 'Brown', hex: '#A52A2A' },
+                { name: 'Maroon', hex: '#800000' },
+
+                // Whites, Grays, & Blacks
+                { name: 'White', hex: '#FFFFFF' },
+                { name: 'Silver', hex: '#C0C0C0' },
+                { name: 'Dark Gray', hex: '#A9A9A9' },
+                { name: 'Gray', hex: '#808080' },
+                { name: 'Dim Gray', hex: '#696969' },
+                { name: 'Light Slate Gray', hex: '#778899' },
+                { name: 'Slate Gray', hex: '#708090' },
+                { name: 'Dark Slate Gray', hex: '#2F4F4F' },
+                { name: 'Black', hex: '#000000' }
+        ];
+
+        // Game State
+        let score = 0;
+        let timeLeft = 60;
+        let timerId = null;
+        let currentInk = null;
+
+        // DOM Elements
+        const screens = {
+            start: document.getElementById('start-screen'),
+            revision: document.getElementById('revision-screen'),
+            game: document.getElementById('game-screen'),
+            end: document.getElementById('end-screen')
+        };
+        const timeDisplay = document.getElementById('time-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const targetWord = document.getElementById('target-word');
+        const choicesGrid = document.getElementById('choices-grid');
+        const finalScore = document.getElementById('final-score');
+        const assessment = document.getElementById('assessment');
+
+        // Populate Revision Screen
+        function populateRevision() {
+            const container = document.getElementById('revision-container');
+            colors.forEach(color => {
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                card.innerHTML = `
+                    <div class="color-swatch" style="background-color: ${color.hex}"></div>
+                    <div style="text-align: center;">${color.name}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        populateRevision();
+
+        // Helper: Get random item from array
+        function getRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // Helper: Shuffle array (Fisher-Yates)
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function showScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screens[screenName].classList.add('active');
+        }
+
+        function flashScreen(isCorrect) {
+            const className = isCorrect ? 'flash-correct' : 'flash-incorrect';
+            document.body.classList.add(className);
+            setTimeout(() => {
+                document.body.classList.remove(className);
+            }, 150);
+        }
+
+        function generateRound() {
+            // 1. Pick the correct INK color
+            currentInk = getRandom(colors);
+            
+            // 2. Pick the TEXT word (make it mismatch 80% of the time for difficulty)
+            let wordTextData = getRandom(colors);
+            if (Math.random() > 0.2) {
+                while (wordTextData.name === currentInk.name) {
+                    wordTextData = getRandom(colors);
+                }
+            }
+
+            // 3. Update the Target Word UI
+            targetWord.textContent = wordTextData.name;
+            targetWord.style.color = currentInk.hex;
+
+            // 4. Generate 4 choices (must include the correct answer)
+            let options = [currentInk];
+            while (options.length < 4) {
+                let randomColor = getRandom(colors);
+                if (!options.some(opt => opt.name === randomColor.name)) {
+                    options.push(randomColor);
+                }
+            }
+
+            // 5. Shuffle the 4 choices so the correct answer moves around
+            shuffle(options);
+
+            // 6. Build the buttons
+            choicesGrid.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-choice';
+                btn.textContent = opt.name;
+                btn.onclick = () => handleGuess(opt.name);
+                choicesGrid.appendChild(btn);
+            });
+        }
+
+        function handleGuess(guessedColorName) {
+            if (guessedColorName === currentInk.name) {
+                score++;
+                flashScreen(true);
+                playSound('correct');
+            } else {
+                flashScreen(false);
+                playSound('incorrect');
+            }
+            scoreDisplay.textContent = `Score: ${score}`;
+            generateRound();
+        }
+
+        function tick() {
+            timeLeft--;
+            timeDisplay.textContent = `Time: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        function startGame() {
+            // Ensure audio context starts on the very first click
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            score = 0;
+            timeLeft = 60;
+            scoreDisplay.textContent = `Score: ${score}`;
+            timeDisplay.textContent = `Time: ${timeLeft}s`;
+            
+            showScreen('game');
+            generateRound();
+            
+            timerId = setInterval(tick, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerId);
+            showScreen('end');
+            finalScore.textContent = score;
+
+            if (score >= 45) {
+                assessment.textContent = "Unreal. You are a cyborg. 🤖";
+            } else if (score >= 30) {
+                assessment.textContent = "Excellent focus! You beat the interference. 🔥";
+            } else if (score >= 15) {
+                assessment.textContent = "Solid run, but your brain definitely tripped up a few times. 🤔";
+            } else {
+                assessment.textContent = "The Stroop effect got you! Keep practicing. 😵‍💫";
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('retry-btn').addEventListener('click', startGame);
+        document.getElementById('revision-btn').addEventListener('click', () => showScreen('revision'));
+        document.getElementById('back-btn').addEventListener('click', () => showScreen('start'));
+
+    </script>
+</body>
+</html>

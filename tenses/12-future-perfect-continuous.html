@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Future Perfect Continuous Challenge</title>
+    <style>
+        :root {
+            --primary: #0D47A1; /* Navy Blue */
+            --primary-dark: #002171;
+            --success: #0097A7; /* Aqua Blue */
+            --success-dark: #006064;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #E0F7FA; /* Light aqua tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #B3E5FC;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.55rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(38, 50, 56, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #78909C;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Future Perfect Continuous</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Future Perfect Continuous
+        const rules = {
+            1: {
+                title: "Level 1: The 'Will Have Been' Formula",
+                text: "Use 'will have been' + verb with '-ing' for an action that will continue up to a future point in time. It works for EVERY pronoun (I, you, he, she, it, we, they)!"
+            },
+            2: {
+                title: "Level 2: Future Milestones & Durations",
+                text: "Future Perfect Continuous combines two time hints: a future deadline (like 'by next year') and an ongoing duration (like 'for ten years' or 'since morning')."
+            },
+            3: {
+                title: "Level 3: Spelling Rules (-ing)",
+                text: "When adding '-ing' to the action verb after 'will have been', remember spelling changes like dropping the silent 'e' or doubling consonants after short vowels."
+            },
+            4: {
+                title: "Level 4: Saying 'No'",
+                text: "To make a negative sentence, place 'not' directly after 'will' -> 'will not have been' + verb-ing. Remember, no contractions are allowed!"
+            },
+            5: {
+                title: "Level 5: Asking Questions",
+                text: "To ask a question, start with 'Will', followed by the subject, and then 'have been + verb-ing'."
+            },
+            6: {
+                title: "Level 6: 'How Long' & Complex Clauses",
+                text: "Start with WH- phrases like 'How long will', followed by the subject, 'have been', and the '-ing' action verb before a future milestone!"
+            }
+        };
+
+        // 100 Questions Database for Future Perfect Continuous (Every sentence has a signal word! No Contractions!)
+        const qData = [
+            // Level 1: Core Formula across pronouns (1-16)
+            [1, "By next year, I ___ teaching for ten years.", "will have been", "will has been"],
+            [1, "By 8 PM, she ___ studying for four hours.", "will have been", "will has been"],
+            [1, "By next month, they ___ living here for a year.", "will have been", "will has been"],
+            [1, "By tomorrow noon, he ___ driving for six hours.", "will have been", "will has been"],
+            [1, "By the time we arrive, we ___ traveling for two days.", "will have been", "will has been"],
+            [1, "By next winter, you ___ practicing for five years.", "will have been", "will has been"],
+            [1, "By tonight, it ___ raining continuously for twenty hours.", "will have been", "will has been"],
+            [1, "By Friday, I ___ working on this project for a month.", "will have been", "will has been"],
+            [1, "By sunset, she ___ painting the mural for eight hours.", "will have been", "will has been"],
+            [1, "By next summer, they ___ building the bridge for two years.", "will have been", "will has been"],
+            [1, "By 5 PM, he ___ cooking dinner for two hours.", "will have been", "will has been"],
+            [1, "By the end of class, we ___ listening for three hours.", "will have been", "will has been"],
+            [1, "By midnight, you ___ waiting for twelve hours.", "will have been", "will has been"],
+            [1, "By the time the doctor arrives, the baby ___ sleeping for hours.", "will have been", "will has been"],
+            [1, "By next week, I ___ exercising every day for a year.", "will have been", "will has been"],
+            [1, "By next Sunday, she ___ dancing for ten years.", "will have been", "will has been"],
+
+            // Level 2: Duration and Starting Point Markers (17-33)
+            [2, "By next year, I will have been working here ___ five years.", "for", "since"],
+            [2, "By 2030, she will have been living in Tokyo ___ 2020.", "since", "for"],
+            [2, "By noon tomorrow, we will have been hiking ___ six hours.", "for", "since"],
+            [2, "By Friday, they will have been repairing the road ___ two weeks.", "for", "since"],
+            [2, "By midnight, he will have been studying ___ 8 PM.", "since", "for"],
+            [2, "By next month, you will have been playing guitar ___ a decade.", "for", "since"],
+            [2, "By tomorrow morning, it will have been snowing ___ three days.", "for", "since"],
+            [2, "By the end of this tour, we will have been traveling ___ last March.", "since", "for"],
+            [2, "By 6 PM, she will have been baking ___ four hours.", "for", "since"],
+            [2, "By next Tuesday, they will have been sailing ___ three weeks.", "for", "since"],
+            [2, "By 10 PM, he will have been watching TV ___ 2 PM.", "since", "for"],
+            [2, "By the time you call, I will have been sleeping ___ eight hours.", "for", "since"],
+            [2, "By next year, the company will have been expanding ___ 2015.", "since", "for"],
+            [2, "By sunset, the team will have been training ___ five hours.", "for", "since"],
+            [2, "By next week, she will have been dieting ___ a full month.", "for", "since"],
+            [2, "By tomorrow evening, we will have been celebrating ___ yesterday.", "since", "for"],
+            [2, "By 2035, he will have been researching biology ___ twenty years.", "for", "since"],
+
+            // Level 3: Spelling Rules for '-ing' Form (34-50)
+            [3, "By next year, she will have been ___ pottery for a decade.", "making", "makeing"],
+            [3, "By noon tomorrow, he will have been ___ the marathon for two hours.", "running", "runing"],
+            [3, "By 5 PM, we will have been ___ a conference call for three hours.", "having", "haveing"],
+            [3, "By sunset, they will have been ___ in the ocean for an hour.", "swimming", "swiming"],
+            [3, "By midnight, I will have been ___ at this desk for ten hours.", "sitting", "siting"],
+            [3, "By Friday, she will have been ___ her novel for six months.", "writing", "writeing"],
+            [3, "By the time we check, the dog will have been ___ the ball for hours.", "getting", "geting"],
+            [3, "By tomorrow, they will have been ___ to our house for holidays for years.", "coming", "comeing"],
+            [3, "By sunset, he will have been ___ photographs all day.", "taking", "takeing"],
+            [3, "By noon, we will have been ___ carefully on the trail for hours.", "stepping", "steping"],
+            [3, "By 8 PM, the store clerk will have been ___ accounts for two hours.", "closing", "closeing"],
+            [3, "By the final round, the champion will have been ___ every match.", "winning", "wining"],
+            [3, "By morning, I will have been ___ effort into this for weeks.", "putting", "puting"],
+            [3, "By 6 PM tomorrow, he will have been ___ his truck across the country for days.", "driving", "driveing"],
+            [3, "By lunch, the chef will have been ___ vegetables all morning.", "cutting", "cuting"],
+            [3, "By tomorrow night, she will have been ___ professionally for ten years.", "dancing", "danceing"],
+            [3, "By tomorrow evening, we will have been ___ our marks on this team for a year.", "leaving", "leaveing"],
+
+            // Level 4: Negatives (will not have been) (51-67)
+            [4, "By next month, I ___ working overtime for long.", "will not have been", "will not has been"],
+            [4, "By 8 PM tonight, she ___ waiting for more than an hour.", "will not have been", "will not has been"],
+            [4, "By tomorrow, they ___ driving continuously for twenty hours.", "will not have been", "will not has been"],
+            [4, "By Friday, he ___ studying all week without sleep.", "will not have been", "will not has been"],
+            [4, "By next year, we ___ paying rent here for very long.", "will not have been", "will not has been"],
+            [4, "By midnight, you ___ walking in the cold for three hours.", "will not have been", "will not has been"],
+            [4, "By next week, it ___ raining every single day.", "will not have been", "will not has been"],
+            [4, "By 5 PM, I ___ standing on my feet all day.", "will not have been", "will not has been"],
+            [4, "By tomorrow noon, she ___ fasting for twenty-four hours.", "will not have been", "will not has been"],
+            [4, "By next summer, they ___ living abroad for a full decade.", "will not have been", "will not has been"],
+            [4, "By 9 PM, he ___ playing video games all evening.", "will not have been", "will not has been"],
+            [4, "By graduation, we ___ struggling with this course for too long.", "will not have been", "will not has been"],
+            [4, "By tomorrow evening, you ___ waiting in line for hours.", "will not have been", "will not has been"],
+            [4, "By next winter, the tree ___ growing here for fifty years.", "will not have been", "will not has been"],
+            [4, "By next month, I ___ eating sugar for six months straight.", "will not have been", "will not has been"],
+            [4, "By tomorrow morning, she ___ crying all night.", "will not have been", "will not has been"],
+            [4, "By next year, they ___ operating without a license for long.", "will not have been", "will not has been"],
+
+            // Level 5: Questions (Will + Subject + have been) (68-84)
+            [5, "___ you have been working here for ten years by next May?", "Will", "Do"],
+            [5, "___ she have been studying for three hours by 8 PM?", "Will", "Does"],
+            [5, "___ they have been living in Paris for a decade by 2030?", "Will", "Do"],
+            [5, "___ he have been driving for five hours by noon tomorrow?", "Will", "Does"],
+            [5, "___ we have been traveling for a month by next Monday?", "Will", "Do"],
+            [5, "___ it have been raining all day by tonight?", "Will", "Does"],
+            [5, "___ you have been practicing guitar for five years by next month?", "Will", "Do"],
+            [5, "___ she have been teaching at the school for twenty years by next year?", "Will", "Does"],
+            [5, "___ they have been building the stadium for three years by winter?", "Will", "Do"],
+            [5, "___ he have been sleeping for ten hours by tomorrow morning?", "Will", "Does"],
+            [5, "___ you have been training for the race for six months by next week?", "Will", "Do"],
+            [5, "___ we have been negotiating for hours by the time the boss arrives?", "Will", "Do"],
+            [5, "___ she have been writing poetry for a decade by next autumn?", "Will", "Does"],
+            [5, "___ they have been sailing for three weeks by tomorrow?", "Will", "Do"],
+            [5, "___ he have been exercising for two hours by 6 PM?", "Will", "Does"],
+            [5, "___ it have been snowing for forty-eight hours by tomorrow noon?", "Will", "Does"],
+            [5, "___ you have been learning French for two years by next summer?", "Will", "Do"],
+
+            // Level 6: 'How Long' & Complex Clauses (85-100)
+            [6, "How long ___ you have been working here by next December?", "will", "do"],
+            [6, "By next year, what project ___ she have been leading for months?", "will", "does"],
+            [6, "How long ___ they have been living in Madrid by 2030?", "will", "do"],
+            [6, "By midnight, why ___ he have been driving for ten hours straight?", "will", "does"],
+            [6, "How long ___ we have been flying by the time we land tomorrow?", "will", "do"],
+            [6, "By tomorrow noon, where ___ you have been volunteering for six months?", "will", "do"],
+            [6, "By next month, how long ___ it have been snowing in the mountains?", "will", "does"],
+            [6, "What course ___ they have been studying for a year by next spring?", "will", "do"],
+            [6, "By 9 PM, how long ___ she have been rehearsing for the show?", "will", "does"],
+            [6, "By the end of the year, where ___ he have been teaching for five years?", "will", "does"],
+            [6, "How many hours ___ you have been sleeping by 8 AM tomorrow?", "will", "do"],
+            [6, "By next winter, how long ___ we have been saving money for the house?", "will", "do"],
+            [6, "What language ___ she have been practicing for two years by next summer?", "will", "does"],
+            [6, "By 2030, how long ___ they have been developing renewable energy solutions?", "will", "do"],
+            [6, "By tomorrow evening, why ___ he have been waiting for five hours?", "will", "does"],
+            [6, "By the time we graduate, how long ___ we have been studying together?", "will", "do"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

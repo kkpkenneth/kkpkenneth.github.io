@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Typing Test</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --primary: #3182ce;
+            --success: #38a169;
+            --error: #e53e3e;
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 25px 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            height: 520px;
+            box-sizing: border-box;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.6rem;
+            text-align: left;
+        }
+
+        .sound-toggle {
+            background: #edf2f7;
+            border: 1px solid #cbd5e0;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #4a5568;
+            transition: background 0.2s;
+        }
+        .sound-toggle:hover {
+            background: #e2e8f0;
+        }
+
+        p {
+            color: #718093;
+            font-size: 0.9rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background-color: #2b6cb0;
+        }
+
+        /* Game Screen */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            background: #edf2f7;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1.1rem;
+            border: 2px solid #cbd5e0;
+            border-radius: 10px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        .feedback {
+            font-size: 0.85rem;
+            height: 20px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .animal-list-container {
+            flex: 1;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            text-align: left;
+            max-height: 170px;
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .animal-tag {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Results Screen */
+        #results-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .score-display {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: var(--success);
+            margin: 5px 0;
+        }
+
+        .final-list {
+            max-height: 130px;
+            overflow-y: auto;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: left;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Intro Screen -->
+    <div id="intro-screen">
+        <div class="header-row">
+            <h1>Animal Typing Test</h1>
+            <button class="sound-toggle" id="sound-toggle-btn" onclick="toggleSound()">🔊 Sound: ON</button>
+        </div>
+        <p>How many unique animals can you name in 60 seconds?</p>
+        <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 25px;">Type an animal name and press <b>Enter</b> or space. Duplicates are automatically blocked!</p>
+        <button class="btn" onclick="startGame()">Start Challenge</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen">
+        <div class="hud">
+            <div>⏱️ Time: <span id="timer">60</span>s</div>
+            <div>🐾 Score: <span id="score">0</span></div>
+        </div>
+        
+        <input type="text" id="animal-input" placeholder="Type animal name..." autocomplete="off" onkeydown="handleInput(event)">
+        <div class="feedback" id="feedback"></div>
+
+        <div class="animal-list-container">
+            <div class="tag-cloud" id="tag-cloud"></div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen">
+        <h1>Time's Up!</h1>
+        <p style="margin-bottom: 0; text-align: center;">You successfully named:</p>
+        <div class="score-display"><span id="final-score">0</span> Animals</div>
+        
+        <div class="final-list" id="final-list-display"></div>
+
+        <button class="btn" onclick="startGame()">Try Again</button>
+    </div>
+</div>
+
+<script>
+    const validAnimals = new Set([
+        "dog", "cat", "elephant", "lion", "tiger", "bear", "wolf", "fox", "rabbit", "deer",
+        "monkey", "gorilla", "chimpanzee", "zebra", "giraffe", "hippopotamus", "rhinoceros",
+        "kangaroo", "koala", "panda", "cheetah", "leopard", "jaguar", "hyena", "squirrel",
+        "hedgehog", "bat", "whale", "dolphin", "shark", "octopus", "seal", "walrus", "penguin",
+        "eagle", "hawk", "owl", "parrot", "pigeon", "duck", "swan", "goose", "frog", "toad",
+        "snake", "lizard", "turtle", "crocodile", "alligator", "snail", "ant", "bee", "spider",
+        "crab", "lobster", "jellyfish", "starfish", "camel", "horse", "cow", "sheep", "goat",
+        "pig", "chicken", "turkey", "mouse", "rat", "hamster", "beaver", "otter", "platypus",
+        "sloth", "armadillo", "meerkat", "lemur", "bison", "buffalo", "moose", "elk",
+        "reindeer", "donkey", "mule", "llama", "alpaca", "peacock", "flamingo", "ostrich",
+        "emu", "kiwi", "toucan", "woodpecker", "falcon", "vulture", "stork", "heron", "pelican",
+        "seahorse", "stingray", "squid", "orca", "narwhal", "manatee", "chameleon",
+        "python", "cobra", "viper", "iguana", "gecko", "salamander", "centipede", "scorpion",
+        "butterfly", "moth", "caterpillar", "ladybug", "dragonfly", "grasshopper", "cricket",
+        "bird", "fish", "salmon", "tuna", "trout", "cod", "goldfish", "minnow", "carp",
+        "catfish", "eel", "piranha", "barracuda", "swordfish", "marlin", "halibut", "snapper",
+        "bass", "perch", "bluegill", "flounder", "sardine", "anchovy", "herring", "mackerel",
+        "grouper", "mahi-mahi", "manta", "jawfish", "pufferfish", "anglerfish",
+        "robin", "sparrow", "bluebird", "cardinal", "finch", "canary", "magpie", "crow", "raven",
+        "seagull", "albatross", "swallow", "starling", "blackbird", "bluejay",
+        "hummingbird", "nightingale", "cuckoo", "swift", "budgie", "cockatiel",
+        "macaw", "cockatoo", "parakeet", "lovebird", "puffin", "cormorant",
+        "frigatebird", "booby", "tern", "ptarmigan", "grouse", "pheasant", "quail", "partridge",
+        "chimera", "echidna", "tasmanian devil", "wombat", "quokka", "bandicoot", "numbat",
+        "sugar glider", "possum", "wallaby", "dingo", "kookaburra", "lyrebird", "cassowary",
+        "fennec fox", "snow leopard", "wolverine", "badger", "weasel", "ferret", "stoat", "marten",
+        "mink", "muskrat", "porcupine", "chinchilla", "guinea pig", "gerbil",
+        "chipmunk", "gopher", "mole", "shrew", "vole", "lemming", "mongoose", "civet",
+        "genet", "binturong", "tapir", "capybara", "agouti", "paca", "vicuna", "guanaco", "yak",
+        "ibex", "chamois", "antilope", "gazelle", "impala", "springbok", "gnu", "wildebeest",
+        "warthog", "peccary", "baboon", "mandrill", "marmoset", "tamarin", "loris", "galago",
+        "gibbon", "orangutan", "bonobo", "beluga", "dugong", "sperm whale",
+        "blue whale", "humpback", "killer whale", "pilot whale", "right whale", "fin whale",
+
+        // Newly added (including ox, hen, and even more expanded species)
+        "ox", "hen", "rooster", "bull", "calf", "lamb", "foal", "pony", "stallion", "mare",
+        "ram", "ewe", "billy goat", "nanny goat", "hound", "puppy", "kitten", "tom_cat",
+        "panther", "cougar", "lynx", "bobcat", "ocelot", "serval", "caracal", "meerkat",
+        "quoll", "bilby", "numbat", "tasmanian tiger", "blobfish", "barramundi", "flounder",
+        "hake", "haddock", "pollock", "sole", "turbot", "monkfish", "sturgeon", "caviar",
+        "arowana", "discus", "tetra", "guppy", "molly", "platy", "cichlid", "oscar",
+        "damselfish", "clownfish", "tang", "surgeonfish", "mandarin fish", "lionfish",
+        "stonefish", "moray eel", "electric eel", "conger eel", "hagfish", "lamprey",
+        "barnacle", "limpet", "mussel", "clam", "oyster", "scallop", "whelk", "periwinkle",
+        "abalone", "sea urchin", "sea cucumber", "sea anemone", "coral", "sponge",
+        "cuttlefish", "nautilus", "krill", "copepod", "barnacle", "horseshoe crab",
+        "hermit crab", "fiddler crab", "spider crab", "king crab", "blue crab", "crayfish",
+        "praying mantis", "stick insect", "leaf insect", "cicada", "aphid", "termite",
+        "flea", "tick", "mite", "housefly", "fruit fly", "mosquito", "gnat", "wasp",
+        "hornet", "yellowjacket", "bumblebee", "carpenter ant", "fire ant", "bullet ant"
+    ]);
+
+    let timeLeft = 60;
+    let score = 0;
+    let timerInterval = null;
+    let typedAnimals = new Set();
+    let soundEnabled = true;
+
+    // Web Audio API Synthesizer for instant, dependency-free sound effects
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(freq, type, duration) {
+        if (!soundEnabled) return;
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sfx = {
+        correct: () => {
+            playTone(587.33, 'sine', 0.1); // D5
+            setTimeout(() => playTone(880, 'sine', 0.15), 80); // A5
+        },
+        error: () => {
+            playTone(180, 'sawtooth', 0.15);
+        },
+        end: () => {
+            playTone(300, 'triangle', 0.2);
+            setTimeout(() => playTone(200, 'triangle', 0.3), 150);
+        }
+    };
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        const btn = document.getElementById('sound-toggle-btn');
+        btn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+    }
+
+    const introScreen = document.getElementById('intro-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const timerEl = document.getElementById('timer');
+    const scoreEl = document.getElementById('score');
+    const inputEl = document.getElementById('animal-input');
+    const tagCloudEl = document.getElementById('tag-cloud');
+    const feedbackEl = document.getElementById('feedback');
+    const finalScoreEl = document.getElementById('final-score');
+    const finalListDisplay = document.getElementById('final-list-display');
+
+    function startGame() {
+        introScreen.style.display = 'none';
+        resultsScreen.style.display = 'none';
+        gameScreen.style.display = 'flex';
+
+        timeLeft = 60;
+        score = 0;
+        typedAnimals.clear();
+        tagCloudEl.innerHTML = '';
+        feedbackEl.textContent = '';
+        inputEl.value = '';
+
+        timerEl.textContent = timeLeft;
+        scoreEl.textContent = score;
+
+        inputEl.focus();
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                sfx.end();
+                endGame();
+            }
+        }, 1000);
+    }
+
+    function handleInput(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            let animal = inputEl.value.trim().toLowerCase();
+            inputEl.value = '';
+
+            if (!animal) return;
+
+            if (typedAnimals.has(animal)) {
+                sfx.error();
+                showFeedback("Already entered!", "var(--error)");
+            } else if (validAnimals.has(animal)) {
+                typedAnimals.add(animal);
+                score++;
+                scoreEl.textContent = score;
+                addTag(animal);
+                sfx.correct();
+                showFeedback("Correct! +1", "var(--success)");
+            } else {
+                sfx.error();
+                showFeedback("Not recognized / Invalid", "var(--error)");
+            }
+        }
+    }
+
+    function showFeedback(text, color) {
+        feedbackEl.textContent = text;
+        feedbackEl.style.color = color;
+        setTimeout(() => {
+            if (feedbackEl.textContent === text) {
+                feedbackEl.textContent = '';
+            }
+        }, 1200);
+    }
+
+    function addTag(animal) {
+        const tag = document.createElement('div');
+        tag.className = 'animal-tag';
+        tag.textContent = animal;
+        tagCloudEl.appendChild(tag);
+        tagCloudEl.parentElement.scrollTop = tagCloudEl.parentElement.scrollHeight;
+    }
+
+    function endGame() {
+        gameScreen.style.display = 'none';
+        resultsScreen.style.display = 'flex';
+
+        finalScoreEl.textContent = score;
+
+        if (typedAnimals.size > 0) {
+            finalListDisplay.textContent = Array.from(typedAnimals).join(', ');
+        } else {
+            finalListDisplay.textContent = "No animals entered.";
+        }
+    }
+</script>
+
+</body>
+</html>

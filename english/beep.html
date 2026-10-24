@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat Tempo Controller</title>
+    <style>
+        :root {
+            --bg-color: #1e1e2f;
+            --panel-color: #2a2a40;
+            --text-color: #ffffff;
+            --accent-color: #00d2ff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+
+        .container {
+            background-color: var(--panel-color);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 300px;
+        }
+
+        /* Slider Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #444;
+            border-radius: 4px;
+            outline: none;
+            margin-bottom: 40px;
+            margin-top: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Button Styling */
+        button {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #33dcff;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Visual indicator for the beat */
+        .beat-indicator {
+            width: 15px;
+            height: 15px;
+            background-color: #444;
+            border-radius: 50%;
+            margin: 25px auto 0;
+            transition: background-color 0.1s, transform 0.1s;
+        }
+
+        .beat-indicator.active {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            transform: scale(1.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Slider: Left for lower tempo, Right for higher tempo -->
+        <input type="range" id="tempo-slider" min="40" max="240" value="120">
+        
+        <button id="play-btn">START</button>
+        
+        <div class="beat-indicator" id="indicator"></div>
+    </div>
+
+    <script>
+        let audioCtx;
+        let isPlaying = false;
+        let bpm = 120;
+        let timerID = null;
+
+        const slider = document.getElementById('tempo-slider');
+        const playBtn = document.getElementById('play-btn');
+        const indicator = document.getElementById('indicator');
+
+        // Update BPM but do not play a sound immediately while dragging
+        slider.addEventListener('input', function() {
+            bpm = parseInt(this.value);
+            
+            // If playing, reset the interval silently so it doesn't machine-gun while sliding
+            if (isPlaying) {
+                clearInterval(timerID);
+                const intervalMs = 60000 / bpm;
+                timerID = setInterval(playBeat, intervalMs);
+            }
+        });
+
+        // Toggle Play/Stop
+        playBtn.addEventListener('click', function() {
+            if (!isPlaying) {
+                // Browsers require a user gesture to start audio
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                
+                isPlaying = true;
+                playBtn.textContent = 'STOP';
+                playBtn.style.backgroundColor = '#ff4757'; // Change to red
+                
+                const intervalMs = 60000 / bpm;
+                playBeat(); // Play the very first beat
+                timerID = setInterval(playBeat, intervalMs);
+            } else {
+                isPlaying = false;
+                playBtn.textContent = 'START';
+                playBtn.style.backgroundColor = 'var(--accent-color)';
+                clearInterval(timerID);
+            }
+        });
+
+        // Synthesize a quick percussive "click" using Web Audio API
+        function playBeat() {
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            // Create a sharp, short sound
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime); // Pitch
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.1);
+
+            // Flash the visual indicator
+            flashIndicator();
+        }
+
+        function flashIndicator() {
+            indicator.classList.add('active');
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 100);
+        }
+    </script>
+
+</body>
+</html>

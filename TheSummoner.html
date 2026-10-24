@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Word Notebook Sandbox</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the sandbox */
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            background-color: #111827; /* Dark gray/black background for contrast */
+            cursor: default;
+        }
+
+        .mover {
+            position: absolute;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: bold;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            will-change: transform, top, left; /* Performance optimization */
+        }
+
+        .mover.dragging {
+            cursor: grabbing;
+            z-index: 100;
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+            /* Important: Stop the JS-driven movement transition while dragging */
+            transition: none !important;
+        }
+
+        .object-label {
+            pointer-events: none;
+            user-select: none;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90%;
+            text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .object-emoji {
+            font-size: 40px;
+            line-height: 1;
+        }
+
+        .interaction-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            max-width: 350px;
+        }
+        .interaction-panel.visible {
+            display: flex;
+        }
+
+        /* Responsive layout for the input bar */
+        @media (max-width: 640px) {
+            #input-bar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            #wordInput {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            #spawnBtn, #clearBtn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Input Bar at the Bottom -->
+    <div id="input-bar" class="fixed bottom-0 left-0 w-full p-4 bg-gray-800 flex justify-center items-center space-x-2 shadow-2xl z-50">
+        <input
+            type="text"
+            id="wordInput"
+            placeholder="Type a word (e.g., 'dog', 'cat', 'turtle')..."
+            class="flex-grow max-w-lg p-3 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onkeypress="if(event.key === 'Enter') spawnObject()"
+        />
+        <button
+            id="spawnBtn"
+            onclick="spawnObject()"
+            class="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 transform hover:scale-105"
+        >
+            Summon
+        </button>
+        <button
+            id="clearBtn"
+            onclick="clearAllObjects()"
+            class="px-6 py-3 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 transition duration-150 transform hover:scale-105"
+        >
+            Clear All
+        </button>
+    </div>
+
+    <!-- Interaction Panel (Modal for Object Info/Actions) -->
+    <div id="interactionPanel" class="interaction-panel">
+        <h3 class="text-xl font-bold mb-3 text-gray-800">Object Interaction</h3>
+        <p id="panelText" class="text-center mb-4 text-gray-600">This is a [OBJECT_NAME]. What should happen?</p>
+        <div class="flex space-x-3">
+            <button
+                onclick="destroyCurrentObject()"
+                class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 transition"
+            >
+                Destroy
+            </button>
+            <button
+                onclick="hideInteractionPanel()"
+                class="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md hover:bg-gray-400 transition"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration & State ---
+        const STEP_DISTANCE = 35; // Distance in pixels to move per interval
+        const INTERVAL_DURATION = 1500; // Movement interval in milliseconds
+        const OBJECT_SIZE = 80; // Default size for new objects
+        const MAX_OBJECTS = 50; // Simple limit to prevent performance issues
+
+        let currentDrag = null;
+        let offsetX, offsetY;
+        let selectedObject = null; // Object currently selected for the interaction panel
+
+        // Simple dictionary for well-represented items (using emojis)
+        const emojiMap = {
+            dog: '🐕', cat: '🐈', tree: '🌳', car: '🚗', fire: '🔥', water: '💧',
+            sword: '⚔️', house: '🏠', rocket: '🚀', apple: '🍎', sun: '☀️',
+            moon: '🌙', ghost: '👻', robot: '🤖', fish: '🐟', bird: '🐦', turtle: '🐢', dragon: '🐉', pig: '🐷'
+        };
+
+        // --- Core Spawning Logic ---
+
+        function generateRandomColor() {
+            // Generate a vibrant color for the box background
+            const hue = Math.floor(Math.random() * 360);
+            return `hsl(${hue}, 70%, 60%)`;
+        }
+
+        function spawnObject() {
+            const input = document.getElementById('wordInput');
+            let word = input.value.trim().toLowerCase();
+
+            if (!word) return;
+
+            if (document.querySelectorAll('.mover').length >= MAX_OBJECTS) {
+                alertBox('Too many objects!', 'The world is too full! Clear some out before spawning more.', 'bg-yellow-500');
+                return;
+            }
+
+            const cleanWord = word.split(' ').pop(); // Use the last word as the main descriptor
+            const displayWord = word.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+            const div = document.createElement('div');
+            div.classList.add('mover', 'flex-shrink-0');
+            div.setAttribute('data-word', word);
+            div.style.width = `${OBJECT_SIZE}px`;
+            div.style.height = `${OBJECT_SIZE}px`;
+            // Set initial position to the center of the viewport
+            div.style.left = `${window.innerWidth / 2}px`;
+            div.style.top = `${window.innerHeight / 2}px`;
+            div.style.transform = `translate(-50%, -50%)`; // Center based on object size
+
+            const emoji = emojiMap[cleanWord];
+
+            if (emoji) {
+                // If an emoji exists, use it and make the box transparent
+                div.innerHTML = `<span class="object-emoji">${emoji}</span>`;
+                div.style.backgroundColor = 'transparent';
+                div.style.border = 'none';
+                div.style.width = '60px';
+                div.style.height = '60px';
+                div.style.boxShadow = 'none';
+            } else {
+                // Fallback to a styled box with the word
+                div.innerHTML = `<span class="object-label">${displayWord}</span>`;
+                div.style.backgroundColor = generateRandomColor();
+            }
+
+            // Apply size modification based on adjectives (very simplified)
+            if (word.includes('giant') || word.includes('huge')) {
+                const newSize = OBJECT_SIZE * 2;
+                div.style.width = `${newSize}px`;
+                div.style.height = `${newSize}px`;
+                div.style.fontSize = '20px';
+            } else if (word.includes('small') || word.includes('tiny')) {
+                const newSize = OBJECT_SIZE * 0.5;
+                div.style.width = `${newSize}px`;
+                div.style.height = `${newSize}px`;
+                div.style.fontSize = '12px';
+            }
+
+            // Add event listeners
+            div.addEventListener('mousedown', dragStart);
+            div.addEventListener('touchstart', dragStart, { passive: false });
+            div.addEventListener('click', handleObjectClick);
+
+            document.body.appendChild(div);
+
+            // Start the autonomous movement
+            startMovement(div);
+
+            // Clear the input field and focus it for the next word
+            input.value = '';
+            input.focus();
+        }
+
+        // --- Interaction Handlers ---
+
+        function handleObjectClick(e) {
+            e.stopPropagation(); // Prevent body click event from closing the panel immediately
+            selectedObject = this;
+            const word = selectedObject.getAttribute('data-word');
+            const panel = document.getElementById('interactionPanel');
+            document.getElementById('panelText').textContent = `This is a "${word}". What would you like to do?`;
+            panel.classList.add('visible');
+        }
+
+        function hideInteractionPanel() {
+            document.getElementById('interactionPanel').classList.remove('visible');
+            selectedObject = null;
+        }
+
+        function destroyCurrentObject() {
+            if (selectedObject) {
+                // Stop the movement interval before removal
+                clearInterval(selectedObject.movementInterval);
+                selectedObject.remove();
+                hideInteractionPanel();
+            }
+        }
+
+        function clearAllObjects() {
+            const movers = document.querySelectorAll('.mover');
+            movers.forEach(mover => {
+                clearInterval(mover.movementInterval);
+                mover.remove();
+            });
+            hideInteractionPanel();
+            alertBox('Sandbox Cleared!', 'All objects have been returned to the notebook.', 'bg-green-500');
+        }
+
+
+        // --- Movement Logic ---
+
+        function moveDivRandomDegrees(divElement) {
+            // Do not move if currently dragging
+            if (divElement.classList.contains('dragging')) return;
+
+            let currentX = divElement.offsetLeft;
+            let currentY = divElement.offsetTop;
+            const randomAngle = Math.random() * 2 * Math.PI;
+            const deltaX = STEP_DISTANCE * Math.cos(randomAngle);
+            const deltaY = STEP_DISTANCE * Math.sin(randomAngle);
+
+            let newX = currentX + deltaX;
+            let newY = currentY + deltaY;
+
+            const w = divElement.offsetWidth;
+            const h = divElement.offsetHeight;
+            const maxW = window.innerWidth - w;
+            // The input bar is about 70px tall, so we limit the vertical space
+            const maxH = window.innerHeight - h - 70;
+
+            // Boundary checks
+            newX = Math.min(Math.max(newX, 0), maxW);
+            newY = Math.min(Math.max(newY, 0), maxH);
+
+            // Apply movement (simple style update)
+            divElement.style.left = newX + 'px';
+            divElement.style.top = newY + 'px';
+        }
+
+        function startMovement(divElement) {
+            // Clear any existing interval before starting a new one
+            clearInterval(divElement.movementInterval);
+            divElement.movementInterval = setInterval(() => {
+                moveDivRandomDegrees(divElement);
+            }, INTERVAL_DURATION);
+        }
+
+
+        // --- Dragging Handlers (Mouse + Touch) ---
+        function dragStart(e) {
+            // Only start dragging if not the left click (0) or first touch (0)
+            if (e.type === 'mousedown' && e.button !== 0) return;
+
+            e.preventDefault();
+            const mover = this;
+
+            // Stop autonomous movement immediately when dragging starts
+            clearInterval(mover.movementInterval);
+            mover.movementInterval = null;
+
+            currentDrag = mover;
+            currentDrag.classList.add('dragging');
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            // Calculate offset relative to the object's current position
+            offsetX = clientX - mover.getBoundingClientRect().left;
+            offsetY = clientY - mover.getBoundingClientRect().top;
+
+            // Hide the interaction panel if open
+            hideInteractionPanel();
+        }
+
+        function dragMove(e) {
+            if (!currentDrag) return;
+            
+            // Prevent scrolling on touch devices while dragging
+            e.preventDefault();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            let newX = clientX - offsetX;
+            let newY = clientY - offsetY;
+
+            const w = currentDrag.offsetWidth;
+            const h = currentDrag.offsetHeight;
+            const maxW = window.innerWidth - w;
+            const maxH = window.innerHeight - h - 70; // 70px clearance for input bar
+
+            // Clamp positions to stay within boundaries
+            newX = Math.min(Math.max(newX, 0), maxW);
+            newY = Math.min(Math.max(newY, 0), maxH);
+
+            currentDrag.style.left = newX + 'px';
+            currentDrag.style.top = newY + 'px';
+        }
+
+        function dragEnd() {
+            if (!currentDrag) return;
+
+            currentDrag.classList.remove('dragging');
+            // Resume autonomous movement
+            startMovement(currentDrag);
+            currentDrag = null;
+        }
+
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('touchmove', dragMove, { passive: false }); // Needs passive: false for e.preventDefault()
+        document.addEventListener('touchend', dragEnd);
+
+        // --- Utility: Custom Alert Box (Replaces alert()) ---
+        function alertBox(title, message, bgColorClass) {
+            let existingBox = document.getElementById('customAlert');
+            if (existingBox) existingBox.remove();
+
+            const box = document.createElement('div');
+            box.id = 'customAlert';
+            box.className = `fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg text-white shadow-xl transition-opacity duration-300 z-[1000] ${bgColorClass}`;
+            box.style.opacity = '0';
+            box.innerHTML = `<p class="font-bold">${title}</p><p class="text-sm">${message}</p>`;
+
+            document.body.appendChild(box);
+
+            // Show the box
+            setTimeout(() => { box.style.opacity = '1'; }, 10);
+
+            // Hide and remove the box after a delay
+            setTimeout(() => {
+                box.style.opacity = '0';
+                setTimeout(() => { box.remove(); }, 300);
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>

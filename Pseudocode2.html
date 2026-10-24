@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pseudocode Syntax Terminal</title>
+
+<style>
+    :root {
+        --bg: #121212;
+        --panel: #222;
+        --text: #00ff41;
+        --border: #444;
+        --accent: #ff00ff;
+        --correct: #00ff41;
+        --wrong: #ff4141;
+    }
+
+    body {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 20px;
+        text-transform: uppercase;
+    }
+
+    .container {
+        max-width: 650px;
+        margin: auto;
+    }
+
+    #card {
+        background: var(--panel);
+        padding: 25px;
+        border: 4px solid var(--border);
+        box-shadow: 8px 8px 0px #000;
+        margin-bottom: 40px;
+    }
+
+    #progress { font-size: 12px; margin-bottom: 10px; color: var(--accent); font-weight: bold; }
+
+    #question {
+        min-height: 60px;
+        font-size: 1.1rem;
+        border-bottom: 2px dashed var(--border);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+
+    #options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    /* Mobile responsiveness for buttons */
+    @media (max-width: 500px) { #options { grid-template-columns: 1fr; } }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid var(--text);
+        background: rgba(0, 255, 65, 0.05);
+        color: var(--text);
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+        transition: 0.1s;
+    }
+
+    button:hover {
+        background: var(--text);
+        color: var(--bg);
+    }
+
+    .syntax-ex {
+        display: block;
+        font-size: 10px;
+        opacity: 0.7;
+        margin-top: 4px;
+        text-transform: none; /* Keep code syntax casing */
+    }
+
+    .next-btn {
+        margin-top: 30px;
+        border-color: var(--accent);
+        color: var(--accent);
+        text-align: center;
+        width: 100%;
+        font-size: 18px;
+    }
+
+    #result { font-size: 1.5rem; margin-top: 20px; text-align: center; min-height: 1.5rem; }
+
+    #explanation {
+        font-size: 13px;
+        color: #888;
+        text-transform: none;
+        text-align: center;
+        margin-top: 5px;
+        min-height: 40px;
+    }
+
+    /* Command Library Section */
+    #commands {
+        background: #1a1a1a;
+        border: 2px solid var(--accent);
+        padding: 20px;
+        box-shadow: 8px 8px 0px #000;
+    }
+
+    #commands h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid var(--accent); padding-bottom: 5px; }
+
+    ol {
+        column-count: 2;
+        font-size: 12px;
+        padding-left: 20px;
+        list-style-type: decimal-leading-zero;
+    }
+
+    li { margin-bottom: 6px; color: #666; }
+    li b { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div id="card">
+        <div id="progress">SYSTEM STATUS: INITIALIZING...</div>
+        <h3 id="question">WAITING FOR INPUT...</h3>
+        <div id="options"></div>
+        <p id="result"></p>
+        <p id="explanation"></p>
+        <button class="next-btn" onclick="nextQuestion()">[ EXECUTE NEXT_TASK ]</button>
+    </div>
+
+    <div id="commands">
+        <h3>CORE_COMMAND_LIBRARY.SYS</h3>
+        <ol id="commandList"></ol>
+    </div>
+</div>
+
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBlip(freq, type = 'square', duration = 0.1) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+
+// Full Example Dictionary for all possible commands
+const exampleMap = {
+    "INPUT": "INPUT UserID", "OUTPUT": "OUTPUT 'Success'", "DECLARE": "DECLARE X : INT",
+    "←": "Counter ← 0", "IF": "IF X > 10 THEN", "THEN": "THEN X ← 0",
+    "ELSE": "ELSE OUTPUT 'No'", "ENDIF": "ENDIF", "FOR": "FOR i ← 1 TO 10",
+    "TO": "1 TO 10", "NEXT": "NEXT i", "WHILE": "WHILE X < 100 DO",
+    "DO": "DO X ← X + 1", "ENDWHILE": "ENDWHILE", "REPEAT": "REPEAT ... UNTIL",
+    "UNTIL": "UNTIL Found = TRUE", "PROCEDURE": "PROCEDURE Reset()", "CALL": "CALL Reset()",
+    "FUNCTION": "FUNCTION GetAvg()", "RETURN": "RETURN Result", "ARRAY": "Names : ARRAY[1:5]",
+    "A[X]": "MyList[3] ← 50", "AND": "IF A AND B", "OR": "IF A OR B", "NOT": "IF NOT Found",
+    "LENGTH()": "LENGTH(MyString)", "SUBSTRING()": "SUBSTRING(S, 1, 3)", "UCASE()": "UCASE('hello')",
+    "LCASE()": "LCASE(Name)", "CONCAT()": "CONCAT(S1, S2)", "CHARAT()": "CHARAT(S, 5)", "RANDOM()": "X ← RANDOM()"
+};
+
+const questions = [
+    {q:"Which command gets data from the user?", a:"INPUT", options:["INPUT","OUTPUT","DECLARE","CALL"], explain:"INPUT stores user entry into a variable."},
+    {q:"Which command displays information?", a:"OUTPUT", options:["OUTPUT","INPUT","ARRAY","CALL"], explain:"OUTPUT prints data to the screen."},
+    {q:"Which symbol handles assignment?", a:"←", options:["←","=","==","->"], explain:"The arrow assigns the right-side value to the left-side variable."},
+    {q:"Which loop checks the condition at the end?", a:"REPEAT", options:["REPEAT","WHILE","FOR","IF"], explain:"REPEAT loops run at least once before checking the UNTIL condition."},
+    {q:"Which keyword is required to run a Procedure?", a:"CALL", options:["CALL","PROCEDURE","RUN","START"], explain:"In pseudocode, you must CALL a procedure to execute it."},
+    {q:"How do you access a specific item in a list?", a:"A[X]", options:["A[X]","A(X)","A.X","A->X"], explain:"Square brackets denote the index/position in an ARRAY."},
+    {q:"Which function returns the number of characters?", a:"LENGTH()", options:["LENGTH()","UCASE()","CHARAT()","COUNT"], explain:"LENGTH() returns the integer size of a string."},
+    {q:"Which operator requires both conditions to be true?", a:"AND", options:["AND","OR","NOT","&&"], explain:"AND evaluates to TRUE only if both sides are TRUE."},
+    {q:"Which command ends a count-controlled loop?", a:"NEXT", options:["NEXT","ENDIF","ENDWHILE","STOP"], explain:"FOR loops are terminated with the NEXT keyword followed by the variable."},
+    {q:"Which function extracts characters from a string?", a:"SUBSTRING()", options:["SUBSTRING()","LENGTH()","CONCAT()","CHARAT()"], explain:"SUBSTRING takes a string, start point, and length."}
+];
+
+let current = 0;
+
+function shuffle(array) {
+    for(let i=array.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [array[i],array[j]]=[array[j],array[i]];
+    }
+    return array;
+}
+
+function loadQuestion(){
+    let q = questions[current];
+    document.getElementById("progress").innerText = "DAT_STREAM: " + (current+1) + " / " + questions.length;
+    document.getElementById("question").innerText = q.q;
+
+    let shuffled = [...q.options];
+    shuffle(shuffled);
+
+    let html = "";
+    shuffled.forEach(opt => {
+        let exampleText = exampleMap[opt] || opt + " ...";
+        html += `<button onclick="checkAnswer('${opt}','${q.a}')">
+                    ${opt}
+                    <span class="syntax-ex">EX: ${exampleText}</span>
+                 </button>`;
+    });
+
+    document.getElementById("options").innerHTML = html;
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("explanation").innerHTML = "";
+}
+
+function checkAnswer(selected, correct){
+    if(selected === correct){
+        playBlip(880);
+        document.getElementById("result").innerHTML = ">> OK: CORRECT";
+        document.getElementById("result").className = "correct";
+    } else {
+        playBlip(110, 'sawtooth', 0.2);
+        document.getElementById("result").innerHTML = ">> ERR: INVALID";
+        document.getElementById("result").className = "wrong";
+    }
+    document.getElementById("explanation").innerHTML = questions[current].explain;
+}
+
+function nextQuestion(){
+    playBlip(440, 'triangle', 0.05);
+    current = (current + 1) % questions.length;
+    loadQuestion();
+}
+
+// Populate the Library list automatically
+function initLibrary() {
+    const list = document.getElementById('commandList');
+    Object.keys(exampleMap).forEach(cmd => {
+        let li = document.createElement('li');
+        li.innerHTML = `<b>${cmd}</b>: <small>${exampleMap[cmd]}</small>`;
+        list.appendChild(li);
+    });
+}
+
+initLibrary();
+loadQuestion();
+</script>
+
+</body>
+</html>

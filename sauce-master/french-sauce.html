@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sauce Master</title>
+<style>
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        background-color: #fdf8f5; 
+        padding: 20px; 
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    /* Start Screen Styles */
+    #start-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(135deg, #2c3e50, #c0392b, #2980b9);
+        color: white;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    #start-screen h1 {
+        font-size: 4em;
+        margin: 0 0 10px 0;
+        text-shadow: 2px 4px 10px rgba(0,0,0,0.3);
+    }
+    #start-screen p {
+        font-size: 1.5em;
+        margin-bottom: 40px;
+        color: #f1c40f;
+    }
+    #start-btn {
+        background-color: #d35400;
+        color: white;
+        font-size: 1.8em;
+        padding: 15px 50px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        transition: transform 0.2s, background-color 0.2s;
+        animation: pulse 2s infinite;
+    }
+    #start-btn:hover {
+        background-color: #e67e22;
+        transform: scale(1.05);
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(211, 84, 0, 0.7); }
+        70% { box-shadow: 0 0 0 20px rgba(211, 84, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(211, 84, 0, 0); }
+    }
+
+    /* Main Game UI Styles */
+    #game-container {
+        display: none; 
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    
+    #game-header {
+        text-align: center;
+        margin-bottom: 20px;
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+    }
+    #score-board { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; color: #2c3e50; }
+    
+    #encyclopedia-btn {
+        background-color: #2980b9;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+
+    #order-slip {
+        background: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 15px 25px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        text-align: center;
+        min-width: 300px;
+    }
+    #order-slip h2 { margin: 0 0 10px 0; color: #856404; }
+    #recipe-hint { font-size: 1em; color: #555; font-weight: bold; }
+    
+    #game-board { 
+        display: flex; 
+        flex-wrap: wrap;
+        gap: 40px; 
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        max-width: 1000px;
+        justify-content: center;
+    }
+    .ingredients { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+        gap: 10px; 
+        flex: 1;
+        min-width: 300px;
+    }
+    .ingredient { 
+        padding: 10px; 
+        background-color: #f8f9fa; 
+        border: 2px solid #dee2e6; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        text-align: center; 
+        user-select: none; 
+        transition: all 0.1s;
+        font-weight: bold;
+        font-size: 0.85em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .ingredient span { font-size: 1.5em; margin-bottom: 5px; }
+    .ingredient:active { 
+        transform: scale(0.92); 
+        background-color: #e9ecef;
+    }
+    
+    /* POT STYLES */
+    #pot-container { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: flex-start;
+        min-width: 280px;
+    }
+    #pot { 
+        width: 260px; 
+        height: 200px; 
+        background-color: #c0392b; 
+        border-radius: 15px 15px 75px 75px; 
+        position: relative; 
+        display: flex; 
+        justify-content: center; 
+        align-items: flex-end; 
+        padding-bottom: 35px; 
+        color: white; 
+        font-weight: bold;
+        border-top: 20px solid #922b21;
+        margin-bottom: 25px;
+        box-shadow: inset 0 -15px 20px rgba(0,0,0,0.3), 0 10px 15px rgba(0,0,0,0.1);
+    }
+    #pot-contents { 
+        max-height: 140px; 
+        overflow-y: auto; 
+        font-size: 1.1em; 
+        text-align: center; 
+        width: 85%; 
+        line-height: 1.5;
+    }
+    
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;}
+    button { 
+        padding: 12px 20px; 
+        font-size: 16px; 
+        cursor: pointer; 
+        border: none; 
+        border-radius: 6px; 
+        color: white; 
+        font-weight: bold; 
+        transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    #cook-btn { background-color: #27ae60; font-size: 18px; padding: 12px 25px;}
+    #reset-btn { background-color: #7f8c8d; }
+    #skip-btn { background-color: #f39c12; }
+    
+    #message { 
+        margin-top: 20px; 
+        font-size: 1.3em; 
+        font-weight: bold; 
+        min-height: 1.5em; 
+        text-align: center;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 100;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(3px);
+    }
+    
+    #encyclopedia-modal {
+        background: white;
+        width: 90%;
+        max-width: 900px;
+        max-height: 85vh;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    #modal-header {
+        padding: 20px;
+        background: #2c3e50;
+        color: white;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #modal-header h2 { margin: 0; }
+    #close-modal-btn { background: #e74c3c; padding: 8px 15px; }
+    #modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 15px;
+    }
+    .recipe-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .recipe-card h3 { margin: 0 0 10px 0; color: #2980b9; font-size: 1.2em;}
+    .recipe-num { color: #7f8c8d; font-size: 0.85em; margin-right: 5px; }
+    .recipe-card p { margin: 0 0 10px 0; font-size: 0.9em; color: #555; font-style: italic;}
+    .recipe-card .ingredients-list { font-size: 0.95em; font-weight: bold; color: #2c3e50; }
+    
+    .locked-card {
+        background: #e9ecef;
+        border: 1px dashed #ced4da;
+        color: #adb5bd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+    .locked-num { font-size: 0.8em; margin-bottom: 5px; color: #ced4da; }
+
+    #success-modal {
+        background: white;
+        width: 90%;
+        max-width: 450px;
+        padding: 40px 30px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-top: 10px solid #27ae60;
+    }
+    #success-modal h2 { color: #27ae60; font-size: 2.2em; margin: 0 0 15px 0; }
+    #success-message { font-size: 1.3em; color: #333; margin-bottom: 10px; }
+    #unlock-message { font-size: 1.1em; color: #2980b9; font-weight: bold; margin-bottom: 25px; min-height: 1.5em;}
+    #next-order-btn { background: #27ae60; font-size: 1.2em; padding: 15px 30px; width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- Start Screen Overlay -->
+<div id="start-screen">
+    <h1>🥖 Sauce Master</h1>
+    <p>30 Classic French Sauces. Infinite Orders. Vive la Cuisine.</p>
+    <button id="start-btn">Start Game</button>
+</div>
+
+<!-- Main Game Wrapper -->
+<div id="game-container">
+    <div id="game-header">
+        <h1>🍷 Sauce Master</h1>
+        <div id="score-board">Orders Completed: <span id="score">0</span></div>
+        <button id="encyclopedia-btn">📖 Sauce Encyclopedia (<span id="unlock-count">0</span>/30)</button>
+    </div>
+
+    <div id="order-slip">
+        <h2>Current Order: <span id="recipe-name">Loading...</span></h2>
+        <div id="recipe-hint"></div>
+    </div>
+
+    <div id="game-board">
+        <div class="ingredients" id="ingredient-list">
+            <!-- Ingredients injected by JS -->
+        </div>
+
+        <div id="pot-container">
+            <div id="pot">
+                <div id="pot-contents">Empty</div>
+            </div>
+            <div class="controls">
+                <button id="cook-btn">Cook Sauce!</button>
+                <button id="reset-btn">Empty Pot</button>
+                <button id="skip-btn">Skip Order</button>
+            </div>
+            <div id="message"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div id="modal-overlay" class="modal-overlay">
+    <div id="encyclopedia-modal">
+        <div id="modal-header">
+            <h2>📖 Le Répertoire de la Cuisine</h2>
+            <button id="close-modal-btn">Close</button>
+        </div>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<div id="success-overlay" class="modal-overlay">
+    <div id="success-modal">
+        <h2>⭐⭐⭐</h2>
+        <div id="success-message">Magnifique!</div>
+        <div id="unlock-message">📖 New sauce unlocked!</div>
+        <button id="next-order-btn">Serve & Get Next Order</button>
+    </div>
+</div>
+
+<script>
+    // --- Audio System ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTone(freq, type, duration, vol=0.3) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sounds = {
+        add: () => playTone(800, 'sine', 0.6, 0.05),
+        cook: () => playTone(300, 'square', 0.5, 0.05),
+        openBook: () => playTone(400, 'triangle', 0.5, 0.05),
+        win: () => {
+            playTone(523.25, 'triangle', 0.15, 0.1); 
+            setTimeout(() => playTone(659.25, 'triangle', 0.15, 0.1), 150); 
+            setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.1), 300); 
+        },
+        fail: () => {
+            playTone(200, 'sawtooth', 0.3, 0.1);
+            setTimeout(() => playTone(150, 'sawtooth', 0.8, 0.1), 200);
+        }
+    };
+
+    // --- Game Logic Startup ---
+    document.getElementById('start-btn').addEventListener('click', () => {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'flex';
+        
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        
+        init(); 
+    });
+
+    // --- Game Data (French Sauces Edition) ---
+    const allIngredients = {
+        "Butter": "🧈", "Flour": "🌾", "Milk": "🥛", "Chicken Broth": "🍗", 
+        "Beef Broth": "🍖", "Egg Yolk": "🥚", "Lemon": "🍋", "Tomato": "🍅", 
+        "Onion": "🧅", "Garlic": "🧄", "Shallot": "🍠", "Tarragon": "🌿", 
+        "White Wine Vinegar": "🍶", "Gruyère": "🧀", "Parmesan": "🧀", 
+        "Red Wine": "🍷", "White Wine": "🥂", "Mushroom": "🍄", "Heavy Cream": "🥣", 
+        "Peppercorn": "⚫", "Cognac": "🥃", "Parsley": "🌿", "Dijon Mustard": "🍯", 
+        "Capers": "🌱", "Cornichons": "🥒", "Olive Oil": "🫒", "Saffron": "🏵️", 
+        "Orange": "🍊", "Black Olives": "🫒", "Carrot": "🥕"
+    };
+
+    const recipes = [
+        { name: "Béchamel", desc: "A classic mother sauce of white roux and milk.", ind: { "Butter": 1, "Flour": 1, "Milk": 2 } },
+        { name: "Velouté", desc: "A light mother sauce made from roux and light stock.", ind: { "Butter": 1, "Flour": 1, "Chicken Broth": 2 } },
+        { name: "Espagnole", desc: "A rich brown mother sauce.", ind: { "Butter": 1, "Flour": 1, "Beef Broth": 2, "Tomato": 1, "Carrot": 1 } },
+        { name: "Hollandaise", desc: "A rich, buttery emulsion mother sauce.", ind: { "Egg Yolk": 2, "Butter": 2, "Lemon": 1 } },
+        { name: "Sauce Tomate", desc: "The French mother tomato sauce.", ind: { "Tomato": 3, "Onion": 1, "Garlic": 1, "Butter": 1 } },
+        { name: "Béarnaise", desc: "A Hollandaise derivative with herbs and vinegar.", ind: { "Egg Yolk": 2, "Butter": 2, "Shallot": 1, "Tarragon": 1, "White Wine Vinegar": 1 } },
+        { name: "Mornay", desc: "Béchamel enriched with cheese.", ind: { "Butter": 1, "Flour": 1, "Milk": 2, "Gruyère": 1, "Parmesan": 1 } },
+        { name: "Bordelaise", desc: "Classic red wine and bone marrow sauce.", ind: { "Red Wine": 2, "Shallot": 1, "Beef Broth": 1, "Butter": 1 } },
+        { name: "Beurre Blanc", desc: "An elegant, emulsified butter sauce.", ind: { "White Wine": 1, "White Wine Vinegar": 1, "Shallot": 1, "Butter": 3 } },
+        { name: "Chasseur", desc: "The 'Hunter's Sauce' with mushrooms and wine.", ind: { "Mushroom": 2, "Shallot": 1, "White Wine": 1, "Tomato": 1, "Beef Broth": 1 } },
+        { name: "Soubise", desc: "A smooth onion-infused Béchamel.", ind: { "Butter": 2, "Flour": 1, "Milk": 2, "Onion": 2 } },
+        { name: "Au Poivre", desc: "Creamy, peppery steak sauce.", ind: { "Peppercorn": 2, "Cognac": 1, "Heavy Cream": 2, "Beef Broth": 1 } },
+        { name: "Meunière", desc: "Simple browned butter, lemon, and parsley.", ind: { "Butter": 3, "Lemon": 1, "Parsley": 1 } },
+        { name: "Remoulade", desc: "A tangy, mayonnaise-based cold sauce.", ind: { "Egg Yolk": 2, "Dijon Mustard": 1, "Capers": 1, "Tarragon": 1, "Olive Oil": 1 } },
+        { name: "Gribiche", desc: "Emulsified cold egg sauce with pickles.", ind: { "Egg Yolk": 2, "Dijon Mustard": 1, "Olive Oil": 1, "Capers": 1, "Cornichons": 1 } },
+        { name: "Rouille", desc: "A garlicky, saffron-infused sauce for seafood.", ind: { "Olive Oil": 2, "Garlic": 2, "Saffron": 1, "Egg Yolk": 1 } },
+        { name: "Ravigote", desc: "A zesty, acidic herb sauce.", ind: { "Olive Oil": 2, "White Wine Vinegar": 1, "Shallot": 1, "Dijon Mustard": 1, "Capers": 1 } },
+        { name: "Charcutière", desc: "Pork's best friend, featuring cornichons.", ind: { "Onion": 1, "Dijon Mustard": 1, "White Wine": 1, "Cornichons": 1, "Beef Broth": 1 } },
+        { name: "Nantua", desc: "Rich seafood-inspired cream sauce.", ind: { "Butter": 1, "Flour": 1, "Milk": 1, "Heavy Cream": 1, "Cognac": 1 } },
+        { name: "Bretonne", desc: "A vegetable-forward white wine sauce.", ind: { "Onion": 1, "White Wine": 1, "Tomato": 1, "Butter": 1 } },
+        { name: "Madeira", desc: "A sophisticated fortified wine reduction.", ind: { "Beef Broth": 2, "Red Wine": 1, "Butter": 1 } },
+        { name: "Bercy", desc: "A white wine and shallot reduction sauce.", ind: { "Shallot": 1, "White Wine": 2, "Chicken Broth": 1, "Butter": 1, "Parsley": 1 } },
+        { name: "Suprême", desc: "Velouté enriched with cream.", ind: { "Butter": 1, "Flour": 1, "Chicken Broth": 2, "Heavy Cream": 1, "Mushroom": 1 } },
+        { name: "Allemande", desc: "A golden Velouté thickened with egg yolk.", ind: { "Butter": 1, "Flour": 1, "Chicken Broth": 2, "Egg Yolk": 1, "Heavy Cream": 1, "Lemon": 1 } },
+        { name: "Robert", desc: "A zesty brown mustard sauce.", ind: { "Onion": 2, "White Wine": 1, "Beef Broth": 1, "Dijon Mustard": 1 } },
+        { name: "Diane", desc: "A pan sauce classically flambéed for steak.", ind: { "Mushroom": 2, "Dijon Mustard": 1, "Heavy Cream": 1, "Cognac": 1, "Beef Broth": 1 } },
+        { name: "Bigarade", desc: "The classic bitter orange sauce for duck.", ind: { "Orange": 2, "Lemon": 1, "Beef Broth": 1, "Butter": 1 } },
+        { name: "Lyonnaise", desc: "A sweet and sour onion brown sauce.", ind: { "Onion": 2, "White Wine Vinegar": 1, "Beef Broth": 1, "Butter": 1 } },
+        { name: "Provençale", desc: "A rustic, Mediterranean tomato and garlic sauce.", ind: { "Tomato": 2, "Garlic": 2, "Olive Oil": 2, "Parsley": 1, "Black Olives": 1 } },
+        { name: "Café de Paris", desc: "A complex compound butter sauce.", ind: { "Butter": 3, "Dijon Mustard": 1, "Tarragon": 1, "Garlic": 1, "Shallot": 1 } }
+    ];
+
+    let potState = {}; 
+    let currentRecipe = null;
+    let score = 0;
+    const unlockedRecipes = new Set(); 
+
+    // --- Save & Load Progress ---
+    function loadProgress() {
+        const savedScore = localStorage.getItem('frenchSauceScore');
+        const savedUnlocks = localStorage.getItem('frenchSauceUnlocks');
+
+        if (savedScore) {
+            score = parseInt(savedScore, 10);
+            document.getElementById('score').textContent = score;
+        }
+        
+        if (savedUnlocks) {
+            const parsedUnlocks = JSON.parse(savedUnlocks);
+            parsedUnlocks.forEach(recipeName => unlockedRecipes.add(recipeName));
+        }
+    }
+
+    function saveProgress() {
+        localStorage.setItem('frenchSauceScore', score);
+        localStorage.setItem('frenchSauceUnlocks', JSON.stringify([...unlockedRecipes]));
+    }
+
+    // --- Initialize Game ---
+    function init() {
+        loadProgress();
+
+        const ingredientListDisplay = document.getElementById('ingredient-list');
+        for (let [name, emoji] of Object.entries(allIngredients)) {
+            const btn = document.createElement('div');
+            btn.className = 'ingredient';
+            btn.innerHTML = `<span>${emoji}</span>${name}`;
+            btn.addEventListener('click', () => {
+                potState[name] = (potState[name] || 0) + 1;
+                sounds.add();
+                updatePot();
+            });
+            ingredientListDisplay.appendChild(btn);
+        }
+        
+        renderEncyclopedia();
+        loadNewOrder();
+    }
+
+    function renderEncyclopedia() {
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML = '';
+        document.getElementById('unlock-count').textContent = unlockedRecipes.size;
+        
+        recipes.forEach((recipe, index) => {
+            const recipeNum = index + 1;
+            const card = document.createElement('div');
+            
+            if (unlockedRecipes.has(recipe.name)) {
+                card.className = 'recipe-card';
+                const ingText = Object.entries(recipe.ind).map(([item, qty]) => `${qty}x ${item}`).join(", ");
+                card.innerHTML = `<h3><span class="recipe-num">#${recipeNum}</span>${recipe.name}</h3>
+                                  <p>${recipe.desc}</p>
+                                  <div class="ingredients-list">${ingText}</div>`;
+            } else {
+                card.className = 'locked-card';
+                card.innerHTML = `<span class="locked-num">#${recipeNum}</span>🔒 Unknown Sauce`;
+            }
+            modalBody.appendChild(card);
+        });
+    }
+
+    function loadNewOrder() {
+        currentRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+        document.getElementById('recipe-name').textContent = currentRecipe.name;
+        
+        const hintParts = Object.entries(currentRecipe.ind).map(([item, qty]) => `${qty} ${item}`);
+        document.getElementById('recipe-hint').textContent = hintParts.join(", ");
+        
+        potState = {};
+        updatePot();
+        showMessage("Oui, Chef! Order up!", "#333");
+    }
+
+    function updatePot() {
+        const items = Object.entries(potState).map(([key, val]) => `${key} x${val}`);
+        document.getElementById('pot-contents').innerHTML = items.length ? items.join('<br>') : 'Empty';
+    }
+
+    function showMessage(text, color) {
+        const msg = document.getElementById('message');
+        msg.textContent = text;
+        msg.style.color = color;
+    }
+
+    // --- Events ---
+    document.getElementById('reset-btn').addEventListener('click', () => { potState = {}; sounds.add(); updatePot(); showMessage("Pot emptied.", "#7f8c8d"); });
+    document.getElementById('skip-btn').addEventListener('click', loadNewOrder);
+
+    const modalOverlay = document.getElementById('modal-overlay');
+    document.getElementById('encyclopedia-btn').addEventListener('click', () => { sounds.openBook(); modalOverlay.style.display = 'flex'; });
+    document.getElementById('close-modal-btn').addEventListener('click', () => { sounds.add(); modalOverlay.style.display = 'none'; });
+    modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) modalOverlay.style.display = 'none'; });
+
+    const successOverlay = document.getElementById('success-overlay');
+    document.getElementById('next-order-btn').addEventListener('click', () => { sounds.add(); successOverlay.style.display = 'none'; loadNewOrder(); });
+
+    document.getElementById('cook-btn').addEventListener('click', () => {
+        sounds.cook();
+        if (Object.keys(potState).length === 0) { showMessage("The pot is empty, Chef!", "#7f8c8d"); sounds.fail(); return; }
+
+        let isPerfect = true, hasExtraIngredients = false;
+        
+        for (let [item, targetAmount] of Object.entries(currentRecipe.ind)) {
+            if ((potState[item] || 0) !== targetAmount) isPerfect = false;
+        }
+        for (let item in potState) {
+            if (!currentRecipe.ind[item]) { isPerfect = false; hasExtraIngredients = true; }
+        }
+
+        if (isPerfect) {
+            sounds.win();
+            score++;
+            document.getElementById('score').textContent = score;
+            showMessage("", "#27ae60");
+            
+            let isNewUnlock = false;
+            if (!unlockedRecipes.has(currentRecipe.name)) {
+                unlockedRecipes.add(currentRecipe.name);
+                isNewUnlock = true;
+                renderEncyclopedia(); 
+            }
+            
+            saveProgress();
+            
+            document.getElementById('success-message').textContent = `Magnifique! You perfectly cooked the ${currentRecipe.name}!`;
+            document.getElementById('unlock-message').textContent = isNewUnlock ? "📖 New sauce unlocked in the Encyclopedia!" : "";
+            successOverlay.style.display = 'flex';
+            
+        } else if (hasExtraIngredients) {
+            sounds.fail(); showMessage("Sacrebleu! The customer sent it back...", "#c0392b");
+        } else {
+            sounds.fail(); showMessage("Not quite right, check your quantities!", "#e67e22");
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Future Continuous Challenge</title>
+    <style>
+        :root {
+            --primary: #1565C0; /* Royal Blue */
+            --primary-dark: #0D47A1;
+            --success: #00ACC1; /* Cyan Blue */
+            --success-dark: #00838F;
+            --danger: #E53935; /* Red */
+            --danger-dark: #B71C1C;
+            --dark: #263238;
+            --light: #E3F2FD; /* Light blue tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 70px; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        @media (min-width: 500px) {
+            #app-container {
+                min-height: 85vh;
+                border-radius: 20px;
+                overflow: hidden; 
+            }
+        }
+
+        /* Persistent Topic Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #BBDEFB;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Layout */
+        .question-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; 
+            line-height: 2.2rem;
+            margin: 0;
+        }
+
+        /* Blank Styling */
+        .blank-space {
+            display: inline-block;
+            min-width: 40px;
+            margin: 0 8px; 
+            padding: 0 10px; 
+            border-bottom: 3px solid #333;
+            color: var(--primary);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 0 var(--success-dark) !important;
+        }
+
+        .btn.wrong {
+            background-color: var(--danger) !important;
+            box-shadow: 0 4px 0 var(--danger-dark) !important;
+        }
+
+        .btn-start {
+            background-color: var(--success);
+            box-shadow: 0 4px 0 var(--success-dark);
+            font-size: 1.5rem;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-start:active {
+            box-shadow: 0 0 0 var(--success-dark);
+        }
+
+        /* Overlay for Instructions */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(55, 71, 79, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .popup h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #78909C;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Persistent Topic Header -->
+        <div class="app-header">Future Continuous</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Mastery Challenge</h1>
+            <p>100 Questions.<br>Starting from the <strong>eaaaaaasssssiiiieeessstt</strong>, all the way to difficult!</p>
+            <p>Make sure your sound is on. 🔊</p>
+            <button class="btn btn-start" onclick="startApp()">Start Now</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="score-display">Question: <span id="q-num">1</span> / 100 | Score: <span id="score">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            
+            <div class="question-wrapper">
+                <div class="question-text" id="question">I <span class="blank-space">?</span> every day.</div>
+            </div>
+
+            <div id="options-container">
+                <button class="btn" onclick="checkAnswer(this, 0)" id="opt0">Option 1</button>
+                <button class="btn" onclick="checkAnswer(this, 1)" id="opt1">Option 2</button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <h1>Quiz Complete!</h1>
+            <p>You answered 100 questions.</p>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--primary);">Final Score: <span id="final-score">0</span> / 100</p>
+            <button class="btn btn-start" onclick="location.reload()">Play Again</button>
+        </div>
+
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-overlay" class="overlay">
+        <div class="popup">
+            <h2 id="popup-title">New Rule!</h2>
+            <p id="popup-text">Here is how to deduce the answer...</p>
+            <button class="btn" onclick="closePopup()">I understand! Let us go!</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Setup 
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(200, 'sawtooth', 0.3, 0.15);
+        }
+
+        function playPopupSound() {
+            playTone(500, 'triangle', 0.2);
+            setTimeout(() => playTone(700, 'triangle', 0.3), 150);
+        }
+
+        // Automatic Text-To-Speech Function
+        function autoReadAndNext(textToRead) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(moveToNextQuestion, 1500);
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            let hasAdvanced = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    moveToNextQuestion();
+                }
+            }, 4000);
+
+            utterance.onend = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    setTimeout(moveToNextQuestion, 200); 
+                }
+            };
+            
+            utterance.onerror = function() {
+                if (!hasAdvanced) {
+                    hasAdvanced = true;
+                    clearTimeout(fallbackTimeout);
+                    moveToNextQuestion();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function moveToNextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        // Rule Types & Instructions for Future Continuous
+        const rules = {
+            1: {
+                title: "Level 1: The 'Will Be' Formula",
+                text: "Use 'will be' + verb with '-ing' for an action that will be ongoing at a specific time in the future. It works for EVERY pronoun!"
+            },
+            2: {
+                title: "Level 2: Specific Future Times",
+                text: "Look for precise future signal points like 'at this time tomorrow', 'at 8 PM tonight', or 'this time next week'."
+            },
+            3: {
+                title: "Level 3: Ongoing Parallel Actions",
+                text: "We use Future Continuous for actions that will be happening continuously when something else occurs."
+            },
+            4: {
+                title: "Level 4: Saying 'No'",
+                text: "To make a negative future continuous sentence, add 'not' after 'will' (will not be). Remember, no contractions are allowed!"
+            },
+            5: {
+                title: "Level 5: Asking Questions",
+                text: "To ask a question, start the sentence with 'Will', followed by the subject and then 'be + verb-ing'."
+            },
+            6: {
+                title: "Level 6: WH- Questions",
+                text: "Start with a WH- word (What, Where), then add 'will', the subject, 'be', and the '-ing' action word!"
+            }
+        };
+
+        // 100 Questions Database for Future Continuous (Every sentence has a signal word! No Contractions!)
+        const qData = [
+            // Level 1: 'Will be' with pronouns (1-16)
+            [1, "I ___ studying at this time tomorrow.", "will be", "will is"],
+            [1, "She ___ sleeping when you arrive tonight.", "will be", "will is"],
+            [1, "They ___ playing tennis tomorrow afternoon.", "will be", "will are"],
+            [1, "He ___ working in the office all day tomorrow.", "will be", "will is"],
+            [1, "We ___ traveling to Spain this time next week.", "will be", "will are"],
+            [1, "You ___ sleeping when I call you tonight.", "will be", "will are"],
+            [1, "It ___ raining tomorrow evening.", "will be", "will is"],
+            [1, "I ___ cooking dinner at 7 PM tonight.", "will be", "will am"],
+            [1, "She ___ waiting for you at the station tomorrow.", "will be", "will is"],
+            [1, "They ___ building the house next month.", "will be", "will are"],
+            [1, "He ___ reading a book later tonight.", "will be", "will is"],
+            [1, "We ___ celebrating our anniversary tomorrow.", "will be", "will are"],
+            [1, "You ___ driving to work at 8 AM tomorrow.", "will be", "will are"],
+            [1, "The dog ___ barking when the mail arrives.", "will be", "will is"],
+            [1, "I ___ running in the marathon next Sunday.", "will be", "will am"],
+            [1, "She ___ teaching class at this hour tomorrow.", "will be", "will is"],
+
+            // Level 2: Specific Future Times (17-33)
+            [2, "At 8 PM tonight, I ___ watching a movie.", "will be", "will am"],
+            [2, "This time tomorrow, we ___ flying over the ocean.", "will be", "will are"],
+            [2, "At midnight, most people ___ sleeping soundly.", "will be", "will are"],
+            [2, "Next year at this point, she ___ living in Paris.", "will be", "will is"],
+            [2, "At 10 AM tomorrow, they ___ having a meeting.", "will be", "will are"],
+            [2, "This evening at 6 PM, he ___ cooking dinner.", "will be", "will is"],
+            [2, "At this moment next week, you ___ relaxing on a beach.", "will be", "will are"],
+            [2, "By noon tomorrow, it ___ raining heavily.", "will be", "will is"],
+            [2, "At 3 PM tomorrow, the students ___ taking an exam.", "will be", "will are"],
+            [2, "This time next month, we ___ building our new home.", "will be", "will are"],
+            [2, "At sunrise tomorrow, the birds ___ singing outside.", "will be", "will are"],
+            [2, "At 9 PM tonight, I ___ studying for the test.", "will be", "will am"],
+            [2, "This time on Sunday, he ___ driving to the mountains.", "will be", "will is"],
+            [2, "At 2 PM tomorrow, she ___ presenting her project.", "will be", "will is"],
+            [2, "At midnight tonight, the city ___ sleeping.", "will be", "will is"],
+            [2, "This time tomorrow, they ___ celebrating their win.", "will be", "will are"],
+            [2, "At 5 PM today, we ___ heading home from work.", "will be", "will are"],
+
+            // Level 3: Spelling rules & Parallel actions (34-50)
+            [3, "She will be ___ a cake when you arrive.", "making", "makeing"],
+            [3, "He will be ___ in the race tomorrow morning.", "running", "runing"],
+            [3, "We will be ___ a conference call at 9 AM.", "having", "haveing"],
+            [3, "They will be ___ in the sea all afternoon.", "swimming", "swiming"],
+            [3, "I will be ___ on the stage at this time tomorrow.", "sitting", "siting"],
+            [3, "She will be ___ a letter when the bell rings.", "writing", "writeing"],
+            [3, "The dog will be ___ the ball later today.", "getting", "geting"],
+            [3, "They will be ___ over for dinner at 7 PM.", "coming", "comeing"],
+            [3, "He will be ___ photos during the show tomorrow.", "taking", "takeing"],
+            [3, "We will be ___ carefully on the new path.", "stepping", "steping"],
+            [3, "She will be ___ the shop at 6 PM tonight.", "closing", "closeing"],
+            [3, "They will be ___ the match when we tune in.", "winning", "wining"],
+            [3, "I will be ___ my bags down in a moment.", "putting", "puting"],
+            [3, "He will be ___ to work at 8 AM tomorrow.", "driving", "driveing"],
+            [3, "The chef will be ___ vegetables all evening.", "cutting", "cuting"],
+            [3, "She will be ___ on stage tomorrow night.", "dancing", "danceing"],
+            [3, "We will be ___ the hotel at noon tomorrow.", "leaving", "leaveing"],
+
+            // Level 4: Negatives (Will not be) (51-67)
+            [4, "I ___ working at this time tomorrow.", "will not be", "will not am"],
+            [4, "She ___ sleeping when you call tonight.", "will not be", "will not is"],
+            [4, "They ___ playing soccer in the rain tomorrow.", "will not be", "will not are"],
+            [4, "He ___ attending the meeting tomorrow morning.", "will not be", "will not is"],
+            [4, "We ___ traveling during the storm next week.", "will not be", "will not are"],
+            [4, "You ___ driving fast when you reach the city.", "will not be", "will not are"],
+            [4, "It ___ snowing tomorrow afternoon.", "will not be", "will not is"],
+            [4, "I ___ using my phone at 8 PM tonight.", "will not be", "will not am"],
+            [4, "She ___ waiting for you after midnight.", "will not be", "will not is"],
+            [4, "They ___ building anything during the holiday.", "will not be", "will not are"],
+            [4, "He ___ reading that boring book later.", "will not be", "will not is"],
+            [4, "We ___ staying at that hotel next month.", "will not be", "will not are"],
+            [4, "You ___ feeling tired after the short break.", "will not be", "will not are"],
+            [4, "The machine ___ running at midnight.", "will not be", "will not is"],
+            [4, "I ___ eating meat during the diet next week.", "will not be", "will not am"],
+            [4, "She ___ complaining about the weather tomorrow.", "will not be", "will not is"],
+            [4, "They ___ treating guests poorly at the new resort.", "will not be", "will not are"],
+
+            // Level 5: Questions (Will ... be) (68-84)
+            [5, "___ you be working at this time tomorrow?", "Will", "Do"],
+            [5, "___ she be sleeping when I arrive tonight?", "Will", "Does"],
+            [5, "___ they be playing soccer tomorrow afternoon?", "Will", "Do"],
+            [5, "___ he be attending the meeting at 9 AM?", "Will", "Does"],
+            [5, "___ we be traveling to Spain next week?", "Will", "Do"],
+            [5, "___ it be raining tomorrow evening?", "Will", "Does"],
+            [5, "___ you be using your car tonight?", "Will", "Do"],
+            [5, "___ she be waiting for us at the station?", "Will", "Does"],
+            [5, "___ they be building the house next month?", "Will", "Do"],
+            [5, "___ he be reading a book later tonight?", "Will", "Does"],
+            [5, "___ you be driving to work at 8 AM tomorrow?", "Will", "Do"],
+            [5, "___ we be celebrating our anniversary soon?", "Will", "Do"],
+            [5, "___ she be teaching class at this hour tomorrow?", "Will", "Does"],
+            [5, "___ they be running in the marathon on Sunday?", "Will", "Do"],
+            [5, "___ he be cooking dinner at 7 PM tonight?", "Will", "Does"],
+            [5, "___ it be snowing tomorrow morning?", "Will", "Does"],
+            [5, "___ you be staying with us next weekend?", "Will", "Do"],
+
+            // Level 6: WH- Questions (85-100)
+            [6, "What ___ you be doing at 8 PM tomorrow?", "will", "do"],
+            [6, "Where ___ she be staying when she visits next week?", "will", "does"],
+            [6, "Who ___ they be meeting at the airport tonight?", "will", "do"],
+            [6, "Why ___ he be leaving early tomorrow morning?", "will", "does"],
+            [6, "How ___ we be traveling during the trip next month?", "will", "do"],
+            [6, "What time ___ you be arriving at the hotel tonight?", "will", "do"],
+            [6, "Where ___ she be working this time next year?", "will", "does"],
+            [6, "Who ___ he be talking to during the conference?", "will", "does"],
+            [6, "Why ___ they be building a fence next week?", "will", "do"],
+            [6, "How long ___ you be staying in Paris tomorrow?", "will", "do"],
+            [6, "What ___ she be wearing to the party tonight?", "will", "does"],
+            [6, "Where ___ we be eating dinner at 7 PM?", "will", "do"],
+            [6, "Who ___ be leading the project next month?", "will", "does"],
+            [6, "Why ___ you be calling him so late tonight?", "will", "do"],
+            [6, "What ___ it be doing outside at midnight?", "will", "does"],
+            [6, "Where ___ they be camping this weekend?", "will", "do"]
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let seenRules = new Set();
+        let answering = false;
+        let currentCorrectBtnId = "";
+
+        function startApp() {
+            initAudio();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= qData.length) {
+                endQuiz();
+                return;
+            }
+
+            answering = false;
+            const q = qData[currentIndex];
+            const ruleId = q[0];
+
+            // Update Progress
+            document.getElementById('q-num').innerText = currentIndex + 1;
+            document.getElementById('score').innerText = score;
+            document.getElementById('progress').style.width = ((currentIndex) / qData.length * 100) + '%';
+
+            // Check if we need to show an instruction popup
+            if (!seenRules.has(ruleId)) {
+                seenRules.add(ruleId);
+                showPopup(ruleId);
+                return; 
+            }
+
+            renderQuestionData();
+        }
+
+        function renderQuestionData() {
+            const q = qData[currentIndex];
+            
+            document.getElementById('question').innerHTML = q[1].replace('___', '<span class="blank-space">?</span>');
+
+            // Randomize options
+            const isCorrectFirst = Math.random() < 0.5;
+            const btn0 = document.getElementById('opt0');
+            const btn1 = document.getElementById('opt1');
+            
+            btn0.className = "btn";
+            btn1.className = "btn";
+
+            if (isCorrectFirst) {
+                btn0.innerText = q[2];
+                btn1.innerText = q[3];
+                currentCorrectBtnId = "opt0";
+            } else {
+                btn0.innerText = q[3];
+                btn1.innerText = q[2];
+                currentCorrectBtnId = "opt1";
+            }
+        }
+
+        function showPopup(ruleId) {
+            playPopupSound();
+            document.getElementById('popup-title').innerText = rules[ruleId].title;
+            document.getElementById('popup-text').innerText = rules[ruleId].text;
+            document.getElementById('instruction-overlay').classList.add('active');
+        }
+
+        function closePopup() {
+            initAudio();
+            document.getElementById('instruction-overlay').classList.remove('active');
+            renderQuestionData();
+        }
+
+        function checkAnswer(btn, optIndex) {
+            if (answering) return;
+            answering = true;
+
+            const isCorrect = (btn.id === currentCorrectBtnId);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById(currentCorrectBtnId).classList.add('correct');
+                playWrongSound();
+            }
+
+            // Fill in the blank visually
+            const q = qData[currentIndex];
+            const answerColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('question').innerHTML = q[1].replace('___', `<span class="blank-space" style="color: ${answerColor}; border-bottom-color: ${answerColor};">${q[2]}</span>`);
+
+            // Generate full sentence for TTS using the CORRECT answer
+            const textToRead = q[1].replace('___', q[2]);
+
+            // Auto-read aloud and advance when done
+            autoReadAndNext(textToRead);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

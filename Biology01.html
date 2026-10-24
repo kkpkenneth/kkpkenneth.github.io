@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eukaryotic & Prokaryotic Cells Quiz (50 Questions)</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0faff;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 { color: #2c3e50; }
+  .card {
+    background: white;
+    padding: 20px;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+  }
+  #question {
+    font-size: 22px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  #choices button {
+    width: 100%;
+    display: block;
+    margin: 8px 0;
+    padding: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  #choices button:hover {
+    background: #2980b9;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  th { background: #ecf0f1; }
+</style>
+</head>
+<body>
+
+<h1>Eukaryotic & Prokaryotic Cells Quiz</h1>
+
+<div class="card">
+  <div id="question">Question text</div>
+  <div id="choices"></div>
+</div>
+
+<div class="card">
+  <h2>Reference Table</h2>
+  <table>
+    <tr><th>Structure</th><th>Eukaryotic</th><th>Prokaryotic</th></tr>
+    <tr><td>Nucleus</td><td>✔ Present</td><td>✘ Absent</td></tr>
+    <tr><td>DNA form</td><td>Linear chromosomes</td><td>Circular DNA</td></tr>
+    <tr><td>Size</td><td>10–100 µm</td><td>0.1–5 µm</td></tr>
+    <tr><td>Membrane-bound organelles</td><td>✔ Present</td><td>✘ Absent</td></tr>
+    <tr><td>Ribosomes</td><td>80S</td><td>70S</td></tr>
+    <tr><td>Cell wall</td><td>Plants & fungi only</td><td>✔ Always present</td></tr>
+  </table>
+</div>
+
+<script>
+// 50 multiple-choice questions
+const questions = [
+  {q:"Which type of cell has a nucleus?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which type of cell contains membrane-bound organelles?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which cell type contains circular DNA?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type of cell is generally larger?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which type of cell always has a cell wall?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type of cell contains 70S ribosomes?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type of cell divides by binary fission?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which cell type contains mitochondria?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Bacteria belong to which cell type?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Animals belong to which cell type?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Fungi are what type of cell?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Plants are what type of cell?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which type of cell has plasmids?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type of cell contains chloroplasts (in some species)?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which cell type contains linear DNA?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which type of cell has a slime capsule (sometimes)?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type has a cytoplasm?", a:"Both", o:["Eukaryotic","Prokaryotic","Neither"]},
+  {q:"Which cell type has a cell membrane?", a:"Both", o:["Eukaryotic","Prokaryotic","Neither"]},
+  {q:"Where is DNA found in eukaryotes?", a:"Nucleus", o:["Cytoplasm","Mitochondrion","Ribosome"]},
+  {q:"Where is DNA found in prokaryotes?", a:"Cytoplasm", o:["Nucleus","Chloroplast","Vacuole"]},
+  {q:"Which cell type includes yeast?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Prokaryotic ribosomes are:", a:"70S", o:["80S","100S","50S"]},
+  {q:"Eukaryotic ribosomes are:", a:"80S", o:["70S","60S","90S"]},
+  {q:"Which type of cell is simpler in structure?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type can have flagella?", a:"Both", o:["Eukaryotic","Prokaryotic","Neither"]},
+  {q:"Which type stores DNA in chromosomes?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Prokaryotic DNA is:", a:"Circular", o:["Linear","Folded","Segmented"]},
+  {q:"Which cell type has a vacuole (often large)?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Binary fission is a form of:", a:"Asexual reproduction", o:["Sexual reproduction","Transport","Protein synthesis"]},
+  {q:"Bacterial cell walls are made of:", a:"Peptidoglycan", o:["Cellulose","Chitin","Starch"]},
+  {q:"Plant cell walls are made of:", a:"Cellulose", o:["Peptidoglycan","Chitin","Protein"]},
+  {q:"Fungal cell walls are made of:", a:"Chitin", o:["Cellulose","Peptidoglycan","Lipid"]},
+  {q:"Which cell type performs mitosis?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which cell type performs meiosis?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which cell type contains a cytoskeleton?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Prokaryotic cells are typically:", a:"0.1–5 μm", o:["10–100 μm","1–2 mm","100–200 nm"]},
+  {q:"Eukaryotic cells are typically:", a:"10–100 μm", o:["0.1–5 μm","1 mm","50 nm"]},
+  {q:"Which type is found in humans?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which cell type contains Golgi apparatus?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which cell type contains endoplasmic reticulum?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which contains ribosomes for protein synthesis?", a:"Both", o:["Eukaryotic","Prokaryotic","Neither"]},
+  {q:"In which type are plasmids common?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type may have pili?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type can be multicellular?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which type must be unicellular?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which type has compartmentalised organelles?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which type contains genetic material?", a:"Both", o:["Eukaryotic","Prokaryotic","Neither"]},
+  {q:"Which type may have chloroplasts?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which type is the simplest form of life?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]},
+  {q:"Which replicate using mitosis or meiosis?", a:"Eukaryotic", o:["Prokaryotic","Neither","Both"]},
+  {q:"Which replicate using binary fission?", a:"Prokaryotic", o:["Eukaryotic","Neither","Both"]}
+];
+
+let index = 0;
+
+function loadQuestion() {
+  const q = questions[index];
+  document.getElementById("question").innerHTML = q.q;
+
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  let opts = [q.a, ...q.o].sort(() => Math.random() - 0.5);
+
+  opts.forEach(opt => {
+    let btn = document.createElement("button");
+    btn.innerHTML = opt;
+    btn.onclick = () => {
+      if (opt === q.a) alert("✅ Correct!");
+      else alert("❌ Wrong! Correct answer: " + q.a);
+      index = (index + 1) % questions.length;
+      loadQuestion();
+    };
+    box.appendChild(btn);
+  });
+}
+
+window.onload = loadQuestion;
+</script>
+
+</body>
+</html>

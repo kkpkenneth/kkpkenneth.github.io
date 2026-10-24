@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioConcept: The Application Game</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #2196F3;
+            --danger: #f44336;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a252f;
+            color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            background-color: var(--dark);
+            width: 90%;
+            max-width: 600px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .streak {
+            color: #ffeb3b;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--secondary);
+            transition: width 0.3s ease;
+        }
+
+        .scenario-box {
+            background-color: var(--light);
+            color: var(--dark);
+            padding: 25px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: #34495e;
+            color: white;
+            border: 2px solid transparent;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background-color: #3b536b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .option-btn.correct {
+            background-color: var(--primary);
+            border-color: #81c784;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--danger);
+            border-color: #e57373;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.8;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            font-size: 1rem;
+            animation: fadeIn 0.5s;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback-correct { background-color: rgba(76, 175, 80, 0.2); border: 1px solid var(--primary); }
+        .feedback-wrong { background-color: rgba(244, 67, 54, 0.2); border: 1px solid var(--danger); }
+
+        .next-btn {
+            margin-top: 20px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            transition: background-color 0.2s;
+        }
+
+        .next-btn:hover { background-color: #1976D2; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 500px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="hud">
+        <div id="scoreDisplay">Score: 0</div>
+        <div id="streakDisplay" class="streak">Streak: x1</div>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <h3 style="margin-top: 0;">What's the Concept?</h3>
+    <div class="scenario-box" id="scenarioText">
+        Loading scenario...
+    </div>
+
+    <div class="options-grid" id="optionsContainer">
+        </div>
+
+    <div id="feedbackBox" class="feedback"></div>
+    
+    <button id="nextBtn" class="next-btn" onclick="nextQuestion()">Next Scenario ➔</button>
+</div>
+
+<script>
+    const questions = [
+        {
+            scenario: "A harmless kingsnake has evolved over thousands of years to have the exact same red, black, and yellow banding pattern as the highly venomous coral snake.",
+            options: ["Convergent Evolution", "Batesian Mimicry", "Müllerian Mimicry", "Adaptive Radiation"],
+            answer: 1,
+            explanation: "In Batesian mimicry, a harmless species evolves to imitate the warning signals of a harmful species directed at a predator of them both."
+        },
+        {
+            scenario: "When you cut your finger, platelets rush to the site and release chemicals that attract MORE platelets. Those new platelets release MORE chemicals, attracting even more, until a clot is formed.",
+            options: ["Negative Feedback Loop", "Homeostasis", "Positive Feedback Loop", "Competitive Inhibition"],
+            answer: 2,
+            explanation: "This is a positive feedback loop because the output (platelets) enhances the original stimulus, pushing the process further in the same direction until the goal (clotting) is reached."
+        },
+        {
+            scenario: "A severe forest fire wipes out 90% of a local squirrel population. The surviving 10% happen to have mostly bushy tails purely by chance, drastically changing the genetic makeup of the future population.",
+            options: ["Natural Selection", "Bottleneck Effect", "Founder Effect", "Gene Flow"],
+            answer: 1,
+            explanation: "The Bottleneck Effect is a type of genetic drift that occurs when a population's size is severely reduced by a random event, leaving behind a random assortment of survivors."
+        },
+        {
+            scenario: "You place a limp, wilted stalk of celery into a glass of pure distilled water. An hour later, the celery is crisp and stiff again.",
+            options: ["Active Transport", "Exocytosis", "Plasmolysis", "Osmosis (Turgor Pressure)"],
+            answer: 3,
+            explanation: "Water moves via osmosis into the celery cells (which are hypertonic compared to the pure water). This fills the central vacuoles, creating turgor pressure that makes the plant stiff."
+        },
+        {
+            scenario: "A new volcanic island forms in the ocean. Over hundreds of years, lichens break down the bare rock into thin soil, allowing mosses to grow, followed by shrubs, and eventually a forest.",
+            options: ["Primary Succession", "Secondary Succession", "Carrying Capacity", "Niche Partitioning"],
+            answer: 0,
+            explanation: "Primary succession occurs in an area that has never previously supported life and has no soil (like bare volcanic rock), starting from scratch with pioneer species."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let streak = 0;
+
+    const scenarioText = document.getElementById('scenarioText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const nextBtn = document.getElementById('nextBtn');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const streakDisplay = document.getElementById('streakDisplay');
+    const progressBar = document.getElementById('progressBar');
+
+    function loadQuestion() {
+        const q = questions[currentQuestionIndex];
+        scenarioText.innerHTML = `<strong>Scenario:</strong> "${q.scenario}"`;
+        
+        optionsContainer.innerHTML = '';
+        feedbackBox.className = 'feedback'; // reset classes
+        feedbackBox.style.display = 'none';
+        nextBtn.style.display = 'none';
+
+        // Update Progress
+        progressBar.style.width = `${(currentQuestionIndex / questions.length) * 100}%`;
+
+        q.options.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = option;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, btn) {
+        const q = questions[currentQuestionIndex];
+        const allBtns = document.querySelectorAll('.option-btn');
+        
+        // Disable all buttons
+        allBtns.forEach(b => b.disabled = true);
+
+        if (selectedIndex === q.answer) {
+            // Correct
+            btn.classList.add('correct');
+            streak++;
+            const pointsEarned = 100 * streak;
+            score += pointsEarned;
+            
+            feedbackBox.innerHTML = `<strong>🔥 Correct! (+${pointsEarned} pts)</strong><br>${q.explanation}`;
+            feedbackBox.classList.add('show', 'feedback-correct');
+        } else {
+            // Wrong
+            btn.classList.add('wrong');
+            allBtns[q.answer].classList.add('correct'); // Show right answer
+            streak = 0;
+            
+            feedbackBox.innerHTML = `<strong>❌ Incorrect.</strong><br>${q.explanation}`;
+            feedbackBox.classList.add('show', 'feedback-wrong');
+        }
+
+        updateHUD();
+        nextBtn.style.display = 'inline-block';
+    }
+
+    function updateHUD() {
+        scoreDisplay.innerText = `Score: ${score}`;
+        streakDisplay.innerText = streak > 1 ? `Streak: x${streak} 🔥` : `Streak: x1`;
+        if (streak === 0) streakDisplay.innerText = `Streak: 0`;
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showEndGame();
+        }
+    }
+
+    function showEndGame() {
+        progressBar.style.width = '100%';
+        scenarioText.innerHTML = `<h2>Game Over! 🏆</h2><p>You completed all the scenarios.</p>`;
+        optionsContainer.innerHTML = '';
+        feedbackBox.style.display = 'none';
+        nextBtn.style.display = 'none';
+        
+        const finalScoreBox = document.createElement('div');
+        finalScoreBox.innerHTML = `
+            <div style="font-size: 2rem; color: var(--primary); margin: 20px 0;">Final Score: ${score}</div>
+            <button class="next-btn" style="display:inline-block;" onclick="location.reload()">Play Again ↻</button>
+        `;
+        optionsContainer.appendChild(finalScoreBox);
+        optionsContainer.style.gridTemplateColumns = '1fr';
+    }
+
+    // Start Game
+    loadQuestion();
+</script>
+
+</body>
+</html>

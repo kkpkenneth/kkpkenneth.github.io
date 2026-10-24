@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Personality Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f0f0;
+      color: #333;
+      text-align: center;
+    }
+    .page {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      padding: 40px;
+    }
+    .page.active {
+      display: block;
+    }
+    .page.fade-in {
+      opacity: 1;
+    }
+    .question {
+      margin: 20px 0;
+    }
+    button {
+      margin: 10px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz"></div>
+  <div id="results" class="page"></div>
+
+  <script>
+    const quizData = [
+      {q: "Do you prefer warm or cold climates?", options: ["Warm", "Cold"]},
+      {q: "Do you enjoy beaches or mountains more?", options: ["Beaches", "Mountains"]},
+      {q: "Do you like exploring cities or countryside?", options: ["Cities", "Countryside"]},
+      {q: "Would you rather travel somewhere popular or hidden?", options: ["Popular", "Hidden"]},
+    ];
+
+    const countries = [
+      "Japan","France","Italy","Spain","Germany","United Kingdom","Portugal","Netherlands","Belgium","Switzerland",
+      "Austria","Greece","Croatia","Norway","Sweden","Finland","Denmark","Poland","Czech Republic","Hungary",
+      "Turkey","Russia","China","South Korea","Thailand","Vietnam","Indonesia","Malaysia","Philippines","India",
+      "Nepal","Sri Lanka","Australia","New Zealand","United States","Canada","Mexico","Brazil","Argentina","Chile",
+      "Peru","Colombia","South Africa","Morocco","Egypt","Kenya","Tanzania","UAE","Qatar","Saudi Arabia",
+      "Israel","Jordan","Iceland","Ireland","Scotland","Singapore","Maldives","Fiji"
+    ];
+
+    let currentQuestion = 0;
+    const answers = [];
+    const quizContainer = document.getElementById('quiz');
+    const resultsContainer = document.getElementById('results');
+
+    function fadeOut(element, callback) {
+      element.classList.remove('fade-in');
+      setTimeout(() => {
+        element.classList.remove('active');
+        if (callback) callback();
+      }, 800);
+    }
+
+    function fadeIn(element) {
+      element.classList.add('active');
+      setTimeout(() => element.classList.add('fade-in'), 50);
+    }
+
+    function showQuestion(index) {
+      quizContainer.innerHTML = '';
+      const page = document.createElement('div');
+      page.classList.add('page');
+
+      const question = document.createElement('div');
+      question.className = 'question';
+      question.textContent = quizData[index].q;
+
+      page.appendChild(question);
+
+      quizData[index].options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.onclick = () => {
+          answers.push(opt);
+          fadeOut(page, nextQuestion);
+        };
+        page.appendChild(btn);
+      });
+
+      quizContainer.appendChild(page);
+      fadeIn(page);
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        showQuestion(currentQuestion);
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      quizContainer.innerHTML = '';
+      resultsContainer.innerHTML = '';
+      const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+
+      const resultPage = document.createElement('div');
+      resultPage.classList.add('page');
+      resultPage.innerHTML = `<h2>Your next travel destination should be:</h2><h1>${randomCountry}</h1>`;
+
+      resultsContainer.appendChild(resultPage);
+      fadeIn(resultsContainer);
+      fadeIn(resultPage);
+    }
+
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html>

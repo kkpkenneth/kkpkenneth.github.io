@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon QR Collection Game</title>
+    <style>
+        body {
+            font-family: 'Pokemon Solid', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* --- Custom Pokemon Font Fallback --- */
+        @font-face {
+            font-family: 'Pokemon Solid';
+            src: url('https://raw.githubusercontent.com/Type-Design/Pokemon-Solid/main/Pokemon%20Solid.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        h1 {
+            color: #cc0000;
+            text-shadow: 2px 2px #ffde00;
+            margin-bottom: 20px;
+            font-size: 3em;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Scanner Area --- */
+        #scanner-area {
+            border: 2px dashed #0077b6;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        #qr-input {
+            padding: 10px;
+            width: 80%;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            background-color: #0077b6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #005691;
+        }
+
+        /* --- Collection Display --- */
+        #collection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .pokemon-card {
+            width: 120px;
+            padding: 10px;
+            border: 3px solid #ffde00;
+            background-color: #f7f7f7;
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.1s;
+        }
+
+        .pokemon-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .pokemon-card p {
+            font-weight: bold;
+            margin: 5px 0 0;
+            color: #cc0000;
+        }
+
+        /* --- Info and Status --- */
+        #status-message {
+            margin: 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        #reset-button {
+            background-color: #333;
+            margin-top: 20px;
+        }
+        #reset-button:hover {
+            background-color: #111;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Pokémon Collector!</h1>
+
+        <div id="scanner-area">
+            <h2>Scan Pokémon QR Code!</h2>
+            <input type="text" id="qr-input" placeholder="Enter Pokémon ID (e.g., 1, 4, 7)">
+            <button onclick="scanCode()">Capture Pokémon!</button>
+        </div>
+
+        <p id="status-message"></p>
+
+        <hr>
+
+        <h2>Your Collection</h2>
+        <div id="collection">
+            <p>Your journey awaits!</p>
+        </div>
+        
+        <button id="reset-button" onclick="resetCollection()">Reset Collection (Clear Cookies)</button>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURATION ---
+        const COOKIE_NAME = 'pokemon_collection';
+        const MAX_POKEMON = 151; // Limiting the collection for simplicity
+        
+        // Example Pokémon data based on ID
+        const POKEMON_DATA = [
+            { id: 1, name: "Bulbasaur" },
+            { id: 4, name: "Charmander" },
+            { id: 7, name: "Squirtle" },
+            { id: 25, name: "Pikachu" },
+            { id: 6, name: "Charizard" }
+            // Add more as needed, but IDs are the main identifier
+        ];
+
+        // --- 2. COOKIE/STORAGE FUNCTIONS ---
+
+        /**
+         * Loads the collection array from the cookie.
+         * @returns {number[]} Array of collected Pokémon IDs.
+         */
+        function loadCollection() {
+            const cookieValue = Cookies.get(COOKIE_NAME);
+            if (cookieValue) {
+                // Cookies store strings, so parse the JSON array back into numbers
+                return JSON.parse(cookieValue);
+            }
+            return [];
+        }
+
+        /**
+         * Saves the current collection array to the cookie.
+         * @param {number[]} collection - The array of Pokémon IDs.
+         */
+        function saveCollection(collection) {
+            // Save the JSON stringified array to a cookie that expires in 365 days
+            Cookies.set(COOKIE_NAME, JSON.stringify(collection), { expires: 365 });
+        }
+
+        // --- 3. GAME LOGIC ---
+
+        /**
+         * Simulates scanning a QR code and attempts to add the Pokémon.
+         */
+        function scanCode() {
+            const inputElement = document.getElementById('qr-input');
+            const qrData = parseInt(inputElement.value.trim()); // The QR data is the Pokémon ID
+            const statusMessage = document.getElementById('status-message');
+            
+            inputElement.value = ''; // Clear input field
+
+            if (isNaN(qrData) || qrData < 1 || qrData > MAX_POKEMON) {
+                statusMessage.textContent = "Invalid QR Data. Try a valid Pokémon ID (1-151).";
+                statusMessage.style.color = 'red';
+                return;
+            }
+
+            let collection = loadCollection();
+            const pokemonId = qrData;
+            
+            if (collection.includes(pokemonId)) {
+                statusMessage.textContent = `You already have Pokémon #${pokemonId}! Try another scan.`;
+                statusMessage.style.color = 'orange';
+            } else {
+                // Add new Pokémon ID
+                collection.push(pokemonId);
+                // Sort the collection for a tidy display
+                collection.sort((a, b) => a - b);
+                
+                // Save the updated collection to the cookie
+                saveCollection(collection);
+
+                const newPokemon = POKEMON_DATA.find(p => p.id === pokemonId) || { name: `Unknown #${pokemonId}` };
+
+                statusMessage.textContent = `Success! You captured ${newPokemon.name}!`;
+                statusMessage.style.color = 'green';
+                
+                // Redraw the collection
+                renderCollection(collection);
+            }
+        }
+
+        /**
+         * Renders the collected Pokémon cards on the screen.
+         * @param {number[]} collection - The array of Pokémon IDs to render.
+         */
+        function renderCollection(collection) {
+            const collectionDiv = document.getElementById('collection');
+            collectionDiv.innerHTML = ''; // Clear previous cards
+
+            if (collection.length === 0) {
+                collectionDiv.innerHTML = "<p>Your journey awaits! Start scanning QR codes.</p>";
+                return;
+            }
+
+            collection.forEach(id => {
+                const pokemon = POKEMON_DATA.find(p => p.id === id) || { name: `Pkm #${id}` };
+                
+                const card = document.createElement('div');
+                card.className = 'pokemon-card';
+                card.dataset.id = id;
+
+                // Use the official Pokémon art CDN for images
+                const img = document.createElement('img');
+                img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+                img.alt = pokemon.name;
+
+                const name = document.createElement('p');
+                name.textContent = pokemon.name;
+
+                card.appendChild(img);
+                card.appendChild(name);
+                collectionDiv.appendChild(card);
+            });
+        }
+
+        /**
+         * Clears the collection from the cookie and resets the display.
+         */
+        function resetCollection() {
+            if (confirm("Are you sure you want to reset your entire Pokémon collection? This cannot be undone!")) {
+                Cookies.remove(COOKIE_NAME);
+                document.getElementById('status-message').textContent = "Collection successfully reset. Start a new adventure!";
+                document.getElementById('status-message').style.color = 'gray';
+                renderCollection([]);
+            }
+        }
+
+        // --- 4. INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialCollection = loadCollection();
+            renderCollection(initialCollection);
+        });
+    </script>
+
+</body>
+</html>

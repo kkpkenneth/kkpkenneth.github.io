@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Travel Turtle | Master Generator</title>
+    <style>
+        body { font-family: 'Helvetica', Arial, sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 50px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 450px; }
+        h1 { color: #1a1a1a; margin-bottom: 10px; }
+        button { background-color: #2b73dc; color: white; border: none; padding: 16px 32px; font-size: 14px; font-weight: bold; text-transform: uppercase; cursor: pointer; border-radius: 4px; width: 100%; transition: background 0.2s; }
+        button:disabled { background-color: #bdc3c7; cursor: wait; }
+        #status { margin-top: 20px; font-size: 13px; color: #2b73dc; font-weight: bold; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+    <div class="card">
+        <h1>🐢 Master Generator</h1>
+        <p>Generates all 163 pages with Notifications, Pop-ups, and the full Support Footer.</p>
+        <button id="downloadBtn">Build Full Archive</button>
+        <div id="status"></div>
+    </div>
+
+<script>
+    const visitedPlaces = ["Hong Kong", "Taiwan", "Japan", "South Korea", "Mongolia", "China", "Macau", "United Kingdom", "France", "Spain", "Portugal", "Netherlands", "Belgium", "Germany", "Ireland", "Canada", "United States", "Mexico", "Cuba", "Bahamas", "Jamaica", "Haiti", "Dominican Republic", "South Africa", "Lesotho", "Eswatini", "Mozambique", "Zimbabwe", "Zambia", "Botswana", "Namibia", "Australia", "New Zealand", "Tuvalu", "Samoa", "Fiji", "Tonga", "Vanuatu", "Solomon Islands", "Ecuador", "Peru", "Bolivia", "Paraguay", "Chile", "Argentina", "Uruguay", "Antarctica", "Jordan", "United Arab Emirates", "Qatar", "Kuwait", "Bahrain", "Saudi Arabia", "Yemen", "Oman", "Iceland", "Denmark", "Norway", "Sweden", "Finland", "Estonia", "Latvia", "Lithuania", "Morocco", "Tunisia", "Egypt", "South Sudan", "Philippines", "Papua New Guinea", "Palau", "Micronesia", "Marshall Islands", "Kiribati", "Nauru", "India", "Pakistan", "Sri Lanka", "Maldives", "Bangladesh", "Nepal", "Bhutan", "Myanmar", "Russia", "Ukraine", "Belarus", "Poland", "Czech Republic", "Slovenia", "Slovakia", "Hungary", "Brazil", "Colombia", "Venezuela", "Suriname", "Guyana", "Grenada", "Trinidad and Tobago", "Barbados", "Ethiopia", "Kenya", "Uganda", "Rwanda", "Burundi", "Thailand", "Vietnam", "Laos", "Cambodia", "Malaysia", "Singapore", "Brunei", "Indonesia", "Greece", "Albania", "Montenegro", "Serbia", "Romania", "Bulgaria", "North Macedonia", "Bosnia and Herzegovina", "Belize", "Guatemala", "El Salvador", "Honduras", "Nicaragua", "Costa Rica", "Panama", "Democratic Republic of Congo", "Kazakhstan", "Kyrgyzstan", "Tajikistan", "Uzbekistan", "Turkmenistan", "Azerbaijan", "Georgia", "Armenia", "Italy", "Vatican City", "San Marino", "Malta", "Cyprus", "Austria", "Switzerland", "Croatia", "Saint Vincent and Grenadines", "Saint Lucia", "Antigua and Barbuda", "Dominica", "Saint Kitts and Nevis", "Turkey", "Andorra", "Moldova", "Monaco", "Liechtenstein", "Luxembourg", "Kosovo", "Timor-Leste", "Seychelles", "Tanzania", "Malawi", "Comoros", "Madagascar", "Mauritius", "Afghanistan", "Iran", "Iraq", "Syria", "Lebanon", "Israel", "Palestine", "Guadeloupe", "Guam", "Faroe Islands", "Martinique"];
+
+    function getTemplate(country, exactName) {
+        const safeImg = encodeURIComponent(exactName);
+        
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${country} | Travel Turtle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../Images/icon.png">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { margin:0; padding:0; font-family:helvetica,sans-serif; line-height:1.6; color:#333; }
+        
+        /* MENU */
+        .menu { background:rgba(50,50,50,0.95); width:100%; position:fixed; top:0; z-index:2000; display:flex; justify-content:center; backdrop-filter:blur(10px); }
+        .menu-list { display:flex; list-style:none; padding:0; margin:0; }
+        .menu-list a { color:#ccc; text-decoration:none; padding:15px 20px; display:block; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
+        .menuspace { height: 50px; background: rgb(50,50,50); }
+
+         @media only screen and (max-width: 900px) {
+            .menu { justify-content: space-between; }
+            .menu-toggle { display: block; }
+            .menu-list {
+                display: none; flex-direction: column; position: absolute;
+                top: 100%; left: 0; width: 100%; background-color: rgb(50,50,50);
+                border-top: 1px solid #444;
+            }
+            .menu-list.active { display: flex; }
+        }
+
+        /* NOTIFICATIONS */
+        .notice { background:rgb(43,115,220); text-align:center; height:45px; position:relative; overflow:hidden; }
+        .notice p { color:white; font-size:13px; margin-top:12px; }
+        .notice a { color:white; text-decoration:none; }
+        .notice2 { background:white; text-align:center; height:45px; position:relative; border-bottom:1px solid #eee; }
+        .notice2 p { color:gray; font-size:13px; margin-top:12px; }
+        .notice2 a { color:gray; text-decoration:none; }
+        .closebtn { cursor:pointer; position:absolute; right:20px; top:10px; font-size:18px; color:gray; }
+        .notice .closebtn { color:white; }
+
+        /* HERO & CONTENT */
+        .hero { width:100%; height:550px; background:#444 url('../Images/Countries/${safeImg}.jpg') center/cover; display:flex; justify-content:center; align-items:center; }
+        .txt-box { background:rgba(0,0,0,0.5); padding:20px 40px; color:white; backdrop-filter:blur(5px); text-align:center; border-radius:2px; }
+        .main-content { max-width:800px; margin:40px auto; padding:0 20px; font-size:18px; }
+
+        /* GALLERY */
+        .gallery-sec { max-width:900px; margin:60px auto; text-align:center; }
+        .slider { position:relative; background:#000; height:500px; border-radius:4px; overflow:hidden; }
+        .slide { display:none; width:100%; height:100%; object-fit:contain; }
+        .slide.active { display:block; }
+        .nav-btn { cursor:pointer; position:absolute; top:50%; padding:16px; color:white; background:rgba(0,0,0,0.4); border:none; transform:translateY(-50%); font-weight:bold; }
+
+        /* FOOTER */
+        footer { background:gray; text-align:center; padding:60px 20px; color:white; }
+        .legal-links { margin-top:30px; }
+        .legal-links a { color:white; text-decoration:none; font-size:11px; text-transform:uppercase; letter-spacing:2px; padding:0 15px; opacity:0.8; }
+    </style>
+</head>
+<body>
+    <nav class="menu"><ul class="menu-list"><li><a href="../index.html">🌎</a></li><li><a href="../asia.html">Asia</a></li><li><a href="../europe.html">Europe</a></li><li><a href="../africa.html">Africa</a></li><li><a href="../americas.html">Americas</a></li><li><a href="../oceania.html">Oceania</a></li><li><a href="../games.html">Games</a></li><li><a href="../about.html">About</a></li></ul></nav>
+    <div class="menuspace"></div>
+
+    <div class="notice"><p><a href="https://www.instagram.com/travelturtlebongbong/" target="_blank">Follow my Instagram!</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
+    <div class="notice2"><p><a href="#support">Support my journey with your donation.</a><span class="closebtn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span></p></div>
+
+    <header class="hero"><div class="txt-box"><h1>${country}</h1><p>Travel Guide & Archive</p></div></header>
+    
+    <div class="main-content">
+        <h2>Exploring ${country}</h2>
+        <p>Visual notes and cultural documentation from the journey through ${country}.</p>
+    </div>
+
+    <div class="gallery-sec" id="gWrap">
+        <h2>Photo Archive</h2>
+        <div class="slider" id="sld">
+            <button class="nav-btn" style="left:0" onclick="move(-1)">&#10094;</button>
+            <button class="nav-btn" style="right:0" onclick="move(1)">&#10095;</button>
+        </div>
+    </div>
+
+    <footer id="support">
+        <p>Support the journey</p>
+        <a href="https://payme.hsbc/yourmoneymymoney"><img src="../Images/qr.jpg" height="120" alt="PayMe"></a>
+        <img src="../Images/paypal.png" height="120" style="margin-left:10px;">
+        <div class="legal-links">
+            <a href="../about.html">About</a>
+            <a href="../privacy.html">Privacy Policy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="../contact.html">Contact</a>
+        </div>
+        <p style="margin-top:20px; font-size:10px; opacity:0.6;">Copyright © 2026 Travel Turtle. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let idx = 0;
+        let imgList = [];
+        async function load() {
+            const c = '${exactName}';
+            const sld = document.getElementById('sld');
+            for(let i=1; i<=50; i++) {
+                const p = '../Images/Countries/' + c + i + '.jpg';
+                const ok = await new Promise(r => { 
+                    let im = new Image(); 
+                    im.onload = () => r(true); 
+                    im.onerror = () => r(false); 
+                    im.src = p; 
+                });
+                if(ok) imgList.push(p);
+                else if(i > 3) break;
+            }
+            if(imgList.length > 0) {
+                imgList.forEach((src, i) => {
+                    let im = document.createElement('img');
+                    im.src = src;
+                    im.className = 'slide' + (i === 0 ? ' active' : '');
+                    sld.appendChild(im);
+                });
+            } else { document.getElementById('gWrap').style.display = 'none'; }
+        }
+        function move(n) {
+            let s = document.querySelectorAll('.slide');
+            if(s.length < 2) return;
+            s[idx].classList.remove('active');
+            idx = (idx + n + s.length) % s.length;
+            s[idx].classList.add('active');
+        }
+        load();
+    <\/script>
+</body>
+</html>`;
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
+        btn.disabled = true;
+        status.innerText = "Processing 163 files...";
+
+        try {
+            const zip = new JSZip();
+            visitedPlaces.forEach(name => {
+                const fileName = name.toLowerCase().replace(/[^a-z0-9]/g, '') + ".html";
+                zip.file(fileName, getTemplate(name, name));
+            });
+
+            const content = await zip.generateAsync({type: "blob"});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = "TravelTurtle_Full_Archive.zip";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            status.innerText = "Success! ZIP Ready.";
+        } catch (err) {
+            console.error(err);
+            status.innerText = "Error. Check Console.";
+        } finally {
+            btn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

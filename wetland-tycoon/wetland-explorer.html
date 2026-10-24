@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mangrove Explorer: Quiz & Gallery</title>
+    <style>
+        :root {
+            /* Updated to a mangrove green theme */
+            --primary: #2E8B57; 
+            --bg: #f4f9f4;
+            --text: #1b2e23;
+            --card: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 { 
+            color: var(--primary); 
+            margin-bottom: 10px;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+            box-shadow: 0 4px 6px rgba(46, 139, 87, 0.2);
+        }
+        
+        button:hover:not(:disabled) { 
+            background-color: #1e5a38; 
+            box-shadow: 0 6px 12px rgba(46, 139, 87, 0.3);
+        }
+        button:active:not(:disabled) { transform: scale(0.97); }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .btn-secondary { 
+            background-color: #5d826a; 
+            box-shadow: 0 4px 6px rgba(93, 130, 106, 0.2);
+        }
+        .btn-secondary:hover:not(:disabled) { 
+            background-color: #3f5e4a; 
+            box-shadow: 0 6px 12px rgba(93, 130, 106, 0.3);
+        }
+        
+        /* Views */
+        #start-page, #quiz-page, #gallery-page { display: none; }
+        .active-page { display: block !important; }
+
+        /* Quiz UI */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #5d826a;
+        }
+
+        .quiz-image-container {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin: 0 auto 30px auto;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .quiz-image-container img {
+            max-width: 100%;
+            height: auto;
+            max-height: 280px;
+            border-radius: 8px;
+        }
+
+        #options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Gallery UI */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px 15px; /* 25px vertical gap, 15px horizontal gap */
+            padding: 20px 0;
+            width: 100%;
+        }
+
+        .gallery-item {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            
+            width: 70%;
+            box-sizing: border-box; 
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
+            
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Pushes all odd-numbered items (the left column) to the right side of their slot */
+        .gallery-item:nth-child(odd) {
+            justify-self: end;
+        }
+
+        /* Pushes all even-numbered items (the right column) to the left side of their slot */
+        .gallery-item:nth-child(even) {
+            justify-self: start;
+        }
+
+        .gallery-item:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12); 
+        }
+
+        .gallery-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-item-title {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 15px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .gallery-item-title span {
+            font-size: 13px;
+            color: #5d826a;
+            font-weight: normal;
+        }
+        
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(27, 46, 35, 0.85);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-content img { 
+            max-width: 100%; 
+            height: 200px; 
+            object-fit: contain; 
+            margin-bottom: 20px;
+        }
+        
+        .classification { 
+            font-style: italic; 
+            color: #5d826a; 
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        #modal-fact {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #354a3e;
+            margin-bottom: 20px;
+        }
+
+        #modal-adaptation {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2E8B57;
+            margin-bottom: 30px;
+            font-weight: 600;
+            background: #e9f2ec;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-page" class="container active-page">
+        <h1 style="font-size: 3em; margin-bottom: 5px;">🌿</h1>
+        <h1 style="font-size: 2.5em;">Hong Kong Wetland Explorer</h1>
+        <p style="font-size: 1.2em; color: #5d826a;">Test your knowledge or browse the encyclopedia of the wetland species.</p>
+        
+        <div class="btn-group">
+            <button onclick="playSound('click'); startQuiz()">Start Quiz</button>
+            <button class="btn-secondary" onclick="playSound('click'); showGallery()">View Gallery</button>
+        </div>
+    </div>
+
+    <div id="quiz-page" class="container">
+        <h2>Identify the Wetland Species</h2>
+        <div class="stats">
+            <span id="score-display">Score: 0</span>
+            <span id="question-display">Question: 1/22</span>
+        </div>
+        <div class="quiz-image-container">
+            <img id="quiz-img" src="" alt="Which species is this?">
+        </div>
+        <div id="options-container"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()" style="max-width: 200px; padding: 10px 20px; font-size: 16px;">Quit to Menu</button>
+        </div>
+    </div>
+
+    <div id="gallery-page" class="container">
+        <h2>Wetland Gallery</h2>
+        <p style="color: #5d826a; margin-bottom: 30px;">Click on any species to learn about its unique adaptations.</p>
+        <div class="gallery-grid" id="gallery-grid"></div>
+        <div style="display: flex; justify-content: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="playSound('click'); goHome()">Back to Menu</button>
+        </div>
+    </div>
+
+    <div id="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="">
+            <h2 id="modal-title" style="margin-bottom: 5px; font-size: 26px;"></h2>
+            <div class="classification" id="modal-class"></div>
+            <p id="modal-fact"></p>
+            <p id="modal-adaptation"></p>
+            <div class="btn-group" style="margin-top: 0;">
+                <button onclick="playSound('click'); readFactOutLoud()">🔊 Read Fact</button>
+                <button class="btn-secondary" onclick="playSound('click'); closeModal(true)">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Sound Effects System ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            if (type === 'correct') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(600, now);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'wrong') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(150, now);
+                oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else if (type === 'click') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                oscillator.start(now);
+                oscillator.stop(now + 0.1);
+            } else if (type === 'win') {
+                playTone(440, now, 0.1);       
+                playTone(554.37, now + 0.1, 0.1); 
+                playTone(659.25, now + 0.2, 0.3); 
+            }
+        }
+
+        function playTone(freq, time, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        // --- Database ---
+        const mangroveSpecies = [
+            { 
+                engName: "Black-faced Spoonbill",
+                chiName: "黑臉琵鷺", 
+                file: "black-faced-spoonbill.png", //
+                familyEng: "Threskiornithidae",
+                familyChi: "鹮科", 
+                fact: "A globally endangered wading bird known for its distinctive spoon-shaped beak.", 
+                adaptation: "Adaptation: Sweeps its partly open bill side-to-side in shallow water to catch fish and shrimp." 
+            },
+            { 
+                engName: "Black Kite",
+                chiName: "黑鳶", 
+                file: "black-kite.png", //
+                familyEng: "Accipitridae",
+                familyChi: "鷹科", 
+                fact: "A medium-sized bird of prey commonly seen soaring over Hong Kong's harbors and wetlands.", 
+                adaptation: "Adaptation: Uses its forked tail like a rudder to maneuver deftly while hunting or scavenging." 
+            },
+            { 
+                engName: "Cattle Egret",
+                chiName: "牛背鷺", 
+                file: "cattle-egret.png", //
+                familyEng: "Ardeidae",
+                familyChi: "鷺科", 
+                fact: "A small white egret that frequently associates with grazing animals to catch disturbed insects.", 
+                adaptation: "Adaptation: Develops orange-buff plumes on its head, neck, and back during the breeding season." 
+            },
+            { 
+                engName: "Chinese Horseshoe Crab",
+                chiName: "中國鱟", 
+                file: "chinese-horseshoe-crab.png", //
+                familyEng: "Limulidae",
+                familyChi: "鱟科", 
+                fact: "An ancient marine arthropod often called a 'living fossil', predating the dinosaurs.", 
+                adaptation: "Adaptation: Possesses copper-based blue blood containing amebocytes that instantly clot around bacteria." 
+            },
+            { 
+                engName: "East Asian Porcupine",
+                chiName: "東亞豪豬", 
+                file: "east-asian-porcupine.png", //
+                familyEng: "Hystricidae",
+                familyChi: "豪豬科", 
+                fact: "A large, nocturnal rodent found in Hong Kong's forests and wetland fringes.", 
+                adaptation: "Adaptation: Covered in sharp, modified hairs (quills) that can be raised to deter predators." 
+            },
+            { 
+                engName: "Eurasian Curlew",
+                chiName: "白腰杓鷸", 
+                file: "eurasian-curlew.png", //
+                familyEng: "Scolopacidae",
+                familyChi: "鷸科", 
+                fact: "The largest wading bird in Europe and Asia, easily recognizable by its haunting call.", 
+                adaptation: "Adaptation: Features a prominent, downward-curved bill specialized for extracting worms from deep mud." 
+            },
+            { 
+                engName: "Eurasian Otter",
+                chiName: "歐亞水獺", 
+                file: "eurasian-otter.png", //
+                familyEng: "Mustelidae",
+                familyChi: "鼬科", 
+                fact: "A shy, semi-aquatic mammal occasionally recorded hunting fish in the wetland network.", 
+                adaptation: "Adaptation: Has dense, waterproof fur and webbed feet allowing for swift underwater navigation." 
+            },
+            { 
+                engName: "Fiddler Crab",
+                chiName: "招潮蟹", 
+                file: "fiddler-crab.png", //
+                familyEng: "Ocypodidae",
+                familyChi: "沙蟹科", 
+                fact: "A small intertidal crab where males possess one remarkably large claw and one small feeding claw.", 
+                adaptation: "Adaptation: Males wave their oversized claw to attract mates and establish territory in the mudflats." 
+            },
+            { 
+                engName: "Gei Wai Shrimp",
+                chiName: "基圍蝦", 
+                file: "gei-wai-shrimp.png", //
+                familyEng: "Penaeidae",
+                familyChi: "對蝦科", 
+                fact: "A commercial shrimp species traditionally cultivated in the tidal ponds of Mai Po.", 
+                adaptation: "Adaptation: Migrates rhythmically with the tides, utilizing the estuarine currents for feeding and shelter." 
+            },
+            { 
+                engName: "Great Egret",
+                chiName: "大白鷺", 
+                file: "great-egret.png", //
+                familyEng: "Ardeidae",
+                familyChi: "鷺科", 
+                fact: "A large, elegant white heron standing over a meter tall with a striking yellow bill.", 
+                adaptation: "Adaptation: Uses its long, S-shaped neck to strike at aquatic prey with lightning-fast precision." 
+            },
+            { 
+                engName: "Leopard Cat",
+                chiName: "豹貓", 
+                file: "leopard-cat.png", //
+                familyEng: "Felidae",
+                familyChi: "貓科", 
+                fact: "A small, spotted wild cat native to the region, roughly the size of a domestic cat.", 
+                adaptation: "Adaptation: Has excellent night vision and is an agile climber, hunting small mammals and birds." 
+            },
+            { 
+                engName: "Little Egret",
+                chiName: "小白鷺", 
+                file: "little-egret.png", //
+                familyEng: "Ardeidae",
+                familyChi: "鷺科", 
+                fact: "A common sight in Hong Kong wetlands, easily distinguished by its black legs and yellow feet.", 
+                adaptation: "Adaptation: Often shuffles its bright yellow feet in shallow water to flush out hidden fish." 
+            },
+            { 
+                engName: "Mangrove Horseshoe Crab",
+                chiName: "圓尾鱟", 
+                file: "mangrove-horseshoe-crab.png", //
+                familyEng: "Limulidae",
+                familyChi: "鱟科", 
+                fact: "A smaller cousin to the Chinese Horseshoe Crab, generally found in muddy estuaries and mangroves.", 
+                adaptation: "Adaptation: Has a smooth, rounded tail (telson) unlike the triangular tail of its larger relative." 
+            },
+            { 
+                engName: "Mangrove",
+                chiName: "紅樹", 
+                file: "mangrove.png", //
+                familyEng: "Rhizophoraceae",
+                familyChi: "紅樹科", 
+                fact: "The foundational plant species of the coastal wetland ecosystem.", 
+                adaptation: "Adaptation: Employs salt-filtering roots and pneumatophores to survive in anoxic, highly saline mud." 
+            },
+            { 
+                engName: "Mudskipper",
+                chiName: "彈塗魚", 
+                file: "mudskipper.png", //
+                familyEng: "Oxudercidae",
+                familyChi: "彈塗魚科", 
+                fact: "An amphibious fish that spends a significant amount of its life completely out of the water.", 
+                adaptation: "Adaptation: Breathes through its skin and the lining of its mouth/throat as long as they stay moist." 
+            },
+            { 
+                engName: "Night Heron",
+                chiName: "夜鷺", 
+                file: "night-heron.png", //
+                familyEng: "Ardeidae",
+                familyChi: "鷺科", 
+                fact: "A stocky heron species that rests during the day and hunts primarily at night.", 
+                adaptation: "Adaptation: Features relatively large eyes suited for low-light foraging in the wetland shallows." 
+            },
+            { 
+                engName: "Osprey",
+                chiName: "鴗", 
+                file: "osprey.png", //
+                familyEng: "Pandionidae",
+                familyChi: "鴗科", 
+                fact: "A large raptor with a cosmopolitan distribution, known exclusively as a fish-eater.", 
+                adaptation: "Adaptation: Has specialized reversible outer toes and barbed pads on the soles of its feet to grip slippery fish." 
+            },
+            { 
+                engName: "Paddy Frog",
+                chiName: "澤蛙", 
+                file: "paddy-frog.png", //
+                familyEng: "Dicroglossidae",
+                familyChi: "叉舌蛙科", 
+                fact: "A widespread amphibian frequently encountered in flooded agricultural fields and wetlands.", 
+                adaptation: "Adaptation: Highly adaptable to human-modified environments with variable, muddy camouflage." 
+            },
+            { 
+                engName: "Pied Avocet",
+                chiName: "反嘴鷸", 
+                file: "pied-avocet.png", //
+                familyEng: "Recurvirostridae",
+                familyChi: "反嘴鷸科", 
+                fact: "A striking black and white wader known for its long, slender legs and unique beak.", 
+                adaptation: "Adaptation: Swipes its distinctively upward-curved bill through the water to catch aquatic invertebrates." 
+            },
+            { 
+                engName: "Pond Heron",
+                chiName: "池鷺", 
+                file: "pond-heron.png", //
+                familyEng: "Ardeidae",
+                familyChi: "鷺科", 
+                fact: "A chunky wading bird that looks brown and streaky at rest but reveals flashing white wings in flight.", 
+                adaptation: "Adaptation: Utilizes its cryptic brown plumage to blend perfectly into reed beds while stalking prey." 
+            },
+            { 
+                engName: "Reeves' Turtle",
+                chiName: "烏龜", 
+                file: "reeves-turtle.png", //
+                familyEng: "Geoemydidae",
+                familyChi: "地龜科", 
+                fact: "A common freshwater turtle often seen basking on logs along the wetland edges.", 
+                adaptation: "Adaptation: Features three distinct keels (ridges) running down its carapace for structural defense." 
+            },
+            { 
+                engName: "Yellow-spotted Keelback",
+                chiName: "黃斑漁游蛇", 
+                file: "yellow-spotted-keelback.png", //
+                familyEng: "Colubridae",
+                familyChi: "游蛇科", 
+                fact: "A semi-aquatic snake with noticeable bright yellow markings along its neck.", 
+                adaptation: "Adaptation: An excellent swimmer that can hold its breath for extended periods while hunting frogs and fish." 
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizQuestions = [];
+        let synth = window.speechSynthesis;
+
+        // Modified speak function to accept a callback when audio completes
+        function speak(text, callback = null) {
+            if (synth.speaking) synth.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            let voices = synth.getVoices();
+            let maleVoice = voices.find(v => 
+                v.name.toLowerCase().includes('male') || 
+                v.name.toLowerCase().includes('guy') || 
+                v.name.toLowerCase().includes('david') ||
+                v.name.toLowerCase().includes('mark')
+            );
+            
+            if (maleVoice) utterance.voice = maleVoice;
+            utterance.pitch = 0.9; 
+            
+            // Execute callback once the speech successfully finishes
+            if (callback) {
+                utterance.onend = () => callback();
+                // Fallback just in case the browser TTS engine errors out
+                utterance.onerror = () => callback();
+            }
+            
+            synth.speak(utterance);
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+            if (synth.speaking) synth.cancel();
+            window.scrollTo(0, 0);
+        }
+
+        function goHome() {
+            switchPage('start-page');
+        }
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            quizQuestions = shuffleArray(mangroveSpecies);
+            updateScoreUI();
+            loadQuestion();
+            switchPage('quiz-page');
+            speak("Let's begin the wetland quiz. Which species is this?");
+        }
+
+        function loadQuestion() {
+            const currentPlant = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-img').src = `${currentPlant.file}`;
+            document.getElementById('question-display').innerText = `Question: ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+            
+            let options = [currentPlant];
+            let remainingPlants = shuffleArray(mangroveSpecies.filter(a => a.engName !== currentPlant.engName));
+            options.push(...remainingPlants.slice(0, 3));
+            options = shuffleArray(options);
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                // Displaying both names cleanly on the UI button
+                btn.innerHTML = `${opt.engName} <br><span style="font-size: 14px; font-weight: normal;">${opt.chiName}</span>`;
+                btn.onclick = () => checkAnswer(opt, currentPlant);
+                optionsContainer.appendChild(btn);
+            });
+
+            if (currentQuestionIndex > 0) {
+                speak("Which wetland species is this?");
+            }
+        }
+
+        function checkAnswer(selectedOpt, correctOpt) {
+            // Immediately disable all buttons so the user can't click multiple times during TTS
+            const buttons = document.getElementById('options-container').querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            // Determine if correct, set feedback text (English only)
+            let feedbackText = "";
+            if (selectedOpt.engName === correctOpt.engName) {
+                score++;
+                playSound('correct');
+                feedbackText = `Correct. It is the ${correctOpt.engName}.`;
+            } else {
+                playSound('wrong');
+                feedbackText = `Incorrect. That was the ${correctOpt.engName}.`;
+            }
+            
+            updateScoreUI();
+
+            // Speak the feedback and pass the advance state as the callback
+            speak(feedbackText, () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizQuestions.length) {
+                    loadQuestion();
+                } else {
+                    endQuiz();
+                }
+            });
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-display').innerText = `Score: ${score}`;
+        }
+
+        function endQuiz() {
+            playSound('win');
+            const finalScore = `You scored ${score} out of ${quizQuestions.length}.`;
+            speak(`Quiz complete. ${finalScore}`);
+            document.getElementById('options-container').innerHTML = 
+                `<div style="width: 100%; text-align: center;">
+                    <h3 style="font-size: 24px;">Quiz Complete!</h3>
+                    <p style="font-size: 18px; margin-bottom: 20px;">${finalScore}</p>
+                    <button onclick="playSound('click'); startQuiz()">Play Again</button>
+                </div>`;
+        }
+
+        function showGallery() {
+            const grid = document.getElementById('gallery-grid');
+            if (grid.innerHTML === '') {
+                mangroveSpecies.forEach(plant => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+                    div.innerHTML = `
+                        <img src="${plant.file}" alt="${plant.engName}">
+                        <div class="gallery-item-title">${plant.engName}<br><span>${plant.chiName}</span></div>
+                    `;
+                    div.onclick = () => { playSound('click'); openModal(plant); };
+                    grid.appendChild(div);
+                });
+            }
+            switchPage('gallery-page');
+        }
+
+        let currentModalPlant = null;
+
+        function openModal(plant) {
+            currentModalPlant = plant;
+            document.getElementById('modal-img').src = `${plant.file}`;
+            document.getElementById('modal-title').innerHTML = `${plant.engName} <span style="font-size: 18px; color: #5d826a;">(${plant.chiName})</span>`;
+            document.getElementById('modal-class').innerText = `Family: ${plant.familyEng} (${plant.familyChi})`;
+            document.getElementById('modal-fact').innerText = plant.fact;
+            document.getElementById('modal-adaptation').innerText = plant.adaptation;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal(force = false) {
+            if (force === true || event.target.id === 'modal') {
+                document.getElementById('modal').style.display = 'none';
+                if (synth.speaking) synth.cancel();
+            }
+        }
+
+        function readFactOutLoud() {
+            if (currentModalPlant) {
+                // Reads purely the English text utilizing the clean properties
+                speak(`${currentModalPlant.engName}. Family: ${currentModalPlant.familyEng}. ${currentModalPlant.fact} ${currentModalPlant.adaptation}`);
+            }
+        }
+        
+        speechSynthesis.onvoiceschanged = () => {
+             synth.getVoices();
+        };
+    </script>
+</body>
+</html>

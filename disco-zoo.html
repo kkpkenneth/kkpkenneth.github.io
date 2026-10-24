@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #zoo { width: 600px; height: 400px; border: 3px solid #333; position: relative; background: #e0f7fa; overflow: hidden; }
+        .animal { width: 40px; height: 40px; position: absolute; transition: all 1s ease; }
+    </style>
+</head>
+<body>
+
+<div id="zoo"></div>
+
+<script>
+    const zoo = document.getElementById('zoo');
+    const animals = [];
+
+    // 50 Animals with placeholder image URLs
+    for (let i = 0; i < 50; i++) {
+        let animal = document.createElement('img');
+        animal.src = `https://via.placeholder.com/40?text=A${i+1}`; // Replace with actual image URLs
+        animal.className = 'animal';
+        animal.style.left = Math.random() * 560 + 'px';
+        animal.style.top = Math.random() * 360 + 'px';
+        zoo.appendChild(animal);
+        animals.push(animal);
+    }
+
+    // Move randomly every 1 second
+    setInterval(() => {
+        animals.forEach(a => {
+            a.style.left = Math.random() * 560 + 'px';
+            a.style.top = Math.random() * 360 + 'px';
+        });
+    }, 1000);
+</script>
+
+</body>
+</html>

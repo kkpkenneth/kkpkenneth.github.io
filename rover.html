@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lunar Rover & Solar Tech Challenge</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0c0c14; color: #00f2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { max-width: 600px; width: 100%; text-align: center; }
+        #text-box { border: 2px solid #ffcc00; padding: 30px; background: #000; margin-bottom: 20px; min-height: 150px; font-size: 1.4rem; color: #ffcc00; display: flex; align-items: center; justify-content: center; line-height: 1.4; box-shadow: 0 0 15px #ffcc0055; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: 2px solid; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-left { border-color: #00f2ff; background: transparent; color: #00f2ff; }
+        .btn-left:hover { background: #00f2ff; color: #000; }
+        .btn-right { border-color: #ff00ff; background: transparent; color: #ff00ff; }
+        .btn-right:hover { background: #ff00ff; color: #000; }
+        #score-board { margin-bottom: 10px; font-size: 1.5rem; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-board">MISSION SCORE: 0</div>
+    <div id="text-box">SYSTEM READY. INITIALIZE TO START.</div>
+    <div id="options" class="options">
+        <button class="btn-left" onclick="initGame()">INITIALIZE SYSTEM</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let score = 0;
+    let typingTimeout = null;
+
+    const quizData = [
+        { q: "What powers the lunar rover?", a: ["Solar panels", "Wind turbines"], correct: "Solar panels", exp: "Solar energy is used because the moon has no atmosphere to support wind." },
+        { q: "What is the biggest threat to solar panels on the moon?", a: ["Lunar dust", "Moonquakes"], correct: "Lunar dust", exp: "Sharp, static-charged regolith dust blocks sunlight and abrades surfaces." },
+        { q: "What does the rover use to store solar energy?", a: ["Batteries", "Water tanks"], correct: "Batteries", exp: "Batteries store energy to keep systems alive during the 14-day lunar night." },
+        { q: "Why is the moon's surface difficult for rovers?", a: ["Regolith craters", "Liquid oceans"], correct: "Regolith craters", exp: "The surface is covered in deep, sharp dust and numerous impact craters." },
+        { q: "What happens to solar panels during the lunar night?", a: ["Power generation stops", "Power increases"], correct: "Power generation stops", exp: "Without sunlight, photovoltaic cells cannot produce electricity." },
+        { q: "How long is a lunar night?", a: ["About 14 Earth days", "1 hour"], correct: "About 14 Earth days", exp: "The moon rotates slowly, resulting in 14 days of sunlight and 14 days of darkness." },
+        { q: "What do solar panels convert sunlight into?", a: ["Electricity", "Thermal heat"], correct: "Electricity", exp: "Photovoltaic cells use the photoelectric effect to generate electric current." },
+        { q: "What is the primary material in solar cells?", a: ["Silicon", "Aluminum"], correct: "Silicon", exp: "Silicon is a semiconductor that is highly efficient at converting light into electrons." },
+        { q: "Why must rovers be lightweight?", a: ["Fuel limits", "It's cold"], correct: "Fuel limits", exp: "Launching mass into space is incredibly expensive and limited by rocket capacity." },
+        { q: "What is regolith?", a: ["Moon dust/soil", "Moon rock gold"], correct: "Moon dust/soil", exp: "Regolith is the layer of loose, heterogeneous superficial deposits covering solid rock." },
+        { q: "What protects the rover from extreme temperatures?", a: ["Thermal insulation", "Air conditioning"], correct: "Thermal insulation", exp: "Multi-layer insulation (MLI) blankets reflect heat and prevent electronics from freezing/overheating." },
+        { q: "Which gas is missing on the moon?", a: ["Oxygen/Atmosphere", "Helium"], correct: "Oxygen/Atmosphere", exp: "The moon lacks an atmosphere, meaning no oxygen for combustion or breathing." },
+        { q: "What helps solar panels get more sun?", a: ["Tracking mechanism", "Painting them black"], correct: "Tracking mechanism", exp: "A tracking system angles panels toward the sun to maximize energy capture." },
+        { q: "Why use solar power on the moon?", a: ["Abundant sunlight", "No wind"], correct: "Abundant sunlight", exp: "There is no cloud cover to block the sun, making solar highly reliable during the day." },
+        { q: "What is the Moon's gravity compared to Earth?", a: ["1/6 of Earth", "Equal to Earth"], correct: "1/6 of Earth", exp: "Lower gravity means rovers can be larger but need careful traction control." },
+        { q: "What kind of wheels do lunar rovers use?", a: ["Mesh metal", "Rubber tires"], correct: "Mesh metal", exp: "Rubber would freeze and crack; wire mesh provides grip and durability on sharp rocks." },
+        { q: "What is the primary mission of a rover?", a: ["Scientific exploration", "Moon farming"], correct: "Scientific exploration", exp: "Rovers analyze soil, map the surface, and look for water ice." },
+        { q: "What transmits data from the rover to Earth?", a: ["Antenna", "Messenger pigeons"], correct: "Antenna", exp: "High-gain antennas transmit radio signals back to the Deep Space Network." },
+        { q: "How do we control the rover?", a: ["Remote commands", "Manual driving"], correct: "Remote commands", exp: "Due to time delay, operators send commands that the rover executes autonomously." },
+        { q: "What is 'Photovoltaic'?", a: ["Solar light to power", "Sound to light"], correct: "Solar light to power", exp: "It describes the conversion of light into electricity using semiconductor materials." },
+        { q: "Why is dust a problem for solar panels?", a: ["Blocks sunlight", "Makes them heavy"], correct: "Blocks sunlight", exp: "Accumulated dust acts as a filter, significantly reducing the power output of panels." },
+        { q: "What creates the moon's craters?", a: ["Meteoroid impacts", "Ancient volcanoes"], correct: "Meteoroid impacts", exp: "With no atmosphere to burn them up, meteoroids strike the moon constantly." },
+        { q: "What keeps rover electronics alive at night?", a: ["Heated battery packs", "Open fire"], correct: "Heated battery packs", exp: "Heaters maintain a habitable temperature for sensitive circuits in the frigid night." },
+        { q: "Can solar panels work on the dark side of the moon?", a: ["No", "Yes"], correct: "No", exp: "They require direct or reflected sunlight to generate power." },
+        { q: "What is a Lunar Day?", a: ["29.5 Earth days", "24 hours"], correct: "29.5 Earth days", exp: "A complete cycle of day and night on the moon takes about 29.5 Earth days." },
+        { q: "Which mission first drove a rover on the moon?", a: ["Apollo 15", "Apollo 1"], correct: "Apollo 15", exp: "The Lunar Roving Vehicle (LRV) debuted on the Apollo 15 mission in 1971." },
+        { q: "What are solar cells connected in?", a: ["Arrays", "Bundles"], correct: "Arrays", exp: "Multiple cells are connected into 'arrays' to produce enough voltage for the rover." },
+        { q: "What color is the moon's sky?", a: ["Black", "Blue"], correct: "Black", exp: "Without an atmosphere to scatter sunlight (Rayleigh scattering), the sky appears black." },
+        { q: "Is the moon a planet?", a: ["No, it's a satellite", "Yes"], correct: "No, it's a satellite", exp: "The moon is a natural satellite orbiting the Earth." },
+        { q: "What is the rover's greatest energy enemy?", a: ["Dust accumulation", "Low gravity"], correct: "Dust accumulation", exp: "Over time, dust build-up is the most persistent threat to power efficiency." }
+    ];
+
+    function playSFX(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        window.speechSynthesis.cancel();
+
+        const item = quizData[Math.floor(Math.random() * quizData.length)];
+        const box = document.getElementById('text-box');
+        const optDiv = document.getElementById('options');
+        
+        box.innerText = "";
+        optDiv.innerHTML = "";
+        
+        let i = 0;
+        const msg = new SpeechSynthesisUtterance(item.q);
+        msg.rate = 0.8;
+        msg.pitch = 0.5;
+        window.speechSynthesis.speak(msg);
+
+        function type() {
+            if (i < item.q.length) {
+                box.innerText = item.q.substring(0, i + 1);
+                if (i % 3 === 0) playSFX(200, 'square', 0.02);
+                i++;
+                typingTimeout = setTimeout(type, 50);
+            } else {
+                const shuffled = [...item.a].sort(() => Math.random() - 0.5);
+                shuffled.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.innerText = choice;
+                    btn.className = (index === 0) ? "btn-left" : "btn-right";
+                    btn.onclick = () => {
+                        // 處理選擇後的反饋
+                        optDiv.innerHTML = "<strong>" + (choice === item.correct ? "CORRECT" : "INCORRECT") + "</strong><br>" + item.exp;
+                        
+                        if (choice === item.correct) {
+                            score += 10;
+                            playSFX(600, 'sine', 0.2);
+                        } else {
+                            score -= 10;
+                            playSFX(100, 'sawtooth', 0.3);
+                        }
+                        document.getElementById('score-board').innerText = "MISSION SCORE: " + score;
+                        
+                        // 等待兩秒後顯示下一題
+                        setTimeout(nextQuestion, 2500);
+                    };
+                    optDiv.appendChild(btn);
+                });
+            }
+        }
+        type();
+    }
+</script>
+</body>
+</html>

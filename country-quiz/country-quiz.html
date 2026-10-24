@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Global Quiz - Level Progression</title>
+    <style>
+        :root {
+            --success: #27ae60;
+            --danger: #c0392b;
+            --hint: #d35400;
+            --btn-bg: rgba(200, 200, 200, 0.3);
+            --btn-hover: rgba(200, 200, 200, 0.6);
+            --text-color: #2c3e50;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f5f7fa 50%, #c3cfe2 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 700px;
+            padding: 40px 30px;
+            text-align: center;
+            overflow: hidden;
+            min-height: 600px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #start-screen {
+            padding: 20px 10px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #start-screen h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            letter-spacing: 1px;
+        }
+        #start-screen h2 {
+            font-size: 1.4rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            color: #556;
+        }
+        
+        .primary-action-btn {
+            background: #34495e;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 15px 50px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #2c3e50;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .primary-action-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: #2c3e50;
+        }
+        .primary-action-btn:active {
+            transform: translateY(1px);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .level-badge {
+            background: #e67e22;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h2#question-text {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .flag-container {
+            width: 100%;
+            aspect-ratio: 16 / 9; 
+            background-color: rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .flag-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+        }
+
+        .btn {
+            background-color: #34495e; 
+            color: #ffffff; 
+            border: 1px solid #2c3e50;
+            padding: 15px 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn .en-text {
+            font-weight: bold;
+        }
+        .btn .zh-text {
+            font-size: 0.9em;
+            font-weight: normal;
+        }
+        .btn:hover:not(:disabled) {
+            background-color: #2c3e50;
+            border-color: #1a252f;
+        }
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+        .btn.correct { 
+            background-color: var(--success) !important; 
+            color: white !important;
+            border-color: var(--success) !important;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
+        }
+        .btn.wrong { 
+            background-color: var(--danger) !important; 
+            color: white !important;
+            border-color: var(--danger) !important;
+        }
+        
+        #quiz-screen, #result-screen {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .fact-box {
+            background: rgba(230, 230, 230, 0.5);
+            border-left: 5px solid var(--hint);
+            padding: 18px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 0 8px 8px 0;
+            display: block; 
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            color: #34495e;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .fact-box h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 8px;
+            color: #2c3e50;
+        }
+        .fact-item {
+            margin-bottom: 10px;
+        }
+        .fact-item strong {
+            color: #e67e22;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+        
+        #next-btn-container {
+            display: none;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        
+        .final-score-highlight {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--success);
+            font-weight: bold;
+            margin-top: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px 0; align-items: center; }
+            .container { width: 95%; padding: 25px 15px; min-height: 85vh; justify-content: center; align-items: center; }
+            #start-screen h1, #result-screen h1 { font-size: 2.2rem; }
+            #start-screen h2, #result-screen h2 { font-size: 1.1rem; }
+            h2#question-text { font-size: 1.3rem; margin-bottom: 15px; }
+            .flag-container { aspect-ratio: 1 / 1; margin-bottom: 15px; }
+            .options-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+            .btn { padding: 10px 10px; font-size: 1rem; }
+            .fact-box { font-size: 0.9rem; padding: 12px; margin: 10px 0; }
+            .primary-action-btn { padding: 12px 30px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<audio id="bg-music" src="global-fusion.mp3" loop></audio>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>Global Quiz</h1>
+        <h2>Test your geography knowledge</h2>
+        <button class="primary-action-btn" onclick="startQuiz()">Start Game</button>
+    </div>
+
+    <div id="quiz-screen">
+        <div class="quiz-header">
+            <span class="level-badge" id="level-display">Level 1</span>
+            <span id="score-display">Score: 0</span>
+            <span id="question-count">Q: 1/10</span>
+        </div>
+        
+        <div class="flag-container">
+            <img id="flag-img" src="" alt="Country Flag" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%\' height=\'100%\' fill=\'%23eee\'><rect width=\'100%\' height=\'100%\'/><text x=\'50%\' y=\'50%\' fill=\'%23999\' font-family=\'sans-serif\' font-size=\'20\' text-anchor=\'middle\'>Image Not Found</text></svg>'">
+        </div>
+
+        <div class="fact-box" id="fact-box">
+            <h3 id="fact-title">Country Profile</h3>
+            <div class="fact-item" id="fact-geo"></div>
+            <div class="fact-item" id="fact-nickname"></div>
+            <div class="fact-item" id="fact-most"></div>
+        </div>
+        
+        <div id="options-container" class="options-grid"></div>
+
+        <div id="next-btn-container">
+            <button class="primary-action-btn" id="next-btn" onclick="loadNextQuestion()">Next Question</button>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <h1 id="result-title">Level Complete!</h1>
+        <h2 id="final-score-text">You scored X out of Y</h2>
+        <button class="primary-action-btn" id="result-action-btn" style="margin-bottom: 15px;"></button>
+    </div>
+</div>
+
+<script>
+    let audioCtx;
+    let levelScore = 0;
+    let totalScore = 0;
+    let totalQuestions = 0;
+    let currentQuestionIndex = 0;
+    let currentLevelQuestions = [];
+    
+    let currentLevel = 1;
+    const maxLevel = 8;
+    
+    const levelMapping = {
+        "United States": 1, "Canada": 1, "Russia": 1, "China": 1, "France": 1, "Mexico": 1, "United Kingdom": 1, "Brazil": 1, "Australia": 1, "Italy": 1, "Germany": 1, "India": 1, "Japan": 1, "Spain": 1,
+        "Argentina": 2, "Iceland": 2, "Egypt": 2, "Ireland": 2, "Portugal": 2, "Sweden": 2, "Chile": 2, "South Africa": 2, "South Korea": 2, "North Korea": 2, "Norway": 2, "Finland": 2, "Turkey": 2, "Greece": 2, "Poland": 2, "Denmark": 2, "Iran": 2, "Taiwan": 2, "Hong Kong": 2, "Antarctica": 2,
+        "New Zealand": 3, "Iraq": 3, "Ukraine": 3, "Madagascar": 3, "Switzerland": 3, "Cuba": 3, "Netherlands": 3, "Pakistan": 3, "Peru": 3, "Mongolia": 3, "Niger": 3, "Austria": 3, "Belgium": 3, "Colombia": 3, "Indonesia": 3, "Saudi Arabia": 3, "Morocco": 3, "Thailand": 3, "Macau": 3,
+        "Afghanistan": 4, "Vietnam": 4, "Israel": 4, "Kazakhstan": 4, "Democratic Republic of the Congo": 4, "Uruguay": 4, "Nigeria": 4, "Panama": 4, "Romania": 4, "Venezuela": 4, "Bolivia": 4, "Hungary": 4, "Philippines": 4, "Algeria": 4, "Croatia": 4, "Congo (Brazzaville)": 4, "Sudan": 4, "Paraguay": 4, "Czechia": 4, "Nepal": 4, "Estonia": 4, "Slovakia": 4, "United Arab Emirates": 4, "Yemen": 4,
+        "Latvia": 5, "Albania": 5, "Belarus": 5, "Jamaica": 5, "Libya": 5, "Lithuania": 5, "Oman": 5, "Somalia": 5, "Syria": 5, "Chad": 5, "Ecuador": 5, "Haiti": 5, "Bulgaria": 5, "Ethiopia": 5, "Kenya": 5, "Malaysia": 5, "Papua New Guinea": 5, "Sri Lanka": 5, "Dominica": 5, "Serbia": 5, "Jordan": 5, "Laos": 5, "Luxembourg": 5, "Slovenia": 5, "Bangladesh": 5, "Bosnia and Herzegovina": 5, "Cambodia": 5, "Uzbekistan": 5, "Tunisia": 5, "Costa Rica": 5, "Georgia": 5, "Zimbabwe": 5, "Cyprus": 5, "Dominican Republic": 5, "Honduras": 5, "Vatican City": 5,
+        "Qatar": 6, "South Sudan": 6, "Ghana": 6, "Guatemala": 6, "Myanmar": 6, "North Macedonia": 6, "Mali": 6, "Turkmenistan": 6, "Armenia": 6, "Bahamas": 6, "Angola": 6, "Lebanon": 6, "Andorra": 6, "Malta": 6, "Moldova": 6, "Singapore": 6, "Azerbaijan": 6, "El Salvador": 6, "Nicaragua": 6, "Belize": 6, "Fiji": 6, "Guinea": 6, "Palestine": 6, "Monaco": 6, "Montenegro": 6, "Zambia": 6, "Bhutan": 6, "Guyana": 6, "Ivory Coast": 6, "Tanzania": 6, "Uganda": 6, "Central African Republic": 6,
+        "Botswana": 7, "Kuwait": 7, "Liechtenstein": 7, "Suriname": 7, "Namibia": 7, "Senegal": 7, "Cameroon": 7, "Kyrgyzstan": 7, "Mozambique": 7, "Tajikistan": 7, "Liberia": 7, "Rwanda": 7, "Togo": 7, "Lesotho": 7, "Maldives": 7, "San Marino": 7, "Eritrea": 7, "Barbados": 7, "Trinidad and Tobago": 7, "Bahrain": 7, "Eswatini": 7, "Mauritania": 7, "Benin": 7,
+        "Djibouti": 8, "Gambia": 8, "Malawi": 8, "Mauritius": 8, "Gabon": 8, "Seychelles": 8, "Sierra Leone": 8, "Brunei": 8, "Burkina Faso": 8, "Cabo Verde": 8, "Equatorial Guinea": 8, "Micronesia": 8, "Saint Lucia": 8, "Samoa": 8, "Tonga": 8, "Burundi": 8, "Timor-Leste": 8, "Solomon Islands": 8, "Antigua and Barbuda": 8, "Guinea-Bissau": 8, "Saint Kitts and Nevis": 8, "Marshall Islands": 8, "Tuvalu": 8, "Vanuatu": 8, "Grenada": 8, "Kiribati": 8, "Palau": 8, "Comoros": 8, "Saint Vincent and the Grenadines": 8, "Sao Tome and Principe": 8, "Nauru": 8, "Kosovo": 8, "Faroe Islands": 8
+    };
+
+    const rawData = `
+001|001-hong-kong.jpg|Hong Kong|香港|A coastal territory and archipelago in East Asia.|Pearl of the Orient|1. Has the most skyscrapers in the world.<br>2. Has the most expensive housing market.
+002|002-taiwan.jpg|Taiwan|台灣|An island nation in East Asia.|Ilha Formosa|1. Has the densest concentration of high mountains.<br>2. Has the most convenience stores per capita.
+003|003-japan.jpg|Japan|日本|An island nation in East Asia.|Land of the Rising Sun|1. Has the oldest population.<br>2. Has the most vending machines per capita.
+004|004-south-korea.jpg|South Korea|南韓|A peninsula nation in East Asia.|Land of the Morning Calm|1. Has the most widespread high-speed internet.<br>2. Has the most plastic surgeries per capita.
+005|005-north-korea.jpg|North Korea|北韓|A peninsula nation in East Asia.|The Hermit Kingdom|1. Has the most secretive government.<br>2. Has the most isolated economy.
+006|006-mongolia.jpg|Mongolia|蒙古|A landlocked country in East Asia.|Land of the Eternal Blue Sky|1. Is the most sparsely populated sovereign state.<br>2. Has the most horses per capita.
+007|007-china.jpg|China|中國|A massive continental country in East Asia.|The Red Dragon|1. Has the most borders with other countries.<br>2. Has the most extensive high-speed rail network.
+008|008-macau.jpg|Macau|澳門|A coastal territory in East Asia.|Vegas of China|1. Is the most densely populated region.<br>2. Generates the most gambling revenue globally.
+009|009-united-kingdom.jpg|United Kingdom|英國|An island nation in Northwestern Europe.|Britannia|1. Has the most tornadoes by area.<br>2. Had the most extensive historical empire.
+010|010-france.jpg|France|法國|A continental country in Western Europe.|The Hexagon|1. Is the most visited country in the world.<br>2. Has the most time zones (including territories).
+011|011-spain.jpg|Spain|西班牙|A peninsula country in Southwestern Europe.|La Piel de Toro|1. Produces the most olive oil.<br>2. Has the most Blue Flag beaches.
+012|012-portugal.jpg|Portugal|葡萄牙|A coastal country on the Iberian Peninsula.|The Lusitanian Nation|1. Is the largest producer of cork.<br>2. Has the oldest borders in Europe.
+013|013-netherlands.jpg|Netherlands|荷蘭|A coastal country in Western Europe.|Land of Windmills|1. Has the most bicycles per capita.<br>2. Exports the most flowers globally.
+014|014-belgium.jpg|Belgium|比利時|A federal state in Western Europe.|The Crossroads of Europe|1. Produces over 800 varieties of beer.<br>2. Hosts the headquarters of the European Union and NATO.
+015|015-germany.jpg|Germany|德國|A continental country in Central Europe.|Das Land der Dichter und Denker|1. Has the most zoos in the world.<br>2. Consumes the most bread varieties.
+016|016-ireland.jpg|Ireland|愛爾蘭|An island nation in the North Atlantic.|The Emerald Isle|1. Has more cattle than people.<br>2. Has no native snakes.
+017|017-canada.jpg|Canada|加拿大|A massive continental country in North America.|The Great White North|1. Has the most lakes in the world.<br>2. Has the longest coastline.
+018|018-united-states.jpg|United States|美國|A massive continental country in North America.|Uncle Sam|1. Has the most billionaires.<br>2. Has the most active volcanoes after Indonesia and Japan.
+019|019-mexico.jpg|Mexico|墨西哥|A continental country in North America.|Land of the Aztecs|1. Has the most Spanish speakers.<br>2. Produces the most silver globally.
+020|020-cuba.jpg|Cuba|古巴|An island country in the Caribbean Sea.|El Cocodrilo|1. Has the highest doctor-to-patient ratio in the world.<br>2. Famous for vintage classic American cars.
+021|021-bahamas.jpg|Bahamas|巴哈馬|An archipelago country in the Lucayan Archipelago.|The Islands of the Bahamas|1. Home to the world-famous swimming pigs.<br>2. Features the deepest blue hole in the world (Dean's Blue Hole).
+022|022-jamaica.jpg|Jamaica|牙買加|An island nation in the Caribbean Sea.|Land of Wood and Water|1. Birthplace of reggae music and Bob Marley.<br>2. Produces some of the world's fastest sprinters.
+023|023-haiti.jpg|Haiti|海地|A country situated on the island of Hispaniola in the Greater Antilles.|The Pearl of the Antilles|1. First independent nation in Latin America and the Caribbean.<br>2. First independent black-led republic in the world.
+024|024-dominican-republic.jpg|Dominican Republic|多明尼加共和國|A country on the island of Hispaniola in the Greater Antilles.|DR|1. Site of the oldest permanent European settlement in the Americas.<br>2. World's primary source of rare blue amber.
+025|025-south-africa.jpg|South Africa|南非|A coastal country in Southern Africa.|Rainbow Nation|1. Has the most official languages (12).<br>2. Produces the most platinum.
+026|026-lesotho.jpg|Lesotho|萊索托|A landlocked country enclaved entirely by South Africa.|Kingdom in the Sky|1. The only independent state in the world that lies entirely above 1,000 meters in elevation.<br>2. Completely surrounded by a single neighbor.
+027|027-eswatini.jpg|Eswatini|斯威士蘭|A landlocked country in Southern Africa.|A Royal Swazi Nation|1. One of the world's last absolute monarchies.<br>2. Rich in traditional cultural ceremonies like the Umhlanga Reed Dance.
+028|028-mozambique.jpg|Mozambique|莫桑比克|A country in Southeast Africa bordered by the Indian Ocean.|Terra de Boa Gente|1. Features a modern AK-47 assault rifle on its national flag.<br>2. Home to the stunning Bazaruto Archipelago.
+029|029-zimbabwe.jpg|Zimbabwe|津巴布韋|A landlocked country in Southern Africa famous for dramatic landscape and diverse wildlife.|The Jewel of Africa|1. Home to the majestic Victoria Falls.<br>2. Historically known for the ancient Great Zimbabwe stone city ruins.
+030|030-zambia.jpg|Zambia|贊比亞|A landlocked country in south-central Africa defined by rugged terrain and wildlife parks.|The Real Africa|1. Shares the world-famous Victoria Falls with its neighbor.<br>2. One of the safest and most peaceful countries in Africa.
+031|031-botswana.jpg|Botswana|博茨瓦納|A landlocked country in Southern Africa with a landscape dominated by the Kalahari Desert.|Heart of the Kalahari|1. Home to the lush Okavango Delta, a vast inland river delta.<br>2. One of the world's top producers of gem-quality diamonds.
+032|032-namibia.jpg|Namibia|納米比亞|A country in southwest Africa distinguished by the Namib Desert along its Atlantic coast.|Land of the Brave|1. Home to the highest sand dunes in the world at Sossusvlei.<br>2. Features the surreal landscape of Deadvlei with ancient dead trees.
+033|033-australia.jpg|Australia|澳洲|A continental island in Oceania.|Land Down Under|1. Has the most venomous snakes.<br>2. Has the most wild camels.
+034|034-new-zealand.jpg|New Zealand|紐西蘭|An island country in the southwestern Pacific Ocean.|Land of the Long White Cloud|1. Has more sheep than people.<br>2. First major country to give women the right to vote.
+035|035-tuvalu.jpg|Tuvalu|圖瓦盧|A Polynesian island nation located in the Pacific Ocean.|The Amalgam of Eight Islands|1. One of the smallest and least populated independent countries.<br>2. Generates significant revenue from its coveted .tv internet domain suffix.
+036|036-samoa.jpg|Samoa|薩摩亞|A Polynesian island country comprising the western islands of the Samoan archipelago.|Heart of Polynesia|1. Deeply rooted in the communal lifestyle known as Fa'a Samoa.<br>2. Known as the cradle of Polynesian navigation and culture.
+037|037-fiji.jpg|Fiji|斐濟|An island country in Melanesia, part of Oceania in the South Pacific Ocean.|The Crossroads of the South Pacific|1. Comprises more than 300 islands, of which about 110 are permanently inhabited.<br>2. Famous for its soft coral reefs and as the soft coral capital of the world.
+038|038-tonga.jpg|Tonga|湯加|A Polynesian country and archipelago comprising 169 islands in the southern Pacific Ocean.|The Friendly Islands|1. The only Pacific island nation to avoid formal colonization by European powers.<br>2. The only monarchy in the Pacific region.
+039|039-vanuatu.jpg|Vanuatu|瓦努阿圖|An island country located in the South Pacific Ocean.|The Rising Isle|1. Birthplace of modern land diving, the traditional precursor to bungee jumping.<br>2. Consists of a Y-shaped chain of volcanic islands.
+040|040-solomon-islands.jpg|Solomon Islands|所羅門群島|A sovereign country consisting of six major islands and over 900 smaller islands in Oceania.|The Isles of the Solomons|1. Home to some of the world's most historically significant World War II battle sites.<br>2. Features a high percentage of indigenous Melanesian inhabitants.
+041|041-ecuador.jpg|Ecuador|厄瓜多爾|A country in northwestern South America, bordered by Colombia on the north and Peru on the east and south.|La Mitad del Mundo|1. Named after the equator, which passes right through the country.<br>2. Owns the famous Galápagos Islands, inspiring Charles Darwin's theory of evolution.
+042|042-peru.jpg|Peru|秘魯|A coastal country in South America.|Land of the Incas|1. Has the most varieties of potatoes.<br>2. Has the most extensive pre-Columbian ruins.
+043|043-bolivia.jpg|Bolivia|玻利維亞|A landlocked country located in western-central South America.|El Alto|1. Home to Salar de Uyuni, the world's largest salt flat.<br>2. Features Sucre as its constitutional capital and one of the highest cities in the world.
+044|044-paraguay.jpg|Paraguay|巴拉圭|A landlocked country in central South America bordered by Argentina, Brazil, and Bolivia.|Heart of South America|1. One of the few bilingual countries where an indigenous language (Guaraní) is spoken by the majority.<br>2. Home to the massive Itaipu Dam, one of the largest hydroelectric power plants globally.
+045|045-chile.jpg|Chile|智利|A long, narrow country stretching along South America's western edge.|Land of Poets|1. Possesses the driest non-polar desert (Atacama).<br>2. Produces the most copper.
+046|046-argentina.jpg|Argentina|阿根廷|A vast coastal country in South America.|Land of Silver|1. Consumes the most beef per capita.<br>2. Has the southernmost city in the world (Ushuaia).
+047|047-uruguay.jpg|Uruguay|烏拉圭|A country in southeastern South America, known for its verdant interior and beach-lined coast.|The Switzerland of America|1. Hosted and won the very first FIFA World Cup in 1930.<br>2. Known for having one of the most stable democracies and progressive societies in South America.
+048|048-antarctica.jpg|Antarctica|南極洲|A massive ice-covered continent at the South Pole.|The White Continent|1. Is the coldest continent.<br>2. Is the windiest and driest continent.
+049|049-jordan.jpg|Jordan|約旦|An Arab nation on the East Bank of the Jordan River.|The Hashemite Kingdom|1. Home to Petra, one of the New Seven Wonders of the World.<br>2. Features the Dead Sea, the lowest point on Earth's land surface.
+050|050-united-arab-emirates.jpg|United Arab Emirates|阿拉伯聯合酋長國|A coastal country in the Middle East.|The Emirates|1. Has the tallest building in the world (Burj Khalifa).<br>2. Has the most luxurious police car fleet.
+051|051-qatar.jpg|Qatar|卡塔爾|A peninsula country occupying the small Qatar Peninsula on the northeastern coast of the Arabian Peninsula.|The Pearl of the Gulf|1. Possesses one of the highest GDP per capita in the world.<br>2. Home to Al Jazeera, the major international news network.
+052|052-kuwait.jpg|Kuwait|科威特|A country in Western Asia, situated in the northern edge of Eastern Arabia at the tip of the Persian Gulf.|The Pearl of the Persian Gulf|1. Features the iconic Kuwait Towers as its major national landmark.<br>2. Home to one of the world's most valuable currencies (Kuwaiti Dinar).
+053|053-bahrain.jpg|Bahrain|巴林|An island country in Western Asia situated in the Persian Gulf.|The Land of Two Seas|1. The smallest island nation in the Middle East.<br>2. Historically renowned for its ancient pearl diving industry.
+054|054-saudi-arabia.jpg|Saudi Arabia|沙特阿拉伯|A country in Western Asia constituting the bulk of the Arabian Peninsula.|Land of the Two Holy Mosques|1. The largest country in the world without a permanent river.<br>2. Largest oil exporter.
+055|055-yemen.jpg|Yemen|也門|A country at the southern end of the Arabian Peninsula in Western Asia.|Arabia Felix|1. Home to the ancient skyscraper city of Shibam, often called the "Manhattan of the Desert".<br>2. Features the unique and biologically diverse Socotra Island.
+056|056-oman.jpg|Oman|阿曼|A country on the southeastern coast of the Arabian Peninsula in Western Asia.|The Jewel of Arabia|1. One of the oldest independent states in the Arab world.<br>2. Renowned for producing world-class frankincense.
+057|057-iceland.jpg|Iceland|冰島|An island nation in the North Atlantic.|Land of Fire and Ice|1. Is the most peaceful country globally.<br>2. Has the most geysers in Europe.
+058|058-denmark.jpg|Denmark|丹麥|A Scandinavian country in Northern Europe.|Kingdom of Denmark|1. Consonsidered one of the oldest monarchies.<br>2. Has the most bicycles.
+059|059-norway.jpg|Norway|挪威|A coastal country on the Scandinavian Peninsula.|Land of the Midnight Sun|1. Has the most fjords.<br>2. Has won the most Winter Olympic medals.
+060|060-sweden.jpg|Sweden|瑞典|A Scandinavian country in Northern Europe.|Land of the Midnight Sun|1. Has the most islands of any European country.<br>2. Has the most corporate headquarters per capita.
+061|061-finland.jpg|Finland|芬蘭|A Nordic country in Northern Europe.|Land of a Thousand Lakes|1. Has the most saunas per capita.<br>2. Ranked as the happiest country.
+062|062-estonia.jpg|Estonia|愛沙尼亞|A country in the Baltic region of Northern Europe.|Eesti|1. One of the most digitally advanced societies with e-Residency.<br>2. Over half of its land area is covered by forests.
+063|063-latvia.jpg|Latvia|拉脫維亞|A country in the Baltic region of Northern Europe.|Land of Blue Lakes|1. Features one of the widest waterfall rapids in Europe (Venta Rapid).<br>2. Riga boasts one of the highest concentrations of Art Nouveau architecture in Europe.
+064|064-lithuania.jpg|Lithuania|立陶宛|A country in the Baltic region of Europe.|The Land of Castles|1. Geographically considered the geographical center of Europe.<br>2. Famous for traditional amber craftsmanship and basket weaving.
+065|065-morocco.jpg|Morocco|摩洛哥|A country in the Maghreb region of North Africa, overlooking the Mediterranean Sea and Atlantic Ocean.|Land of the Sunset|1. Home to the world's oldest continuously operating university (University of al-Qarawiyyin).<br>2. Famous for its vibrant historical medinas and Atlas Mountains.
+067|067-tunisia.jpg|Tunisia|突尼斯|A country in the Maghreb region of North Africa, bordered by Algeria and Libya.|The Balcony of the Mediterranean|1. Location of the ancient and historic ruins of Carthage.<br>2. The northernmost country in Africa.
+069|069-egypt.jpg|Egypt|埃及|A transcontinental country in North Africa and Southwest Asia.|Gift of the Nile|1. Has the most ancient pyramids in the Arab world.<br>2. Has the most populous city in the Middle East.
+071|071-south-sudan.jpg|South Sudan|南蘇丹|A landlocked country in East-Central Africa.|The Nilotic Republic|1. The world's newest sovereign state, gaining independence in 2011.<br>2. Home to one of the largest wildlife migrations on the African continent.
+073|073-philippines.jpg|Philippines|菲律賓|An archipelago in Southeast Asia.|Pearl of the Orient Seas|1. Exports the most nurses globally.<br>2. Has the most diverse marine life in its coral reefs.
+074|074-papua-new-guinea.jpg|Papua New Guinea|巴布亞新幾內亞|A country in Oceania that occupies the eastern half of the island of New Guinea.|The Land of the Unexpected|1. One of the most culturally diverse countries in the world with over 800 indigenous languages.<br>2. Features rugged, remote terrain and dense rainforests.
+075|075-palau.jpg|Palau|帛琉|An island country consisting of about 340 coral and volcanic islands in Micronesia.|The Rainbow's End|1. Created the world's first shark sanctuary in its territorial waters.<br>2. Famous for the Jellyfish Lake where swimmers can safely swim with millions of harmless jellyfish.
+076|076-micronesia.jpg|Micronesia|密克羅尼西亞|A sovereign island country consisting of four states spread across the western Pacific Ocean.|The Federated States|1. Comprises over 600 tiny islands scattered across the vast Pacific.<br>2. Home to the mysterious ancient ruined stone city of Nan Madol.
+077|077-marshall-islands.jpg|Marshall Islands|馬紹爾群島|An island country located in the central Pacific Ocean.|The Pacific Paradise|1. Encloses one of the world's largest atolls, Kwajalein Atoll.<br>2. Comprises over 1,000 islands and islets grouped into 29 coral atolls.
+078|078-kiribati.jpg|Kiribati|基里巴斯|An independent island nation in the central Pacific Ocean.|The Oceanic Haven|1. The only country in the world situated in all four hemispheres.<br>2. Consists of 33 coral atolls and reef islands.
+079|079-nauru.jpg|Nauru|瑙魯|An island country in Micronesia, northeast of Australia.|The Pleasant Island|1. The smallest island nation in the world.<br>2. The world's smallest independent republic.
+081|081-india.jpg|India|印度|A country in South Asia, spanning the bulk of the Indian subcontinent.|Land of Spites|1. The most populous democracy in the world.<br>2. Home to the Taj Mahal, one of the New Seven Wonders of the World.
+082|082-pakistan.jpg|Pakistan|巴基斯坦|A country in South Asia, situated at the crossroads of South Asia, Central Asia, and Western Asia.|Land of the Pure|1. Home to K2, the world's second-highest mountain.<br>2. Features one of the world's oldest irrigation systems.
+083|083-sri-lanka.jpg|Sri Lanka|斯里蘭卡|An island country in South Asia, located in the Indian Ocean.|Pearl of the Indian Ocean|1. World-renowned for producing Ceylon tea.<br>2. Home to Sigiriya, an ancient rock fortress and palace ruin.
+084|084-maldives.jpg|Maldives|馬爾代夫|An archipelago country in the Indian Ocean comprising 26 coral atolls.|The Sunny Side of Life|1. The lowest-lying country in the world.<br>2. Famous for its overwater luxury resorts and crystal-clear waters.
+085|085-bangladesh.jpg|Bangladesh|孟加拉國|A country in South Asia, bordered by India and Myanmar, and sharing a coastline on the Bay of Bengal.|Land of Rivers|1. Home to the Sundarbans, the largest mangrove forest in the world.<br>2. One of the most densely populated countries globally.
+086|086-nepal.jpg|Nepal|尼泊爾|A landlocked country in South Asia along the Himalayas.|Himalayan Kingdom|1. Home to Mount Everest, the highest peak on Earth.<br>2. The birthplace of Siddhartha Gautama (Buddha).
+087|087-bhutan.jpg|Bhutan|不丹|A landlocked country in South Asia situated in the eastern Himalayas.|Land of the Thunder Dragon|1. Measures national progress by Gross National Happiness.<br>2. The world's only carbon-negative country.
+088|088-myanmar.jpg|Myanmar|緬甸|A country in Southeast Asia bordered by Bangladesh, India, China, Laos, and Thailand.|Golden Land|1. Home to the ancient archaeological zone of Bagan with thousands of Buddhist temples.<br>2. Renowned for its high-quality rubies and jade.
+089|089-russia.jpg|Russia|俄羅斯|A transcontinental country spanning Eastern Europe and Northern Asia.|The Land of the Tsars|1. The largest country in the world by land area.<br>2. Home to Lake Baikal, the deepest and oldest freshwater lake in the world.
+090|090-ukraine.jpg|Ukraine|烏克蘭|A country in Eastern Europe, bordered by Russia, Belarus, Poland, Slovakia, Hungary, Romania, and Moldova.|The Breadbasket of Europe|1. Home to vast expanses of fertile black soil (chernozem).<br>2. Features a rich history of intricate pysanky (traditional Ukrainian Easter eggs).
+091|091-belarus.jpg|Belarus|白俄羅斯|A landlocked country in Eastern Europe, bordered by Russia, Ukraine, Poland, Lithuania, and Latvia.|The Lungs of Europe|1. Home to the Belovezhskaya Pushcha, one of Europe's last primeval forests.<br>2. Known as the country of thousands of blue lakes.
+092|092-poland.jpg|Poland|波蘭|A country in Central Europe, bordered by Germany, the Czech Republic, Slovakia, Ukraine, Belarus, Lithuania, and Russia.|The Heart of Europe|1. Home to the historic Wieliczka Salt Mine.<br>2. Features the largest castle in the world by land area (Malbork Castle).
+093|093-czech-republic.jpg|Czechia|捷克|A landlocked country in Central Europe.|Heart of Europe|1. Famous for its historic castles.<br>2. Renowned worldwide for beer production.
+094|094-slovenia.jpg|Slovenia|斯洛文尼亞|A country in Central Europe known for its mountains and lakes.|Sunny Side of the Alps|1. Famous for the picturesque Lake Bled.<br>2. Has an immense cave system at Postojna.
+095|095-slovakia.jpg|Slovakia|斯洛伐克|A landlocked country in Central Europe.|The Heart of Europe|1. Features numerous castles and chateaux.<br>2. Home to the stunning High Tatras mountains.
+096|096-hungary.jpg|Hungary|匈牙利|A landlocked country in Central Europe.|Land of Waters|1. Known for the thermal baths of Budapest.<br>2. Home to Lake Balaton, Central Europe's largest lake.
+097|097-brazil.jpg|Brazil|巴西|The largest country in both South America and Latin America.|The Land of the Holy Cross|1. Home to the Amazon Rainforest.<br>2. Famous for the lively Carnival festival in Rio de Janeiro.
+098|098-colombia.jpg|Colombia|哥倫比亞|A country in South America with territories in North America.|Gateway to South America|1. Renowned for its high-quality coffee production.<br>2. Features diverse landscapes from beaches to the Andes.
+099|099-venezuela.jpg|Venezuela|委內瑞拉|A country on the northern coast of South America.|Land of Grace|1. Home to Angel Falls, the world's highest uninterrupted waterfall.<br>2. Possesses massive oil reserves.
+100|100-suriname.jpg|Suriname|蘇里南|A small country on the northeastern coast of South America.|The Beating Heart of the Amazon|1. One of the most forested countries in the world.<br>2. The only sovereign nation outside Europe where Dutch is spoken.
+101|101-guyana.jpg|Guyana|圭亞那|A country on the northern mainland of South America.|Land of Many Waters|1. Famous for the spectacular Kaieteur Falls.<br>2. Has dense, untouched pristine rainforests.
+102|102-grenada.jpg|Grenada|格林納達|An island country in the West Indies in the Caribbean Sea.|The Spice Isle|1. A major producer of nutmeg and mace.<br>2. Features underwater sculpture parks.
+103|103-trinidad-and-tobago.jpg|Trinidad and Tobago|特立尼達和多巴哥|A twin-island country in the Caribbean.|Land of the Hummingbird|1. Birthplace of the steelpan drum.<br>2. Famous for its vibrant Carnival celebrations.
+104|104-barbados.jpg|Barbados|巴巴多斯|An island country in the Lesser Antilles of the West Indies.|Little England|1. The birthplace of rum.<br>2. Known for its beautiful coral-sand beaches.
+105|105-ethiopia.jpg|Ethiopia|埃塞俄比亞|A landlocked country in the Horn of Africa.|Cradle of Mankind|1. Believed to be the origin place of the coffee bean.<br>2. The oldest independent country in Africa.
+109|109-kenya.jpg|Kenya|肯雅|A country in East Africa with coastline on the Indian Ocean.|Pride of Africa|1. Famous for the Great Rift Valley.<br>2. Renowned for its classic savanna safaris.
+110|110-uganda.jpg|Uganda|烏干達|A landlocked country in East Africa.|Pearl of Africa|1. Home to the endangered mountain gorillas.<br>2. Includes a large portion of Lake Victoria.
+111|111-rwanda.jpg|Rwanda|盧旺達|A landlocked country in the Great Rift Valley of Central Africa.|Land of a Thousand Hills|1. Known for its incredible mountain gorilla trekking.<br>2. Extremely clean, famously banning plastic bags in 2008.
+112|112-burundi.jpg|Burundi|布隆迪|A landlocked country in the Great Rift Valley.|The Heart of Africa|1. Home to the southernmost source of the Nile River.<br>2. Features the expansive Lake Tanganyika on its border.
+113|113-thailand.jpg|Thailand|泰國|A country in Southeast Asia.|Land of Smiles|1. Famous for its ornate Buddhist temples.<br>2. Known for its spectacular tropical beaches and vibrant street food.
+114|114-vietnam.jpg|Vietnam|越南|A country in Southeast Asia on the eastern edge of the Indochinese Peninsula.|Land of the Blue Dragon|1. Known for its rivers, beaches, and bustling cities.<br>2. Famous for the stunning limestone islands of Ha Long Bay.
+115|115-laos.jpg|Laos|老撾|The only landlocked country in Southeast Asia.|Land of a Million Elephants|1. Known for its mountainous terrain and French colonial architecture.<br>2. The Mekong River traverses the country.
+116|116-cambodia.jpg|Cambodia|柬埔寨|A country located in the southern portion of the Indochina peninsula in Southeast Asia.|Kingdom of Wonder|1. Home to the massive Angkor Wat temple complex.<br>2. Located along the mighty Mekong Delta.
+117|117-malaysia.jpg|Malaysia|馬來西亞|A country in Southeast Asia, separated into two regions by the South China Sea.|Truly Asia|1. Famous for the iconic Petronas Twin vertical towers.<br>2. Renowned for its diverse cultural heritage and rainforests.
+118|118-singapore.jpg|Singapore|新加坡|A sovereign island city-state in maritime Southeast Asia.|The Lion City|1. Known for its incredible cleanliness and strict laws.<br>2. Features the stunning Gardens by the Bay.
+119|119-brunei.jpg|Brunei|汶萊|A tiny nation on the island of Borneo.|Abode of Peace|1. Known for its beautiful mosques and Islamic architecture.<br>2. Extremely wealthy due to vast oil and gas reserves.
+120|120-indonesia.jpg|Indonesia|印尼|A country in Southeast Asia and Oceania, between the Indian and Pacific oceans.|The Emerald of the Equator|1. The world's largest archipelagic state.<br>2. Home to the Komodo dragon.
+121|121-greece.jpg|Greece|希臘|A country in southeastern Europe with thousands of islands.|The Cradle of Western Civilization|1. Known as the birthplace of democracy and the Olympic Games.<br>2. Famous for its ancient ruins, like the Acropolis.
+122|122-albania.jpg|Albania|阿爾巴尼亞|A country on the Balkan Peninsula in Southeastern Europe.|Land of the Eagles|1. Known for having hundreds of thousands of concrete bunkers.<br>2. Features a stunning pristine coastline along the Riviera.
+123|123-montenegro.jpg|Montenegro|黑山|A country in Southeast Europe on the Adriatic coast.|Black Mountain|1. Famous for the spectacular Bay of Kotor.<br>2. A relatively young country, gaining independence in 2006.
+124|124-serbia.jpg|Serbia|塞爾維亞|A landlocked country at the crossroads of Central and Southeast Europe.|Crossroads of the Balkans|1. Famous for its vibrant capital city, Belgrade.<br>2. Known for its historical orthodox monasteries.
+125|125-romania.jpg|Romania|羅馬尼亞|A country at the crossroads of Central, Eastern, and Southeastern Europe.|The Carpathian Garden|1. Famous for the legend of Dracula in the Transylvania region.<br>2. Home to the heavily forested Carpathian Mountains.
+126|126-bulgaria.jpg|Bulgaria|保加利亞|A Balkan nation with diverse terrain encompassing Black Sea coastline.|Land of Roses|1. One of the largest producers of rose oil globally.<br>2. Features ancient cities and rich Thracian history.
+127|127-north-macedonia.jpg|North Macedonia|北馬其頓|A landlocked country in Southeast Europe.|The Pearl of the Balkans|1. Home to Lake Ohrid, one of Europe's oldest and deepest lakes.<br>2. Features a mix of Balkan and Mediterranean influences.
+128|128-bosnia-and-herzegovina.jpg|Bosnia and Herzegovina|波斯尼亞和黑塞哥維那|A country on the Balkan Peninsula in Southeastern Europe.|The Heart Shaped Land|1. Famous for the Stari Most (Old Bridge) in Mostar.<br>2. Known for its beautiful mountains and rivers.
+129|129-belize.jpg|Belize|伯利茲|A nation on the eastern coast of Central America.|The Jewel|1. Home to the massive Belize Barrier Reef.<br>2. The only Central American country where English is the official language.
+130|130-guatemala.jpg|Guatemala|危地馬拉|A country in Central America south of Mexico.|Land of Eternal Spring|1. Known for its ancient Mayan ruins, such as Tikal.<br>2. Home to several impressive, active volcanoes.
+131|131-el-salvador.jpg|El Salvador|薩爾瓦多|The smallest and most densely populated country in Central America.|Land of Volcanoes|1. Famous for its world-class surfing beaches.<br>2. Adopted Bitcoin as legal tender.
+132|132-honduras.jpg|Honduras|洪都拉斯|A Central American country with Caribbean Sea coastlines to the north.|The Banana Republic|1. Home to the ancient Mayan ruins of Copán.<br>2. Features the incredible diving spot of Roatán.
+133|133-nicaragua.jpg|Nicaragua|尼加拉瓜|The largest country in the Central American isthmus.|Land of Lakes and Volcanoes|1. Home to Lake Nicaragua, the only freshwater lake with sharks.<br>2. Known for its dramatic volcanic landscapes.
+134|134-costa-rica.jpg|Costa Rica|哥斯達黎加|A rugged, rainforested Central American country.|The Rich Coast|1. Known for its incredible biodiversity and eco-tourism.<br>2. A country that famously abolished its army in 1948.
+135|135-panama.jpg|Panama|巴拿馬|A country on the isthmus linking Central and South America.|Bridge of the World|1. Famous for the engineering marvel, the Panama Canal.<br>2. Uses the US Dollar as its primary currency alongside the Balboa.
+138|138-democratic-republic-of-congo.jpg|Democratic Republic of the Congo|剛果民主共和國|A country in Central Africa, and the second-largest in Africa.|The Heart of Africa|1. Home to massive, resource-rich rainforests.<br>2. Features incredible wildlife including the endemic okapi.
+145|145-kazakhstan.jpg|Kazakhstan|哈薩克斯坦|A Central Asian country and former Soviet republic.|The Great Steppe|1. The world's largest landlocked country.<br>2. Home to the Baikonur Cosmodrome, a major spaceport.
+146|146-kyrgyzstan.jpg|Kyrgyzstan|吉爾吉斯斯坦|A rugged Central Asian country along the Silk Road.|The Switzerland of Central Asia|1. Famous for its dramatic, highly elevated mountain peaks.<br>2. Known for its nomadic traditions and yurt camps.
+147|147-tajikistan.jpg|Tajikistan|塔吉克斯坦|A mountainous, landlocked country in Central Asia.|The Roof of the World|1. Over 90% of its territory is mountainous.<br>2. Features the stunning Pamir Highway.
+148|148-uzbekistan.jpg|Uzbekistan|烏茲別克斯坦|A doubly landlocked country in Central Asia.|The Jewel of the Silk Road|1. Famous for incredible Islamic architecture in cities like Samarkand.<br>2. Deeply connected to the historic Silk Road.
+149|149-turkmenistan.jpg|Turkmenistan|土庫曼斯坦|A country in Central Asia bordered by the Caspian Sea.|The Marble City (Ashgabat)|1. Home to the famous Darvaza Gas Crater (Door to Hell).<br>2. Its capital holds records for the most white marble-clad buildings.
+150|150-azerbaijan.jpg|Azerbaijan|阿塞拜疆|A nation and former Soviet republic bounding the Caspian Sea.|Land of Fire|1. Known for its burning mountain, Yanar Dag.<br>2. The capital, Baku, blends historic and ultra-modern architecture.
+151|151-georgia.jpg|Georgia|格魯吉亞|A country at the intersection of Europe and Asia.|The Balcony of Europe|1. Widely considered one of the birthplaces of wine.<br>2. Famous for the stunning Caucasus Mountains.
+152|152-armenia.jpg|Armenia|亞美尼亞|A nation, and former Soviet republic, in the mountainous Caucasus region.|Land of Noah|1. The first country to adopt Christianity as its state religion.<br>2. Famous for its beautiful, ancient monasteries.
+153|153-italy.jpg|Italy|意大利|A European country with a long Mediterranean coastline.|The Boot|1. Has the most UNESCO World Heritage Sites globally.<br>2. Known for its profound impact on Western culture and cuisine.
+154|154-vatican-city.jpg|Holy See (Vatican City)|梵蒂岡|An independent city-state enclaved within Rome, Italy.|The Holy See|1. The smallest sovereign state in the world by both area and population.<br>2. The spiritual and administrative center of the Roman Catholic Church.
+155|155-san-marino.jpg|San Marino|聖馬力諾|A mountainous microstate surrounded by north-central Italy.|The Serene Republic|1. Claims to be the world's oldest surviving sovereign state.<br>2. Completely surrounded by Italy.
+156|156-malta.jpg|Malta|馬耳他|An archipelago in the central Mediterranean between Sicily and the North African coast.|The Fortress Island|1. Known for historical sites related to a succession of rulers.<br>2. One of the most densely populated countries in the world.
+157|157-cyprus.jpg|Cyprus|塞浦路斯|An island country in the eastern Mediterranean Sea.|Island of Aphrodite|1. Divided into a Greek southern and Turkish northern portion.<br>2. Known for beautiful beaches and ancient ruins.
+158|158-austria.jpg|Austria|奧地利|A landlocked East Alpine country in the southern part of Central Europe.|The Musical Nation|1. Famous for classical music composers like Mozart and Strauss.<br>2. Features stunning alpine landscapes.
+159|159-switzerland.jpg|Switzerland|瑞士|A mountainous Central European country.|Land of Milk and Honey|1. Famous for its historic neutrality in global conflicts.<br>2. Renowned for banking, chocolate, and the Alps.
+160|160-croatia.jpg|Croatia|克羅地亞|A country at the crossroads of Central and Southeast Europe on the Adriatic Sea.|Land of a Thousand Islands|1. Famous for the historic walled city of Dubrovnik.<br>2. Features a stunning coastline with crystal-clear waters.
+161|161-saint-vincent-and-grenadines.jpg|Saint Vincent and the Grenadines|聖文森特和格林納丁斯|A southern Caribbean nation comprising a main island and a chain of smaller islands.|Hairoun|1. Known for its volcanic landscapes and yacht-filled harbors.<br>2. A popular filming location for the "Pirates of the Caribbean" movies.
+162|162-saint-lucia.jpg|Saint Lucia|聖盧西亞|An Eastern Caribbean island nation with a pair of dramatically tapered mountains.|Helen of the West|1. Famous for the Pitons, two striking volcanic spires.<br>2. Known for its reef-diving and luxury resorts.
+163|163-antigua-and-barbuda.jpg|Antigua and Barbuda|安提瓜和巴布達|An independent Commonwealth country comprising its two namesake islands and several smaller ones.|Land of 365 Beaches|1. Famous for having a different beach for every day of the year.<br>2. Renowned for its sailing week and clear waters.
+164|164-dominica.jpg|Dominica|多米尼克|A mountainous Caribbean island nation with natural hot springs and tropical rainforests.|The Nature Isle of the Caribbean|1. Home to the world's second-largest hot spring, Boiling Lake.<br>2. Known for its exceptionally lush and unspoiled natural beauty.
+165|165-saint-kitts-and-nevis.jpg|Saint Kitts and Nevis|聖基茨和尼維斯|A dual-island nation situated between the Atlantic Ocean and Caribbean Sea.|Sugar City|1. The smallest sovereign state in the Western Hemisphere.<br>2. Known for the impressive Brimstone Hill Fortress.
+177|177-turkey.jpg|Turkey|土耳其|A nation straddling eastern Europe and western Asia.|The Crossroads of the World|1. Home to the ancient city of Troy.<br>2. Famous for the unique landscapes of Cappadocia.
+178|178-andorra.jpg|Andorra|安道爾|A tiny, independent principality situated between France and Spain.|The Pyrenean Microstate|1. Known for its ski resorts and tax-haven status.<br>2. Located entirely within the Pyrenees mountains.
+179|179-moldova.jpg|Moldova|摩爾多瓦|An Eastern European country and former Soviet republic.|The Wine Country|1. Contains some of the largest wine cellars in the world.<br>2. Includes the breakaway territory of Transnistria.
+180|180-monaco.jpg|Monaco|摩納哥|A sovereign city-state and microstate on the French Riviera.|The Billionaires' Playground|1. The second-smallest country in the world.<br>2. Famous for the glamorous Monte Carlo Casino and Grand Prix.
+181|181-liechtenstein.jpg|Liechtenstein|列支敦士登|A doubly landlocked German-speaking microstate in Central Europe.|The Alpine Principality|1. One of only two doubly landlocked countries globally.<br>2. Features medieval castles and alpine landscapes.
+182|182-luxembourg.jpg|Luxembourg|盧森堡|A small European country, surrounded by Belgium, France and Germany.|The Grand Duchy|1. The world's only remaining sovereign Grand Duchy.<br>2. Has one of the highest GDP per capita rates in the world.
+183|183-kosovo.jpg|Kosovo|科索沃|A partially recognized state in Southeast Europe.|The Young European|1. Declared independence from Serbia in 2008.<br>2. Features a very young population demographically.
+184|184-timor-leste.jpg|Timor-Leste|東帝汶|A Southeast Asian nation occupying half the island of Timor.|The Sunrise Nation|1. One of the newest countries, gaining independence in 2002.<br>2. Known for its untouched coral reefs and marine life.
+193|193-seychelles.jpg|Seychelles|塞舌爾|An archipelago of 115 islands in the Indian Ocean, off East Africa.|The Garden of Eden|1. Home to giant Aldabra tortoises.<br>2. Features some of the world's most pristine and photographed beaches.
+194|194-tanzania.jpg|Tanzania|坦桑尼亞|An East African country known for its vast wilderness areas.|The Safari Capital|1. Home to Mount Kilimanjaro, Africa's highest peak.<br>2. Famous for the Serengeti National Park and wildlife migration.
+195|195-malawi.jpg|Malawi|馬拉維|A landlocked country in southeastern Africa.|The Warm Heart of Africa|1. Home to Lake Malawi, known for its diverse cichlid fish.<br>2. Renowned for the friendliness of its people.
+196|196-comoros.jpg|Comoros|科摩羅|A volcanic archipelago off Africa's east coast.|The Perfume Islands|1. A major producer of ylang-ylang essence used in perfumes.<br>2. Features unique Swahili-Arab culture.
+197|197-madagascar.jpg|Madagascar|馬達加斯加|An island country in the Indian Ocean, off the coast of East Africa.|The Great Red Island|1. Famous for its incredibly unique and endemic wildlife, especially lemurs.<br>2. The fourth largest island in the world.
+198|198-mauritius.jpg|Mauritius|毛里裘斯|An Indian Ocean island nation, known for its beaches, lagoons and reefs.|The Star and Key of the Indian Ocean|1. The only known habitat of the extinct dodo bird.<br>2. Famous for its underwater waterfall illusion.
+201|201-afghanistan.jpg|Afghanistan|阿富汗|A landlocked country located at the crossroads of Central and South Asia.|Graveyard of Empires|1. Features highly rugged and mountainous terrain.<br>2. Known for its historical role on the Silk Road.
+202|202-iran.jpg|Iran|伊朗|A country in Western Asia.|Land of the Aryans|1. Home to one of the world's oldest continuous major civilizations.<br>2. Famous for its exquisite Persian rugs and architecture.
+203|203-iraq.jpg|Iraq|伊拉克|A country in Western Asia, bordered by Turkey to the north, Iran to the east.|The Cradle of Civilization|1. Historically known as Mesopotamia.<br>2. Home to the Tigris and Euphrates rivers.
+204|204-syria.jpg|Syria|敘利亞|A country in Western Asia, bordering Lebanon and the Mediterranean Sea.|The beating heart of Arabism|1. Home to Damascus, one of the oldest continuously inhabited cities.<br>2. Features rich ancient ruins like Palmyra.
+205|205-lebanon.jpg|Lebanon|黎巴嫩|A country in Western Asia, located on the eastern shore of the Mediterranean Sea.|The Pearl of the Middle East|1. Famous for its ancient cedar trees, depicted on its flag.<br>2. A deeply historic intersection of Mediterranean cultures.
+206|206-israel.jpg|Israel|以色列|A Middle Eastern country on the Mediterranean Sea.|The Holy Land|1. Considered by Jews, Christians, and Muslims as the biblical Holy Land.<br>2. Features the highly saline Dead Sea.
+207|207-palestine.jpg|Palestine|巴勒斯坦|A state located in Western Asia, claiming the West Bank and Gaza Strip.|The Holy Land|1. Home to deep historical and religious significance.<br>2. Contains the ancient city of Jericho.
+213|213-faroeislands.jpg|Faroe Islands|法羅群島|A North Atlantic archipelago located 320 kilometres north-northwest of Scotland.|The Sheep Islands|1. An autonomous territory within the Kingdom of Denmark.<br>2. Known for its dramatic cliffs and large puffin colonies.
+`;
+
+    const parsedData = rawData.split('\n').filter(line => line.trim() !== '').map(line => {
+        const parts = line.split('|');
+        const enName = parts[2];
+        const level = levelMapping[enName] || 4; 
+        
+        return {
+            id: parts[0],
+            image: parts[1],
+            enName: enName,
+            zhName: parts[3],
+            desc: parts[4],
+            nickname: parts[5],
+            facts: parts[6],
+            level: level
+        };
+    });
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function startBackgroundMusic() {
+        const bgMusic = document.getElementById('bg-music');
+        bgMusic.volume = 0.2; 
+        bgMusic.play().catch(error => {
+            console.log("Autoplay prevented by browser:", error);
+        });
+    }
+
+    function startQuiz() {
+        initAudio();
+        startBackgroundMusic();
+        
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'flex';
+        
+        totalScore = 0;
+        totalQuestions = 0;
+        currentLevel = 1;
+        startLevel(currentLevel);
+    }
+
+    function startLevel(levelNum) {
+        currentLevelQuestions = parsedData.filter(d => d.level === levelNum);
+        currentLevelQuestions = currentLevelQuestions.sort(() => 0.5 - Math.random()); 
+        
+        if(currentLevelQuestions.length === 0 && levelNum <= maxLevel) {
+            currentLevel++;
+            startLevel(currentLevel);
+            return;
+        }
+
+        levelScore = 0;
+        totalQuestions += currentLevelQuestions.length; 
+        currentQuestionIndex = 0;
+        
+        document.getElementById('level-display').textContent = `Level ${levelNum}`;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQuestionIndex >= currentLevelQuestions.length) {
+            showLevelResults();
+            return;
+        }
+
+        const question = currentLevelQuestions[currentQuestionIndex];
+        
+        document.getElementById('score-display').textContent = `Score: ${levelScore}`;
+        document.getElementById('question-count').textContent = `Q: ${currentQuestionIndex + 1}/${currentLevelQuestions.length}`;
+        
+        document.getElementById('flag-img').src = question.image; 
+        
+        document.getElementById('next-btn-container').style.display = 'none';
+        document.getElementById('fact-box').style.display = 'block';
+        
+        document.getElementById('fact-geo').innerHTML = `<strong>Geography:</strong> ${question.desc}`;
+        document.getElementById('fact-nickname').innerHTML = `<strong>Nickname:</strong> ${question.nickname}`;
+        document.getElementById('fact-most').innerHTML = `<strong>Facts:</strong><br>${question.facts}`;
+
+        generateOptions(question);
+    }
+
+    function generateOptions(correctData) {
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        let allOtherOptions = parsedData.filter(d => d.enName !== correctData.enName);
+        allOtherOptions = allOtherOptions.filter((d, index, self) => 
+            index === self.findIndex((t) => t.enName === d.enName)
+        );
+        allOtherOptions = allOtherOptions.sort(() => 0.5 - Math.random());
+
+        let options = [correctData, allOtherOptions[0], allOtherOptions[1], allOtherOptions[2]];
+        options = options.sort(() => 0.5 - Math.random()); 
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            
+            btn.innerHTML = `<span class="en-text">${opt.enName}</span><span class="zh-text">${opt.zhName}</span>`;
+            
+            btn.onclick = () => checkAnswer(opt.enName === correctData.enName, btn, correctData);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(isCorrect, btnElement, correctData) {
+        const allBtns = document.querySelectorAll('.options-grid .btn');
+        allBtns.forEach(b => b.disabled = true); 
+
+        if (isCorrect) {
+            btnElement.classList.add('correct');
+            playSound('correct');
+            levelScore++;
+            totalScore++; 
+            document.getElementById('score-display').textContent = `Score: ${levelScore}`;
+        } else {
+            btnElement.classList.add('wrong');
+            playSound('wrong');
+            allBtns.forEach(b => {
+                if (b.querySelector('.en-text').textContent === correctData.enName) {
+                    b.classList.add('correct');
+                }
+            });
+        }
+
+        speakAnswer(correctData.enName, correctData.zhName);
+        document.getElementById('next-btn-container').style.display = 'block';
+    }
+
+    function loadNextQuestion() {
+        currentQuestionIndex++;
+        loadQuestion();
+    }
+
+    function showLevelResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'flex';
+        
+        const actionBtn = document.getElementById('result-action-btn');
+        
+        if (currentLevel < maxLevel) {
+            document.getElementById('result-title').textContent = `Level ${currentLevel} Complete!`;
+            document.getElementById('final-score-text').textContent = `You scored ${levelScore} out of ${currentLevelQuestions.length} in Level ${currentLevel}`;
+            
+            actionBtn.textContent = `Start Level ${currentLevel + 1}`;
+            actionBtn.onclick = () => {
+                document.getElementById('result-screen').style.display = 'none';
+                document.getElementById('quiz-screen').style.display = 'flex';
+                currentLevel++;
+                startLevel(currentLevel);
+            };
+        } else {
+            document.getElementById('result-title').textContent = "Game Complete!";
+            document.getElementById('final-score-text').innerHTML = `
+                You scored ${levelScore} out of ${currentLevelQuestions.length} in Level ${currentLevel}.<br>
+                <span class="final-score-highlight">Final Total: ${totalScore} / ${totalQuestions}</span>
+            `;
+            
+            actionBtn.textContent = "Back to Start";
+            actionBtn.onclick = () => {
+                document.getElementById('result-screen').style.display = 'none';
+                document.getElementById('start-screen').style.display = 'flex';
+            };
+        }
+    }
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'start') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.4);
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.4);
+        } else if (type === 'correct') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+            oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1); 
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+
+    function speakAnswer(enText, zhText) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); 
+            const utteranceEn = new SpeechSynthesisUtterance(enText);
+            utteranceEn.lang = 'en-US';
+            utteranceEn.rate = 1.0;
+            const utteranceZh = new SpeechSynthesisUtterance(zhText);
+            utteranceZh.lang = 'zh-HK'; 
+            utteranceZh.rate = 1.0;
+            window.speechSynthesis.speak(utteranceEn);
+            window.speechSynthesis.speak(utteranceZh);
+        }
+    }
+</script>
+</body>
+</html>

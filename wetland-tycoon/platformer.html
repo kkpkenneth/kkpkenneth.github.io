@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Platformer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2c3e50;
+            font-family: sans-serif;
+            color: white;
+        }
+        canvas {
+            background-color: #87CEEB; /* Sky blue */
+            border: 4px solid #34495e;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        #instructions {
+            position: absolute;
+            top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="instructions">
+        <h2>Reach the Apple!</h2>
+        <p>Use <strong>Left/Right Arrows</strong> to move. Use <strong>Up Arrow</strong> to jump.</p>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game State
+        let gameWon = false;
+
+        // Player properties
+        const player = {
+            x: 50,
+            y: 300,
+            width: 24,
+            height: 24,
+            vx: 0,
+            vy: 0,
+            speed: 5,
+            jumpPower: -14, // <--- INCREASED JUMP POWER (was -11)
+            grounded: false
+        };
+
+        const gravity = 0.6;
+
+        // Platform definitions (3 platforms stepping up)
+        const platforms = [
+            { x: 30, y: 350, w: 180, h: 20 },  // Platform 1 (Start)
+            { x: 300, y: 250, w: 150, h: 20 }, // Platform 2 (Middle)
+            { x: 550, y: 150, w: 200, h: 20 }  // Platform 3 (End)
+        ];
+
+        // Apple properties
+        const apple = {
+            x: 650,
+            y: 130, // Just above the third platform
+            radius: 12
+        };
+
+        // Input tracking
+        const keys = {
+            ArrowLeft: false,
+            ArrowRight: false,
+            ArrowUp: false
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.code)) {
+                keys[e.code] = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.code)) {
+                keys[e.code] = false;
+            }
+        });
+
+        function resetGame() {
+            player.x = 50;
+            player.y = 300;
+            player.vx = 0;
+            player.vy = 0;
+            gameWon = false;
+        }
+
+        function update() {
+            if (gameWon) return;
+
+            // Horizontal movement
+            if (keys.ArrowLeft) {
+                player.vx = -player.speed;
+            } else if (keys.ArrowRight) {
+                player.vx = player.speed;
+            } else {
+                player.vx = 0;
+            }
+
+            // Jumping
+            if (keys.ArrowUp && player.grounded) {
+                player.vy = player.jumpPower;
+                player.grounded = false;
+            }
+
+            // Apply gravity
+            player.vy += gravity;
+
+            // Apply velocity
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Reset grounded state before checking collisions
+            player.grounded = false;
+
+            // Platform Collision Logic
+            for (let p of platforms) {
+                // Check if player is within the horizontal bounds of the platform
+                if (player.x < p.x + p.w && player.x + player.width > p.x) {
+                    // Check if player is falling and intersecting the top of the platform
+                    if (player.vy > 0 && 
+                        player.y + player.height >= p.y && 
+                        player.y + player.height <= p.y + player.vy + 1) {
+                        
+                        player.grounded = true;
+                        player.vy = 0;
+                        player.y = p.y - player.height; // Snap to top of platform
+                    }
+                }
+            }
+
+            // Prevent going out of left/right bounds
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+            // Check if player fell off the screen (Death/Reset)
+            if (player.y > canvas.height) {
+                resetGame();
+            }
+
+            // Apple Collision Logic (Simple bounding box/circle overlap check)
+            const playerCenterX = player.x + player.width / 2;
+            const playerCenterY = player.y + player.height / 2;
+            
+            // Distance between player center and apple center
+            const dx = playerCenterX - apple.x;
+            const dy = playerCenterY - (apple.y - apple.radius/2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < apple.radius + player.width / 2) {
+                gameWon = true;
+            }
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Platforms
+            ctx.fillStyle = '#2ecc71'; // Green
+            for (let p of platforms) {
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+                // Dirt underneath grass
+                ctx.fillStyle = '#8e44ad'; // Brownish/Purple dirt
+                ctx.fillRect(p.x, p.y + 5, p.w, p.h - 5);
+                ctx.fillStyle = '#2ecc71'; // Reset to green for next platform
+            }
+
+            // Draw Apple
+            if (!gameWon) {
+                // Apple body
+                ctx.fillStyle = '#e74c3c'; // Red
+                ctx.beginPath();
+                ctx.arc(apple.x, apple.y - apple.radius, apple.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Apple leaf/stem
+                ctx.fillStyle = '#27ae60';
+                ctx.beginPath();
+                ctx.ellipse(apple.x + 4, apple.y - apple.radius - 12, 6, 3, Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw Player
+            if (!gameWon) {
+                ctx.fillStyle = '#3498db'; // Blue square
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                
+                // Player eyes
+                ctx.fillStyle = 'white';
+                ctx.fillRect(player.x + 4, player.y + 4, 4, 4);
+                ctx.fillRect(player.x + 14, player.y + 4, 4, 4);
+            }
+
+            // Draw Win Screen
+            if (gameWon) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '40px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('You got the Apple!', canvas.width / 2, canvas.height / 2 - 20);
+                
+                ctx.font = '20px sans-serif';
+                ctx.fillText('Refresh the page to play again.', canvas.width / 2, canvas.height / 2 + 30);
+            }
+        }
+
+        // Game Loop
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Start the game
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>

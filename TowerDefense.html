@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Poké-Defense: Elemental Sanctum</title>
+    <style>
+        :root { --bg: #050505; --ui: #111; --accent: #a29bfe; --gold: #f1c40f; --red: #ff7675; }
+        body { background: var(--bg); color: #fff; font-family: 'Verdana', sans-serif; margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        
+        #stage { width: 100vw; height: 70vh; background: #08080a; position: relative; overflow: hidden; cursor: crosshair; }
+        #hud { width: 100%; height: 30vh; background: var(--ui); border-top: 4px solid #4834d4; display: flex; justify-content: space-around; align-items: center; padding: 10px; box-sizing: border-box; }
+        
+        #boot { position: absolute; inset: 0; background: #000; z-index: 5000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #boot button { padding: 20px 40px; background: #ef5350; color: #fff; border: 4px solid #fff; font-weight: bold; cursor: pointer; border-radius: 8px; }
+
+        #notif-layer { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 1000; text-align: center; width: 100%; }
+        .toast { background: rgba(0,0,0,0.95); border: 2px solid var(--accent); padding: 15px 30px; font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; animation: toastIn 0.3s forwards, fadeOut 0.5s ease 2.5s forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { to { opacity: 0; } }
+
+        .stat-panel { display: flex; gap: 15px; background: #1a1a1a; padding: 12px; border: 1px solid #333; }
+        .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 85px; }
+        .stat-label { font-size: 0.65rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--accent); font-family: 'Courier New', monospace; }
+
+        .shop { display: grid; grid-template-columns: repeat(5, 90px); gap: 6px; }
+        .item { width: 90px; height: 90px; background: #222; border: 1px solid #444; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 9px; text-align: center; }
+        .item.locked { opacity: 0.1; filter: grayscale(1); }
+        .item.selected { border-color: #fff; box-shadow: 0 0 10px var(--accent); background: #2a2a2a; }
+
+        .sprite { position: absolute; pointer-events: none; transform: translate(-50%, -50%); image-rendering: pixelated; }
+        .mob { width: 50px; height: 50px; z-index: 5; }
+        .mob img { width: 100%; height: 100%; }
+        .hp-bar-container { position: absolute; top: -5px; left: 10%; width: 80%; height: 3px; background: #222; border-radius: 2px; }
+        .hp-bar { height: 100%; background: #2ecc71; width: 100%; }
+        
+        .dmg-float { position: absolute; font-weight: bold; font-size: 0.9rem; animation: floatUp 0.6s forwards; pointer-events: none; z-index: 200; }
+        @keyframes floatUp { to { opacity: 0; transform: translate(-50%, -40px); } }
+
+        .b-rect { width: 4px; height: 12px; }
+        .b-circle { width: 10px; height: 10px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+<div id="boot"><button onclick="start()">START BATTLE</button></div>
+<div id="notif-layer"></div>
+<div id="stage"></div>
+
+<div id="hud">
+    <div class="stat-panel">
+        <div class="stat-item"><span class="stat-label">ENERGY</span><span class="stat-val" id="gold">500</span></div>
+        <div class="stat-item"><span class="stat-label">KILLS</span><span class="stat-val" id="kills">0</span></div>
+        <div class="stat-item"><span class="stat-label">SANITY</span><span class="stat-val" id="lives">100</span></div>
+        <div class="stat-item"><span class="stat-label">TIME</span><span class="stat-val" id="timer">15</span></div>
+    </div>
+    <div class="shop" id="shop-container"></div>
+</div>
+
+<script>
+    let audioCtx, energy = 500, kills = 0, sanity = 100, waveCount = 0, timer = 15;
+    let mobs = [], towers = [], selectedTower = null, unlocks = [];
+    
+    // Type Multipliers: [Attacker][Defender]
+    const types = ["Normal", "Fire", "Water", "Grass", "Electric", "Ice", "Ground", "Flying", "Psychic", "Rock"];
+    const typeTable = {
+        "Fire":   {"Grass": 2.0, "Ice": 2.0, "Water": 0.5, "Fire": 0.5, "Rock": 0.5},
+        "Water":  {"Fire": 2.0, "Ground": 2.0, "Rock": 2.0, "Water": 0.5, "Grass": 0.5},
+        "Grass":  {"Water": 2.0, "Ground": 2.0, "Rock": 2.0, "Fire": 0.5, "Grass": 0.5, "Flying": 0.5},
+        "Electric":{"Water": 2.0, "Flying": 2.0, "Electric": 0.5, "Grass": 0.5, "Ground": 0.0},
+        "Ice":    {"Grass": 2.0, "Ground": 2.0, "Flying": 2.0, "Fire": 0.5, "Water": 0.5, "Ice": 0.5},
+        "Ground": {"Fire": 2.0, "Electric": 2.0, "Rock": 2.0, "Grass": 0.5, "Flying": 0.0},
+        "Flying": {"Grass": 2.0, "Electric": 0.5, "Rock": 0.5},
+        "Rock":   {"Fire": 2.0, "Ice": 2.0, "Flying": 2.0, "Ground": 0.5},
+        "Psychic":{"Normal": 1.2},
+        "Normal": {}
+    };
+
+    const towerData = [
+        { id: 't1', name: 'NORMAL', cost: 30,  unlock: 0,   color: '#A8A878', type: 'Normal', rate: 600 },
+        { id: 't2', name: 'FIRE',   cost: 70,  unlock: 5,   color: '#F08030', type: 'Fire',   rate: 1200 },
+        { id: 't3', name: 'WATER',  cost: 70,  unlock: 12,  color: '#6890F0', type: 'Water',  rate: 1000 },
+        { id: 't4', name: 'GRASS',  cost: 70,  unlock: 20,  color: '#78C850', type: 'Grass',  rate: 1100 },
+        { id: 't5', name: 'ELECTRIC',cost: 130, unlock: 35,  color: '#F8D030', type: 'Electric',rate: 800 },
+        { id: 't6', name: 'ICE',    cost: 150, unlock: 55,  color: '#98D8D8', type: 'Ice',    rate: 1500 },
+        { id: 't7', name: 'GROUND', cost: 140, unlock: 75,  color: '#E0C068', type: 'Ground', rate: 1800 },
+        { id: 't8', name: 'FLYING', cost: 110, unlock: 100, color: '#A890F0', type: 'Flying', rate: 900 },
+        { id: 't9', name: 'ROCK',   cost: 180, unlock: 130, color: '#B8A038', type: 'Rock',   rate: 2000 },
+        { id: 't10', name: 'PSYCHIC',cost: 400, unlock: 160, color: '#F85888', type: 'Psychic',rate: 200 }
+    ];
+
+    // Simplified wave-to-type logic for the first 151
+    function getPokeType(id) {
+        if ([1,2,3,43,44,45].includes(id)) return "Grass";
+        if ([4,5,6,37,38,58,59].includes(id)) return "Fire";
+        if ([7,8,9,54,55,60,61,62].includes(id)) return "Water";
+        if ([10,11,12,13,14,15].includes(id)) return "Flying";
+        if ([25,26,81,82,100,101].includes(id)) return "Electric";
+        if ([27,28,50,51,74,75,76].includes(id)) return "Ground";
+        if ([124,131,144].includes(id)) return "Ice";
+        if ([63,64,65,150,151].includes(id)) return "Psychic";
+        return "Normal";
+    }
+
+    function playNote(freq, type, duration, vol, slide = 0) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        if(slide) osc.frequency.exponentialRampToValueAtTime(slide, audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function showNotif(txt, col) {
+        const d = document.createElement('div');
+        d.className = 'toast'; d.style.color = col; d.innerText = txt;
+        document.getElementById('notif-layer').appendChild(d);
+        setTimeout(() => d.remove(), 2500);
+    }
+
+    function start() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        document.getElementById('boot').style.display = 'none';
+        initShop(); gameLoop(); 
+        showNotif("PREPARATION: 15 SECONDS", "var(--gold)");
+        setInterval(() => {
+            timer--;
+            if(timer <= 0) { timer = 15; triggerWave(); }
+            document.getElementById('timer').innerText = timer;
+        }, 1000);
+    }
+
+    function initShop() {
+        const sc = document.getElementById('shop-container');
+        sc.innerHTML = '';
+        towerData.forEach(t => {
+            const locked = kills < t.unlock;
+            if(!locked && !unlocks.includes(t.id)) {
+                unlocks.push(t.id);
+                if(t.unlock > 0) showNotif(`NEW TYPE: ${t.name}`, t.color);
+            }
+            const div = document.createElement('div');
+            div.className = `item ${locked ? 'locked' : ''} ${selectedTower?.id === t.id ? 'selected' : ''}`;
+            div.innerHTML = `<b style="color:${t.color}">${t.name}</b><br><span>$${t.cost}</span><br>${locked ? 'KILL '+t.unlock : 'READY'}`;
+            if(!locked) div.onclick = (e) => { selectedTower = t; initShop(); e.stopPropagation(); };
+            sc.appendChild(div);
+        });
+    }
+
+    function triggerWave() {
+        waveCount++;
+        const pType = getPokeType(waveCount);
+        showNotif(`WAVE ${waveCount}: ${pType.toUpperCase()} TYPE`, '#ef5350');
+        playNote(150, 'square', 0.6, 0.2, 300);
+        let count = 4 + Math.floor(waveCount / 2);
+        for(let i=0; i<count; i++) setTimeout(spawnMob, i * 700);
+    }
+
+    function spawnMob() {
+        const type = getPokeType(waveCount);
+        const m = { 
+            x:0, y:0, hp: 50 + (waveCount * 25), maxHp: 50 + (waveCount * 25), 
+            progress:0, type: type,
+            el: document.createElement('div') 
+        };
+        m.el.className = 'sprite mob';
+        m.el.innerHTML = `<div class="hp-bar-container"><div class="hp-bar"></div></div><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${waveCount}.png">`;
+        document.getElementById('stage').appendChild(m.el);
+        mobs.push(m);
+    }
+
+    function gameLoop() {
+        mobs.forEach((m, i) => {
+            m.progress += 0.0025;
+            if(m.progress >= 1) {
+                sanity -= 5; document.getElementById('lives').innerText = sanity;
+                m.el.remove(); mobs.splice(i, 1);
+            } else {
+                const sec = 4 * m.progress, idx = Math.floor(sec), t = sec - idx;
+                const path = [{x:0, y:300}, {x:350, y:300}, {x:450, y:150}, {x:750, y:450}, {x:1200, y:200}];
+                m.x = path[idx].x + (path[idx+1].x - path[idx].x) * t;
+                m.y = path[idx].y + (path[idx+1].y - path[idx].y) * t;
+                m.el.style.left = m.x+'px'; m.el.style.top = m.y+'px';
+                m.el.querySelector('.hp-bar').style.width = (m.hp / m.maxHp) * 100 + '%';
+            }
+        });
+        towers.forEach(tw => {
+            if(Date.now() - tw.lastFire > tw.config.rate) {
+                const target = mobs.find(m => Math.hypot(m.x - tw.x, m.y - tw.y) < 220);
+                if(target) { fire(tw, target); tw.lastFire = Date.now(); }
+            }
+        });
+        requestAnimationFrame(gameLoop);
+    }
+
+    function fire(tw, target) {
+        playNote(600, 'triangle', 0.1, 0.04, 300);
+        const b = document.createElement('div');
+        b.className = `sprite b-circle`;
+        b.style.left = tw.x+'px'; b.style.top = tw.y+'px';
+        b.style.backgroundColor = tw.config.color;
+        document.getElementById('stage').appendChild(b);
+        
+        let bx = tw.x, by = tw.y;
+        const bInt = setInterval(() => {
+            const ang = Math.atan2(target.y - by, target.x - bx);
+            bx += Math.cos(ang) * 20; by += Math.sin(ang) * 20;
+            b.style.left = bx+'px'; b.style.top = by+'px';
+            
+            if(Math.hypot(target.x - bx, target.y - by) < 20) {
+                clearInterval(bInt); b.remove();
+                
+                // --- DAMAGE CALCULATION ---
+                let mult = 1.0;
+                if(typeTable[tw.config.type] && typeTable[tw.config.type][target.type] !== undefined) {
+                    mult = typeTable[tw.config.type][target.type];
+                }
+                
+                const finalDmg = 25 * mult;
+                target.hp -= finalDmg;
+                
+                // Visual feedback for effectiveness
+                const df = document.createElement('div');
+                df.className = 'dmg-float';
+                df.style.left = target.x+'px'; df.style.top = target.y+'px';
+                df.style.color = mult > 1 ? '#2ecc71' : (mult < 1 ? '#ff7675' : '#fff');
+                df.innerText = mult > 1 ? "SUPER!" : (mult < 1 ? "WEAK" : "");
+                if(mult === 0) df.innerText = "NO EFFECT";
+                document.getElementById('stage').appendChild(df);
+                setTimeout(() => df.remove(), 600);
+
+                if(target.hp <= 0) die(target);
+            }
+        }, 30);
+    }
+
+    function die(m) {
+        const idx = mobs.indexOf(m);
+        if(idx > -1) {
+            const prize = 20 + (waveCount * 2);
+            energy += prize; kills++;
+            document.getElementById('gold').innerText = energy;
+            document.getElementById('kills').innerText = kills;
+            m.el.remove(); mobs.splice(idx,1);
+            initShop();
+        }
+    }
+
+    document.getElementById('stage').onclick = (e) => {
+        if(selectedTower && energy >= selectedTower.cost) {
+            energy -= selectedTower.cost;
+            document.getElementById('gold').innerText = energy;
+            const t = { x: e.clientX, y: e.clientY, config: selectedTower, lastFire: 0, el: document.createElement('div') };
+            t.el.className = 'sprite';
+            t.el.style = `width:28px; height:28px; background:${selectedTower.color}; border:2px solid #fff; left:${t.x}px; top:${t.y}px; border-radius:50%; box-shadow: 0 0 10px ${selectedTower.color}`;
+            document.getElementById('stage').appendChild(t.el);
+            towers.push(t);
+        }
+    };
+</script>
+</body>
+</html>

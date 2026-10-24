@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11: The Cradle of Passion</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #c4cde0;
+            --highlight-color: rgba(0, 255, 170, 0.25);
+            --btn-bg: #151b2b;
+            --btn-hover: #1f2940;
+            --btn-border: #2a3756;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .story-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #6b7a99;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            position: sticky;
+            top: 0;
+            background: rgba(11, 15, 25, 0.95);
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--btn-border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: #00ffaa;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 110px;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            color: #ffffff;
+        }
+
+        #progress-bar {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            accent-color: #00ffaa;
+            align-self: center;
+        }
+
+        .text-seg {
+            transition: background-color 0.2s ease;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+
+        .speaking {
+            background-color: var(--highlight-color);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button id="play-toggle-btn" onclick="togglePlay()">▶ Read</button>
+        <input type="range" id="progress-bar" min="0" max="100" value="0" step="1" oninput="seekStory(this.value)">
+    </div>
+
+    <div class="story-container" id="story-content">
+        <h1 class="text-seg" data-char="narrator">Chapter 11</h1>
+        <div class="subtitle text-seg" data-char="narrator">The Cradle of Passion</div>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Stepping off the transit carriage, Kenjiro immediately felt the air shift from the artistic calm of the gardens to a wave of intense, dry warmth. This was the Cradle of Passion, a sun-baked land where terracotta rooftops met vibrant plazas, and the rhythmic sound of clapping flamenco heels reverberated through the afternoon heat.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"Whoa. The energy here is completely different,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro murmured, shielding his eyes from the blazing sun as he adjusted his bag. He glanced down at his empty pockets with a wry grin.</span>
+            <span class="text-seg" data-char="kenjiro">"And true to form, our transit fare got us here, which means we are officially back to zero coins. Good thing experiencing this atmosphere doesn't cost a dime."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Your lack of monetary reserves continues to impress me,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun whirred from his perch on Kenjiro's shoulder.</span>
+            <span class="text-seg" data-char="kame">"However, the thermal indices here are exceptionally high, and my sensors register a localized surge of intense emotional frequency nearby."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Following the sound of rapid, furious footwork and snapping guitars, they drifted into a bustling open-air pavilion. In the center of the courtyard, a fiery performer was locked in an intense dance, her heels striking the wooden stage with blistering speed. Sitting right beside the edge of the stage was another navigation AI—an ordinary, fluffy plush cat, watching the performance with deadpan digital focus.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="cat">"A 4/4 syncopated compás executed with 98% temporal precision,"</span>
+            <span class="text-seg" data-char="narrator">the plush cat pilot chimed in, its voice completely flat despite the passionate surroundings.</span>
+            <span class="text-seg" data-char="cat">"Though my partner's stamina is decaying faster than expected."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">As the dancer struck a final, dramatic pose with her arms raised high, the crowd erupted into thunderous applause and tossed coins onto the stage. The dancer bowed deeply, breathless and radiant, before walking over to grab her guitar case.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="dancer">"¡Olé! That is what I call living!"</span>
+            <span class="text-seg" data-char="narrator">she laughed, wiping sweat from her brow and tossing her dark hair. She noticed Kenjiro and Kame-kun watching.</span>
+            <span class="text-seg" data-char="dancer">"Ah, travelers! How do you find the Cradle of Passion?"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"It's blazing fun!"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro replied enthusiastically, smiling back at her vibrant energy.</span>
+            <span class="text-seg" data-char="kenjiro">"I'm Kenjiro, and this is Kame-kun."</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="dancer">"Carmen,"</span>
+            <span class="text-seg" data-char="narrator">she introduced herself with a bright, confident grin, gesturing to the plush cat on her shoulder.</span>
+            <span class="text-seg" data-char="dancer">"And this is my pilot, Sol. You don't just look at it with your eyes—you feel it in your bones! If you are going to survive the heat of this land on your global tour, you have to let the fire take over! In fact, why don't you join me for the next set as my tourist guests?"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Before Kenjiro could protest, Carmen grabbed his hand and pulled him onto the wooden stage. As the guitars struck up a lively rhythm, Kenjiro gamely clapped along and improvised a clumsy, enthusiastic tourist dance, trying his best to keep up. </span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">Realizing his human companion was floundering, Kame-kun hopped down from his resting spot onto the stage. To everyone's absolute shock, the plush-sized turtle began executing surprisingly crisp, rhythmic spins and side-shuffles to the beat, his stuffed flippers moving with comical precision. </span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kame">"Calibrating angular momentum to match regional tempo,"</span>
+            <span class="text-seg" data-char="narrator">Kame-kun deadpanned mid-spin, completely unfazed.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="narrator">The crowd absolutely lost their minds. Shrieks of laughter and roaring applause filled the plaza as people went wild for the dancing turtle, raining a heavy shower of gold and silver coins onto the stage. </span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="dancer">"¡Increíble! Look at you two go!"</span>
+            <span class="text-seg" data-char="narrator">Carmen cheered, scooping up a handful of the tossed coins and pressing them directly into Kenjiro's pockets once the routine ended.</span>
+            <span class="text-seg" data-char="dancer">"You earned every bit of that extra cash for your world tour, dancing tourist!"</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="kenjiro">"I think Kame-kun carried our entire performance,"</span>
+            <span class="text-seg" data-char="narrator">Kenjiro laughed, wiping his forehead and listening to the satisfying jingle of heavy coins in his pocket.</span>
+        </p>
+
+        <p>
+            <span class="text-seg" data-char="dancer">"Now take that reward down to the tavern,"</span>
+            <span class="text-seg" data-char="narrator">Carmen winked, picking up her case.</span>
+            <span class="text-seg" data-char="dancer">"Treat yourselves to a chilled pitcher of sangria, some sizzling plates of gulas al ajillo, a massive pan of seafood paella, and a refreshing bowl of gazpacho before you move on to the Haven of Gourmet!"</span>
+        </p>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        let textSegments = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('story-content');
+            textSegments = Array.from(container.querySelectorAll('.text-seg'));
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.max = textSegments.length - 1;
+        });
+
+        function applyCharacterVoice(utterance, character) {
+            const voices = window.speechSynthesis.getVoices();
+            switch(character) {
+                case 'kenjiro':
+                    utterance.pitch = 1.2; 
+                    utterance.rate = 1; 
+                    utterance.volume = 1; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'kame':
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.15; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'ja-JP'; 
+                    const kameVoice = voices.find(v => v.name === 'Google 日本語' || v.lang === 'ja-JP');
+                    if (kameVoice) utterance.voice = kameVoice;
+                    break;
+                    
+                case 'dancer':
+                    utterance.pitch = 1.3; 
+                    utterance.rate = 1.05; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'es-ES'; 
+                    const dancerVoice = voices.find(v => v.lang.startsWith('es') && v.name.includes('Female')) || voices.find(v => v.lang.startsWith('es'));
+                    if (dancerVoice) utterance.voice = dancerVoice;
+                    break;
+
+                case 'cat':
+                    utterance.pitch = 0.9; 
+                    utterance.rate = 1.0; 
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-US'; 
+                    break;
+
+                case 'system':
+                    utterance.pitch = 0.2; 
+                    utterance.rate = 0.9;  
+                    utterance.volume = 1.0; 
+                    utterance.lang = 'en-GB'; 
+                    break;
+
+                case 'narrator':
+                default:
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 1.0;
+                    utterance.volume = 0.9; 
+                    utterance.lang = 'en-US'; 
+                    break;
+            }
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('play-toggle-btn');
+            
+            if (synth.speaking) {
+                if (synth.paused) {
+                    synth.resume();
+                    btn.innerText = '❚❚ Pause';
+                } else {
+                    synth.pause();
+                    btn.innerText = '▶ Resume';
+                }
+            } else {
+                playStory(currentIndex);
+                btn.innerText = '❚❚ Pause';
+            }
+        }
+
+        function playStory(startIndex = currentIndex) {
+            synth.cancel(); // Clear queue
+            currentIndex = startIndex;
+            const remainingSegments = textSegments.slice(currentIndex);
+            
+            remainingSegments.forEach((segment) => {
+                const text = segment.innerText.trim();
+                if (!text) return;
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                applyCharacterVoice(utterance, segment.getAttribute('data-char'));
+                
+                utterance.onstart = () => {
+                    currentIndex = textSegments.indexOf(segment);
+                    document.getElementById('progress-bar').value = currentIndex;
+                    document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                    segment.classList.add('speaking');
+                    segment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                
+                utterance.onend = () => {
+                    // Reset button if this is the absolute last segment
+                    if (textSegments.indexOf(segment) === textSegments.length - 1) {
+                        document.getElementById('play-toggle-btn').innerText = '▶ Read';
+                    }
+                };
+
+                synth.speak(utterance);
+            });
+        }
+
+        function seekStory(index) {
+            currentIndex = parseInt(index, 10);
+            const btn = document.getElementById('play-toggle-btn');
+            
+            if (synth.speaking && !synth.paused) {
+                synth.cancel();
+                // Brief timeout needed because cancel is asynchronous in some browsers
+                setTimeout(() => {
+                    playStory(currentIndex);
+                    btn.innerText = '❚❚ Pause';
+                }, 50);
+            } else {
+                // Update visuals but wait for user to hit play/resume
+                document.getElementById('progress-bar').value = currentIndex;
+                document.querySelectorAll('.text-seg').forEach(seg => seg.classList.remove('speaking'));
+                textSegments[currentIndex].classList.add('speaking');
+                textSegments[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                if (synth.paused) {
+                    synth.cancel();
+                    btn.innerText = '▶ Read';
+                }
+            }
+        }
+        
+        // Ensures voices are loaded before trying to play
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+    </script>
+</body>
+</html>

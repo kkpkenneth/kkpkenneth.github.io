@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js with dat.GUI Controls</title>
+    
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
+</head>
+<body>
+    <script>
+        // --- 1. Scene, Camera, Renderer Setup ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        renderer.setClearColor(0x111111); // Dark background
+        camera.position.z = 3; 
+
+        // --- 2. Lighting (Needed for MeshStandardMaterial) ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(2, 5, 3);
+        scene.add(directionalLight);
+
+        // --- 3. Create the Mesh ---
+        let geometry = new THREE.BoxGeometry(1, 1, 1);
+        // Use MeshStandardMaterial so it interacts with light and can change color easily
+        const material = new THREE.MeshStandardMaterial({ color: 0x00ffaa });
+        let cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+
+        // --- 4. dat.GUI Setup for Controls ---
+        const gui = new dat.GUI();
+        
+        // Data object to hold the properties we want to control
+        const controlParams = {
+            objectColor: material.color.getHex(),
+            rotationSpeed: 0.01,
+            objectShape: 'Box',
+            regenerateGeometry: function() {
+                // Remove the old mesh from the scene
+                scene.remove(cube);
+                
+                // Create new geometry based on the selected shape
+                if (controlParams.objectShape === 'Box') {
+                    geometry = new THREE.BoxGeometry(1, 1, 1);
+                } else if (controlParams.objectShape === 'Sphere') {
+                    geometry = new THREE.SphereGeometry(0.75, 32, 32);
+                }
+                
+                // Create the new mesh and add it back
+                cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+            }
+        };
+
+        // --- Color Control (Color Picker) ---
+        gui.addColor(controlParams, 'objectColor')
+            .name('Object Color')
+            .onChange(function(value) {
+                // Set the material color based on the color picker's output
+                material.color.set(value);
+            });
+
+        // --- Shape Control (Dropdown) ---
+        gui.add(controlParams, 'objectShape', ['Box', 'Sphere'])
+            .name('Object Shape')
+            .onChange(controlParams.regenerateGeometry); // Call the function to switch shape
+
+        // --- Rotation Speed Control (Slider) ---
+        gui.add(controlParams, 'rotationSpeed', 0, 0.1, 0.001) // Min, Max, Step
+            .name('Rotation Speed');
+
+
+        // --- 5. Animation Loop (Render Loop) ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Use the value from the slider controlParams.rotationSpeed
+            cube.rotation.x += controlParams.rotationSpeed;
+            cube.rotation.y += controlParams.rotationSpeed / 2; // Slower Y rotation
+
+            renderer.render(scene, camera);
+        }
+
+        // --- 6. Handle Window Resize ---
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        // Start the animation
+        animate();
+    </script>
+</body>
+</html>

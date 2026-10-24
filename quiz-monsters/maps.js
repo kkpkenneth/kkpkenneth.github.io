@@ -346,7 +346,7 @@ const WORLD_MAPS = {
     name: 'ALPINE SKY PLATEAU (NORTHWEST)',
     subtitle: 'E: CRAG MOUNTAIN • S: VIRIDIAN FOREST',
     theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#15803d', grassTip: '#86efac', tree: '#1e293b', treeTop: '#38bdf8', rock: '#64748b', rockLight: '#cbd5e1', rockDark: '#334155' },
-    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir', 'aerodactyl'],
+    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir', 'aerodactyl', 'dragonite'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..TTTT....PPPPPP....TTTT..R",

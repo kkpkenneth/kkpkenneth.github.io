@@ -12,15 +12,22 @@ function renderMonsterSVG(speciesOrInstance) {
   const monId = typeof speciesOrInstance === 'string'
     ? speciesOrInstance
     : (speciesOrInstance?.transformedSpeciesId || speciesOrInstance?.id || 'bulbasaur');
+  
   const art = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[monId])
     ? MONSTER_PIXELS[monId]
     : (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[monId] : null);
-  if (!art || !art.grid) return '<svg viewBox="0 0 16 16"></svg>';
+  
+  // Safe fallback if the art grid or palette is missing/undefined
+  if (!art || !Array.isArray(art.grid) || !art.palette) {
+    return '<svg viewBox="0 0 16 16"></svg>';
+  }
 
   let rects = '';
-  for (let y = 0; y < 16; y++) {
+  for (let y = 0; y < art.grid.length; y++) {
     const rowStr = art.grid[y];
-    for (let x = 0; x < 16; x++) {
+    if (typeof rowStr !== 'string') continue; // Prevents crash if row is undefined
+    
+    for (let x = 0; x < rowStr.length; x++) {
       const ch = rowStr.charAt(x);
       if (ch !== '.' && art.palette[ch]) {
         rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${art.palette[ch]}"/>`;

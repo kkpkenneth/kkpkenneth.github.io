@@ -70,7 +70,6 @@
     }
     .pixel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Force captured pokeball states to use a darker crimson red (#991b1b) instead of green */
     .ball-captured,
     #enemySpriteWrapper .bg-emerald-500,
     #enemySpriteWrapper .bg-green-500 {
@@ -195,7 +194,7 @@
     <section id="titleScreenView" class="relative w-full min-h-[500px] sm:min-h-[535px] rounded-lg border-4 border-slate-950 overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-between p-5 sm:p-8 text-center">
       <div class="crt-overlay absolute inset-0 z-10"></div>
       <div class="w-full flex justify-between items-center text-[9px] text-amber-300/80 z-20">
-        <span>★ VER 6.0 • 9 HABITATS &amp; 52 MONSTERS</span>
+        <span>★ VER 6.0 • 17 HABITATS &amp; 52 MONSTERS</span>
         <span>🎨 8-COLOR PIXEL STUDIO</span>
       </div>
 
@@ -207,10 +206,10 @@
           Quiz Monsters
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Travel with Pikachu as your Starter Partner • Explore 9 Biomes • Talk to 46+ Specialists &amp; Wild Overworld Pokémon!
+          Travel with Pikachu as your Starter Partner • Explore 17 Biomes • Talk to Specialists &amp; Wild Overworld Pokémon!
         </p>
 
-        <!-- TITLE MASCOTS: PIKACHU, BULBASAUR, CHARMANDER, SQUIRTLE -->
+        <!-- TITLE MASCOTS -->
         <div class="flex items-center justify-center gap-4 sm:gap-8 mb-6 bg-slate-900/80 border-2 border-slate-700 px-6 py-4 rounded-xl shadow-inner">
           <div id="titleSprite0" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" title="Pikachu"></div>
           <div id="titleSprite1" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.3s;" title="Bulbasaur"></div>
@@ -225,7 +224,7 @@
 
       <div class="w-full retro-box-dark p-3 z-20 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[8px] sm:text-[9px] text-slate-300">
         <div><span class="text-amber-400">EASED 1-TILE STEP:</span> WASD / ARROWS</div>
-        <div><span class="text-emerald-400">9 BIOME MAPS:</span> N/S/E/W + DEEP ZONES</div>
+        <div><span class="text-emerald-400">17 BIOME MAPS:</span> DUAL-TYPE REGIONS &amp; OBSTACLES</div>
         <div><span class="text-pink-400">PARTNER SYSTEM:</span> FOLLOWS IN OVERWORLD</div>
       </div>
     </section>
@@ -319,7 +318,7 @@
           </div>
           <div class="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
             <span id="enemyTypeBadge" class="text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold bg-orange-600">FIRE</span>
-            <span  class="hidden sm:inline text-[8px] text-slate-600 truncate">WILD MONSTER</span>
+            <span class="hidden sm:inline text-[8px] text-slate-600 truncate">WILD MONSTER</span>
           </div>
           <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
             <span class="text-[7px] sm:text-[8px] text-amber-400 font-bold px-0.5 sm:px-1">HP</span>
@@ -452,21 +451,21 @@
   </main>
 
   <footer class="w-full max-w-4xl mt-2 px-2 flex flex-wrap items-center justify-between text-[8px] sm:text-[9px] text-slate-400 gap-2">
-    <div>9 BIOMES: HUB • MOUNTAIN → GLACIER • DESERT → VOLCANO • BEACH → ABYSS • FOREST → SANCTUARY</div>
+    <div>17 BIOMES: HUB • MOUNTAIN, ONSEN, FOUNDRY, BRAMBLE, SPIRE &amp; MORE</div>
     <div>🎨 CLICK "SPRITE STUDIO" TO CUSTOMIZE • 💾 SAVE STORES PROGRESS IN BROWSER</div>
   </footer>
 
   <!-- MODAL 1: SPRITE STUDIO -->
   <div id="spriteStudioModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-2 sm:p-4">
     <div class="w-full max-w-4xl retro-box p-3 sm:p-4 max-h-[85vh] flex flex-col gap-2.5 overflow-hidden">
-      <div class="flex flex-wrap items-center justify-between border-b-2 border-slate-300 pb-2 gap-2 shrink-0">
+      <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2 shrink-0">
         <div>
-          <h2 class="text-xs sm:text-sm font-bold text-slate-900">🎨 16×16 PIXEL SPRITE &amp; OBSTACLE STUDIO</h2>
-          <p class="text-[8px] text-slate-600 mt-0.5">Edit Monsters or Overworld Obstacles • Walkable Toggle • Unified (p, d, l, b, s, t) Palette</p>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">🎨 PIXEL SPRITE &amp; OBSTACLE STUDIO</h2>
+          <p class="text-[8px] text-slate-600 mt-0.5">Edit Monsters or Overworld Obstacles • Walkable Toggle • Unified Palette</p>
         </div>
         <div class="flex items-center gap-1.5">
           <button id="studioModeMonsterBtn" type="button" class="pixel-btn bg-pink-600 text-white text-[8px] px-2.5 py-1 font-bold">👾 MONSTERS</button>
-          <button id="studioModeObstacleBtn" type="button" class="pixel-btn bg-slate-700 text-slate-300 text-[8px] px-2.5 py-1">🌲 OBSTACLES</button>
+          <button id="studioModeObstacleBtn" type="button" class="pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1">🌲 OBSTACLES</button>
           <button id="closeSpriteStudioBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
         </div>
       </div>
@@ -477,7 +476,7 @@
             <div class="flex flex-col gap-2">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex-1 min-w-[140px]">
-                  <label id="studioSelectLabel" class="text-[8px] font-bold text-slate-700 block mb-1">1. SELECT MONSTER:</label>
+                  <label class="text-[8px] font-bold text-slate-700 block mb-1">1. SELECT MONSTER:</label>
                   <select id="studioMonsterSelect" class="w-full border-2 border-slate-800 rounded px-2 py-1 text-[9px] bg-white text-slate-900 font-bold"></select>
                 </div>
                 <div class="flex items-center gap-2 bg-slate-900 text-white px-2 py-1 rounded border-2 border-slate-950 shrink-0">
@@ -525,7 +524,7 @@
             </div>
 
             <div class="flex items-center justify-between border-t border-slate-300 pt-1.5">
-              <span class="text-[8px] font-bold text-slate-800">2. PALETTE SWATCHES (p, d, l, b, s, t):</span>
+              <span class="text-[8px] font-bold text-slate-800">2. PALETTE SWATCHES:</span>
             </div>
 
             <div id="studioBrushList" class="grid grid-cols-2 gap-1.5"></div>
@@ -558,11 +557,8 @@
 
         <div class="bg-slate-100 border-2 border-slate-300 rounded p-2.5 flex flex-col gap-1.5 shrink-0">
           <div class="flex flex-wrap items-center justify-between gap-1.5">
-            <span class="text-[8px] sm:text-[9px] font-bold text-indigo-900">3. RETROFIT CODE EXPORT (`monsters.js` / `characters.js`)</span>
-            <div class="flex items-center gap-1.5">
-              <span id="studioCopyStatus" class="text-[8px] text-emerald-700 font-bold"></span>
-              <button id="studioCopyCodeBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2 py-1">📋 COPY RETROFIT JS CODE</button>
-            </div>
+            <span class="text-[8px] sm:text-[9px] font-bold text-indigo-900">3. RETROFIT CODE EXPORT</span>
+            <button id="studioCopyCodeBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2 py-1">📋 COPY JS CODE</button>
           </div>
           <textarea id="studioCodeTextarea" rows="3" class="w-full border-2 border-slate-400 rounded p-1.5 text-slate-900 bg-white font-mono" style="font-family: var(--mono-font); font-size: 0.9rem;"></textarea>
         </div>
@@ -570,14 +566,13 @@
     </div>
   </div>
 
-  
   <!-- MODAL 2: OVERWORLD DEX / PARTNER VIEWER -->
   <div id="overworldDexModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
     <div class="w-full max-w-xl retro-box p-4 sm:p-5 flex flex-col gap-3">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
         <div>
           <h2 class="text-xs sm:text-sm font-bold text-slate-900">DEX &amp; ACTIVE PARTNER (HABITAT GUIDE)</h2>
-          <p class="text-[9px] text-slate-600 mt-0.5">Click any registered monster to set it as your active Partner! Shows native capture habitat.</p>
+          <p class="text-[9px] text-slate-600 mt-0.5">Click any registered monster to set it as your active Partner!</p>
         </div>
         <button id="closeOverworldDexBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
       </div>
@@ -591,7 +586,7 @@
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
         <div>
           <h2 class="text-xs sm:text-sm font-bold text-slate-900">CUSTOM TRIVIA DECK EDITOR</h2>
-          <p class="text-[9px] text-slate-600 mt-0.5">Add classroom questions with Difficulty ratings (★1–★2) or load a JSON pack</p>
+          <p class="text-[9px] text-slate-600 mt-0.5">Add classroom questions with Difficulty ratings (★1–★2)</p>
         </div>
         <button id="closeEditorBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
       </div>
@@ -641,18 +636,15 @@
 
       <div class="bg-slate-100 border-2 border-slate-300 rounded p-3 flex flex-col gap-2">
         <div class="flex items-center justify-between">
-          <span class="text-[10px] font-bold text-slate-800">JSON QUESTION BANK (IMPORT / EXPORT)</span>
+          <span class="text-[10px] font-bold text-slate-800">JSON QUESTION BANK</span>
           <span id="totalQuestionsCount" class="text-[9px] bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-bold">180 Questions</span>
         </div>
         <textarea id="jsonBankTextarea" rows="4" class="w-full border-2 border-slate-400 rounded p-2 text-slate-900 bg-white" style="font-family: var(--mono-font); font-size: 0.95rem;"></textarea>
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <button id="resetDefaultDeckBtn" type="button" class="pixel-btn bg-slate-500 text-white text-[9px] px-2.5 py-1">RESET DEFAULTS</button>
-          <button id="loadJsonDeckBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[9px] px-3 py-1">LOAD JSON DECK</button>
-        </div>
       </div>
     </div>
   </div>
 
+  <script src="questions.js"></script>
   <script src="monsters.js"></script>
   <script src="overworld.js"></script>
   <script src="battle.js"></script>
@@ -662,7 +654,6 @@
   <script src="characters.js"></script>
 
   <script>
-    // Safe initialization using window properties to avoid block-scoped redeclaration collisions
     if (!window.SAVE_STORAGE_KEY) {
       window.SAVE_STORAGE_KEY = 'pokequiz_dx_v6_save';
     }
@@ -737,95 +728,11 @@
           activeBrush: 'p',
           toolMode: 'BRUSH',
           mirrorX: false,
-          isPainting: false
+          isPainting: false,
+          editTarget: 'MONSTER',
+          selectedObstacleId: 'T'
         }
       };
-    }
-
-    /********************************************************************
-     * 1. MONSTER & HABITAT REGISTRATION HELPERS
-     ********************************************************************/
-    function registerAdditionalFirstStageMonsters() {
-      if (typeof MONSTER_SPECIES === 'undefined') return;
-
-      const template = MONSTER_SPECIES[0] || {};
-      const gridProp = template.pixels ? 'pixels' : (template.grid ? 'grid' : (template.art ? 'art' : 'pixels'));
-
-      const makeGrid = (primaryHex, secondaryHex, eyeHex = '#0f172a', bellyHex = '#fef08a') => ({
-        palette: { p: primaryHex, s: secondaryHex, e: eyeHex, b: bellyHex, w: '#ffffff', d: '#1e293b' },
-        rows: [
-          "....pppppppp....",
-          "...pssssssssp...",
-          "..pssssssssssp..",
-          "..pssewppwessp..",
-          "..psseeppeessp..",
-          "..pssssssssssp..",
-          "...psbbbbbbsp...",
-          "..ppsbbbbbbspp..",
-          "..psbbbbbbbbsp..",
-          "..psbbbbbbbbsp..",
-          "...psbbbbbbsp...",
-          "...ppsssssspp...",
-          "....pp....pp....",
-          "...ppp....ppp...",
-          "................",
-          "................"
-        ]
-      });
-
-      const EXTRA_FIRST_STAGE_MONSTERS = [
-        { id: 'eevee',     name: 'EEVEE',     type: 'NORMAL',   hp: 125, c1: '#b45309', c2: '#d97706', b: '#fef3c7' },
-        { id: 'snorlax',    name: 'SNORLAX',    type: 'NORMAL',   hp: 160, c1: '#0f172a', c2: '#1e3a8a', b: '#fef3c7' },
-        { id: 'onix',       name: 'ONIX',       type: 'ROCK',     hp: 140, c1: '#57534e', c2: '#78716c', b: '#a8a29e' },
-        { id: 'seel',       name: 'SEEL',       type: 'ICE',      hp: 125, c1: '#cbd5e1', c2: '#e2e8f0', b: '#f8fafc' },
-        { id: 'shellder',   name: 'SHELLDER',   type: 'WATER',    hp: 115, c1: '#6d28d9', c2: '#8b5cf6', b: '#f43f5e' },
-        { id: 'jynx',       name: 'JYNX',       type: 'ICE',      hp: 130, c1: '#be123c', c2: '#f43f5e', b: '#fde047' },
-        { id: 'lapras',     name: 'LAPRAS',     type: 'ICE',      hp: 150, c1: '#0284c7', c2: '#38bdf8', b: '#fef08a' },
-        { id: 'articuno',   name: 'ARTICUNO',   type: 'ICE',      hp: 165, c1: '#0369a1', c2: '#38bdf8', b: '#e0f2fe' },
-        { id: 'diglett',    name: 'DIGLETT',    type: 'GROUND',   hp: 110, c1: '#78350f', c2: '#92400e', b: '#f43f5e' },
-        { id: 'doduo',      name: 'DODUO',      type: 'FLYING',   hp: 120, c1: '#92400e', c2: '#b45309', b: '#fde68a' },
-        { id: 'kangaskhan', name: 'KANGASKHAN', type: 'NORMAL',   hp: 145, c1: '#78350f', c2: '#a16207', b: '#fef08a' },
-        { id: 'tauros',     name: 'TAUROS',     type: 'NORMAL',   hp: 140, c1: '#92400e', c2: '#d97706', b: '#78716c' },
-        { id: 'magmar',     name: 'MAGMAR',     type: 'FIRE',     hp: 135, c1: '#dc2626', c2: '#f97316', b: '#fde047' },
-        { id: 'moltres',    name: 'MOLTRES',    type: 'FIRE',     hp: 165, c1: '#ea580c', c2: '#facc15', b: '#fef08a' },
-        { id: 'krabby',     name: 'KRABBY',     type: 'WATER',    hp: 115, c1: '#dc2626', c2: '#fb7185', b: '#fde68a' },
-        { id: 'staryu',     name: 'STARYU',     type: 'WATER',    hp: 120, c1: '#b45309', c2: '#d97706', b: '#facc15' },
-        { id: 'horsea',     name: 'HORSEA',     type: 'WATER',    hp: 115, c1: '#0284c7', c2: '#38bdf8', b: '#fef08a' },
-        { id: 'goldeen',    name: 'GOLDEEN',    type: 'WATER',    hp: 120, c1: '#ef4444', c2: '#f8fafc', b: '#fde047' },
-        { id: 'magikarp',   name: 'MAGIKARP',   type: 'WATER',    hp: 100, c1: '#ea580c', c2: '#f97316', b: '#fde047' },
-        { id: 'slowpoke',   name: 'SLOWPOKE',   type: 'PSYCHIC',  hp: 135, c1: '#ec4899', c2: '#f472b6', b: '#fef3c7' },
-        { id: 'dratini',    name: 'DRATINI',    type: 'DRAGON',   hp: 130, c1: '#2563eb', c2: '#60a5fa', b: '#f8fafc' },
-        { id: 'zapdos',     name: 'ZAPDOS',     type: 'ELECTRIC', hp: 165, c1: '#ca8a04', c2: '#facc15', b: '#1e293b' },
-        { id: 'scyther',    name: 'SCYTHER',    type: 'BUG',      hp: 135, c1: '#15803d', c2: '#22c55e', b: '#fef08a' },
-        { id: 'pinsir',     name: 'PINSIR',     type: 'BUG',      hp: 135, c1: '#78350f', c2: '#a16207', b: '#e7e5e4' },
-        { id: 'tangela',    name: 'TANGELA',    type: 'GRASS',    hp: 125, c1: '#1d4ed8', c2: '#3b82f6', b: '#ef4444' },
-        { id: 'gastly',     name: 'GASTLY',     type: 'GHOST',    hp: 115, c1: '#3b0764', c2: '#6b21a8', b: '#d8b4fe' },
-        { id: 'drowzee',    name: 'DROWZEE',    type: 'PSYCHIC',  hp: 125, c1: '#ca8a04', c2: '#eab308', b: '#78350f' },
-        { id: 'grimer',     name: 'GRIMER',     type: 'POISON',   hp: 125, c1: '#581c87', c2: '#7e22ce', b: '#c084fc' },
-        { id: 'koffing',    name: 'KOFFING',    type: 'POISON',   hp: 125, c1: '#6b21a8', c2: '#9333ea', b: '#fef08a' },
-        { id: 'mewtwo',     name: 'MEWTWO',     type: 'PSYCHIC',  hp: 175, c1: '#cbd5e1', c2: '#e2e8f0', b: '#a855f7' },
-        { id: 'mew',        name: 'MEW',        type: 'PSYCHIC',  hp: 170, c1: '#f472b6', c2: '#fbcfe8', b: '#fce7f3' }
-      ];
-
-      EXTRA_FIRST_STAGE_MONSTERS.forEach(item => {
-        const exists = MONSTER_SPECIES.some(m => m.id === item.id || (m.name && m.name.toUpperCase() === item.name));
-        if (!exists) {
-          const g = makeGrid(item.c1, item.c2, '#0f172a', item.b);
-          const newMon = {
-            id: item.id,
-            name: item.name,
-            type: item.type,
-            maxHp: item.hp,
-            baseHp: item.hp,
-            level: 12,
-            palette: safeClone(g.palette),
-            pixels: safeClone(g.rows),
-            grid: safeClone(g.rows)
-          };
-          newMon[gridProp] = safeClone(g.rows);
-          MONSTER_SPECIES.push(newMon);
-        }
-      });
     }
 
     function findSpeciesObject(speciesOrId) {
@@ -875,9 +782,6 @@
       }
     }
 
-    /********************************************************************
-     * 2. ROBUST SVG-TO-CANVAS CACHE & RECT FALLBACK
-     ********************************************************************/
     const _monsterCanvasImageCache = {};
     const _monsterParsedRectsCache = {};
 
@@ -997,9 +901,6 @@
       }
     }
 
-    /********************************************************************
-     * 3. AUDIO & OVERWORLD HOOKS
-     ********************************************************************/
     function setupAudioExtensions() {
       if (typeof sfx === 'undefined') return;
 
@@ -1041,7 +942,11 @@
         BEACH:     { tempoMs: 220, wave: 'sine',     vol: 0.07, notes: [392.00, 493.88, 587.33, 659.25, 587.33, 493.88, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33] },
         ABYSS:     { tempoMs: 300, wave: 'triangle', vol: 0.06, notes: [196.00, 246.94, 293.66, 369.99, 293.66, 246.94, 164.81, 196.00, 246.94, 293.66, 246.94, 196.00] },
         FOREST:    { tempoMs: 200, wave: 'square',   vol: 0.03, notes: [329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 261.63, 293.66, 329.63, 392.00, 329.63] },
-        SANCTUARY: { tempoMs: 250, wave: 'triangle', vol: 0.05, notes: [329.63, 392.00, 493.88, 659.25, 587.33, 493.88, 392.00, 329.63, 293.66, 369.99, 440.00, 493.88] }
+        SANCTUARY: { tempoMs: 250, wave: 'triangle', vol: 0.05, notes: [329.63, 392.00, 493.88, 659.25, 587.33, 493.88, 392.00, 329.63, 293.66, 369.99, 440.00, 493.88] },
+        ONSEN:     { tempoMs: 225, wave: 'triangle', vol: 0.05, notes: [329.63, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 329.63, 293.66, 329.63, 392.00, 440.00] },
+        FOUNDRY:   { tempoMs: 180, wave: 'sawtooth', vol: 0.03, notes: [220.00, 293.66, 329.63, 440.00, 392.00, 329.63, 293.66, 220.00, 261.63, 329.63, 392.00, 523.25] },
+        BRAMBLE:   { tempoMs: 245, wave: 'triangle', vol: 0.05, notes: [246.94, 293.66, 369.99, 440.00, 369.99, 293.66, 246.94, 220.00, 246.94, 329.63, 369.99, 493.88] },
+        SPIRE:     { tempoMs: 215, wave: 'sine',     vol: 0.06, notes: [587.33, 659.25, 783.99, 987.77, 880.00, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 1046.50] }
       };
 
       const _origStartBGM = sfx.startBGM ? sfx.startBGM.bind(sfx) : null;
@@ -1259,24 +1164,8 @@
           };
         }
       });
-
-      const enemyWrapper = document.getElementById('enemySpriteWrapper');
-      if (enemyWrapper && typeof MutationObserver !== 'undefined') {
-        new MutationObserver(() => {
-          enemyWrapper.querySelectorAll('[fill="#22c55e"], [fill="#10b981"], [fill="#4ade80"], [fill="green"]').forEach(el => {
-            el.setAttribute('fill', '#991b1b');
-          });
-          enemyWrapper.querySelectorAll('.bg-emerald-500, .bg-green-500').forEach(el => {
-            el.classList.remove('bg-emerald-500', 'bg-green-500');
-            el.style.backgroundColor = '#991b1b';
-          });
-        }).observe(enemyWrapper, { childList: true, subtree: true, attributes: true });
-      }
     }
 
-    /********************************************************************
-     * 4. SAVE & RESET
-     ********************************************************************/
     function saveGameProgress() {
       try {
         const payload = {
@@ -1294,9 +1183,6 @@
           badge.textContent = 'GAME SAVED!';
           badge.classList.remove('hidden');
           setTimeout(() => badge.classList.add('hidden'), 2000);
-        }
-        if (window.state.screen === 'OVERWORLD') {
-          setOverworldDialogue('Progress saved! Your caught Dex partners, current map position, and streak have been stored.', 'SYSTEM SAVE', 'SAVED');
         }
       } catch (err) {
         console.warn('Save error:', err);
@@ -1354,9 +1240,6 @@
         badge.classList.remove('hidden');
         setTimeout(() => badge.classList.add('hidden'), 2000);
       }
-      if (window.state.screen === 'OVERWORLD') {
-        setOverworldDialogue('Game progress reset! Starting fresh at Pallet Research Hub with Pikachu!', 'SYSTEM RESET', 'NEW GAME');
-      }
     }
 
     function syncCanvasAspect() {
@@ -1373,9 +1256,6 @@
       }
     }
 
-    /********************************************************************
-     * 5. TITLE SCREEN MASCOTS
-     ********************************************************************/
     function refreshTitleScreenSprites() {
       if (typeof MONSTER_SPECIES === 'undefined' || typeof renderMonsterSVG !== 'function') return;
       const mascotConfigs = [
@@ -1398,7 +1278,10 @@
     }
 
     function initGame() {
-      registerAdditionalFirstStageMonsters();
+      if (!window.state.questions || window.state.questions.length === 0) {
+        window.state.questions = (typeof DEFAULT_QUESTIONS !== 'undefined') ? safeClone(DEFAULT_QUESTIONS) : [];
+      }
+
       setupAudioExtensions();
       setupOverworldHooks();
       setupBattleAndDexHooks();

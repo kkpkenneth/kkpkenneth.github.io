@@ -370,13 +370,33 @@ function renderMoveButtons() {
 }
 
 function pickRandomQuestion(elementType = null, difficulty = null) {
-  let pool = state.questions;
-  if (elementType) pool = pool.filter(q => q.type === elementType);
+  // Fallback to DEFAULT_QUESTIONS if state.questions is missing or empty
+  let pool = (state && Array.isArray(state.questions) && state.questions.length > 0) 
+    ? state.questions 
+    : (typeof DEFAULT_QUESTIONS !== 'undefined' ? DEFAULT_QUESTIONS : []);
+
+  if (pool.length === 0) {
+    // Ultimate fallback dummy question if everything else is missing
+    return {
+      chosen: { q: 'What is 2 + 2?', options: ['4', '5', '3', '6'], answer: 0, difficulty: 1, type: 'NORMAL' },
+      indexedOptions: [
+        { text: '4', isCorrect: true },
+        { text: '5', isCorrect: false },
+        { text: '3', isCorrect: false },
+        { text: '6', isCorrect: false }
+      ]
+    };
+  }
+
+  if (elementType) {
+    const filtered = pool.filter(q => q.type === elementType);
+    if (filtered.length > 0) pool = filtered;
+  }
+  
   if (difficulty !== null) {
     const diffPool = pool.filter(q => q.difficulty === difficulty);
     if (diffPool.length > 0) pool = diffPool;
   }
-  if (pool.length === 0) pool = state.questions;
 
   const chosen = pool[Math.floor(Math.random() * pool.length)];
   const indexedOptions = chosen.options.map((text, idx) => ({

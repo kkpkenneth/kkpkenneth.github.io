@@ -144,7 +144,12 @@ const MONSTER_SPECIES = [
   { id: 'dragonite',  pokedexNo: 149, name: 'DRAGONITE',  type: 'DRAGON',   baseHp: 195, level: 24 },
   { id: 'mewtwo',     pokedexNo: 150, name: 'MEWTWO',     type: 'PSYCHIC',  baseHp: 260, level: 25 },
   { id: 'mew',        pokedexNo: 151, name: 'MEW',        type: 'PSYCHIC',  baseHp: 250, level: 25 },
-  { id: 'lucario',    pokedexNo: 448, name: 'LUCARIO',    type: 'FIGHTING', baseHp: 185, level: 20 }
+  { id: 'lucario',    pokedexNo: 448, name: 'LUCARIO',    type: 'FIGHTING', baseHp: 185, level: 20 },
+  { id: 'umbreon',    pokedexNo: 197, name: 'UMBREON',    type: 'DARK',     baseHp: 185, level: 20 },
+  { id: 'murkrow',    pokedexNo: 198, name: 'MURKROW',    type: 'DARK',     baseHp: 145, level: 16 },
+  { id: 'houndoom',   pokedexNo: 229, name: 'HOUNDOOM',   type: 'DARK',     baseHp: 185, level: 21 },
+  { id: 'absol',      pokedexNo: 359, name: 'ABSOL',      type: 'DARK',     baseHp: 180, level: 21 },
+  { id: 'deoxys',     pokedexNo: 386, name: 'DEOXYS',     type: 'PSYCHIC',  baseHp: 255, level: 25 }
 ];
 
 const DEFAULT_MONSTER_PIXELS = {

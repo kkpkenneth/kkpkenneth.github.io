@@ -1,8 +1,77 @@
 /********************************************************************
  * battle.js
  * Trivia Combat Engine, Auto-Switch on Faint, No Region After Name,
- * Raw HP Catch Rate & Ditto Transform Move
+ * Raw HP Catch Rate, Ditto Transform & Distinct EXP vs. Stone Evolutions
  ********************************************************************/
+
+// Distinct Evolution Table:
+// method: 'EXP'   -> Evolves automatically when evoWins reaches winsNeeded after beating wild Pokémon
+// method: 'STONE' -> Evolves ONLY when collecting the matching Evolutionary Stone in the Overworld
+const EVOLUTION_CHAINS = {
+  // EXP-based evolutions
+  bulbasaur:  { to: 'venusaur',   method: 'EXP',   winsNeeded: 3 },
+  charmander: { to: 'charizard',  method: 'EXP',   winsNeeded: 3 },
+  squirtle:   { to: 'blastoise',  method: 'EXP',   winsNeeded: 3 },
+  pidgey:     { to: 'pidgeotto',  method: 'EXP',   winsNeeded: 2 },
+  mankey:     { to: 'primeape',   method: 'EXP',   winsNeeded: 2 },
+  abra:       { to: 'kadabra',    method: 'EXP',   winsNeeded: 2 },
+  gastly:     { to: 'gengar',     method: 'EXP',   winsNeeded: 3 },
+  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 },
+  dratini:    { to: 'dragonite',  method: 'EXP',   winsNeeded: 3 },
+
+  // Stone-based evolutions (require picking up a Stone on the map)
+  pikachu:    { to: 'raichu',     method: 'STONE', stone: 'ELECTRIC', stoneLabel: 'THUNDER STONE' },
+  growlithe:  { to: 'arcanine',   method: 'STONE', stone: 'FIRE',     stoneLabel: 'FIRE STONE' },
+  oddish:     { to: 'vileplume',  method: 'STONE', stone: 'GRASS',    stoneLabel: 'LEAF STONE' },
+  eevee:      { to: 'umbreon',    method: 'STONE', stone: 'ANY',      stoneLabel: 'MOON STONE' }
+};
+
+function getEvolutionRequirement(speciesId) {
+  return EVOLUTION_CHAINS[speciesId] || null;
+}
+
+function evolveMonsterInstance(mon, targetSpeciesId) {
+  const newSpecies = MONSTER_SPECIES.find(m => m.id === targetSpeciesId);
+  if (!newSpecies) return null;
+  const oldName = mon.name;
+
+  mon.id = newSpecies.id;
+  mon.pokedexNo = newSpecies.pokedexNo;
+  mon.name = newSpecies.name;
+  mon.type = newSpecies.type;
+  mon.level = Math.max((mon.level || 12) + 4, newSpecies.level || 18);
+  mon.maxHp = newSpecies.baseHp || (mon.maxHp + 35);
+  mon.hp = mon.maxHp;
+  mon.evoWins = 0;
+
+  if (typeof sfx !== 'undefined' && typeof sfx.grandVictoryFanfare === 'function') {
+    sfx.grandVictoryFanfare();
+  }
+  return `CONGRATULATIONS! Your ${oldName} evolved into ${newSpecies.name}!`;
+}
+
+// Checks EXP-based evolutions only (Stone-based Pokémon wait for an evolutionary stone)
+function checkAndTriggerEvolution(mon) {
+  if (!mon) return null;
+  const req = getEvolutionRequirement(mon.id);
+  if (!req || req.method !== 'EXP') return null;
+  mon.evoWins = mon.evoWins || 0;
+  if (mon.evoWins >= req.winsNeeded) {
+    return evolveMonsterInstance(mon, req.to);
+  }
+  return null;
+}
+
+// Checks Stone-based evolutions when the player picks up an Evolutionary Stone on the floor
+function tryStoneEvolution(mon, stoneItem) {
+  if (!mon || !stoneItem) return null;
+  const req = getEvolutionRequirement(mon.id);
+  if (!req || req.method !== 'STONE') return null;
+  if (stoneItem.stoneType === 'ANY' || req.stone === 'ANY' || req.stone === stoneItem.stoneType) {
+    return evolveMonsterInstance(mon, req.to);
+  }
+  return null;
+}
 
 function createMonsterInstance(template) {
   const liveSpecies = (typeof MONSTER_SPECIES !== 'undefined' ? MONSTER_SPECIES.find(m => m.id === template.id) : null) || template;
@@ -14,6 +83,7 @@ function createMonsterInstance(template) {
     ...structuredClone(liveSpecies),
     maxHp: liveSpecies.baseHp || template.baseHp || 100,
     hp: liveSpecies.baseHp || template.baseHp || 100,
+    evoWins: template.evoWins || 0,
     consistentRandomType: consistentRandomType === liveSpecies.type ? allTypes[(charSum + 1) % allTypes.length] : consistentRandomType
   };
 }
@@ -97,7 +167,6 @@ function calculateCatchProbability(enemy) {
   const currentHpAmount = Math.max(0, enemy.hp);
   const rawDamageDealt = Math.max(0, maxHpAmount - currentHpAmount);
 
-  // Higher total HP gives a higher initial catch rate; raw damage dealt increases it further
   const rawProb = (maxHpAmount * 0.0022) + (rawDamageDealt * 0.0035);
   return Math.min(0.95, Math.max(0.15, Math.round(rawProb * 100) / 100));
 }
@@ -148,6 +217,13 @@ function getHpColorClass(ratio) {
   return 'bg-red-500 animate-pulse';
 }
 
+function getEvoStatusText(mon) {
+  const req = getEvolutionRequirement(mon.id);
+  if (!req) return 'MAX EVO ★';
+  if (req.method === 'STONE') return `NEEDS ${req.stoneLabel} 💎`;
+  return `EVO BAR: ${Math.min(req.winsNeeded, mon.evoWins || 0)}/${req.winsNeeded}`;
+}
+
 function syncAllUI() {
   const player = getActivePlayer();
   const enemy = state.enemy;
@@ -165,6 +241,46 @@ function syncAllUI() {
   pBar.style.width = `${pRatio * 100}%`;
   pBar.className = `h-full transition-all duration-500 ease-out ${getHpColorClass(pRatio)}`;
   document.getElementById('playerHpNumbers').textContent = `${Math.max(0, player.hp)}/${player.maxHp}`;
+
+  // Evolution Bar in Player HUD (Distinguishes EXP bar vs. Stone requirement)
+  let evoContainer = document.getElementById('playerEvoBarWrap');
+  if (!evoContainer) {
+    const hpNumbersRow = document.getElementById('playerHpNumbers')?.parentElement;
+    if (hpNumbersRow && hpNumbersRow.parentElement) {
+      evoContainer = document.createElement('div');
+      evoContainer.id = 'playerEvoBarWrap';
+      evoContainer.className = 'w-full mt-1';
+      evoContainer.innerHTML = `
+        <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
+          <span class="text-[6px] sm:text-[7px] text-purple-300 font-bold px-0.5">EVO</span>
+          <div class="w-full h-1.5 bg-slate-700 rounded-sm overflow-hidden">
+            <div id="playerEvoBar" class="h-full bg-purple-500 transition-all duration-500" style="width: 0%;"></div>
+          </div>
+          <span id="playerEvoText" class="text-[6px] sm:text-[7px] text-purple-200 px-0.5 shrink-0">0/3</span>
+        </div>
+      `;
+      hpNumbersRow.parentElement.appendChild(evoContainer);
+    }
+  }
+  const evoBar = document.getElementById('playerEvoBar');
+  const evoText = document.getElementById('playerEvoText');
+  const evoReq = getEvolutionRequirement(player.id);
+  if (evoBar && evoText) {
+    if (!evoReq) {
+      evoBar.style.width = '100%';
+      evoBar.className = 'h-full bg-emerald-400 transition-all duration-500';
+      evoText.textContent = 'MAX ★';
+    } else if (evoReq.method === 'STONE') {
+      evoBar.style.width = '100%';
+      evoBar.className = 'h-full bg-amber-400 animate-pulse transition-all duration-500';
+      evoText.textContent = `${evoReq.stoneLabel} 💎`;
+    } else {
+      const wins = Math.min(evoReq.winsNeeded, player.evoWins || 0);
+      evoBar.style.width = `${(wins / evoReq.winsNeeded) * 100}%`;
+      evoBar.className = 'h-full bg-purple-500 transition-all duration-500';
+      evoText.textContent = `EXP ${wins}/${evoReq.winsNeeded}`;
+    }
+  }
 
   const atkBonus = Math.min(6, state.streak);
   const atkMult = (1 + atkBonus * 0.15).toFixed(2);
@@ -262,7 +378,6 @@ function showMoveSelectView() {
   renderMoveButtons();
 }
 
-// Executes Ditto's Normal-type Transform move: blinks with SFX, morphs into the wild Pokémon, and copies its moveset completely
 function executeDittoTransform() {
   if (state.busy) return;
   const player = getActivePlayer();
@@ -289,7 +404,6 @@ function executeDittoTransform() {
       clearInterval(blinkTimer);
       if (playerWrapper) playerWrapper.style.opacity = '1';
 
-      // Copy wild Pokemon's visual sprite and complete moveset types
       player.transformedSpeciesId = enemy.id;
       player.transformedType = enemy.type;
       player.transformedRandomType = enemy.consistentRandomType;
@@ -370,13 +484,11 @@ function renderMoveButtons() {
 }
 
 function pickRandomQuestion(elementType = null, difficulty = null) {
-  // Fallback to DEFAULT_QUESTIONS if state.questions is missing or empty
-  let pool = (state && Array.isArray(state.questions) && state.questions.length > 0) 
-    ? state.questions 
+  let pool = (state && Array.isArray(state.questions) && state.questions.length > 0)
+    ? state.questions
     : (typeof DEFAULT_QUESTIONS !== 'undefined' ? DEFAULT_QUESTIONS : []);
 
   if (pool.length === 0) {
-    // Ultimate fallback dummy question if everything else is missing
     return {
       chosen: { q: 'What is 2 + 2?', options: ['4', '5', '3', '6'], answer: 0, difficulty: 1, type: 'NORMAL' },
       indexedOptions: [
@@ -392,7 +504,6 @@ function pickRandomQuestion(elementType = null, difficulty = null) {
     const filtered = pool.filter(q => q.type === elementType);
     if (filtered.length > 0) pool = filtered;
   }
-  
   if (difficulty !== null) {
     const diffPool = pool.filter(q => q.difficulty === difficulty);
     if (diffPool.length > 0) pool = diffPool;
@@ -669,11 +780,35 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
     setTimeout(() => {
       if (enemy.hp <= 0) {
         clearPartyTransformations();
+        const req = getEvolutionRequirement(player.id);
+        let evoMessage = null;
+
+        if (req && req.method === 'EXP') {
+          player.evoWins = (player.evoWins || 0) + 1;
+          evoMessage = checkAndTriggerEvolution(player);
+        }
+
+        const playerWrapper = document.getElementById('playerSpriteWrapper');
+        if (evoMessage && playerWrapper) {
+          playerWrapper.innerHTML = renderMonsterSVG(player);
+        }
+        syncAllUI();
+        if (typeof saveGameProgress === 'function') saveGameProgress();
+
         sfx.captureFanfare();
-        setDialogue(`Wild ${enemy.name} fainted! Returning to ${getCurrentMap().name}...`, 'VICTORY!');
+        let victoryLog = `Wild ${enemy.name} fainted!`;
+        if (evoMessage) {
+          victoryLog = `Wild ${enemy.name} fainted! ★ ${evoMessage}`;
+        } else if (req && req.method === 'EXP') {
+          victoryLog = `Wild ${enemy.name} fainted! (${player.name} EXP EVO BAR: ${player.evoWins}/${req.winsNeeded})!`;
+        } else if (req && req.method === 'STONE') {
+          victoryLog = `Wild ${enemy.name} fainted! (Find a ${req.stoneLabel} on the map to evolve ${player.name})!`;
+        }
+
+        setDialogue(victoryLog, evoMessage ? 'EVOLUTION! ★' : 'VICTORY!');
         setTimeout(() => {
-          returnToOverworldFromBattle(`Victory! Defeated wild ${enemy.name} with ${totalDmg} DMG!`);
-        }, 1600);
+          returnToOverworldFromBattle(victoryLog);
+        }, 1800);
       } else {
         state.busy = false;
       }
@@ -739,7 +874,7 @@ function showDexSwitchView() {
         </div>
         <div class="flex items-center gap-1 mt-1">
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${displayType}</span>
-          <span class="text-[8px] text-slate-600">HP ${Math.max(0, mon.hp)}/${mon.maxHp}</span>
+          <span class="text-[8px] text-slate-600">HP ${Math.max(0, mon.hp)}/${mon.maxHp} • ${getEvoStatusText(mon)}</span>
         </div>
       </div>
     `;
@@ -786,7 +921,7 @@ function openOverworldDexModal() {
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${species.type}</span>
         </div>
         <div class="text-[8px] text-slate-600 mt-1">
-          ${caughtMon ? `CAUGHT • HP ${Math.max(0, caughtMon.hp)}/${caughtMon.maxHp} ${isCurrent ? '★ ACTIVE PARTNER' : '(CLICK TO SET PARTNER)'}` : 'UNCAUGHT • FIND IN TALL GRASS'}
+          ${caughtMon ? `CAUGHT • HP ${Math.max(0, caughtMon.hp)}/${caughtMon.maxHp} • ${getEvoStatusText(caughtMon)} ${isCurrent ? '★ ACTIVE' : ''}` : 'UNCAUGHT • FIND IN TALL GRASS'}
         </div>
       </div>
     `;

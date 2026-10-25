@@ -75,18 +75,18 @@ const DEFAULT_OBSTACLE_DEFS = {
     id: 'C', name: 'SAGUARO CACTUS', walkable: false,
     palette: { p: '#16a34a', d: '#14532d', l: '#86efac', b: '#052e16', s: '#22c55e', t: '#4ade80' },
     grid: [
-      "................",
+       "................",
       "......bbbb......",
-      ".....bppppb.....",
-      ".....bplppb.....",
-      ".bbb.bplppb.bbb.",
-      "bpppb.bplpb.bppb",
-      "bplpb.bplpb.bplb",
-      "bplpbbbplpbbbplb",
-      "bppppppplppppppb",
-      ".bbbbbbplpbbbbb.",
-      ".....bbplpb.....",
-      ".....bpplpb.....",
+      ".....bssssb.....",
+      ".....bslpsb.....",
+      "..bb.bslpsb.bb..",
+      "b.ppb.sllsb.sp..",
+      "b.ppb.lllsb.sp..",
+      "b.ppbblplssssp..",
+      "b.pp..lplspppp..",
+      "..pppppplsbbbb..",
+      "..pppppplsb.....",
+      ".....bsplpb.....",
       ".....bppppb.....",
       ".....bppppb.....",
       "....dddddddd....",
@@ -426,6 +426,52 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................",
       "................"
     ]
+  },
+  // Signature Obstacle 5: SHADOW_ALLEY -> Flickering Shadow Streetlamp
+  N: {
+    id: 'N', name: 'SHADOW STREETLAMP', walkable: false,
+    palette: { p: '#334155', d: '#0f172a', l: '#facc15', b: '#020617', s: '#ef4444', t: '#64748b' },
+    grid: [
+      ".....bbbbbb.....",
+      "....bddddddB....".replace(/B/g, 'b'),
+      "...bllllllllb...",
+      "...blsssssslb...",
+      "....bbbbbbbb....",
+      ".......bb.......",
+      "......bppb......",
+      "......bppb......",
+      "......bppb......",
+      "......bppb......",
+      "......bppb......",
+      "......bppb......",
+      ".....bddddb.....",
+      "....bppppppb....",
+      "....bbbbbbbb....",
+      "................"
+    ]
+  },
+  // Signature Obstacle 6: MIRADOURO_LUA -> Badlands Moon Spire (Eroded Red-Ochre Hoodoo)
+  Q: {
+    id: 'Q', name: 'MOON BADLANDS SPIRE', walkable: false,
+    palette: { p: '#dc2626', d: '#7f1d1d', l: '#fde047', b: '#450a0a', s: '#f97316', t: '#fca5a5' },
+    grid: [
+      ".......bb.......",
+      "......bllb......",
+      ".....blsslB.....".replace(/B/g, 'b'),
+      ".....bppppb.....",
+      "....bpddddpb....",
+      "....bsttttsb....",
+      "...bppddddppb...",
+      "...bssssssssb...",
+      "..bppddddddppb..",
+      "..bsttttttttsb..",
+      ".bppppddddddppb.",
+      ".bddddddddddddb.",
+      "bppppppppppppppb",
+      "bddddddddddddddB".replace(/B/g, 'b'),
+      ".bbbbbbbbbbbbbb.",
+      "................"
+    ]
   }
 };
 
@@ -599,6 +645,7 @@ function drawInteractionBubble(ctx, nx, ny, isFacing, dist, animTick, symbol = '
   }
 }
 
+// Replace drawNPCSprite in characters.js:
 function drawNPCSprite(ctx, npc, playerWorld, isFacingThisNpc, animTick) {
   const nx = npc.x * TILE_SIZE;
   const ny = npc.y * TILE_SIZE;
@@ -606,10 +653,12 @@ function drawNPCSprite(ctx, npc, playerWorld, isFacingThisNpc, animTick) {
   ctx.fillStyle = 'rgba(0,0,0,0.32)';
   ctx.fillRect(nx + 6, ny + 26, 20, 4);
 
+  const skinHex = (typeof getNPCSkinColor === 'function') ? getNPCSkinColor(npc) : (npc.skinColor || '#fed7aa');
+
   const palette = {
     h: npc.hatColor || '#1e3a8a',
     c: npc.shirtColor || '#60a5fa',
-    s: '#fed7aa',
+    s: skinHex,
     b: '#0f172a'
   };
   drawBitmap16(ctx, CHAR_BITMAPS.NPC, palette, nx, ny, TILE_SIZE, false);

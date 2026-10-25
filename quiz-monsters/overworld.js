@@ -1,7 +1,7 @@
 /********************************************************************
  * overworld.js
- * Eased 1-Block Movement, Partner Follower Tracking, Full Obstacle
- * Interactions, Random Floor Items (Berries & Stones) & Diverse Skin Tones
+ * Visible Floor Items, Blocking Collision, Space/A Talk Interactivity
+ * & Stone Evolution with Shattering Feedback
  ********************************************************************/
 
 const FLOOR_ITEM_TYPES = [
@@ -9,90 +9,79 @@ const FLOOR_ITEM_TYPES = [
     id: 'oran_berry',
     name: 'ORAN BERRY',
     category: 'BERRY',
+    tileKey: 'BERRY',
     color: '#3b82f6',
     highlight: '#93c5fd',
-    leaf: '#22c55e',
     desc: 'Restored +50 HP to your active partner!'
   },
   {
     id: 'sitrus_berry',
     name: 'SITRUS BERRY',
     category: 'BERRY',
+    tileKey: 'BERRY',
     color: '#facc15',
     highlight: '#fef08a',
-    leaf: '#16a34a',
     desc: 'Fully restored your active partner\'s HP!'
-  },
-  {
-    id: 'lum_berry',
-    name: 'LUM BERRY',
-    category: 'BERRY',
-    color: '#22c55e',
-    highlight: '#86efac',
-    leaf: '#15803d',
-    desc: 'Boosted your active partner\'s Evolution Bar by +1!'
   },
   {
     id: 'fire_stone',
     name: 'FIRE STONE',
     category: 'STONE',
+    tileKey: 'STONE',
     stoneType: 'FIRE',
+    stoneLabel: 'FIRE STONE',
     color: '#f97316',
     highlight: '#fde047',
-    leaf: '#dc2626',
-    desc: 'A radiant Fire Stone! Evolves Fire-type & compatible Pokémon!'
+    desc: 'A radiant Fire Stone! Interact with this stone while your Fire-type partner is active to evolve them!'
   },
   {
     id: 'water_stone',
     name: 'WATER STONE',
     category: 'STONE',
+    tileKey: 'STONE',
     stoneType: 'WATER',
+    stoneLabel: 'WATER STONE',
     color: '#0284c7',
     highlight: '#7dd3fc',
-    leaf: '#1e3a8a',
-    desc: 'A shimmering Water Stone! Evolves Water-type & compatible Pokémon!'
+    desc: 'A shimmering Water Stone! Interact with this stone while your Water-type partner is active to evolve them!'
   },
   {
     id: 'thunder_stone',
     name: 'THUNDER STONE',
     category: 'STONE',
+    tileKey: 'STONE',
     stoneType: 'ELECTRIC',
+    stoneLabel: 'THUNDER STONE',
     color: '#eab308',
     highlight: '#fef08a',
-    leaf: '#15803d',
-    desc: 'A sparking Thunder Stone! Evolves Pikachu & Electric-type Pokémon!'
+    desc: 'A sparking Thunder Stone! Interact with this stone while Pikachu is active to evolve into Raichu!'
   },
   {
     id: 'leaf_stone',
     name: 'LEAF STONE',
     category: 'STONE',
+    tileKey: 'STONE',
     stoneType: 'GRASS',
+    stoneLabel: 'LEAF STONE',
     color: '#16a34a',
     highlight: '#86efac',
-    leaf: '#78350f',
-    desc: 'A verdant Leaf Stone! Evolves Grass-type & compatible Pokémon!'
+    desc: 'A verdant Leaf Stone! Interact with this stone while your Grass-type partner is active to evolve them!'
   },
   {
     id: 'moon_stone',
     name: 'MOON STONE',
     category: 'STONE',
+    tileKey: 'STONE',
     stoneType: 'ANY',
+    stoneLabel: 'MOON STONE',
     color: '#a855f7',
     highlight: '#e9d5ff',
-    leaf: '#3b0764',
-    desc: 'A mystic Moon Stone! Instantly fills the Evolution Bar of any evolving partner!'
+    desc: 'A mystic Moon Stone! Interact with this stone with compatible Pokémon to trigger instant evolution!'
   }
 ];
 
 const HUMAN_SKIN_PALETTE = [
-  '#fde68a', // Light warm
-  '#fed7aa', // Peach
-  '#f5cba7', // Warm beige
-  '#e59866', // Golden tan
-  '#ca8a5b', // Medium bronze
-  '#a16236', // Rich brown
-  '#784212', // Deep espresso
-  '#5c3317'  // Dark umber
+  '#fde68a', '#fed7aa', '#f5cba7', '#e59866', '#ca8a5b', '#a16236', '#784212', '#5c3317'
 ];
 
 function getNPCSkinColor(npc) {
@@ -101,13 +90,8 @@ function getNPCSkinColor(npc) {
   const upperName = (npc.name || '').toUpperCase();
   const upperTopic = (npc.topic || '').toUpperCase();
   const lowerId = (npc.id || '').toLowerCase();
-  if (
-    npc.isAlien ||
-    upperName.includes('ALIEN') ||
-    upperTopic.includes('ALIEN') ||
-    lowerId.includes('alien')
-  ) {
-    return '#4ade80'; // Extraterrestrial Alien Green
+  if (npc.isAlien || upperName.includes('ALIEN') || upperTopic.includes('ALIEN') || lowerId.includes('alien')) {
+    return '#4ade80';
   }
   let hash = 0;
   for (let i = 0; i < lowerId.length; i++) {
@@ -117,9 +101,7 @@ function getNPCSkinColor(npc) {
 }
 
 function easeInOutCubic(t) {
-  return t < 0.5
-    ? 4 * t * t * t
-    : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
 function getCurrentMap() {
@@ -132,10 +114,17 @@ function getTileAt(col, row) {
   return mapObj.rows[row].charAt(col) || 'T';
 }
 
+function getFloorItemAt(col, row) {
+  if (!Array.isArray(state.floorItems)) return null;
+  return state.floorItems.find(it => it.x === col && it.y === row) || null;
+}
+
 function isTileBlocked(col, row) {
   if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS) return true;
-  const tile = getTileAt(col, row);
+  
+  if (getFloorItemAt(col, row)) return true;
 
+  const tile = getTileAt(col, row);
   if (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[tile] !== undefined) {
     if (!OBSTACLE_DEFS[tile].walkable) return true;
   } else {
@@ -160,7 +149,7 @@ function spawnFloorItemsForCurrentMap() {
   const mapObj = getCurrentMap();
   if (!mapObj) return;
 
-  const numItems = 3 + Math.floor(Math.random() * 3); // 3 to 5 items per area entry
+  const numItems = 3 + Math.floor(Math.random() * 3);
   const validCoords = [];
 
   for (let r = 2; r < MAP_ROWS - 2; r++) {
@@ -176,10 +165,10 @@ function spawnFloorItemsForCurrentMap() {
   for (let i = 0; i < numItems && validCoords.length > 0; i++) {
     const randIdx = Math.floor(Math.random() * validCoords.length);
     const coord = validCoords.splice(randIdx, 1)[0];
-    // 65% chance Berry, 35% chance Evolutionary Stone
     const isStone = Math.random() < 0.35;
     const pool = FLOOR_ITEM_TYPES.filter(it => it.category === (isStone ? 'STONE' : 'BERRY'));
     const chosenItem = pool[Math.floor(Math.random() * pool.length)];
+
     state.floorItems.push({
       x: coord.x,
       y: coord.y,
@@ -188,49 +177,34 @@ function spawnFloorItemsForCurrentMap() {
   }
 }
 
-function getFloorItemAt(col, row) {
-  if (!Array.isArray(state.floorItems)) return null;
-  return state.floorItems.find(it => it.x === col && it.y === row) || null;
-}
-
-function collectFloorItem(item) {
+function interactWithFloorItem(item) {
   if (!item) return;
-  state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
   const partner = typeof getActivePlayer === 'function' ? getActivePlayer() : null;
   if (!partner) return;
 
   if (item.category === 'BERRY') {
+    state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
     sfx.heal();
     if (item.id === 'oran_berry') {
       partner.hp = Math.min(partner.maxHp, partner.hp + 50);
-      setOverworldDialogue(`Picked up an ${item.name}! ${partner.name} recovered +50 HP! (${partner.hp}/${partner.maxHp})`, item.name, 'BERRY FOUND 🍓');
+      setOverworldDialogue(`Collected ${item.name}! ${partner.name} recovered +50 HP! (${partner.hp}/${partner.maxHp})`, item.name, 'BERRY COLLECTED 🍓');
     } else if (item.id === 'sitrus_berry') {
       partner.hp = partner.maxHp;
-      setOverworldDialogue(`Picked up a ${item.name}! ${partner.name}'s HP was fully restored!`, item.name, 'BERRY FOUND 🍋');
-    } else if (item.id === 'lum_berry') {
-      partner.evoWins = (partner.evoWins || 0) + 1;
-      const evolvedMsg = (typeof checkAndTriggerEvolution === 'function') ? checkAndTriggerEvolution(partner) : null;
-      if (evolvedMsg) {
-        setOverworldDialogue(`Picked up a ${item.name}! ${evolvedMsg}`, 'EVOLUTION! ★', 'LUM BERRY');
-      } else {
-        const req = typeof getEvolutionRequirement === 'function' ? getEvolutionRequirement(partner.id) : null;
-        const barTxt = req ? ` (EVO BAR: ${partner.evoWins}/${req.winsNeeded})` : '';
-        setOverworldDialogue(`Picked up a ${item.name}! ${partner.name} gained +1 Evolution energy!${barTxt}`, item.name, 'BERRY FOUND 🌿');
-      }
+      setOverworldDialogue(`Collected ${item.name}! ${partner.name}'s HP was fully restored!`, item.name, 'BERRY COLLECTED 🍋');
     }
   } else if (item.category === 'STONE') {
     const evolvedMsg = (typeof tryStoneEvolution === 'function') ? tryStoneEvolution(partner, item) : null;
     if (evolvedMsg) {
-      setOverworldDialogue(`Found a ${item.name}! ${evolvedMsg}`, 'STONE EVOLUTION! ★', item.name);
-    } else {
-      sfx.npcChime();
-      partner.evoWins = (partner.evoWins || 0) + 1;
-      const autoEvoMsg = (typeof checkAndTriggerEvolution === 'function') ? checkAndTriggerEvolution(partner) : null;
-      if (autoEvoMsg) {
-        setOverworldDialogue(`Found a ${item.name}! Its radiant energy filled the Evolution Bar—${autoEvoMsg}`, 'EVOLUTION! ★', item.name);
-      } else {
-        setOverworldDialogue(`Picked up a ${item.name}! ${item.desc} (${partner.name} absorbed +1 Evolution energy!)`, item.name, 'EVO STONE 💎');
+      state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
+      setOverworldDialogue(`Used ${item.name} with ${partner.name}! ${evolvedMsg}`, 'STONE EVOLUTION! ★', item.name);
+      const playerWrapper = document.getElementById('playerSpriteWrapper');
+      if (playerWrapper && typeof renderMonsterSVG === 'function') {
+        playerWrapper.innerHTML = renderMonsterSVG(partner);
       }
+    } else {
+      state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
+      sfx.wrongBuzzer();
+      setOverworldDialogue(`The stone shattered and nothing happened. (${partner.name} cannot evolve with this stone!)`, 'STONE SHATTERED 💥', item.name);
     }
   }
 
@@ -245,39 +219,106 @@ function drawFloorItemsOnCanvas(ctx, animTick) {
   state.floorItems.forEach(item => {
     const dx = item.x * TILE_SIZE;
     const dy = item.y * TILE_SIZE + bob;
+    const tileKey = item.tileKey || (item.category === 'STONE' ? 'STONE' : 'BERRY');
+    const obsDef = (typeof OBSTACLE_DEFS !== 'undefined') ? OBSTACLE_DEFS[tileKey] : null;
 
-    // Shadow
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-    ctx.fillRect(dx + 10, item.y * TILE_SIZE + 24, 12, 4);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+    ctx.fillRect(dx + 6, item.y * TILE_SIZE + 24, 20, 5);
 
-    if (item.category === 'BERRY') {
-      // Stem / Leaf
-      ctx.fillStyle = item.leaf || '#22c55e';
-      ctx.fillRect(dx + 14, dy + 8, 4, 4);
-      ctx.fillRect(dx + 12, dy + 10, 8, 2);
-      // Berry body
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(dx + 9, dy + 11, 14, 13);
-      ctx.fillStyle = item.color;
-      ctx.fillRect(dx + 10, dy + 12, 12, 11);
-      // Highlight
-      ctx.fillStyle = item.highlight;
-      ctx.fillRect(dx + 12, dy + 14, 4, 4);
+    if (obsDef && typeof drawBitmap16 === 'function') {
+      drawBitmap16(ctx, obsDef.grid, obsDef.palette, dx, dy, TILE_SIZE, false);
     } else {
-      // Evolutionary Stone (Octagonal Crystal)
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(dx + 10, dy + 8, 12, 16);
-      ctx.fillRect(dx + 8, dy + 10, 16, 12);
-      ctx.fillStyle = item.color;
-      ctx.fillRect(dx + 11, dy + 9, 10, 14);
-      ctx.fillRect(dx + 9, dy + 11, 14, 10);
-      // Inner core facet
-      ctx.fillStyle = item.highlight;
-      ctx.fillRect(dx + 12, dy + 11, 6, 8);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(dx + 13, dy + 12, 3, 3);
+      ctx.fillStyle = item.color || '#3b82f6';
+      ctx.fillRect(dx + 8, dy + 8, 16, 16);
     }
   });
+}
+
+function openWorldMapModal() {
+  if (state.dex.length < 20) {
+    sfx.wrongBuzzer();
+    setOverworldDialogue(`You have caught ${state.dex.length}/52 Pokémon! Catch at least 20 Pokémon to unlock the World Map.`, 'LOCKED FEATURE', 'WORLD MAP');
+    return;
+  }
+
+  sfx.blip();
+  let mapModal = document.getElementById('worldMapModal');
+  if (!mapModal) {
+    mapModal = document.createElement('div');
+    mapModal.id = 'worldMapModal';
+    mapModal.className = 'fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3';
+    mapModal.innerHTML = `
+      <div class="w-full max-w-2xl retro-box p-4 sm:p-5 flex flex-col gap-3 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+          <div>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ WORLD MAP &amp; FAST TRAVEL</h2>
+            <p id="mapModalStatusSubtitle" class="text-[9px] text-slate-600 mt-0.5">Explore unlocked regions across Kanto &amp; beyond</p>
+          </div>
+          <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+        </div>
+        <div id="worldMapRegionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+      </div>
+    `;
+    document.body.appendChild(mapModal);
+    document.getElementById('closeWorldMapBtn').addEventListener('click', () => {
+      sfx.blip();
+      mapModal.classList.add('hidden');
+      mapModal.classList.remove('flex');
+    });
+  }
+
+  const canFly = state.dex.length >= 30;
+  const subtitleEl = document.getElementById('mapModalStatusSubtitle');
+  if (subtitleEl) {
+    subtitleEl.textContent = canFly 
+      ? '✈️ FLY UNLOCKED (Click Fly on any region to fast travel)' 
+      : `✈️ FLY LOCKED (${state.dex.length}/30 Pokémon caught to unlock fast travel)`;
+  }
+
+  const grid = document.getElementById('worldMapRegionsGrid');
+  grid.innerHTML = '';
+
+  Object.keys(WORLD_MAPS).forEach(mapKey => {
+    const mapObj = WORLD_MAPS[mapKey];
+    const isCurrent = state.currentMapId === mapKey;
+
+    const card = document.createElement('div');
+    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-600' : 'bg-white hover:bg-slate-100'} p-3 flex flex-col justify-between gap-2 text-left`;
+    card.innerHTML = `
+      <div>
+        <div class="flex items-center justify-between gap-1">
+          <span class="text-[10px] font-bold text-slate-900 truncate">${mapObj.name}</span>
+          ${isCurrent ? '<span class="text-[8px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-bold">CURRENT</span>' : ''}
+        </div>
+        <div class="text-[8px] text-slate-600 mt-1">${mapObj.subtitle}</div>
+      </div>
+      ${canFly && !isCurrent ? `<button type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[8px] px-2 py-1 text-center font-bold">✈️ FLY HERE</button>` : ''}
+    `;
+
+    if (canFly && !isCurrent) {
+      const flyBtn = card.querySelector('button');
+      if (flyBtn) {
+        flyBtn.addEventListener('click', () => {
+          sfx.heal();
+          mapModal.classList.add('hidden');
+          mapModal.classList.remove('flex');
+          runShutterTransition(`FLYING TO ${mapObj.name}...`, () => {
+            state.currentMapId = mapKey;
+            teleportPlayerToGrid(13, 10);
+            sfx.startBGM(state.currentMapId);
+            updateOverworldHUD();
+            if (typeof saveGameProgress === 'function') saveGameProgress();
+            setOverworldDialogue(`Flew directly to ${mapObj.name}!`, mapObj.name, 'FAST TRAVEL ✈️');
+          });
+        });
+      }
+    }
+
+    grid.appendChild(card);
+  });
+
+  mapModal.classList.remove('hidden');
+  mapModal.classList.add('flex');
 }
 
 function teleportPlayerToGrid(gx, gy) {
@@ -350,14 +391,12 @@ function interactWithFacingNPC() {
 
   const { tx, ty } = getFacingTileCoords();
 
-  // 0. Check if facing or standing on a Floor Item (Berry / Evo Stone)
-  const facingItem = getFloorItemAt(tx, ty) || getFloorItemAt(state.playerWorld.gridX, state.playerWorld.gridY);
+  const facingItem = getFloorItemAt(tx, ty);
   if (facingItem) {
-    collectFloorItem(facingItem);
+    interactWithFloorItem(facingItem);
     return;
   }
 
-  // 1. Check if facing an Overworld Pokémon NPC
   const pokeNpc = getFacingPokeNPC();
   if (pokeNpc) {
     const species = MONSTER_SPECIES.find(m => m.id === pokeNpc.speciesId);
@@ -367,7 +406,6 @@ function interactWithFacingNPC() {
     return;
   }
 
-  // 2. Check if facing a Scholar / Professional / Alien NPC
   const npc = getFacingNPC();
   if (npc) {
     if (npc.healsParty || npc.name.includes('NURSE')) {
@@ -385,7 +423,6 @@ function interactWithFacingNPC() {
     return;
   }
 
-  // 3. Check if facing the Follower Partner directly!
   if (state.partnerWorld && state.partnerWorld.gridX === tx && state.partnerWorld.gridY === ty) {
     const partner = getActivePlayer();
     sfx.pokemonCry(partner.id);
@@ -395,7 +432,6 @@ function interactWithFacingNPC() {
     return;
   }
 
-  // 4. Full Environment & Regional Signature Obstacle Inspection
   const tile = getTileAt(tx, ty);
   const obsDef = (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[tile]) ? OBSTACLE_DEFS[tile] : null;
   sfx.blip();
@@ -490,7 +526,7 @@ function updateOverworldHUD() {
 
   if (promptEl) {
     if (facingItem) {
-      promptEl.textContent = `PRESS [SPACE] OR STEP ON ${facingItem.name} TO COLLECT`;
+      promptEl.textContent = `PRESS [SPACE] OR [A] TO COLLECT / INTERACT WITH ${facingItem.name}`;
       promptEl.classList.remove('hidden');
     } else if (facingPoke) {
       promptEl.textContent = `PRESS [SPACE] OR [A] TO GREET ${facingPoke.name} ♪`;
@@ -555,13 +591,6 @@ function initiateOneBlockStep(dir) {
 function onSingleBlockStepLanded() {
   const p = state.playerWorld;
   const tile = getTileAt(p.gridX, p.gridY);
-
-  // Check if player stepped onto a random floor item (Berry or Evolution Stone)
-  const itemOnTile = getFloorItemAt(p.gridX, p.gridY);
-  if (itemOnTile) {
-    collectFloorItem(itemOnTile);
-  }
-
   updateOverworldHUD();
 
   if (tile === 'E') {
@@ -762,7 +791,6 @@ function runShutterTransition(bannerLabel, midCallback) {
   }, 700);
 }
 
-// Protect interactWithFacingNPC from being overwritten by inline scripts in quiz-monsters.html
 const _canonicalInteractWithFacingNPC = interactWithFacingNPC;
 try {
   Object.defineProperty(window, 'interactWithFacingNPC', {

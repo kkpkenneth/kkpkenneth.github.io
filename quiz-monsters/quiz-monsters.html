@@ -70,13 +70,6 @@
     }
     .pixel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .ball-captured,
-    #enemySpriteWrapper .bg-emerald-500,
-    #enemySpriteWrapper .bg-green-500 {
-      background-color: #991b1b !important;
-      border-color: #450a0a !important;
-    }
-
     @keyframes idleBob { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
     @keyframes hitFlash {
       0%, 100% { filter: none; }
@@ -114,9 +107,6 @@
 
     .anim-idle { animation: idleBob 1.8s steps(2, end) infinite; }
     .anim-hit { animation: hitFlash 0.55s ease-in-out; }
-    .anim-lunge-player { animation: lungePlayer 0.38s ease-out; }
-    .anim-lunge-enemy { animation: lungeEnemy 0.38s ease-out; }
-    .anim-ball-throw { animation: ballThrow 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
     .anim-ball-shake { animation: ballShake 0.55s ease-in-out; }
     .floating-dmg {
       animation: floatUpFade 1.15s ease-out forwards;
@@ -163,14 +153,14 @@
       <button id="saveGameBtn" type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
         💾 SAVE
       </button>
-      <button id="resetGameBtn" type="button" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
-        🔄 RESET
-      </button>
       <button id="bgmToggleBtn" type="button" class="pixel-btn bg-emerald-700 hover:bg-emerald-600 text-emerald-200 text-[8px] sm:text-[9px] px-2 py-1.5">
         BGM: ON
       </button>
       <button id="muteToggleBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-2 py-1.5">
         SFX: ON
+      </button>
+      <button id="btnReturnTitle" type="button" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
+        TITLE
       </button>
     </div>
   </header>
@@ -217,10 +207,14 @@
           <div id="titleSprite9" class="w-16 h-16 sm:w-20 sm:h-20 anim-idle" style="animation-delay: 0.9s;" title="Squirtle"></div>
         </div>
 
-        <button id="startGameBtn" type="button" class="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-base font-bold px-7 py-3.5 animate-bounce">
-          ► PRESS START ADVENTURE
-        </button>
-      </div>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button id="startGameBtn" type="button" class="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-base font-bold px-7 py-3.5 animate-bounce">
+            ► PRESS START ADVENTURE
+          </button>
+          <button id="resetGameBtn" type="button" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-[8px] sm:text-[9px] font-bold px-3 py-2.5">
+            RESET SAVE
+          </button>
+        </div>
 
       <div class="w-full retro-box-dark p-3 z-20 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[8px] sm:text-[9px] text-slate-300">
         <div><span class="text-amber-400">EASED 1-TILE STEP:</span> WASD / ARROWS</div>
@@ -244,13 +238,13 @@
           </div>
         </div>
 
-        <!-- OVERWORLD DEX & TITLE BUTTONS -->
+        <!-- OVERWORLD DEX & MAP BUTTONS -->
         <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 flex flex-col items-end gap-1.5">
           <button id="overworldDexBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
             DEX / PARTNER
           </button>
-          <button id="btnReturnTitle" type="button" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[7px] sm:text-[9px] px-2.5 py-1.5 sm:px-3 sm:py-2">
-            TITLE
+          <button id="overworldMapBtn" type="button" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
+            🗺️ MAP
           </button>
         </div>
 
@@ -745,7 +739,7 @@
     }
 
     function getMonsterHabitatName(monsterId, monsterName) {
-      if (typeof WORLD_MAPS === 'undefined') return 'PALLET RESEARCH HUB';
+      if (typeof WORLD_MAPS === 'undefined') return 'Unknown';
       const cleanId = (monsterId || '').toLowerCase();
       const cleanName = (monsterName || '').toLowerCase();
       for (const mapKey of Object.keys(WORLD_MAPS)) {
@@ -754,7 +748,7 @@
           return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
         }
       }
-      return 'PALLET RESEARCH HUB';
+      return 'Unknown';
     }
 
     function replaceTallGrassWithHabitatInDOM() {
@@ -775,11 +769,6 @@
           }
         });
       });
-
-      const zoneHint = document.getElementById('enemyZoneHint');
-      if (zoneHint && window.state.enemy) {
-        zoneHint.textContent = getMonsterHabitatName(window.state.enemy.id, window.state.enemy.name);
-      }
     }
 
     const _monsterCanvasImageCache = {};
@@ -947,7 +936,7 @@
         FOUNDRY:   { tempoMs: 180, wave: 'sawtooth', vol: 0.03, notes: [220.00, 293.66, 329.63, 440.00, 392.00, 329.63, 293.66, 220.00, 261.63, 329.63, 392.00, 523.25] },
         BRAMBLE:   { tempoMs: 245, wave: 'triangle', vol: 0.05, notes: [246.94, 293.66, 369.99, 440.00, 369.99, 293.66, 246.94, 220.00, 246.94, 329.63, 369.99, 493.88] },
         SPIRE:     { tempoMs: 215, wave: 'sine',     vol: 0.06, notes: [587.33, 659.25, 783.99, 987.77, 880.00, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 1046.50] },
-        SHADOW_ALLEY:  { tempoMs: 195, wave: 'sawtooth', vol: 0.035, notes: [196.00, 207.65, 246.94, 261.63, 246.94, 207.65, 196.00, 164.81, 196.00, 233.08, 261.63, 293.66] },
+        SHADOW_ALLEY: { tempoMs: 195, wave: 'sawtooth', vol: 0.035, notes: [196.00, 207.65, 246.94, 261.63, 246.94, 207.65, 196.00, 164.81, 196.00, 233.08, 261.63, 293.66] },
         MIRADOURO_LUA: { tempoMs: 210, wave: 'sine',     vol: 0.055, notes: [523.25, 554.37, 659.25, 739.99, 880.00, 739.99, 659.25, 554.37, 523.25, 659.25, 783.99, 987.77] }
       };
 
@@ -1042,35 +1031,6 @@
           }
         };
       }
-
-      window.interactWithFacingNPC = function() {
-        if (window.state.screen !== 'OVERWORLD' || window.state.busy || window.state.playerWorld.isStepping) return;
-        const npc = getFacingNPC();
-        if (npc) {
-          if (npc.healsParty || npc.name.includes('NURSE')) {
-            if (typeof sfx.playHealWithBgmPause === 'function') sfx.playHealWithBgmPause();
-            else sfx.npcChime();
-            window.state.dex.forEach(m => { m.hp = m.maxHp; });
-            syncAllUI();
-          } else {
-            sfx.npcChime();
-          }
-          setOverworldDialogue(npc.fact, npc.name, npc.topic);
-        } else {
-          const { tx, ty } = getFacingTileCoords();
-          const tile = getTileAt(tx, ty);
-          sfx.blip();
-          if (tile === 'W') {
-            setOverworldDialogue("Crystal-clear water! Remember: roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "OBSERVATION");
-          } else if (tile === 'G') {
-            setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
-          } else if (tile === 'H' || tile === 'D') {
-            setOverworldDialogue("Professor's words echoed: \"Walking into someone's house without permission is known as trespassing and it is illegal!\"", "LOCKED HOUSE", "LAW & CIVICS");
-          } else {
-            setOverworldDialogue("Face any Specialist or Overworld Pokémon until the [!] bubble appears above their head, then press SPACE or A!", "FIELD JOURNAL", "TIP");
-          }
-        }
-      };
 
       if (typeof window.drawOverworldCanvas === 'function') {
         const _origDrawOverworld = window.drawOverworldCanvas;
@@ -1335,6 +1295,7 @@
       bindClick('saveGameBtn', saveGameProgress);
       bindClick('resetGameBtn', resetGameProgress);
       bindClick('overworldDexBtn', openOverworldDexModal);
+      bindClick('overworldMapBtn', openWorldMapModal);
       bindClick('closeOverworldDexBtn', () => {
         sfx.blip();
         document.getElementById('overworldDexModal').classList.add('hidden');

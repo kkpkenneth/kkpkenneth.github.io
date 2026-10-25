@@ -57,7 +57,7 @@ function renderObstacleSVG(obsKey) {
 }
 
 function renderCaptureBallSVG(isCaught = false) {
-  const topColor = isCaught ? '#10b981' : '#ef4444';
+  const topColor = isCaught ? '#912626' : '#ef4444';
   const ballArt = {
     palette: { r: topColor, w: '#f8fafc', b: '#0f172a', c: '#fde047' },
     grid: [

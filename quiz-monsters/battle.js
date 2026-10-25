@@ -1,29 +1,99 @@
 /********************************************************************
  * battle.js
  * Trivia Combat Engine, Auto-Switch on Faint, No Region After Name,
- * Raw HP Catch Rate, Ditto Transform & Distinct EXP vs. Stone Evolutions
+ * Raw HP Catch Rate, Ditto Transform & 1st-Gen Second-Stage Evolutions
  ********************************************************************/
 
-// Distinct Evolution Table:
-// method: 'EXP'   -> Evolves automatically when evoWins reaches winsNeeded after beating wild Pokémon
-// method: 'STONE' -> Evolves ONLY when collecting the matching Evolutionary Stone in the Overworld
 const EVOLUTION_CHAINS = {
-  // EXP-based evolutions
-  bulbasaur:  { to: 'venusaur',   method: 'EXP',   winsNeeded: 3 },
-  charmander: { to: 'charizard',  method: 'EXP',   winsNeeded: 3 },
-  squirtle:   { to: 'blastoise',  method: 'EXP',   winsNeeded: 3 },
-  pidgey:     { to: 'pidgeotto',  method: 'EXP',   winsNeeded: 2 },
-  mankey:     { to: 'primeape',   method: 'EXP',   winsNeeded: 2 },
-  abra:       { to: 'kadabra',    method: 'EXP',   winsNeeded: 2 },
-  gastly:     { to: 'gengar',     method: 'EXP',   winsNeeded: 3 },
-  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 },
-  dratini:    { to: 'dragonite',  method: 'EXP',   winsNeeded: 3 },
+  // 1st-Gen Starters -> Second Stage -> Final Stage
+  bulbasaur:  { to: 'ivysaur',    method: 'EXP',   winsNeeded: 2 },
+  ivysaur:    { to: 'venusaur',   method: 'EXP',   winsNeeded: 3 },
+  charmander: { to: 'charmeleon', method: 'EXP',   winsNeeded: 2 },
+  charmeleon: { to: 'charizard',  method: 'EXP',   winsNeeded: 3 },
+  squirtle:   { to: 'wartortle',  method: 'EXP',   winsNeeded: 2 },
+  wartortle:  { to: 'blastoise',  method: 'EXP',   winsNeeded: 3 },
 
-  // Stone-based evolutions (require picking up a Stone on the map)
-  pikachu:    { to: 'raichu',     method: 'STONE', stone: 'ELECTRIC', stoneLabel: 'THUNDER STONE' },
+  // Bug lines
+  caterpie:   { to: 'metapod',    method: 'EXP',   winsNeeded: 1 },
+  metapod:    { to: 'butterfree', method: 'EXP',   winsNeeded: 2 },
+  weedle:     { to: 'kakuna',     method: 'EXP',   winsNeeded: 1 },
+  kakuna:     { to: 'beedrill',   method: 'EXP',   winsNeeded: 2 },
+
+  // Flying & Normal lines
+  pidgey:     { to: 'pidgeotto',  method: 'EXP',   winsNeeded: 2 },
+  pidgeotto:  { to: 'pidgeot',    method: 'EXP',   winsNeeded: 3 },
+  rattata:    { to: 'raticate',   method: 'EXP',   winsNeeded: 2 },
+  spearow:    { to: 'fearow',     method: 'EXP',   winsNeeded: 2 },
+
+  // Poison / Ground lines (EXP & Stones)
+  ekans:      { to: 'arbok',      method: 'EXP',   winsNeeded: 2 },
+  sandshrew:  { to: 'sandslash',  method: 'EXP',   winsNeeded: 2 },
+  nidoran_f:  { to: 'nidorina',   method: 'EXP',   winsNeeded: 2 },
+  nidorina:   { to: 'nidoqueen',  method: 'STONE', stone: 'POISON',   stoneLabel: 'MOON STONE' },
+  nidoran_m:  { to: 'nidorino',   method: 'EXP',   winsNeeded: 2 },
+  nidornino:  { to: 'nidoking',   method: 'STONE', stone: 'POISON',   stoneLabel: 'MOON STONE' },
+
+  // Fairy / Cute lines (Stones)
+  clefairy:   { to: 'clefable',   method: 'STONE', stone: 'FAIRY',    stoneLabel: 'MOON STONE' },
+  jigglypuff: { to: 'wigglytuff', method: 'STONE', stone: 'NORMAL',   stoneLabel: 'MOON STONE' },
+
+  // Fire lines (Stones & EXP)
+  vulpix:     { to: 'ninetales',  method: 'STONE', stone: 'FIRE',     stoneLabel: 'FIRE STONE' },
   growlithe:  { to: 'arcanine',   method: 'STONE', stone: 'FIRE',     stoneLabel: 'FIRE STONE' },
-  oddish:     { to: 'vileplume',  method: 'STONE', stone: 'GRASS',    stoneLabel: 'LEAF STONE' },
-  eevee:      { to: 'umbreon',    method: 'STONE', stone: 'ANY',      stoneLabel: 'MOON STONE' }
+  ponyta:     { to: 'rapidash',   method: 'EXP',   winsNeeded: 3 },
+
+  // Bat / Plant lines (EXP & Stones)
+  zubat:      { to: 'golbat',     method: 'EXP',   winsNeeded: 2 },
+  oddish:     { to: 'gloom',      method: 'EXP',   winsNeeded: 2 },
+  gloom:      { to: 'vileplume',  method: 'STONE', stone: 'GRASS',    stoneLabel: 'LEAF STONE' },
+  paras:      { to: 'parasect',   method: 'EXP',   winsNeeded: 2 },
+  venonat:    { to: 'venomoth',   method: 'EXP',   winsNeeded: 2 },
+  bellsprout: { to: 'weepinbell', method: 'EXP',   winsNeeded: 2 },
+  weepinbell: { to: 'victreebel', method: 'STONE', stone: 'GRASS',    stoneLabel: 'LEAF STONE' },
+
+  // Ground / Water / Fighting lines (EXP)
+  diglett:    { to: 'dugtrio',    method: 'EXP',   winsNeeded: 2 },
+  meowth:     { to: 'persian',    method: 'EXP',   winsNeeded: 2 },
+  psyduck:    { to: 'golduck',    method: 'EXP',   winsNeeded: 3 },
+  mankey:     { to: 'primeape',   method: 'EXP',   winsNeeded: 2 },
+  poliwag:    { to: 'poliwhirl',  method: 'EXP',   winsNeeded: 2 },
+  poliwhirl:  { to: 'poliwrath',  method: 'STONE', stone: 'WATER',    stoneLabel: 'WATER STONE' },
+  abra:       { to: 'kadabra',    method: 'EXP',   winsNeeded: 2 },
+  kadabra:    { to: 'alakazam',   method: 'EXP',   winsNeeded: 3 },
+  machop:     { to: 'machoke',    method: 'EXP',   winsNeeded: 2 },
+  machoke:    { to: 'machamp',    method: 'EXP',   winsNeeded: 3 },
+  tentacool:  { to: 'tentacruel', method: 'EXP',   winsNeeded: 3 },
+  geodude:    { to: 'graveler',   method: 'EXP',   winsNeeded: 2 },
+  graveler:   { to: 'golem',      method: 'EXP',   winsNeeded: 3 },
+  slowpoke:   { to: 'slowbro',    method: 'EXP',   winsNeeded: 3 },
+  magnemite:  { to: 'magneton',   method: 'EXP',   winsNeeded: 2 },
+  doduo:      { to: 'dodrio',     method: 'EXP',   winsNeeded: 2 },
+  seel:       { to: 'dewgong',    method: 'EXP',   winsNeeded: 3 },
+  grimer:     { to: 'muk',        method: 'EXP',   winsNeeded: 3 },
+  shellder:   { to: 'cloyster',   method: 'STONE', stone: 'WATER',    stoneLabel: 'WATER STONE' },
+  gastly:     { to: 'haunter',    method: 'EXP',   winsNeeded: 2 },
+  haunter:    { to: 'gengar',     method: 'EXP',   winsNeeded: 3 },
+  drowzee:    { to: 'hypno',      method: 'EXP',   winsNeeded: 3 },
+  krabby:     { to: 'kingler',    method: 'EXP',   winsNeeded: 3 },
+  voltorb:    { to: 'electrode',  method: 'EXP',   winsNeeded: 2 },
+  exeggcute:  { to: 'exeggutor',  method: 'STONE', stone: 'GRASS',    stoneLabel: 'LEAF STONE' },
+  cubone:     { to: 'marowak',    method: 'EXP',   winsNeeded: 3 },
+  koffing:    { to: 'weezing',    method: 'EXP',   winsNeeded: 3 },
+  rhyhorn:    { to: 'rhydon',     method: 'EXP',   winsNeeded: 3 },
+  horsea:     { to: 'seadra',     method: 'EXP',   winsNeeded: 2 },
+  goldeen:    { to: 'seaking',    method: 'EXP',   winsNeeded: 2 },
+  staryu:     { to: 'starmie',    method: 'STONE', stone: 'WATER',    stoneLabel: 'WATER STONE' },
+  omanyte:    { to: 'omastar',    method: 'EXP',   winsNeeded: 3 },
+  kabuto:     { to: 'kabutops',   method: 'EXP',   winsNeeded: 3 },
+
+  // Eeveelutions & Electric (Stones)
+  pikachu:    { to: 'raichu',     method: 'STONE', stone: 'ELECTRIC', stoneLabel: 'THUNDER STONE' },
+  eevee:      { to: 'vaporeon',   method: 'STONE', stone: 'WATER',    stoneLabel: 'WATER STONE' }, 
+
+  // Dragon lines (EXP)
+  dratini:    { to: 'dragonair',  method: 'EXP',   winsNeeded: 2 },
+  dragonair:  { to: 'dragonite',  method: 'EXP',   winsNeeded: 3 },
+  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 }
 };
 
 function getEvolutionRequirement(speciesId) {
@@ -50,7 +120,6 @@ function evolveMonsterInstance(mon, targetSpeciesId) {
   return `CONGRATULATIONS! Your ${oldName} evolved into ${newSpecies.name}!`;
 }
 
-// Checks EXP-based evolutions only (Stone-based Pokémon wait for an evolutionary stone)
 function checkAndTriggerEvolution(mon) {
   if (!mon) return null;
   const req = getEvolutionRequirement(mon.id);
@@ -62,7 +131,6 @@ function checkAndTriggerEvolution(mon) {
   return null;
 }
 
-// Checks Stone-based evolutions when the player picks up an Evolutionary Stone on the floor
 function tryStoneEvolution(mon, stoneItem) {
   if (!mon || !stoneItem) return null;
   const req = getEvolutionRequirement(mon.id);
@@ -159,8 +227,6 @@ function handleActivePartnerFainted() {
   }
 }
 
-// Catch rate determined by raw HP amount (not percentage):
-// Legendaries have higher HP and therefore a higher initial catch rate, and damaging HP boosts catch rate further.
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
   const maxHpAmount = enemy.maxHp || enemy.baseHp || 120;
@@ -242,7 +308,6 @@ function syncAllUI() {
   pBar.className = `h-full transition-all duration-500 ease-out ${getHpColorClass(pRatio)}`;
   document.getElementById('playerHpNumbers').textContent = `${Math.max(0, player.hp)}/${player.maxHp}`;
 
-  // Evolution Bar in Player HUD (Distinguishes EXP bar vs. Stone requirement)
   let evoContainer = document.getElementById('playerEvoBarWrap');
   if (!evoContainer) {
     const hpNumbersRow = document.getElementById('playerHpNumbers')?.parentElement;
@@ -898,16 +963,45 @@ function showDexSwitchView() {
   });
 }
 
+function getMonsterHabitatName(monsterId, monsterName) {
+  if (typeof WORLD_MAPS === 'undefined') return 'Unknown';
+  const cleanId = (monsterId || '').toLowerCase();
+  const cleanName = (monsterName || '').toLowerCase();
+  
+  for (const mapKey of Object.keys(WORLD_MAPS)) {
+    const mapObj = WORLD_MAPS[mapKey];
+    if (mapObj.encounters && mapObj.encounters.some(e => e.toLowerCase() === cleanId || e.toLowerCase() === cleanName)) {
+      return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
+    }
+  }
+  return 'Unknown';
+}
+
 function openOverworldDexModal() {
   sfx.blip();
   const list = document.getElementById('overworldDexList');
+  if (!list) return;
   list.innerHTML = '';
 
+  const totalMonsters = MONSTER_SPECIES.length;
+  const caughtCount = state.dex.length;
+  const pct = Math.round((caughtCount / totalMonsters) * 100);
+
+  const summaryBox = document.createElement('div');
+  summaryBox.className = 'col-span-full bg-slate-900 text-amber-300 p-2.5 rounded border-2 border-amber-500 flex items-center justify-between text-[9px] sm:text-[10px] font-bold mb-1';
+  summaryBox.innerHTML = `
+    <span>📊 DEX COMPLETION: ${caughtCount} / ${totalMonsters} (${pct}%)</span>
+    <span class="text-emerald-400">${caughtCount >= 30 ? '✈️ FLY UNLOCKED' : caughtCount >= 20 ? '🗺️ WORLD MAP UNLOCKED' : `NEED ${20 - caughtCount} MORE FOR MAP`}</span>
+  `;
+  list.appendChild(summaryBox);
+
+  // Iterates through MONSTER_SPECIES in standard Pokédex number order without sorting caught to top
   MONSTER_SPECIES.forEach(species => {
     const dexIndex = state.dex.findIndex(p => p.id === species.id);
     const caughtMon = dexIndex !== -1 ? state.dex[dexIndex] : null;
     const isCurrent = dexIndex === state.activeDexIndex;
     const tInfo = ELEMENT_TYPES[species.type] || { name: species.type, badgeClass: 'bg-slate-700' };
+    const habitatLocation = getMonsterHabitatName(species.id, species.name);
 
     const card = document.createElement('div');
     card.className = `pixel-btn ${caughtMon ? (isCurrent ? 'bg-amber-100' : 'bg-white') : 'bg-slate-200 opacity-65'} text-slate-900 p-2.5 flex items-center gap-3`;
@@ -921,15 +1015,13 @@ function openOverworldDexModal() {
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${species.type}</span>
         </div>
         <div class="text-[8px] text-slate-600 mt-1">
-          ${caughtMon ? `CAUGHT • HP ${Math.max(0, caughtMon.hp)}/${caughtMon.maxHp} • ${getEvoStatusText(caughtMon)} ${isCurrent ? '★ ACTIVE' : ''}` : 'UNCAUGHT • FIND IN TALL GRASS'}
+          ${caughtMon ? `CAUGHT • HP ${Math.max(0, caughtMon.hp)}/${caughtMon.maxHp} • ${getEvoStatusText(caughtMon)} ${isCurrent ? '★ ACTIVE' : ''}` : `📍 HABITAT: ${habitatLocation}`}
         </div>
       </div>
     `;
     if (caughtMon) {
       card.addEventListener('click', () => {
-        if (caughtMon.hp <= 0) {
-          caughtMon.hp = caughtMon.maxHp;
-        }
+        if (caughtMon.hp <= 0) caughtMon.hp = caughtMon.maxHp;
         sfx.pokemonCry(species.id);
         state.activeDexIndex = dexIndex;
         if (typeof saveGameProgress === 'function') saveGameProgress();
@@ -941,8 +1033,11 @@ function openOverworldDexModal() {
   });
 
   const modal = document.getElementById('overworldDexModal');
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
 }
 
 function checkAllMonstersCaughtCelebration() {

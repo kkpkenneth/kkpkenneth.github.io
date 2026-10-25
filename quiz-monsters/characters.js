@@ -1,7 +1,7 @@
 /********************************************************************
  * characters.js
  * 16x16 Bitmap Tile Engine with Unified (p, d, l, b, s, t) Obstacle
- * Palettes, Walkable Flags & 4 New Regional Signature Obstacles
+ * Palettes, Walkable Flags & Visible Floor Item Canvas Rendering
  ********************************************************************/
 
 const DEFAULT_OBSTACLE_DEFS = {
@@ -75,7 +75,7 @@ const DEFAULT_OBSTACLE_DEFS = {
     id: 'C', name: 'SAGUARO CACTUS', walkable: false,
     palette: { p: '#16a34a', d: '#14532d', l: '#86efac', b: '#052e16', s: '#22c55e', t: '#4ade80' },
     grid: [
-       "................",
+        "................",
       "......bbbb......",
       ".....bssssb.....",
       ".....bslpsb.....",
@@ -248,7 +248,7 @@ const DEFAULT_OBSTACLE_DEFS = {
     ]
   },
   D: {
-    id: 'D', name: 'BUILDING DOORWAY', walkable: true,
+    id: 'D', name: 'BUILDING DOORWAY', walkable: false,
     palette: { p: '#dc2626', d: '#78350f', l: '#e2e8f0', b: '#0f172a', s: '#fde047', t: '#d6b37c' },
     grid: [
       "pppppppppppppppp",
@@ -335,7 +335,6 @@ const DEFAULT_OBSTACLE_DEFS = {
       "pppppppppppppppp"
     ]
   },
-  // Signature Obstacle 1: ONSEN (Fire/Water) -> Steaming Onsen Geyser
   S: {
     id: 'S', name: 'ONSEN STEAM GEYSER', walkable: false,
     palette: { p: '#38bdf8', d: '#64748b', l: '#f8fafc', b: '#0f172a', s: '#f97316', t: '#94a3b8' },
@@ -358,7 +357,6 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
-  // Signature Obstacle 2: FOUNDRY (Electric/Steel) -> High-Voltage Tesla Coil
   V: {
     id: 'V', name: 'TESLA COIL PYLON', walkable: false,
     palette: { p: '#94a3b8', d: '#475569', l: '#facc15', b: '#0f172a', s: '#38bdf8', t: '#e2e8f0' },
@@ -381,7 +379,6 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
-  // Signature Obstacle 3: BRAMBLE (Grass/Poison) -> Bioluminescent Spore Shroom
   U: {
     id: 'U', name: 'SPORE TOADSTOOL', walkable: false,
     palette: { p: '#a855f7', d: '#6b21a8', l: '#86efac', b: '#0f172a', s: '#fef08a', t: '#d8b4fe' },
@@ -404,7 +401,6 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
-  // Signature Obstacle 4: SPIRE (Psychic/Fairy) -> Floating Astral Obelisk
   A: {
     id: 'A', name: 'ASTRAL CRYSTAL OBELISK', walkable: false,
     palette: { p: '#f472b6', d: '#9333ea', l: '#fbcfe8', b: '#1e1b4b', s: '#38bdf8', t: '#fde047' },
@@ -427,7 +423,6 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
-  // Signature Obstacle 5: SHADOW_ALLEY -> Flickering Shadow Streetlamp
   N: {
     id: 'N', name: 'SHADOW STREETLAMP', walkable: false,
     palette: { p: '#334155', d: '#0f172a', l: '#facc15', b: '#020617', s: '#ef4444', t: '#64748b' },
@@ -450,7 +445,6 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
-  // Signature Obstacle 6: MIRADOURO_LUA -> Badlands Moon Spire (Eroded Red-Ochre Hoodoo)
   Q: {
     id: 'Q', name: 'MOON BADLANDS SPIRE', walkable: false,
     palette: { p: '#dc2626', d: '#7f1d1d', l: '#fde047', b: '#450a0a', s: '#f97316', t: '#fca5a5' },
@@ -470,6 +464,50 @@ const DEFAULT_OBSTACLE_DEFS = {
       "bppppppppppppppb",
       "bddddddddddddddB".replace(/B/g, 'b'),
       ".bbbbbbbbbbbbbb.",
+      "................"
+    ]
+  },
+  BERRY: {
+    id: 'BERRY', name: 'WILD FLOOR BERRY', walkable: false, obtainable: true,
+    palette: { p: '#a855f7', d: '#581c87', l: '#f3e8ff', b: '#0f172a', s: '#e9d5ff', t: '#fde047'  },
+    grid: [
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "........s.......",
+      "........s.......",
+      "......tttts.....",
+      "........s.......",
+      "........s.......",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  STONE: {
+    id: 'STONE', name: 'EVOLUTIONARY STONE', walkable: false, obtainable: true,
+    palette: { p: '#a855f7', d: '#581c87', l: '#f3e8ff', b: '#0f172a', s: '#e9d5ff', t: '#ffffff' },
+    grid: [
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "........s.......",
+      "........s.......",
+      "......tttts.....",
+      "........s.......",
+      "........s.......",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
       "................"
     ]
   }
@@ -645,7 +683,6 @@ function drawInteractionBubble(ctx, nx, ny, isFacing, dist, animTick, symbol = '
   }
 }
 
-// Replace drawNPCSprite in characters.js:
 function drawNPCSprite(ctx, npc, playerWorld, isFacingThisNpc, animTick) {
   const nx = npc.x * TILE_SIZE;
   const ny = npc.y * TILE_SIZE;
@@ -795,6 +832,11 @@ function drawOverworldCanvas() {
       if (tx + TILE_SIZE < camX || tx > camX + viewW || ty + TILE_SIZE < camY || ty > camY + viewH) continue;
       drawOverworldTile(ctx, getTileAt(c, r), tx, ty, c, r, theme, animTick);
     }
+  }
+
+  // Draw visible floor items (Berries & Evolutionary Stones) onto the canvas
+  if (typeof drawFloorItemsOnCanvas === 'function') {
+    drawFloorItemsOnCanvas(ctx, performance.now());
   }
 
   const facingNpc = getFacingNPC();

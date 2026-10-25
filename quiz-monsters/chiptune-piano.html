@@ -3,29 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Chiptune & Synthesizer Piano with Rest Control</title>
+    <title>Full Chiptune & Synthesizer Piano with Bass</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         .font-pixel { font-family: 'Press Start 2P', monospace; }
         .key-active { background-color: #3b82f6 !important; transform: translateY(4px); }
         .key-sharp-active { background-color: #1d4ed8 !important; transform: translateY(4px); }
+        
+        /* Hide scrollbar for a cleaner look */
+        ::-webkit-scrollbar { height: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
-<body class="bg-gray-950 text-white min-h-screen flex flex-col items-center justify-between p-6 font-pixel">
+<body class="bg-gray-950 text-white min-h-screen flex flex-col items-center justify-between p-4 md:p-6 font-pixel">
 
     <!-- Header -->
-    <header class="text-center my-4">
+    <header class="text-center my-4 w-full">
         <h1 class="text-lg md:text-xl text-cyan-400 mb-2 drop-shadow-[0_4px_rgba(0,0,0,1)]">FULL CHIPTUNE & SYNTH PIANO</h1>
-        <p class="text-[9px] text-gray-400">Chromatic Keyboard with Rest Option & Live Recording</p>
+        <p class="text-[9px] text-gray-400 leading-relaxed">Chromatic Keyboard with Rest Option, Live Recording & Auto Bass</p>
     </header>
 
     <!-- Controls Panel -->
-    <div class="bg-gray-900 border-4 border-cyan-500 p-4 rounded-lg w-full max-w-6xl shadow-[0_8px_0_#0e7490] flex flex-wrap justify-between items-center gap-4 mb-4">
-        <div class="flex flex-wrap items-center gap-4">
-            <div class="flex items-center gap-2">
-                <label class="text-[9px] text-yellow-400">INSTRUMENT:</label>
-                <select id="instrumentSelect" class="bg-gray-950 border-2 border-cyan-600 text-cyan-300 text-[10px] p-2 outline-none cursor-pointer">
+    <div class="bg-gray-900 border-4 border-cyan-500 p-4 rounded-lg w-full max-w-6xl shadow-[0_8px_0_#0e7490] flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+        <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto justify-center">
+            <div class="flex flex-col sm:flex-row items-center gap-2">
+                <label class="text-[9px] text-yellow-400 whitespace-nowrap">INSTRUMENT:</label>
+                <select id="instrumentSelect" class="bg-gray-950 border-2 border-cyan-600 text-cyan-300 text-[10px] p-2 outline-none cursor-pointer w-full sm:w-auto">
                     <optgroup label="Chiptune / Retro Waves">
                         <option value="square">8-Bit Square (Classic Lead)</option>
                         <option value="triangle">Triangle Wave (Sub Bass)</option>
@@ -41,27 +47,27 @@
                 </select>
             </div>
             <div class="flex items-center gap-2">
-                <label class="text-[9px] text-yellow-400">TEMPO (MS):</label>
-                <input type="number" id="tempoInput" value="180" min="50" max="1000" class="w-16 bg-gray-950 border-2 border-cyan-600 text-cyan-300 text-[10px] p-2 outline-none text-center">
+                <label class="text-[9px] text-yellow-400 whitespace-nowrap">TEMPO (MS):</label>
+                <input type="number" id="tempoInput" value="180" min="50" max="1000" class="w-20 bg-gray-950 border-2 border-cyan-600 text-cyan-300 text-[10px] p-2 outline-none text-center">
             </div>
         </div>
-        <div class="flex gap-2">
-            <button id="playSeqBtn" class="bg-green-600 hover:bg-green-500 text-white text-[9px] px-4 py-2 border-b-4 border-green-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all">
+        <div class="flex gap-2 w-full md:w-auto justify-center">
+            <button id="playSeqBtn" class="bg-green-600 hover:bg-green-500 text-white text-[9px] px-4 py-3 border-b-4 border-green-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all flex-1 md:flex-none whitespace-nowrap">
                 ▶ PLAY
             </button>
-            <button id="stopSeqBtn" class="bg-red-600 hover:bg-red-500 text-white text-[9px] px-4 py-2 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all">
+            <button id="stopSeqBtn" class="bg-red-600 hover:bg-red-500 text-white text-[9px] px-4 py-3 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all flex-1 md:flex-none whitespace-nowrap">
                 ■ STOP
             </button>
         </div>
     </div>
 
     <!-- Interactive Piano Keyboard -->
-    <div class="w-full max-w-6xl bg-gray-900 border-4 border-gray-700 p-6 rounded-lg shadow-[0_8px_0_#374151] mb-4">
+    <div class="w-full max-w-6xl bg-gray-900 border-4 border-gray-700 p-4 md:p-6 rounded-lg shadow-[0_8px_0_#374151] mb-4">
         <p id="status" class="text-[9px] text-green-400 mb-2 text-center tracking-wider">STATUS: READY</p>
-        <p class="text-[7px] text-gray-400 mb-6 text-center">Play using QWERTY rows or mouse clicks! Use the Rest button to add silent steps.</p>
+        <p class="text-[7px] text-gray-400 mb-6 text-center leading-loose">Play using QWERTY rows, mouse clicks, or touch! Use the Rest button to add silent steps.</p>
         
         <!-- Piano Keyboard Scrollable Wrapper -->
-        <div class="relative h-56 bg-gray-950 border-2 border-gray-800 p-4 flex overflow-x-auto">
+        <div class="relative h-56 bg-gray-950 border-2 border-gray-800 p-4 flex overflow-x-auto w-full touch-pan-x">
             <div id="piano-container" class="relative flex mx-auto h-48 select-none">
                 <!-- White Keys Container -->
                 <div id="white-keys" class="flex"></div>
@@ -72,29 +78,41 @@
     </div>
 
     <!-- Recorder / Textbox Panel -->
-    <div class="w-full max-w-6xl bg-gray-900 border-4 border-yellow-500 p-4 rounded-lg shadow-[0_8px_0_#ca8a04] flex flex-col gap-3">
-        <div class="flex justify-between items-center">
-            <label class="text-[9px] text-yellow-400">RECORDED FREQUENCIES ARRAY:</label>
-            <div class="flex gap-2 flex-wrap">
-                <button id="restBtn" class="bg-purple-600 hover:bg-purple-500 text-white text-[9px] px-4 py-2 border-b-4 border-purple-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all">
-                    + REST (0)
-                </button>
-                <button id="undoBtn" class="bg-amber-600 hover:bg-amber-500 text-white text-[9px] px-4 py-2 border-b-4 border-amber-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all">
-                    ↩ UNDO
-                </button>
-                <button id="copyBtn" class="bg-blue-600 hover:bg-blue-500 text-white text-[9px] px-4 py-2 border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all">
-                    COPY
-                </button>
-                <button id="clearBtn" class="bg-red-600 hover:bg-red-500 text-white text-[9px] px-4 py-2 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all">
-                    CLEAR
-                </button>
+    <div class="w-full max-w-6xl bg-gray-900 border-4 border-yellow-500 p-4 rounded-lg shadow-[0_8px_0_#ca8a04] flex flex-col gap-4">
+        
+        <!-- Melody Section -->
+        <div class="flex flex-col gap-2">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                <label class="text-[9px] text-yellow-400">RECORDED FREQUENCIES (MELODY):</label>
+                <div class="flex gap-2 flex-wrap w-full md:w-auto">
+                    <button id="restBtn" class="flex-1 md:flex-none bg-purple-600 hover:bg-purple-500 text-white text-[9px] px-3 py-2 border-b-4 border-purple-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all whitespace-nowrap">
+                        + REST (0)
+                    </button>
+                    <button id="undoBtn" class="flex-1 md:flex-none bg-amber-600 hover:bg-amber-500 text-white text-[9px] px-3 py-2 border-b-4 border-amber-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all whitespace-nowrap">
+                        ↩ UNDO
+                    </button>
+                    <button id="copyBtn" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-500 text-white text-[9px] px-3 py-2 border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all whitespace-nowrap">
+                        COPY ALL
+                    </button>
+                    <button id="clearBtn" class="flex-1 md:flex-none bg-red-600 hover:bg-red-500 text-white text-[9px] px-3 py-2 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 cursor-pointer transition-all whitespace-nowrap">
+                        CLEAR
+                    </button>
+                </div>
             </div>
+            <textarea id="recorderBox" class="w-full h-24 bg-gray-950 border-2 border-gray-700 text-cyan-300 text-[10px] p-3 outline-none resize-none font-mono focus:border-cyan-500 transition-colors" placeholder="Played frequencies will appear here as an array..."></textarea>
         </div>
-        <textarea id="recorderBox" class="w-full h-28 bg-gray-950 border-2 border-gray-700 text-cyan-300 text-[10px] p-3 outline-none resize-none font-mono" placeholder="Played frequencies will appear here as an array..."></textarea>
+        
+        <!-- Bass Section -->
+        <div class="flex flex-col gap-2 border-t-2 border-gray-800 pt-4">
+            <div class="flex justify-between items-center">
+                <label class="text-[9px] text-purple-400">AUTO GENERATED FREQUENCIES (BASS):</label>
+            </div>
+            <textarea id="bassBox" class="w-full h-24 bg-gray-950 border-2 border-purple-900 text-purple-300 text-[10px] p-3 outline-none resize-none font-mono focus:border-purple-500 transition-colors" placeholder="Bass frequencies (2 octaves lower) will auto-generate here..."></textarea>
+        </div>
     </div>
 
     <!-- Footer -->
-    <footer class="text-[9px] text-gray-600 mt-6">
+    <footer class="text-[9px] text-gray-600 mt-6 mb-4 text-center">
         WEB AUDIO API • CHIPTUNE SYNTHESIZER
     </footer>
 
@@ -120,7 +138,9 @@
             for (let i = 0; i < noteNames.length; i++) {
                 const name = noteNames[i];
                 const fullName = name + oct;
-                if (oct === 5 && i > 0) continue;
+                
+                // Stop generating notes after C5
+                if (oct === 5 && i > 0) continue; 
                 
                 let keyLabel = '';
                 for (let [k, v] of Object.entries(qwertyMap)) {
@@ -135,10 +155,11 @@
                 });
             }
         }
-        masterKeys.push({ note: 'C5', freq: getFrequency('C', 5), type: 'white', qwerty: 'q' });
+        // Removed manual push for C5 to prevent duplicate key issue.
 
         let audioCtx = null;
         let recordedNotes = [];
+        let bassNotes = [];
         let isPlaying = false;
         let playbackInterval = null;
         const keyElements = {};
@@ -162,13 +183,16 @@
             return audioContext.createPeriodicWave(real, imag);
         }
 
-        function playTone(freq, durationMs = 300) {
+        function playTone(freq, durationMs = 300, forceInstrument = null) {
             if (!freq || freq <= 0) return; // Silent rest if freq is 0
             initAudio();
 
-            const instrument = document.getElementById('instrumentSelect').value;
+            const instrument = forceInstrument || document.getElementById('instrumentSelect').value;
             const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            
+            // Slightly lower volume for bass waves to blend well
+            const maxVol = forceInstrument ? 0.08 : 0.12; 
+            gain.gain.setValueAtTime(maxVol, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (durationMs / 1000) * 0.9);
             gain.connect(audioCtx.destination);
 
@@ -202,7 +226,7 @@
                 osc2.frequency.setValueAtTime(freq * 1.008, audioCtx.currentTime);
                 
                 const dualGain = audioCtx.createGain();
-                dualGain.gain.setValueAtTime(0.07, audioCtx.currentTime);
+                dualGain.gain.setValueAtTime(maxVol * 0.6, audioCtx.currentTime);
                 dualGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (durationMs / 1000) * 0.9);
                 
                 osc1.connect(dualGain);
@@ -222,7 +246,7 @@
                 osc2.frequency.setValueAtTime(freq * 2, audioCtx.currentTime);
                 
                 const orgGain = audioCtx.createGain();
-                orgGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                orgGain.gain.setValueAtTime(maxVol * 0.6, audioCtx.currentTime);
                 orgGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (durationMs / 1000) * 0.9);
                 
                 osc1.connect(orgGain);
@@ -238,6 +262,7 @@
 
         function triggerKey(item) {
             playTone(item.freq);
+            playTone(item.freq / 4, 300, 'triangle'); // Auto-play real-time bass (2 octaves down)
             recordNote(item.freq);
 
             const el = keyElements[item.note];
@@ -250,7 +275,13 @@
 
         function recordNote(freq) {
             if (isPlaying) return;
-            recordedNotes.push(freq === 0 ? 0 : parseFloat(freq.toFixed(2)));
+            const finalFreq = freq === 0 ? 0 : parseFloat(freq.toFixed(2));
+            recordedNotes.push(finalFreq);
+            
+            // Auto generate bass line (2 octaves lower = freq / 4)
+            const bassFreq = finalFreq === 0 ? 0 : parseFloat((finalFreq / 4).toFixed(2));
+            bassNotes.push(bassFreq);
+            
             updateRecorderBox();
         }
 
@@ -258,21 +289,42 @@
             const textarea = document.getElementById('recorderBox');
             textarea.value = JSON.stringify(recordedNotes, null, 2);
             textarea.scrollTop = textarea.scrollHeight;
+
+            const bassArea = document.getElementById('bassBox');
+            bassArea.value = JSON.stringify(bassNotes, null, 2);
+            bassArea.scrollTop = bassArea.scrollHeight;
         }
 
         function parseNotesFromTextbox() {
+            // Main Notes
             try {
                 const textarea = document.getElementById('recorderBox');
                 const parsed = JSON.parse(textarea.value);
-                if (Array.isArray(parsed)) {
-                    recordedNotes = parsed;
-                }
+                if (Array.isArray(parsed)) recordedNotes = parsed;
             } catch (e) {
                 const textarea = document.getElementById('recorderBox');
                 const parts = textarea.value.replace(/[\[\]]/g, '').split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
-                if (parts.length > 0) {
-                    recordedNotes = parts;
+                if (parts.length > 0) recordedNotes = parts;
+            }
+
+            // Bass Notes
+            try {
+                const bArea = document.getElementById('bassBox');
+                const bParsed = JSON.parse(bArea.value);
+                if (Array.isArray(bParsed)) bassNotes = bParsed;
+            } catch (e) {
+                const bArea = document.getElementById('bassBox');
+                const parts = bArea.value.replace(/[\[\]]/g, '').split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+                if (parts.length > 0) bassNotes = parts;
+            }
+
+            // Auto-pad bass notes if main notes length changed manually
+            if (bassNotes.length < recordedNotes.length) {
+                for(let i = bassNotes.length; i < recordedNotes.length; i++) {
+                    const f = recordedNotes[i];
+                    bassNotes.push(f === 0 ? 0 : parseFloat((f / 4).toFixed(2)));
                 }
+                updateRecorderBox();
             }
         }
 
@@ -281,12 +333,13 @@
             parseNotesFromTextbox();
             if (recordedNotes.length === 0) {
                 document.getElementById('status').innerText = "STATUS: NO NOTES TO PLAY!";
+                setTimeout(() => { if (!isPlaying) document.getElementById('status').innerText = "STATUS: READY"; }, 2000);
                 return;
             }
 
             initAudio();
             isPlaying = true;
-            document.getElementById('status').innerText = "STATUS: PLAYING SEQUENCE...";
+            document.getElementById('status').innerText = "STATUS: PLAYING SEQUENCE WITH BASS...";
             document.getElementById('status').className = "text-[9px] text-yellow-400 mb-2 text-center tracking-wider animate-pulse";
 
             let index = 0;
@@ -299,6 +352,12 @@
                 }
                 const freq = recordedNotes[index];
                 playTone(freq, tempo);
+
+                // Play accompanying bass note using a classic Triangle sub wave
+                if (bassNotes[index] !== undefined && bassNotes[index] > 0) {
+                    playTone(bassNotes[index], tempo, 'triangle');
+                }
+
                 index++;
             }, tempo);
         }
@@ -317,34 +376,41 @@
             blackKeysEl.innerHTML = '';
 
             let whiteKeyIndex = 0;
-            const whiteKeyWidth = 48;
+            const whiteKeyWidth = 48; // Ensure sync with CSS width (w-12 = 48px)
 
             masterKeys.forEach((item) => {
                 const key = document.createElement('div');
                 key.className = "flex flex-col justify-end items-center pb-3 cursor-pointer select-none transition-all";
 
-                let innerHTML = `<span class="-rotate-90 mb-2">${item.note}</span>`;
+                let innerHTML = `<span class="-rotate-90 mb-2 pointer-events-none">${item.note}</span>`;
                 if (item.qwerty) {
-                    innerHTML += `<span class="-rotate-90 text-blue-400 font-bold">[${item.qwerty.toUpperCase()}]</span>`;
+                    innerHTML += `<span class="-rotate-90 text-blue-400 font-bold pointer-events-none">[${item.qwerty.toUpperCase()}]</span>`;
                 }
 
+                // Add mouse and touch event handling
+                const interactEvent = (e) => {
+                    e.preventDefault(); // Prevent double firing on touch devices
+                    triggerKey(item);
+                };
+
                 if (item.type === 'white') {
-                    key.className += " w-12 h-48 bg-gray-200 hover:bg-gray-300 border border-gray-600 rounded-b text-[6px] text-gray-800 z-10";
+                    key.className += " w-12 h-48 bg-gray-200 hover:bg-gray-300 border border-gray-600 rounded-b text-[6px] text-gray-800 z-10 active:bg-blue-200";
                     key.innerHTML = innerHTML;
-                    key.addEventListener('mousedown', () => triggerKey(item));
+                    key.addEventListener('mousedown', interactEvent);
+                    key.addEventListener('touchstart', interactEvent, { passive: false });
                     whiteKeysEl.appendChild(key);
                     keyElements[item.note] = key;
                     whiteKeyIndex++;
                 } else {
-                    key.className += " w-7 h-28 bg-gray-950 hover:bg-gray-900 border border-gray-700 rounded-b text-[5px] text-cyan-400 absolute pointer-events-auto z-30";
+                    key.className += " w-7 h-28 bg-gray-950 hover:bg-gray-900 border border-gray-700 rounded-b text-[5px] text-cyan-400 absolute pointer-events-auto z-30 active:bg-blue-900";
                     key.innerHTML = innerHTML;
                     
-                    const leftPosition = (whiteKeyIndex * whiteKeyWidth) - 14;
+                    const leftPosition = (whiteKeyIndex * whiteKeyWidth) - (28 / 2); // 28 is the width of black key (w-7)
                     key.style.left = `${leftPosition}px`;
-                    key.addEventListener('mousedown', (e) => {
-                        e.stopPropagation();
-                        triggerKey(item);
-                    });
+                    
+                    key.addEventListener('mousedown', (e) => { e.stopPropagation(); interactEvent(e); });
+                    key.addEventListener('touchstart', (e) => { e.stopPropagation(); interactEvent(e); }, { passive: false });
+                    
                     blackKeysEl.appendChild(key);
                     keyElements[item.note] = key;
                 }
@@ -366,6 +432,7 @@
         document.getElementById('undoBtn').addEventListener('click', () => {
             if (recordedNotes.length > 0) {
                 recordedNotes.pop();
+                bassNotes.pop();
                 updateRecorderBox();
             }
         });
@@ -373,21 +440,35 @@
         document.getElementById('clearBtn').addEventListener('click', () => {
             stopPlayback();
             recordedNotes = [];
+            bassNotes = [];
             updateRecorderBox();
         });
 
         document.getElementById('copyBtn').addEventListener('click', () => {
             parseNotesFromTextbox();
-            const textarea = document.getElementById('recorderBox');
-            textarea.select();
-            navigator.clipboard.writeText(textarea.value);
-            document.getElementById('status').innerText = "STATUS: COPIED ARRAY TO CLIPBOARD!";
+            const payload = "Melody: " + JSON.stringify(recordedNotes) + "\nBass: " + JSON.stringify(bassNotes);
+            
+            // Using execCommand as fallback for iframes where clipboard.writeText might be blocked
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = payload;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                document.getElementById('status').innerText = "STATUS: COPIED TO CLIPBOARD!";
+            } catch (err) {
+                document.getElementById('status').innerText = "STATUS: COPY FAILED (IFRAME BLOCK)";
+            }
+            
+            document.body.removeChild(tempTextArea);
             setTimeout(() => { if (!isPlaying) document.getElementById('status').innerText = "STATUS: READY"; }, 2000);
         });
 
         document.getElementById('playSeqBtn').addEventListener('click', startPlayback);
         document.getElementById('stopSeqBtn').addEventListener('click', stopPlayback);
 
+        // Initialize Keyboard Setup
         renderKeyboard();
     </script>
 </body>

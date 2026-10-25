@@ -1,6 +1,7 @@
 /********************************************************************
  * battle.js
- * Trivia Combat Engine, Auto-Switch on Faint, No Region After Name
+ * Trivia Combat Engine, Auto-Switch on Faint, No Region After Name,
+ * Raw HP Catch Rate & Ditto Transform Move
  ********************************************************************/
 
 function createMonsterInstance(template) {
@@ -15,6 +16,15 @@ function createMonsterInstance(template) {
     hp: liveSpecies.baseHp || template.baseHp || 100,
     consistentRandomType: consistentRandomType === liveSpecies.type ? allTypes[(charSum + 1) % allTypes.length] : consistentRandomType
   };
+}
+
+function clearPartyTransformations() {
+  if (!state.dex) return;
+  state.dex.forEach(m => {
+    delete m.transformedSpeciesId;
+    delete m.transformedType;
+    delete m.transformedRandomType;
+  });
 }
 
 function getActivePlayer() {
@@ -45,6 +55,9 @@ function findNextHealthyPartnerIndex() {
 function handleActivePartnerFainted() {
   const faintedMon = getActivePlayer();
   faintedMon.hp = 0;
+  delete faintedMon.transformedSpeciesId;
+  delete faintedMon.transformedType;
+  delete faintedMon.transformedRandomType;
   syncAllUI();
 
   const nextIdx = findNextHealthyPartnerIndex();
@@ -64,6 +77,7 @@ function handleActivePartnerFainted() {
       state.busy = false;
     }, 1000);
   } else {
+    clearPartyTransformations();
     state.dex.forEach(m => { m.hp = m.maxHp; });
     syncAllUI();
     setDialogue(`${faintedMon.name} fainted! All your partners are exhausted! Returning to Nurse Joy...`, 'PARTY FAINTED');
@@ -75,13 +89,22 @@ function handleActivePartnerFainted() {
   }
 }
 
+// Catch rate determined by raw HP amount (not percentage):
+// Legendaries have higher HP and therefore a higher initial catch rate, and damaging HP boosts catch rate further.
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
-  const hpRatio = Math.max(0, enemy.hp / enemy.maxHp);
-  return Math.min(0.95, Math.max(0.20, Math.round((0.95 - 0.70 * hpRatio) * 100) / 100));
+  const maxHpAmount = enemy.maxHp || enemy.baseHp || 120;
+  const currentHpAmount = Math.max(0, enemy.hp);
+  const rawDamageDealt = Math.max(0, maxHpAmount - currentHpAmount);
+
+  // Higher total HP gives a higher initial catch rate; raw damage dealt increases it further
+  const rawProb = (maxHpAmount * 0.0022) + (rawDamageDealt * 0.0035);
+  return Math.min(0.95, Math.max(0.15, Math.round(rawProb * 100) / 100));
 }
 
 function setupBattleEncounter(chosenSpecies) {
+  clearPartyTransformations();
+
   let activePlayer = getActivePlayer();
   if (activePlayer.hp <= 0) {
     const healthyIdx = findNextHealthyPartnerIndex();
@@ -109,12 +132,12 @@ function setupBattleEncounter(chosenSpecies) {
     playerWrapper.innerHTML = renderMonsterSVG(activePlayer);
     playerWrapper.style.boxShadow = 'none';
     playerWrapper.style.filter = 'none';
+    playerWrapper.style.opacity = '1';
   }
 
   setTimeout(() => sfx.pokemonCry(state.enemy.id), 350);
 
   showCommandView();
-  // Do not show the region after the Pokémon name in battle
   setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! "${state.enemy.name}! ${state.enemy.name}~"`, 'WILD ENCOUNTER');
   syncAllUI();
 }
@@ -128,12 +151,13 @@ function getHpColorClass(ratio) {
 function syncAllUI() {
   const player = getActivePlayer();
   const enemy = state.enemy;
+  const effectivePlayerType = player.transformedType || player.type;
 
   document.getElementById('playerName').textContent = player.name;
   document.getElementById('playerLevel').textContent = `Lv${player.level}`;
-  const pTypeInfo = ELEMENT_TYPES[player.type];
+  const pTypeInfo = ELEMENT_TYPES[effectivePlayerType];
   const pBadge = document.getElementById('playerTypeBadge');
-  pBadge.textContent = pTypeInfo ? pTypeInfo.name : player.type;
+  pBadge.textContent = pTypeInfo ? pTypeInfo.name : effectivePlayerType;
   pBadge.className = `text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold ${pTypeInfo ? pTypeInfo.badgeClass : 'bg-slate-700'}`;
 
   const pRatio = Math.max(0, player.hp / player.maxHp);
@@ -238,36 +262,88 @@ function showMoveSelectView() {
   renderMoveButtons();
 }
 
+// Executes Ditto's Normal-type Transform move: blinks with SFX, morphs into the wild Pokémon, and copies its moveset completely
+function executeDittoTransform() {
+  if (state.busy) return;
+  const player = getActivePlayer();
+  const enemy = state.enemy;
+  if (!enemy) return;
+
+  state.busy = true;
+  if (typeof sfx.transformEffect === 'function') {
+    sfx.transformEffect();
+  } else {
+    sfx.pokemonCry(enemy.id);
+  }
+
+  const playerWrapper = document.getElementById('playerSpriteWrapper');
+  let blinks = 0;
+  const maxBlinks = 6;
+
+  const blinkTimer = setInterval(() => {
+    if (playerWrapper) {
+      playerWrapper.style.opacity = (blinks % 2 === 0) ? '0.1' : '1';
+    }
+    blinks++;
+    if (blinks >= maxBlinks) {
+      clearInterval(blinkTimer);
+      if (playerWrapper) playerWrapper.style.opacity = '1';
+
+      // Copy wild Pokemon's visual sprite and complete moveset types
+      player.transformedSpeciesId = enemy.id;
+      player.transformedType = enemy.type;
+      player.transformedRandomType = enemy.consistentRandomType;
+
+      if (playerWrapper) {
+        playerWrapper.innerHTML = renderMonsterSVG(enemy.id);
+      }
+      sfx.pokemonCry(enemy.id);
+      spawnFloatingText('player', `TRANSFORMED!`, 'text-purple-300');
+      syncAllUI();
+      renderMoveButtons();
+      setDialogue(`${player.name} transformed into ${enemy.name} and copied its moveset completely!`, 'TRANSFORM ★');
+      state.busy = false;
+    }
+  }, 85);
+}
+
 function renderMoveButtons() {
   const grid = document.getElementById('moveButtonsGrid');
   grid.innerHTML = '';
   const player = getActivePlayer();
   const enemy = state.enemy;
 
-  const secondaryType = player.consistentRandomType || 'NORMAL';
-  const primarySubject = ELEMENT_TYPES[player.type] ? ELEMENT_TYPES[player.type].subject : 'General';
+  const activeType = player.transformedType || player.type;
+  const secondaryType = player.transformedRandomType || player.consistentRandomType || 'NORMAL';
+  const primarySubject = ELEMENT_TYPES[activeType] ? ELEMENT_TYPES[activeType].subject : 'General';
   const secondarySubject = ELEMENT_TYPES[secondaryType] ? ELEMENT_TYPES[secondaryType].subject : 'General';
+
+  const isUntransformedDitto = player.id === 'ditto' && !player.transformedSpeciesId;
 
   const moveConfigs = [
     { title: 'NORMAL STRIKE', typeId: 'NORMAL', diff: 1, desc: 'Everyday Logic (★1 • Normal)' },
-    { title: `${player.type} EASY STRIKE`, typeId: player.type, diff: 1, desc: `${primarySubject} (★1 • Easy STAB)` },
-    { title: `${player.type} MEDIUM STRIKE`, typeId: player.type, diff: 2, desc: `${primarySubject} (★★2 • Medium STAB)` },
-    { title: `${secondaryType} WILD STRIKE`, typeId: secondaryType, diff: 2, desc: `${secondarySubject} (★★2 • Partner Move)` }
+    { title: `${activeType} EASY STRIKE`, typeId: activeType, diff: 1, desc: `${primarySubject} (★1 • Easy STAB)` },
+    { title: `${activeType} MEDIUM STRIKE`, typeId: activeType, diff: 2, desc: `${primarySubject} (★★2 • Medium STAB)` },
+    isUntransformedDitto
+      ? { title: 'TRANSFORM', typeId: 'NORMAL', diff: 1, isTransform: true, desc: `Morph into ${enemy ? enemy.name : 'Enemy'} & copy moves` }
+      : { title: `${secondaryType} WILD STRIKE`, typeId: secondaryType, diff: 2, desc: `${secondarySubject} (★★2 • Partner Move)` }
   ];
 
   moveConfigs.forEach(cfg => {
     const typeObj = ELEMENT_TYPES[cfg.typeId] || { name: cfg.typeId, btnClass: 'bg-slate-700 text-white', badgeClass: 'bg-slate-700' };
     const mult = getEffectiveness(cfg.typeId, enemy.type);
-    const hasStab = player.type === cfg.typeId && cfg.typeId !== 'NORMAL';
+    const hasStab = activeType === cfg.typeId && cfg.typeId !== 'NORMAL';
 
-    let effLabel = '1x';
-    let effBadgeClass = 'bg-slate-900/40 text-white';
-    if (mult > 1) {
-      effLabel = 'SUPER (2x!)';
-      effBadgeClass = 'bg-yellow-300 text-slate-950 animate-pulse';
-    } else if (mult < 1) {
-      effLabel = 'NOT VERY (0.5x)';
-      effBadgeClass = 'bg-slate-800/70 text-slate-300';
+    let effLabel = cfg.isTransform ? 'MORPH ★' : '1x';
+    let effBadgeClass = cfg.isTransform ? 'bg-purple-300 text-slate-950 font-bold animate-pulse' : 'bg-slate-900/40 text-white';
+    if (!cfg.isTransform) {
+      if (mult > 1) {
+        effLabel = 'SUPER (2x!)';
+        effBadgeClass = 'bg-yellow-300 text-slate-950 animate-pulse';
+      } else if (mult < 1) {
+        effLabel = 'NOT VERY (0.5x)';
+        effBadgeClass = 'bg-slate-800/70 text-slate-300';
+      }
     }
 
     const btn = document.createElement('button');
@@ -275,14 +351,20 @@ function renderMoveButtons() {
     btn.innerHTML = `
       <div class="flex items-center justify-between w-full gap-1">
         <span class="text-xs sm:text-sm font-bold">${cfg.title}</span>
-        ${hasStab ? '<span class="text-[8px] px-1.5 py-0.5 rounded bg-white/90 text-slate-950 font-bold">STAB</span>' : ''}
+        ${cfg.isTransform ? '<span class="text-[8px] px-1.5 py-0.5 rounded bg-white/90 text-slate-950 font-bold">NORMAL</span>' : (hasStab ? '<span class="text-[8px] px-1.5 py-0.5 rounded bg-white/90 text-slate-950 font-bold">STAB</span>' : '')}
       </div>
       <div class="flex items-center justify-between w-full gap-1">
         <span class="text-[8px] sm:text-[9px] opacity-95">${cfg.desc}</span>
         <span class="text-[8px] px-1.5 py-0.5 rounded font-bold ${effBadgeClass}">${effLabel}</span>
       </div>
     `;
-    btn.addEventListener('click', () => startElementalTriviaAttack(cfg.typeId, cfg.diff));
+    btn.addEventListener('click', () => {
+      if (cfg.isTransform) {
+        executeDittoTransform();
+      } else {
+        startElementalTriviaAttack(cfg.typeId, cfg.diff);
+      }
+    });
     grid.appendChild(btn);
   });
 }
@@ -387,6 +469,7 @@ function startCaptureBallSequence() {
             if (!alreadyInDex) {
               state.dex.push(createMonsterInstance(enemy));
             }
+            clearPartyTransformations();
             if (typeof saveGameProgress === 'function') saveGameProgress();
             syncAllUI();
             setDialogue(`GOTCHA! ${enemy.name} was caught and saved to your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`, 'CAPTURED! ★');
@@ -536,6 +619,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
   showCommandView();
   const player = getActivePlayer();
   const enemy = state.enemy;
+  const activeType = player.transformedType || player.type;
 
   if (isCorrect) {
     state.streak++;
@@ -543,7 +627,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
     const diff = state.selectedDifficulty || state.currentQuestion?.difficulty || 2;
     const diffMult = getDifficultyMultiplier(diff);
     const typeMult = getEffectiveness(state.selectedAttackType, enemy.type);
-    const stabMult = player.type === state.selectedAttackType && state.selectedAttackType !== 'NORMAL' ? 1.25 : 1.0;
+    const stabMult = activeType === state.selectedAttackType && state.selectedAttackType !== 'NORMAL' ? 1.25 : 1.0;
     const streakMult = 1 + Math.min(6, state.streak - 1) * 0.12;
 
     const totalDmg = Math.max(8, Math.round(basePower * diffMult * speedMult * typeMult * stabMult * streakMult));
@@ -564,6 +648,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
 
     setTimeout(() => {
       if (enemy.hp <= 0) {
+        clearPartyTransformations();
         sfx.captureFanfare();
         setDialogue(`Wild ${enemy.name} fainted! Returning to ${getCurrentMap().name}...`, 'VICTORY!');
         setTimeout(() => {
@@ -644,6 +729,7 @@ function showDexSwitchView() {
         showCommandView();
         return;
       }
+      clearPartyTransformations();
       sfx.pokemonCry(mon.id);
       state.activeDexIndex = idx;
       if (typeof saveGameProgress === 'function') saveGameProgress();

@@ -1,296 +1,446 @@
 /********************************************************************
  * characters.js
- * 16x16 Bitmap Tile Engine with Distinct Rocks, Ice, Lava, Swamp Mud,
- * Desert Cacti, Beach Corals & Multi-Color Flowers
+ * 16x16 Bitmap Tile Engine with Unified (p, d, l, b, s, t) Obstacle
+ * Palettes, Walkable Flags & 4 New Regional Signature Obstacles
  ********************************************************************/
 
-const TILE_BITMAPS = {
-  // Tree (16x16)
-  T: [
-    "....tttttttt....",
-    "..tttttttttttt..",
-    ".ttttlllllltttt.",
-    ".tttllllllllttt.",
-    "tttllllllllllttt",
-    "tttllllllllllttt",
-    "ttttlllllllltttt",
-    "tttttttttttttttt",
-    ".tttttttttttttt.",
-    "..tttttttttttt..",
-    "....dddddddd....",
-    ".....bbbbbb.....",
-    ".....bbbbbb.....",
-    ".....bbbbbb.....",
-    "....bbbbbbbb....",
-    "................"
-  ],
-  // Jagged Crag Rock / Boulder (16x16)
-  R: [
-    "................",
-    ".....bbbbbb.....",
-    "...bbllllllbb...",
-    "..bllrrrrrrllb..",
-    ".blrrrrrrrrrrlb.",
-    ".blrrrlllrrrrlb.",
-    "blrrrllrrrrrrrlb",
-    "blrrrrrrrrddddlb",
-    "brrrrrrrdddddddb",
-    "brrrrrddddddrrrb",
-    ".bddddddddrrrrb.",
-    ".bbddddddddddbb.",
-    "..bbbbbbbbbbbb..",
-    "...ssssssssss...",
-    "................",
-    "................"
-  ],
-  // Crystalline Glacier Ice Block (16x16)
-  I: [
-    ".bbbbbbbbbbbbbb.",
-    "bwwwwwwwwwwwwwwb",
-    "bwllllllllllllwb",
-    "bwlwwllllllwwlwb",
-    "bwlwllllllllwlwb",
-    "bwllllwwwwllllwb",
-    "bwlllwwccwwlllwb",
-    "bwllwwccccwwllwb",
-    "bwllwccccccwllwb",
-    "bwlllwwccwwlllwb",
-    "bwllllwwwwllllwb",
-    "bwlwllllllllwlwb",
-    "bwlwwllllllwwlwb",
-    "bwccccccccccccwb",
-    "bwwwwwwwwwwwwwwb",
-    ".bbbbbbbbbbbbbb."
-  ],
-  // Desert Saguaro Cactus (16x16)
-  C: [
-    "................",
-    "......bbbb......",
-    ".....bggggb.....",
-    ".....bglggb.....",
-    ".bbb.bglggb.bbb.",
-    "bgggb.bglgb.bggb",
-    "bglgb.bglgb.bglb",
-    "bglgbbbglgbbbglb",
-    "bggggggglggggggb",
-    ".bbbbbbglgbbbbb.",
-    ".....bbglgb.....",
-    ".....bgglgb.....",
-    ".....bggggb.....",
-    ".....bggggb.....",
-    "....dddddddd....",
-    "................"
-  ],
-  // Beach / Reef Coral (16x16)
-  K: [
-    "................",
-    "..kk...pp...kk..",
-    ".kkkk.pppp.kkkk.",
-    ".kllk.pllp.kllk.",
-    "..kkkkppppkkkk..",
-    "...kkkkppkkkk...",
-    "..yykkkkkkkkcc..",
-    ".yyyykkkkkkcccc.",
-    "..yykkkkkkkkcc..",
-    "....kkkkkkkk....",
-    ".....kkkkkk.....",
-    "....bbbbbbbb....",
-    "...dddddddddd...",
-    "................",
-    "................",
-    "................"
-  ],
-  // Tall Wild Grass (16x16)
-  G: [
-    "................",
-    "..l....l.....l..",
-    "..ll...ll...ll..",
-    ".gll..gll..gll..",
-    ".ggl..ggl..ggl..",
-    ".ggg..ggg..ggg..",
-    "gggggggggggggggg",
-    "gggggggggggggggg",
-    "..l.....l....l..",
-    "..ll...ll...ll..",
-    ".gll..gll..gll..",
-    ".ggl..ggl..ggl..",
-    "gggggggggggggggg",
-    "gggggggggggggggg",
-    "dddddddddddddddd",
-    "................"
-  ],
-  // Water Wave Tile (16x16)
-  W: [
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwllllwwwwwwwwww",
-    "wwwwllllwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwllllww",
-    "wwwwwwwwllllwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwllllwwwwwwwwww",
-    "wwwwllllwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwllllww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww"
-  ],
-  // Lava Magma Wave Tile (16x16)
-  L: [
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwllllwwwwyyyyww",
-    "wwwwllllwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwyyyywwwwwwww",
-    "wwwwwwwwwwllllww",
-    "wwwwwwwwllllwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwyyyywwwwwwwwww",
-    "wwllllwwwwwwwwww",
-    "wwwwllllwwwwyyyy",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwllllww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww"
-  ],
-  // Swamp Mud Tile (16x16)
-  M: [
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwllllwwwwddddww",
-    "wwwwllllwwwwwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwddddwwwwwwww",
-    "wwwwwwwwwwllllww",
-    "wwwwwwwwllllwwww",
-    "wwwwwwwwwwwwwwww",
-    "wwddddwwwwwwwwww",
-    "wwllllwwwwwwwwww",
-    "wwwwllllwwwwdddd",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwllllww",
-    "wwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwww"
-  ],
-  // Multi-Color Animated Flower Tile (16x16)
-  F: [
-    "................",
-    "...yy...........",
-    "..yyyy..........",
-    "..yycy.....rr...",
-    "...yy.....rrrr..",
-    "...gg.....rrcr..",
-    "....g......rr...",
-    "...........gg...",
-    "............g...",
-    "....rr..........",
-    "...rrrr....yy...",
-    "...rrcr...yyyy..",
-    "....rr....yycy..",
-    "....gg.....yy...",
-    ".....g.....gg...",
-    "................"
-  ],
-  // Research Building Wall & Window (16x16)
-  H: [
-    "rrrrrrrrrrrrrrrr",
-    "rrrrrrrrrrrrrrrr",
-    "dddddddddddddddd",
-    "rrrrrrrrrrrrrrrr",
-    "rrrrrrrrrrrrrrrr",
-    "bbbbbbbbbbbbbbbb",
-    "wwwwwwwwwwwwwwww",
-    "wwwwbbbbbbbbwwww",
-    "wwwwbccccccbwwww",
-    "wwwwbccccccbwwww",
-    "wwwwbccccccbwwww",
-    "wwwwbccccccbwwww",
-    "wwwwbbbbbbbbwwww",
-    "wwwwwwwwwwwwwwww",
-    "ssssssssssssssss",
-    "bbbbbbbbbbbbbbbb"
-  ],
-  // Building Doorway (16x16)
-  D: [
-    "rrrrrrrrrrrrrrrr",
-    "rrrrrrrrrrrrrrrr",
-    "bbbbbbbbbbbbbbbb",
-    "wwwwbbbbbbbbwwww",
-    "wwwwbddddddBwwww",
-    "wwwwbddddddBwwww",
-    "wwwwbddddddBwwww",
-    "wwwwbddddddBwwww",
-    "wwwwbddddyyBwwww",
-    "wwwwbddddyyBwwww",
-    "wwwwbddddddBwwww",
-    "wwwwbddddddBwwww",
-    "wwwwbddddddBwwww",
-    "wwwwbddddddBwwww",
-    "pppppppppppppppp",
-    "pppppppppppppppp"
-  ],
-  // Wooden Bridge over Water (16x16)
-  B: [
-    "wwwwwwwwwwwwwwww",
-    "bbbbbbbbbbbbbbbb",
-    "dddddddddddddddd",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "llbbbbllbbbbllbb",
-    "dddddddddddddddd",
-    "bbbbbbbbbbbbbbbb",
-    "wwwwwwwwwwwwwwww"
-  ],
-  // Dirt/Stone Path (16x16)
-  P: [
-    "pppppppppppppppp",
-    "pppppppppppppppp",
-    "ppddpppppppppppp",
-    "ppddpppppppppppp",
-    "pppppppppppppppp",
-    "pppppppppppddppp",
-    "pppppppppppddppp",
-    "pppppppppppppppp",
-    "pppppppppppppppp",
-    "ppppddpppppppppp",
-    "ppppddpppppppppp",
-    "pppppppppppppppp",
-    "pppppppppppppddp",
-    "pppppppppppppddp",
-    "pppppppppppppppp",
-    "pppppppppppppppp"
-  ],
-  // Biome Exit Beacon Tile (16x16)
-  E: [
-    "pppppppppppppppp",
-    "pppppppppppppppp",
-    "ppbbbbbbbbbbbbpp",
-    "ppbbyyyyyyyybBpp",
-    "ppbyyyyyyyyyybpp",
-    "ppbyyybbbbyyybpp",
-    "ppbyybb..bbyybpp",
-    "ppbyyb....byybpp",
-    "ppbyyb....byybpp",
-    "ppbyybb..bbyybpp",
-    "ppbyyybbbbyyybpp",
-    "ppbyyyyyyyyyybpp",
-    "ppbbyyyyyyyybBpp",
-    "ppbbbbbbbbbbbbpp",
-    "pppppppppppppppp",
-    "pppppppppppppppp"
-  ]
+const DEFAULT_OBSTACLE_DEFS = {
+  T: {
+    id: 'T', name: 'TREE', walkable: false,
+    palette: { p: '#22c55e', d: '#15803d', l: '#86efac', b: '#451a03', s: '#14532d', t: '#166534' },
+    grid: [
+      "................",
+      "................",
+      ".....llttttt....",
+      "...ddlllttttt...",
+      "...dllllttttt...",
+      "..dllllttttttt..",
+      "..dlllbltttttt..",
+      "..llllbbttbttt..",
+      "..llbllbtbtttt..",
+      "..llbbbbtbtttt..",
+      "...lllbbbbtttt..",
+      "....llbbbbtt....",
+      "......bbbb......",
+      ".....bbbbbb.....",
+      ".....bbbbbb.....",
+      "................"
+    ]
+  },
+  R: {
+    id: 'R', name: 'CRAG ROCK / BOULDER', walkable: false,
+    palette: { p: '#78716c', d: '#44403c', l: '#d6d3d1', b: '#1c1917', s: '#292524', t: '#a8a29e' },
+    grid: [
+      "................",
+      ".....bbbbbb.....",
+      "...bbllllllbb...",
+      "..bllppppppllb..",
+      ".blpppppppppplb.",
+      ".blppplllpppplb.",
+      "blpppllppppppplb",
+      "blppppppppddddlb",
+      "bpppppppdddddddb",
+      "bpppppddddddpppb",
+      ".bddddddddppppb.",
+      ".bbddddddddddbb.",
+      "..bbbbbbbbbbbb..",
+      "...ssssssssss...",
+      "................",
+      "................"
+    ]
+  },
+  I: {
+    id: 'I', name: 'GLACIER ICE BLOCK', walkable: false,
+    palette: { p: '#e0f2fe', d: '#38bdf8', l: '#7dd3fc', b: '#0284c7', s: '#bae6fd', t: '#0369a1' },
+    grid: [
+      ".bbbbbbbbbbbbbb.",
+      "bppppppppppppppb",
+      "bpllllllllllllpb",
+      "bplppllllllpplpb",
+      "bplpllllllllplpb",
+      "bpllllppppllllpb",
+      "bplllppddpplllpb",
+      "bpllpdddddppllpb",
+      "bpllpddddddpllpb",
+      "bplllppddpplllpb",
+      "bpllllppppllllpb",
+      "bplpllllllllplpb",
+      "bplppllllllpplpb",
+      "bpddddddddddddpb",
+      "bppppppppppppppb",
+      ".bbbbbbbbbbbbbb."
+    ]
+  },
+  C: {
+    id: 'C', name: 'SAGUARO CACTUS', walkable: false,
+    palette: { p: '#16a34a', d: '#14532d', l: '#86efac', b: '#052e16', s: '#22c55e', t: '#4ade80' },
+    grid: [
+      "................",
+      "......bbbb......",
+      ".....bppppb.....",
+      ".....bplppb.....",
+      ".bbb.bplppb.bbb.",
+      "bpppb.bplpb.bppb",
+      "bplpb.bplpb.bplb",
+      "bplpbbbplpbbbplb",
+      "bppppppplppppppb",
+      ".bbbbbbplpbbbbb.",
+      ".....bbplpb.....",
+      ".....bpplpb.....",
+      ".....bppppb.....",
+      ".....bppppb.....",
+      "....dddddddd....",
+      "................"
+    ]
+  },
+  K: {
+    id: 'K', name: 'REEF CORAL', walkable: false,
+    palette: { p: '#f43f5e', d: '#475569', l: '#ffffff', b: '#1e293b', s: '#a855f7', t: '#fde047' },
+    grid: [
+      "................",
+      "..pp...ss...pp..",
+      ".pppp.ssss.pppp.",
+      ".pllp.slls.pllp.",
+      "..ppppsssspppp..",
+      "...ooooppoooo...".replace(/o/g, 'p'),
+      "..ttppppppppdd..",
+      ".ttttppppppdddd.",
+      "..ttppppppppdd..",
+      "....pppppppp....",
+      ".....pppppp.....",
+      "....bbbbbbbb....",
+      "...dddddddddd...",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  G: {
+    id: 'G', name: 'TALL WILD GRASS', walkable: true,
+    palette: { p: '#15803d', d: '#052e16', l: '#4ade80', b: '#14532d', s: '#22c55e', t: '#86efac' },
+    grid: [
+      "................",
+      "..l....l.....l..",
+      "..ll...ll...ll..",
+      ".pll..pll..pll..",
+      ".ppl..ppl..ppl..",
+      ".ppp..ppp..ppp..",
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "..l.....l....l..",
+      "..ll...ll...ll..",
+      ".pll..pll..pll..",
+      ".ppl..ppl..ppl..",
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "dddddddddddddddd",
+      "................"
+    ]
+  },
+  W: {
+    id: 'W', name: 'WATER WAVE TILE', walkable: false,
+    palette: { p: '#0284c7', d: '#0369a1', l: '#38bdf8', b: '#0f172a', s: '#7dd3fc', t: '#e0f2fe' },
+    grid: [
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppllllpppppppppp",
+      "ppppllllpppppppp",
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppppppppppllllpp",
+      "ppppppppllllpppp",
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppllllpppppppppp",
+      "ppppllllpppppppp",
+      "pppppppppppppppp",
+      "ppppppppppllllpp",
+      "pppppppppppppppp",
+      "pppppppppppppppp"
+    ]
+  },
+  L: {
+    id: 'L', name: 'LAVA MAGMA TILE', walkable: false,
+    palette: { p: '#dc2626', d: '#991b1b', l: '#f97316', b: '#450a0a', s: '#fde047', t: '#facc15' },
+    grid: [
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppllllppppststpp",
+      "ppppllllpppppppp",
+      "pppppppppppppppp",
+      "ppppststpppppppp",
+      "ppppppppppllllpp",
+      "ppppppppllllpppp",
+      "pppppppppppppppp",
+      "ppststpppppppppp",
+      "ppllllpppppppppp",
+      "ppppllllppppstst",
+      "pppppppppppppppp",
+      "ppppppppppllllpp",
+      "pppppppppppppppp",
+      "pppppppppppppppp"
+    ]
+  },
+  M: {
+    id: 'M', name: 'SWAMP MUD TILE', walkable: true,
+    palette: { p: '#5c4033', d: '#451a03', l: '#78350f', b: '#292524', s: '#92400e', t: '#a16207' },
+    grid: [
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppllllppppddddpp",
+      "ppppllllpppppppp",
+      "pppppppppppppppp",
+      "ppppddddpppppppp",
+      "ppppppppppllllpp",
+      "ppppppppllllpppp",
+      "pppppppppppppppp",
+      "ppddddpppppppppp",
+      "ppllllpppppppppp",
+      "ppppllllppppdddd",
+      "pppppppppppppppp",
+      "ppppppppppllllpp",
+      "pppppppppppppppp",
+      "pppppppppppppppp"
+    ]
+  },
+  F: {
+    id: 'F', name: 'ANIMATED FLOWER TILE', walkable: true,
+    palette: { p: '#f43f5e', d: '#15803d', l: '#fde047', b: '#0f172a', s: '#ffffff', t: '#fb923c' },
+    grid: [
+      "................",
+      "...ll...........",
+      "..llll..........",
+      "..llsl.....pp...",
+      "...ll.....pppp..",
+      "...dd.....ppsp..",
+      "....d......pp...",
+      "...........dd...",
+      "............d...",
+      "....pp..........",
+      "...pppp....ll...",
+      "...ppsp...llll..",
+      "....pp....llsl..",
+      "....dd.....ll...",
+      ".....d.....dd...",
+      "................"
+    ]
+  },
+  H: {
+    id: 'H', name: 'BUILDING WALL & WINDOW', walkable: false,
+    palette: { p: '#dc2626', d: '#991b1b', l: '#e2e8f0', b: '#0f172a', s: '#38bdf8', t: '#94a3b8' },
+    grid: [
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "dddddddddddddddd",
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "bbbbbbbbbbbbbbbb",
+      "llllllllllllllll",
+      "llllbbbbbbbbllll",
+      "llllbssssssbllll",
+      "llllbssssssbllll",
+      "llllbssssssbllll",
+      "llllbssssssbllll",
+      "llllbbbbbbbbllll",
+      "llllllllllllllll",
+      "tttttttttttttttt",
+      "bbbbbbbbbbbbbbbb"
+    ]
+  },
+  D: {
+    id: 'D', name: 'BUILDING DOORWAY', walkable: true,
+    palette: { p: '#dc2626', d: '#78350f', l: '#e2e8f0', b: '#0f172a', s: '#fde047', t: '#d6b37c' },
+    grid: [
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "bbbbbbbbbbbbbbbb",
+      "llllbbbbbbbbllll",
+      "llllbddddddbllll",
+      "llllbddddddbllll",
+      "llllbddddddbllll",
+      "llllbddddddbllll",
+      "llllbddddssbllll",
+      "llllbddddssbllll",
+      "llllbddddddbllll",
+      "llllbddddddbllll",
+      "llllbddddddbllll",
+      "llllbddddddbllll",
+      "tttttttttttttttt",
+      "tttttttttttttttt"
+    ]
+  },
+  B: {
+    id: 'B', name: 'WOODEN BRIDGE', walkable: true,
+    palette: { p: '#451a03', d: '#292524', l: '#d97706', b: '#0f172a', s: '#0284c7', t: '#78350f' },
+    grid: [
+      "ssssssssssssssss",
+      "pppppppppppppppp",
+      "dddddddddddddddd",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "llppppllppppllpp",
+      "dddddddddddddddd",
+      "pppppppppppppppp",
+      "ssssssssssssssss"
+    ]
+  },
+  P: {
+    id: 'P', name: 'DIRT / STONE PATH', walkable: true,
+    palette: { p: '#d6b37c', d: '#a16207', l: '#fef08a', b: '#78350f', s: '#ca8a04', t: '#e7e5e4' },
+    grid: [
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppddpppppppppppp",
+      "ppddpppppppppppp",
+      "pppppppppppppppp",
+      "pppppppppppddppp",
+      "pppppppppppddppp",
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppppddpppppppppp",
+      "ppppddpppppppppp",
+      "pppppppppppppppp",
+      "pppppppppppppddp",
+      "pppppppppppppddp",
+      "pppppppppppppppp",
+      "pppppppppppppppp"
+    ]
+  },
+  E: {
+    id: 'E', name: 'BIOME EXIT BEACON', walkable: true,
+    palette: { p: '#d6b37c', d: '#ca8a04', l: '#fde047', b: '#0f172a', s: '#f59e0b', t: '#ffffff' },
+    grid: [
+      "pppppppppppppppp",
+      "pppppppppppppppp",
+      "ppbbbbbbbbbbbbpp",
+      "ppbblslslslsbbpp",
+      "ppblslslslslsbpp",
+      "ppblsbbbbbblespp",
+      "ppblbb....bblspp",
+      "ppblb......blspp",
+      "ppblb......blspp",
+      "ppblbb....bblspp",
+      "ppblsbbbbbblespp",
+      "ppblslslslslsbpp",
+      "ppbblslslslsbbpp",
+      "ppbbbbbbbbbbbbpp",
+      "pppppppppppppppp",
+      "pppppppppppppppp"
+    ]
+  },
+  // Signature Obstacle 1: ONSEN (Fire/Water) -> Steaming Onsen Geyser
+  S: {
+    id: 'S', name: 'ONSEN STEAM GEYSER', walkable: false,
+    palette: { p: '#38bdf8', d: '#64748b', l: '#f8fafc', b: '#0f172a', s: '#f97316', t: '#94a3b8' },
+    grid: [
+      "....ll....ll....",
+      "...ll..ll..ll...",
+      "....ll..ll......",
+      ".....ll..ll.....",
+      "....bbbbbbbb....",
+      "...bddddddddb...",
+      "..bdtpppppptdb..",
+      "..bdppppppppdb..",
+      ".bbdppssssppdbb.",
+      ".bddddppppddddb.",
+      ".bddddddddddddb.",
+      "..bbbbbbbbbbbb..",
+      "................",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  // Signature Obstacle 2: FOUNDRY (Electric/Steel) -> High-Voltage Tesla Coil
+  V: {
+    id: 'V', name: 'TESLA COIL PYLON', walkable: false,
+    palette: { p: '#94a3b8', d: '#475569', l: '#facc15', b: '#0f172a', s: '#38bdf8', t: '#e2e8f0' },
+    grid: [
+      "..l..........l..",
+      "...ll.bbbb.ll...",
+      "....lbsttsbl....",
+      "....bspttpsb....",
+      ".....bbbbbb.....",
+      "......bddb......",
+      "....bbppppbb....",
+      "....bddddddB....".replace(/B/g, 'b'),
+      "......bddb......",
+      "....bbppppbb....",
+      "....bddddddb....",
+      "...bbppppppbb...",
+      "..bbddddddddbb..",
+      "..bppppppppppb..",
+      "..bbbbbbbbbbbb..",
+      "................"
+    ]
+  },
+  // Signature Obstacle 3: BRAMBLE (Grass/Poison) -> Bioluminescent Spore Shroom
+  U: {
+    id: 'U', name: 'SPORE TOADSTOOL', walkable: false,
+    palette: { p: '#a855f7', d: '#6b21a8', l: '#86efac', b: '#0f172a', s: '#fef08a', t: '#d8b4fe' },
+    grid: [
+      "................",
+      ".....bbbbbb.....",
+      "...bbppppppbb...",
+      "..bppllpplpppb..",
+      ".bpppllpplppppb.",
+      "bppppppllppllppb",
+      "bppppllpplpppppb",
+      "bddddddddddddddB".replace(/B/g, 'b'),
+      ".bbbbbbbbbbbbbb.",
+      ".....bssssb.....",
+      ".....bssssb.....",
+      "....bbssssbb....",
+      "....bssssssb....",
+      "...bbllllllbb...",
+      "...bbbbbbbbbb...",
+      "................"
+    ]
+  },
+  // Signature Obstacle 4: SPIRE (Psychic/Fairy) -> Floating Astral Obelisk
+  A: {
+    id: 'A', name: 'ASTRAL CRYSTAL OBELISK', walkable: false,
+    palette: { p: '#f472b6', d: '#9333ea', l: '#fbcfe8', b: '#1e1b4b', s: '#38bdf8', t: '#fde047' },
+    grid: [
+      ".......bb.......",
+      "......bllb......",
+      ".....blpplb.....",
+      "....blpppplb....",
+      "....bppssppb....",
+      "...blppsspplb...",
+      "...bppddddppb...",
+      "....bpddddpb....",
+      "....bbddddbb....",
+      ".....bbddbb.....",
+      "......bbbb......",
+      "....tt....tt....",
+      "...bbbbbbbbbb...",
+      "..bbddddddddbb..",
+      "................",
+      "................"
+    ]
+  }
 };
+
+if (typeof OBSTACLE_DEFS === 'undefined') {
+  var OBSTACLE_DEFS = structuredClone(DEFAULT_OBSTACLE_DEFS);
+}
+
+const TILE_BITMAPS = new Proxy({}, {
+  get(target, prop) {
+    if (OBSTACLE_DEFS && OBSTACLE_DEFS[prop]) {
+      return OBSTACLE_DEFS[prop].grid;
+    }
+    return undefined;
+  }
+});
 
 const CHAR_BITMAPS = {
   TRAINER_DOWN: [
@@ -387,124 +537,41 @@ function drawBitmap16(ctx, grid, palette, dx, dy, size = TILE_SIZE, flipX = fals
   }
 }
 
-const FLOWER_COLOR_SETS = [
-  { r: '#f43f5e', y: '#fde047', c: '#ffffff' },
-  { r: '#a855f7', y: '#f472b6', c: '#fef08a' },
-  { r: '#38bdf8', y: '#fb923c', c: '#ffffff' },
-  { r: '#ec4899', y: '#a78bfa', c: '#fde047' },
-  { r: '#f97316', y: '#facc15', c: '#fffbeb' }
-];
+function isObstacleCustomModified(tileKey) {
+  if (!OBSTACLE_DEFS[tileKey] || !DEFAULT_OBSTACLE_DEFS[tileKey]) return false;
+  return JSON.stringify(OBSTACLE_DEFS[tileKey].palette) !== JSON.stringify(DEFAULT_OBSTACLE_DEFS[tileKey].palette);
+}
 
 function drawOverworldTile(ctx, tile, tx, ty, c, r, theme, animTick) {
   ctx.fillStyle = (c + r) % 2 === 0 ? theme.groundA : theme.groundB;
   ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
 
-  const bmp = TILE_BITMAPS[tile];
-  if (!bmp) return;
+  const def = OBSTACLE_DEFS[tile];
+  if (!def || !def.grid) return;
 
-  if (tile === 'R') {
-    const rockPalette = {
-      b: '#1c1917',
-      r: theme.rock || '#78716c',
-      l: theme.rockLight || '#d6d3d1',
-      d: theme.rockDark || '#44403c',
-      s: 'rgba(0,0,0,0.28)'
-    };
-    drawBitmap16(ctx, bmp, rockPalette, tx, ty, TILE_SIZE, (c + r) % 2 === 1);
-    return;
+  const customPal = isObstacleCustomModified(tile);
+  const pal = { ...def.palette };
+
+  if (!customPal) {
+    if (tile === 'T') {
+      pal.t = theme.tree || pal.t;
+      pal.l = theme.treeTop || pal.l;
+    } else if (tile === 'R') {
+      pal.p = theme.rock || pal.p;
+      pal.l = theme.rockLight || pal.l;
+      pal.d = theme.rockDark || pal.d;
+    } else if (tile === 'G') {
+      pal.p = theme.grass || pal.p;
+      pal.l = theme.grassTip || pal.l;
+    } else if (tile === 'P' || tile === 'E' || tile === 'D') {
+      if (tile === 'P' || tile === 'E') pal.p = theme.path || pal.p;
+      if (tile === 'D') pal.t = theme.path || pal.t;
+    }
   }
 
-  if (tile === 'I') {
-    const icePalette = {
-      b: '#0284c7',
-      w: '#e0f2fe',
-      l: '#7dd3fc',
-      c: '#38bdf8'
-    };
-    drawBitmap16(ctx, bmp, icePalette, tx, ty, TILE_SIZE, false);
-    return;
-  }
-
-  if (tile === 'L') {
-    const lavaPalette = {
-      w: '#dc2626',
-      l: animTick % 2 === 0 ? '#f97316' : '#fb923c',
-      y: animTick % 2 === 0 ? '#fde047' : '#facc15'
-    };
-    const flipLava = (animTick + c + r) % 2 === 1;
-    drawBitmap16(ctx, bmp, lavaPalette, tx, ty, TILE_SIZE, flipLava);
-    return;
-  }
-
-  if (tile === 'M') {
-    const mudPalette = {
-      w: '#5c4033',
-      l: '#78350f',
-      d: animTick % 2 === 0 ? '#92400e' : '#451a03'
-    };
-    const flipMud = (animTick + c + r) % 2 === 1;
-    drawBitmap16(ctx, bmp, mudPalette, tx, ty, TILE_SIZE, flipMud);
-    return;
-  }
-
-  if (tile === 'C') {
-    const cactusPalette = {
-      b: '#052e16',
-      g: '#16a34a',
-      l: '#86efac',
-      d: 'rgba(0,0,0,0.25)'
-    };
-    drawBitmap16(ctx, bmp, cactusPalette, tx, ty, TILE_SIZE, c % 2 === 1);
-    return;
-  }
-
-  if (tile === 'K') {
-    const coralColors = ['#f43f5e', '#fb7185', '#e879f9', '#f97316'];
-    const secColors   = ['#a855f7', '#38bdf8', '#facc15', '#ec4899'];
-    const idx = (c * 3 + r * 5) % coralColors.length;
-    const coralPalette = {
-      k: coralColors[idx],
-      p: secColors[idx],
-      l: '#ffffff',
-      y: '#fde047',
-      c: '#2dd4bf',
-      b: '#475569',
-      d: 'rgba(0,0,0,0.28)'
-    };
-    drawBitmap16(ctx, bmp, coralPalette, tx, ty, TILE_SIZE, (c + r) % 2 === 1);
-    return;
-  }
-
-  if (tile === 'F') {
-    const fSet = FLOWER_COLOR_SETS[(c * 7 + r * 13) % FLOWER_COLOR_SETS.length];
-    const flowerPalette = {
-      r: fSet.r,
-      y: animTick % 2 === 0 ? fSet.y : fSet.r,
-      c: fSet.c,
-      g: '#15803d'
-    };
-    const flipFlower = (animTick + c + r) % 2 === 1;
-    drawBitmap16(ctx, bmp, flowerPalette, tx, ty, TILE_SIZE, flipFlower);
-    return;
-  }
-
-  const palette = {
-    t: theme.tree,
-    l: tile === 'W' ? '#38bdf8' : (tile === 'B' ? '#d97706' : (tile === 'G' ? theme.grassTip : theme.treeTop)),
-    g: theme.grass,
-    d: 'rgba(0,0,0,0.25)',
-    b: tile === 'T' || tile === 'B' ? '#451a03' : '#0f172a',
-    B: '#0f172a',
-    p: theme.path,
-    w: tile === 'H' || tile === 'D' ? '#e2e8f0' : '#0284c7',
-    r: '#dc2626',
-    c: '#38bdf8',
-    s: '#94a3b8',
-    y: animTick % 2 === 0 ? '#fde047' : '#f59e0b'
-  };
-
-  const flipTile = tile === 'W' && ((animTick + c + r) % 2 === 1);
-  drawBitmap16(ctx, bmp, palette, tx, ty, TILE_SIZE, flipTile);
+  const animatedTile = tile === 'W' || tile === 'L' || tile === 'M' || tile === 'F' || tile === 'S' || tile === 'V';
+  const flipTile = animatedTile && ((animTick + c + r) % 2 === 1);
+  drawBitmap16(ctx, def.grid, pal, tx, ty, TILE_SIZE, flipTile);
 }
 
 function drawInteractionBubble(ctx, nx, ny, isFacing, dist, animTick, symbol = '!') {

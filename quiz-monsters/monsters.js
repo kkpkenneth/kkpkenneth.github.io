@@ -53,8 +53,11 @@ function getEffectiveness(atkType, defType) {
 // National Roster Ordered Strictly by Pokédex Number
 const MONSTER_SPECIES = [
   { id: 'bulbasaur',  pokedexNo: 1,   name: 'BULBASAUR',  type: 'GRASS',    baseHp: 140, level: 12 },
+  { id: 'venusaur',   pokedexNo: 3,   name: 'VENUSAUR',   type: 'GRASS',    baseHp: 190, level: 20 },
   { id: 'charmander', pokedexNo: 4,   name: 'CHARMANDER', type: 'FIRE',     baseHp: 135, level: 12 },
+  { id: 'charizard',  pokedexNo: 6,   name: 'CHARIZARD',  type: 'FIRE',     baseHp: 190, level: 20 },
   { id: 'squirtle',   pokedexNo: 7,   name: 'SQUIRTLE',   type: 'WATER',    baseHp: 145, level: 12 },
+  { id: 'blastoise',  pokedexNo: 9,   name: 'BLASTOISE',  type: 'WATER',    baseHp: 190, level: 20 },
   { id: 'caterpie',   pokedexNo: 10,  name: 'CATERPIE',   type: 'BUG',      baseHp: 120, level: 10 },
   { id: 'weedle',     pokedexNo: 13,  name: 'WEEDLE',     type: 'POISON',   baseHp: 118, level: 10 },
   { id: 'pidgey',     pokedexNo: 16,  name: 'PIDGEY',     type: 'FLYING',   baseHp: 125, level: 10 },
@@ -139,7 +142,8 @@ const MONSTER_SPECIES = [
   { id: 'dratini',    pokedexNo: 147, name: 'DRATINI',    type: 'DRAGON',   baseHp: 130, level: 14 },
   { id: 'dragonite',  pokedexNo: 149, name: 'DRAGONITE',  type: 'DRAGON',   baseHp: 190, level: 24 },
   { id: 'mewtwo',     pokedexNo: 150, name: 'MEWTWO',     type: 'PSYCHIC',  baseHp: 175, level: 25 },
-  { id: 'mew',        pokedexNo: 151, name: 'MEW',        type: 'PSYCHIC',  baseHp: 170, level: 25 }
+  { id: 'mew',        pokedexNo: 151, name: 'MEW',        type: 'PSYCHIC',  baseHp: 170, level: 25 },
+  { id: 'lucario',    pokedexNo: 448, name: 'LUCARIO',    type: 'FIGHTING', baseHp: 185, level: 20 }
 ];
 
 const DEFAULT_QUESTIONS = [
@@ -152,7 +156,31 @@ const DEFAULT_QUESTIONS = [
   { type: 'NORMAL', difficulty: 2, q: 'What literary term describes a word blending the sounds and meanings of two other words (e.g., "brunch")?', options: ['Portmanteau', 'Acronym', 'Euphemism', 'Idiom'], answer: 0 },
   { type: 'NORMAL', difficulty: 1, q: 'Which of these animals is commonly known as man\'s best friend?', options: ['Dog', 'Cat', 'Hamster', 'Parrot'], answer: 0 },
   { type: 'NORMAL', difficulty: 2, q: 'What figure of speech combines contradictory terms, such as "deafening silence"?', options: ['Oxymoron', 'Hyperbole', 'Metaphor', 'Onomatopoeia'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after January?', options: ['March', 'February', 'December', 'April'], answer: 1 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after February?', options: ['April', 'January', 'March', 'May'], answer: 2 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after March?', options: ['April', 'May', 'June', 'February'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after April?', options: ['June', 'March', 'July', 'May'], answer: 3 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after May?', options: ['July', 'June', 'April', 'August'], answer: 1 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after June?', options: ['May', 'August', 'July', 'September'], answer: 2 },
   { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after July?', options: ['August', 'June', 'September', 'October'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after August?', options: ['October', 'November', 'July', 'September'], answer: 3 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after September?', options: ['August', 'November', 'October', 'December'], answer: 2 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after October?', options: ['December', 'November', 'September', 'January'], answer: 1 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after November?', options: ['October', 'January', 'February', 'December'], answer: 3 },
+  { type: 'NORMAL', difficulty: 1, q: 'What calendar month comes immediately after December?', options: ['January', 'February', 'November', 'March'], answer: 0 },
+
+  { type: 'NORMAL', difficulty: 1, q: 'What day of the week comes immediately after Monday?', options: ['Wednesday', 'Tuesday', 'Sunday', 'Thursday'], answer: 1 },
+  { type: 'NORMAL', difficulty: 1, q: 'What day of the week comes immediately after Tuesday?', options: ['Thursday', 'Monday', 'Wednesday', 'Friday'], answer: 2 },
+  { type: 'NORMAL', difficulty: 1, q: 'What day of the week comes immediately after Wednesday?', options: ['Tuesday', 'Friday', 'Saturday', 'Thursday'], answer: 3 },
+  { type: 'NORMAL', difficulty: 1, q: 'What day of the week comes immediately after Thursday?', options: ['Friday', 'Wednesday', 'Saturday', 'Monday'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'What day of the week comes immediately after Friday?', options: ['Sunday', 'Saturday', 'Thursday', 'Monday'], answer: 1 },
+  { type: 'NORMAL', difficulty: 1, q: 'What day of the week comes immediately after Saturday?', options: ['Friday', 'Monday', 'Sunday', 'Tuesday'], answer: 2 },
+  { type: 'NORMAL', difficulty: 1, q: 'What day of the week comes immediately after Sunday?', options: ['Tuesday', 'Saturday', 'Wednesday', 'Monday'], answer: 3 },
+
+  { type: 'NORMAL', difficulty: 1, q: 'Which season comes immediately after Spring?', options: ['Summer', 'Autumn', 'Winter', 'Fall'], answer: 0 },
+  { type: 'NORMAL', difficulty: 1, q: 'Which season comes immediately after Summer?', options: ['Winter', 'Spring', 'Autumn', 'Dry'], answer: 2 },
+  { type: 'NORMAL', difficulty: 1, q: 'Which season comes immediately after Autumn?', options: ['Spring', 'Summer', 'Monsoon', 'Winter'], answer: 3 },
+  { type: 'NORMAL', difficulty: 1, q: 'Which season comes immediately after Winter?', options: ['Summer', 'Spring', 'Autumn', 'Fall'], answer: 1 },
   { type: 'NORMAL', difficulty: 2, q: 'What is the term for a word that has the exact opposite meaning of another word?', options: ['Antonym', 'Synonym', 'Homonym', 'Acronym'], answer: 0 },
 
   // --- FIRE (10 Questions) ---
@@ -578,7 +606,22 @@ const DEFAULT_MONSTER_PIXELS = {
     "................","     pppppp     ","    pppppppp    ","    pbppbbpp    ","   pppppppppp   \n","   pllllllpp    ","   pllllllpp    ","    pppppp      ","    pp  pp      ","................","................","................","................","................","................","................"
   ]},
   mew: { palette: { p: '#f472b6', d: '#db2777', l: '#fce7f3', b: '#0f172a' }, grid: [
-    "................","................","     pppppp     ","    pppppppp    ","    pbppbbpp    ","   pppppppppp   \n","    pppppppp    ","     pppppp     ","      pppp      ","................","................","................","................","................","................","................"
+    "................",
+      "................",
+      "................",
+      "................",
+      ".....pd..dp.....",
+      ".....pppppp.....",
+      ".....pbppbp.....",
+      ".....pppppp.....",
+      ".......pp.......",
+      "..ppp..ppp......",
+      "....p..pp.......",
+      "....pppppp......",
+      "................",
+      "................",
+      "................",
+      "................"
   ]},
   raichu: { palette: { p: '#f97316', d: '#9a3412', l: '#fef08a', s: '#facc15', b: '#0f172a' }, grid: [
     "................","...dd......dd...","..dssd....dssd..","...ddppppppdd...","....pppppppp....","....pbppppbp....","...spppppppps...","....pppppppp....","...pppllllppp.d.","...pppllllppp.d.","....ppllllpp.d..","....ppppppppd...","....dd....dd....","................","................","................"
@@ -639,7 +682,79 @@ const DEFAULT_MONSTER_PIXELS = {
   ]},
   aerodactyl: { palette: { p: '#94a3b8', d: '#64748b', l: '#a855f7', b: '#0f172a' }, grid: [
     "................","..p....pp....p..",".pp...pppp...pp.",".ppp..pbbp..ppp.",".ppllppppppllpp.","..pllppppppllp..","...ll.pppp.ll...","......pppp......",".....pp..pp.....","................","................","................","................","................","................","................"
-  ]}
+  ]},
+  venusaur: { palette: { p: '#14b8a6', d: '#15803d', l: '#fde047', s: '#ef4444', b: '#0f172a' }, grid: [
+    "................",
+    ".....ssssss.....",
+    "...sssslsssss...",
+    "..sssssllsssss..",
+    "...dddddddddd...",
+    "..dddddddddddd..",
+    "...pppppppppp...",
+    "..pppppppppppp..",
+    "..ppbppppppbpp..",
+    "..pppppppppppp..",
+    "..pppppssspppp..",
+    "...pppppppppp...",
+    "...ppp....ppp...",
+    "................",
+    "................",
+    "................"
+  ]},
+  charizard: { palette: { p: '#f97316', d: '#0d9488', l: '#fef08a', s: '#ef4444', b: '#0f172a' }, grid: [
+    "................",
+    "..dd..pppp..dd..",
+    ".dddd.pbpb.dddd.",
+    ".dddd.pppp.dddd.",
+    "..ddd..pp..ddd..",
+    "...ddppppppdd...",
+    "....ppllllpp..s.",
+    "...pppllllppp.l.",
+    "...pppllllppp.p.",
+    "....ppllllpppp..",
+    "....pppppppp....",
+    "....pp....pp....",
+    "................",
+    "................",
+    "................",
+    "................"
+  ]},
+  blastoise: { palette: { p: '#2563eb', d: '#78350f', l: '#cbd5e1', s: '#fef08a', b: '#0f172a' }, grid: [
+    "................",
+    "..ll..pppp..ll..",
+    "..ll.pppppp.ll..",
+    "...l.pbppbp.l...",
+    "...ddppppppdd...",
+    "..ddddssssdddd..",
+    "..dddssssssddd..",
+    "..dddssssssddd..",
+    "..ddddssssdddd..",
+    "...pppddddppp...",
+    "...pp......pp...",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................"
+  ]},
+  lucario: { palette: { p: '#2563eb', d: '#1e293b', l: '#fde047', s: '#38bdf8', b: '#0f172a' }, grid: [
+    "................",
+    "....pp....pp....",
+    "....pd....dp....",
+    "....pppppppp....",
+    "....dbppppbd....",
+    ".....pppppp.....",
+    "....llllllll....",
+    "...pllllllllp...",
+    "...p.llllll.p...",
+    ".....pppppp.....",
+    ".....pp..pp.....",
+    ".....dd..dd.....",
+    "................",
+    "................",
+    "................",
+    "................"
+  ]},
 };
 
 const PIXEL_COLOR_PRESETS = [

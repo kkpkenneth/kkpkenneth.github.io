@@ -1,8 +1,9 @@
 /********************************************************************
  * maps.js
- * 13 Biome Maps Featuring Custom Tiles:
- * R = Rock, I = Ice, L = Lava, M = Swamp Mud, C = Cactus, K = Coral, F = Multi-Color Flower
- * Every habitat has strictly 1st-stage or single-stage Kanto Pokémon!
+ * 17 Biome Maps Featuring Custom & Regional Signature Obstacles:
+ * R = Rock, I = Ice, L = Lava, M = Swamp Mud, C = Cactus, K = Coral,
+ * F = Multi-Color Flower, S = Onsen Steam Geyser, V = Tesla Coil Pylon,
+ * U = Spore Toadstool, A = Astral Crystal Obelisk
  ********************************************************************/
 
 const MAP_COLS = 28;
@@ -21,8 +22,8 @@ const WORLD_MAPS = {
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..FFFF..PPPPPPPPPP..FFFF..T",
       "T.GGGGGG.P..HHHH..P.GGGGGG.T",
-      "T.GGGGGG.P..HHHH..P.GGGGGG.T",
-      "T.GGGGGG.P...DD...P.GGGGGG.T",
+      "T.GGGGGG.P..HDDH..P.GGGGGG.T",
+      "T.GGGGGG.P........P.GGGGGG.T",
       "T.GGGGGG.PPPPPPPPPP.GGGGGG.T",
       "T........P........P........T",
       "T..TTTT..P..FFFF..P..TTTT..T",
@@ -99,13 +100,13 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 2. NORTH: MOUNTAIN (Uses R = Rock boulders instead of recolored trees)
+  // 2. NORTH: MOUNTAIN
   MOUNTAIN: {
     id: 'MOUNTAIN',
     name: 'CRAG MOUNTAIN PEAK (NORTH)',
     subtitle: 'N: GLACIER • S: HUB • W: SKY PLATEAU • E: CANYON',
     theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['clefairy', 'jigglypuff', 'zubat', 'machop', 'hitmonlee', 'hitmonchan'],
+    encounters: ['clefairy', 'jigglypuff', 'zubat', 'machop', 'hitmonlee', 'hitmonchan', 'lucario'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..RRRR....PPPPPP....RRRR..R",
@@ -158,7 +159,7 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 3. EAST: DESERT (Uses C = Cactus & R = Desert Rocks)
+  // 3. EAST: DESERT
   DESERT: {
     id: 'DESERT',
     name: 'SCORCHED MIRAGE DESERT (EAST)',
@@ -217,13 +218,13 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 4. SOUTH: BEACH (Uses K = Coral Reefs along the shoreline)
+  // 4. SOUTH: BEACH
   BEACH: {
     id: 'BEACH',
     name: 'CORAL LAGOON BEACH (SOUTH)',
     subtitle: 'N: HUB • S: ABYSS • W: MARSH • E: ATOLL',
     theme: { groundA: '#fde047', groundB: '#facc15', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['squirtle', 'psyduck', 'poliwag', 'krabby', 'omanyte', 'kabuto'],
+    encounters: ['squirtle', 'blastoise', 'psyduck', 'poliwag', 'krabby', 'omanyte', 'kabuto'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..K........PPPP........K..T",
@@ -282,7 +283,7 @@ const WORLD_MAPS = {
     name: 'VIRIDIAN CANOPY FOREST (WEST)',
     subtitle: 'E: HUB • W: SANCTUARY • N: SKY PLATEAU • S: MARSH',
     theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
-    encounters: ['bulbasaur', 'caterpie', 'weedle', 'oddish', 'bellsprout', 'exeggcute', 'chansey'],
+    encounters: ['bulbasaur', 'venusaur', 'caterpie', 'weedle', 'oddish', 'bellsprout', 'exeggcute', 'chansey'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T.TTTT..GGGG.PP.GGGG..TTTT.T",
@@ -397,11 +398,11 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 7. NORTHEAST: BADLANDS CANYON QUARRY (Uses R = Rocks)
+  // 7. NORTHEAST: BADLANDS CANYON QUARRY (Connects East to DYNAMO ANVIL WORKS)
   NORTHEAST: {
     id: 'NORTHEAST',
     name: 'BADLANDS CANYON QUARRY (NORTHEAST)',
-    subtitle: 'W: CRAG MOUNTAIN • S: MIRAGE DESERT',
+    subtitle: 'W: CRAG MOUNTAIN • S: MIRAGE DESERT • E: DYNAMO WORKS',
     theme: { groundA: '#78350f', groundB: '#92400e', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#451a03', treeTop: '#d97706', rock: '#92400e', rockLight: '#fbbf24', rockDark: '#451a03' },
     encounters: ['geodude', 'onix', 'voltorb', 'magnemite', 'electabuzz'],
     rows: [
@@ -414,8 +415,8 @@ const WORLD_MAPS = {
       "R.........PP....PP.........R",
       "R..GGGG..PP..FF..PP..GGGG..R",
       "R..GGGG.PP...FF...PP.GGGG..R",
-      "EPPPPPPPP..........PPPPPPPPR",
-      "EPPPPPPPP..........PPPPPPPPR",
+      "EPPPPPPPP..........PPPPPPPPE",
+      "EPPPPPPPP..........PPPPPPPPE",
       "R..GGGG..PPPPPPPPPP..GGGG..R",
       "R..GGGG......PP......GGGG..R",
       "R............PP............R",
@@ -428,7 +429,8 @@ const WORLD_MAPS = {
     ],
     exits: {
       west:  { targetMap: 'MOUNTAIN', spawnX: 26, spawnY: 9 },
-      south: { targetMap: 'DESERT',   spawnX: 13, spawnY: 1 }
+      south: { targetMap: 'DESERT',   spawnX: 13, spawnY: 1 },
+      east:  { targetMap: 'FOUNDRY',  spawnX: 1,  spawnY: 9 }
     },
     npcs: [
       {
@@ -449,11 +451,11 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 8. SOUTHWEST: MANGROVE SWAMP MARSH (Uses M = Brown Swamp Mud)
+  // 8. SOUTHWEST: MANGROVE SWAMP MARSH (Connects South to NIGHTSHADE SPORE FEN)
   SOUTHWEST: {
     id: 'SOUTHWEST',
     name: 'MANGROVE SWAMP MARSH (SOUTHWEST)',
-    subtitle: 'N: VIRIDIAN FOREST • E: CORAL BEACH',
+    subtitle: 'N: VIRIDIAN FOREST • E: CORAL BEACH • S: SPORE FEN',
     theme: { groundA: '#134e4a', groundB: '#115e59', path: '#99f6e4', grass: '#065f46', grassTip: '#34d399', tree: '#042f2e', treeTop: '#0d9488' },
     encounters: ['paras', 'venonat', 'tangela', 'ekans', 'grimer', 'koffing'],
     rows: [
@@ -474,13 +476,14 @@ const WORLD_MAPS = {
       "T...MM.....P.FF.P.....MM...T",
       "T.TTTT....PP....PP....TTTT.T",
       "T.TTTT....PPPPPPPP....TTTT.T",
-      "T......GGGG..MM..GGGG......T",
-      "T......GGGG..MM..GGGG......T",
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+      "T......GGGG..PP..GGGG......T",
+      "T......GGGG..PP..GGGG......T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
     ],
     exits: {
-      north: { targetMap: 'FOREST', spawnX: 13, spawnY: 18 },
-      east:  { targetMap: 'BEACH',  spawnX: 1,  spawnY: 9 }
+      north: { targetMap: 'FOREST',  spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'BEACH',   spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'BRAMBLE', spawnX: 13, spawnY: 1 }
     },
     npcs: [
       {
@@ -501,11 +504,11 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 9. SOUTHEAST: SUNKEN TRADE ATOLL (Uses K = Coral)
+  // 9. SOUTHEAST: SUNKEN TRADE ATOLL (Includes Chauffeur, Captain, Sailor & Judge)
   SOUTHEAST: {
     id: 'SOUTHEAST',
     name: 'SUNKEN TRADE ATOLL (SOUTHEAST)',
-    subtitle: 'N: MIRAGE DESERT • W: CORAL BEACH',
+    subtitle: 'N: MIRAGE DESERT • W: CORAL BEACH • MARITIME HARBOR',
     theme: { groundA: '#f59e0b', groundB: '#d97706', path: '#fef3c7', grass: '#0284c7', grassTip: '#38bdf8', tree: '#15803d', treeTop: '#4ade80' },
     encounters: ['tentacool', 'staryu', 'meowth', 'snorlax', 'kangaskhan', 'tauros'],
     rows: [
@@ -549,11 +552,31 @@ const WORLD_MAPS = {
         id: 'videographer_zack', name: 'VIDEOGRAPHER ZACK', topic: 'VIDEOGRAPHER • PHASE CHANGES', x: 13, y: 10,
         hatColor: '#475569', shirtColor: '#e2e8f0',
         fact: "VIDEOGRAPHER ZACK: When water vapor turns directly into ice crystals without becoming liquid first, that phase transition is called Deposition!"
+      },
+      {
+        id: 'chauffeur_jarvis', name: 'CHAUFFEUR JARVIS', topic: 'CHAUFFEUR • KINEMATICS', x: 9, y: 5,
+        hatColor: '#1e293b', shirtColor: '#94a3b8',
+        fact: "CHAUFFEUR JARVIS: Smooth driving relies on physics! Aerodynamic Drag resists a vehicle's forward Thrust, and seatbelts protect passengers against inertia!"
+      },
+      {
+        id: 'captain_ahab', name: 'CAPTAIN AHAB', topic: 'CAPTAIN • CORIOLIS NAVIGATION', x: 12, y: 14,
+        hatColor: '#1e3a8a', shirtColor: '#fde047',
+        fact: "CAPTAIN AHAB: Navigating the high seas! The Coriolis Effect deflects moving winds and ocean currents due to Earth's rotation!"
+      },
+      {
+        id: 'sailor_popeye', name: 'SAILOR MARCO', topic: 'SAILOR • SCURVY & NUTRITION', x: 15, y: 14,
+        hatColor: '#0284c7', shirtColor: '#f8fafc',
+        fact: "SAILOR MARCO: Ahoy! Sailors on long ocean voyages eat citrus fruits because lacking Vitamin C causes Scurvy, and lacking Iron causes Anemia!"
+      },
+      {
+        id: 'judge_judith', name: 'JUDGE JUDITH', topic: 'JUDGE • LOGIC & EVIDENCE', x: 18, y: 5,
+        hatColor: '#0f172a', shirtColor: '#e2e8f0',
+        fact: "JUDGE JUDITH: Order in the court! Sound legal reasoning requires weighing evidence objectively with the Frontal Lobe—the seat of executive judgment!"
       }
     ]
   },
 
-  // 10. FAR NORTH: GLACIER (Uses I = Crystalline Ice Blocks)
+  // 10. FAR NORTH: GLACIER
   GLACIER: {
     id: 'GLACIER',
     name: 'ARCTIC GLACIER PEAK (FAR NORTH)',
@@ -599,18 +622,18 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 11. FAR EAST: VOLCANO (Uses R = Igneous Rocks & L = Molten Lava Pools)
+  // 11. FAR EAST: VOLCANO (Connects North to MISTVEIL ONSEN BASIN)
   VOLCANO: {
     id: 'VOLCANO',
     name: 'MAGMA CALDERA CORE (FAR EAST)',
-    subtitle: 'W: MIRAGE DESERT • IGNEOUS CRATER & STAGE ARTS',
+    subtitle: 'W: MIRAGE DESERT • N: MISTVEIL ONSEN • IGNEOUS CRATER',
     theme: { groundA: '#450a0a', groundB: '#7f1d1d', path: '#fca5a5', grass: '#991b1b', grassTip: '#f97316', tree: '#1c1917', treeTop: '#dc2626', rock: '#450a0a', rockLight: '#ef4444', rockDark: '#1c1917' },
-    encounters: ['charmander', 'vulpix', 'growlithe', 'ponyta', 'magmar', 'moltres'],
+    encounters: ['charmander', 'charizard', 'vulpix', 'growlithe', 'ponyta', 'magmar', 'moltres'],
     rows: [
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..LLGGGG..........GGGGLL..R",
-      "R...GGGGGG..RRRR..GGGGGG...R",
-      "R...GGGGGG........GGGGGG...R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..LLGGGG....PP....GGGGLL..R",
+      "R...GGGGGG..PPPP..GGGGGG...R",
+      "R...GGGGGG...PP...GGGGGG...R",
       "R...........PPPP...........R",
       "R..RRR.....PP..PP.....RRR..R",
       "R.........PP.LL.PP.........R",
@@ -629,7 +652,8 @@ const WORLD_MAPS = {
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
     exits: {
-      west: { targetMap: 'DESERT', spawnX: 26, spawnY: 9 }
+      west:  { targetMap: 'DESERT', spawnX: 26, spawnY: 9 },
+      north: { targetMap: 'ONSEN',  spawnX: 13, spawnY: 18 }
     },
     npcs: [
       {
@@ -658,20 +682,20 @@ const WORLD_MAPS = {
         fact: "B-BOY SPIN: Molten rock underground is Magma, and once it erupts onto the surface it's Lava! Subduction occurs when one tectonic plate sinks under another!"
       },
       {
-        id: 'overworld_moltres', name: 'MOLTRES', topic: 'LEGENDARY POKéMON • THERMODYNAMICS', x: 13, y: 3,
+        id: 'overworld_moltres', name: 'MOLTRES', topic: 'LEGENDARY POKéMON • THERMODYNAMICS', x: 14, y: 3,
         isMonster: true, monsterId: 'moltres',
         fact: "MOLTRES: ★ Gyaoooh! ★ (An Endothermic reaction absorbs heat from its surroundings, while an Exothermic reaction releases heat!)"
       }
     ]
   },
 
-  // 12. FAR SOUTH: ABYSS (Uses K = Deep Sea Coral & R = Seafloor Rocks)
+  // 12. FAR SOUTH: ABYSS
   ABYSS: {
     id: 'ABYSS',
     name: 'TRENCH CORAL ABYSS (FAR SOUTH)',
     subtitle: 'N: CORAL LAGOON BEACH • DEEP OCEAN CURRENTS',
     theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7', rock: '#1e293b', rockLight: '#64748b', rockDark: '#020617' },
-    encounters: ['horsea', 'goldeen', 'magikarp', 'slowpoke', 'dratini', 'zapdos'],
+    encounters: ['horsea', 'goldeen', 'magikarp', 'gyarados', 'slowpoke', 'dratini', 'zapdos'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..K........PPPP........K..R",
@@ -711,18 +735,18 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 13. FAR WEST: SANCTUARY
+  // 13. FAR WEST: SANCTUARY (Connects North to STARLIGHT CELESTIAL SPIRE)
   SANCTUARY: {
     id: 'SANCTUARY',
     name: 'MYSTIC RUIN SANCTUARY (FAR WEST)',
-    subtitle: 'E: VIRIDIAN FOREST • COSMOLOGY, FOLKLORE & MYTH',
+    subtitle: 'E: VIRIDIAN FOREST • N: CELESTIAL SPIRE • MYTH & COSMOS',
     theme: { groundA: '#2e1065', groundB: '#3b0764', path: '#c084fc', grass: '#4c1d95', grassTip: '#e879f9', tree: '#090d16', treeTop: '#7e22ce', rock: '#4c1d95', rockLight: '#c084fc', rockDark: '#1e1b4b' },
-    encounters: ['abra', 'gastly', 'drowzee', 'nidoran_f', 'nidoran_m', 'mr_mime', 'mewtwo', 'mew'],
+    encounters: ['abra', 'kadabra', 'gastly', 'gengar', 'drowzee', 'nidoran_f', 'nidoran_m', 'mr_mime', 'mewtwo', 'mew'],
     rows: [
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "T.RRRR..GGGGGGGGGGGG..RRRR.T",
-      "T.RRRR..GGGGGGGGGGGG..RRRR.T",
-      "T..FF...GGGG....GGGG...FF..T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T.RRRR..GGGG.PP.GGGG..RRRR.T",
+      "T.RRRR..GGGG.PP.GGGG..RRRR.T",
+      "T..FF...GGGG.PP.GGGG...FF..T",
       "T..GGG..PPPPPPPPPPPP..GGG..T",
       "T..GGG..P..RRRRRR..P..GGG..T",
       "T..GGG..P..RRRRRR..P..GGG..T",
@@ -741,7 +765,8 @@ const WORLD_MAPS = {
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
     ],
     exits: {
-      east: { targetMap: 'FOREST', spawnX: 1, spawnY: 9 }
+      east:  { targetMap: 'FOREST', spawnX: 1,  spawnY: 9 },
+      north: { targetMap: 'SPIRE',  spawnX: 13, spawnY: 18 }
     },
     npcs: [
       {
@@ -768,6 +793,260 @@ const WORLD_MAPS = {
         id: 'overworld_mew', name: 'MYTHICAL MEW', topic: 'LEGENDARY POKéMON • GENETICS', x: 13, y: 12,
         isMonster: true, monsterId: 'mew',
         fact: "MEW: ★ Mew~ ★ (DNA carries genetic information using four nitrogenous bases: Adenine, Thymine, Cytosine, and Guanine!)"
+      }
+    ]
+  },
+
+  // 14. NEW DUAL-THEME REGION 1: MISTVEIL ONSEN BASIN (Uses Signature Obstacle S = Onsen Steam Geyser)
+  ONSEN: {
+    id: 'ONSEN',
+    name: 'MISTVEIL ONSEN BASIN',
+    subtitle: 'S: MAGMA CALDERA • THERMAL SPRINGS & STEAM GEYSERS',
+    theme: { groundA: '#334155', groundB: '#475569', path: '#fed7aa', grass: '#0f766e', grassTip: '#5eead4', tree: '#7c2d12', treeTop: '#fb923c', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['vulpix', 'growlithe', 'arcanine', 'psyduck', 'poliwag', 'slowpoke', 'magmar', 'blastoise', 'charizard'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..SS..WWWW......WWWW..SS..R",
+      "R.GGGG.WWWW.PPPP.WWWW.GGGG.R",
+      "R.GGGG......P..P......GGGG.R",
+      "R..SS..PPPPPP..PPPPPP..SS..R",
+      "R......P....S..S....P......R",
+      "R.WWWW.P..GGGGGGGG..P.WWWW.R",
+      "R.WWWW.P..GGGGGGGG..P.WWWW.R",
+      "R......P....S..S....P......R",
+      "R..SS..PPPPPPPPPPPPPP..SS..R",
+      "R...........PPPP...........R",
+      "R..GGGG.....P..P.....GGGG..R",
+      "R..GGGG..SS.P..P.SS..GGGG..R",
+      "R..GGGG.....P..P.....GGGG..R",
+      "R........PPPPPPPPPP........R",
+      "R..WWWW..P........P..WWWW..R",
+      "R..WWWW..P..S..S..P..WWWW..R",
+      "R........PPPP..PPPP........R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      south: { targetMap: 'VOLCANO', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'plumber_mario', name: 'PLUMBER MARIO', topic: 'PLUMBER • FLUID PRESSURE', x: 10, y: 4,
+        hatColor: '#dc2626', shirtColor: '#2563eb',
+        fact: "PLUMBER MARIO: Maintaining the hot spring pipes! Water boils at 100°C at standard pressure, and evaporation turns liquid water into steam!"
+      },
+      {
+        id: 'painter_ross', name: 'PAINTER ROSS', topic: 'PAINTER • PIGMENTS & STEAM', x: 17, y: 4,
+        hatColor: '#f59e0b', shirtColor: '#f8fafc',
+        fact: "PAINTER ROSS: Painting happy little steam clouds! When warm moist air hits cool mountain air, water vapor condenses into visible mist!"
+      },
+      {
+        id: 'decorator_vera', name: 'DECORATOR VERA', topic: 'DECORATOR • MINERAL DESIGN', x: 8, y: 9,
+        hatColor: '#a855f7', shirtColor: '#f3e8ff',
+        fact: "DECORATOR VERA: I designed this resort with Quartz and Granite tiles! Quartz is the most abundant mineral in Earth's continental crust!"
+      },
+      {
+        id: 'housekeeper_marta', name: 'HOUSEKEEPER MARTA', topic: 'HOUSEKEEPER • THERMAL CARE', x: 19, y: 9,
+        hatColor: '#0284c7', shirtColor: '#e0f2fe',
+        fact: "HOUSEKEEPER MARTA: Fresh towels for the baths! The First Law of Thermodynamics states that energy cannot be created or destroyed—only transformed!"
+      },
+      {
+        id: 'janitor_scruffy', name: 'JANITOR GLENN', topic: 'JANITOR • SANITATION SCIENCE', x: 11, y: 14,
+        hatColor: '#15803d', shirtColor: '#86efac',
+        fact: "JANITOR GLENN: Scrubbing mineral deposits! Hard water contains dissolved Calcium and Magnesium ions picked up from underground Limestone!"
+      },
+      {
+        id: 'spy_bond', name: 'AGENT CIPHER (SPY)', topic: 'SPY • COVERT RECONNAISSANCE', x: 16, y: 14,
+        hatColor: '#0f172a', shirtColor: '#334155',
+        fact: "AGENT CIPHER: Shh—I'm undercover in the steam! Neutrinos are ghostly subatomic particles that pass right through solid matter almost undetected!"
+      }
+    ]
+  },
+
+  // 15. NEW DUAL-THEME REGION 2: DYNAMO ANVIL WORKS (Uses Signature Obstacle V = Tesla Coil Pylon)
+  FOUNDRY: {
+    id: 'FOUNDRY',
+    name: 'DYNAMO ANVIL WORKS',
+    subtitle: 'W: BADLANDS CANYON • HIGH-VOLTAGE MAGNETIC FORGE',
+    theme: { groundA: '#1e293b', groundB: '#334155', path: '#94a3b8', grass: '#ca8a04', grassTip: '#fef08a', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
+    encounters: ['pikachu', 'raichu', 'magnemite', 'voltorb', 'electabuzz', 'porygon', 'lucario'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..VV..GGGG......GGGG..VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV.......P..P.......VV..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..VV....VV..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPP...PPPP...PPPPPPPPR",
+      "EPPPPPPPP...PPPP...PPPPPPPPR",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..VV....VV..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..VV.......P..P.......VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV..GGGG......GGGG..VV..R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      west: { targetMap: 'NORTHEAST', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'developer_linus', name: 'DEVELOPER LINUS', topic: 'DEVELOPER • SOFTWARE LOGIC', x: 9, y: 4,
+        hatColor: '#2563eb', shirtColor: '#93c5fd',
+        fact: "DEVELOPER LINUS: Writing clean code! Every computer processor relies on billions of microscopic semiconductor Transistors to switch binary signals!"
+      },
+      {
+        id: 'contractor_bob', name: 'CONTRACTOR BOB', topic: 'CONTRACTOR • STRUCTURAL STEEL', x: 18, y: 4,
+        hatColor: '#eab308', shirtColor: '#fde047',
+        fact: "CONTRACTOR BOB: Building this facility! Iron alloyed with Carbon makes structural Steel, the most widely used metal in construction!"
+      },
+      {
+        id: 'engineer_tesla', name: 'ENGINEER NIKOLA', topic: 'ENGINEER • POWER SYSTEMS', x: 11, y: 8,
+        hatColor: '#0284c7', shirtColor: '#bae6fd',
+        fact: "ENGINEER NIKOLA: One Watt of electrical power equals one Joule of energy per second! Smelting extracts usable metal from raw mineral ore!"
+      },
+      {
+        id: 'technician_maya', name: 'TECHNICIAN MAYA', topic: 'TECHNICIAN • DIAGNOSTICS', x: 16, y: 8,
+        hatColor: '#0d9488', shirtColor: '#99f6e4',
+        fact: "TECHNICIAN MAYA: Calibrating instruments! We use a Voltmeter to measure electrical potential difference and an Ammeter to measure current in Amperes!"
+      },
+      {
+        id: 'mechanic_cid', name: 'MECHANIC CID', topic: 'MECHANIC • ALLOY HARDNESS', x: 9, y: 15,
+        hatColor: '#1e3a8a', shirtColor: '#ef4444',
+        fact: "MECHANIC CID: Tuning heavy gears! Hardness measures a metal's resistance to scratching or indentation, while Tempering increases toughness!"
+      },
+      {
+        id: 'elec_engineer_faraday', name: 'ELEC. ENG. FARADAY', topic: 'ELECTRICAL ENGINEER • CIRCUITS', x: 14, y: 15,
+        hatColor: '#4f46e5', shirtColor: '#c7d2fe',
+        fact: "ELEC. ENG. FARADAY: Electrons carry a negative charge! According to Ohm's Law, Voltage equals Current multiplied by Resistance!"
+      },
+      {
+        id: 'electrician_sparky', name: 'ELECTRICIAN SPARK', topic: 'ELECTRICIAN • CIRCUIT SAFETY', x: 19, y: 15,
+        hatColor: '#f59e0b', shirtColor: '#fef08a',
+        fact: "ELECTRICIAN SPARK: Safety first! Conductors let electricity flow easily, while a Fuse contains a thin wire that melts if current gets too high!"
+      }
+    ]
+  },
+
+  // 16. NEW DUAL-THEME REGION 3: NIGHTSHADE SPORE FEN (Uses Signature Obstacle U = Spore Toadstool)
+  BRAMBLE: {
+    id: 'BRAMBLE',
+    name: 'NIGHTSHADE SPORE FEN',
+    subtitle: 'N: MANGROVE SWAMP • BIOLUMINESCENT MYCELIUM GROVE',
+    theme: { groundA: '#2e1065', groundB: '#14532d', path: '#a855f7', grass: '#15803d', grassTip: '#c084fc', tree: '#1e1b4b', treeTop: '#22c55e' },
+    encounters: ['bulbasaur', 'venusaur', 'oddish', 'vileplume', 'bellsprout', 'weedle', 'ekans', 'zubat', 'koffing'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T..UU..GGGG..PP..GGGG..UU..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..UU.......P..P.......UU..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....U..U....PGGGG..T",
+      "T..GGGGP....MMMM....PGGGG..T",
+      "T......P..UUMMMMUU..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T...........PPPP...........T",
+      "T..UU.......P..P.......UU..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....U..U....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..UU.......P..P.......UU..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..UU..GGGG......GGGG..UU..T",
+      "T..........................T",
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'SOUTHWEST', spawnX: 13, spawnY: 18 }
+    },
+    npcs: [
+      {
+        id: 'game_tester_zack', name: 'GAME TESTER ZACK', topic: 'GAME TESTER • QA & DEBUGGING', x: 10, y: 4,
+        hatColor: '#16a34a', shirtColor: '#86efac',
+        fact: "GAME TESTER ZACK: Testing collision boxes around these giant toadstools! Complete metamorphosis in insects goes Egg, Larva, Pupa, and Adult!"
+      },
+      {
+        id: 'sweet_tester_willy', name: 'SWEET TESTER CANDY', topic: 'SWEET TESTER • PLANT SUGARS', x: 17, y: 4,
+        hatColor: '#ec4899', shirtColor: '#fbcfe8',
+        fact: "SWEET TESTER CANDY: Tasting botanical nectars! In vascular plants, Phloem is the tissue that distributes sweet sugars made during photosynthesis!"
+      },
+      {
+        id: 'toy_tester_woody', name: 'TOY TESTER TOBY', topic: 'TOY TESTER • MATERIAL SAFETY', x: 13, y: 8,
+        hatColor: '#ef4444', shirtColor: '#fde047',
+        fact: "TOY TESTER TOBY: Checking durability! Arthropods have tough external skeletons made of Chitin, while plant cells are reinforced by Cell Walls!"
+      }
+    ]
+  },
+
+  // 17. NEW DUAL-THEME REGION 4: STARLIGHT CELESTIAL SPIRE (Uses Signature Obstacle A = Astral Crystal Obelisk)
+  SPIRE: {
+    id: 'SPIRE',
+    name: 'STARLIGHT CELESTIAL SPIRE',
+    subtitle: 'S: MYSTIC SANCTUARY • ASTRAL OBELISKS & PRESS SUMMIT',
+    theme: { groundA: '#311042', groundB: '#4a1d66', path: '#fbcfe8', grass: '#701a75', grassTip: '#f472b6', tree: '#1e1b4b', treeTop: '#e879f9' },
+    encounters: ['clefairy', 'jigglypuff', 'abra', 'kadabra', 'drowzee', 'mr_mime', 'mewtwo', 'mew'],
+    rows: [
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+      "T..AA..GGGG......GGGG..AA..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..AA.......P..P.......AA..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....A..A....PGGGG..T",
+      "T..GGGGP....FFFF....PGGGG..T",
+      "T......P..AAFFFFAA..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T...........PPPP...........T",
+      "T..AA.......P..P.......AA..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....A..A....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..AA.......P..P.......AA..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..AA..GGGG..PP..GGGG..AA..T",
+      "T............PP............T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      south: { targetMap: 'SANCTUARY', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'publisher_pulitzer', name: 'PUBLISHER PERRY', topic: 'PUBLISHER • PRINT & FOLKLORE', x: 9, y: 4,
+        hatColor: '#581c87', shirtColor: '#e9d5ff',
+        fact: "PUBLISHER PERRY: Publishing timeless stories! Traditional tales passed down orally before being written are called Folklore—like the Brothers Grimm collections!"
+      },
+      {
+        id: 'journalist_lois', name: 'JOURNALIST LOIS', topic: 'JOURNALIST • INVESTIGATIVE', x: 18, y: 4,
+        hatColor: '#0284c7', shirtColor: '#bae6fd',
+        fact: "JOURNALIST LOIS: Investigating the truth! An Antonym is a word with the exact opposite meaning of another word, and the English alphabet has 26 letters!"
+      },
+      {
+        id: 'reporter_clark', name: 'REPORTER CLARK', topic: 'REPORTER • BREAKING NEWS', x: 9, y: 8,
+        hatColor: '#dc2626', shirtColor: '#fecaca',
+        fact: "REPORTER CLARK: Live from the Celestial Spire! Assigning human emotions or traits to non-human nature in writing is called Anthropomorphism!"
+      },
+      {
+        id: 'correspondent_erin', name: 'CORRESPONDENT ERIN', topic: 'CORRESPONDENT • FIELD DISPATCH', x: 18, y: 8,
+        hatColor: '#d97706', shirtColor: '#fef3c7',
+        fact: "CORRESPONDENT ERIN: Reporting across regions! In quantum physics, Quantum Entanglement links particles across vast cosmic distances!"
+      },
+      {
+        id: 'social_worker_clara', name: 'SOCIAL WORKER CLARA', topic: 'SOCIAL WORKER • PUBLIC HEALTH', x: 10, y: 14,
+        hatColor: '#0d9488', shirtColor: '#99f6e4',
+        fact: "SOCIAL WORKER CLARA: Supporting community wellness! Proper nutrition prevents deficiency disorders like Anemia (Iron) and Rickets (Vitamin D)!"
+      },
+      {
+        id: 'counselor_troi', name: 'COUNSELOR DEANNA', topic: 'COUNSELOR • EMPATHY & MEMORY', x: 17, y: 14,
+        hatColor: '#7e22ce', shirtColor: '#f3e8ff',
+        fact: "COUNSELOR DEANNA: Listening with empathy! Sensory signals are received by a neuron's branch-like Dendrites and sent along its Axon!"
       }
     ]
   }

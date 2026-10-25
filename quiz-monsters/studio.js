@@ -1,6 +1,7 @@
 /********************************************************************
  * studio.js
- * SVG Renderer, Pixel Sprite Studio, Custom Questions & Save/Reset System
+ * SVG Renderer, Pixel Sprite Studio (Monsters & Overworld Obstacles),
+ * Walkable Checkbox, Unified Palette (p, d, l, b, s, t) & Save/Reset
  ********************************************************************/
 
 if (typeof MONSTER_PIXELS === 'undefined') {
@@ -8,10 +9,31 @@ if (typeof MONSTER_PIXELS === 'undefined') {
 }
 
 function renderMonsterSVG(speciesOrInstance) {
-  const monId = typeof speciesOrInstance === 'string' ? speciesOrInstance : (speciesOrInstance?.id || 'bulbasaur');
+  const monId = typeof speciesOrInstance === 'string'
+    ? speciesOrInstance
+    : (speciesOrInstance?.transformedSpeciesId || speciesOrInstance?.id || 'bulbasaur');
   const art = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[monId])
     ? MONSTER_PIXELS[monId]
     : (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[monId] : null);
+  if (!art || !art.grid) return '<svg viewBox="0 0 16 16"></svg>';
+
+  let rects = '';
+  for (let y = 0; y < 16; y++) {
+    const rowStr = art.grid[y];
+    for (let x = 0; x < 16; x++) {
+      const ch = rowStr.charAt(x);
+      if (ch !== '.' && art.palette[ch]) {
+        rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${art.palette[ch]}"/>`;
+      }
+    }
+  }
+  return `<svg viewBox="0 0 16 16" class="w-full h-full" style="image-rendering: pixelated;">${rects}</svg>`;
+}
+
+function renderObstacleSVG(obsKey) {
+  const art = (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[obsKey])
+    ? OBSTACLE_DEFS[obsKey]
+    : (typeof DEFAULT_OBSTACLE_DEFS !== 'undefined' ? DEFAULT_OBSTACLE_DEFS[obsKey] : null);
   if (!art || !art.grid) return '<svg viewBox="0 0 16 16"></svg>';
 
   let rects = '';
@@ -68,7 +90,8 @@ function saveGameProgress(showToast = false) {
       streak: state.streak,
       celebrationShown: state.celebrationShown || false,
       questions: state.questions,
-      customPixels: MONSTER_PIXELS
+      customPixels: MONSTER_PIXELS,
+      customObstacles: typeof OBSTACLE_DEFS !== 'undefined' ? OBSTACLE_DEFS : undefined
     };
     localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(saveData));
 
@@ -109,6 +132,9 @@ function loadGameProgress() {
       state.questions = data.questions;
     }
     if (data.customPixels) MONSTER_PIXELS = data.customPixels;
+    if (data.customObstacles && typeof OBSTACLE_DEFS !== 'undefined') {
+      Object.assign(OBSTACLE_DEFS, data.customObstacles);
+    }
     return true;
   } catch (e) {
     console.error('Failed to load save data:', e);
@@ -119,6 +145,9 @@ function loadGameProgress() {
 function resetGameSaveData() {
   localStorage.removeItem(SAVE_STORAGE_KEY);
   MONSTER_PIXELS = {};
+  if (typeof DEFAULT_OBSTACLE_DEFS !== 'undefined') {
+    OBSTACLE_DEFS = structuredClone(DEFAULT_OBSTACLE_DEFS);
+  }
   state.currentMapId = 'CENTER';
   state.dex = [createMonsterInstance(MONSTER_SPECIES[0])];
   state.activeDexIndex = 0;
@@ -131,25 +160,109 @@ function resetGameSaveData() {
   sfx.captureFanfare();
 }
 
-function initSpriteStudio() {
-  const sel = document.getElementById('studioMonsterSelect');
-  if (sel && typeof MONSTER_SPECIES !== 'undefined') {
-    sel.innerHTML = '';
-    MONSTER_SPECIES.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.id;
-      opt.textContent = `#${m.pokedexNo} ${m.name} (${m.type})`;
-      sel.appendChild(opt);
-    });
+/********************************************************************
+ * STUDIO MODE HELPERS (MONSTERS & OVERWORLD OBSTACLES)
+ ********************************************************************/
+function ensureStudioObstacleControlsInDOM() {
+  const closeBtn = document.getElementById('closeSpriteStudioBtn');
+  if (closeBtn && !document.getElementById('studioModeMonsterBtn')) {
+    const headerBar = closeBtn.parentElement;
+    const modeWrap = document.createElement('div');
+    modeWrap.className = 'flex items-center gap-1.5';
+    modeWrap.innerHTML = `
+      <button id="studioModeMonsterBtn" type="button" class="pixel-btn bg-pink-600 text-white text-[8px] px-2.5 py-1 font-bold">👾 MONSTERS</button>
+      <button id="studioModeObstacleBtn" type="button" class="pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1">🌲 OBSTACLES</button>
+    `;
+    headerBar.insertBefore(modeWrap, closeBtn);
+    modeWrap.appendChild(closeBtn);
+  }
 
-    if (MONSTER_SPECIES.length > 0 && (!state.studio.selectedMonsterId || !MONSTER_SPECIES.some(m => m.id === state.studio.selectedMonsterId))) {
-      state.studio.selectedMonsterId = MONSTER_SPECIES[0].id;
+  const typeSelect = document.getElementById('studioMonsterTypeSelect');
+  if (typeSelect && !document.getElementById('studioObstacleWalkableWrapper')) {
+    const typeContainer = typeSelect.parentElement;
+    typeContainer.id = 'studioTypeSelectWrapper';
+
+    const walkDiv = document.createElement('div');
+    walkDiv.id = 'studioObstacleWalkableWrapper';
+    walkDiv.className = 'hidden flex items-center gap-1.5 pt-3';
+    walkDiv.innerHTML = `
+      <input id="studioObstacleWalkableCheckbox" type="checkbox" class="w-4 h-4 accent-emerald-600 cursor-pointer" />
+      <label for="studioObstacleWalkableCheckbox" class="text-[8px] font-bold text-slate-900 cursor-pointer leading-tight">CAN WALK PASS (WALKABLE)</label>
+    `;
+    typeContainer.parentElement.appendChild(walkDiv);
+  }
+}
+
+function getActiveStudioTargetArt() {
+  if (state.studio.editTarget === 'OBSTACLE') {
+    const obsKey = state.studio.selectedObstacleId || 'T';
+    if (!OBSTACLE_DEFS[obsKey] && typeof DEFAULT_OBSTACLE_DEFS !== 'undefined' && DEFAULT_OBSTACLE_DEFS[obsKey]) {
+      OBSTACLE_DEFS[obsKey] = structuredClone(DEFAULT_OBSTACLE_DEFS[obsKey]);
     }
-    sel.value = state.studio.selectedMonsterId;
+    return OBSTACLE_DEFS[obsKey];
+  } else {
+    const monId = state.studio.selectedMonsterId || (MONSTER_SPECIES[0] && MONSTER_SPECIES[0].id);
+    if (!MONSTER_PIXELS[monId] && typeof DEFAULT_MONSTER_PIXELS !== 'undefined' && DEFAULT_MONSTER_PIXELS[monId]) {
+      MONSTER_PIXELS[monId] = structuredClone(DEFAULT_MONSTER_PIXELS[monId]);
+    }
+    return MONSTER_PIXELS[monId];
+  }
+}
 
+function populateStudioSelectorDropdown() {
+  const sel = document.getElementById('studioMonsterSelect');
+  if (!sel) return;
+  const labelEl = sel.previousElementSibling;
+
+  sel.innerHTML = '';
+  if (state.studio.editTarget === 'OBSTACLE') {
+    if (labelEl) labelEl.textContent = '1. SELECT OVERWORLD OBSTACLE:';
+    if (typeof OBSTACLE_DEFS !== 'undefined') {
+      Object.values(OBSTACLE_DEFS).forEach(obs => {
+        const opt = document.createElement('option');
+        opt.value = obs.id;
+        opt.textContent = `[${obs.id}] ${obs.name} (${obs.walkable ? 'WALK PASS: YES' : 'WALK PASS: NO'})`;
+        sel.appendChild(opt);
+      });
+      if (!state.studio.selectedObstacleId || !OBSTACLE_DEFS[state.studio.selectedObstacleId]) {
+        state.studio.selectedObstacleId = 'T';
+      }
+      sel.value = state.studio.selectedObstacleId;
+    }
+  } else {
+    if (labelEl) labelEl.textContent = '1. SELECT MONSTER:';
+    if (typeof MONSTER_SPECIES !== 'undefined') {
+      MONSTER_SPECIES.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = `#${m.pokedexNo} ${m.name} (${m.type})`;
+        sel.appendChild(opt);
+      });
+      if (MONSTER_SPECIES.length > 0 && (!state.studio.selectedMonsterId || !MONSTER_SPECIES.some(m => m.id === state.studio.selectedMonsterId))) {
+        state.studio.selectedMonsterId = MONSTER_SPECIES[0].id;
+      }
+      sel.value = state.studio.selectedMonsterId;
+    }
+  }
+}
+
+function initSpriteStudio() {
+  ensureStudioObstacleControlsInDOM();
+
+  if (!state.studio.editTarget) state.studio.editTarget = 'MONSTER';
+  if (!state.studio.selectedObstacleId) state.studio.selectedObstacleId = 'T';
+
+  populateStudioSelectorDropdown();
+
+  const sel = document.getElementById('studioMonsterSelect');
+  if (sel) {
     sel.addEventListener('change', (e) => {
-      state.studio.selectedMonsterId = e.target.value;
-      const art = MONSTER_PIXELS[state.studio.selectedMonsterId] || DEFAULT_MONSTER_PIXELS[state.studio.selectedMonsterId];
+      if (state.studio.editTarget === 'OBSTACLE') {
+        state.studio.selectedObstacleId = e.target.value;
+      } else {
+        state.studio.selectedMonsterId = e.target.value;
+      }
+      const art = getActiveStudioTargetArt();
       if (art && art.palette) {
         const palKeys = Object.keys(art.palette);
         if (state.studio.activeBrush !== '.' && !palKeys.includes(state.studio.activeBrush)) {
@@ -160,18 +273,58 @@ function initSpriteStudio() {
     });
   }
 
+  document.getElementById('studioModeMonsterBtn')?.addEventListener('click', () => {
+    sfx.blip();
+    state.studio.editTarget = 'MONSTER';
+    populateStudioSelectorDropdown();
+    renderStudioEditor();
+  });
+
+  document.getElementById('studioModeObstacleBtn')?.addEventListener('click', () => {
+    sfx.blip();
+    state.studio.editTarget = 'OBSTACLE';
+    populateStudioSelectorDropdown();
+    renderStudioEditor();
+  });
+
+  const walkCheckbox = document.getElementById('studioObstacleWalkableCheckbox');
+  if (walkCheckbox) {
+    walkCheckbox.addEventListener('change', (e) => {
+      if (state.studio.editTarget !== 'OBSTACLE') return;
+      const obsKey = state.studio.selectedObstacleId;
+      if (OBSTACLE_DEFS[obsKey]) {
+        OBSTACLE_DEFS[obsKey].walkable = e.target.checked;
+        sfx.blip();
+        populateStudioSelectorDropdown();
+        refreshStudioVisualsOnly();
+        saveGameProgress();
+      }
+    });
+  }
+
   const nameInput = document.getElementById('studioMonsterNameInput');
   if (nameInput) {
     nameInput.addEventListener('input', (e) => {
-      const monId = state.studio.selectedMonsterId;
-      const species = MONSTER_SPECIES.find(m => m.id === monId);
-      if (species) {
-        species.name = e.target.value.toUpperCase().trim() || 'MONSTER';
-        if (sel) {
-          const opt = sel.querySelector(`option[value="${monId}"]`);
-          if (opt) opt.textContent = `#${species.pokedexNo} ${species.name} (${species.type})`;
+      if (state.studio.editTarget === 'OBSTACLE') {
+        const obsKey = state.studio.selectedObstacleId;
+        const obs = OBSTACLE_DEFS[obsKey];
+        if (obs) {
+          obs.name = e.target.value.toUpperCase().trim() || 'OBSTACLE';
+          const opt = sel?.querySelector(`option[value="${obsKey}"]`);
+          if (opt) opt.textContent = `[${obs.id}] ${obs.name} (${obs.walkable ? 'WALK PASS: YES' : 'WALK PASS: NO'})`;
+          refreshStudioVisualsOnly();
         }
-        refreshStudioVisualsOnly();
+      } else {
+        const monId = state.studio.selectedMonsterId;
+        const species = MONSTER_SPECIES.find(m => m.id === monId);
+        if (species) {
+          species.name = e.target.value.toUpperCase().trim() || 'MONSTER';
+          if (sel) {
+            const opt = sel.querySelector(`option[value="${monId}"]`);
+            if (opt) opt.textContent = `#${species.pokedexNo} ${species.name} (${species.type})`;
+          }
+          refreshStudioVisualsOnly();
+        }
       }
     });
   }
@@ -179,6 +332,7 @@ function initSpriteStudio() {
   const typeSelect = document.getElementById('studioMonsterTypeSelect');
   if (typeSelect) {
     typeSelect.addEventListener('change', (e) => {
+      if (state.studio.editTarget === 'OBSTACLE') return;
       const monId = state.studio.selectedMonsterId;
       const species = MONSTER_SPECIES.find(m => m.id === monId);
       if (species) {
@@ -201,12 +355,11 @@ function initSpriteStudio() {
       swatchBtn.className = 'w-5 h-5 rounded border border-slate-900 hover:scale-110 transition-transform';
       swatchBtn.style.backgroundColor = hex;
       swatchBtn.addEventListener('click', () => {
-        const monId = state.studio.selectedMonsterId;
         const activeKey = state.studio.activeBrush;
         if (activeKey === '.') return;
-        if (!MONSTER_PIXELS[monId]) MONSTER_PIXELS[monId] = structuredClone(DEFAULT_MONSTER_PIXELS[monId]);
-        if (MONSTER_PIXELS[monId].palette) {
-          MONSTER_PIXELS[monId].palette[activeKey] = hex;
+        const art = getActiveStudioTargetArt();
+        if (art && art.palette) {
+          art.palette[activeKey] = hex;
           sfx.blip();
           renderStudioEditor();
           saveGameProgress();
@@ -223,6 +376,7 @@ function initSpriteStudio() {
 
   document.getElementById('openSpriteStudioBtn')?.addEventListener('click', () => {
     sfx.blip();
+    populateStudioSelectorDropdown();
     renderStudioEditor();
     document.getElementById('spriteStudioModal')?.classList.remove('hidden');
     document.getElementById('spriteStudioModal')?.classList.add('flex');
@@ -237,16 +391,27 @@ function initSpriteStudio() {
 
   document.getElementById('studioClearGridBtn')?.addEventListener('click', () => {
     sfx.blip();
-    if (!MONSTER_PIXELS[state.studio.selectedMonsterId]) MONSTER_PIXELS[state.studio.selectedMonsterId] = structuredClone(DEFAULT_MONSTER_PIXELS[state.studio.selectedMonsterId]);
-    MONSTER_PIXELS[state.studio.selectedMonsterId].grid = Array(16).fill('................');
-    renderStudioEditor();
-    saveGameProgress();
+    const art = getActiveStudioTargetArt();
+    if (art) {
+      art.grid = Array(16).fill('................');
+      renderStudioEditor();
+      saveGameProgress();
+    }
   });
 
   document.getElementById('studioResetMonsterBtn')?.addEventListener('click', () => {
     sfx.blip();
-    if (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' && DEFAULT_MONSTER_PIXELS[state.studio.selectedMonsterId]) {
-      MONSTER_PIXELS[state.studio.selectedMonsterId] = structuredClone(DEFAULT_MONSTER_PIXELS[state.studio.selectedMonsterId]);
+    if (state.studio.editTarget === 'OBSTACLE') {
+      const obsKey = state.studio.selectedObstacleId;
+      if (typeof DEFAULT_OBSTACLE_DEFS !== 'undefined' && DEFAULT_OBSTACLE_DEFS[obsKey]) {
+        OBSTACLE_DEFS[obsKey] = structuredClone(DEFAULT_OBSTACLE_DEFS[obsKey]);
+      }
+      populateStudioSelectorDropdown();
+    } else {
+      const monId = state.studio.selectedMonsterId;
+      if (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' && DEFAULT_MONSTER_PIXELS[monId]) {
+        MONSTER_PIXELS[monId] = structuredClone(DEFAULT_MONSTER_PIXELS[monId]);
+      }
     }
     renderStudioEditor();
     saveGameProgress();
@@ -288,23 +453,47 @@ function setPixelAt(gridArr, x, y, charKey) {
 }
 
 function renderStudioEditor() {
-  const monId = state.studio.selectedMonsterId || (MONSTER_SPECIES[0] && MONSTER_SPECIES[0].id);
-  if (!monId) return;
+  ensureStudioObstacleControlsInDOM();
 
-  if (!MONSTER_PIXELS[monId]) {
-    MONSTER_PIXELS[monId] = structuredClone(DEFAULT_MONSTER_PIXELS[monId]);
+  const isObstacleMode = state.studio.editTarget === 'OBSTACLE';
+  const btnMon = document.getElementById('studioModeMonsterBtn');
+  const btnObs = document.getElementById('studioModeObstacleBtn');
+  if (btnMon && btnObs) {
+    btnMon.className = `pixel-btn text-[8px] px-2.5 py-1 ${!isObstacleMode ? 'bg-pink-600 text-white font-bold' : 'bg-slate-700 text-slate-200'}`;
+    btnObs.className = `pixel-btn text-[8px] px-2.5 py-1 ${isObstacleMode ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-700 text-slate-200'}`;
   }
-  const art = MONSTER_PIXELS[monId];
+
+  const art = getActiveStudioTargetArt();
   if (!art || !art.palette) return;
 
-  const species = MONSTER_SPECIES.find(m => m.id === monId);
+  // Ensure unified (p, d, l, b, s, t) color slots exist on obstacles and monsters
+  const unifiedSlots = ['p', 'd', 'l', 'b', 's', 't'];
+  if (isObstacleMode) {
+    unifiedSlots.forEach(slot => {
+      if (!art.palette[slot]) art.palette[slot] = '#0f172a';
+    });
+  }
   const palKeys = Object.keys(art.palette);
 
-  if (species) {
-    const nameInput = document.getElementById('studioMonsterNameInput');
-    const typeSelect = document.getElementById('studioMonsterTypeSelect');
-    if (nameInput) nameInput.value = species.name;
-    if (typeSelect) typeSelect.value = species.type;
+  const nameInput = document.getElementById('studioMonsterNameInput');
+  const typeSelectWrap = document.getElementById('studioTypeSelectWrapper');
+  const walkableWrap = document.getElementById('studioObstacleWalkableWrapper');
+  const walkCheckbox = document.getElementById('studioObstacleWalkableCheckbox');
+
+  if (isObstacleMode) {
+    if (nameInput) nameInput.value = art.name || state.studio.selectedObstacleId;
+    if (typeSelectWrap) typeSelectWrap.classList.add('hidden');
+    if (walkableWrap) walkableWrap.classList.remove('hidden');
+    if (walkCheckbox) walkCheckbox.checked = Boolean(art.walkable);
+  } else {
+    const species = MONSTER_SPECIES.find(m => m.id === state.studio.selectedMonsterId);
+    if (species) {
+      if (nameInput) nameInput.value = species.name;
+      const typeSelect = document.getElementById('studioMonsterTypeSelect');
+      if (typeSelect) typeSelect.value = species.type;
+    }
+    if (typeSelectWrap) typeSelectWrap.classList.remove('hidden');
+    if (walkableWrap) walkableWrap.classList.add('hidden');
   }
 
   const tMirr = document.getElementById('toolMirrorBtn');
@@ -320,8 +509,27 @@ function renderStudioEditor() {
       const isSelected = state.studio.activeBrush === k && state.studio.toolMode !== 'ERASER';
       const card = document.createElement('div');
       card.className = `flex items-center justify-between p-1.5 rounded border-2 cursor-pointer ${isSelected ? 'border-indigo-600 bg-indigo-50' : 'border-slate-300 bg-white'}`;
-      card.innerHTML = `<div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded border border-slate-900 inline-block" style="background-color: ${art.palette[k]}"></span><span class="text-[8px] font-bold text-slate-900">${PALETTE_SLOT_NAMES[k] || k}</span></div>`;
-      card.addEventListener('click', () => { state.studio.activeBrush = k; state.studio.toolMode = 'BRUSH'; renderStudioEditor(); });
+      card.innerHTML = `
+        <div class="flex items-center gap-1.5">
+          <input type="color" value="${art.palette[k]}" class="w-4 h-4 rounded border border-slate-900 cursor-pointer p-0 bg-transparent" data-slot="${k}" />
+          <span class="text-[8px] font-bold text-slate-900">${PALETTE_SLOT_NAMES[k] || k} (${k})</span>
+        </div>
+      `;
+      card.addEventListener('click', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        state.studio.activeBrush = k;
+        state.studio.toolMode = 'BRUSH';
+        renderStudioEditor();
+      });
+      const colorPicker = card.querySelector('input[type="color"]');
+      colorPicker?.addEventListener('input', (e) => {
+        art.palette[k] = e.target.value;
+        state.studio.activeBrush = k;
+        state.studio.toolMode = 'BRUSH';
+        refreshStudioGridColorsOnly();
+        refreshStudioVisualsOnly();
+        saveGameProgress();
+      });
       brushContainer.appendChild(card);
     });
   }
@@ -360,7 +568,7 @@ function renderStudioEditor() {
 }
 
 function refreshStudioGridColorsOnly() {
-  const art = MONSTER_PIXELS[state.studio.selectedMonsterId];
+  const art = getActiveStudioTargetArt();
   if (!art) return;
   const children = document.getElementById('studioPixelGrid').children;
   let idx = 0;
@@ -375,21 +583,36 @@ function refreshStudioGridColorsOnly() {
 }
 
 function refreshStudioVisualsOnly() {
+  const isObstacleMode = state.studio.editTarget === 'OBSTACLE';
   const livePrev = document.getElementById('studioLivePreview');
-  if (livePrev) livePrev.innerHTML = renderMonsterSVG(state.studio.selectedMonsterId);
-  if (typeof refreshTitleScreenSprites === 'function') refreshTitleScreenSprites();
-  if (state.enemy) document.getElementById('enemySpriteWrapper').innerHTML = renderMonsterSVG(state.enemy);
-  if (state.dex?.length > 0) document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(getActivePlayer());
 
-  const codeArea = document.getElementById('studioCodeTextarea');
-  if (codeArea && typeof MONSTER_SPECIES !== 'undefined') {
-    const monId = state.studio.selectedMonsterId;
-    const species = MONSTER_SPECIES.find(m => m.id === monId);
-    const art = MONSTER_PIXELS[monId];
-    if (species && art) {
-      const speciesCode = `  { id: '${species.id}', pokedexNo: ${species.pokedexNo}, name: '${species.name}', type: '${species.type}', baseHp: ${species.baseHp}, level: ${species.level} }`;
-      const pixelCode = `  ${species.id}: ${JSON.stringify(art, null, 2).replace(/\n/g, '\n  ')}`;
-      codeArea.value = `// --- Retrofit Code for ${species.name} ---\n\n// 1. Update in MONSTER_SPECIES array:\n${speciesCode},\n\n// 2. Update in MONSTER_PIXELS object:\n${pixelCode}`;
+  if (isObstacleMode) {
+    if (livePrev) livePrev.innerHTML = renderObstacleSVG(state.studio.selectedObstacleId);
+    if (state.screen === 'OVERWORLD' && typeof drawOverworldCanvas === 'function') {
+      drawOverworldCanvas();
+    }
+    const codeArea = document.getElementById('studioCodeTextarea');
+    const obsKey = state.studio.selectedObstacleId;
+    const obs = OBSTACLE_DEFS[obsKey];
+    if (codeArea && obs) {
+      codeArea.value = `// --- Retrofit Code for Overworld Obstacle [${obsKey}] (${obs.name}) ---\n  ${obsKey}: ${JSON.stringify(obs, null, 2).replace(/\n/g, '\n  ')},`;
+    }
+  } else {
+    if (livePrev) livePrev.innerHTML = renderMonsterSVG(state.studio.selectedMonsterId);
+    if (typeof refreshTitleScreenSprites === 'function') refreshTitleScreenSprites();
+    if (state.enemy) document.getElementById('enemySpriteWrapper').innerHTML = renderMonsterSVG(state.enemy);
+    if (state.dex?.length > 0) document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(getActivePlayer());
+
+    const codeArea = document.getElementById('studioCodeTextarea');
+    if (codeArea && typeof MONSTER_SPECIES !== 'undefined') {
+      const monId = state.studio.selectedMonsterId;
+      const species = MONSTER_SPECIES.find(m => m.id === monId);
+      const art = MONSTER_PIXELS[monId];
+      if (species && art) {
+        const speciesCode = `  { id: '${species.id}', pokedexNo: ${species.pokedexNo}, name: '${species.name}', type: '${species.type}', baseHp: ${species.baseHp}, level: ${species.level} }`;
+        const pixelCode = `  ${species.id}: ${JSON.stringify(art, null, 2).replace(/\n/g, '\n  ')}`;
+        codeArea.value = `// --- Retrofit Code for ${species.name} ---\n\n// 1. Update in MONSTER_SPECIES array:\n${speciesCode},\n\n// 2. Update in MONSTER_PIXELS object:\n${pixelCode}`;
+      }
     }
   }
 }

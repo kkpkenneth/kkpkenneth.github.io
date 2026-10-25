@@ -20,8 +20,18 @@ function getTileAt(col, row) {
 }
 
 function isTileBlocked(col, row) {
+  if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS) return true;
   const tile = getTileAt(col, row);
-  if (tile === 'T' || tile === 'W' || tile === 'H') return true;
+
+  // Check dynamic obstacle walkable setting from Studio (OBSTACLE_DEFS)
+  if (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[tile] !== undefined) {
+    if (!OBSTACLE_DEFS[tile].walkable) return true;
+  } else {
+    if (tile === 'T' || tile === 'W' || tile === 'H' || tile === 'R' || tile === 'I' || tile === 'C' || tile === 'K' || tile === 'L' || tile === 'S' || tile === 'V' || tile === 'U' || tile === 'A') {
+      return true;
+    }
+  }
+
   const mapObj = getCurrentMap();
   if (mapObj.npcs && mapObj.npcs.some(npc => npc.x === col && npc.y === row)) return true;
   if (mapObj.pokeNpcs && mapObj.pokeNpcs.some(p => p.x === col && p.y === row)) return true;
@@ -137,6 +147,18 @@ function interactWithFacingNPC() {
   } else if (tile === 'G') {
     sfx.blip();
     setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
+  } else if (tile === 'S') {
+    sfx.blip();
+    setOverworldDialogue("Geothermal steam geyser! Superheated groundwater rises through volcanic fissures to form mineral-rich hot springs!", "STEAM GEYSER", "GEOTHERMAL");
+  } else if (tile === 'V') {
+    sfx.blip();
+    setOverworldDialogue("High-voltage resonant coil! Alternating magnetic fields induce currents across conductive metal windings!", "TESLA PYLON", "ELECTROMAGNETISM");
+  } else if (tile === 'U') {
+    sfx.blip();
+    setOverworldDialogue("Bioluminescent spore toadstool! Fungi decompose organic matter and reproduce via microscopic airborne spores!", "SPORE TOADSTOOL", "MYCOLOGY");
+  } else if (tile === 'A') {
+    sfx.blip();
+    setOverworldDialogue("Astral crystal obelisk! Birefringent crystals split incoming light beams into polarized rainbow spectra!", "ASTRAL OBELISK", "OPTICS & MYTH");
   } else if (tile === 'H' || tile === 'D') {
     const centerNpc = (getCurrentMap().npcs || []).find(n => n.name.includes('NURSE'));
     if (centerNpc) {

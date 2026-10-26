@@ -78,8 +78,23 @@
       60% { filter: brightness(10); }
       80% { filter: none; }
     }
-    @keyframes lungePlayer { 0% { transform: translate(0, 0) scale(1); } 40% { transform: translate(10px, -6px) scale(1.04); } 100% { transform: translate(0, 0) scale(1); } }
-    @keyframes lungeEnemy { 0% { transform: translate(0, 0) scale(1); } 40% { transform: translate(-10px, 6px) scale(1.04); } 100% { transform: translate(0, 0) scale(1); } }
+    
+    @keyframes lungePlayer { 
+      0% { transform: translate(0, 0) scale(1); } 
+      35% { transform: translate(42px, -24px) scale(1.18); } 
+      65% { transform: translate(20px, -10px) scale(1.08); }
+      100% { transform: translate(0, 0) scale(1); } 
+    }
+    @keyframes lungeEnemy { 
+      0% { transform: translate(0, 0) scale(1); } 
+      35% { transform: translate(-42px, 24px) scale(1.18); } 
+      65% { transform: translate(-20px, 10px) scale(1.08); }
+      100% { transform: translate(0, 0) scale(1); } 
+    }
+
+    .anim-lunge-player { animation: lungePlayer 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards !important; }
+    .anim-lunge-enemy { animation: lungeEnemy 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards !important; }
+
     @keyframes ballThrow {
       0% { transform: translate(-180px, 110px) scale(0.6) rotate(0deg); }
       55% { transform: translate(-40px, -60px) scale(1.1) rotate(360deg); }
@@ -106,8 +121,8 @@
     }
 
     .anim-idle { animation: idleBob 1.8s steps(2, end) infinite; }
-    .anim-hit { animation: hitFlash 0.55s ease-in-out; }
-    .anim-ball-shake { animation: ballShake 0.55s ease-in-out; }
+    .anim-hit { animation: hitFlash 0.55s ease-in-out !important; }
+    .anim-ball-shake { animation: ballShake 0.55s ease-in-out !important; }
     .floating-dmg {
       animation: floatUpFade 1.15s ease-out forwards;
       text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000;
@@ -184,7 +199,7 @@
     <section id="titleScreenView" class="relative w-full min-h-[500px] sm:min-h-[535px] rounded-lg border-4 border-slate-950 overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-between p-5 sm:p-8 text-center">
       <div class="crt-overlay absolute inset-0 z-10"></div>
       <div class="w-full flex justify-between items-center text-[9px] text-amber-300/80 z-20">
-        <span>★ VER 6.0 • 17 HABITATS &amp; 52 MONSTERS</span>
+        <span>★ VER 6.0 • 19 HABITATS &amp; FULL ROSTER</span>
         <span>🎨 8-COLOR PIXEL STUDIO</span>
       </div>
 
@@ -196,7 +211,7 @@
           Quiz Monsters
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Travel with Pikachu as your Starter Partner • Explore 17 Biomes • Talk to Specialists &amp; Wild Overworld Pokémon!
+          Travel with Pikachu as your Starter Partner • Explore 19 Biomes • Talk to Specialists &amp; Wild Overworld Pokémon!
         </p>
 
         <!-- TITLE MASCOTS -->
@@ -218,7 +233,7 @@
 
       <div class="w-full retro-box-dark p-3 z-20 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[8px] sm:text-[9px] text-slate-300">
         <div><span class="text-amber-400">EASED 1-TILE STEP:</span> WASD / ARROWS</div>
-        <div><span class="text-emerald-400">17 BIOME MAPS:</span> DUAL-TYPE REGIONS &amp; OBSTACLES</div>
+        <div><span class="text-emerald-400">19 BIOME MAPS:</span> DUAL-TYPE REGIONS &amp; OBSTACLES</div>
         <div><span class="text-pink-400">PARTNER SYSTEM:</span> FOLLOWS IN OVERWORLD</div>
       </div>
     </section>
@@ -243,8 +258,8 @@
           <button id="overworldDexBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
             DEX / PARTNER
           </button>
-          <button id="overworldMapBtn" type="button" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
-            🗺️ MAP
+          <button id="overworldMapBtn" type="button" class="pixel-btn bg-slate-600 hover:bg-slate-500 text-slate-300 opacity-75 text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
+            🔒 MAP (1/20)
           </button>
         </div>
 
@@ -445,7 +460,7 @@
   </main>
 
   <footer class="w-full max-w-4xl mt-2 px-2 flex flex-wrap items-center justify-between text-[8px] sm:text-[9px] text-slate-400 gap-2">
-    <div>17 BIOMES: HUB • MOUNTAIN, ONSEN, FOUNDRY, BRAMBLE, SPIRE &amp; MORE</div>
+    <div>19 BIOMES: HUB • MOUNTAIN, ONSEN, FOUNDRY, BRAMBLE, SPIRE &amp; MORE</div>
     <div>🎨 CLICK "SPRITE STUDIO" TO CUSTOMIZE • 💾 SAVE STORES PROGRESS IN BROWSER</div>
   </footer>
 
@@ -1122,6 +1137,7 @@
           window[fnName] = function(...args) {
             const res = _orig.apply(this, args);
             replaceTallGrassWithHabitatInDOM();
+            if (typeof syncMapButtonState === 'function') syncMapButtonState();
             return res;
           };
         }

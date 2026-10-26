@@ -1,7 +1,7 @@
 /********************************************************************
  * overworld.js
- * Visible Floor Items, Blocking Collision, Space/A Talk Interactivity
- * & Stone Evolution with Shattering Feedback
+ * Visible Floor Items, Blocking Collision, Space/A Talk Interactivity,
+ * Locked/Unlocked Mini-Map Button & 5x5 Grand Map Spatial Grid
  ********************************************************************/
 
 const FLOOR_ITEM_TYPES = [
@@ -83,6 +83,29 @@ const FLOOR_ITEM_TYPES = [
 const HUMAN_SKIN_PALETTE = [
   '#fde68a', '#fed7aa', '#f5cba7', '#e59866', '#ca8a5b', '#a16236', '#784212', '#5c3317'
 ];
+
+// Spatial 5x5 Grand Map Grid Coordinates (row 0..4, col 0..4) matching all N/S/E/W map exits
+const GRAND_MAP_COORDS = {
+  GLACIER:       { row: 0, col: 2, shortName: 'GLACIER PEAK' },
+  SPIRE:         { row: 1, col: 0, shortName: 'STARLIGHT SPIRE' },
+  NORTHWEST:     { row: 1, col: 1, shortName: 'SKY PLATEAU' },
+  MOUNTAIN:      { row: 1, col: 2, shortName: 'CRAG MOUNTAIN' },
+  NORTHEAST:     { row: 1, col: 3, shortName: 'BADLANDS CANYON' },
+  FOUNDRY:       { row: 1, col: 4, shortName: 'DYNAMO FOUNDRY' },
+  ONSEN:         { row: 0, col: 4, shortName: 'MISTVEIL ONSEN' },
+  SANCTUARY:     { row: 2, col: 0, shortName: 'MYSTIC SANCTUARY' },
+  FOREST:        { row: 2, col: 1, shortName: 'VIRIDIAN FOREST' },
+  CENTER:        { row: 2, col: 2, shortName: 'PALLET HUB' },
+  DESERT:        { row: 2, col: 3, shortName: 'MIRAGE DESERT' },
+  VOLCANO:       { row: 2, col: 4, shortName: 'MAGMA CALDERA' },
+  SOUTHWEST:     { row: 3, col: 1, shortName: 'MANGROVE MARSH' },
+  BEACH:         { row: 3, col: 2, shortName: 'CORAL BEACH' },
+  SOUTHEAST:     { row: 3, col: 3, shortName: 'TRADE ATOLL' },
+  BRAMBLE:       { row: 4, col: 1, shortName: 'SPORE FEN' },
+  ABYSS:         { row: 4, col: 2, shortName: 'TRENCH ABYSS' },
+  SHADOW_ALLEY:  { row: 4, col: 0, shortName: 'SHADOW ALLEY' },
+  MIRADOURO_LUA: { row: 4, col: 3, shortName: 'MIRADOURO LUA' }
+};
 
 function getNPCSkinColor(npc) {
   if (!npc) return '#fed7aa';
@@ -193,10 +216,11 @@ function interactWithFloorItem(item) {
       setOverworldDialogue(`Collected ${item.name}! ${partner.name}'s HP was fully restored!`, item.name, 'BERRY COLLECTED 🍋');
     }
   } else if (item.category === 'STONE') {
+    const oldName = partner.name;
     const evolvedMsg = (typeof tryStoneEvolution === 'function') ? tryStoneEvolution(partner, item) : null;
     if (evolvedMsg) {
       state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
-      setOverworldDialogue(`Used ${item.name} with ${partner.name}! ${evolvedMsg}`, 'STONE EVOLUTION! ★', item.name);
+      setOverworldDialogue(`Used ${item.name} with ${oldName}! ${evolvedMsg}`, 'STONE EVOLUTION! ★', item.name);
       const playerWrapper = document.getElementById('playerSpriteWrapper');
       if (playerWrapper && typeof renderMonsterSVG === 'function') {
         playerWrapper.innerHTML = renderMonsterSVG(partner);
@@ -234,10 +258,56 @@ function drawFloorItemsOnCanvas(ctx, animTick) {
   });
 }
 
+// Updates the Overworld MAP button visual state (Gray/Locked before 20 Pokémon, Indigo when unlocked)
+function syncMapButtonState() {
+  const mapBtn = document.getElementById('overworldMapBtn');
+  if (!mapBtn || !state || !Array.isArray(state.dex)) return;
+  const caught = state.dex.length;
+  const isUnlocked = caught >= 20;
+
+  if (isUnlocked) {
+    mapBtn.className = 'pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2';
+    mapBtn.textContent = caught >= 30 ? '🗺️ MAP ✈️' : '🗺️ MAP';
+    mapBtn.title = 'Open Grand World Map';
+  } else {
+    mapBtn.className = 'pixel-btn bg-slate-600 hover:bg-slate-500 text-slate-300 opacity-75 text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2';
+    mapBtn.textContent = `🔒 MAP (${caught}/20)`;
+    mapBtn.title = `Locked! Catch ${20 - caught} more Pokémon to unlock the Grand Map.`;
+  }
+}
+
+// Renders a tiny preview SVG of a region's terrain rows for the Grand Map
+function renderMiniMapPreviewSVG(mapObj, isCurrent) {
+  if (!mapObj || !Array.isArray(mapObj.rows)) return '';
+  const theme = mapObj.theme || {};
+  let rects = '';
+  for (let r = 0; r < MAP_ROWS; r += 2) {
+    const rowStr = mapObj.rows[r] || '';
+    for (let c = 0; c < MAP_COLS; c += 2) {
+      const ch = rowStr.charAt(c);
+      let fill = theme.groundA || '#334155';
+      if (ch === 'P' || ch === 'E' || ch === 'B') fill = theme.path || '#fde68a';
+      else if (ch === 'W') fill = '#0284c7';
+      else if (ch === 'L') fill = '#dc2626';
+      else if (ch === 'G') fill = theme.grass || '#15803d';
+      else if (ch === 'T' || ch === 'R' || ch === 'I') fill = theme.tree || theme.rock || '#1e293b';
+      rects += `<rect x="${c / 2}" y="${r / 2}" width="1" height="1" fill="${fill}" />`;
+    }
+  }
+  if (isCurrent && state.playerWorld) {
+    const px = Math.min(13, Math.max(0, Math.floor(state.playerWorld.gridX / 2)));
+    const py = Math.min(9, Math.max(0, Math.floor(state.playerWorld.gridY / 2)));
+    rects += `<rect x="${px - 0.5}" y="${py - 0.5}" width="2" height="2" fill="#ef4444" stroke="#ffffff" stroke-width="0.4"/>`;
+  }
+  return `<svg viewBox="0 0 14 10" class="w-full h-8 rounded border border-slate-900 bg-slate-950 block">${rects}</svg>`;
+}
+
 function openWorldMapModal() {
+  syncMapButtonState();
+  const totalMon = (typeof MONSTER_SPECIES !== 'undefined') ? MONSTER_SPECIES.length : 151;
   if (state.dex.length < 20) {
     sfx.wrongBuzzer();
-    setOverworldDialogue(`You have caught ${state.dex.length}/52 Pokémon! Catch at least 20 Pokémon to unlock the World Map.`, 'LOCKED FEATURE', 'WORLD MAP');
+    setOverworldDialogue(`🔒 MINI-MAP LOCKED! You have caught ${state.dex.length}/${totalMon} Pokémon. Catch at least 20 Pokémon to unlock the Grand World Map!`, 'LOCKED FEATURE', 'MINI-MAP 🔒');
     return;
   }
 
@@ -246,17 +316,22 @@ function openWorldMapModal() {
   if (!mapModal) {
     mapModal = document.createElement('div');
     mapModal.id = 'worldMapModal';
-    mapModal.className = 'fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3';
+    mapModal.className = 'fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-2 sm:p-4';
     mapModal.innerHTML = `
-      <div class="w-full max-w-2xl retro-box p-4 sm:p-5 flex flex-col gap-3 max-h-[85vh] overflow-y-auto">
+      <div class="w-full max-w-4xl retro-box p-3 sm:p-4 flex flex-col gap-2.5 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
           <div>
-            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ WORLD MAP &amp; FAST TRAVEL</h2>
-            <p id="mapModalStatusSubtitle" class="text-[9px] text-slate-600 mt-0.5">Explore unlocked regions across Kanto &amp; beyond</p>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ GRAND WORLD MAP &amp; MINI-MAP ATLAS</h2>
+            <p id="mapModalStatusSubtitle" class="text-[8px] sm:text-[9px] text-slate-600 mt-0.5">Regions arranged in exact compass positions of the Grand Map</p>
           </div>
           <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
         </div>
-        <div id="worldMapRegionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        <div class="bg-slate-900 border-2 border-slate-950 rounded-lg p-2 sm:p-3 overflow-x-auto">
+          <div id="worldMapRegionsGrid" class="grid grid-cols-5 gap-1.5 sm:gap-2 min-w-[600px]"></div>
+        </div>
+        <div id="worldMapSelectedInfo" class="bg-slate-100 border-2 border-slate-300 rounded p-2.5 flex flex-wrap items-center justify-between gap-2 text-[8px] sm:text-[9px] text-slate-800">
+          <span>Click any region on the Grand Map to inspect its wild habitats or Fast Travel!</span>
+        </div>
       </div>
     `;
     document.body.appendChild(mapModal);
@@ -271,51 +346,95 @@ function openWorldMapModal() {
   const subtitleEl = document.getElementById('mapModalStatusSubtitle');
   if (subtitleEl) {
     subtitleEl.textContent = canFly 
-      ? '✈️ FLY UNLOCKED (Click Fly on any region to fast travel)' 
-      : `✈️ FLY LOCKED (${state.dex.length}/30 Pokémon caught to unlock fast travel)`;
+      ? '✈️ FLY UNLOCKED — Click any biome tile on the Grand Map to inspect or Fast Travel!' 
+      : `🔒 FLY LOCKED (${state.dex.length}/30 Pokémon caught for Fast Travel) — Showing Grand Map Layout`;
   }
 
   const grid = document.getElementById('worldMapRegionsGrid');
+  const infoBar = document.getElementById('worldMapSelectedInfo');
   grid.innerHTML = '';
 
-  Object.keys(WORLD_MAPS).forEach(mapKey => {
-    const mapObj = WORLD_MAPS[mapKey];
-    const isCurrent = state.currentMapId === mapKey;
-
-    const card = document.createElement('div');
-    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-600' : 'bg-white hover:bg-slate-100'} p-3 flex flex-col justify-between gap-2 text-left`;
-    card.innerHTML = `
-      <div>
-        <div class="flex items-center justify-between gap-1">
-          <span class="text-[10px] font-bold text-slate-900 truncate">${mapObj.name}</span>
-          ${isCurrent ? '<span class="text-[8px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-bold">CURRENT</span>' : ''}
-        </div>
-        <div class="text-[8px] text-slate-600 mt-1">${mapObj.subtitle}</div>
-      </div>
-      ${canFly && !isCurrent ? `<button type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[8px] px-2 py-1 text-center font-bold">✈️ FLY HERE</button>` : ''}
-    `;
-
-    if (canFly && !isCurrent) {
-      const flyBtn = card.querySelector('button');
-      if (flyBtn) {
-        flyBtn.addEventListener('click', () => {
-          sfx.heal();
-          mapModal.classList.add('hidden');
-          mapModal.classList.remove('flex');
-          runShutterTransition(`FLYING TO ${mapObj.name}...`, () => {
-            state.currentMapId = mapKey;
-            teleportPlayerToGrid(13, 10);
-            sfx.startBGM(state.currentMapId);
-            updateOverworldHUD();
-            if (typeof saveGameProgress === 'function') saveGameProgress();
-            setOverworldDialogue(`Flew directly to ${mapObj.name}!`, mapObj.name, 'FAST TRAVEL ✈️');
-          });
-        });
-      }
+  // Build 5x5 spatial matrix so every region sits in its true Grand Map position
+  const cells = Array.from({ length: 5 }, () => Array(5).fill(null));
+  Object.keys(GRAND_MAP_COORDS).forEach(mapKey => {
+    const pos = GRAND_MAP_COORDS[mapKey];
+    if (pos && WORLD_MAPS[mapKey]) {
+      cells[pos.row][pos.col] = { key: mapKey, mapObj: WORLD_MAPS[mapKey], shortName: pos.shortName };
     }
-
-    grid.appendChild(card);
   });
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const entry = cells[r][c];
+      if (!entry) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'rounded border border-slate-800/60 bg-slate-950/40 p-1.5 flex flex-col items-center justify-center min-h-[78px] text-[7px] text-slate-700 select-none';
+        emptyCell.innerHTML = `<span>•</span>`;
+        grid.appendChild(emptyCell);
+        continue;
+      }
+
+      const { key: mapKey, mapObj, shortName } = entry;
+      const isCurrent = state.currentMapId === mapKey;
+      const exits = mapObj.exits || {};
+
+      // Direction connection indicators
+      const dirArrows = [
+        exits.north ? '▲N' : '',
+        exits.south ? '▼S' : '',
+        exits.west  ? '◀W' : '',
+        exits.east  ? '▶E' : ''
+      ].filter(Boolean).join(' ');
+
+      const card = document.createElement('div');
+      card.className = `pixel-btn ${isCurrent ? 'bg-amber-200 border-amber-500 ring-2 ring-amber-400' : 'bg-slate-800 hover:bg-slate-700 text-slate-100'} p-1.5 flex flex-col justify-between gap-1 text-left min-h-[82px] relative`;
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-1">
+          <span class="text-[7px] sm:text-[8px] font-bold ${isCurrent ? 'text-slate-950' : 'text-amber-300'} truncate">${shortName}</span>
+          ${isCurrent ? '<span class="text-[6px] bg-red-600 text-white px-1 py-0.5 rounded font-bold animate-pulse">YOU</span>' : ''}
+        </div>
+        ${renderMiniMapPreviewSVG(mapObj, isCurrent)}
+        <div class="flex items-center justify-between gap-1 text-[6px] ${isCurrent ? 'text-slate-800' : 'text-slate-400'}">
+          <span>${dirArrows}</span>
+          ${canFly && !isCurrent ? '<span class="text-sky-300 font-bold">✈️ FLY</span>' : ''}
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        sfx.blip();
+        const encNames = (mapObj.encounters || []).map(id => id.toUpperCase()).join(', ');
+        if (infoBar) {
+          infoBar.innerHTML = `
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-slate-900">${mapObj.name} ${isCurrent ? '(CURRENT LOCATION)' : ''}</div>
+              <div class="text-[8px] text-slate-600 mt-0.5">${mapObj.subtitle} • WILD: ${encNames}</div>
+            </div>
+            ${canFly && !isCurrent
+              ? `<button id="confirmFlyBtn" type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[8px] sm:text-[9px] px-3 py-1.5 font-bold shrink-0">✈️ FLY TO ${shortName}</button>`
+              : (!isCurrent ? `<span class="text-[8px] bg-slate-300 text-slate-700 px-2 py-1 rounded font-bold shrink-0">🔒 NEED 30 DEX TO FLY (${state.dex.length}/30)</span>` : '<span class="text-[8px] bg-emerald-200 text-emerald-900 px-2 py-1 rounded font-bold shrink-0">📍 HERE NOW</span>')}
+          `;
+          const flyBtn = document.getElementById('confirmFlyBtn');
+          if (flyBtn) {
+            flyBtn.addEventListener('click', () => {
+              sfx.heal();
+              mapModal.classList.add('hidden');
+              mapModal.classList.remove('flex');
+              runShutterTransition(`FLYING TO ${mapObj.name}...`, () => {
+                state.currentMapId = mapKey;
+                teleportPlayerToGrid(13, 10);
+                sfx.startBGM(state.currentMapId);
+                updateOverworldHUD();
+                if (typeof saveGameProgress === 'function') saveGameProgress();
+                setOverworldDialogue(`Flew directly to ${mapObj.name}!`, mapObj.name, 'FAST TRAVEL ✈️');
+              });
+            });
+          }
+        }
+      });
+
+      grid.appendChild(card);
+    }
+  }
 
   mapModal.classList.remove('hidden');
   mapModal.classList.add('flex');
@@ -507,6 +626,8 @@ function updateOverworldHUD() {
   const zoneName = document.getElementById('zoneNameBadge');
   const zoneSub = document.getElementById('zoneSubBadge');
   const promptEl = document.getElementById('npcPromptBanner');
+
+  syncMapButtonState();
 
   if (coordsText) {
     const itemsLeft = Array.isArray(state.floorItems) ? state.floorItems.length : 0;

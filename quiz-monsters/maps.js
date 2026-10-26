@@ -530,13 +530,13 @@ const WORLD_MAPS = {
       "TWWWWWWWK..GGGGGG..KWWWWWWWT",
       "TWWWWWWWK..GGGGGG..KWWWWWWWT",
       "TWWWWWWWW..........WWWWWWWWT",
-      "TWWWWWWWWWWWWWWWWWWWWWWWWWWT",
+      "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
     ],
     exits: {
       north: { targetMap: 'DESERT',        spawnX: 13, spawnY: 18 },
       west:  { targetMap: 'BEACH',         spawnX: 26, spawnY: 9 },
-      east:  { targetMap: 'MIRADOURO_LUA', spawnX: 1,  spawnY: 9 }
+      south:  { targetMap: 'MIRADOURO_LUA', spawnX: 13,  spawnY: 1 }
     },
     npcs: [
       {
@@ -1163,7 +1163,7 @@ const WORLD_MAPS = {
       "RRRRRRRRRRRRREERRRRRRRRRRRRR"
     ],
     exits: {
-      north: { targetMap: 'SOUTHEAST',    spawnX: 26, spawnY: 9 },
+      north: { targetMap: 'SOUTHEAST',    spawnX: 13, spawnY: 18 },
       west:  { targetMap: 'SHADOW_ALLEY', spawnX: 26, spawnY: 9 }
     },
     npcs: [

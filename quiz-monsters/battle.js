@@ -1,7 +1,7 @@
 /********************************************************************
  * battle.js
- * Trivia Combat Engine, Auto-Switch on Faint, No Region After Name,
- * Raw HP Catch Rate, Ditto Transform & 1st-Gen Second-Stage Evolutions
+ * Trivia Combat Engine, Auto-Switch on Faint, Professor Oak Duplicate
+ * Transfer, Absolute HP Catch Rate, Enemy Attack & Ball Pop Animation
  ********************************************************************/
 
 const EVOLUTION_CHAINS = {
@@ -31,7 +31,7 @@ const EVOLUTION_CHAINS = {
   nidoran_f:  { to: 'nidorina',   method: 'EXP',   winsNeeded: 2 },
   nidorina:   { to: 'nidoqueen',  method: 'STONE', stone: 'POISON',   stoneLabel: 'MOON STONE' },
   nidoran_m:  { to: 'nidorino',   method: 'EXP',   winsNeeded: 2 },
-  nidornino:  { to: 'nidoking',   method: 'STONE', stone: 'POISON',   stoneLabel: 'MOON STONE' },
+  nidorino:   { to: 'nidoking',   method: 'STONE', stone: 'POISON',   stoneLabel: 'MOON STONE' },
 
   // Fairy / Cute lines (Stones)
   clefairy:   { to: 'clefable',   method: 'STONE', stone: 'FAIRY',    stoneLabel: 'MOON STONE' },
@@ -105,6 +105,8 @@ function evolveMonsterInstance(mon, targetSpeciesId) {
   if (!newSpecies) return null;
   const oldName = mon.name;
 
+  const alreadyOwned = state.dex.some(p => p.id === newSpecies.id);
+
   mon.id = newSpecies.id;
   mon.pokedexNo = newSpecies.pokedexNo;
   mon.name = newSpecies.name;
@@ -114,8 +116,16 @@ function evolveMonsterInstance(mon, targetSpeciesId) {
   mon.hp = mon.maxHp;
   mon.evoWins = 0;
 
+  if (!alreadyOwned) {
+    state.dex.push(mon);
+  }
+
   if (typeof sfx !== 'undefined' && typeof sfx.grandVictoryFanfare === 'function') {
     sfx.grandVictoryFanfare();
+  }
+
+  if (alreadyOwned) {
+    return `CONGRATULATIONS! Your ${oldName} evolved into ${newSpecies.name}! (Since you already owned ${newSpecies.name}, this extra evolved form was sent to Professor Oak!)`;
   }
   return `CONGRATULATIONS! Your ${oldName} evolved into ${newSpecies.name}!`;
 }
@@ -229,11 +239,10 @@ function handleActivePartnerFainted() {
 
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
-  const maxHpAmount = enemy.maxHp || enemy.baseHp || 120;
   const currentHpAmount = Math.max(0, enemy.hp);
-  const rawDamageDealt = Math.max(0, maxHpAmount - currentHpAmount);
 
-  const rawProb = (maxHpAmount * 0.0022) + (rawDamageDealt * 0.0035);
+  // Actual absolute HP remaining = lower catch rate
+  const rawProb = 0.95 - (currentHpAmount * 0.0055);
   return Math.min(0.95, Math.max(0.15, Math.round(rawProb * 100) / 100));
 }
 
@@ -259,14 +268,17 @@ function setupBattleEncounter(chosenSpecies) {
   if (enemyWrapper) {
     enemyWrapper.innerHTML = renderMonsterSVG(state.enemy);
     enemyWrapper.style.boxShadow = 'none';
-    enemyWrapper.style.filter = 'none';
-    enemyWrapper.style.transform = 'scale(1)';
+    enemyWrapper.style.filter = '';
+    enemyWrapper.style.transform = '';
+    enemyWrapper.style.transition = '';
     enemyWrapper.style.opacity = '1';
   }
   if (playerWrapper) {
     playerWrapper.innerHTML = renderMonsterSVG(activePlayer);
     playerWrapper.style.boxShadow = 'none';
-    playerWrapper.style.filter = 'none';
+    playerWrapper.style.filter = '';
+    playerWrapper.style.transform = '';
+    playerWrapper.style.transition = '';
     playerWrapper.style.opacity = '1';
   }
 
@@ -309,12 +321,24 @@ function syncAllUI() {
   document.getElementById('playerHpNumbers').textContent = `${Math.max(0, player.hp)}/${player.maxHp}`;
 
   let evoContainer = document.getElementById('playerEvoBarWrap');
-  if (!evoContainer) {
-    const hpNumbersRow = document.getElementById('playerHpNumbers')?.parentElement;
-    if (hpNumbersRow && hpNumbersRow.parentElement) {
-      evoContainer = document.createElement('div');
-      evoContainer.id = 'playerEvoBarWrap';
-      evoContainer.className = 'w-full mt-1';
+  const evoReq = getEvolutionRequirement(player.id);
+
+  if (!evoReq || evoReq.method !== 'EXP') {
+    if (evoContainer) {
+      evoContainer.classList.add('hidden');
+    }
+  } else {
+    if (!evoContainer) {
+      const hpNumbersRow = document.getElementById('playerHpNumbers')?.parentElement;
+      if (hpNumbersRow && hpNumbersRow.parentElement) {
+        evoContainer = document.createElement('div');
+        evoContainer.id = 'playerEvoBarWrap';
+        evoContainer.className = 'w-full mt-1';
+        hpNumbersRow.parentElement.appendChild(evoContainer);
+      }
+    }
+    if (evoContainer) {
+      evoContainer.classList.remove('hidden');
       evoContainer.innerHTML = `
         <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
           <span class="text-[6px] sm:text-[7px] text-purple-300 font-bold px-0.5">EVO</span>
@@ -324,22 +348,11 @@ function syncAllUI() {
           <span id="playerEvoText" class="text-[6px] sm:text-[7px] text-purple-200 px-0.5 shrink-0">0/3</span>
         </div>
       `;
-      hpNumbersRow.parentElement.appendChild(evoContainer);
     }
-  }
-  const evoBar = document.getElementById('playerEvoBar');
-  const evoText = document.getElementById('playerEvoText');
-  const evoReq = getEvolutionRequirement(player.id);
-  if (evoBar && evoText) {
-    if (!evoReq) {
-      evoBar.style.width = '100%';
-      evoBar.className = 'h-full bg-emerald-400 transition-all duration-500';
-      evoText.textContent = 'MAX ★';
-    } else if (evoReq.method === 'STONE') {
-      evoBar.style.width = '100%';
-      evoBar.className = 'h-full bg-amber-400 animate-pulse transition-all duration-500';
-      evoText.textContent = `${evoReq.stoneLabel} 💎`;
-    } else {
+
+    const evoBar = document.getElementById('playerEvoBar');
+    const evoText = document.getElementById('playerEvoText');
+    if (evoBar && evoText) {
       const wins = Math.min(evoReq.winsNeeded, player.evoWins || 0);
       evoBar.style.width = `${(wins / evoReq.winsNeeded) * 100}%`;
       evoBar.className = 'h-full bg-purple-500 transition-all duration-500';
@@ -354,6 +367,8 @@ function syncAllUI() {
   document.getElementById('streakCountText').textContent = `${state.streak} (${atkMult}x)`;
   document.getElementById('dexCountText').textContent = `${state.dex.length}/${MONSTER_SPECIES.length}`;
   document.getElementById('btnSwitchSub').textContent = `DEX (${state.dex.length}/${MONSTER_SPECIES.length})`;
+
+  if (typeof syncMapButtonState === 'function') syncMapButtonState();
 
   if (enemy) {
     document.getElementById('enemyName').textContent = enemy.name;
@@ -414,13 +429,19 @@ function spawnFloatingText(target, text, colorClass = 'text-amber-300') {
 
 function triggerSpriteAnimation(target, animClass) {
   const wrapper = document.getElementById(target === 'enemy' ? 'enemySpriteWrapper' : 'playerSpriteWrapper');
+  if (!wrapper) return;
+  // Clear inline transform/filter/transition so CSS keyframe animations always run cleanly
+  wrapper.style.transition = '';
+  wrapper.style.transform = '';
+  wrapper.style.filter = '';
+  if (wrapper._animTimeout) clearTimeout(wrapper._animTimeout);
   wrapper.classList.remove('anim-idle', 'anim-hit', 'anim-lunge-player', 'anim-lunge-enemy', 'anim-ball-throw', 'anim-ball-shake');
   void wrapper.offsetWidth;
   wrapper.classList.add(animClass);
-  setTimeout(() => {
+  wrapper._animTimeout = setTimeout(() => {
     wrapper.classList.remove(animClass);
     wrapper.classList.add('anim-idle');
-  }, 580);
+  }, 560);
 }
 
 function hideAllBottomViews() {
@@ -640,8 +661,8 @@ function startCaptureBallSequence() {
       enemyWrapper.style.opacity = '0';
 
       setTimeout(() => {
-        enemyWrapper.style.transition = 'none';
-        enemyWrapper.style.transform = 'scale(1)';
+        enemyWrapper.style.transition = '';
+        enemyWrapper.style.transform = '';
         enemyWrapper.style.opacity = '1';
         enemyWrapper.innerHTML = renderCaptureBallSVG(false);
 
@@ -664,27 +685,26 @@ function startCaptureBallSequence() {
             const alreadyInDex = state.dex.some(p => p.id === enemy.id);
             if (!alreadyInDex) {
               state.dex.push(createMonsterInstance(enemy));
+              setDialogue(`GOTCHA! ${enemy.name} was caught and saved to your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`, 'CAPTURED! ★');
+            } else {
+              setDialogue(`GOTCHA! ${enemy.name} was caught again! The extra Pokémon was sent to Professor Oak's Lab!`, 'PROFESSOR OAK 📦');
             }
             clearPartyTransformations();
             if (typeof saveGameProgress === 'function') saveGameProgress();
             syncAllUI();
-            setDialogue(`GOTCHA! ${enemy.name} was caught and saved to your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`, 'CAPTURED! ★');
 
             setTimeout(() => {
-              returnToOverworldFromBattle(`GOTCHA! ${enemy.name} (${enemy.type}) registered & auto-saved in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
+              returnToOverworldFromBattle(alreadyInDex 
+                ? `GOTCHA! Extra ${enemy.name} caught and transferred to Professor Oak!` 
+                : `GOTCHA! ${enemy.name} (${enemy.type}) registered & auto-saved in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
             }, 2000);
           } else {
             sfx.wrongBuzzer();
-            enemyWrapper.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-            enemyWrapper.style.transform = 'scale(0.1)';
-            enemyWrapper.style.opacity = '0';
-
-            setTimeout(() => {
-              enemyWrapper.style.transition = 'none';
-              enemyWrapper.style.transform = 'scale(1)';
-              enemyWrapper.style.opacity = '1';
-              enemyWrapper.innerHTML = renderMonsterSVG(enemy);
-            }, 150);
+            
+            enemyWrapper.innerHTML = renderMonsterSVG(enemy);
+            enemyWrapper.style.transition = '';
+            enemyWrapper.style.transform = '';
+            enemyWrapper.style.opacity = '1';
 
             const enemyDmg = 18;
             const player = getActivePlayer();
@@ -695,7 +715,7 @@ function startCaptureBallSequence() {
               triggerSpriteAnimation('player', 'anim-hit');
               spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
               syncAllUI();
-            }, 220);
+            }, 240);
 
             setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG!`, 'BROKE FREE!');
             setTimeout(() => {
@@ -835,7 +855,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
       triggerSpriteAnimation('enemy', 'anim-hit');
       spawnFloatingText('enemy', `-${totalDmg} HP (${speedMult.toFixed(2)}x SPD)`, typeMult > 1 ? 'text-amber-300' : 'text-white');
       syncAllUI();
-    }, 200);
+    }, 220);
 
     let msg = `${player.name} used ${state.selectedAttackType} STRIKE! `;
     if (typeMult > 1) msg += "SUPER EFFECTIVE! ";
@@ -885,12 +905,14 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
     const enemyDmg = Math.round(24 + enemy.level * 1.2);
     player.hp = Math.max(0, player.hp - enemyDmg);
 
+    // Trigger enemy lunge animation when it counterattacks
     triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
+
     setTimeout(() => {
       triggerSpriteAnimation('player', 'anim-hit');
       spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
       syncAllUI();
-    }, 200);
+    }, 220);
 
     const reason = isTimeout ? 'TIME UP!' : 'INCORRECT!';
     setDialogue(`${reason} Combo streak reset! Wild ${enemy.name} counterattacked ${player.name} for ${enemyDmg} DMG!`, 'COUNTERATTACK!');
@@ -995,7 +1017,6 @@ function openOverworldDexModal() {
   `;
   list.appendChild(summaryBox);
 
-  // Iterates through MONSTER_SPECIES in standard Pokédex number order without sorting caught to top
   MONSTER_SPECIES.forEach(species => {
     const dexIndex = state.dex.findIndex(p => p.id === species.id);
     const caughtMon = dexIndex !== -1 ? state.dex[dexIndex] : null;
@@ -1037,7 +1058,6 @@ function openOverworldDexModal() {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
   }
-
 }
 
 function checkAllMonstersCaughtCelebration() {

@@ -89,6 +89,9 @@ const EVOLUTION_CHAINS = {
   // Eeveelutions & Electric (Stones)
   pikachu:    { to: 'raichu',     method: 'STONE', stone: 'ELECTRIC', stoneLabel: 'THUNDER STONE' },
   eevee:      { to: 'vaporeon',   method: 'STONE', stone: 'WATER',    stoneLabel: 'WATER STONE' }, 
+  eevee:      { to: 'flareon',   method: 'STONE', stone: 'FIRE',    stoneLabel: 'FIRE STONE' },
+  eevee:      { to: 'jolteon',   method: 'STONE', stone: 'ELECTRIC',    stoneLabel: 'THUNDER STONE' },
+  eevee:      { to: 'umbreon',   method: 'STONE', stone: 'MOON',    stoneLabel: 'MOON STONE' },
 
   // Dragon lines (EXP)
   dratini:    { to: 'dragonair',  method: 'EXP',   winsNeeded: 2 },

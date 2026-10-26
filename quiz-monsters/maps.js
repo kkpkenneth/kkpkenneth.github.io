@@ -155,6 +155,16 @@ const WORLD_MAPS = {
         id: 'overworld_clefairy', name: 'WILD CLEFAIRY', topic: 'OVERWORLD POKéMON • LUNAR', x: 14, y: 3,
         isMonster: true, monsterId: 'clefairy',
         fact: "CLEFAIRY: ♪ Clef-clef! ♪ (Clefairy dances under the mountain sky! The Moon's gravitational pull is the primary force driving Earth's ocean tides!)"
+      },
+      {
+      id: 'NO NAME', name: 'NO NAME', topic: 'JOBLESS • NOTHING TO LOSE', x: 26, y: 5,
+        skinColor: '#000000', hatColor: '#78350f', shirtColor: '#d97706',
+        fact: "NO NAME: Chines! Chines! Chines!(Slap with machete)"
+      },  
+      {
+      id: 'NO NAME', name: 'NO NAME', topic: 'JOBLESS • NOTHING TO LOSE', x: 25, y: 6,
+        skinColor: '#000000', hatColor: '#d97706', shirtColor: '#78350f',
+        fact: "NO NAME: Kwanza! Kwanza! Kwanza!(Pulls your poncho and throws it on the floor)"
       }
     ]
   },
@@ -224,7 +234,7 @@ const WORLD_MAPS = {
     name: 'CORAL LAGOON BEACH (SOUTH)',
     subtitle: 'N: HUB • S: ABYSS • W: MARSH • E: ATOLL',
     theme: { groundA: '#fde047', groundB: '#facc15', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['squirtle', 'blastoise', 'psyduck', 'poliwag', 'krabby', 'omanyte', 'kabuto'],
+    encounters: ['squirtle', 'psyduck', 'poliwag', 'krabby', 'omanyte', 'kabuto'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..K........PPPP........K..T",
@@ -283,7 +293,7 @@ const WORLD_MAPS = {
     name: 'VIRIDIAN CANOPY FOREST (WEST)',
     subtitle: 'E: HUB • W: SANCTUARY • N: SKY PLATEAU • S: MARSH',
     theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
-    encounters: ['bulbasaur', 'venusaur', 'caterpie', 'weedle', 'oddish', 'bellsprout', 'exeggcute', 'chansey'],
+    encounters: ['bulbasaur', 'caterpie', 'weedle', 'oddish', 'bellsprout', 'exeggcute', 'chansey'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T.TTTT..GGGG.PP.GGGG..TTTT.T",
@@ -347,7 +357,7 @@ const WORLD_MAPS = {
     name: 'ALPINE SKY PLATEAU (NORTHWEST)',
     subtitle: 'E: CRAG MOUNTAIN • S: VIRIDIAN FOREST',
     theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#15803d', grassTip: '#86efac', tree: '#1e293b', treeTop: '#38bdf8', rock: '#64748b', rockLight: '#cbd5e1', rockDark: '#334155' },
-    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir', 'aerodactyl', 'dragonite'],
+    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir', 'aerodactyl'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..TTTT....PPPPPP....TTTT..R",
@@ -536,7 +546,7 @@ const WORLD_MAPS = {
     exits: {
       north: { targetMap: 'DESERT',        spawnX: 13, spawnY: 18 },
       west:  { targetMap: 'BEACH',         spawnX: 26, spawnY: 9 },
-      south:  { targetMap: 'MIRADOURO_LUA', spawnX: 13,  spawnY: 1 }
+      south: { targetMap: 'MIRADOURO_LUA', spawnX: 13, spawnY: 1 }
     },
     npcs: [
       {
@@ -583,7 +593,7 @@ const WORLD_MAPS = {
     name: 'ARCTIC GLACIER PEAK (FAR NORTH)',
     subtitle: 'S: CRAG MOUNTAIN • SUBZERO PERMAFROST',
     theme: { groundA: '#bae6fd', groundB: '#7dd3fc', path: '#f0f9ff', grass: '#0284c7', grassTip: '#e0f2fe', tree: '#0f172a', treeTop: '#38bdf8' },
-    encounters: ['seel', 'shellder', 'jynx', 'lapras', 'articuno'],
+    encounters: ['seel', 'shellder', 'jynx', 'lapras'],
     rows: [
       "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
       "I..IIII....PPPPPP....IIII..I",
@@ -617,7 +627,7 @@ const WORLD_MAPS = {
       },
       {
         id: 'overworld_articuno', name: 'ARTICUNO', topic: 'LEGENDARY POKéMON • HEXAGONAL ICE', x: 13, y: 3,
-        isMonster: true, monsterId: 'articuno',
+        isMonster: true, monsterId: 'articuno', isLegendary: true,
         fact: "ARTICUNO: ★ Kyaaah! ★ (Ordinary water ice forms a Hexagonal crystal structure at standard atmospheric pressure, and Antarctica holds most of Earth's glacial ice!)"
       }
     ]
@@ -629,7 +639,7 @@ const WORLD_MAPS = {
     name: 'MAGMA CALDERA CORE (FAR EAST)',
     subtitle: 'W: MIRAGE DESERT • N: MISTVEIL ONSEN • IGNEOUS CRATER',
     theme: { groundA: '#450a0a', groundB: '#7f1d1d', path: '#fca5a5', grass: '#991b1b', grassTip: '#f97316', tree: '#1c1917', treeTop: '#dc2626', rock: '#450a0a', rockLight: '#ef4444', rockDark: '#1c1917' },
-    encounters: ['charmander', 'charizard', 'vulpix', 'growlithe', 'ponyta', 'magmar', 'moltres'],
+    encounters: ['charmander', 'vulpix', 'growlithe', 'ponyta'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..LLGGGG....PP....GGGGLL..R",
@@ -684,7 +694,7 @@ const WORLD_MAPS = {
       },
       {
         id: 'overworld_moltres', name: 'MOLTRES', topic: 'LEGENDARY POKéMON • THERMODYNAMICS', x: 14, y: 3,
-        isMonster: true, monsterId: 'moltres',
+        isMonster: true, monsterId: 'moltres', isLegendary: true,
         fact: "MOLTRES: ★ Gyaoooh! ★ (An Endothermic reaction absorbs heat from its surroundings, while an Exothermic reaction releases heat!)"
       }
     ]
@@ -696,7 +706,7 @@ const WORLD_MAPS = {
     name: 'TRENCH CORAL ABYSS (FAR SOUTH)',
     subtitle: 'N: CORAL LAGOON BEACH • DEEP OCEAN CURRENTS',
     theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7', rock: '#1e293b', rockLight: '#64748b', rockDark: '#020617' },
-    encounters: ['horsea', 'goldeen', 'magikarp', 'gyarados', 'slowpoke', 'dratini', 'zapdos'],
+    encounters: ['horsea', 'goldeen', 'magikarp', 'slowpoke', 'dratini'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..K........PPPP........K..R",
@@ -730,7 +740,7 @@ const WORLD_MAPS = {
       },
       {
         id: 'overworld_zapdos', name: 'ZAPDOS', topic: 'LEGENDARY POKéMON • BIOELECTRICITY', x: 13, y: 15,
-        isMonster: true, monsterId: 'zapdos',
+        isMonster: true, monsterId: 'zapdos', isLegendary: true,
         fact: "ZAPDOS: ★ Zzaaap! ★ (Saltwater conducts electricity because dissolved sodium and chloride ions are free to move and carry electric charge!)"
       }
     ]
@@ -742,7 +752,7 @@ const WORLD_MAPS = {
     name: 'MYSTIC RUIN SANCTUARY (FAR WEST)',
     subtitle: 'E: VIRIDIAN FOREST • N: CELESTIAL SPIRE • MYTH & COSMOS',
     theme: { groundA: '#2e1065', groundB: '#3b0764', path: '#c084fc', grass: '#4c1d95', grassTip: '#e879f9', tree: '#090d16', treeTop: '#7e22ce', rock: '#4c1d95', rockLight: '#c084fc', rockDark: '#1e1b4b' },
-    encounters: ['abra', 'kadabra', 'gastly', 'gengar', 'drowzee', 'nidoran_f', 'nidoran_m', 'mr_mime', 'mewtwo', 'mew'],
+    encounters: ['abra', 'gastly', 'drowzee', 'nidoran_f', 'nidoran_m', 'mr_mime'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T.RRRR..GGGG.PP.GGGG..RRRR.T",
@@ -792,7 +802,7 @@ const WORLD_MAPS = {
       },
       {
         id: 'overworld_mew', name: 'MYTHICAL MEW', topic: 'LEGENDARY POKéMON • GENETICS', x: 13, y: 12,
-        isMonster: true, monsterId: 'mew',
+        isMonster: true, monsterId: 'mew', isLegendary: true,
         fact: "MEW: ★ Mew~ ★ (DNA carries genetic information using four nitrogenous bases: Adenine, Thymine, Cytosine, and Guanine!)"
       }
     ]
@@ -804,7 +814,7 @@ const WORLD_MAPS = {
     name: 'MISTVEIL ONSEN BASIN',
     subtitle: 'S: MAGMA CALDERA • THERMAL SPRINGS & STEAM GEYSERS',
     theme: { groundA: '#334155', groundB: '#475569', path: '#fed7aa', grass: '#0f766e', grassTip: '#5eead4', tree: '#7c2d12', treeTop: '#fb923c', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['vulpix', 'growlithe', 'arcanine', 'psyduck', 'poliwag', 'slowpoke', 'magmar', 'blastoise', 'charizard'],
+    encounters: ['vulpix', 'growlithe', 'psyduck', 'poliwag', 'slowpoke'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..SS..WWWW......WWWW..SS..R",
@@ -870,7 +880,7 @@ const WORLD_MAPS = {
     name: 'DYNAMO ANVIL WORKS',
     subtitle: 'W: BADLANDS CANYON • HIGH-VOLTAGE MAGNETIC FORGE',
     theme: { groundA: '#1e293b', groundB: '#334155', path: '#94a3b8', grass: '#ca8a04', grassTip: '#fef08a', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['pikachu', 'raichu', 'magnemite', 'voltorb', 'electabuzz', 'porygon', 'lucario'],
+    encounters: ['pikachu', 'magnemite', 'voltorb', 'electabuzz', 'porygon'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..VV..GGGG......GGGG..VV..R",
@@ -941,14 +951,14 @@ const WORLD_MAPS = {
     name: 'NIGHTSHADE SPORE FEN',
     subtitle: 'N: MANGROVE SWAMP • S: NOCTURNE SHADOW UNDERBELLY',
     theme: { groundA: '#2e1065', groundB: '#14532d', path: '#a855f7', grass: '#15803d', grassTip: '#c084fc', tree: '#1e1b4b', treeTop: '#22c55e' },
-    encounters: ['bulbasaur', 'venusaur', 'oddish', 'vileplume', 'bellsprout', 'weedle', 'ekans', 'zubat', 'koffing'],
+    encounters: ['oddish', 'bellsprout', 'weedle', 'ekans', 'zubat', 'koffing'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..UU..GGGG..PP..GGGG..UU..T",
       "T......GGGG.PPPP.GGGG......T",
       "T..UU.......P..P.......UU..T",
       "T......PPPPPP..PPPPPP......T",
-      "T..GGGGP....U..U....PGGGG..T",
+      "T..GGGGP....U..U    PGGGG..R",
       "T..GGGGP....MMMM....PGGGG..T",
       "T......P..UUMMMMUU..P......T",
       "T......PPPPPPPPPPPPPP......T",
@@ -956,7 +966,7 @@ const WORLD_MAPS = {
       "T..UU.......P..P.......UU..T",
       "T......PPPPPP..PPPPPP......T",
       "T..GGGGP....U..U....PGGGG..T",
-      "T..GGGGP............PGGGG..T",
+      "T..GGGGP............PGGGG..R",
       "T......PPPPPPPPPPPPPP......T",
       "T..UU.......P..P.......UU..T",
       "T......GGGG.PPPP.GGGG......T",
@@ -993,7 +1003,7 @@ const WORLD_MAPS = {
     name: 'STARLIGHT CELESTIAL SPIRE',
     subtitle: 'S: MYSTIC SANCTUARY • ASTRAL OBELISKS & PRESS SUMMIT',
     theme: { groundA: '#311042', groundB: '#4a1d66', path: '#fbcfe8', grass: '#701a75', grassTip: '#f472b6', tree: '#1e1b4b', treeTop: '#e879f9' },
-    encounters: ['clefairy', 'jigglypuff', 'abra', 'kadabra', 'drowzee', 'mr_mime', 'mewtwo', 'mew'],
+    encounters: ['clefairy', 'jigglypuff', 'abra', 'drowzee'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       "T..AA..GGGG......GGGG..AA..T",
@@ -1020,6 +1030,11 @@ const WORLD_MAPS = {
       south: { targetMap: 'SANCTUARY', spawnX: 13, spawnY: 1 }
     },
     npcs: [
+      {
+        id: 'overworld_mewtwo', name: 'LEGENDARY MEWTWO', topic: 'LEGENDARY POKéMON • GENETIC ENGINEERING', x: 13, y: 5,
+        isMonster: true, monsterId: 'mewtwo', isLegendary: true,
+        fact: "MEWTWO: ★ Who am I? What is my purpose? ★ (Mewtwo was created by genetic manipulation based on Mew's genetic code!)"
+      },
       {
         id: 'publisher_pulitzer', name: 'PUBLISHER PERRY', topic: 'PUBLISHER • PRINT & FOLKLORE', x: 9, y: 4,
         skinColor: '#fed7aa', hatColor: '#581c87', shirtColor: '#e9d5ff',
@@ -1063,21 +1078,21 @@ const WORLD_MAPS = {
       grass: '#1e1b4b', grassTip: '#dc2626', tree: '#020617',
       treeTop: '#3f3f46', rock: '#18181b', rockLight: '#52525b', rockDark: '#09090b'
     },
-    encounters: ['umbreon', 'murkrow', 'houndoom', 'absol', 'gengar', 'zubat', 'ekans', 'koffing'],
+    encounters: ['umbreon', 'murkrow', 'houndoom', 'absol'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..NN..GGGG..PP..GGGG..NN..R",
       "R......GGGG.PPPP.GGGG......R",
       "R..NN.......P..P.......NN..R",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....N..N....PGGGG..R",
+      "R..GGGGP....N..N    PGGGG..R",
       "R..GGGGP............PGGGG..R",
       "R......P..NN....NN..P......R",
       "R......PPPPPPPPPPPPPP......R",
       "R...........PPPPPPPPPPPPPPPE",
       "R..NN.......P..PPPPPPPPIIIRE",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....N..N....PGGGG..R",
+      "R..GGGGP....N..N    PGGGG..R",
       "R..GGGGP............PGGGG..R",
       "R......PPPPPPPPPPPPPP......R",
       "R..NN.......P..P.......NN..R",
@@ -1139,14 +1154,14 @@ const WORLD_MAPS = {
       grass: '#7c2d12', grassTip: '#38bdf8', tree: '#431407',
       treeTop: '#f97316', rock: '#b91c1c', rockLight: '#fca5a5', rockDark: '#450a0a'
     },
-    encounters: ['clefairy', 'deoxys', 'staryu', 'porygon', 'abra', 'geodude', 'onix'],
+    encounters: ['staryu', 'porygon', 'geodude'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..QQ..GGGG......GGGG..QQ..R",
       "R......GGGG.PPPP.GGGG......R",
       "R..QQ.......P..P.......QQ..R",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....Q..Q....PGGGG..R",
+      "R..GGGGP....Q..Q    PGGGG..R",
       "R..GGGGP............PGGGG..R",
       "R......P..QQ....QQ..P......R",
       "R......PPPPPPPPPPPPPP......R",
@@ -1155,7 +1170,7 @@ const WORLD_MAPS = {
       "R......PPPPPPPPPPPPPP......R",
       "R......P..QQ....QQ..P......R",
       "R..GGGGP............PGGGG..R",
-      "R..GGGGP....Q..Q....PGGGG..R",
+      "R..GGGGP    Q..Q    PGGGG..R",
       "R......PPPPPPPPPPPPPP......R",
       "R..QQ.......P..P.......QQ..R",
       "R......GGGG.PPPP.GGGG......R",
@@ -1163,7 +1178,7 @@ const WORLD_MAPS = {
       "RRRRRRRRRRRRREERRRRRRRRRRRRR"
     ],
     exits: {
-      north: { targetMap: 'SOUTHEAST',    spawnX: 13, spawnY: 18 },
+      north: { targetMap: 'SOUTHEAST',    spawnX: 26, spawnY: 18 },
       west:  { targetMap: 'SHADOW_ALLEY', spawnX: 26, spawnY: 9 }
     },
     npcs: [
@@ -1189,7 +1204,7 @@ const WORLD_MAPS = {
       },
       {
         id: 'overworld_deoxys', name: 'COSMIC DEOXYS', topic: 'EXTRATERRESTRIAL POKéMON • COSMOS', x: 13, y: 8,
-        isMonster: true, monsterId: 'deoxys',
+        isMonster: true, monsterId: 'deoxys', isLegendary: true,
         fact: "DEOXYS: ★ Vwooo-shhh! ★ (Deoxys crystallized from a space virus inside a meteor! Gamma rays are the highest-energy electromagnetic radiation in the cosmos!)"
       }
     ]

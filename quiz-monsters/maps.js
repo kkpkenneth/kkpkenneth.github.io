@@ -706,6 +706,11 @@ const WORLD_MAPS = {
         id: 'overworld_moltres', name: 'MOLTRES', topic: 'LEGENDARY POKéMON • THERMODYNAMICS', x: 14, y: 3,
         isMonster: true, monsterId: 'moltres', isLegendary: true,
         fact: "MOLTRES: ★ Gyaoooh! ★ (An Endothermic reaction absorbs heat from its surroundings, while an Exothermic reaction releases heat!)"
+      },
+      {
+        id: 'homeless_no_name', name: 'HOMELESS NO NAME', topic: 'STRANDED • REFUGEE', x: 26, y: 16,
+        skinColor: '#ca8a5b', hatColor: 'gray', shirtColor: 'brown',
+        fact: "HOMELESS NO NAME: I HAVE NOTHING! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE!!!!!!!!!!!"
       }
     ]
   },

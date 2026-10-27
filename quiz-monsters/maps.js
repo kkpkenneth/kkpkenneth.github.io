@@ -520,6 +520,11 @@ const WORLD_MAPS = {
         id: 'graphic_designer_saul', name: 'DESIGNER SAUL', topic: 'GRAPHIC DESIGNER • COLOR THEORY', x: 13, y: 12,
         skinColor: '#fed7aa', hatColor: '#7c3aed', shirtColor: '#ddd6fe',
         fact: "DESIGNER SAUL: In traditional subtractive pigment mixing, Red, Yellow, and Blue are the primary colors!"
+      },
+      {
+        id: 'psychopath_rafiki', name: 'PSYCHOPATH RAFIKI', topic: 'FROM FAR FAR AWAY • MANDRILL', x: 2, y: 3,
+        skinColor: '#555555', hatColor: '#7c3aed', shirtColor: '#ddd6fe',
+        fact: "PSYCHOPATH RAFIKI: Did you know? A psychopath gives birth to another psychopath without the birds and the bees! That is the circle of psychopathic life."
       }
     ]
   },

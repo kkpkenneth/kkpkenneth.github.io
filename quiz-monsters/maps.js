@@ -404,6 +404,11 @@ const WORLD_MAPS = {
         id: 'cosmologist_stephen', name: 'COSMOLOGIST STEPHEN', topic: 'COSMOLOGIST • UNIVERSE', x: 9, y: 15,
         skinColor: '#784212', hatColor: '#5f7478', shirtColor: '#4d5354',
         fact: "COSMOLOGIST STEPHEN: Did you know? 63 Earths can fit inside Uranus! And did you know? Uranus surface smells like rotten eggs due to hydrogen sulfide clouds. I have always wanted to have a closer look at Uranus."
+      },
+      {
+        id: 'cop_branco', name: 'COP BRANCO', topic: 'ARMED • JUSTICE', x: 18, y: 1,
+        skinColor: '#000000', hatColor: '#5f7478', shirtColor: '#4d5354',
+        fact: "COP BRANCO: If I see those jerks, I will shoot them dead for you."
       }
     ]
   },
@@ -457,7 +462,12 @@ const WORLD_MAPS = {
         id: 'product_designer_jony', name: 'DESIGNER JONY', topic: 'PRODUCT DESIGNER • MATERIALS', x: 13, y: 4,
         skinColor: '#fed7aa', hatColor: '#1e293b', shirtColor: '#e2e8f0',
         fact: "DESIGNER JONY: Ductility describes a material's ability to deform under tensile stress without fracturing, while Chromium makes stainless steel corrosion-resistant!"
-      }
+      },
+      {
+      id: 'policeman_nero', name: 'POLICEMAN NERO', topic: 'POLICE • CORRUPTED', x: 26, y: 14,
+        skinColor: '#000000', hatColor: '#1e293b', shirtColor: '#e7e5e4',
+        fact: "POLICEMAN NERO: I know you lost your phones, passports and computer. Now you can pay for my taxi :)"
+      },  
     ]
   },
 
@@ -804,7 +814,12 @@ const WORLD_MAPS = {
         id: 'overworld_mew', name: 'MYTHICAL MEW', topic: 'LEGENDARY POKéMON • GENETICS', x: 13, y: 12,
         isMonster: true, monsterId: 'mew', isLegendary: true,
         fact: "MEW: ★ Mew~ ★ (DNA carries genetic information using four nitrogenous bases: Adenine, Thymine, Cytosine, and Guanine!)"
-      }
+      },
+      {
+        id: 'human_ecologist_kim', name: 'HUMAN ECOLOGIST KIM', topic: 'HUMAN EXPERIMENTS • GATE OF TRUTH', x: 5, y: 17,
+        skinColor: '#f5cba7', hatColor: '#000000', shirtColor: '#555555',
+        fact: "HUMAN ECOLOGIST KIM: You kill some of them, they come back stronger. You kill them all, you end their pain. You keep them uneducated, they will keep killing each other, keep torturing each other, keep giving themselves a sustainable life in hell. That is the beauty of tragedy farming."
+      },
     ]
   },
 

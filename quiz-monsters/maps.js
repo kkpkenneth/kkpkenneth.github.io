@@ -708,9 +708,9 @@ const WORLD_MAPS = {
         fact: "MOLTRES: ★ Gyaoooh! ★ (An Endothermic reaction absorbs heat from its surroundings, while an Exothermic reaction releases heat!)"
       },
       {
-        id: 'homeless_no_name', name: 'HOMELESS NO NAME', topic: 'STRANDED • REFUGEE', x: 26, y: 16,
+        id: 'homeless_nobody', name: 'HOMELESS NOBODY', topic: 'STRANDED • REFUGEE', x: 26, y: 16,
         skinColor: '#ca8a5b', hatColor: 'gray', shirtColor: 'brown',
-        fact: "HOMELESS NO NAME: I HAVE NOTHING! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE!!!!!!!!!!!"
+        fact: "HOMELESS NOBODY: I HAVE NOTHING! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE! I HAVE NOTHING TO LOSE!!!!!!!!!!!"
       }
     ]
   },

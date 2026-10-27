@@ -956,6 +956,11 @@ const WORLD_MAPS = {
         id: 'electrician_sparky', name: 'ELECTRICIAN SPARK', topic: 'ELECTRICIAN • CIRCUIT SAFETY', x: 19, y: 15,
         skinColor: '#e59866', hatColor: '#f59e0b', shirtColor: '#fef08a',
         fact: "ELECTRICIAN SPARK: Safety first! Conductors let electricity flow easily, while a Fuse contains a thin wire that melts if current gets too high!"
+      },
+      {
+        id: 'the_punisher', name: 'THE PUNISHER', topic: 'JUST BEING HUMAN • NOT MARVEL', x: 25, y: 8,
+        skinColor: '#e59866', hatColor: '#f59e0b', shirtColor: '#000000',
+        fact: "THE PUNISHER: In certain extreme situations, the law is inadequate. In order to shame its inadequacy, it is necessary to act outside the law. To pursue... natural justice."
       }
     ]
   },

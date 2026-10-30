@@ -1,7 +1,7 @@
 /********************************************************************
  * battle.js
  * Trivia Combat Engine, Auto-Switch on Faint, Professor Oak Duplicate
- * Transfer, Absolute HP Catch Rate, EXP Bar Animation & Live Dex Search
+ * Transfer, Absolute HP Catch Rate, EXP Bar Animation & Two-Step Evolution
  ********************************************************************/
 
 const EVOLUTION_CHAINS = {
@@ -178,7 +178,7 @@ function checkAndTriggerEvolution(mon) {
   if (!req || req.method !== 'EXP') return null;
   mon.evoWins = mon.evoWins || 0;
   if (mon.evoWins >= req.winsNeeded) {
-    return evolveMonsterInstance(mon, req.to);
+    return { ready: true, req };
   }
   return null;
 }
@@ -475,7 +475,6 @@ function triggerSpriteAnimation(target, animClass) {
   void wrapper.offsetWidth;
   wrapper.classList.add(animClass);
 
-  // Guaranteed Web Animations API lunge fallback so lunging is always visible
   if (typeof wrapper.animate === 'function') {
     if (animClass === 'anim-lunge-player') {
       wrapper.animate([
@@ -776,13 +775,15 @@ function startCaptureBallSequence() {
               triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
             }, 180);
 
-            const enemyDmg = 18;
             const player = getActivePlayer();
+            const playerType = player.transformedType || player.type;
+            const typeAdvantageMult = getEffectiveness(enemy.type, playerType);
+            const enemyDmg = Math.round((24 + enemy.level * 1.2) * typeAdvantageMult);
             player.hp = Math.max(0, player.hp - enemyDmg);
 
             setTimeout(() => {
               triggerSpriteAnimation('player', 'anim-hit');
-              spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
+              spawnFloatingText('player', `-${enemyDmg} HP${typeAdvantageMult > 1 ? ' (CRIT/ADV!)' : ''}`, 'text-red-400');
               syncAllUI();
             }, 340);
 
@@ -935,13 +936,12 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
       if (enemy.hp <= 0) {
         clearPartyTransformations();
         const req = getEvolutionRequirement(player.id);
-        let evoMessage = null;
+        let evoCheck = null;
 
         if (req && req.method === 'EXP') {
           const prevWins = player.evoWins || 0;
           player.evoWins = prevWins + 1;
 
-          // Animate the EXP bar if present
           const evoWrap = document.getElementById('playerEvoBarWrap');
           const evoBar = document.getElementById('playerEvoBar');
           const evoText = document.getElementById('playerEvoText');
@@ -958,31 +958,26 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
             setTimeout(() => evoBar.classList.remove('anim-exp-gain'), 880);
           }
 
-          evoMessage = checkAndTriggerEvolution(player);
+          evoCheck = checkAndTriggerEvolution(player);
         }
 
-        const playerWrapper = document.getElementById('playerSpriteWrapper');
-        if (evoMessage && playerWrapper) {
-          setTimeout(() => {
-            playerWrapper.innerHTML = renderMonsterSVG(player);
-            syncAllUI();
-          }, 680);
-        } else {
-          setTimeout(() => syncAllUI(), 800);
+        if (evoCheck && evoCheck.ready) {
+          // Two-Step Evolution Prompt: "Huh? Is {pokemon} evolving?..." and wait for SPACE/ENTER/TALK
+          setDialogue(`Huh? Is ${player.name} evolving?... [Press SPACE or A • TALK to continue]`, 'EVOLUTION? ★');
+          state.pendingEvolutionTargetId = evoCheck.req.to;
+          state.waitingForEvolutionConfirmation = true;
+          state.busy = false;
+          return;
         }
+
         if (typeof saveGameProgress === 'function') saveGameProgress();
-
         sfx.captureFanfare();
         let victoryLog = `Wild ${enemy.name} fainted!`;
-        if (evoMessage) {
-          victoryLog = `Wild ${enemy.name} fainted! ★ ${evoMessage}`;
-        } else if (req && req.method === 'EXP') {
+        if (req && req.method === 'EXP') {
           victoryLog = `Wild ${enemy.name} fainted! (${player.name} EXP EVO BAR: ${player.evoWins}/${req.winsNeeded})!`;
-        } else if (req && req.method === 'STONE') {
-          victoryLog = `Wild ${enemy.name} fainted! (Find a ${req.stoneLabel} on the map to evolve ${player.name})!`;
         }
 
-        setDialogue(victoryLog, evoMessage ? 'EVOLUTION! ★' : 'VICTORY!');
+        setDialogue(victoryLog, 'VICTORY!');
         setTimeout(() => {
           returnToOverworldFromBattle(victoryLog);
         }, 1900);
@@ -994,14 +989,17 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
   } else {
     state.streak = 0;
     sfx.wrongBuzzer();
-    const enemyDmg = Math.round(24 + enemy.level * 1.2);
+    
+    const playerType = player.transformedType || player.type;
+    const typeAdvantageMult = getEffectiveness(enemy.type, playerType);
+    const enemyDmg = Math.round((24 + enemy.level * 1.2) * typeAdvantageMult);
     player.hp = Math.max(0, player.hp - enemyDmg);
 
     triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
 
     setTimeout(() => {
       triggerSpriteAnimation('player', 'anim-hit');
-      spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
+      spawnFloatingText('player', `-${enemyDmg} HP${typeAdvantageMult > 1 ? ' (CRIT/ADV!)' : ''}`, 'text-red-400');
       syncAllUI();
     }, 200);
 
@@ -1016,6 +1014,31 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
       }
     }, 1200);
   }
+}
+
+function handleEvolutionConfirmationStep() {
+  if (!state.waitingForEvolutionConfirmation || !state.pendingEvolutionTargetId) return false;
+  state.waitingForEvolutionConfirmation = false;
+  const player = getActivePlayer();
+  const targetId = state.pendingEvolutionTargetId;
+  state.pendingEvolutionTargetId = null;
+
+  const pWrap = document.getElementById('playerSpriteWrapper');
+  if (pWrap) {
+    pWrap.classList.add('anim-evolve-flash');
+    setTimeout(() => pWrap.classList.remove('anim-evolve-flash'), 1200);
+  }
+
+  const evoMsg = evolveMonsterInstance(player, targetId);
+  if (pWrap) pWrap.innerHTML = renderMonsterSVG(player);
+  syncAllUI();
+  if (typeof saveGameProgress === 'function') saveGameProgress();
+
+  setDialogue(evoMsg, 'EVOLUTION! ★');
+  setTimeout(() => {
+    returnToOverworldFromBattle(evoMsg);
+  }, 2200);
+  return true;
 }
 
 /********************************************************************
@@ -1122,11 +1145,10 @@ function showDexSwitchView() {
 }
 
 function getMonsterHabitatName(monsterId, monsterName) {
-  if (typeof WORLD_MAPS === 'undefined') return 'Habitat unknown';
+  if (typeof WORLD_MAPS === 'undefined') return 'Unknown';
   const cleanId = (monsterId || '').toLowerCase();
   const cleanName = (monsterName || '').toLowerCase();
   
-  // Check if it's found in any biome encounters or overworld NPC spawns
   for (const mapKey of Object.keys(WORLD_MAPS)) {
     const mapObj = WORLD_MAPS[mapKey];
     if (mapObj.encounters && mapObj.encounters.some(e => e.toLowerCase() === cleanId || e.toLowerCase() === cleanName)) {
@@ -1137,7 +1159,6 @@ function getMonsterHabitatName(monsterId, monsterName) {
     }
   }
 
-  // If it's part of an evolution chain and not found as a wild/overworld encounter, it's evolution-only
   if (typeof EVOLUTION_CHAINS !== 'undefined') {
     const isEvolvedForm = Object.values(EVOLUTION_CHAINS).some(chain => chain.to.toLowerCase() === cleanId);
     if (isEvolvedForm) {
@@ -1310,6 +1331,6 @@ function launchGrandCelebrationModal() {
     stage.appendChild(floater);
   });
 
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
 }

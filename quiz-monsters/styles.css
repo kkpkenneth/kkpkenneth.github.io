@@ -144,3 +144,15 @@ svg, canvas { shape-rendering: crispEdges; image-rendering: pixelated; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #0f172a; }
 ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+@keyframes evolveFlash {
+  0%   { filter: brightness(1) drop-shadow(0 0 0px #eab308); transform: scale(1); }
+  25%  { filter: brightness(2.5) invert(0.3) drop-shadow(0 0 16px #facc15); transform: scale(1.15); }
+  50%  { filter: brightness(4) sepia(1) hue-rotate(-20deg) saturate(8); transform: scale(1.25); }
+  75%  { filter: brightness(2.5) invert(0.3) drop-shadow(0 0 16px #facc15); transform: scale(1.15); }
+  100% { filter: brightness(1) drop-shadow(0 0 0px #eab308); transform: scale(1); }
+}
+
+.anim-evolve-flash {
+  animation: evolveFlash 1.2s ease-in-out !important;
+}

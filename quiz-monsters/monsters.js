@@ -390,22 +390,22 @@ const DEFAULT_MONSTER_PIXELS = {
     "................"
   ]},
   butterfree: { palette: { p: '#f8fafc', d: '#4c1d95', l: '#38bdf8', s: '#ef4444', b: '#0f172a' }, grid: [
-    ".bbbb......bbbb.",
-    "bppppb.bb.bppppb",
-    "bpppb..dd..bpppb",
-    "bppb..dddd..bppb",
-    "bpppb.dsddsbpppb",
-    ".bppppddddddpppb",
-    "..bbbbddddddbbb.",
-    ".bpppddddddpppb.",
-    "bpppb.dddd.bpppb",
-    ".bbb..ll.ll.bbb.",
-    "................",
-    "................",
-    "................",
-    "................",
-    "................",
-    "................"
+     "................",
+      ".....bb..bb.....",
+      "......b..b......",
+      "bbbbb.b..b..bbbb",
+      "bpppb.b..b.bpppb",
+      "bpppbddddddbpppb",
+      "bbbppssddssbpbbb",
+      "bppbpssddsspbppb",
+      "bbbppddllddppbbb",
+      "bpppppddddpppppb",
+      "bbbppplddlpppbbb",
+      "...bppddddpbbb..",
+      "..bpbblddlbbpb..",
+      "..bpbpl..lpbpb..",
+      "..bbppb..bppbb..",
+      "....bb....bbb..."
   ]},
   weedle: { palette: { p: '#eab308', d: '#a16207', l: '#fef08a', s: '#dc2626', b: '#0f172a' }, grid: [
     "................","................","......ll........","......ll........","....pppppp......","....bpsspb......","....ppsspp......","....pppppp......","......ppp.......","......ppp...l...",".......ppp..p...",".......pppppp...",".........ppp....","................","................","................"

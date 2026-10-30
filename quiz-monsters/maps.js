@@ -1492,5 +1492,364 @@ const WORLD_MAPS = {
         fact: "DR. INDIANA: Sedimentary rock layers preserve marine fossils over millions of years! You can find Water-type starters from every region swimming here!"
       }
     ]
+  },
+  // ====================================================================
+  // EAST ASIA REGION (LINKED TO HABITAT REGION VIA 2x2 PORTAL AT 50 DEX)
+  // ====================================================================
+
+  // E1. HONG KONG (EAST ASIA HUB)
+  HONG_KONG: {
+    id: 'HONG_KONG',
+    name: 'HONG KONG VICTORIA HARBOUR HUB',
+    subtitle: 'N: CHINA • E: TAIWAN • W: MACAU • PORTAL: PALLET HUB',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#1e293b', groundB: '#334155', path: '#f43f5e', grass: '#0d9488', grassTip: '#2dd4bf', tree: '#0f172a', treeTop: '#fb7185', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#0f172a' },
+    encounters: ['pikachu', 'meowth', 'persian', 'porygon', 'magnemite', 'gyarados', 'dratini', 'froakie'],
+    rows: [
+      "HHHHHHHHHHHHHEEHHHHHHHHHHHHH",
+      "H..YYYY..PPPPPPPPPP..YYYY..H",
+      "H.GGGGGG.P..HHHH..P.GGGGGG.H",
+      "H.GGGGGG.P..HDDH..P.GGGGGG.H",
+      "H........P........P........H",
+      "H..YYYY..PPPPPPPPPP..YYYY..H",
+      "H........P........P........H",
+      "H.GGGGGG.P.PPPPPP.P.GGGGGG.H",
+      "H........P.P....P.P........H",
+      "EPPPPPPPPP.P....P.PPPPPPPPPE",
+      "EPPPPPPPPP.P....P.PPPPPPPPPE",
+      "H........P.PPPPPP.P........H",
+      "HWWWWWWWWP........PWWWWWWWWH",
+      "HWWWWWWWWBBBBBBBBBBWWWWWWWWH",
+      "HWWWWWWWWPPPPPPPPPPWWWWWWWWH",
+      "H..YYYY......PP......YYYY..H",
+      "H.GGGGGGG.PPPPPPPP.GGGGGGG.H",
+      "H.GGGGGGG.P..FF..P.GGGGGGG.H",
+      "H.........P......P.........H",
+      "HHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+    ],
+    exits: {
+      north: { targetMap: 'CHINA',  spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'MACAU',  spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'TAIWAN', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'hk_investment_banker', name: 'BANKER KEVIN (CENTRAL)', topic: 'INVESTMENT BANKER • COMPOUND INTEREST', x: 10, y: 5,
+        skinColor: '#fde68a', hatColor: '#0f172a', shirtColor: '#38bdf8',
+        fact: "INVESTMENT BANKER KEVIN: Time is money in Central IFC! Compound interest grows exponentially, and the Hang Seng Index tracks the largest companies on the Hong Kong Stock Exchange!"
+      },
+      {
+        id: 'hk_lion_dancer', name: 'SIFU WONG (LION DANCER)', topic: 'LION DANCER • ACOUSTICS & KINEMATICS', x: 17, y: 5,
+        skinColor: '#f5cba7', hatColor: '#dc2626', shirtColor: '#facc15',
+        fact: "LION DANCER SIFU WONG: 🦁 Kung Hei Fat Choy! High-pole Lion Dancing requires explosive skeletal muscle ATP and precise balance coordinated by the brain's Cerebellum!"
+      },
+      {
+        id: 'hk_dim_sum_chef', name: 'DIM SUM MASTER CHAN', topic: 'DIM SUM CHEF • STEAM CONVECTION', x: 11, y: 8,
+        skinColor: '#fed7aa', hatColor: '#f8fafc', shirtColor: '#ffffff',
+        fact: "DIM SUM MASTER CHAN: Har Gow and Siu Mai! Bamboo steamers cook dumplings evenly because rising water vapor releases latent heat of vaporization when it condenses!"
+      },
+      {
+        id: 'hk_star_ferry_captain', name: 'CAPTAIN LEUNG (STAR FERRY)', topic: 'FERRY CAPTAIN • BUOYANCY', x: 14, y: 13,
+        skinColor: '#e59866', hatColor: '#15803d', shirtColor: '#f8fafc',
+        fact: "CAPTAIN LEUNG: Crossing Victoria Harbour since 1888! By Archimedes' Principle, our Star Ferry floats because the upward buoyant force equals the weight of displaced seawater!"
+      },
+      {
+        id: 'hk_ding_ding_driver', name: 'DRIVER UNCLE HO (DING DING)', topic: 'TRAM DRIVER • OVERHEAD CIRCUITS', x: 18, y: 11,
+        skinColor: '#ca8a5b', hatColor: '#166534', shirtColor: '#4ade80',
+        fact: "UNCLE HO: Ding-Ding! Hong Kong's double-decker trams draw direct current (DC) electricity from overhead pantograph wires and complete the circuit through the steel rails!"
+      },
+      {
+        id: 'hk_nurse_joy', name: 'NURSE JOY (HK)', topic: 'NURSE • PARTY HEAL', x: 14, y: 4,
+        skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true,
+        fact: "NURSE JOY: Welcome to Hong Kong! I've fully healed your Pokémon party! Step into the glowing 2×2 Portal in the center whenever you want to warp back to Pallet Research Hub!"
+      }
+    ]
+  },
+
+  // E2. MACAU (WEST OF HONG KONG)
+  MACAU: {
+    id: 'MACAU',
+    name: 'MACAU COTAI NEON PENINSULA (WEST)',
+    subtitle: 'E: HONG KONG • PORTUGUESE AZULEJO & NEON LIGHTS',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#064e3b', groundB: '#047857', path: '#fde047', grass: '#0f766e', grassTip: '#5eead4', tree: '#022c22', treeTop: '#fbbf24', rock: '#1e293b', rockLight: '#fef08a', rockDark: '#0f172a' },
+    encounters: ['meowth', 'psyduck', 'staryu', 'eevee', 'abra', 'fennekin'],
+    rows: [
+      "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "H..FF..GGGG......GGGG..FF..H",
+      "H......GGGG.PPPP.GGGG......H",
+      "H..NN.......P..P.......NN..H",
+      "H......PPPPPP..PPPPPP......H",
+      "H..GGGGP....F..F....PGGGG..H",
+      "H..GGGGP....HHHH....PGGGG..H",
+      "H......P..NNHHHHNN..P......H",
+      "H......PPPPPPPPPPPPPP......H",
+      "H...........PPPPPPPPPPPPPPPE",
+      "H...........PPPPPPPPPPPPPPPE",
+      "H......PPPPPPPPPPPPPP......H",
+      "H..GGGGP....N..N....PGGGG..H",
+      "H..GGGGP............PGGGG..H",
+      "H......PPPPPPPPPPPPPP......H",
+      "H..FF.......P..P.......FF..H",
+      "H......GGGG.PPPP.GGGG......H",
+      "H..FF..GGGG......GGGG..FF..H",
+      "HWWWWWWWWWWWWWWWWWWWWWWWWWWH",
+      "HHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+    ],
+    exits: {
+      east: { targetMap: 'HONG_KONG', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'macau_egg_tart_baker', name: 'BAKER FERNANDO', topic: 'PASTRY CHEF • CARAMELIZATION', x: 11, y: 5,
+        skinColor: '#f5cba7', hatColor: '#f59e0b', shirtColor: '#fef3c7',
+        fact: "BAKER FERNANDO: Pastéis de Nata! Baking Portuguese egg tarts at high heat triggers the Maillard reaction and caramelization of sucrose!"
+      },
+      {
+        id: 'macau_probability_prof', name: 'PROFESSOR PASCAL', topic: 'MATHEMATICIAN • PROBABILITY', x: 16, y: 11,
+        skinColor: '#fed7aa', hatColor: '#7e22ce', shirtColor: '#e9d5ff',
+        fact: "PROFESSOR PASCAL: Expected Value in probability theory proves the house always has a mathematical edge over the long run!"
+      }
+    ]
+  },
+
+  // E3. CHINA (NORTH OF HONG KONG • RED ZONE WITH GREAT WALL)
+  CHINA: {
+    id: 'CHINA',
+    name: 'GREAT WALL CRIMSON CITADEL (CHINA)',
+    subtitle: 'S: HONG KONG • N: MONGOLIA • E: JAPAN • RED ZONE & GREAT WALL',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#7f1d1d', groundB: '#991b1b', path: '#facc15', grass: '#b91c1c', grassTip: '#fde047', tree: '#450a0a', treeTop: '#ef4444', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#1c1917' },
+    encounters: ['growlithe', 'arcanine', 'ponyta', 'vulpix', 'dratini', 'dragonair', 'tepig', 'chimchar'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R............PP............R",
+      "HHHHHHHHHHHHHPPPPPPHHHHHHHHH",
+      "HHHHHHHHHHHHHHHHHPPGGGGGGGGH",
+      "R..GGGG..PPPPPPPPPP..GGGG..R",
+      "R..GGGG..P........P..GGGG..R",
+      "R........P..RRRR..P........R",
+      "R..RRRR..P..RRRR..P..RRRR..R",
+      "R........PPPPPPPPPP........R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R..GGGG..PPPPPPPPPP..GGGG..R",
+      "R..GGGG..P........P..GGGG..R",
+      "R........P..FFFF..P........R",
+      "R..RRRR..P..FFFF..P..RRRR..R",
+      "R........PPPPPPPPPP........R",
+      "R..GGGGGG....PP....GGGGGG..R",
+      "R..GGGGGG....PP....GGGGGG..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      south: { targetMap: 'HONG_KONG', spawnX: 13, spawnY: 1 },
+      north: { targetMap: 'MONGOLIA',  spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'JAPAN',     spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'china_wall_historian', name: 'HISTORIAN SIMA', topic: 'HISTORIAN • GREAT WALL ENGINEERING', x: 13, y: 4,
+        skinColor: '#fde68a', hatColor: '#dc2626', shirtColor: '#fde047',
+        fact: "HISTORIAN SIMA: Behold the Great Wall across the northern ridge! Ancient builders mixed sticky rice mortar (amylopectin starch) with slaked lime (calcium carbonate) to bind the stone bricks!"
+      },
+      {
+        id: 'china_botanist_li', name: 'HERBALIST LI SHIZHEN', topic: 'BOTANIST • PHARMACOGNOSY', x: 10, y: 12,
+        skinColor: '#f5cba7', hatColor: '#15803d', shirtColor: '#bbf7d0',
+        fact: "HERBALIST LI: Tea leaves (Camellia sinensis) contain caffeine and polyphenols! Boiling water also sterilized drinking water throughout ancient history!"
+      }
+    ]
+  },
+
+  // E4. TAIWAN (EAST OF HONG KONG, SOUTH OF JAPAN)
+  TAIWAN: {
+    id: 'TAIWAN',
+    name: 'FORMOSA HIGHLAND & NIGHT MARKET (TAIWAN)',
+    subtitle: 'W: HONG KONG • N: JAPAN • SILICON FOUNDRY & JADE PEAKS',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#065f46', groundB: '#047857', path: '#fcd34d', grass: '#15803d', grassTip: '#86efac', tree: '#064e3b', treeTop: '#34d399', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['bulbasaur', 'treecko', 'turtwig', 'snivy', 'chespin', 'oddish', 'poliwag'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T..VV..GGGG..PP..GGGG..RR..T",
+      "T......GGGG.PPPP.GGGG..RR..T",
+      "T..VV.......P..P.......RR..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....F..F....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......P..VV....RR..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "EPPPPPPPPPPPPPPPP..........T",
+      "EPPPPPPPPPPPPPPPP..........T",
+      "T......PPPPPPPPPPPPPP......T",
+      "TWWWWWWP............P..RR..T",
+      "TWWWWWWP....F..F....P..RR..T",
+      "TWWWWWWPPPPPPPPPPPPPP......T",
+      "T...........P..P...........T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T......GGGG......GGGG......T",
+      "TWWWWWWWWWWWWWWWWWWWWWWWWWWT",
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+    ],
+    exits: {
+      west:  { targetMap: 'HONG_KONG', spawnX: 26, spawnY: 9 },
+      north: { targetMap: 'JAPAN',     spawnX: 13, spawnY: 18 }
+    },
+    npcs: [
+      {
+        id: 'taiwan_chip_engineer', name: 'ENGINEER MORRIS', topic: 'SEMICONDUCTOR ENG. • PHOTOLITHOGRAPHY', x: 10, y: 5,
+        skinColor: '#fde68a', hatColor: '#0284c7', shirtColor: '#e0f2fe',
+        fact: "ENGINEER MORRIS: Taiwan fabricates the world's most advanced microchips! Extreme Ultraviolet (EUV) photolithography etches silicon transistors smaller than 3 nanometers!"
+      },
+      {
+        id: 'taiwan_boba_vendor', name: 'VENDOR MEI (NIGHT MARKET)', topic: 'FOOD SCIENTIST • TAPIOCA POLYMERS', x: 16, y: 11,
+        skinColor: '#fed7aa', hatColor: '#d97706', shirtColor: '#fef3c7',
+        fact: "VENDOR MEI: Bubble tea pearls are made from cassava root starch! Boiling gelatinizes the starch polymers into chewy, elastic spheres!"
+      }
+    ]
+  },
+
+  // E5. JAPAN (NORTH OF TAIWAN, EAST OF CHINA, SOUTH OF SOUTH KOREA)
+  JAPAN: {
+    id: 'JAPAN',
+    name: 'SAKURA FUJI ARCHIPELAGO (JAPAN)',
+    subtitle: 'W: CHINA • S: TAIWAN • N: SOUTH KOREA • ONSEN & SAKURA',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#4c1d95', groundB: '#5b21b6', path: '#fbcfe8', grass: '#be185d', grassTip: '#f9a8d4', tree: '#3b0764', treeTop: '#f472b6', rock: '#64748b', rockLight: '#f8fafc', rockDark: '#1e293b' },
+    encounters: ['pikachu', 'charmander', 'squirtle', 'cyndaquil', 'totodile', 'torchic', 'mudkip', 'oshawott', 'froakie'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T..FF..GGGG..PP..GGGG..SS..T",
+      "T......GGGG.PPPP.GGGG..SS..T",
+      "T..FF.......P..P...........T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP...RRRRRR...PGGGG..T",
+      "T..GGGGP..RIIIIIIR..PGGGG..T",
+      "T......P..RIIIIIIR..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "EPPPPPPPPPPPPPPPP..........T",
+      "EPPPPPPPPPPPPPPPP..........T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..SS..P....F..F....P..FF..T",
+      "T..SS..P............P..FF..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T...........P..P...........T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..FF..GGGG..PP..GGGG..FF..T",
+      "T............PP............T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      west:  { targetMap: 'CHINA',       spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'TAIWAN',      spawnX: 13, spawnY: 1 },
+      north: { targetMap: 'SOUTH_KOREA', spawnX: 13, spawnY: 18 }
+    },
+    npcs: [
+      {
+        id: 'japan_shinkansen_eng', name: 'ENGINEER HIDEO (SHINKANSEN)', topic: 'RAILWAY ENG. • BIOMIMICRY & MAGLEV', x: 10, y: 8,
+        skinColor: '#fde68a', hatColor: '#1d4ed8', shirtColor: '#f8fafc',
+        fact: "ENGINEER HIDEO: The Shinkansen bullet train's nose cone was modeled after a Kingfisher's beak to eliminate sonic booms when exiting tunnels!"
+      },
+      {
+        id: 'japan_seismologist', name: 'DR. OMORI', topic: 'SEISMOLOGIST • PACIFIC RING OF FIRE', x: 17, y: 8,
+        skinColor: '#f5cba7', hatColor: '#dc2626', shirtColor: '#fde047',
+        fact: "DR. OMORI: Mount Fuji is a stratovolcano formed along a tectonic subduction zone! Japan uses base-isolation shock absorbers so skyscrapers sway safely during earthquakes!"
+      }
+    ]
+  },
+
+  // E6. SOUTH KOREA (NORTH OF JAPAN)
+  SOUTH_KOREA: {
+    id: 'SOUTH_KOREA',
+    name: 'HAN RIVER DIGITAL PLAZA (SOUTH KOREA)',
+    subtitle: 'S: JAPAN • ESPORTS ARENA, FERMENTATION & K-POP STAGE',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#1e1b4b', groundB: '#312e81', path: '#93c5fd', grass: '#1d4ed8', grassTip: '#60a5fa', tree: '#0f172a', treeTop: '#ec4899', rock: '#334155', rockLight: '#e2e8f0', rockDark: '#0f172a' },
+    encounters: ['jolteon', 'vaporeon', 'flareon', 'umbreon', 'piplup', 'fennekin', 'chikorita', 'porygon'],
+    rows: [
+      "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "H..VV..GGGG......GGGG..VV..H",
+      "H......GGGG.PPPP.GGGG......H",
+      "H..VV.......P..P.......VV..H",
+      "H......PPPPPP..PPPPPP......H",
+      "H..GGGGP....A..A....PGGGG..H",
+      "H..GGGGP............PGGGG..H",
+      "H......P..AA....AA..P......H",
+      "H......PPPPPPPPPPPPPP......H",
+      "HWWWWWWWWWWWBBBBWWWWWWWWWWWH",
+      "HWWWWWWWWWWWBBBBWWWWWWWWWWWH",
+      "H......PPPPPPPPPPPPPP......H",
+      "H..GGGGP....V..V....PGGGG..H",
+      "H..GGGGP............PGGGG..H",
+      "H......PPPPPPPPPPPPPP......H",
+      "H..VV.......P..P.......VV..H",
+      "H......GGGG.PPPP.GGGG......H",
+      "H..VV..GGGG..PP..GGGG..VV..H",
+      "H............PP............H",
+      "HHHHHHHHHHHHHEEHHHHHHHHHHHHH"
+    ],
+    exits: {
+      south: { targetMap: 'JAPAN', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'korea_food_microbiologist', name: 'CHEF JI-YOON', topic: 'MICROBIOLOGIST • LACTIC FERMENTATION', x: 11, y: 5,
+        skinColor: '#fde68a', hatColor: '#e11d48', shirtColor: '#ffe4e6',
+        fact: "CHEF JI-YOON: Traditional Kimchi is preserved by Lactobacillus bacteria! Through anaerobic fermentation, they convert sugars into lactic acid, lowering pH and boosting Vitamin C!"
+      },
+      {
+        id: 'korea_pro_gamer', name: 'PRO GAMER SANG-HYEOK', topic: 'ESPORTS PRO • REFLEX ARCS & MYELIN', x: 16, y: 12,
+        skinColor: '#fed7aa', hatColor: '#2563eb', shirtColor: '#dbeafe',
+        fact: "PRO GAMER SANG-HYEOK: Hitting 400 Actions Per Minute relies on myelinated motor neurons conducting action potentials from the motor cortex to your fingers in milliseconds!"
+      }
+    ]
+  },
+
+  // E7. MONGOLIA (NORTH OF CHINA)
+  MONGOLIA: {
+    id: 'MONGOLIA',
+    name: 'ETERNAL BLUE SKY STEPPE (MONGOLIA)',
+    subtitle: 'S: CHINA • VAST GRASSLAND STEPPE & GOBI FOSSIL BEDS',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#ca8a04', groundB: '#a16207', path: '#fef08a', grass: '#4d7c0f', grassTip: '#a3e635', tree: '#365314', treeTop: '#84cc16', rock: '#78350f', rockLight: '#fde68a', rockDark: '#451a03' },
+    encounters: ['ponyta', 'rapidash', 'tauros', 'doduo', 'aerodactyl', 'kabuto', 'omanyte', 'sandshrew'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..GGGGGGGG......GGGGGGGG..R",
+      "R..GGGGGGGG.PPPP.GGGGGGGG..R",
+      "R..GGGGGGGG.P..P.GGGGGGGG..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....HHHH....PGGGG..R",
+      "R..GGGGP....HDDH....PGGGG..R",
+      "R......P............P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPP...........R",
+      "R...........PPPP...........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....R..R....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGG.....P..P.....GGGG..R",
+      "R..GGGGGGGG.PPPP.GGGGGGGG..R",
+      "R..GGGGGGGG..PP..GGGGGGGG..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      south: { targetMap: 'CHINA', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'mongolia_throat_singer', name: 'KHOOMEI MASTER BATBAYAR', topic: 'ACOUSTICIAN • OVERTONE HARMONICS', x: 11, y: 8,
+        skinColor: '#e59866', hatColor: '#0284c7', shirtColor: '#fde047',
+        fact: "MASTER BATBAYAR: Traditional Mongolian throat singing (Khoomei) shapes the vocal tract as a resonator to amplify two distinct harmonic frequencies at the exact same time!"
+      },
+      {
+        id: 'mongolia_gobi_paleo', name: 'NOMADIC RANGER ALTAN', topic: 'PALEONTOLOGIST • GOBI DINOSAUR EGGS', x: 16, y: 12,
+        skinColor: '#ca8a5b', hatColor: '#78350f', shirtColor: '#fed7aa',
+        fact: "RANGER ALTAN: The Flaming Cliffs of the Gobi Desert were where the first fossilized dinosaur eggs and Velociraptor skeletons were discovered in the 1920s!"
+      }
+    ]
   }
 };

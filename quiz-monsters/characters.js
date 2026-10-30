@@ -467,6 +467,30 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
+
+  // Add inside DEFAULT_OBSTACLE_DEFS in characters.js:
+  Y: {
+    id: 'Y', name: 'NEON BILLBOARD SIGN', walkable: false,
+    palette: { p: '#f43f5e', d: '#1e1b4b', l: '#38bdf8', b: '#0f172a', s: '#fde047', t: '#a855f7' },
+    grid: [
+      ".bbbbbbbbbbbbbb.",
+      "bttttttttttttttb",
+      "btddddddddddddtb",
+      "btdppssllssppdtb",
+      "btdpddddddddpdtb",
+      "btdpllspspllpd.b".replace(/\./g, 't'),
+      "btdpddddddddpdtb",
+      "btdppssllssppdtb",
+      "btddddddddddddtb",
+      "bttttttttttttttb",
+      ".bbbbbbbbbbbbbb.",
+      "....bb....bb....",
+      "....bb....bb....",
+      "....bb....bb....",
+      "...bbbb..bbbb...",
+      "................"
+    ]
+  },
   BERRY: {
     id: 'BERRY', name: 'WILD FLOOR BERRY', walkable: false, obtainable: true,
     palette: { p: '#a855f7', d: '#581c87', l: '#f3e8ff', b: '#0f172a', s: '#e9d5ff', t: '#fde047'  },
@@ -653,7 +677,7 @@ function drawOverworldTile(ctx, tile, tx, ty, c, r, theme, animTick) {
     }
   }
 
-  const animatedTile = tile === 'W' || tile === 'L' || tile === 'M' || tile === 'F' || tile === 'S' || tile === 'V';
+  const animatedTile = tile === 'W' || tile === 'L' || tile === 'M' || tile === 'F' || tile === 'S' || tile === 'V' || tile === 'Y';
   const flipTile = animatedTile && ((animTick + c + r) % 2 === 1);
   drawBitmap16(ctx, def.grid, pal, tx, ty, TILE_SIZE, flipTile);
 }

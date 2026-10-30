@@ -1,7 +1,7 @@
 /********************************************************************
  * battle.js
  * Trivia Combat Engine, Auto-Switch on Faint, Professor Oak Duplicate
- * Transfer, Absolute HP Catch Rate, Enemy Attack & Ball Pop Animation
+ * Transfer, Absolute HP Catch Rate, EXP Bar Animation & Live Dex Search
  ********************************************************************/
 
 const EVOLUTION_CHAINS = {
@@ -12,6 +12,46 @@ const EVOLUTION_CHAINS = {
   charmeleon: { to: 'charizard',  method: 'EXP',   winsNeeded: 3 },
   squirtle:   { to: 'wartortle',  method: 'EXP',   winsNeeded: 2 },
   wartortle:  { to: 'blastoise',  method: 'EXP',   winsNeeded: 3 },
+
+  // Johto Starters (Gen 2)
+  chikorita:  { to: 'bayleef',    method: 'EXP',   winsNeeded: 2 },
+  bayleef:    { to: 'meganium',   method: 'EXP',   winsNeeded: 3 },
+  cyndaquil:  { to: 'quilava',    method: 'EXP',   winsNeeded: 2 },
+  quilava:    { to: 'typhlosion', method: 'EXP',   winsNeeded: 3 },
+  totodile:   { to: 'croconaw',   method: 'EXP',   winsNeeded: 2 },
+  croconaw:   { to: 'feraligatr', method: 'EXP',   winsNeeded: 3 },
+
+  // Hoenn Starters (Gen 3)
+  treecko:    { to: 'grovyle',    method: 'EXP',   winsNeeded: 2 },
+  grovyle:    { to: 'sceptile',   method: 'EXP',   winsNeeded: 3 },
+  torchic:    { to: 'combusken',  method: 'EXP',   winsNeeded: 2 },
+  combusken:  { to: 'blaziken',   method: 'EXP',   winsNeeded: 3 },
+  mudkip:     { to: 'marshtomp',  method: 'EXP',   winsNeeded: 2 },
+  marshtomp:  { to: 'swampert',   method: 'EXP',   winsNeeded: 3 },
+
+  // Sinnoh Starters (Gen 4)
+  turtwig:    { to: 'grotle',     method: 'EXP',   winsNeeded: 2 },
+  grotle:     { to: 'torterra',   method: 'EXP',   winsNeeded: 3 },
+  chimchar:   { to: 'monferno',   method: 'EXP',   winsNeeded: 2 },
+  monferno:   { to: 'infernape',  method: 'EXP',   winsNeeded: 3 },
+  piplup:     { to: 'prinplup',   method: 'EXP',   winsNeeded: 2 },
+  prinplup:   { to: 'empoleon',   method: 'EXP',   winsNeeded: 3 },
+
+  // Unova Starters (Gen 5)
+  snivy:      { to: 'servine',    method: 'EXP',   winsNeeded: 2 },
+  servine:    { to: 'serperior',  method: 'EXP',   winsNeeded: 3 },
+  tepig:      { to: 'pignite',    method: 'EXP',   winsNeeded: 2 },
+  pignite:    { to: 'emboar',     method: 'EXP',   winsNeeded: 3 },
+  oshawott:   { to: 'dewott',     method: 'EXP',   winsNeeded: 2 },
+  dewott:     { to: 'samurott',   method: 'EXP',   winsNeeded: 3 },
+
+  // Kalos Starters (Gen 6)
+  chespin:    { to: 'quilladin',  method: 'EXP',   winsNeeded: 2 },
+  quilladin:  { to: 'chesnaught', method: 'EXP',   winsNeeded: 3 },
+  fennekin:   { to: 'braixen',    method: 'EXP',   winsNeeded: 2 },
+  braixen:    { to: 'delphox',    method: 'EXP',   winsNeeded: 3 },
+  froakie:    { to: 'frogadier',  method: 'EXP',   winsNeeded: 2 },
+  frogadier:  { to: 'greninja',   method: 'EXP',   winsNeeded: 3 },
 
   // Bug lines
   caterpie:   { to: 'metapod',    method: 'EXP',   winsNeeded: 1 },
@@ -89,54 +129,11 @@ const EVOLUTION_CHAINS = {
   // Eeveelutions & Electric (Stones)
   pikachu:    { to: 'raichu',     method: 'STONE', stone: 'ELECTRIC', stoneLabel: 'THUNDER STONE' },
   eevee:      { to: 'vaporeon',   method: 'STONE', stone: 'WATER',    stoneLabel: 'WATER STONE' }, 
-  eevee:      { to: 'flareon',   method: 'STONE', stone: 'FIRE',    stoneLabel: 'FIRE STONE' },
-  eevee:      { to: 'jolteon',   method: 'STONE', stone: 'ELECTRIC',    stoneLabel: 'THUNDER STONE' },
-  eevee:      { to: 'umbreon',   method: 'STONE', stone: 'MOON',    stoneLabel: 'MOON STONE' },
 
   // Dragon lines (EXP)
   dratini:    { to: 'dragonair',  method: 'EXP',   winsNeeded: 2 },
   dragonair:  { to: 'dragonite',  method: 'EXP',   winsNeeded: 3 },
-  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 },
-
-  // Johto Starters (Gen 2)
-  chikorita:  { to: 'bayleef',    method: 'EXP', winsNeeded: 2 },
-  bayleef:    { to: 'meganium',   method: 'EXP', winsNeeded: 3 },
-  cyndaquil:  { to: 'quilava',    method: 'EXP', winsNeeded: 2 },
-  quilava:    { to: 'typhlosion', method: 'EXP', winsNeeded: 3 },
-  totodile:   { to: 'croconaw',   method: 'EXP', winsNeeded: 2 },
-  croconaw:   { to: 'feraligatr', method: 'EXP', winsNeeded: 3 },
-
-  // Hoenn Starters (Gen 3)
-  treecko:    { to: 'grovyle',    method: 'EXP', winsNeeded: 2 },
-  grovyle:    { to: 'sceptile',   method: 'EXP', winsNeeded: 3 },
-  torchic:    { to: 'combusken',  method: 'EXP', winsNeeded: 2 },
-  combusken:  { to: 'blaziken',   method: 'EXP', winsNeeded: 3 },
-  mudkip:     { to: 'marshtomp',  method: 'EXP', winsNeeded: 2 },
-  marshtomp:  { to: 'swampert',   method: 'EXP', winsNeeded: 3 },
-
-  // Sinnoh Starters (Gen 4)
-  turtwig:    { to: 'grotle',     method: 'EXP', winsNeeded: 2 },
-  grotle:     { to: 'torterra',   method: 'EXP', winsNeeded: 3 },
-  chimchar:   { to: 'monferno',   method: 'EXP', winsNeeded: 2 },
-  monferno:   { to: 'infernape',  method: 'EXP', winsNeeded: 3 },
-  piplup:     { to: 'prinplup',   method: 'EXP', winsNeeded: 2 },
-  prinplup:   { to: 'empoleon',   method: 'EXP', winsNeeded: 3 },
-
-  // Unova Starters (Gen 5)
-  snivy:      { to: 'servine',    method: 'EXP', winsNeeded: 2 },
-  servine:    { to: 'serperior',  method: 'EXP', winsNeeded: 3 },
-  tepig:      { to: 'pignite',    method: 'EXP', winsNeeded: 2 },
-  pignite:    { to: 'emboar',     method: 'EXP', winsNeeded: 3 },
-  oshawott:   { to: 'dewott',     method: 'EXP', winsNeeded: 2 },
-  dewott:     { to: 'samurott',   method: 'EXP', winsNeeded: 3 },
-
-  // Kalos Starters (Gen 6)
-  chespin:    { to: 'quilladin',  method: 'EXP', winsNeeded: 2 },
-  quilladin:  { to: 'chesnaught', method: 'EXP', winsNeeded: 3 },
-  fennekin:   { to: 'braixen',    method: 'EXP', winsNeeded: 2 },
-  braixen:    { to: 'delphox',    method: 'EXP', winsNeeded: 3 },
-  froakie:    { to: 'frogadier',  method: 'EXP', winsNeeded: 2 },
-  frogadier:  { to: 'greninja',   method: 'EXP', winsNeeded: 3 },
+  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 }
 };
 
 function getEvolutionRequirement(speciesId) {
@@ -283,8 +280,6 @@ function handleActivePartnerFainted() {
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
   const currentHpAmount = Math.max(0, enemy.hp);
-
-  // Actual absolute HP remaining = lower catch rate
   const rawProb = 0.95 - (currentHpAmount * 0.0055);
   return Math.min(0.95, Math.max(0.15, Math.round(rawProb * 100) / 100));
 }
@@ -311,17 +306,15 @@ function setupBattleEncounter(chosenSpecies) {
   if (enemyWrapper) {
     enemyWrapper.innerHTML = renderMonsterSVG(state.enemy);
     enemyWrapper.style.boxShadow = 'none';
-    enemyWrapper.style.filter = '';
-    enemyWrapper.style.transform = '';
-    enemyWrapper.style.transition = '';
+    enemyWrapper.style.filter = 'none';
+    enemyWrapper.style.transform = 'scale(1)';
     enemyWrapper.style.opacity = '1';
   }
   if (playerWrapper) {
     playerWrapper.innerHTML = renderMonsterSVG(activePlayer);
     playerWrapper.style.boxShadow = 'none';
-    playerWrapper.style.filter = '';
-    playerWrapper.style.transform = '';
-    playerWrapper.style.transition = '';
+    playerWrapper.style.filter = 'none';
+    playerWrapper.style.transform = 'scale(1)';
     playerWrapper.style.opacity = '1';
   }
 
@@ -382,23 +375,24 @@ function syncAllUI() {
     }
     if (evoContainer) {
       evoContainer.classList.remove('hidden');
-      evoContainer.innerHTML = `
-        <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
-          <span class="text-[6px] sm:text-[7px] text-purple-300 font-bold px-0.5">EVO</span>
-          <div class="w-full h-1.5 bg-slate-700 rounded-sm overflow-hidden">
-            <div id="playerEvoBar" class="h-full bg-purple-500 transition-all duration-500" style="width: 0%;"></div>
+      if (!document.getElementById('playerEvoBar')) {
+        evoContainer.innerHTML = `
+          <div class="w-full bg-slate-900 p-0.5 rounded border border-slate-950 flex items-center gap-1">
+            <span class="text-[6px] sm:text-[7px] text-purple-300 font-bold px-0.5">EVO</span>
+            <div class="w-full h-1.5 bg-slate-700 rounded-sm overflow-hidden">
+              <div id="playerEvoBar" class="h-full bg-purple-500 transition-all duration-500" style="width: 0%;"></div>
+            </div>
+            <span id="playerEvoText" class="text-[6px] sm:text-[7px] text-purple-200 px-0.5 shrink-0">0/3</span>
           </div>
-          <span id="playerEvoText" class="text-[6px] sm:text-[7px] text-purple-200 px-0.5 shrink-0">0/3</span>
-        </div>
-      `;
+        `;
+      }
     }
 
     const evoBar = document.getElementById('playerEvoBar');
     const evoText = document.getElementById('playerEvoText');
-    if (evoBar && evoText) {
+    if (evoBar && evoText && !evoBar.classList.contains('anim-exp-gain')) {
       const wins = Math.min(evoReq.winsNeeded, player.evoWins || 0);
       evoBar.style.width = `${(wins / evoReq.winsNeeded) * 100}%`;
-      evoBar.className = 'h-full bg-purple-500 transition-all duration-500';
       evoText.textContent = `EXP ${wins}/${evoReq.winsNeeded}`;
     }
   }
@@ -411,7 +405,9 @@ function syncAllUI() {
   document.getElementById('dexCountText').textContent = `${state.dex.length}/${MONSTER_SPECIES.length}`;
   document.getElementById('btnSwitchSub').textContent = `DEX (${state.dex.length}/${MONSTER_SPECIES.length})`;
 
-  if (typeof syncMapButtonState === 'function') syncMapButtonState();
+  if (typeof syncWorldMapButtonState === 'function') {
+    syncWorldMapButtonState();
+  }
 
   if (enemy) {
     document.getElementById('enemyName').textContent = enemy.name;
@@ -473,18 +469,31 @@ function spawnFloatingText(target, text, colorClass = 'text-amber-300') {
 function triggerSpriteAnimation(target, animClass) {
   const wrapper = document.getElementById(target === 'enemy' ? 'enemySpriteWrapper' : 'playerSpriteWrapper');
   if (!wrapper) return;
-  // Clear inline transform/filter/transition so CSS keyframe animations always run cleanly
-  wrapper.style.transition = '';
-  wrapper.style.transform = '';
-  wrapper.style.filter = '';
-  if (wrapper._animTimeout) clearTimeout(wrapper._animTimeout);
   wrapper.classList.remove('anim-idle', 'anim-hit', 'anim-lunge-player', 'anim-lunge-enemy', 'anim-ball-throw', 'anim-ball-shake');
   void wrapper.offsetWidth;
   wrapper.classList.add(animClass);
-  wrapper._animTimeout = setTimeout(() => {
+
+  // Guaranteed Web Animations API lunge fallback so lunging is always visible
+  if (typeof wrapper.animate === 'function') {
+    if (animClass === 'anim-lunge-player') {
+      wrapper.animate([
+        { transform: 'translate(0, 0) scale(1)' },
+        { transform: 'translate(28px, -16px) scale(1.12)' },
+        { transform: 'translate(0, 0) scale(1)' }
+      ], { duration: 380, easing: 'ease-in-out' });
+    } else if (animClass === 'anim-lunge-enemy') {
+      wrapper.animate([
+        { transform: 'translate(0, 0) scale(1)' },
+        { transform: 'translate(-28px, 16px) scale(1.12)' },
+        { transform: 'translate(0, 0) scale(1)' }
+      ], { duration: 380, easing: 'ease-in-out' });
+    }
+  }
+
+  setTimeout(() => {
     wrapper.classList.remove(animClass);
     wrapper.classList.add('anim-idle');
-  }, 560);
+  }, 580);
 }
 
 function hideAllBottomViews() {
@@ -704,8 +713,8 @@ function startCaptureBallSequence() {
       enemyWrapper.style.opacity = '0';
 
       setTimeout(() => {
-        enemyWrapper.style.transition = '';
-        enemyWrapper.style.transform = '';
+        enemyWrapper.style.transition = 'none';
+        enemyWrapper.style.transform = 'scale(1)';
         enemyWrapper.style.opacity = '1';
         enemyWrapper.innerHTML = renderCaptureBallSVG(false);
 
@@ -744,21 +753,27 @@ function startCaptureBallSequence() {
           } else {
             sfx.wrongBuzzer();
             
-            enemyWrapper.innerHTML = renderMonsterSVG(enemy);
-            enemyWrapper.style.transition = '';
-            enemyWrapper.style.transform = '';
-            enemyWrapper.style.opacity = '1';
+            enemyWrapper.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+            enemyWrapper.style.transform = 'scale(1.2) translateY(-10px)';
+            enemyWrapper.style.opacity = '0.4';
+
+            setTimeout(() => {
+              enemyWrapper.style.transition = 'none';
+              enemyWrapper.style.transform = 'scale(1)';
+              enemyWrapper.style.opacity = '1';
+              enemyWrapper.innerHTML = renderMonsterSVG(enemy);
+              triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
+            }, 180);
 
             const enemyDmg = 18;
             const player = getActivePlayer();
             player.hp = Math.max(0, player.hp - enemyDmg);
 
-            triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
             setTimeout(() => {
               triggerSpriteAnimation('player', 'anim-hit');
               spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
               syncAllUI();
-            }, 240);
+            }, 340);
 
             setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG!`, 'BROKE FREE!');
             setTimeout(() => {
@@ -898,7 +913,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
       triggerSpriteAnimation('enemy', 'anim-hit');
       spawnFloatingText('enemy', `-${totalDmg} HP (${speedMult.toFixed(2)}x SPD)`, typeMult > 1 ? 'text-amber-300' : 'text-white');
       syncAllUI();
-    }, 220);
+    }, 200);
 
     let msg = `${player.name} used ${state.selectedAttackType} STRIKE! `;
     if (typeMult > 1) msg += "SUPER EFFECTIVE! ";
@@ -912,15 +927,38 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
         let evoMessage = null;
 
         if (req && req.method === 'EXP') {
-          player.evoWins = (player.evoWins || 0) + 1;
+          const prevWins = player.evoWins || 0;
+          player.evoWins = prevWins + 1;
+
+          // Animate the EXP bar if present
+          const evoWrap = document.getElementById('playerEvoBarWrap');
+          const evoBar = document.getElementById('playerEvoBar');
+          const evoText = document.getElementById('playerEvoText');
+          if (evoWrap && !evoWrap.classList.contains('hidden') && evoBar && evoText) {
+            const startPct = Math.min(100, (prevWins / req.winsNeeded) * 100);
+            const targetPct = Math.min(100, (player.evoWins / req.winsNeeded) * 100);
+            evoBar.style.width = `${startPct}%`;
+            evoBar.classList.remove('anim-exp-gain');
+            void evoBar.offsetWidth;
+            evoBar.classList.add('anim-exp-gain');
+            evoBar.style.width = `${targetPct}%`;
+            evoText.textContent = `EXP ${Math.min(req.winsNeeded, player.evoWins)}/${req.winsNeeded}`;
+            spawnFloatingText('player', '+1 EXP ★', 'text-purple-300');
+            setTimeout(() => evoBar.classList.remove('anim-exp-gain'), 880);
+          }
+
           evoMessage = checkAndTriggerEvolution(player);
         }
 
         const playerWrapper = document.getElementById('playerSpriteWrapper');
         if (evoMessage && playerWrapper) {
-          playerWrapper.innerHTML = renderMonsterSVG(player);
+          setTimeout(() => {
+            playerWrapper.innerHTML = renderMonsterSVG(player);
+            syncAllUI();
+          }, 680);
+        } else {
+          setTimeout(() => syncAllUI(), 800);
         }
-        syncAllUI();
         if (typeof saveGameProgress === 'function') saveGameProgress();
 
         sfx.captureFanfare();
@@ -936,7 +974,7 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
         setDialogue(victoryLog, evoMessage ? 'EVOLUTION! ★' : 'VICTORY!');
         setTimeout(() => {
           returnToOverworldFromBattle(victoryLog);
-        }, 1800);
+        }, 1900);
       } else {
         state.busy = false;
       }
@@ -948,14 +986,13 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
     const enemyDmg = Math.round(24 + enemy.level * 1.2);
     player.hp = Math.max(0, player.hp - enemyDmg);
 
-    // Trigger enemy lunge animation when it counterattacks
     triggerSpriteAnimation('enemy', 'anim-lunge-enemy');
 
     setTimeout(() => {
       triggerSpriteAnimation('player', 'anim-hit');
       spawnFloatingText('player', `-${enemyDmg} HP`, 'text-red-400');
       syncAllUI();
-    }, 220);
+    }, 200);
 
     const reason = isTimeout ? 'TIME UP!' : 'INCORRECT!';
     setDialogue(`${reason} Combo streak reset! Wild ${enemy.name} counterattacked ${player.name} for ${enemyDmg} DMG!`, 'COUNTERATTACK!');
@@ -971,21 +1008,29 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
 }
 
 /********************************************************************
- * DEX SWITCHERS & 100% POKéDEX COMPLETION CELEBRATION
+ * DEX SWITCHERS, LIVE SEARCH & 100% POKéDEX COMPLETION CELEBRATION
  ********************************************************************/
-function showDexSwitchView() {
-  if (state.busy) return;
-  sfx.blip();
-  hideAllBottomViews();
-  document.getElementById('dexSwitchView').classList.remove('hidden');
-
+function renderBattleDexCards(filterQuery = '') {
   const container = document.getElementById('dexGridContainer');
+  if (!container) return;
   container.innerHTML = '';
+
+  const query = (filterQuery || '').trim().toLowerCase();
 
   state.dex.forEach((mon, idx) => {
     const liveSpecies = MONSTER_SPECIES.find(m => m.id === mon.id) || mon;
     const displayName = liveSpecies.name;
     const displayType = liveSpecies.type;
+
+    if (
+      query &&
+      !displayName.toLowerCase().includes(query) &&
+      !displayType.toLowerCase().includes(query) &&
+      !String(liveSpecies.pokedexNo || '').includes(query)
+    ) {
+      return;
+    }
+
     const isCurrent = idx === state.activeDexIndex;
     const isFainted = mon.hp <= 0;
     const tInfo = ELEMENT_TYPES[displayType] || { name: displayType, badgeClass: 'bg-slate-700' };
@@ -1028,8 +1073,45 @@ function showDexSwitchView() {
   });
 }
 
+function showDexSwitchView() {
+  if (state.busy) return;
+  sfx.blip();
+  hideAllBottomViews();
+  const view = document.getElementById('dexSwitchView');
+  view.classList.remove('hidden');
+
+  let searchInput = document.getElementById('battleDexSearchInput');
+  if (!searchInput) {
+    const backBtn = document.getElementById('backFromDexBtn');
+    if (backBtn && backBtn.parentElement) {
+      const wrap = document.createElement('div');
+      wrap.className = 'flex items-center gap-2';
+      wrap.innerHTML = `
+        <input
+          id="battleDexSearchInput"
+          type="text"
+          autocomplete="off"
+          placeholder="🔍 Filter partner..."
+          class="border-2 border-slate-800 rounded px-2 py-1 text-[8px] sm:text-[9px] bg-white text-slate-900 font-bold"
+        />
+      `;
+      backBtn.parentElement.insertBefore(wrap, backBtn);
+      wrap.appendChild(backBtn);
+      searchInput = document.getElementById('battleDexSearchInput');
+    }
+  }
+
+  if (searchInput && !searchInput.dataset.boundBattleSearch) {
+    searchInput.dataset.boundBattleSearch = 'true';
+    const onBattleFilter = () => renderBattleDexCards(searchInput.value);
+    searchInput.addEventListener('input', onBattleFilter);
+    searchInput.addEventListener('keyup', onBattleFilter);
+  }
+  renderBattleDexCards(searchInput ? searchInput.value : '');
+}
+
 function getMonsterHabitatName(monsterId, monsterName) {
-  if (typeof WORLD_MAPS === 'undefined') return 'Unknown';
+  if (typeof WORLD_MAPS === 'undefined') return 'Evolves / Special';
   const cleanId = (monsterId || '').toLowerCase();
   const cleanName = (monsterName || '').toLowerCase();
   
@@ -1038,12 +1120,57 @@ function getMonsterHabitatName(monsterId, monsterName) {
     if (mapObj.encounters && mapObj.encounters.some(e => e.toLowerCase() === cleanId || e.toLowerCase() === cleanName)) {
       return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
     }
+    if (mapObj.npcs && mapObj.npcs.some(n => (n.monsterId || '').toLowerCase() === cleanId)) {
+      return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
+    }
   }
-  return 'Unknown';
+  return 'Evolution';
 }
 
-function openOverworldDexModal() {
-  sfx.blip();
+function ensureOverworldDexSearchBarInDOM() {
+  const list = document.getElementById('overworldDexList');
+  if (!list || !list.parentElement) return null;
+
+  let searchInput = document.getElementById('overworldDexSearchInput');
+  if (!searchInput) {
+    const searchWrap = document.createElement('div');
+    searchWrap.className = 'flex items-center gap-2 mb-1';
+    searchWrap.innerHTML = `
+      <input
+        id="overworldDexSearchInput"
+        type="text"
+        autocomplete="off"
+        placeholder="🔍 Search by name, #no, type, habitat, or 'caught'..."
+        class="w-full border-2 border-slate-800 rounded px-2.5 py-1.5 text-[9px] sm:text-[10px] bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600"
+      />
+      <button id="clearOverworldDexSearchBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[8px] px-2.5 py-1.5 shrink-0">CLEAR</button>
+    `;
+    list.parentElement.insertBefore(searchWrap, list);
+    searchInput = document.getElementById('overworldDexSearchInput');
+  }
+
+  const clearBtn = document.getElementById('clearOverworldDexSearchBtn');
+  if (searchInput && !searchInput.dataset.boundSearch) {
+    searchInput.dataset.boundSearch = 'true';
+    const onFilter = () => renderOverworldDexCards(searchInput.value);
+    searchInput.addEventListener('input', onFilter);
+    searchInput.addEventListener('keyup', onFilter);
+  }
+  if (clearBtn && !clearBtn.dataset.boundClear) {
+    clearBtn.dataset.boundClear = 'true';
+    clearBtn.addEventListener('click', () => {
+      sfx.blip();
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      renderOverworldDexCards('');
+    });
+  }
+  return searchInput;
+}
+
+function renderOverworldDexCards(filterQuery = '') {
   const list = document.getElementById('overworldDexList');
   if (!list) return;
   list.innerHTML = '';
@@ -1051,16 +1178,42 @@ function openOverworldDexModal() {
   const totalMonsters = MONSTER_SPECIES.length;
   const caughtCount = state.dex.length;
   const pct = Math.round((caughtCount / totalMonsters) * 100);
+  const query = (filterQuery || '').trim().toLowerCase();
 
   const summaryBox = document.createElement('div');
-  summaryBox.className = 'col-span-full bg-slate-900 text-amber-300 p-2.5 rounded border-2 border-amber-500 flex items-center justify-between text-[9px] sm:text-[10px] font-bold mb-1';
+  summaryBox.className = 'col-span-full bg-slate-900 text-amber-300 p-2.5 rounded border-2 border-amber-500 flex flex-wrap items-center justify-between gap-1 text-[8px] sm:text-[9px] font-bold mb-1';
   summaryBox.innerHTML = `
-    <span>📊 DEX COMPLETION: ${caughtCount} / ${totalMonsters} (${pct}%)</span>
-    <span class="text-emerald-400">${caughtCount >= 30 ? '✈️ FLY UNLOCKED' : caughtCount >= 20 ? '🗺️ WORLD MAP UNLOCKED' : `NEED ${20 - caughtCount} MORE FOR MAP`}</span>
+    <span>📊 DEX: ${caughtCount}/${totalMonsters} (${pct}%)</span>
+    <span class="text-emerald-400">${
+      caughtCount >= 50 ? '🌀 HK PORTAL OPEN!' : caughtCount >= 30 ? `✈️ FLY OPEN (${50 - caughtCount} TO HK PORTAL)` : caughtCount >= 20 ? '🗺️ MAP OPEN' : `NEED ${20 - caughtCount} FOR MAP`
+    }</span>
   `;
   list.appendChild(summaryBox);
 
-  MONSTER_SPECIES.forEach(species => {
+  const filteredSpecies = MONSTER_SPECIES.filter(species => {
+    if (!query) return true;
+    const isCaught = state.dex.some(p => p.id === species.id);
+    const habitat = getMonsterHabitatName(species.id, species.name).toLowerCase();
+    return (
+      species.name.toLowerCase().includes(query) ||
+      species.type.toLowerCase().includes(query) ||
+      String(species.pokedexNo).includes(query) ||
+      `#${species.pokedexNo}` === query ||
+      habitat.includes(query) ||
+      (query === 'caught' && isCaught) ||
+      (query === 'missing' && !isCaught)
+    );
+  });
+
+  if (filteredSpecies.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.className = 'col-span-full text-center text-[10px] text-slate-600 py-6 font-bold';
+    emptyMsg.textContent = `No Pokémon matched "${filterQuery}".`;
+    list.appendChild(emptyMsg);
+    return;
+  }
+
+  filteredSpecies.forEach(species => {
     const dexIndex = state.dex.findIndex(p => p.id === species.id);
     const caughtMon = dexIndex !== -1 ? state.dex[dexIndex] : null;
     const isCurrent = dexIndex === state.activeDexIndex;
@@ -1090,11 +1243,18 @@ function openOverworldDexModal() {
         state.activeDexIndex = dexIndex;
         if (typeof saveGameProgress === 'function') saveGameProgress();
         syncAllUI();
-        openOverworldDexModal();
+        const searchInput = document.getElementById('overworldDexSearchInput');
+        renderOverworldDexCards(searchInput ? searchInput.value : '');
       });
     }
     list.appendChild(card);
   });
+}
+
+function openOverworldDexModal() {
+  sfx.blip();
+  const searchInput = ensureOverworldDexSearchBarInDOM();
+  renderOverworldDexCards(searchInput ? searchInput.value : '');
 
   const modal = document.getElementById('overworldDexModal');
   if (modal) {

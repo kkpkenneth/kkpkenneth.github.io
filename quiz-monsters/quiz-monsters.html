@@ -8,132 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --pixel-font: 'Press Start 2P', monospace;
-      --mono-font: 'VT323', monospace;
-    }
-
-    body {
-      font-family: var(--pixel-font);
-      background-color: #0b0f19;
-      background-image: radial-gradient(circle at 50% 20%, #1e293b 0%, #060911 100%);
-      user-select: none;
-      overflow-x: hidden;
-    }
-
-    .pixel-checker {
-      background-color: #1e293b;
-      background-image: 
-        linear-gradient(45deg, #0f172a 25%, transparent 25%), 
-        linear-gradient(-45deg, #0f172a 25%, transparent 25%), 
-        linear-gradient(45deg, transparent 75%, #0f172a 75%), 
-        linear-gradient(-45deg, transparent 75%, #0f172a 75%);
-      background-size: 8px 8px;
-      background-position: 0 0, 0 4px, 4px -4px, -4px 0;
-    }
-
-    .crt-overlay {
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%);
-      background-size: 100% 4px;
-      pointer-events: none;
-    }
-
-    .retro-box {
-      background: #f8fafc;
-      color: #0f172a;
-      border: 4px solid #0f172a;
-      box-shadow: inset 0 0 0 3px #cbd5e1, inset 0 0 0 6px #0f172a, 4px 4px 0px rgba(0,0,0,0.45);
-      border-radius: 6px;
-    }
-
-    .retro-box-dark {
-      background: #1e293b;
-      color: #f8fafc;
-      border: 4px solid #0f172a;
-      box-shadow: inset 0 0 0 3px #475569, 4px 4px 0px rgba(0,0,0,0.5);
-      border-radius: 6px;
-    }
-
-    .pixel-btn {
-      position: relative;
-      border: 3px solid #0f172a;
-      box-shadow: inset -3px -3px 0px rgba(0,0,0,0.28), inset 3px 3px 0px rgba(255,255,255,0.35), 3px 3px 0px #0f172a;
-      transition: transform 0.06s ease, box-shadow 0.06s ease;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .pixel-btn:hover:not(:disabled) { filter: brightness(1.06); }
-    .pixel-btn:active:not(:disabled) {
-      transform: translate(2px, 2px);
-      box-shadow: inset 2px 2px 0px rgba(0,0,0,0.35), 1px 1px 0px #0f172a;
-    }
-    .pixel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    @keyframes idleBob { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
-    @keyframes hitFlash {
-      0%, 100% { filter: none; }
-      20% { filter: brightness(10) invert(1); }
-      40% { filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
-      60% { filter: brightness(10); }
-      80% { filter: none; }
-    }
-    
-    @keyframes lungePlayer { 
-      0% { transform: translate(0, 0) scale(1); } 
-      35% { transform: translate(42px, -24px) scale(1.18); } 
-      65% { transform: translate(20px, -10px) scale(1.08); }
-      100% { transform: translate(0, 0) scale(1); } 
-    }
-    @keyframes lungeEnemy { 
-      0% { transform: translate(0, 0) scale(1); } 
-      35% { transform: translate(-42px, 24px) scale(1.18); } 
-      65% { transform: translate(-20px, 10px) scale(1.08); }
-      100% { transform: translate(0, 0) scale(1); } 
-    }
-
-    .anim-lunge-player { animation: lungePlayer 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards !important; }
-    .anim-lunge-enemy { animation: lungeEnemy 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards !important; }
-
-    @keyframes ballThrow {
-      0% { transform: translate(-180px, 110px) scale(0.6) rotate(0deg); }
-      55% { transform: translate(-40px, -60px) scale(1.1) rotate(360deg); }
-      100% { transform: translate(0px, 0px) scale(1) rotate(720deg); }
-    }
-    @keyframes ballShake {
-      0%, 100% { transform: rotate(0deg); }
-      20% { transform: rotate(-22deg) translateX(-4px); }
-      45% { transform: rotate(22deg) translateX(4px); }
-      70% { transform: rotate(-12deg) translateX(-2px); }
-    }
-    @keyframes floatUpFade {
-      0% { opacity: 1; transform: translateY(0) scale(0.85); }
-      30% { opacity: 1; transform: translateY(-14px) scale(1.08); }
-      100% { opacity: 0; transform: translateY(-38px) scale(0.95); }
-    }
-    @keyframes encounterStrobe {
-      0%, 100% { opacity: 0; background: #fff; }
-      15% { opacity: 0.95; background: #fff; }
-      30% { opacity: 0.1; background: #000; }
-      45% { opacity: 0.95; background: #fff; }
-      65% { opacity: 0.95; background: #0f172a; }
-      85% { opacity: 1; background: #090d16; }
-    }
-
-    .anim-idle { animation: idleBob 1.8s steps(2, end) infinite; }
-    .anim-hit { animation: hitFlash 0.55s ease-in-out !important; }
-    .anim-ball-shake { animation: ballShake 0.55s ease-in-out !important; }
-    .floating-dmg {
-      animation: floatUpFade 1.15s ease-out forwards;
-      text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000;
-    }
-    .strobe-active { animation: encounterStrobe 0.85s ease-in-out forwards; }
-
-    svg, canvas { shape-rendering: crispEdges; image-rendering: pixelated; }
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="min-h-screen text-slate-100 flex flex-col items-center justify-between p-2 sm:p-4">
 
@@ -154,7 +29,7 @@
       </div>
       <div class="bg-slate-900 px-2 py-1.5 rounded border border-emerald-500/50 hidden md:flex items-center gap-1">
         <span class="text-[8px] text-slate-400">DEX:</span>
-        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/52</span>
+        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/202</span>
       </div>
     </div>
 
@@ -199,7 +74,7 @@
     <section id="titleScreenView" class="relative w-full min-h-[500px] sm:min-h-[535px] rounded-lg border-4 border-slate-950 overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-between p-5 sm:p-8 text-center">
       <div class="crt-overlay absolute inset-0 z-10"></div>
       <div class="w-full flex justify-between items-center text-[9px] text-amber-300/80 z-20">
-        <span>★ VER 6.0 • 19 HABITATS &amp; FULL ROSTER</span>
+        <span>★ VER 7.0 • 25 HABITATS &amp; GEN 1–6 STARTERS</span>
         <span>🎨 8-COLOR PIXEL STUDIO</span>
       </div>
 
@@ -211,7 +86,7 @@
           Quiz Monsters
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Travel with Pikachu as your Starter Partner • Explore 19 Biomes • Talk to Specialists &amp; Wild Overworld Pokémon!
+          Travel with Pikachu as your Starter Partner • Explore 25 Biomes on the 5×5 Grand Map • Talk to Specialists &amp; Challenge Legendaries!
         </p>
 
         <!-- TITLE MASCOTS -->
@@ -224,16 +99,20 @@
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button id="startGameBtn" type="button" class="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-base font-bold px-7 py-3.5 animate-bounce">
-            ► PRESS START ADVENTURE
+            ► PRESS TO START ADVENTURE
+          </button>
+          <button id="openWhatsNewBtn" type="button" class="pixel-btn bg-amber-400 hover:bg-amber-300 text-slate-950 text-[8px] sm:text-[9px] font-bold px-3.5 py-2.5">
+            📣 WHAT'S NEW?
           </button>
           <button id="resetGameBtn" type="button" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-[8px] sm:text-[9px] font-bold px-3 py-2.5">
             RESET SAVE
           </button>
         </div>
+      </div>
 
       <div class="w-full retro-box-dark p-3 z-20 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[8px] sm:text-[9px] text-slate-300">
         <div><span class="text-amber-400">EASED 1-TILE STEP:</span> WASD / ARROWS</div>
-        <div><span class="text-emerald-400">19 BIOME MAPS:</span> DUAL-TYPE REGIONS &amp; OBSTACLES</div>
+        <div><span class="text-emerald-400">25 BIOME MAPS:</span> 5×5 GRAND WORLD MAP</div>
         <div><span class="text-pink-400">PARTNER SYSTEM:</span> FOLLOWS IN OVERWORLD</div>
       </div>
     </section>
@@ -258,7 +137,7 @@
           <button id="overworldDexBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
             DEX / PARTNER
           </button>
-          <button id="overworldMapBtn" type="button" class="pixel-btn bg-slate-600 hover:bg-slate-500 text-slate-300 opacity-75 text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2">
+          <button id="overworldMapBtn" type="button" class="pixel-btn bg-slate-600 text-slate-300 text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2 grayscale opacity-80">
             🔒 MAP (1/20)
           </button>
         </div>
@@ -445,13 +324,21 @@
         </div>
 
         <!-- DEX SWITCHER DRAWER -->
-        <div id="dexSwitchView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-3">
-          <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+        <div id="dexSwitchView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-300 pb-2">
             <div>
               <h2 class="text-xs sm:text-sm font-bold text-slate-900">SELECT DEX PARTNER</h2>
               <p class="text-[9px] text-slate-600 mt-0.5">Switch your active combat partner from registered Dex monsters!</p>
             </div>
-            <button id="backFromDexBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
+            <div class="flex items-center gap-2">
+              <input
+                id="battleDexSearchInput"
+                type="text"
+                placeholder="🔍 Filter partner..."
+                class="border-2 border-slate-800 rounded px-2 py-1 text-[8px] sm:text-[9px] bg-white text-slate-900 font-bold"
+              />
+              <button id="backFromDexBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
+            </div>
           </div>
           <div id="dexGridContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1 justify-items-center"></div>
         </div>
@@ -460,7 +347,7 @@
   </main>
 
   <footer class="w-full max-w-4xl mt-2 px-2 flex flex-wrap items-center justify-between text-[8px] sm:text-[9px] text-slate-400 gap-2">
-    <div>19 BIOMES: HUB • MOUNTAIN, ONSEN, FOUNDRY, BRAMBLE, SPIRE &amp; MORE</div>
+    <div>25 BIOMES ON 5×5 GRAND MAP: HUB, MOUNTAIN, ONSEN, FOUNDRY, SPIRE, AURORA, NEXUS &amp; MORE</div>
     <div>🎨 CLICK "SPRITE STUDIO" TO CUSTOMIZE • 💾 SAVE STORES PROGRESS IN BROWSER</div>
   </footer>
 
@@ -575,7 +462,7 @@
     </div>
   </div>
 
-  <!-- MODAL 2: OVERWORLD DEX / PARTNER VIEWER -->
+  <!-- MODAL 2: OVERWORLD DEX / PARTNER VIEWER (WITH SEARCH BAR) -->
   <div id="overworldDexModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
     <div class="w-full max-w-xl retro-box p-4 sm:p-5 flex flex-col gap-3">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
@@ -585,6 +472,17 @@
         </div>
         <button id="closeOverworldDexBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
       </div>
+
+      <div class="flex items-center gap-2">
+        <input
+          id="overworldDexSearchInput"
+          type="text"
+          placeholder="🔍 Search by Pokémon name, #number, type, habitat, or 'caught'..."
+          class="w-full border-2 border-slate-800 rounded px-2.5 py-1.5 text-[9px] sm:text-[10px] bg-white text-slate-900 font-bold focus:outline-none focus:border-indigo-600"
+        />
+        <button id="clearOverworldDexSearchBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[8px] px-2.5 py-1.5 shrink-0">CLEAR</button>
+      </div>
+
       <div id="overworldDexList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto p-1"></div>
     </div>
   </div>
@@ -649,6 +547,40 @@
           <span id="totalQuestionsCount" class="text-[9px] bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-bold">180 Questions</span>
         </div>
         <textarea id="jsonBankTextarea" rows="4" class="w-full border-2 border-slate-400 rounded p-2 text-slate-900 bg-white" style="font-family: var(--mono-font); font-size: 0.95rem;"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: WHAT'S NEW POP-UP (CLOSABLE ON STARTING PAGE) -->
+  <div id="whatsNewModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-3">
+    <div class="w-full max-w-lg retro-box p-4 sm:p-5 flex flex-col gap-3 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="bg-amber-400 text-slate-950 text-[8px] px-2 py-0.5 rounded border border-slate-950 font-bold">NEW UPDATE</span>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">📣 WHAT'S NEW IN VER 7.0!</h2>
+        </div>
+        <button id="closeWhatsNewBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+      </div>
+
+      <ul class="text-[9px] sm:text-[10px] text-slate-800 space-y-2.5 leading-relaxed list-none">
+        <li class="bg-emerald-50 border-l-4 border-emerald-600 p-2 rounded">
+          <strong class="text-emerald-900">🌱 Gen 2–6 Starter Lines Added:</strong> Catch and evolve the full Johto, Hoenn, Sinnoh, Unova, and Kalos starter families (Chikorita, Cyndaquil, Totodile, Treecko, Torchic, Mudkip, Turtwig, Chimchar, Piplup, Snivy, Tepig, Oshawott, Chespin, Fennekin &amp; Froakie)!
+        </li>
+        <li class="bg-indigo-50 border-l-4 border-indigo-600 p-2 rounded">
+          <strong class="text-indigo-900">🗺️ 5×5 Grand World Map (25 Biomes):</strong> Explore 6 new regions filling out the entire 5×5 Grand Map, with a locked gray indicator before 20 Pokémon are caught!
+        </li>
+        <li class="bg-purple-50 border-l-4 border-purple-600 p-2 rounded">
+          <strong class="text-purple-900">✨ Animated EXP Bar &amp; Battle Lunges:</strong> Watch your partner's EXP bar glow and fill smoothly upon defeating wild Pokémon, plus active battle lunges, interactive Legendaries (including Mewtwo!), and 51 redrawn sprites!
+        </li>
+        <li class="bg-amber-50 border-l-4 border-amber-500 p-2 rounded">
+          <strong class="text-amber-900">🔍 Instant Dex Search Bar:</strong> Filter your Pokédex &amp; Partner window by Pokémon name, #number, elemental type, habitat, or "caught" status!
+        </li>
+      </ul>
+
+      <div class="flex justify-end pt-2 border-t border-slate-300">
+        <button id="ackWhatsNewBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] sm:text-[10px] font-bold px-4 py-2">
+          GOT IT, LET'S PLAY! ►
+        </button>
       </div>
     </div>
   </div>
@@ -753,39 +685,6 @@
       return MONSTER_SPECIES.find(m => m.id === speciesOrId.id) || speciesOrId;
     }
 
-    function getMonsterHabitatName(monsterId, monsterName) {
-      if (typeof WORLD_MAPS === 'undefined') return 'Unknown';
-      const cleanId = (monsterId || '').toLowerCase();
-      const cleanName = (monsterName || '').toLowerCase();
-      for (const mapKey of Object.keys(WORLD_MAPS)) {
-        const mapObj = WORLD_MAPS[mapKey];
-        if (mapObj.encounters && mapObj.encounters.some(e => e.toLowerCase() === cleanId || e.toLowerCase() === cleanName)) {
-          return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
-        }
-      }
-      return 'Unknown';
-    }
-
-    function replaceTallGrassWithHabitatInDOM() {
-      ['overworldDexList', 'dexGridContainer'].forEach(containerId => {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        const elements = container.querySelectorAll('*');
-        elements.forEach(el => {
-          if (el.children.length === 0 && /TALL GRASS|WILD HABITAT|HABITAT/i.test(el.textContent)) {
-            const card = el.closest('button') || el.parentElement;
-            const fullText = card ? card.textContent : '';
-            const matchedSpecies = (typeof MONSTER_SPECIES !== 'undefined')
-              ? MONSTER_SPECIES.find(m => fullText.toUpperCase().includes(m.name.toUpperCase()))
-              : null;
-            if (matchedSpecies) {
-              el.textContent = `📍 ${getMonsterHabitatName(matchedSpecies.id, matchedSpecies.name)}`;
-            }
-          }
-        });
-      });
-    }
-
     const _monsterCanvasImageCache = {};
     const _monsterParsedRectsCache = {};
 
@@ -880,28 +779,6 @@
             Math.ceil(r.h * scale)
           );
         }
-        return;
-      }
-
-      const grid = species.pixels || species.grid || species.art || species.rows;
-      const palette = species.palette;
-      if (grid && palette) {
-        const scale = size / 16;
-        for (let r = 0; r < grid.length; r++) {
-          const row = grid[r];
-          for (let c = 0; c < row.length; c++) {
-            const ch = row[c];
-            if (ch === '.' || ch === ' ' || !palette[ch]) continue;
-            ctx.fillStyle = palette[ch];
-            const drawCol = flipX ? (15 - c) : c;
-            ctx.fillRect(
-              Math.floor(dx + drawCol * scale),
-              Math.floor(dy + r * scale),
-              Math.ceil(scale),
-              Math.ceil(scale)
-            );
-          }
-        }
       }
     }
 
@@ -915,19 +792,6 @@
         if (!this.sfxMuted) {
           if (typeof this.heal === 'function') {
             this.heal();
-          } else if (typeof this.playTone === 'function') {
-            const notes = [
-              { f: 987.77, d: 0.16, t: 0 },
-              { f: 987.77, d: 0.16, t: 180 },
-              { f: 987.77, d: 0.16, t: 360 },
-              { f: 830.61, d: 0.18, t: 540 },
-              { f: 1318.51, d: 0.45, t: 740 }
-            ];
-            notes.forEach(n => {
-              setTimeout(() => {
-                if (!this.sfxMuted) this.playTone(n.f, n.d, 'sine', 0.15);
-              }, n.t);
-            });
           }
         }
 
@@ -937,116 +801,9 @@
           }
         }, 1250);
       };
-
-      const HABITAT_BGM_TRACKS = {
-        MOUNTAIN:  { tempoMs: 260, wave: 'triangle', vol: 0.05, notes: [220.00, 261.63, 293.66, 329.63, 392.00, 329.63, 293.66, 261.63, 196.00, 246.94, 293.66, 392.00] },
-        GLACIER:   { tempoMs: 240, wave: 'sine',     vol: 0.06, notes: [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 587.33, 698.46, 880.00, 783.99, 659.25, 523.25] },
-        DESERT:    { tempoMs: 210, wave: 'sawtooth', vol: 0.03, notes: [293.66, 311.13, 369.99, 392.00, 440.00, 392.00, 369.99, 311.13, 261.63, 293.66, 311.13, 293.66] },
-        VOLCANO:   { tempoMs: 175, wave: 'sawtooth', vol: 0.035,notes: [146.83, 164.81, 174.61, 196.00, 220.00, 196.00, 174.61, 164.81, 130.81, 146.83, 164.81, 146.83] },
-        BEACH:     { tempoMs: 220, wave: 'sine',     vol: 0.07, notes: [392.00, 493.88, 587.33, 659.25, 587.33, 493.88, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33] },
-        ABYSS:     { tempoMs: 300, wave: 'triangle', vol: 0.06, notes: [196.00, 246.94, 293.66, 369.99, 293.66, 246.94, 164.81, 196.00, 246.94, 293.66, 246.94, 196.00] },
-        FOREST:    { tempoMs: 200, wave: 'square',   vol: 0.03, notes: [329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 261.63, 293.66, 329.63, 392.00, 329.63] },
-        SANCTUARY: { tempoMs: 250, wave: 'triangle', vol: 0.05, notes: [329.63, 392.00, 493.88, 659.25, 587.33, 493.88, 392.00, 329.63, 293.66, 369.99, 440.00, 493.88] },
-        ONSEN:     { tempoMs: 225, wave: 'triangle', vol: 0.05, notes: [329.63, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 329.63, 293.66, 329.63, 392.00, 440.00] },
-        FOUNDRY:   { tempoMs: 180, wave: 'sawtooth', vol: 0.03, notes: [220.00, 293.66, 329.63, 440.00, 392.00, 329.63, 293.66, 220.00, 261.63, 329.63, 392.00, 523.25] },
-        BRAMBLE:   { tempoMs: 245, wave: 'triangle', vol: 0.05, notes: [246.94, 293.66, 369.99, 440.00, 369.99, 293.66, 246.94, 220.00, 246.94, 329.63, 369.99, 493.88] },
-        SPIRE:     { tempoMs: 215, wave: 'sine',     vol: 0.06, notes: [587.33, 659.25, 783.99, 987.77, 880.00, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 1046.50] },
-        SHADOW_ALLEY: { tempoMs: 195, wave: 'sawtooth', vol: 0.035, notes: [196.00, 207.65, 246.94, 261.63, 246.94, 207.65, 196.00, 164.81, 196.00, 233.08, 261.63, 293.66] },
-        MIRADOURO_LUA: { tempoMs: 210, wave: 'sine',     vol: 0.055, notes: [523.25, 554.37, 659.25, 739.99, 880.00, 739.99, 659.25, 554.37, 523.25, 659.25, 783.99, 987.77] }
-      };
-
-      const _origStartBGM = sfx.startBGM ? sfx.startBGM.bind(sfx) : null;
-      const _origStopBGM = sfx.stopBGM ? sfx.stopBGM.bind(sfx) : null;
-
-      sfx.stopBGM = function() {
-        if (this._habitatBgmTimer) {
-          clearInterval(this._habitatBgmTimer);
-          this._habitatBgmTimer = null;
-        }
-        if (_origStopBGM) _origStopBGM();
-      };
-
-      sfx.startBGM = function(mode) {
-        this.stopBGM();
-        if (this.bgmMuted) return;
-        if (typeof this.init === 'function') this.init();
-
-        const targetMode = (mode === 'OVERWORLD') ? window.state.currentMapId : mode;
-        const habitatTrack = HABITAT_BGM_TRACKS[targetMode];
-
-        if (habitatTrack && typeof this.playTone === 'function') {
-          let stepIdx = 0;
-          this._habitatBgmTimer = setInterval(() => {
-            if (this.bgmMuted) return;
-            const freq = habitatTrack.notes[stepIdx % habitatTrack.notes.length];
-            if (freq > 0) {
-              this.playTone(freq, (habitatTrack.tempoMs / 1000) * 0.85, habitatTrack.wave, habitatTrack.vol);
-            }
-            stepIdx++;
-          }, habitatTrack.tempoMs);
-        } else if (_origStartBGM) {
-          _origStartBGM(mode === 'CENTER' ? 'OVERWORLD' : mode);
-        }
-      };
     }
 
     function setupOverworldHooks() {
-      if (typeof window.teleportPlayerToGrid === 'function') {
-        const _origTeleport = window.teleportPlayerToGrid;
-        window.teleportPlayerToGrid = function(gx, gy) {
-          _origTeleport(gx, gy);
-          if (window.state.partnerWorld) {
-            const candidates = [
-              { x: gx, y: gy - 1 },
-              { x: gx, y: gy + 1 },
-              { x: gx - 1, y: gy },
-              { x: gx + 1, y: gy }
-            ];
-            const free = (typeof isTileBlocked === 'function')
-              ? candidates.find(c => !isTileBlocked(c.x, c.y))
-              : candidates[0];
-            const px = free ? free.x : gx;
-            const py = free ? free.y : gy;
-
-            window.state.partnerWorld.gridX = px;
-            window.state.partnerWorld.gridY = py;
-            window.state.partnerWorld.startX = px * SAFE_TILE_SIZE;
-            window.state.partnerWorld.startY = py * SAFE_TILE_SIZE;
-            window.state.partnerWorld.targetX = px * SAFE_TILE_SIZE;
-            window.state.partnerWorld.targetY = py * SAFE_TILE_SIZE;
-            window.state.partnerWorld.pixelX = px * SAFE_TILE_SIZE;
-            window.state.partnerWorld.pixelY = py * SAFE_TILE_SIZE;
-            window.state.partnerWorld.hopOffsetY = 0;
-          }
-          if (window.state.screen === 'OVERWORLD' && typeof sfx !== 'undefined') {
-            sfx.startBGM('OVERWORLD');
-          }
-        };
-      }
-
-      if (typeof window.initiateOneBlockStep === 'function') {
-        const _origStep = window.initiateOneBlockStep;
-        window.initiateOneBlockStep = function(dir) {
-          const p = window.state.playerWorld;
-          const prevX = p.gridX;
-          const prevY = p.gridY;
-          const wasStepping = p.isStepping;
-
-          _origStep(dir);
-
-          if (!wasStepping && p.isStepping && (p.gridX !== prevX || p.gridY !== prevY)) {
-            const pw = window.state.partnerWorld;
-            pw.startX = pw.pixelX;
-            pw.startY = pw.pixelY;
-            pw.gridX = prevX;
-            pw.gridY = prevY;
-            pw.targetX = prevX * SAFE_TILE_SIZE;
-            pw.targetY = prevY * SAFE_TILE_SIZE;
-            pw.dir = dir;
-          }
-        };
-      }
-
       if (typeof window.drawOverworldCanvas === 'function') {
         const _origDrawOverworld = window.drawOverworldCanvas;
         window.drawOverworldCanvas = function() {
@@ -1068,6 +825,7 @@
           if (mapObj && Array.isArray(mapObj.npcs)) {
             const bob = Math.sin(performance.now() / 200) * 2;
             mapObj.npcs.forEach(npc => {
+              if (!isNPCActiveOnMap(npc)) return;
               if (npc.isMonster || npc.monsterId) {
                 const tileX = Math.round(npc.x * SAFE_TILE_SIZE - camX);
                 const tileY = Math.round(npc.y * SAFE_TILE_SIZE - camY);
@@ -1090,58 +848,8 @@
               }
             });
           }
-
-          if (window.state.partnerWorld) {
-            const pw = window.state.partnerWorld;
-            if (p.isStepping) {
-              const elapsed = performance.now() - p.stepStartTime;
-              const rawT = Math.min(1, Math.max(0, elapsed / p.stepDurationMs));
-              const easedT = typeof easeInOutCubic === 'function' ? easeInOutCubic(rawT) : rawT;
-              pw.pixelX = pw.startX + (pw.targetX - pw.startX) * easedT;
-              pw.pixelY = pw.startY + (pw.targetY - pw.startY) * easedT;
-              pw.hopOffsetY = -Math.sin(rawT * Math.PI) * 4;
-            } else {
-              pw.pixelX = pw.targetX;
-              pw.pixelY = pw.targetY;
-              pw.hopOffsetY = Math.sin(performance.now() / 220) * 1.5;
-            }
-
-            const partner = (typeof getActivePlayer === 'function')
-              ? getActivePlayer()
-              : (window.state.dex && window.state.dex[window.state.activeDexIndex]);
-
-            if (partner) {
-              const sx = Math.round(pw.pixelX - camX);
-              const sy = Math.round(pw.pixelY - camY + pw.hopOffsetY);
-              drawMonsterOnCanvas(ctx, partner, sx, sy, pw.dir === 'right');
-            }
-
-            if (pw.pixelY < p.pixelY) {
-              const px = Math.round(p.pixelX - camX);
-              const py = Math.round(p.pixelY - camY + (p.hopOffsetY || 0));
-              if (typeof drawTrainerSprite === 'function') {
-                drawTrainerSprite(ctx, px, py, p.dir, p.isStepping ? p.stepFrame : 0);
-              } else if (typeof drawPlayerSprite === 'function') {
-                drawPlayerSprite(ctx, px, py, p.dir);
-              }
-            }
-          }
         };
       }
-    }
-
-    function setupBattleAndDexHooks() {
-      ['syncAllUI', 'openOverworldDexModal', 'showDexSwitchView', 'setupBattleEncounter'].forEach(fnName => {
-        if (typeof window[fnName] === 'function') {
-          const _orig = window[fnName];
-          window[fnName] = function(...args) {
-            const res = _orig.apply(this, args);
-            replaceTallGrassWithHabitatInDOM();
-            if (typeof syncMapButtonState === 'function') syncMapButtonState();
-            return res;
-          };
-        }
-      });
     }
 
     function saveGameProgress() {
@@ -1152,7 +860,7 @@
           gridY: window.state.playerWorld.gridY,
           activeDexIndex: window.state.activeDexIndex,
           streak: window.state.streak,
-          dexIds: window.state.dex.map(m => ({ id: m.id, hp: m.hp, maxHp: m.maxHp, level: m.level }))
+          dexIds: window.state.dex.map(m => ({ id: m.id, hp: m.hp, maxHp: m.maxHp, level: m.level, evoWins: m.evoWins || 0 }))
         };
         localStorage.setItem(window.SAVE_STORAGE_KEY, JSON.stringify(payload));
         if (typeof sfx !== 'undefined') sfx.blip();
@@ -1179,6 +887,7 @@
             if (sp) {
               const inst = createMonsterInstance(sp);
               inst.hp = savedMon.hp || inst.maxHp;
+              inst.evoWins = savedMon.evoWins || 0;
               restoredDex.push(inst);
             }
           });
@@ -1262,17 +971,6 @@
 
       setupAudioExtensions();
       setupOverworldHooks();
-      setupBattleAndDexHooks();
-
-      if (typeof window.overworldRenderLoop === 'function') {
-        const originalOverworldLoop = window.overworldRenderLoop;
-        window.overworldRenderLoop = function(timestamp) {
-          if (window.state.screen === 'OVERWORLD') {
-            syncCanvasAspect();
-          }
-          return originalOverworldLoop(timestamp);
-        };
-      }
 
       if (typeof MONSTER_SPECIES !== 'undefined') {
         MONSTER_SPECIES.forEach(sp => getMonsterCanvasImage(sp));
@@ -1307,6 +1005,26 @@
         if (el) el.addEventListener('click', handler);
       };
 
+      // What's New Pop-up Controls
+      const closeWhatsNew = () => {
+        sfx.blip();
+        const modal = document.getElementById('whatsNewModal');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+      };
+      bindClick('openWhatsNewBtn', () => {
+        sfx.blip();
+        const modal = document.getElementById('whatsNewModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        }
+      });
+      bindClick('closeWhatsNewBtn', closeWhatsNew);
+      bindClick('ackWhatsNewBtn', closeWhatsNew);
+
       bindClick('startGameBtn', enterOverworldFromTitle);
       bindClick('saveGameBtn', saveGameProgress);
       bindClick('resetGameBtn', resetGameProgress);
@@ -1325,6 +1043,7 @@
           window.state.screen = 'TITLE';
           document.getElementById('overworldView').classList.add('hidden');
           document.getElementById('overworldView').classList.remove('flex');
+          document.getElementById('battleMasterContainer').classList.add('hidden');
           document.getElementById('titleScreenView').classList.remove('hidden');
           sfx.startBGM('TITLE');
         });
@@ -1361,7 +1080,12 @@
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
         if (window.state.screen === 'TITLE' && (e.code === 'Enter' || e.code === 'Space')) {
           e.preventDefault();
-          enterOverworldFromTitle();
+          const whatsNewModal = document.getElementById('whatsNewModal');
+          if (whatsNewModal && !whatsNewModal.classList.contains('hidden')) {
+            closeWhatsNew();
+          } else {
+            enterOverworldFromTitle();
+          }
           return;
         }
         if (window.state.screen === 'OVERWORLD') {

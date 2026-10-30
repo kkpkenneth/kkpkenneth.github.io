@@ -1,7 +1,7 @@
 /********************************************************************
  * overworld.js
  * Visible Floor Items, Blocking Collision, Space/A Talk Interactivity,
- * Locked/Unlocked Mini-Map Button & 5x5 Grand Map Spatial Grid
+ * Live Map Thumbnails, 2x2 Portal (at 50 Dex) & East Asia Grand Map
  ********************************************************************/
 
 const FLOOR_ITEM_TYPES = [
@@ -84,28 +84,118 @@ const HUMAN_SKIN_PALETTE = [
   '#fde68a', '#fed7aa', '#f5cba7', '#e59866', '#ca8a5b', '#a16236', '#784212', '#5c3317'
 ];
 
-// Spatial 5x5 Grand Map Grid Coordinates (row 0..4, col 0..4) matching all N/S/E/W map exits
-const GRAND_MAP_COORDS = {
-  GLACIER:       { row: 0, col: 2, shortName: 'GLACIER PEAK' },
-  SPIRE:         { row: 1, col: 0, shortName: 'STARLIGHT SPIRE' },
-  NORTHWEST:     { row: 1, col: 1, shortName: 'SKY PLATEAU' },
-  MOUNTAIN:      { row: 1, col: 2, shortName: 'CRAG MOUNTAIN' },
-  NORTHEAST:     { row: 1, col: 3, shortName: 'BADLANDS CANYON' },
-  FOUNDRY:       { row: 1, col: 4, shortName: 'DYNAMO FOUNDRY' },
-  ONSEN:         { row: 0, col: 4, shortName: 'MISTVEIL ONSEN' },
-  SANCTUARY:     { row: 2, col: 0, shortName: 'MYSTIC SANCTUARY' },
-  FOREST:        { row: 2, col: 1, shortName: 'VIRIDIAN FOREST' },
-  CENTER:        { row: 2, col: 2, shortName: 'PALLET HUB' },
-  DESERT:        { row: 2, col: 3, shortName: 'MIRAGE DESERT' },
-  VOLCANO:       { row: 2, col: 4, shortName: 'MAGMA CALDERA' },
-  SOUTHWEST:     { row: 3, col: 1, shortName: 'MANGROVE MARSH' },
-  BEACH:         { row: 3, col: 2, shortName: 'CORAL BEACH' },
-  SOUTHEAST:     { row: 3, col: 3, shortName: 'TRADE ATOLL' },
-  BRAMBLE:       { row: 4, col: 1, shortName: 'SPORE FEN' },
-  ABYSS:         { row: 4, col: 2, shortName: 'TRENCH ABYSS' },
-  SHADOW_ALLEY:  { row: 4, col: 0, shortName: 'SHADOW ALLEY' },
-  MIRADOURO_LUA: { row: 4, col: 3, shortName: 'MIRADOURO LUA' }
-};
+// 1. 5x5 Habitat Region Grand Map Matrix
+const GRAND_MAP_5X5_GRID = [
+  ['AURORA_RIDGE', 'WIND_TEMPLE', 'GLACIER',  'METEOR_CRATER', 'CYBER_NEXUS'],
+  ['SPIRE',        'NORTHWEST',   'MOUNTAIN', 'NORTHEAST',     'FOUNDRY'],
+  ['SANCTUARY',    'FOREST',      'CENTER',   'DESERT',        'ONSEN'],
+  ['KALOS_GROVE',  'SOUTHWEST',   'BEACH',    'SOUTHEAST',     'VOLCANO'],
+  ['SUNKEN_RUINS', 'BRAMBLE',     'ABYSS',    'SHADOW_ALLEY',  'MIRADOURO_LUA']
+];
+
+// 2. East Asia Region Matrix (Exact Geographical Layout)
+// Row 0: [null,    'MONGOLIA',  'SOUTH_KOREA']
+// Row 1: [null,    'CHINA',     'JAPAN'      ]
+// Row 2: ['MACAU', 'HONG_KONG', 'TAIWAN'     ]
+const EAST_ASIA_MAP_GRID = [
+  [null,    'MONGOLIA',  'SOUTH_KOREA'],
+  [null,    'CHINA',     'JAPAN'],
+  ['MACAU', 'HONG_KONG', 'TAIWAN']
+];
+
+const EAST_ASIA_MAP_IDS = new Set([
+  'HONG_KONG', 'MACAU', 'CHINA', 'TAIWAN', 'JAPAN', 'SOUTH_KOREA', 'MONGOLIA'
+]);
+
+const LEGENDARY_MONSTER_IDS = new Set(['articuno', 'zapdos', 'moltres', 'mewtwo', 'mew', 'deoxys']);
+
+const _mapThumbnailCache = {};
+
+function renderMapThumbnailDataURL(mapObj) {
+  if (!mapObj || !mapObj.rows) return '';
+  if (_mapThumbnailCache[mapObj.id]) return _mapThumbnailCache[mapObj.id];
+
+  const cvs = document.createElement('canvas');
+  cvs.width = 56;
+  cvs.height = 40;
+  const ctx = cvs.getContext('2d');
+  const th = mapObj.theme || {};
+
+  for (let r = 0; r < MAP_ROWS; r++) {
+    const rowStr = mapObj.rows[r] || '';
+    for (let c = 0; c < MAP_COLS; c++) {
+      const ch = rowStr.charAt(c) || '.';
+      let color = (c + r) % 2 === 0 ? (th.groundA || '#475569') : (th.groundB || '#334155');
+      if (ch === 'P' || ch === 'E' || ch === 'B') color = th.path || '#fde047';
+      else if (ch === 'G') color = th.grassTip || th.grass || '#22c55e';
+      else if (ch === 'W') color = '#0284c7';
+      else if (ch === 'L') color = '#ef4444';
+      else if (ch === 'I') color = '#7dd3fc';
+      else if (ch === 'H' || ch === 'D') color = '#f43f5e';
+      else if (ch === 'T' || ch === 'C') color = th.treeTop || th.tree || '#14532d';
+      else if (ch === 'R' || ch === 'Q' || ch === 'V' || ch === 'A' || ch === 'N') color = th.rockLight || th.rock || '#94a3b8';
+
+      ctx.fillStyle = color;
+      ctx.fillRect(c * 2, r * 2, 2, 2);
+    }
+  }
+
+  const url = cvs.toDataURL();
+  _mapThumbnailCache[mapObj.id] = url;
+  return url;
+}
+
+function isPortalUnlocked() {
+  return Boolean(state && Array.isArray(state.dex) && state.dex.length >= 50);
+}
+
+function isPortalTileOnCurrentMap(col, row) {
+  if (!state) return false;
+  if (state.currentMapId !== 'CENTER' && state.currentMapId !== 'HONG_KONG') return false;
+  if (state.currentMapId === 'CENTER' && !isPortalUnlocked()) return false;
+  return (col === 13 || col === 14) && (row === 9 || row === 10);
+}
+
+function drawPortalOnCanvas(ctx, animTick) {
+  if (!state) return;
+  if (state.currentMapId !== 'CENTER' && state.currentMapId !== 'HONG_KONG') return;
+  if (state.currentMapId === 'CENTER' && !isPortalUnlocked()) return;
+
+  const px = 13 * TILE_SIZE;
+  const py = 9 * TILE_SIZE;
+  const size = TILE_SIZE * 2;
+  const pulse = Math.sin(animTick / 180) * 3;
+
+  ctx.save();
+  // Outer 2x2 dimensional frame
+  ctx.fillStyle = '#1e1b4b';
+  ctx.fillRect(px + 2, py + 2, size - 4, size - 4);
+
+  ctx.strokeStyle = '#a855f7';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(px + 4, py + 4, size - 8, size - 8);
+
+  // Swirling inner vortex rings
+  ctx.fillStyle = '#7e22ce';
+  ctx.fillRect(px + 8, py + 8, size - 16, size - 16);
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(px + 14 - pulse, py + 14 - pulse, size - 28 + pulse * 2, size - 28 + pulse * 2);
+
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(px + 24, py + 24, size - 48, size - 48);
+
+  ctx.restore();
+}
+
+function isNPCActiveOnMap(npc) {
+  if (!npc) return false;
+  const monId = (npc.monsterId || npc.speciesId || '').toLowerCase();
+  if ((npc.isLegendary || LEGENDARY_MONSTER_IDS.has(monId)) && state.dex && state.dex.some(p => p.id.toLowerCase() === monId)) {
+    return false;
+  }
+  return true;
+}
 
 function getNPCSkinColor(npc) {
   if (!npc) return '#fed7aa';
@@ -162,8 +252,8 @@ function isTileBlocked(col, row) {
   }
 
   const mapObj = getCurrentMap();
-  if (mapObj.npcs && mapObj.npcs.some(npc => npc.x === col && npc.y === row)) return true;
-  if (mapObj.pokeNpcs && mapObj.pokeNpcs.some(p => p.x === col && p.y === row)) return true;
+  if (mapObj.npcs && mapObj.npcs.some(npc => isNPCActiveOnMap(npc) && npc.x === col && npc.y === row)) return true;
+  if (mapObj.pokeNpcs && mapObj.pokeNpcs.some(p => isNPCActiveOnMap(p) && p.x === col && p.y === row)) return true;
   return false;
 }
 
@@ -177,6 +267,7 @@ function spawnFloorItemsForCurrentMap() {
 
   for (let r = 2; r < MAP_ROWS - 2; r++) {
     for (let c = 2; c < MAP_COLS - 2; c++) {
+      if ((c === 13 || c === 14) && (r === 9 || r === 10)) continue; // Keep 2x2 portal area clear
       const tile = getTileAt(c, r);
       if ((tile === '.' || tile === 'P' || tile === 'G' || tile === 'F') && !isTileBlocked(c, r)) {
         if (state.playerWorld && state.playerWorld.gridX === c && state.playerWorld.gridY === r) continue;
@@ -237,8 +328,11 @@ function interactWithFloorItem(item) {
 }
 
 function drawFloorItemsOnCanvas(ctx, animTick) {
+  // Also render the 2x2 portal if on CENTER (with >=50 Pokemon) or HONG_KONG
+  drawPortalOnCanvas(ctx, animTick);
+
   if (!Array.isArray(state.floorItems) || state.floorItems.length === 0) return;
-  const bob = animTick % 2 === 0 ? 0 : -2;
+  const bob = Math.floor(animTick / 350) % 2 === 0 ? 0 : -2;
 
   state.floorItems.forEach(item => {
     const dx = item.x * TILE_SIZE;
@@ -258,56 +352,100 @@ function drawFloorItemsOnCanvas(ctx, animTick) {
   });
 }
 
-// Updates the Overworld MAP button visual state (Gray/Locked before 20 Pokémon, Indigo when unlocked)
-function syncMapButtonState() {
+function syncWorldMapButtonState() {
   const mapBtn = document.getElementById('overworldMapBtn');
-  if (!mapBtn || !state || !Array.isArray(state.dex)) return;
-  const caught = state.dex.length;
-  const isUnlocked = caught >= 20;
-
-  if (isUnlocked) {
-    mapBtn.className = 'pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2';
-    mapBtn.textContent = caught >= 30 ? '🗺️ MAP ✈️' : '🗺️ MAP';
-    mapBtn.title = 'Open Grand World Map';
+  if (!mapBtn || typeof state === 'undefined') return;
+  const caught = state.dex ? state.dex.length : 1;
+  if (caught < 20) {
+    mapBtn.className = 'pixel-btn bg-slate-600 hover:bg-slate-500 text-slate-300 text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2 grayscale opacity-80';
+    mapBtn.innerHTML = `🔒 MAP (${caught}/20)`;
   } else {
-    mapBtn.className = 'pixel-btn bg-slate-600 hover:bg-slate-500 text-slate-300 opacity-75 text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2';
-    mapBtn.textContent = `🔒 MAP (${caught}/20)`;
-    mapBtn.title = `Locked! Catch ${20 - caught} more Pokémon to unlock the Grand Map.`;
+    mapBtn.className = 'pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2';
+    mapBtn.innerHTML = `🗺️ MAP`;
   }
 }
 
-// Renders a tiny preview SVG of a region's terrain rows for the Grand Map
-function renderMiniMapPreviewSVG(mapObj, isCurrent) {
-  if (!mapObj || !Array.isArray(mapObj.rows)) return '';
-  const theme = mapObj.theme || {};
-  let rects = '';
-  for (let r = 0; r < MAP_ROWS; r += 2) {
-    const rowStr = mapObj.rows[r] || '';
-    for (let c = 0; c < MAP_COLS; c += 2) {
-      const ch = rowStr.charAt(c);
-      let fill = theme.groundA || '#334155';
-      if (ch === 'P' || ch === 'E' || ch === 'B') fill = theme.path || '#fde68a';
-      else if (ch === 'W') fill = '#0284c7';
-      else if (ch === 'L') fill = '#dc2626';
-      else if (ch === 'G') fill = theme.grass || '#15803d';
-      else if (ch === 'T' || ch === 'R' || ch === 'I') fill = theme.tree || theme.rock || '#1e293b';
-      rects += `<rect x="${c / 2}" y="${r / 2}" width="1" height="1" fill="${fill}" />`;
-    }
-  }
-  if (isCurrent && state.playerWorld) {
-    const px = Math.min(13, Math.max(0, Math.floor(state.playerWorld.gridX / 2)));
-    const py = Math.min(9, Math.max(0, Math.floor(state.playerWorld.gridY / 2)));
-    rects += `<rect x="${px - 0.5}" y="${py - 0.5}" width="2" height="2" fill="#ef4444" stroke="#ffffff" stroke-width="0.4"/>`;
-  }
-  return `<svg viewBox="0 0 14 10" class="w-full h-8 rounded border border-slate-900 bg-slate-950 block">${rects}</svg>`;
+function renderGrandMapGridRegion(regionMode, mapModal) {
+  const grid = document.getElementById('worldMapRegionsGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const isCurrentInEastAsia = EAST_ASIA_MAP_IDS.has(state.currentMapId);
+  const canFly = state.dex.length >= 30;
+  const matrix = regionMode === 'EAST_ASIA' ? EAST_ASIA_MAP_GRID : GRAND_MAP_5X5_GRID;
+  const colsCount = regionMode === 'EAST_ASIA' ? 3 : 5;
+  grid.className = `grid grid-cols-${colsCount} gap-2 bg-slate-900 p-2.5 sm:p-3 rounded-lg border-2 border-slate-950 min-w-[520px]`;
+
+  matrix.forEach((rowKeys, rIdx) => {
+    rowKeys.forEach((mapKey, cIdx) => {
+      if (!mapKey || !WORLD_MAPS[mapKey]) {
+        const emptySlot = document.createElement('div');
+        emptySlot.className = 'bg-slate-950/60 border border-slate-800 rounded p-2 min-h-[104px] flex items-center justify-center text-[7px] text-slate-600';
+        emptySlot.textContent = 'OCEAN / BORDER';
+        grid.appendChild(emptySlot);
+        return;
+      }
+
+      const mapObj = WORLD_MAPS[mapKey];
+      const isCurrent = state.currentMapId === mapKey;
+      const targetIsEastAsia = EAST_ASIA_MAP_IDS.has(mapKey);
+      // Enforces rule 6: Habitat region and East Asia region are linked by the 2x2 Portal only
+      const sameRegionAsPlayer = (isCurrentInEastAsia === targetIsEastAsia);
+      const allowFastTravelHere = canFly && !isCurrent && sameRegionAsPlayer;
+
+      const bgHex = mapObj.theme?.groundA || '#334155';
+      const shortName = mapObj.name.replace(/\s*\([^)]*\)\s*/g, '');
+      const thumbUrl = renderMapThumbnailDataURL(mapObj);
+
+      const card = document.createElement('div');
+      card.className = `pixel-btn p-1.5 sm:p-2 flex flex-col justify-between gap-1 text-left min-h-[108px] ${
+        isCurrent ? 'ring-2 ring-amber-400 border-amber-400 scale-[1.02]' : ''
+      }`;
+      card.style.backgroundColor = bgHex;
+      card.style.color = '#ffffff';
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-1">
+          <span class="text-[7px] sm:text-[8px] font-bold leading-tight drop-shadow-[1px_1px_0_#000] truncate">${shortName}</span>
+          ${isCurrent ? '<span class="text-[6px] bg-amber-400 text-slate-950 px-1 py-0.5 rounded font-bold shrink-0">📍 YOU</span>' : ''}
+        </div>
+        <div class="w-full h-11 sm:h-12 rounded border border-slate-950 overflow-hidden bg-slate-950 my-0.5 shadow-inner relative">
+          <img src="${thumbUrl}" alt="${shortName}" class="w-full h-full object-cover" style="image-rendering: pixelated;" />
+          ${(mapKey === 'CENTER' || mapKey === 'HONG_KONG') && isPortalUnlocked() ? '<span class="absolute bottom-0.5 right-0.5 text-[6px] bg-purple-700 text-white px-1 rounded border border-white">🌀 PORTAL</span>' : ''}
+        </div>
+        <div class="flex items-center justify-between gap-1 mt-auto">
+          <span class="text-[6px] text-slate-200 drop-shadow-[1px_1px_0_#000]">${regionMode === 'EAST_ASIA' ? 'ASIA' : `(${cIdx - 2}, ${2 - rIdx})`}</span>
+          ${allowFastTravelHere
+            ? `<button type="button" class="bg-sky-400 hover:bg-sky-300 text-slate-950 text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">✈️ FLY</button>`
+            : (!sameRegionAsPlayer && !isCurrent ? `<span class="text-[6px] bg-purple-900/90 text-purple-200 px-1 py-0.5 rounded">USE PORTAL</span>` : '')}
+        </div>
+      `;
+
+      if (allowFastTravelHere) {
+        card.addEventListener('click', () => {
+          sfx.heal();
+          mapModal.classList.add('hidden');
+          mapModal.classList.remove('flex');
+          runShutterTransition(`FLYING TO ${shortName}...`, () => {
+            state.currentMapId = mapKey;
+            teleportPlayerToGrid(13, 12);
+            sfx.startBGM(state.currentMapId);
+            updateOverworldHUD();
+            if (typeof saveGameProgress === 'function') saveGameProgress();
+            setOverworldDialogue(`Flew directly to ${mapObj.name}!`, mapObj.name, 'FAST TRAVEL ✈️');
+          });
+        });
+      }
+
+      grid.appendChild(card);
+    });
+  });
 }
 
 function openWorldMapModal() {
-  syncMapButtonState();
-  const totalMon = (typeof MONSTER_SPECIES !== 'undefined') ? MONSTER_SPECIES.length : 151;
   if (state.dex.length < 20) {
     sfx.wrongBuzzer();
-    setOverworldDialogue(`🔒 MINI-MAP LOCKED! You have caught ${state.dex.length}/${totalMon} Pokémon. Catch at least 20 Pokémon to unlock the Grand World Map!`, 'LOCKED FEATURE', 'MINI-MAP 🔒');
+    setOverworldDialogue(`🔒 WORLD MAP LOCKED! You have caught ${state.dex.length}/${MONSTER_SPECIES.length} Pokémon! Catch at least 20 Pokémon to unlock the Grand World Map.`, 'LOCKED FEATURE', 'WORLD MAP 🔒');
     return;
   }
 
@@ -318,19 +456,20 @@ function openWorldMapModal() {
     mapModal.id = 'worldMapModal';
     mapModal.className = 'fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-2 sm:p-4';
     mapModal.innerHTML = `
-      <div class="w-full max-w-4xl retro-box p-3 sm:p-4 flex flex-col gap-2.5 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+      <div class="w-full max-w-4xl retro-box p-3 sm:p-5 flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
+        <div class="flex flex-wrap items-center justify-between border-b-2 border-slate-300 pb-2 gap-2">
           <div>
-            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ GRAND WORLD MAP &amp; MINI-MAP ATLAS</h2>
-            <p id="mapModalStatusSubtitle" class="text-[8px] sm:text-[9px] text-slate-600 mt-0.5">Regions arranged in exact compass positions of the Grand Map</p>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ GRAND WORLD MAP &amp; THUMBNAIL ATLAS</h2>
+            <p id="mapModalStatusSubtitle" class="text-[8px] sm:text-[9px] text-slate-600 mt-0.5"></p>
           </div>
-          <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+          <div class="flex items-center gap-1.5">
+            <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2.5 py-1 font-bold">🌍 HABITAT (5×5)</button>
+            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[8px] px-2.5 py-1 font-bold">🏮 EAST ASIA</button>
+            <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+          </div>
         </div>
-        <div class="bg-slate-900 border-2 border-slate-950 rounded-lg p-2 sm:p-3 overflow-x-auto">
-          <div id="worldMapRegionsGrid" class="grid grid-cols-5 gap-1.5 sm:gap-2 min-w-[600px]"></div>
-        </div>
-        <div id="worldMapSelectedInfo" class="bg-slate-100 border-2 border-slate-300 rounded p-2.5 flex flex-wrap items-center justify-between gap-2 text-[8px] sm:text-[9px] text-slate-800">
-          <span>Click any region on the Grand Map to inspect its wild habitats or Fast Travel!</span>
+        <div class="overflow-x-auto">
+          <div id="worldMapRegionsGrid"></div>
         </div>
       </div>
     `;
@@ -343,98 +482,35 @@ function openWorldMapModal() {
   }
 
   const canFly = state.dex.length >= 30;
+  const portalReady = isPortalUnlocked();
   const subtitleEl = document.getElementById('mapModalStatusSubtitle');
   if (subtitleEl) {
-    subtitleEl.textContent = canFly 
-      ? '✈️ FLY UNLOCKED — Click any biome tile on the Grand Map to inspect or Fast Travel!' 
-      : `🔒 FLY LOCKED (${state.dex.length}/30 Pokémon caught for Fast Travel) — Showing Grand Map Layout`;
+    subtitleEl.textContent = `${canFly ? '✈️ FLY UNLOCKED (within current region)' : `✈️ FLY LOCKED (${state.dex.length}/30)`} • ${
+      portalReady ? '🌀 2×2 HK PORTAL ACTIVE IN PALLET HUB!' : `🌀 EAST ASIA PORTAL LOCKED (${state.dex.length}/50 Pokémon)`
+    }`;
   }
 
-  const grid = document.getElementById('worldMapRegionsGrid');
-  const infoBar = document.getElementById('worldMapSelectedInfo');
-  grid.innerHTML = '';
+  const tabHab = document.getElementById('tabHabitatMapBtn');
+  const tabAsia = document.getElementById('tabEastAsiaMapBtn');
+  const startTab = EAST_ASIA_MAP_IDS.has(state.currentMapId) ? 'EAST_ASIA' : 'HABITAT';
 
-  // Build 5x5 spatial matrix so every region sits in its true Grand Map position
-  const cells = Array.from({ length: 5 }, () => Array(5).fill(null));
-  Object.keys(GRAND_MAP_COORDS).forEach(mapKey => {
-    const pos = GRAND_MAP_COORDS[mapKey];
-    if (pos && WORLD_MAPS[mapKey]) {
-      cells[pos.row][pos.col] = { key: mapKey, mapObj: WORLD_MAPS[mapKey], shortName: pos.shortName };
-    }
-  });
-
-  for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
-      const entry = cells[r][c];
-      if (!entry) {
-        const emptyCell = document.createElement('div');
-        emptyCell.className = 'rounded border border-slate-800/60 bg-slate-950/40 p-1.5 flex flex-col items-center justify-center min-h-[78px] text-[7px] text-slate-700 select-none';
-        emptyCell.innerHTML = `<span>•</span>`;
-        grid.appendChild(emptyCell);
-        continue;
+  if (tabHab && tabAsia) {
+    tabHab.onclick = () => {
+      sfx.blip();
+      renderGrandMapGridRegion('HABITAT', mapModal);
+    };
+    tabAsia.onclick = () => {
+      if (!isPortalUnlocked() && !EAST_ASIA_MAP_IDS.has(state.currentMapId)) {
+        sfx.wrongBuzzer();
+        setOverworldDialogue(`🔒 EAST ASIA REGION LOCKED! Catch 50 Pokémon (${state.dex.length}/50) to open the 2×2 Portal in Pallet Research Hub!`, 'PORTAL LOCKED', '50 DEX REQUIRED');
+        return;
       }
-
-      const { key: mapKey, mapObj, shortName } = entry;
-      const isCurrent = state.currentMapId === mapKey;
-      const exits = mapObj.exits || {};
-
-      // Direction connection indicators
-      const dirArrows = [
-        exits.north ? '▲N' : '',
-        exits.south ? '▼S' : '',
-        exits.west  ? '◀W' : '',
-        exits.east  ? '▶E' : ''
-      ].filter(Boolean).join(' ');
-
-      const card = document.createElement('div');
-      card.className = `pixel-btn ${isCurrent ? 'bg-amber-200 border-amber-500 ring-2 ring-amber-400' : 'bg-slate-800 hover:bg-slate-700 text-slate-100'} p-1.5 flex flex-col justify-between gap-1 text-left min-h-[82px] relative`;
-      card.innerHTML = `
-        <div class="flex items-center justify-between gap-1">
-          <span class="text-[7px] sm:text-[8px] font-bold ${isCurrent ? 'text-slate-950' : 'text-amber-300'} truncate">${shortName}</span>
-          ${isCurrent ? '<span class="text-[6px] bg-red-600 text-white px-1 py-0.5 rounded font-bold animate-pulse">YOU</span>' : ''}
-        </div>
-        ${renderMiniMapPreviewSVG(mapObj, isCurrent)}
-        <div class="flex items-center justify-between gap-1 text-[6px] ${isCurrent ? 'text-slate-800' : 'text-slate-400'}">
-          <span>${dirArrows}</span>
-          ${canFly && !isCurrent ? '<span class="text-sky-300 font-bold">✈️ FLY</span>' : ''}
-        </div>
-      `;
-
-      card.addEventListener('click', () => {
-        sfx.blip();
-        const encNames = (mapObj.encounters || []).map(id => id.toUpperCase()).join(', ');
-        if (infoBar) {
-          infoBar.innerHTML = `
-            <div class="flex-1 min-w-0">
-              <div class="font-bold text-slate-900">${mapObj.name} ${isCurrent ? '(CURRENT LOCATION)' : ''}</div>
-              <div class="text-[8px] text-slate-600 mt-0.5">${mapObj.subtitle} • WILD: ${encNames}</div>
-            </div>
-            ${canFly && !isCurrent
-              ? `<button id="confirmFlyBtn" type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[8px] sm:text-[9px] px-3 py-1.5 font-bold shrink-0">✈️ FLY TO ${shortName}</button>`
-              : (!isCurrent ? `<span class="text-[8px] bg-slate-300 text-slate-700 px-2 py-1 rounded font-bold shrink-0">🔒 NEED 30 DEX TO FLY (${state.dex.length}/30)</span>` : '<span class="text-[8px] bg-emerald-200 text-emerald-900 px-2 py-1 rounded font-bold shrink-0">📍 HERE NOW</span>')}
-          `;
-          const flyBtn = document.getElementById('confirmFlyBtn');
-          if (flyBtn) {
-            flyBtn.addEventListener('click', () => {
-              sfx.heal();
-              mapModal.classList.add('hidden');
-              mapModal.classList.remove('flex');
-              runShutterTransition(`FLYING TO ${mapObj.name}...`, () => {
-                state.currentMapId = mapKey;
-                teleportPlayerToGrid(13, 10);
-                sfx.startBGM(state.currentMapId);
-                updateOverworldHUD();
-                if (typeof saveGameProgress === 'function') saveGameProgress();
-                setOverworldDialogue(`Flew directly to ${mapObj.name}!`, mapObj.name, 'FAST TRAVEL ✈️');
-              });
-            });
-          }
-        }
-      });
-
-      grid.appendChild(card);
-    }
+      sfx.blip();
+      renderGrandMapGridRegion('EAST_ASIA', mapModal);
+    };
   }
+
+  renderGrandMapGridRegion(startTab, mapModal);
 
   mapModal.classList.remove('hidden');
   mapModal.classList.add('flex');
@@ -496,13 +572,13 @@ function getFacingTileCoords() {
 function getFacingNPC() {
   const { tx, ty } = getFacingTileCoords();
   const npcs = getCurrentMap().npcs || [];
-  return npcs.find(npc => npc.x === tx && npc.y === ty) || null;
+  return npcs.find(npc => isNPCActiveOnMap(npc) && npc.x === tx && npc.y === ty) || null;
 }
 
 function getFacingPokeNPC() {
   const { tx, ty } = getFacingTileCoords();
   const pokeNpcs = getCurrentMap().pokeNpcs || [];
-  return pokeNpcs.find(p => p.x === tx && p.y === ty) || null;
+  return pokeNpcs.find(p => isNPCActiveOnMap(p) && p.x === tx && p.y === ty) || null;
 }
 
 function interactWithFacingNPC() {
@@ -527,18 +603,32 @@ function interactWithFacingNPC() {
 
   const npc = getFacingNPC();
   if (npc) {
+    const monId = (npc.monsterId || npc.id || '').toLowerCase();
+    const isLeg = npc.isLegendary || LEGENDARY_MONSTER_IDS.has(monId);
+
     if (npc.healsParty || npc.name.includes('NURSE')) {
       if (typeof sfx.playHealWithBgmPause === 'function') sfx.playHealWithBgmPause();
       else sfx.heal();
       state.dex.forEach(m => { m.hp = m.maxHp; });
       syncAllUI();
       if (typeof saveGameProgress === 'function') saveGameProgress();
+      setOverworldDialogue(npc.fact, npc.name, npc.topic);
+    } else if (isLeg) {
+      sfx.pokemonCry(monId);
+      setOverworldDialogue(npc.fact, npc.name, 'LEGENDARY CHALLENGE ★');
+      const targetSpecies = MONSTER_SPECIES.find(m => m.id.toLowerCase() === monId);
+      if (targetSpecies) {
+        setTimeout(() => {
+          triggerWildBattleFromOverworld(targetSpecies);
+        }, 900);
+      }
     } else if (npc.isMonster || npc.monsterId) {
       sfx.pokemonCry(npc.monsterId || npc.id);
+      setOverworldDialogue(npc.fact, npc.name, npc.topic);
     } else {
       sfx.npcChime();
+      setOverworldDialogue(npc.fact, npc.name, npc.topic);
     }
-    setOverworldDialogue(npc.fact, npc.name, npc.topic);
     return;
   }
 
@@ -591,6 +681,8 @@ function interactWithFacingNPC() {
     setOverworldDialogue("Miradouro da Lua cliff spire! Over millions of years, wind and rain erosion carved red clay and sandstone into lunar-like hoodoo pinnacles!", obsDef?.name || "MOON CLIFF SPIRE", "GEOMORPHOLOGY");
   } else if (tile === 'H' || tile === 'D') {
     setOverworldDialogue("Professor's words echoed: \"Walking into someone's house without permission is known as trespassing and it is illegal!\"", "LOCKED HOUSE", "LAW & CIVICS");
+    } else if (tile === 'Y') {
+    setOverworldDialogue("Glowing neon sign! Neon tubes contain low-pressure noble gases that ionize and emit vibrant photons when high voltage is applied—red-orange for pure Neon, and blue for Argon with Mercury!", obsDef?.name || "NEON SIGN", "ATOMIC PHYSICS");
   } else {
     setOverworldDialogue("Face any Specialist, Alien, Overworld Pokémon, Obstacle, or Floor Item (Berries & Stones) and press SPACE or A!", "FIELD JOURNAL", "TIP");
   }
@@ -627,14 +719,14 @@ function updateOverworldHUD() {
   const zoneSub = document.getElementById('zoneSubBadge');
   const promptEl = document.getElementById('npcPromptBanner');
 
-  syncMapButtonState();
-
   if (coordsText) {
     const itemsLeft = Array.isArray(state.floorItems) ? state.floorItems.length : 0;
     coordsText.textContent = `MAP: ${mapObj.id} • POS: (${gridX}, ${gridY}) • ITEMS: ${itemsLeft} • ${tile === 'G' ? '⚠️ IN TALL GRASS' : 'SAFE PATH'}`;
   }
   if (zoneName) zoneName.textContent = mapObj.name;
   if (zoneSub) zoneSub.textContent = mapObj.subtitle;
+
+  syncWorldMapButtonState();
 
   const { tx, ty } = getFacingTileCoords();
   const facingNpc = getFacingNPC();
@@ -646,14 +738,23 @@ function updateOverworldHUD() {
     : null;
 
   if (promptEl) {
-    if (facingItem) {
+    if (isPortalTileOnCurrentMap(tx, ty)) {
+      promptEl.textContent = state.currentMapId === 'CENTER'
+        ? 'STEP ONTO 2×2 PORTAL TO WARP TO HONG KONG 🌀'
+        : 'STEP ONTO 2×2 PORTAL TO WARP TO PALLET HUB 🌀';
+      promptEl.classList.remove('hidden');
+    } else if (facingItem) {
       promptEl.textContent = `PRESS [SPACE] OR [A] TO COLLECT / INTERACT WITH ${facingItem.name}`;
       promptEl.classList.remove('hidden');
     } else if (facingPoke) {
       promptEl.textContent = `PRESS [SPACE] OR [A] TO GREET ${facingPoke.name} ♪`;
       promptEl.classList.remove('hidden');
     } else if (facingNpc) {
-      promptEl.textContent = `PRESS [SPACE] OR [A] TO TALK TO ${facingNpc.name}`;
+      const monId = (facingNpc.monsterId || facingNpc.id || '').toLowerCase();
+      const isLeg = facingNpc.isLegendary || LEGENDARY_MONSTER_IDS.has(monId);
+      promptEl.textContent = isLeg
+        ? `PRESS [SPACE] OR [A] TO CHALLENGE ${facingNpc.name} ★`
+        : `PRESS [SPACE] OR [A] TO TALK TO ${facingNpc.name}`;
       promptEl.classList.remove('hidden');
     } else if (facingObs) {
       promptEl.textContent = `PRESS [SPACE] OR [A] TO INSPECT ${facingObs.name}`;
@@ -713,6 +814,34 @@ function onSingleBlockStepLanded() {
   const p = state.playerWorld;
   const tile = getTileAt(p.gridX, p.gridY);
   updateOverworldHUD();
+
+  // Check if player stepped onto the 2x2 Portal at (13..14, 9..10)
+  if (isPortalTileOnCurrentMap(p.gridX, p.gridY)) {
+    const destMapKey = state.currentMapId === 'CENTER' ? 'HONG_KONG' : 'CENTER';
+    if (WORLD_MAPS[destMapKey]) {
+      if (typeof sfx.transformEffect === 'function') sfx.transformEffect();
+      else sfx.heal();
+      state.busy = true;
+      state.keysHeld = {};
+      const destObj = WORLD_MAPS[destMapKey];
+      runShutterTransition(`🌀 WARPING TO ${destObj.name}...`, () => {
+        state.currentMapId = destMapKey;
+        teleportPlayerToGrid(13, 12); // Spawn just below the 2x2 portal so it doesn't loop
+        sfx.startBGM(state.currentMapId);
+        updateOverworldHUD();
+        if (typeof saveGameProgress === 'function') saveGameProgress();
+        setOverworldDialogue(
+          destMapKey === 'HONG_KONG'
+            ? 'Warped through the 2×2 Dimensional Portal to Hong Kong! Explore Macau (W), China (N), Taiwan (E), Japan, South Korea, and Mongolia!'
+            : 'Warped back through the 2×2 Portal to Pallet Research Hub!',
+          destObj.name,
+          'DIMENSIONAL PORTAL 🌀'
+        );
+        state.busy = false;
+      });
+      return;
+    }
+  }
 
   if (tile === 'E') {
     const exits = getCurrentMap().exits;
@@ -874,7 +1003,10 @@ function returnToOverworldFromBattle(statusMessage = null) {
     syncAllUI();
     updateOverworldHUD();
     if (statusMessage) {
-      setOverworldDialogue(statusMessage, 'BATTLE RESULT', 'EXPLORATION');
+      const portalNotice = state.dex.length === 50
+        ? ' 🌀 50 POKÉMON CAUGHT! The 2×2 Dimensional Portal to HONG KONG has opened in Pallet Research Hub!'
+        : '';
+      setOverworldDialogue(statusMessage + portalNotice, 'BATTLE RESULT', 'EXPLORATION');
     }
     state.busy = false;
 

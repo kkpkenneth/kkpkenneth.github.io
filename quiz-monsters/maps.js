@@ -1,9 +1,10 @@
 /********************************************************************
  * maps.js
- * 19 Biome Maps Featuring Custom & Regional Signature Obstacles:
- * R = Rock, I = Ice, L = Lava, M = Swamp Mud, C = Cactus, K = Coral,
- * F = Multi-Color Flower, S = Onsen Steam Geyser, V = Tesla Coil Pylon,
- * U = Spore Toadstool, A = Astral Crystal Obelisk, N = Shadow Lamp, Q = Moon Spire
+ * 32 Areas (25 Original Region + 7 East Asia Region)
+ * - 4 Corner Areas (AURORA_RIDGE, CYBER_NEXUS, SUNKEN_RUINS, MOON)
+ *   are detached and accessible ONLY via Fly.
+ * - All other areas are bidirectionally linked on the 5x5 Grand Map.
+ * - Zero overlapping wild Pokémon encounters across all areas.
  ********************************************************************/
 
 const MAP_COLS = 28;
@@ -11,13 +12,713 @@ const MAP_ROWS = 20;
 const TILE_SIZE = 32;
 
 const WORLD_MAPS = {
-  // 1. CENTER HUB
+  // ====================================================================
+  // ROW 0: ['AURORA_RIDGE', 'WIND_TEMPLE', 'GLACIER', 'METEOR_CRATER', 'CYBER_NEXUS']
+  // ====================================================================
+
+  // (0,0) DETACHED CORNER — FLY ONLY
+  AURORA_RIDGE: {
+    id: 'AURORA_RIDGE',
+    name: 'Obsidian Tundra',
+    subtitle: 'DETACHED CORNER • ACCESSIBLE BY FLY ONLY',
+    theme: { groundA: '#0f172a', groundB: '#1e293b', path: '#7dd3fc', grass: '#0369a1', grassTip: '#38bdf8', tree: '#020617', treeTop: '#a855f7', rock: '#334155', rockLight: '#bae6fd', rockDark: '#0f172a' },
+    encounters: ['turtwig', 'chimchar', 'piplup'],
+    rows: [
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
+      "I..AA..GGGG......GGGG..AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA.......P..P.......AA..I",
+      "I......PPPPPP..PPPPPP......I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......P..II....II..P......I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I...........PPPP...........I",
+      "I...........PPPP...........I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I......P..II....II..P......I",
+      "I..GGGGP............PGGGG..I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..AA.......P..P.......AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA..GGGG..PP..GGGG..AA..I",
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII"
+    ],
+    exits: {},
+    npcs: [
+      {
+        id: 'astrophysicist_vera', name: 'DR. VERA RUBIN', topic: 'ASTROPHYSICIST • AURORAS', x: 13, y: 5,
+        skinColor: '#fed7aa', hatColor: '#7e22ce', shirtColor: '#c084fc',
+        fact: "DR. VERA RUBIN: Auroras occur when charged solar wind particles collide with oxygen and nitrogen gases in Earth's magnetosphere!"
+      }
+    ]
+  },
+
+  // (0,1) E: Cyan Cliff • S: Cobalt Boreal
+  WIND_TEMPLE: {
+    id: 'WIND_TEMPLE',
+    name: 'Azure Taiga',
+    subtitle: 'E: Cyan Cliff • S: Cobalt Boreal',
+    theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#f0f9ff', grass: '#0d9488', grassTip: '#99f6e4', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#1e293b' },
+    encounters: ['chikorita', 'cyndaquil', 'totodile'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..AA..GGGG......GGGG..AA..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..AA.......P..P.......AA..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....A..A....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..AA....AA..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..AA....AA..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....A..A....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..AA.......P..P.......AA..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..AA..GGGG..PP..GGGG..AA..R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      east:  { targetMap: 'GLACIER',   spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'NORTHWEST', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'meteorologist_fujita', name: 'DR. FUJITA', topic: 'METEOROLOGIST • JET STREAM', x: 13, y: 8,
+        skinColor: '#fde68a', hatColor: '#0284c7', shirtColor: '#bae6fd',
+        fact: "DR. FUJITA: High-altitude Jet Streams blow from west to east in the upper Troposphere due to thermal gradients and the Coriolis Effect!"
+      }
+    ]
+  },
+
+  // (0,2) W: Azure Taiga • E: Indigo Lake • S: Slate Mountain
+  GLACIER: {
+    id: 'GLACIER',
+    name: 'Cyan Cliff',
+    subtitle: 'W: Azure Taiga • E: Indigo Lake • S: Slate Mountain',
+    theme: { groundA: '#bae6fd', groundB: '#7dd3fc', path: '#f0f9ff', grass: '#0284c7', grassTip: '#e0f2fe', tree: '#0f172a', treeTop: '#38bdf8' },
+    encounters: ['seel', 'shellder', 'jynx'],
+    rows: [
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
+      "I..IIII....PPPPPP....IIII..I",
+      "I.GGGGGG...P....P...GGGGGG.I",
+      "I.GGGGGG..PP.FF.PP..GGGGGG.I",
+      "I.GGGGGG..P......P..GGGGGG.I",
+      "I.........PPPPPPPP.........I",
+      "I........PP......PP........I",
+      "I..GGGGPPP..IIII..PPPGGGG..I",
+      "I..GGGGP...IIIIII...PGGGG..I",
+      "EPPPPPPP...IIIIII...PPPPPPPE",
+      "EPPPPPPP....IIII....PPPPPPPE",
+      "I..III..PPPPPPPPPPPP..III..I",
+      "I..........PP..PP..........I",
+      "I.GGGGGGG..PP..PP..GGGGGGG.I",
+      "I.GGGGGGG..PP..PP..GGGGGGG.I",
+      "I.GGGGGGG.PPP..PPP.GGGGGGG.I",
+      "I.........P......P.........I",
+      "I..IIII...PPPPPPPP...IIII..I",
+      "I............PP............I",
+      "IIIIIIIIIIIIIEEIIIIIIIIIIIII"
+    ],
+    exits: {
+      west:  { targetMap: 'WIND_TEMPLE',   spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'METEOR_CRATER', spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'MOUNTAIN',      spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'biathlete_sven', name: 'BIATHLETE SVEN', topic: 'BIATHLETE • GLACIOLOGY', x: 13, y: 11,
+        skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#bae6fd',
+        fact: "BIATHLETE SVEN: Cross-country skiing and marksmanship! Ground that remains at or below 0°C for two or more consecutive years is called Permafrost!"
+      },
+      {
+        id: 'overworld_articuno', name: 'ARTICUNO', topic: 'LEGENDARY POKéMON • HEXAGONAL ICE', x: 13, y: 5,
+        isMonster: true, monsterId: 'articuno', isLegendary: true,
+        fact: "ARTICUNO: Kyaaah! (Ordinary water ice forms a Hexagonal crystal structure at standard atmospheric pressure, and Antarctica holds most of Earth's glacial ice!)"
+      }
+    ]
+  },
+
+  // (0,3) W: Cyan Cliff • S: Amber Desert
+  METEOR_CRATER: {
+    id: 'METEOR_CRATER',
+    name: 'Indigo Lake',
+    subtitle: 'W: Cyan Cliff • S: Amber Desert',
+    theme: { groundA: '#312e81', groundB: '#1e1b4b', path: '#cbd5e1', grass: '#4338ca', grassTip: '#818cf8', tree: '#0f172a', treeTop: '#6366f1', rock: '#3730a3', rockLight: '#a5b4fc', rockDark: '#1e1b4b' },
+    encounters: ['treecko', 'torchic', 'mudkip'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..RR..GGGG......GGGG..RR..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..RR.......P..P.......RR..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....WWWW....PGGGG..R",
+      "R..GGGGP...WWWWWW...PGGGG..R",
+      "R......P...WWWWWW...P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..RR....RR..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....R..R....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..RR.......P..P.......RR..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..RR..GGGG..PP..GGGG..RR..R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      west:  { targetMap: 'GLACIER',   spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'NORTHEAST', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'paleontologist_grant', name: 'DR. GRANT', topic: 'PALEONTOLOGIST • CHICXULUB', x: 13, y: 11,
+        skinColor: '#e59866', hatColor: '#78350f', shirtColor: '#fde68a',
+        fact: "DR. GRANT: The Chicxulub asteroid impact 66 million years ago ended the Cretaceous Period and drove non-avian dinosaurs to extinction!"
+      }
+    ]
+  },
+
+  // (0,4) DETACHED CORNER — FLY ONLY
+  CYBER_NEXUS: {
+    id: 'CYBER_NEXUS',
+    name: 'Neon Zone',
+    subtitle: 'DETACHED CORNER • ACCESSIBLE BY FLY ONLY',
+    theme: { groundA: '#090d16', groundB: '#111827', path: '#38bdf8', grass: '#0f766e', grassTip: '#2dd4bf', tree: '#1e293b', treeTop: '#06b6d4', rock: '#1e293b', rockLight: '#7dd3fc', rockDark: '#020617' },
+    encounters: ['snivy', 'tepig', 'oshawott'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..VV..GGGG......GGGG..VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV.......P..P.......VV..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..VV....VV..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPP...........R",
+      "R...........PPPP...........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..VV....VV..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..VV.......P..P.......VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV..GGGG..PP..GGGG..VV..R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {},
+    npcs: [
+      {
+        id: 'ai_researcher_turing', name: 'DR. TURING', topic: 'COMPUTER SCIENTIST • AI & LOGIC', x: 13, y: 8,
+        skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#e0f2fe',
+        fact: "DR. TURING: All digital data is encoded in Binary bits (0s and 1s), and Transistors amplify or switch electronic signals inside CPUs!"
+      },
+      {
+        id: 'overworld_dialga', name: 'TEMPORAL DIALGA', topic: 'LEGENDARY POKéMON • TIME & RELATIVITY', x: 13, y: 11,
+        isMonster: true, monsterId: 'dialga', isLegendary: true,
+        fact: "DIALGA: Gggaaah! (Dialga governs the flow of time! According to Einstein's Relativity, time moves slower near massive gravitational fields!)"
+      }
+    ]
+  },
+
+  // ====================================================================
+  // ROW 1: ['SPIRE', 'NORTHWEST', 'MOUNTAIN', 'NORTHEAST', 'FOUNDRY']
+  // ====================================================================
+
+  // (1,0) E: Cobalt Boreal • S: Magenta Shrubland
+  SPIRE: {
+    id: 'SPIRE',
+    name: 'Magenta Cave',
+    subtitle: 'E: Cobalt Boreal • S: Magenta Shrubland',
+    theme: { groundA: '#311042', groundB: '#4a1d66', path: '#fbcfe8', grass: '#701a75', grassTip: '#f472b6', tree: '#1e1b4b', treeTop: '#e879f9' },
+    encounters: ['drowzee', 'mr_mime'],
+    rows: [
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+      "T..AA..GGGG..PP..GGGG..AA..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..AA.......P..P.......AA..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....A..A....PGGGG..T",
+      "T..GGGGP....FFFF....PGGGG..T",
+      "T......P..AAFFFFAA..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T..AA.......P..PPPPPPPPPPPPE",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....A..A....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..AA.......P..P.......AA..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..AA..GGGG..PP..GGGG..AA..T",
+      "T............PP............T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      east:  { targetMap: 'NORTHWEST', spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'SANCTUARY', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'overworld_mewtwo', name: 'LEGENDARY MEWTWO', topic: 'LEGENDARY POKéMON • GENETIC ENGINEERING', x: 13, y: 9,
+        isMonster: true, monsterId: 'mewtwo', isLegendary: true,
+        fact: "MEWTWO: Who am I? What is my purpose? (Mewtwo was created by genetic manipulation based on Mew's genetic code!)"
+      },
+      {
+        id: 'publisher_pulitzer', name: 'PUBLISHER PERRY', topic: 'PUBLISHER • PRINT & FOLKLORE', x: 9, y: 4,
+        skinColor: '#fed7aa', hatColor: '#581c87', shirtColor: '#e9d5ff',
+        fact: "PUBLISHER PERRY: Publishing timeless stories! Traditional tales passed down orally before being written are called Folklore—like the Brothers Grimm collections!"
+      },
+      {
+        id: 'journalist_lois', name: 'JOURNALIST LOIS', topic: 'JOURNALIST • INVESTIGATIVE', x: 18, y: 4,
+        skinColor: '#f5cba7', hatColor: '#0284c7', shirtColor: '#bae6fd',
+        fact: "JOURNALIST LOIS: Investigating the truth! An Antonym is a word with the exact opposite meaning of another word, and the English alphabet has 26 letters!"
+      },
+      {
+        id: 'reporter_clark', name: 'REPORTER CLARK', topic: 'REPORTER • BREAKING NEWS', x: 9, y: 8,
+        skinColor: '#e59866', hatColor: '#dc2626', shirtColor: '#fecaca',
+        fact: "REPORTER CLARK: Live from the Celestial Spire! Assigning human emotions or traits to non-human nature in writing is called Anthropomorphism!"
+      },
+      {
+        id: 'correspondent_erin', name: 'CORRESPONDENT ERIN', topic: 'CORRESPONDENT • FIELD DISPATCH', x: 18, y: 8,
+        skinColor: '#ca8a5b', hatColor: '#d97706', shirtColor: '#fef3c7',
+        fact: "CORRESPONDENT ERIN: Reporting across regions! In quantum physics, Quantum Entanglement links particles across vast cosmic distances!"
+      },
+      {
+        id: 'social_worker_clara', name: 'SOCIAL WORKER CLARA', topic: 'SOCIAL WORKER • PUBLIC HEALTH', x: 10, y: 14,
+        skinColor: '#a16236', hatColor: '#0d9488', shirtColor: '#99f6e4',
+        fact: "SOCIAL WORKER CLARA: Supporting community wellness! Proper nutrition prevents deficiency disorders like Anemia (Iron) and Rickets (Vitamin D)!"
+      },
+      {
+        id: 'counselor_troi', name: 'COUNSELOR DEANNA', topic: 'COUNSELOR • EMPATHY & MEMORY', x: 17, y: 14,
+        skinColor: '#784212', hatColor: '#7e22ce', shirtColor: '#f3e8ff',
+        fact: "COUNSELOR DEANNA: Listening with empathy! Sensory signals are received by a neuron's branch-like Dendrites and sent along its Axon!"
+      }
+    ]
+  },
+
+  // (1,1) N: Azure Taiga • S: Teal Forest • W: Magenta Cave • E: Slate Mountain
+  NORTHWEST: {
+    id: 'NORTHWEST',
+    name: 'Cobalt Boreal',
+    subtitle: 'N: Azure Taiga • S: Teal Forest • W: Magenta Cave • E: Slate Mountain',
+    theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#15803d', grassTip: '#86efac', tree: '#1e293b', treeTop: '#38bdf8', rock: '#64748b', rockLight: '#cbd5e1', rockDark: '#334155' },
+    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..TTTT....PPPPPP....TTTT..R",
+      "R.GGGGGG...P....P...GGGGGG.R",
+      "R.GGGGGG..PP.FF.PP..GGGGGG.R",
+      "R.GGGGGG..P......P..GGGGGG.R",
+      "R.........PPPPPPPP.........R",
+      "R........PP......PP........R",
+      "R..GGGGPPP..WWWW..PPPGGGG..R",
+      "R..GGGGP...WWWWWW...PGGGG..R",
+      "EPPPPPPP...WWWWWW...PPPPPPPE",
+      "EPPPPPPP....WWWW....PPPPPPPE",
+      "R..RRR..PPPPPPPPPPPP..RRR..R",
+      "R..........PP..PP..........R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG.PPP..PPP.GGGGGGG.R",
+      "R.........P......P.........R",
+      "R..RRRR...PPPPPPPP...RRRR..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'WIND_TEMPLE', spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'FOREST',      spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'SPIRE',       spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'MOUNTAIN',    spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'pilot_amelia', name: 'PILOT AMELIA', topic: 'PILOT • AERODYNAMICS', x: 11, y: 5,
+        skinColor: '#fde68a', hatColor: '#1e3a8a', shirtColor: '#93c5fd',
+        fact: "PILOT AMELIA: Four forces govern flight: Lift pushes upward, Gravity pulls down, Thrust propels forward, and Drag resists motion! Bernoulli's principle explains wing lift!"
+      },
+      {
+        id: 'flight_attendant_sky', name: 'ATTENDANT SKY', topic: 'FLIGHT ATTENDANT • ATMOSPHERE', x: 16, y: 5,
+        skinColor: '#fed7aa', hatColor: '#3b82f6', shirtColor: '#dbeafe',
+        fact: "ATTENDANT SKY: Weather occurs in the Troposphere, while commercial jets often cruise in the lower Stratosphere near the Jet Stream!"
+      },
+      {
+        id: 'cyclist_lance', name: 'CYCLIST LANCE', topic: 'CYCLIST • BIOMECHANICS', x: 13, y: 11,
+        skinColor: '#ca8a5b', hatColor: '#f59e0b', shirtColor: '#fde68a',
+        fact: "CYCLIST LANCE: Tendons connect skeletal muscles to bones, while Ligaments connect bones to other bones at your joints!"
+      },
+      {
+        id: 'cosmologist_stephen', name: 'COSMOLOGIST STEPHEN', topic: 'COSMOLOGIST • UNIVERSE', x: 9, y: 15,
+        skinColor: '#784212', hatColor: '#5f7478', shirtColor: '#4d5354',
+        fact: "COSMOLOGIST STEPHEN: Did you know? 63 Earths can fit inside Uranus! And did you know? Uranus surface smells like rotten eggs due to hydrogen sulfide clouds. I have always wanted to have a closer look at Uranus."
+      },
+      {
+        id: 'cop_branco', name: 'COP BRANCO', topic: 'ARMED • JUSTICE', x: 18, y: 1,
+        skinColor: '#000000', hatColor: '#5f7478', shirtColor: '#4d5354',
+        fact: "COP BRANCO: If I see those jerks, I will shoot them dead for you."
+      }
+    ]
+  },
+
+  // (1,2) N: Cyan Cliff • S: Beige Village • W: Cobalt Boreal • E: Amber Desert
+  MOUNTAIN: {
+    id: 'MOUNTAIN',
+    name: 'Slate Mountain',
+    subtitle: 'N: Cyan Cliff • S: Beige Village • W: Cobalt Boreal • E: Amber Desert',
+    theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
+    encounters: ['clefairy', 'jigglypuff', 'machop', 'hitmonlee', 'hitmonchan'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..RRRR....PPPPPP....RRRR..R",
+      "R.GGGGGG...P....P...GGGGGG.R",
+      "R.GGGGGG..PP.FF.PP..GGGGGG.R",
+      "R.GGGGGG..P......P..GGGGGG.R",
+      "R...RR....PPPPPPPP....RR...R",
+      "R........PP......PP........R",
+      "R..GGGGPPP..RRRR..PPPGGGG..R",
+      "R..GGGGP...RRRRRR...PGGGG..R",
+      "EPPPPPPP...RRRRRR...PPPPPPPE",
+      "EPPPPPPP....RRRR....PPPPPPPE",
+      "R..RRR..PPPPPPPPPPPP..RRR..R",
+      "R..........PP..PP..........R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG..PP..PP..GGGGGGG.R",
+      "R.GGGGGGG.PPP..PPP.GGGGGGG.R",
+      "R.........P......P.........R",
+      "R..RRRR...PPPPPPPP...RRRR..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'GLACIER',   spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'CENTER',    spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'NORTHWEST', spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'NORTHEAST', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'geologist_cole', name: 'GEOLOGIST COLE', topic: 'GEOLOGIST • EARTH SCIENCE', x: 13, y: 5,
+        skinColor: '#a16236', hatColor: '#78350f', shirtColor: '#d97706',
+        fact: "GEOLOGIST COLE: Igneous rock formed from cooled lava on Earth's surface is called Extrusive rock, and Diamond rates a 10 on the Mohs hardness scale!"
+      },
+      {
+        id: 'fireman_bravo', name: 'CHIEF BRAVO', topic: 'FIREMAN • THERMODYNAMICS', x: 11, y: 11,
+        skinColor: '#fed7aa', hatColor: '#dc2626', shirtColor: '#fca5a5',
+        fact: "CHIEF BRAVO: Putting out fires is my job! Remember: Combustion rapidly combines oxygen with fuel, and the hottest part of a standard burner flame is Blue!"
+      },
+      {
+        id: 'runner_bolt', name: 'RUNNER BOLT', topic: 'RUNNER • AEROBIC RESPIRATION', x: 16, y: 11,
+        skinColor: '#e59866', hatColor: '#ef4444', shirtColor: '#fecaca',
+        fact: "RUNNER BOLT: Training at high altitude! During strenuous anaerobic sprinting, Lactic Acid (lactate) builds up in skeletal muscle tissue!"
+      },
+      {
+        id: 'overworld_clefairy', name: 'WILD CLEFAIRY', topic: 'OVERWORLD POKéMON • LUNAR', x: 14, y: 3,
+        isMonster: true, monsterId: 'clefairy',
+        fact: "CLEFAIRY: ♪ Clef-clef! ♪ (Clefairy dances under the mountain sky! The Moon's gravitational pull is the primary force driving Earth's ocean tides!)"
+      },
+      {
+        id: 'no_name_1', name: 'NO NAME', topic: 'JOBLESS • NOTHING TO LOSE', x: 26, y: 5,
+        skinColor: '#000000', hatColor: '#78350f', shirtColor: '#d97706',
+        fact: "NO NAME: Chines! Chines! Chines!(Slap with machete)"
+      },  
+      {
+        id: 'no_name_2', name: 'NO NAME', topic: 'JOBLESS • NOTHING TO LOSE', x: 25, y: 6,
+        skinColor: '#000000', hatColor: '#d97706', shirtColor: '#78350f',
+        fact: "NO NAME: Kwanza! Kwanza! Kwanza!(Pulls your poncho and throws it on the floor)"
+      }
+    ]
+  },
+
+  // (1,3) N: Indigo Lake • S: Scarlet Savanna • W: Slate Mountain • E: Gray Town
+  NORTHEAST: {
+    id: 'NORTHEAST',
+    name: 'Amber Desert',
+    subtitle: 'N: Indigo Lake • S: Scarlet Savanna • W: Slate Mountain • E: Gray Town',
+    theme: { groundA: '#78350f', groundB: '#92400e', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#451a03', treeTop: '#d97706', rock: '#92400e', rockLight: '#fbbf24', rockDark: '#451a03' },
+    encounters: ['geodude', 'onix'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R....GGGG....PP....GGGG....R",
+      "R...GGGGGG..RRRR..GGGGGG...R",
+      "R...GGGGGG........GGGGGG...R",
+      "R...........PPPP...........R",
+      "R..RRR.....PP..PP.....RRR..R",
+      "R.........PP....PP.........R",
+      "R..GGGG..PP..FF..PP..GGGG..R",
+      "R..GGGG.PP...FF...PP.GGGG..R",
+      "EPPPPPPPP..........PPPPPPPPE",
+      "EPPPPPPPP..........PPPPPPPPE",
+      "R..GGGG..PPPPPPPPPP..GGGG..R",
+      "R..GGGG......PP......GGGG..R",
+      "R............PP............R",
+      "R...RRR.....PPPP.....RRR...R",
+      "R..........PP..PP..........R",
+      "R..GGGGGG..P....P..GGGGGG..R",
+      "R..GGGGGG..PPPPPP..GGGGGG..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'METEOR_CRATER', spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'DESERT',        spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'MOUNTAIN',      spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'FOUNDRY',       spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'blacksmith_ferris', name: 'BLACKSMITH FERRIS', topic: 'BLACKSMITH • METALLURGY', x: 11, y: 11,
+        skinColor: '#a16236', hatColor: '#1f2937', shirtColor: '#9ca3af',
+        fact: "BLACKSMITH FERRIS: Steel is an alloy of Iron (Fe) and Carbon! Quenching cools hot steel rapidly to increase hardness, while Tempering relieves internal stress!"
+      },
+      {
+        id: 'sculptor_rodin', name: 'SCULPTOR RODIN', topic: 'SCULPTOR • MINERALOGY', x: 16, y: 11,
+        skinColor: '#e59866', hatColor: '#78716c', shirtColor: '#e7e5e4',
+        fact: "SCULPTOR RODIN: Basalt is a dark, fine-grained igneous rock that makes up most oceanic crust, while Granite is coarse-grained continental rock!"
+      },
+      {
+        id: 'product_designer_jony', name: 'DESIGNER JONY', topic: 'PRODUCT DESIGNER • MATERIALS', x: 13, y: 4,
+        skinColor: '#fed7aa', hatColor: '#1e293b', shirtColor: '#e2e8f0',
+        fact: "DESIGNER JONY: Ductility describes a material's ability to deform under tensile stress without fracturing, while Chromium makes stainless steel corrosion-resistant!"
+      },
+      {
+        id: 'policeman_nero', name: 'POLICEMAN NERO', topic: 'POLICE • CORRUPTED', x: 26, y: 14,
+        skinColor: '#000000', hatColor: '#1e293b', shirtColor: '#e7e5e4',
+        fact: "POLICEMAN NERO: I know you lost your phones, passports and computer. Now you can pay for my taxi :)"
+      }
+    ]
+  },
+
+  // (1,4) W: Amber Desert • S: Silver Geyser
+  FOUNDRY: {
+    id: 'FOUNDRY',
+    name: 'Gray Town',
+    subtitle: 'W: Amber Desert • S: Silver Geyser',
+    theme: { groundA: '#1e293b', groundB: '#334155', path: '#94a3b8', grass: '#ca8a04', grassTip: '#fef08a', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
+    encounters: ['magnemite', 'voltorb', 'electabuzz', 'lucario'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..VV..GGGG......GGGG..VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV.......P..P.......VV..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..VV....VV..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPP...PPPP...PPPPPPPPR",
+      "EPPPPPPPP...PPPP...PPPPPPPPR",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..VV....VV..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..VV.......P..P.......VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV..GGGG..PP..GGGG..VV..R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      west:  { targetMap: 'NORTHEAST', spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'ONSEN',     spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'developer_linus', name: 'DEVELOPER LINUS', topic: 'DEVELOPER • SOFTWARE LOGIC', x: 9, y: 4,
+        skinColor: '#fed7aa', hatColor: '#2563eb', shirtColor: '#93c5fd',
+        fact: "DEVELOPER LINUS: Writing clean code! Every computer processor relies on billions of microscopic semiconductor Transistors to switch binary signals!"
+      },
+      {
+        id: 'contractor_bob', name: 'CONTRACTOR BOB', topic: 'CONTRACTOR • STRUCTURAL STEEL', x: 18, y: 4,
+        skinColor: '#e59866', hatColor: '#eab308', shirtColor: '#fde047',
+        fact: "CONTRACTOR BOB: Building this facility! Iron alloyed with Carbon makes structural Steel, the most widely used metal in construction!"
+      },
+      {
+        id: 'engineer_tesla', name: 'ENGINEER NIKOLA', topic: 'ENGINEER • POWER SYSTEMS', x: 11, y: 8,
+        skinColor: '#f5cba7', hatColor: '#0284c7', shirtColor: '#bae6fd',
+        fact: "ENGINEER NIKOLA: One Watt of electrical power equals one Joule of energy per second! Smelting extracts usable metal from raw mineral ore!"
+      },
+      {
+        id: 'technician_maya', name: 'TECHNICIAN MAYA', topic: 'TECHNICIAN • DIAGNOSTICS', x: 16, y: 8,
+        skinColor: '#ca8a5b', hatColor: '#0d9488', shirtColor: '#99f6e4',
+        fact: "TECHNICIAN MAYA: Calibrating instruments! We use a Voltmeter to measure electrical potential difference and an Ammeter to measure current in Amperes!"
+      },
+      {
+        id: 'mechanic_cid', name: 'MECHANIC CID', topic: 'MECHANIC • ALLOY HARDNESS', x: 9, y: 15,
+        skinColor: '#a16236', hatColor: '#1e3a8a', shirtColor: '#ef4444',
+        fact: "MECHANIC CID: Tuning heavy gears! Hardness measures a metal's resistance to scratching or indentation, while Tempering increases toughness!"
+      },
+      {
+        id: 'elec_engineer_faraday', name: 'ELEC. ENG. FARADAY', topic: 'ELECTRICAL ENGINEER • CIRCUITS', x: 14, y: 15,
+        skinColor: '#fed7aa', hatColor: '#4f46e5', shirtColor: '#c7d2fe',
+        fact: "ELEC. ENG. FARADAY: Electrons carry a negative charge! According to Ohm's Law, Voltage equals Current multiplied by Resistance!"
+      },
+      {
+        id: 'electrician_sparky', name: 'ELECTRICIAN SPARK', topic: 'ELECTRICIAN • CIRCUIT SAFETY', x: 19, y: 15,
+        skinColor: '#e59866', hatColor: '#f59e0b', shirtColor: '#fef08a',
+        fact: "ELECTRICIAN SPARK: Safety first! Conductors let electricity flow easily, while a Fuse contains a thin wire that melts if current gets too high!"
+      },
+      {
+        id: 'the_punisher', name: 'THE PUNISHER', topic: 'JUST BEING HUMAN • NOT MARVEL', x: 25, y: 8,
+        skinColor: '#e59866', hatColor: '#f59e0b', shirtColor: '#000000',
+        fact: "THE PUNISHER: In certain extreme situations, the law is inadequate. In order to shame its inadequacy, it is necessary to act outside the law. To pursue... natural justice."
+      }
+    ]
+  },
+
+  // ====================================================================
+  // ROW 2: ['SANCTUARY', 'FOREST', 'CENTER', 'DESERT', 'ONSEN']
+  // ====================================================================
+
+  // (2,0) N: Magenta Cave • S: Jade Jungle • E: Teal Forest
+  SANCTUARY: {
+    id: 'SANCTUARY',
+    name: 'Magenta Shrubland',
+    subtitle: 'N: Magenta Cave • S: Jade Jungle • E: Teal Forest',
+    theme: { groundA: '#2e1065', groundB: '#3b0764', path: '#c084fc', grass: '#4c1d95', grassTip: '#e879f9', tree: '#090d16', treeTop: '#7e22ce', rock: '#4c1d95', rockLight: '#c084fc', rockDark: '#1e1b4b' },
+    encounters: ['abra', 'gastly', 'nidoran_f', 'nidoran_m'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T.RRRR..GGGG.PP.GGGG..RRRR.T",
+      "T.RRRR..GGGG.PP.GGGG..RRRR.T",
+      "T..FF...GGGG.PP.GGGG...FF..T",
+      "T..GGG..PPPPPPPPPPPP..GGG..T",
+      "T..GGG..P..RRRRRR..P..GGG..T",
+      "T..GGG..P..RRRRRR..P..GGG..T",
+      "T..FF...P....FF....P...FF..T",
+      "T.RRRR..PPPPPPPPPPPP.......T",
+      "T.RRRR.......PP.....PPPPPPPE",
+      "T............PP.....PPPPPPPE",
+      "T..GGGGGGG...PP...GGGGGGG..T",
+      "T..GGGGGGG..PPPP..GGGGGGG..T",
+      "T..GGGGGGG.PP..PP.GGGGGGG..T",
+      "T...FF.....P.FF.P.....FF...T",
+      "T.RRRR....PP....PP....RRRR.T",
+      "T.RRRR....PPPPPPPP....RRRR.T",
+      "T......GGGG..PP..GGGG......T",
+      "T......GGGG..PP..GGGG......T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'SPIRE',       spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'KALOS_GROVE', spawnX: 13, spawnY: 1 },
+      east:  { targetMap: 'FOREST',      spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'priest_gabriel', name: 'PRIEST GABRIEL', topic: 'PRIEST • VITAMIN K & HEALING', x: 9, y: 4,
+        skinColor: '#fed7aa', hatColor: '#f8fafc', shirtColor: '#fde047',
+        fact: "PRIEST GABRIEL: Peace be with you! Remember: if the human body lacks Vitamin K, blood clotting and bleeding disorders will develop!"
+      },
+      {
+        id: 'monk_tenzin', name: 'MONK TENZIN', topic: 'MONK • MINDFULNESS & BRAIN', x: 16, y: 4,
+        skinColor: '#ca8a5b', hatColor: '#f97316', shirtColor: '#fed7aa',
+        fact: "MONK TENZIN: Deep in the temporal lobe, the Hippocampus plays a major role in memory formation, while the Frontal Lobe governs reasoning!"
+      },
+      {
+        id: 'witch_morgana', name: 'WITCH MORGANA', topic: 'WITCH • FOLKLORE & FAE', x: 10, y: 8,
+        skinColor: '#fde68a', hatColor: '#581c87', shirtColor: '#d8b4fe',
+        fact: "WITCH MORGANA: A ring of mushrooms in woodland folklore is called a Fairy Ring! Hans Christian Andersen wrote 'The Little Mermaid', and the Brothers Grimm compiled 'Cinderella'!"
+      },
+      {
+        id: 'wizard_merlin', name: 'WIZARD MERLIN', topic: 'WIZARD • QUANTUM & COSMOS', x: 16, y: 8,
+        skinColor: '#f5cba7', hatColor: '#1d4ed8', shirtColor: '#93c5fd',
+        fact: "WIZARD MERLIN: Dark Matter makes up ~85% of the universe's mass, Dark Energy drives cosmic expansion, and the Event Horizon is a Black Hole's point of no return!"
+      },
+      {
+        id: 'overworld_mew', name: 'MYTHICAL MEW', topic: 'LEGENDARY POKéMON • GENETICS', x: 13, y: 12,
+        isMonster: true, monsterId: 'mew', isLegendary: true,
+        fact: "MEW: Mew~ (DNA carries genetic information using four nitrogenous bases: Adenine, Thymine, Cytosine, and Guanine!)"
+      },
+      {
+        id: 'human_ecologist_kim', name: 'HUMAN ECOLOGIST KIM', topic: 'HUMAN EXPERIMENTS • GATE OF TRUTH', x: 5, y: 17,
+        skinColor: '#f5cba7', hatColor: '#000000', shirtColor: '#555555',
+        fact: "HUMAN ECOLOGIST KIM: You kill some of them, they come back stronger. You kill them all, you end their pain. You keep them uneducated, they will keep killing each other, keep torturing each other, keep giving themselves a sustainable life in hell. That is the beauty of tragedy farming."
+      }
+    ]
+  },
+
+  // (2,1) N: Cobalt Boreal • S: Emerald Swamp • W: Magenta Shrubland • E: Beige Village
+  FOREST: {
+    id: 'FOREST',
+    name: 'Teal Forest',
+    subtitle: 'N: Cobalt Boreal • S: Emerald Swamp • W: Magenta Shrubland • E: Beige Village',
+    theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
+    encounters: ['bulbasaur', 'caterpie', 'exeggcute'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
+      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
+      "T..FF...GGGG.PP.GGGG...FF..T",
+      "T..GGG..PPPPPPPPPPPP..GGG..T",
+      "T..GGG..P..TTTTTT..P..GGG..T",
+      "T..GGG..P..TTTTTT..P..GGG..T",
+      "T..FF...P....FF....P...FF..T",
+      "T.TTTT..PPPPPPPPPPPP.......T",
+      "EPPPPPPP.....PP.....PPPPPPPE",
+      "EPPPPPPP.....PP.....PPPPPPPE",
+      "T..GGGGGGG...PP...GGGGGGG..T",
+      "T..GGGGGGG..PPPP..GGGGGGG..T",
+      "T..GGGGGGG.PP..PP.GGGGGGG..T",
+      "T...FF.....P.FF.P.....FF...T",
+      "T.TTTT....PP....PP....TTTT.T",
+      "T.TTTT....PPPPPPPP....TTTT.T",
+      "T......GGGG..PP..GGGG......T",
+      "T......GGGG..PP..GGGG......T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'NORTHWEST', spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'SOUTHWEST', spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'SANCTUARY', spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'CENTER',    spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'botanist_elena', name: 'BOTANIST ELENA', topic: 'BOTANIST • PLANT SCIENCE', x: 13, y: 8,
+        skinColor: '#fed7aa', hatColor: '#84cc16', shirtColor: '#bef264',
+        fact: "BOTANIST ELENA: Xylem transports water upward from roots, Phloem distributes sugars, and Stomata are tiny leaf pores for gas exchange!"
+      },
+      {
+        id: 'entomologist_bugsy', name: 'ENTOMOLOGIST BUGSY', topic: 'ENTOMOLOGIST • ARTHROPODS', x: 9, y: 4,
+        skinColor: '#f5cba7', hatColor: '#65a30d', shirtColor: '#d9f99d',
+        fact: "ENTOMOLOGIST BUGSY: Adult insects have 6 legs, 3 body segments (head, thorax, abdomen), breathe through Spiracles/Tracheae, and have Chitin exoskeletons!"
+      },
+      {
+        id: 'farmer_giles', name: 'FARMER GILES', topic: 'FARMER • SOIL & MYCORRHIZA', x: 16, y: 4,
+        skinColor: '#a16236', hatColor: '#ca8a04', shirtColor: '#fef08a',
+        fact: "FARMER GILES: Mycorrhiza is a beneficial symbiotic relationship between plant roots and fungi that helps crops absorb water and minerals!"
+      },
+      {
+        id: 'carpenter_oakley', name: 'CARPENTER OAKLEY', topic: 'CARPENTER • CELLULOSE WALLS', x: 11, y: 12,
+        skinColor: '#5c3317', hatColor: '#92400e', shirtColor: '#fde68a',
+        fact: "CARPENTER OAKLEY: Rigid Cell Walls give wood its strength, and a Climax Community is the stable final stage of ecological succession!"
+      },
+      {
+        id: 'overworld_bulbasaur', name: 'FRIENDLY BULBASAUR', topic: 'OVERWORLD POKéMON • BOTANY', x: 15, y: 12,
+        isMonster: true, monsterId: 'bulbasaur',
+        fact: "BULBASAUR: ♪ Bulba-saur! ♪ (Angiosperms produce seeds enclosed within a fruit, and Chlorophyll absorbs light for photosynthesis!)"
+      }
+    ]
+  },
+
+  // (2,2) N: Slate Mountain • E: Scarlet Savanna • S: Golden Coast • W: Teal Forest
   CENTER: {
     id: 'CENTER',
-    name: 'PALLET RESEARCH HUB',
-    subtitle: 'N: MOUNTAIN • E: DESERT • S: BEACH • W: FOREST',
+    name: 'Beige Village',
+    subtitle: 'N: Slate Mountain • E: Scarlet Savanna • S: Golden Coast • W: Teal Forest',
     theme: { groundA: '#65a30d', groundB: '#6dab14', path: '#d6b37c', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e' },
-    encounters: ['pikachu', 'pidgey', 'rattata', 'eevee', 'chansey', 'ditto', 'porygon'],
+    encounters: ['pikachu', 'pidgey', 'rattata', 'eevee', 'chansey', 'ditto'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..FFFF..PPPPPPPPPP..FFFF..T",
@@ -100,80 +801,11 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 2. NORTH: MOUNTAIN
-  MOUNTAIN: {
-    id: 'MOUNTAIN',
-    name: 'CRAG MOUNTAIN PEAK (NORTH)',
-    subtitle: 'N: GLACIER • S: HUB • W: SKY PLATEAU • E: CANYON',
-    theme: { groundA: '#57534e', groundB: '#44403c', path: '#a8a29e', grass: '#3f6212', grassTip: '#a3e635', tree: '#292524', treeTop: '#78716c', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['clefairy', 'jigglypuff', 'zubat', 'machop', 'hitmonlee', 'hitmonchan', 'lucario'],
-    rows: [
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
-      "R..RRRR....PPPPPP....RRRR..R",
-      "R.GGGGGG...P....P...GGGGGG.R",
-      "R.GGGGGG..PP.FF.PP..GGGGGG.R",
-      "R.GGGGGG..P......P..GGGGGG.R",
-      "R...RR....PPPPPPPP....RR...R",
-      "R........PP......PP........R",
-      "R..GGGGPPP..RRRR..PPPGGGG..R",
-      "R..GGGGP...RRRRRR...PGGGG..R",
-      "EPPPPPPP...RRRRRR...PPPPPPPE",
-      "EPPPPPPP....RRRR....PPPPPPPE",
-      "R..RRR..PPPPPPPPPPPP..RRR..R",
-      "R..........PP..PP..........R",
-      "R.GGGGGGG..PP..PP..GGGGGGG.R",
-      "R.GGGGGGG..PP..PP..GGGGGGG.R",
-      "R.GGGGGGG.PPP..PPP.GGGGGGG.R",
-      "R.........P......P.........R",
-      "R..RRRR...PPPPPPPP...RRRR..R",
-      "R............PP............R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
-    ],
-    exits: {
-      north: { targetMap: 'GLACIER',   spawnX: 13, spawnY: 18 },
-      south: { targetMap: 'CENTER',    spawnX: 13, spawnY: 1 },
-      west:  { targetMap: 'NORTHWEST', spawnX: 26, spawnY: 9 },
-      east:  { targetMap: 'NORTHEAST', spawnX: 1,  spawnY: 9 }
-    },
-    npcs: [
-      {
-        id: 'geologist_cole', name: 'GEOLOGIST COLE', topic: 'GEOLOGIST • EARTH SCIENCE', x: 13, y: 5,
-        skinColor: '#a16236', hatColor: '#78350f', shirtColor: '#d97706',
-        fact: "GEOLOGIST COLE: Igneous rock formed from cooled lava on Earth's surface is called Extrusive rock, and Diamond rates a 10 on the Mohs hardness scale!"
-      },
-      {
-        id: 'fireman_bravo', name: 'CHIEF BRAVO', topic: 'FIREMAN • THERMODYNAMICS', x: 11, y: 11,
-        skinColor: '#fed7aa', hatColor: '#dc2626', shirtColor: '#fca5a5',
-        fact: "CHIEF BRAVO: Putting out fires is my job! Remember: Combustion rapidly combines oxygen with fuel, and the hottest part of a standard burner flame is Blue!"
-      },
-      {
-        id: 'runner_bolt', name: 'RUNNER BOLT', topic: 'RUNNER • AEROBIC RESPIRATION', x: 16, y: 11,
-        skinColor: '#e59866', hatColor: '#ef4444', shirtColor: '#fecaca',
-        fact: "RUNNER BOLT: Training at high altitude! During strenuous anaerobic sprinting, Lactic Acid (lactate) builds up in skeletal muscle tissue!"
-      },
-      {
-        id: 'overworld_clefairy', name: 'WILD CLEFAIRY', topic: 'OVERWORLD POKéMON • LUNAR', x: 14, y: 3,
-        isMonster: true, monsterId: 'clefairy',
-        fact: "CLEFAIRY: ♪ Clef-clef! ♪ (Clefairy dances under the mountain sky! The Moon's gravitational pull is the primary force driving Earth's ocean tides!)"
-      },
-      {
-      id: 'NO NAME', name: 'NO NAME', topic: 'JOBLESS • NOTHING TO LOSE', x: 26, y: 5,
-        skinColor: '#000000', hatColor: '#78350f', shirtColor: '#d97706',
-        fact: "NO NAME: Chines! Chines! Chines!(Slap with machete)"
-      },  
-      {
-      id: 'NO NAME', name: 'NO NAME', topic: 'JOBLESS • NOTHING TO LOSE', x: 25, y: 6,
-        skinColor: '#000000', hatColor: '#d97706', shirtColor: '#78350f',
-        fact: "NO NAME: Kwanza! Kwanza! Kwanza!(Pulls your poncho and throws it on the floor)"
-      }
-    ]
-  },
-
-  // 3. EAST: DESERT
+  // (2,3) N: Amber Desert • S: Bronze Reef • W: Beige Village • E: Silver Geyser
   DESERT: {
     id: 'DESERT',
-    name: 'SCORCHED MIRAGE DESERT (EAST)',
-    subtitle: 'W: HUB • E: VOLCANO • N: CANYON • S: ATOLL',
+    name: 'Scarlet Savanna',
+    subtitle: 'N: Amber Desert • S: Bronze Reef • W: Beige Village • E: Silver Geyser',
     theme: { groundA: '#d97706', groundB: '#b45309', path: '#fde68a', grass: '#9a3412', grassTip: '#fb923c', tree: '#15803d', treeTop: '#4ade80', rock: '#b45309', rockLight: '#fcd34d', rockDark: '#78350f' },
     encounters: ['sandshrew', 'diglett', 'mankey', 'doduo', 'cubone', 'rhyhorn'],
     rows: [
@@ -202,7 +834,7 @@ const WORLD_MAPS = {
       north: { targetMap: 'NORTHEAST', spawnX: 13, spawnY: 18 },
       south: { targetMap: 'SOUTHEAST', spawnX: 13, spawnY: 1 },
       west:  { targetMap: 'CENTER',    spawnX: 26, spawnY: 9 },
-      east:  { targetMap: 'VOLCANO',   spawnX: 1,  spawnY: 9 }
+      east:  { targetMap: 'ONSEN',     spawnX: 1,  spawnY: 9 }
     },
     npcs: [
       {
@@ -228,13 +860,196 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 4. SOUTH: BEACH
+  // (2,4) N: Gray Town • S: Crimson Volcano • W: Scarlet Savanna
+  ONSEN: {
+    id: 'ONSEN',
+    name: 'Silver Geyser',
+    subtitle: 'N: Gray Town • S: Crimson Volcano • W: Scarlet Savanna',
+    theme: { groundA: '#334155', groundB: '#475569', path: '#fed7aa', grass: '#0f766e', grassTip: '#5eead4', tree: '#7c2d12', treeTop: '#fb923c', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['vulpix', 'magmar', 'lickitung'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..SS..WWWW..PP..WWWW..SS..R",
+      "R.GGGG.WWWW.PPPP.WWWW.GGGG.R",
+      "R.GGGG......P..P......GGGG.R",
+      "R..SS..PPPPPP..PPPPPP..SS..R",
+      "R......P....S..S....P......R",
+      "R.WWWW.P..GGGGGGGG..P.WWWW.R",
+      "R.WWWW.P..GGGGGGGG..P.WWWW.R",
+      "R......P....S..S....P......R",
+      "EPPPPPPPPPPPPPPPPPPPP..SS..R",
+      "EPPPPPPPPPPPPPPPPPPPP......R",
+      "R..GGGG.....P..P.....GGGG..R",
+      "R..GGGG..SS.P..P.SS..GGGG..R",
+      "R..GGGG.....P..P.....GGGG..R",
+      "R........PPPPPPPPPP........R",
+      "R..WWWW..P........P..WWWW..R",
+      "R..WWWW..P..S..S..P..WWWW..R",
+      "R........PPPP..PPPP........R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'FOUNDRY', spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'VOLCANO', spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'DESERT',  spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'plumber_mario', name: 'PLUMBER MARIO', topic: 'PLUMBER • FLUID PRESSURE', x: 10, y: 4,
+        skinColor: '#fde68a', hatColor: '#dc2626', shirtColor: '#2563eb',
+        fact: "PLUMBER MARIO: Maintaining the hot spring pipes! Water boils at 100°C at standard pressure, and evaporation turns liquid water into steam!"
+      },
+      {
+        id: 'painter_ross', name: 'PAINTER ROSS', topic: 'PAINTER • PIGMENTS & STEAM', x: 17, y: 4,
+        skinColor: '#fed7aa', hatColor: '#f59e0b', shirtColor: '#f8fafc',
+        fact: "PAINTER ROSS: Painting happy little steam clouds! When warm moist air hits cool mountain air, water vapor condenses into visible mist!"
+      },
+      {
+        id: 'decorator_vera', name: 'DECORATOR VERA', topic: 'DECORATOR • MINERAL DESIGN', x: 8, y: 8,
+        skinColor: '#e59866', hatColor: '#a855f7', shirtColor: '#f3e8ff',
+        fact: "DECORATOR VERA: I designed this resort with Quartz and Granite tiles! Quartz is the most abundant mineral in Earth's continental crust!"
+      },
+      {
+        id: 'housekeeper_marta', name: 'HOUSEKEEPER MARTA', topic: 'HOUSEKEEPER • THERMAL CARE', x: 19, y: 9,
+        skinColor: '#a16236', hatColor: '#0284c7', shirtColor: '#e0f2fe',
+        fact: "HOUSEKEEPER MARTA: Fresh towels for the baths! The First Law of Thermodynamics states that energy cannot be created or destroyed—only transformed!"
+      },
+      {
+        id: 'janitor_scruffy', name: 'JANITOR GLENN', topic: 'JANITOR • SANITATION SCIENCE', x: 11, y: 14,
+        skinColor: '#784212', hatColor: '#15803d', shirtColor: '#86efac',
+        fact: "JANITOR GLENN: Scrubbing mineral deposits! Hard water contains dissolved Calcium and Magnesium ions picked up from underground Limestone!"
+      },
+      {
+        id: 'spy_bond', name: 'AGENT CIPHER (SPY)', topic: 'SPY • COVERT RECONNAISSANCE', x: 16, y: 14,
+        skinColor: '#ca8a5b', hatColor: '#0f172a', shirtColor: '#334155',
+        fact: "AGENT CIPHER: Shh—I'm undercover in the steam! Neutrinos are ghostly subatomic particles that pass right through solid matter almost undetected!"
+      }
+    ]
+  },
+
+  // ====================================================================
+  // ROW 3: ['KALOS_GROVE', 'SOUTHWEST', 'BEACH', 'SOUTHEAST', 'VOLCANO']
+  // ====================================================================
+
+  // (3,0) N: Magenta Shrubland • E: Emerald Swamp
+  KALOS_GROVE: {
+    id: 'KALOS_GROVE',
+    name: 'Jade Jungle',
+    subtitle: 'N: Magenta Shrubland • E: Emerald Swamp',
+    theme: { groundA: '#14532d', groundB: '#166534', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#052e16', treeTop: '#4ade80' },
+    encounters: ['chespin', 'fennekin', 'froakie','budew'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T..FF..GGGG..PP..GGGG..FF..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..FF.......P..P.......FF..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....F..F....PGGGG..T",
+      "T..GGGGP....FFFF....PGGGG..T",
+      "T......P..FFFFFFFF..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..GGGGP....F..F....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..FF.......P..P.......FF..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..FF..GGGG..PP..GGGG..FF..T",
+      "T............PP............T",
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'SANCTUARY', spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'SOUTHWEST', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'chef_auguste', name: 'CHEF AUGUSTE', topic: 'CULINARY SCIENTIST • MAILLARD', x: 13, y: 8,
+        skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#f8fafc',
+        fact: "CHEF AUGUSTE: Bon appétit! Welcome to the Kalos starter grove! Plants store solar energy as glucose carbohydrates in their chloroplasts!"
+      },
+      {
+        id: 'f1_racer_jonathan', name: 'F1 RACER JONATHAN', topic: 'F1 RACER • BUDSUM BUDDY', x: 7, y: 5,
+        skinColor: '#f5cba7', hatColor: '#dc2626', shirtColor: '#ffffff',
+        fact: "F1 RACER JONATHAN: Vroom! Vroom! I Love my buddy so much I named it Budsum!"
+      },
+      {
+        id: 'budsum_budew', name: 'BUDSUM (BUDEW)', topic: 'PARTNER POKéMON • BUDEW', x: 8, y: 5,
+        isMonster: true, monsterId: 'budew',
+        fact: "BUDSUM THE BUDEW: I love Jonathan too. Budew~ Budew~ <3"
+      }
+    ]
+  },
+
+  // (3,1) N: Teal Forest • S: Purple Woods • W: Jade Jungle • E: Golden Coast
+  SOUTHWEST: {
+    id: 'SOUTHWEST',
+    name: 'Emerald Swamp',
+    subtitle: 'N: Teal Forest • S: Purple Woods • W: Jade Jungle • E: Golden Coast',
+    theme: { groundA: '#134e4a', groundB: '#115e59', path: '#99f6e4', grass: '#065f46', grassTip: '#34d399', tree: '#042f2e', treeTop: '#0d9488' },
+    encounters: ['paras', 'venonat', 'tangela', 'grimer'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
+      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
+      "T..MM...GGGG.PP.GGGG...MM..T",
+      "T..GGG..PPPPPPPPPPPP..GGG..T",
+      "T..GGG..P..MMMMMM..P..GGG..T",
+      "T..GGG..P..MMMMMM..P..GGG..T",
+      "T.......P....FF....P.......T",
+      "T.TTTT..PPPPPPPPPPPP.......T",
+      "EPPPPPPPPPPPPPPPP...PPPPPPPE",
+      "EPPPPPPPPPPPPPPPP...PPPPPPPE",
+      "T..GGGGGGG...PP...GGGGGGG..T",
+      "T..GGGGGGG..PPPP..GGGGGGG..T",
+      "T..GGGGGGG.PP..PP.GGGGGGG..T",
+      "T...MM.....P.FF.P.....MM...T",
+      "T.TTTT....PP....PP....TTTT.T",
+      "T.TTTT....PPPPPPPP....TTTT.T",
+      "T......GGGG..PP..GGGG......T",
+      "T......GGGG..PP..GGGG......T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'FOREST',      spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'BRAMBLE',     spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'KALOS_GROVE', spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'BEACH',       spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'painter_monet', name: 'PAINTER MONET', topic: 'PAINTER • IMPRESSIONISM', x: 10, y: 8,
+        skinColor: '#fde68a', hatColor: '#ec4899', shirtColor: '#fbcfe8',
+        fact: "PAINTER MONET: Underground layers of water-bearing permeable rock are called Aquifers! And Iodine deficiency causes Goiter!"
+      },
+      {
+        id: 'fashion_designer_coco', name: 'DESIGNER COCO', topic: 'FASHION DESIGNER • TEXTILES', x: 15, y: 8,
+        skinColor: '#a16236', hatColor: '#be185d', shirtColor: '#fbcfe8',
+        fact: "DESIGNER COCO: Severe dietary protein deficiency causes Kwashiorkor, while Niacin (Vitamin B3) deficiency causes Pellagra!"
+      },
+      {
+        id: 'graphic_designer_saul', name: 'DESIGNER SAUL', topic: 'GRAPHIC DESIGNER • COLOR THEORY', x: 13, y: 12,
+        skinColor: '#fed7aa', hatColor: '#7c3aed', shirtColor: '#ddd6fe',
+        fact: "DESIGNER SAUL: In traditional subtractive pigment mixing, Red, Yellow, and Blue are the primary colors!"
+      },
+      {
+        id: 'psychopath_rafiki', name: 'PSYCHOPATH RAFIKI', topic: 'FROM FAR FAR AWAY • MANDRILL', x: 2, y: 3,
+        skinColor: '#555555', hatColor: '#7c3aed', shirtColor: '#ddd6fe',
+        fact: "PSYCHOPATH RAFIKI: Did you know? A psychopath gives birth to another psychopath without the birds and the bees! That is the circle of psychopathic life."
+      }
+    ]
+  },
+
+  // (3,2) N: Beige Village • S: Navy Abyss • W: Emerald Swamp • E: Bronze Reef
   BEACH: {
     id: 'BEACH',
-    name: 'CORAL LAGOON BEACH (SOUTH)',
-    subtitle: 'N: HUB • S: ABYSS • W: MARSH • E: ATOLL',
+    name: 'Golden Coast',
+    subtitle: 'N: Beige Village • S: Navy Abyss • W: Emerald Swamp • E: Bronze Reef',
     theme: { groundA: '#fde047', groundB: '#facc15', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['squirtle', 'psyduck', 'poliwag', 'krabby', 'omanyte', 'kabuto'],
+    encounters: ['squirtle', 'psyduck', 'poliwag', 'krabby'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..K........PPPP........K..T",
@@ -287,255 +1102,13 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 5. WEST: FOREST
-  FOREST: {
-    id: 'FOREST',
-    name: 'VIRIDIAN CANOPY FOREST (WEST)',
-    subtitle: 'E: HUB • W: SANCTUARY • N: SKY PLATEAU • S: MARSH',
-    theme: { groundA: '#3f6212', groundB: '#365314', path: '#a16207', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d' },
-    encounters: ['bulbasaur', 'caterpie', 'weedle', 'oddish', 'bellsprout', 'exeggcute', 'chansey'],
-    rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
-      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
-      "T..FF...GGGG.PP.GGGG...FF..T",
-      "T..GGG..PPPPPPPPPPPP..GGG..T",
-      "T..GGG..P..TTTTTT..P..GGG..T",
-      "T..GGG..P..TTTTTT..P..GGG..T",
-      "T..FF...P....FF....P...FF..T",
-      "T.TTTT..PPPPPPPPPPPP.......T",
-      "EPPPPPPP.....PP.....PPPPPPPE",
-      "EPPPPPPP.....PP.....PPPPPPPE",
-      "T..GGGGGGG...PP...GGGGGGG..T",
-      "T..GGGGGGG..PPPP..GGGGGGG..T",
-      "T..GGGGGGG.PP..PP.GGGGGGG..T",
-      "T...FF.....P.FF.P.....FF...T",
-      "T.TTTT....PP....PP....TTTT.T",
-      "T.TTTT....PPPPPPPP....TTTT.T",
-      "T......GGGG..PP..GGGG......T",
-      "T......GGGG..PP..GGGG......T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
-    ],
-    exits: {
-      north: { targetMap: 'NORTHWEST', spawnX: 13, spawnY: 18 },
-      south: { targetMap: 'SOUTHWEST', spawnX: 13, spawnY: 1 },
-      east:  { targetMap: 'CENTER',    spawnX: 1,  spawnY: 9 },
-      west:  { targetMap: 'SANCTUARY', spawnX: 26, spawnY: 9 }
-    },
-    npcs: [
-      {
-        id: 'botanist_elena', name: 'BOTANIST ELENA', topic: 'BOTANIST • PLANT SCIENCE', x: 13, y: 8,
-        skinColor: '#fed7aa', hatColor: '#84cc16', shirtColor: '#bef264',
-        fact: "BOTANIST ELENA: Xylem transports water upward from roots, Phloem distributes sugars, and Stomata are tiny leaf pores for gas exchange!"
-      },
-      {
-        id: 'entomologist_bugsy', name: 'ENTOMOLOGIST BUGSY', topic: 'ENTOMOLOGIST • ARTHROPODS', x: 9, y: 4,
-        skinColor: '#f5cba7', hatColor: '#65a30d', shirtColor: '#d9f99d',
-        fact: "ENTOMOLOGIST BUGSY: Adult insects have 6 legs, 3 body segments (head, thorax, abdomen), breathe through Spiracles/Tracheae, and have Chitin exoskeletons!"
-      },
-      {
-        id: 'farmer_giles', name: 'FARMER GILES', topic: 'FARMER • SOIL & MYCORRHIZA', x: 16, y: 4,
-        skinColor: '#a16236', hatColor: '#ca8a04', shirtColor: '#fef08a',
-        fact: "FARMER GILES: Mycorrhiza is a beneficial symbiotic relationship between plant roots and fungi that helps crops absorb water and minerals!"
-      },
-      {
-        id: 'carpenter_oakley', name: 'CARPENTER OAKLEY', topic: 'CARPENTER • CELLULOSE WALLS', x: 11, y: 12,
-        skinColor: '#5c3317', hatColor: '#92400e', shirtColor: '#fde68a',
-        fact: "CARPENTER OAKLEY: Rigid Cell Walls give wood its strength, and a Climax Community is the stable final stage of ecological succession!"
-      },
-      {
-        id: 'overworld_bulbasaur', name: 'FRIENDLY BULBASAUR', topic: 'OVERWORLD POKéMON • BOTANY', x: 15, y: 12,
-        isMonster: true, monsterId: 'bulbasaur',
-        fact: "BULBASAUR: ♪ Bulba-saur! ♪ (Angiosperms produce seeds enclosed within a fruit, and Chlorophyll absorbs light for photosynthesis!)"
-      }
-    ]
-  },
-
-  // 6. NORTHWEST: ALPINE SKY PLATEAU
-  NORTHWEST: {
-    id: 'NORTHWEST',
-    name: 'ALPINE SKY PLATEAU (NORTHWEST)',
-    subtitle: 'E: CRAG MOUNTAIN • S: VIRIDIAN FOREST',
-    theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#15803d', grassTip: '#86efac', tree: '#1e293b', treeTop: '#38bdf8', rock: '#64748b', rockLight: '#cbd5e1', rockDark: '#334155' },
-    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir', 'aerodactyl'],
-    rows: [
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..TTTT....PPPPPP....TTTT..R",
-      "R.GGGGGG...P....P...GGGGGG.R",
-      "R.GGGGGG..PP.FF.PP..GGGGGG.R",
-      "R.GGGGGG..P......P..GGGGGG.R",
-      "R.........PPPPPPPP.........R",
-      "R........PP......PP........R",
-      "R..GGGGPPP..WWWW..PPPGGGG..R",
-      "R..GGGGP...WWWWWW...PGGGG..R",
-      "R..GGGGP...WWWWWW...PPPPPPPE",
-      "R......PP...WWWW....PPPPPPPE",
-      "R..RRR..PPPPPPPPPPPP..RRR..R",
-      "R..........PP..PP..........R",
-      "R.GGGGGGG..PP..PP..GGGGGGG.R",
-      "R.GGGGGGG..PP..PP..GGGGGGG.R",
-      "R.GGGGGGG.PPP..PPP.GGGGGGG.R",
-      "R.........P......P.........R",
-      "R..RRRR...PPPPPPPP...RRRR..R",
-      "R............PP............R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
-    ],
-    exits: {
-      east:  { targetMap: 'MOUNTAIN', spawnX: 1,  spawnY: 9 },
-      south: { targetMap: 'FOREST',   spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'pilot_amelia', name: 'PILOT AMELIA', topic: 'PILOT • AERODYNAMICS', x: 11, y: 5,
-        skinColor: '#fde68a', hatColor: '#1e3a8a', shirtColor: '#93c5fd',
-        fact: "PILOT AMELIA: Four forces govern flight: Lift pushes upward, Gravity pulls down, Thrust propels forward, and Drag resists motion! Bernoulli's principle explains wing lift!"
-      },
-      {
-        id: 'flight_attendant_sky', name: 'ATTENDANT SKY', topic: 'FLIGHT ATTENDANT • ATMOSPHERE', x: 16, y: 5,
-        skinColor: '#fed7aa', hatColor: '#3b82f6', shirtColor: '#dbeafe',
-        fact: "ATTENDANT SKY: Weather occurs in the Troposphere, while commercial jets often cruise in the lower Stratosphere near the Jet Stream!"
-      },
-      {
-        id: 'cyclist_lance', name: 'CYCLIST LANCE', topic: 'CYCLIST • BIOMECHANICS', x: 13, y: 11,
-        skinColor: '#ca8a5b', hatColor: '#f59e0b', shirtColor: '#fde68a',
-        fact: "CYCLIST LANCE: Tendons connect skeletal muscles to bones, while Ligaments connect bones to other bones at your joints!"
-      },
-      {
-        id: 'cosmologist_stephen', name: 'COSMOLOGIST STEPHEN', topic: 'COSMOLOGIST • UNIVERSE', x: 9, y: 15,
-        skinColor: '#784212', hatColor: '#5f7478', shirtColor: '#4d5354',
-        fact: "COSMOLOGIST STEPHEN: Did you know? 63 Earths can fit inside Uranus! And did you know? Uranus surface smells like rotten eggs due to hydrogen sulfide clouds. I have always wanted to have a closer look at Uranus."
-      },
-      {
-        id: 'cop_branco', name: 'COP BRANCO', topic: 'ARMED • JUSTICE', x: 18, y: 1,
-        skinColor: '#000000', hatColor: '#5f7478', shirtColor: '#4d5354',
-        fact: "COP BRANCO: If I see those jerks, I will shoot them dead for you."
-      }
-    ]
-  },
-
-  // 7. NORTHEAST: BADLANDS CANYON QUARRY
-  NORTHEAST: {
-    id: 'NORTHEAST',
-    name: 'BADLANDS CANYON QUARRY (NORTHEAST)',
-    subtitle: 'W: CRAG MOUNTAIN • S: MIRAGE DESERT • E: DYNAMO WORKS',
-    theme: { groundA: '#78350f', groundB: '#92400e', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#451a03', treeTop: '#d97706', rock: '#92400e', rockLight: '#fbbf24', rockDark: '#451a03' },
-    encounters: ['geodude', 'onix', 'voltorb', 'magnemite', 'electabuzz'],
-    rows: [
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R....GGGG..........GGGG....R",
-      "R...GGGGGG..RRRR..GGGGGG...R",
-      "R...GGGGGG........GGGGGG...R",
-      "R...........PPPP...........R",
-      "R..RRR.....PP..PP.....RRR..R",
-      "R.........PP....PP.........R",
-      "R..GGGG..PP..FF..PP..GGGG..R",
-      "R..GGGG.PP...FF...PP.GGGG..R",
-      "EPPPPPPPP..........PPPPPPPPE",
-      "EPPPPPPPP..........PPPPPPPPE",
-      "R..GGGG..PPPPPPPPPP..GGGG..R",
-      "R..GGGG......PP......GGGG..R",
-      "R............PP............R",
-      "R...RRR.....PPPP.....RRR...R",
-      "R..........PP..PP..........R",
-      "R..GGGGGG..P....P..GGGGGG..R",
-      "R..GGGGGG..PPPPPP..GGGGGG..R",
-      "R............PP............R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
-    ],
-    exits: {
-      west:  { targetMap: 'MOUNTAIN', spawnX: 26, spawnY: 9 },
-      south: { targetMap: 'DESERT',   spawnX: 13, spawnY: 1 },
-      east:  { targetMap: 'FOUNDRY',  spawnX: 1,  spawnY: 9 }
-    },
-    npcs: [
-      {
-        id: 'blacksmith_ferris', name: 'BLACKSMITH FERRIS', topic: 'BLACKSMITH • METALLURGY', x: 11, y: 11,
-        skinColor: '#a16236', hatColor: '#1f2937', shirtColor: '#9ca3af',
-        fact: "BLACKSMITH FERRIS: Steel is an alloy of Iron (Fe) and Carbon! Quenching cools hot steel rapidly to increase hardness, while Tempering relieves internal stress!"
-      },
-      {
-        id: 'sculptor_rodin', name: 'SCULPTOR RODIN', topic: 'SCULPTOR • MINERALOGY', x: 16, y: 11,
-        skinColor: '#e59866', hatColor: '#78716c', shirtColor: '#e7e5e4',
-        fact: "SCULPTOR RODIN: Basalt is a dark, fine-grained igneous rock that makes up most oceanic crust, while Granite is coarse-grained continental rock!"
-      },
-      {
-        id: 'product_designer_jony', name: 'DESIGNER JONY', topic: 'PRODUCT DESIGNER • MATERIALS', x: 13, y: 4,
-        skinColor: '#fed7aa', hatColor: '#1e293b', shirtColor: '#e2e8f0',
-        fact: "DESIGNER JONY: Ductility describes a material's ability to deform under tensile stress without fracturing, while Chromium makes stainless steel corrosion-resistant!"
-      },
-      {
-      id: 'policeman_nero', name: 'POLICEMAN NERO', topic: 'POLICE • CORRUPTED', x: 26, y: 14,
-        skinColor: '#000000', hatColor: '#1e293b', shirtColor: '#e7e5e4',
-        fact: "POLICEMAN NERO: I know you lost your phones, passports and computer. Now you can pay for my taxi :)"
-      },  
-    ]
-  },
-
-  // 8. SOUTHWEST: MANGROVE SWAMP MARSH
-  SOUTHWEST: {
-    id: 'SOUTHWEST',
-    name: 'MANGROVE SWAMP MARSH (SOUTHWEST)',
-    subtitle: 'N: VIRIDIAN FOREST • E: CORAL BEACH • S: SPORE FEN',
-    theme: { groundA: '#134e4a', groundB: '#115e59', path: '#99f6e4', grass: '#065f46', grassTip: '#34d399', tree: '#042f2e', treeTop: '#0d9488' },
-    encounters: ['paras', 'venonat', 'tangela', 'ekans', 'grimer', 'koffing'],
-    rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
-      "T.TTTT..GGGG.PP.GGGG..TTTT.T",
-      "T..MM...GGGG.PP.GGGG...MM..T",
-      "T..GGG..PPPPPPPPPPPP..GGG..T",
-      "T..GGG..P..MMMMMM..P..GGG..T",
-      "T..GGG..P..MMMMMM..P..GGG..T",
-      "T.......P....FF....P.......T",
-      "T.TTTT..PPPPPPPPPPPP.......T",
-      "T.TTTT.......PP.....PPPPPPPE",
-      "T..MM........PP.....PPPPPPPE",
-      "T..GGGGGGG...PP...GGGGGGG..T",
-      "T..GGGGGGG..PPPP..GGGGGGG..T",
-      "T..GGGGGGG.PP..PP.GGGGGGG..T",
-      "T...MM.....P.FF.P.....MM...T",
-      "T.TTTT....PP....PP....TTTT.T",
-      "T.TTTT....PPPPPPPP....TTTT.T",
-      "T......GGGG..PP..GGGG......T",
-      "T......GGGG..PP..GGGG......T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
-    ],
-    exits: {
-      north: { targetMap: 'FOREST',  spawnX: 13, spawnY: 18 },
-      east:  { targetMap: 'BEACH',   spawnX: 1,  spawnY: 9 },
-      south: { targetMap: 'BRAMBLE', spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'painter_monet', name: 'PAINTER MONET', topic: 'PAINTER • IMPRESSIONISM', x: 10, y: 8,
-        skinColor: '#fde68a', hatColor: '#ec4899', shirtColor: '#fbcfe8',
-        fact: "PAINTER MONET: Underground layers of water-bearing permeable rock are called Aquifers! And Iodine deficiency causes Goiter!"
-      },
-      {
-        id: 'fashion_designer_coco', name: 'DESIGNER COCO', topic: 'FASHION DESIGNER • TEXTILES', x: 15, y: 8,
-        skinColor: '#a16236', hatColor: '#be185d', shirtColor: '#fbcfe8',
-        fact: "DESIGNER COCO: Severe dietary protein deficiency causes Kwashiorkor, while Niacin (Vitamin B3) deficiency causes Pellagra!"
-      },
-      {
-        id: 'graphic_designer_saul', name: 'DESIGNER SAUL', topic: 'GRAPHIC DESIGNER • COLOR THEORY', x: 13, y: 12,
-        skinColor: '#fed7aa', hatColor: '#7c3aed', shirtColor: '#ddd6fe',
-        fact: "DESIGNER SAUL: In traditional subtractive pigment mixing, Red, Yellow, and Blue are the primary colors!"
-      },
-      {
-        id: 'psychopath_rafiki', name: 'PSYCHOPATH RAFIKI', topic: 'FROM FAR FAR AWAY • MANDRILL', x: 2, y: 3,
-        skinColor: '#555555', hatColor: '#7c3aed', shirtColor: '#ddd6fe',
-        fact: "PSYCHOPATH RAFIKI: Did you know? A psychopath gives birth to another psychopath without the birds and the bees! That is the circle of psychopathic life."
-      }
-    ]
-  },
-
-  // 9. SOUTHEAST: SUNKEN TRADE ATOLL
+  // (3,3) N: Scarlet Savanna • S: Obsidian Urban • W: Golden Coast • E: Crimson Volcano
   SOUTHEAST: {
     id: 'SOUTHEAST',
-    name: 'SUNKEN TRADE ATOLL (SOUTHEAST)',
-    subtitle: 'N: MIRAGE DESERT • W: CORAL BEACH • E: MIRADOURO DA LUA',
+    name: 'Bronze Reef',
+    subtitle: 'N: Scarlet Savanna • S: Obsidian Urban • W: Golden Coast • E: Crimson Volcano',
     theme: { groundA: '#f59e0b', groundB: '#d97706', path: '#fef3c7', grass: '#0284c7', grassTip: '#38bdf8', tree: '#15803d', treeTop: '#4ade80' },
-    encounters: ['tentacool', 'staryu', 'meowth', 'snorlax', 'kangaskhan', 'tauros'],
+    encounters: ['tentacool', 'staryu', 'meowth', 'snorlax', 'kangaskhan'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..K........PPPP........K..T",
@@ -554,14 +1127,15 @@ const WORLD_MAPS = {
       "TWWWWWWWW...PPPP...WWWWWWWWT",
       "TWWWWWWWK..GGGGGG..KWWWWWWWT",
       "TWWWWWWWK..GGGGGG..KWWWWWWWT",
-      "TWWWWWWWW..........WWWWWWWWT",
+      "TWWWWWWWW...PPPP...WWWWWWWWT",
       "TWWWWWWWWWWWWBBWWWWWWWWWWWWT",
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
     ],
     exits: {
-      north: { targetMap: 'DESERT',        spawnX: 13, spawnY: 18 },
-      west:  { targetMap: 'BEACH',         spawnX: 26, spawnY: 9 },
-      south: { targetMap: 'MIRADOURO_LUA', spawnX: 13, spawnY: 1 }
+      north: { targetMap: 'DESERT',       spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'SHADOW_ALLEY', spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'BEACH',        spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'VOLCANO',      spawnX: 1,  spawnY: 9 }
     },
     npcs: [
       {
@@ -602,59 +1176,13 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 10. FAR NORTH: GLACIER
-  GLACIER: {
-    id: 'GLACIER',
-    name: 'ARCTIC GLACIER PEAK (FAR NORTH)',
-    subtitle: 'S: CRAG MOUNTAIN • SUBZERO PERMAFROST',
-    theme: { groundA: '#bae6fd', groundB: '#7dd3fc', path: '#f0f9ff', grass: '#0284c7', grassTip: '#e0f2fe', tree: '#0f172a', treeTop: '#38bdf8' },
-    encounters: ['seel', 'shellder', 'jynx', 'lapras'],
-    rows: [
-      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
-      "I..IIII....PPPPPP....IIII..I",
-      "I.GGGGGG...P....P...GGGGGG.I",
-      "I.GGGGGG..PP.FF.PP..GGGGGG.I",
-      "I.GGGGGG..P......P..GGGGGG.I",
-      "I.........PPPPPPPP.........I",
-      "I........PP......PP........I",
-      "I..GGGGPPP..IIII..PPPGGGG..I",
-      "I..GGGGP...IIIIII...PGGGG..I",
-      "I..GGGGP...IIIIII...PGGGG..I",
-      "I......PP...IIII...PP......I",
-      "I..III..PPPPPPPPPPPP..III..I",
-      "I..........PP..PP..........I",
-      "I.GGGGGGG..PP..PP..GGGGGGG.I",
-      "I.GGGGGGG..PP..PP..GGGGGGG.I",
-      "I.GGGGGGG.PPP..PPP.GGGGGGG.I",
-      "I.........P......P.........I",
-      "I..IIII...PPPPPPPP...IIII..I",
-      "I............PP............I",
-      "IIIIIIIIIIIIIEEIIIIIIIIIIIII"
-    ],
-    exits: {
-      south: { targetMap: 'MOUNTAIN', spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'biathlete_sven', name: 'BIATHLETE SVEN', topic: 'BIATHLETE • GLACIOLOGY', x: 13, y: 5,
-        skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#bae6fd',
-        fact: "BIATHLETE SVEN: Cross-country skiing and marksmanship! Ground that remains at or below 0°C for two or more consecutive years is called Permafrost!"
-      },
-      {
-        id: 'overworld_articuno', name: 'ARTICUNO', topic: 'LEGENDARY POKéMON • HEXAGONAL ICE', x: 13, y: 3,
-        isMonster: true, monsterId: 'articuno', isLegendary: true,
-        fact: "ARTICUNO: ★ Kyaaah! ★ (Ordinary water ice forms a Hexagonal crystal structure at standard atmospheric pressure, and Antarctica holds most of Earth's glacial ice!)"
-      }
-    ]
-  },
-
-  // 11. FAR EAST: VOLCANO
+  // (3,4) N: Silver Geyser • W: Bronze Reef
   VOLCANO: {
     id: 'VOLCANO',
-    name: 'MAGMA CALDERA CORE (FAR EAST)',
-    subtitle: 'W: MIRAGE DESERT • N: MISTVEIL ONSEN • IGNEOUS CRATER',
+    name: 'Crimson Volcano',
+    subtitle: 'N: Silver Geyser • W: Bronze Reef',
     theme: { groundA: '#450a0a', groundB: '#7f1d1d', path: '#fca5a5', grass: '#991b1b', grassTip: '#f97316', tree: '#1c1917', treeTop: '#dc2626', rock: '#450a0a', rockLight: '#ef4444', rockDark: '#1c1917' },
-    encounters: ['charmander', 'vulpix', 'growlithe', 'ponyta'],
+    encounters: ['charmander', 'growlithe', 'ponyta'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..LLGGGG....PP....GGGGLL..R",
@@ -678,8 +1206,8 @@ const WORLD_MAPS = {
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
     exits: {
-      west:  { targetMap: 'DESERT', spawnX: 26, spawnY: 9 },
-      north: { targetMap: 'ONSEN',  spawnX: 13, spawnY: 18 }
+      north: { targetMap: 'ONSEN',     spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'SOUTHEAST', spawnX: 26, spawnY: 9 }
     },
     npcs: [
       {
@@ -708,9 +1236,14 @@ const WORLD_MAPS = {
         fact: "B-BOY SPIN: Molten rock underground is Magma, and once it erupts onto the surface it's Lava! Subduction occurs when one tectonic plate sinks under another!"
       },
       {
-        id: 'overworld_moltres', name: 'MOLTRES', topic: 'LEGENDARY POKéMON • THERMODYNAMICS', x: 14, y: 3,
+        id: 'overworld_moltres', name: 'MOLTRES', topic: 'LEGENDARY POKéMON • THERMODYNAMICS', x: 13, y: 4,
         isMonster: true, monsterId: 'moltres', isLegendary: true,
-        fact: "MOLTRES: ★ Gyaoooh! ★ (An Endothermic reaction absorbs heat from its surroundings, while an Exothermic reaction releases heat!)"
+        fact: "MOLTRES: Gyaoooh! (An Endothermic reaction absorbs heat from its surroundings, while an Exothermic reaction releases heat!)"
+      },
+      {
+        id: 'overworld_groudon', name: 'GROUDON', topic: 'LEGENDARY POKéMON • TECTONIC PLATES', x: 16, y: 11,
+        isMonster: true, monsterId: 'groudon', isLegendary: true,
+        fact: "GROUDON: Grraaah! (Groudon shaped the continents! Orogeny is the geological process where tectonic plate compression builds mountain ranges!)"
       },
       {
         id: 'homeless_nobody', name: 'HOMELESS NOBODY', topic: 'STRANDED • REFUGEE', x: 26, y: 16,
@@ -720,266 +1253,59 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 12. FAR SOUTH: ABYSS
-  ABYSS: {
-    id: 'ABYSS',
-    name: 'TRENCH CORAL ABYSS (FAR SOUTH)',
-    subtitle: 'N: CORAL LAGOON BEACH • DEEP OCEAN CURRENTS',
-    theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7', rock: '#1e293b', rockLight: '#64748b', rockDark: '#020617' },
-    encounters: ['horsea', 'goldeen', 'magikarp', 'slowpoke', 'dratini'],
-    rows: [
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
-      "R..K........PPPP........K..R",
-      "R..GGGGGG...PPPP...GGGGGG..R",
-      "R..GGGGGG....PP....GGGGGG..R",
-      "R..GGGGGG...PPPP...GGGGGG..R",
-      "R..........PP..PP..........R",
-      "R..WWWW...PP....PP...WWWW..R",
-      "R..KKKK..PPPPPPPPPP..KKKK..R",
-      "R..GGGG......PP......GGGG..R",
-      "R..GGGG......PP......GGGG..R",
-      "R............BB............R",
-      "RWWWWWWWWKKKKBBKKKKWWWWWWWWR",
-      "RWWWWWWWWWWWWBBWWWWWWWWWWWWR",
-      "RWWWWWWWWWWWWBBWWWWWWWWWWWWR",
-      "RWWWWWWWW...PPPP...WWWWWWWWR",
-      "RWWWWWWWK..GGGGGG..KWWWWWWWR",
-      "RWWWWWWWK..GGGGGG..KWWWWWWWR",
-      "RWWWWWWWW..........WWWWWWWWR",
-      "RWWWWWWWWWWWWWWWWWWWWWWWWWWR",
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
-    ],
-    exits: {
-      north: { targetMap: 'BEACH', spawnX: 13, spawnY: 18 }
-    },
-    npcs: [
-      {
-        id: 'scuba_diver_cousteau', name: 'DIVER COUSTEAU', topic: 'SCUBA DIVER • THERMOHALINE', x: 13, y: 7,
-        skinColor: '#e59866', hatColor: '#0284c7', shirtColor: '#38bdf8',
-        fact: "DIVER COUSTEAU: Thermohaline circulation is the global deep-ocean conveyor belt driven by differences in water temperature and salinity!"
-      },
-      {
-        id: 'overworld_zapdos', name: 'ZAPDOS', topic: 'LEGENDARY POKéMON • BIOELECTRICITY', x: 13, y: 15,
-        isMonster: true, monsterId: 'zapdos', isLegendary: true,
-        fact: "ZAPDOS: ★ Zzaaap! ★ (Saltwater conducts electricity because dissolved sodium and chloride ions are free to move and carry electric charge!)"
-      }
-    ]
-  },
+  // ====================================================================
+  // ROW 4: ['SUNKEN_RUINS', 'BRAMBLE', 'ABYSS', 'SHADOW_ALLEY', 'MOON']
+  // ====================================================================
 
-  // 13. FAR WEST: SANCTUARY
-  SANCTUARY: {
-    id: 'SANCTUARY',
-    name: 'MYSTIC RUIN SANCTUARY (FAR WEST)',
-    subtitle: 'E: VIRIDIAN FOREST • N: CELESTIAL SPIRE • MYTH & COSMOS',
-    theme: { groundA: '#2e1065', groundB: '#3b0764', path: '#c084fc', grass: '#4c1d95', grassTip: '#e879f9', tree: '#090d16', treeTop: '#7e22ce', rock: '#4c1d95', rockLight: '#c084fc', rockDark: '#1e1b4b' },
-    encounters: ['abra', 'gastly', 'drowzee', 'nidoran_f', 'nidoran_m', 'mr_mime'],
-    rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T.RRRR..GGGG.PP.GGGG..RRRR.T",
-      "T.RRRR..GGGG.PP.GGGG..RRRR.T",
-      "T..FF...GGGG.PP.GGGG...FF..T",
-      "T..GGG..PPPPPPPPPPPP..GGG..T",
-      "T..GGG..P..RRRRRR..P..GGG..T",
-      "T..GGG..P..RRRRRR..P..GGG..T",
-      "T..FF...P....FF....P...FF..T",
-      "T.RRRR..PPPPPPPPPPPP.......T",
-      "T.RRRR.......PP.....PPPPPPPE",
-      "T............PP.....PPPPPPPE",
-      "T..GGGGGGG...PP...GGGGGGG..T",
-      "T..GGGGGGG..PPPP..GGGGGGG..T",
-      "T..GGGGGGG.PP..PP.GGGGGGG..T",
-      "T...FF.....P.FF.P.....FF...T",
-      "T.RRRR....PP....PP....RRRR.T",
-      "T.RRRR....PPPPPPPP....RRRR.T",
-      "T......GGGG......GGGG......T",
-      "T......GGGG......GGGG......T",
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
-    ],
-    exits: {
-      east:  { targetMap: 'FOREST', spawnX: 1,  spawnY: 9 },
-      north: { targetMap: 'SPIRE',  spawnX: 13, spawnY: 18 }
-    },
-    npcs: [
-      {
-        id: 'priest_gabriel', name: 'PRIEST GABRIEL', topic: 'PRIEST • VITAMIN K & HEALING', x: 9, y: 4,
-        skinColor: '#fed7aa', hatColor: '#f8fafc', shirtColor: '#fde047',
-        fact: "PRIEST GABRIEL: Peace be with you! Remember: if the human body lacks Vitamin K, blood clotting and bleeding disorders will develop!"
-      },
-      {
-        id: 'monk_tenzin', name: 'MONK TENZIN', topic: 'MONK • MINDFULNESS & BRAIN', x: 16, y: 4,
-        skinColor: '#ca8a5b', hatColor: '#f97316', shirtColor: '#fed7aa',
-        fact: "MONK TENZIN: Deep in the temporal lobe, the Hippocampus plays a major role in memory formation, while the Frontal Lobe governs reasoning!"
-      },
-      {
-        id: 'witch_morgana', name: 'WITCH MORGANA', topic: 'WITCH • FOLKLORE & FAE', x: 10, y: 8,
-        skinColor: '#fde68a', hatColor: '#581c87', shirtColor: '#d8b4fe',
-        fact: "WITCH MORGANA: A ring of mushrooms in woodland folklore is called a Fairy Ring! Hans Christian Andersen wrote 'The Little Mermaid', and the Brothers Grimm compiled 'Cinderella'!"
-      },
-      {
-        id: 'wizard_merlin', name: 'WIZARD MERLIN', topic: 'WIZARD • QUANTUM & COSMOS', x: 16, y: 8,
-        skinColor: '#f5cba7', hatColor: '#1d4ed8', shirtColor: '#93c5fd',
-        fact: "WIZARD MERLIN: Dark Matter makes up ~85% of the universe's mass, Dark Energy drives cosmic expansion, and the Event Horizon is a Black Hole's point of no return!"
-      },
-      {
-        id: 'overworld_mew', name: 'MYTHICAL MEW', topic: 'LEGENDARY POKéMON • GENETICS', x: 13, y: 12,
-        isMonster: true, monsterId: 'mew', isLegendary: true,
-        fact: "MEW: ★ Mew~ ★ (DNA carries genetic information using four nitrogenous bases: Adenine, Thymine, Cytosine, and Guanine!)"
-      },
-      {
-        id: 'human_ecologist_kim', name: 'HUMAN ECOLOGIST KIM', topic: 'HUMAN EXPERIMENTS • GATE OF TRUTH', x: 5, y: 17,
-        skinColor: '#f5cba7', hatColor: '#000000', shirtColor: '#555555',
-        fact: "HUMAN ECOLOGIST KIM: You kill some of them, they come back stronger. You kill them all, you end their pain. You keep them uneducated, they will keep killing each other, keep torturing each other, keep giving themselves a sustainable life in hell. That is the beauty of tragedy farming."
-      },
-    ]
-  },
-
-  // 14. MISTVEIL ONSEN BASIN (Uses Signature Obstacle S = Onsen Steam Geyser)
-  ONSEN: {
-    id: 'ONSEN',
-    name: 'MISTVEIL ONSEN BASIN',
-    subtitle: 'S: MAGMA CALDERA • THERMAL SPRINGS & STEAM GEYSERS',
-    theme: { groundA: '#334155', groundB: '#475569', path: '#fed7aa', grass: '#0f766e', grassTip: '#5eead4', tree: '#7c2d12', treeTop: '#fb923c', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['vulpix', 'growlithe', 'psyduck', 'poliwag', 'slowpoke'],
+  // (4,0) DETACHED CORNER — FLY ONLY
+  SUNKEN_RUINS: {
+    id: 'SUNKEN_RUINS',
+    name: 'Sapphire Ocean',
+    subtitle: 'DETACHED CORNER • ACCESSIBLE BY FLY ONLY',
+    theme: { groundA: '#083344', groundB: '#164e63', path: '#67e8f9', grass: '#0e7490', grassTip: '#22d3ee', tree: '#042f2e', treeTop: '#06b6d4', rock: '#155e75', rockLight: '#a5f3fc', rockDark: '#083344' },
+    encounters: ['omanyte', 'kabuto'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..SS..WWWW......WWWW..SS..R",
-      "R.GGGG.WWWW.PPPP.WWWW.GGGG.R",
-      "R.GGGG......P..P......GGGG.R",
-      "R..SS..PPPPPP..PPPPPP..SS..R",
-      "R......P....S..S....P......R",
-      "R.WWWW.P..GGGGGGGG..P.WWWW.R",
-      "R.WWWW.P..GGGGGGGG..P.WWWW.R",
-      "R......P....S..S....P......R",
-      "R..SS..PPPPPPPPPPPPPP..SS..R",
-      "R...........PPPP...........R",
-      "R..GGGG.....P..P.....GGGG..R",
-      "R..GGGG..SS.P..P.SS..GGGG..R",
-      "R..GGGG.....P..P.....GGGG..R",
-      "R........PPPPPPPPPP........R",
-      "R..WWWW..P........P..WWWW..R",
-      "R..WWWW..P..S..S..P..WWWW..R",
-      "R........PPPP..PPPP........R",
-      "R............PP............R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
-    ],
-    exits: {
-      south: { targetMap: 'VOLCANO', spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'plumber_mario', name: 'PLUMBER MARIO', topic: 'PLUMBER • FLUID PRESSURE', x: 10, y: 4,
-        skinColor: '#fde68a', hatColor: '#dc2626', shirtColor: '#2563eb',
-        fact: "PLUMBER MARIO: Maintaining the hot spring pipes! Water boils at 100°C at standard pressure, and evaporation turns liquid water into steam!"
-      },
-      {
-        id: 'painter_ross', name: 'PAINTER ROSS', topic: 'PAINTER • PIGMENTS & STEAM', x: 17, y: 4,
-        skinColor: '#fed7aa', hatColor: '#f59e0b', shirtColor: '#f8fafc',
-        fact: "PAINTER ROSS: Painting happy little steam clouds! When warm moist air hits cool mountain air, water vapor condenses into visible mist!"
-      },
-      {
-        id: 'decorator_vera', name: 'DECORATOR VERA', topic: 'DECORATOR • MINERAL DESIGN', x: 8, y: 9,
-        skinColor: '#e59866', hatColor: '#a855f7', shirtColor: '#f3e8ff',
-        fact: "DECORATOR VERA: I designed this resort with Quartz and Granite tiles! Quartz is the most abundant mineral in Earth's continental crust!"
-      },
-      {
-        id: 'housekeeper_marta', name: 'HOUSEKEEPER MARTA', topic: 'HOUSEKEEPER • THERMAL CARE', x: 19, y: 9,
-        skinColor: '#a16236', hatColor: '#0284c7', shirtColor: '#e0f2fe',
-        fact: "HOUSEKEEPER MARTA: Fresh towels for the baths! The First Law of Thermodynamics states that energy cannot be created or destroyed—only transformed!"
-      },
-      {
-        id: 'janitor_scruffy', name: 'JANITOR GLENN', topic: 'JANITOR • SANITATION SCIENCE', x: 11, y: 14,
-        skinColor: '#784212', hatColor: '#15803d', shirtColor: '#86efac',
-        fact: "JANITOR GLENN: Scrubbing mineral deposits! Hard water contains dissolved Calcium and Magnesium ions picked up from underground Limestone!"
-      },
-      {
-        id: 'spy_bond', name: 'AGENT CIPHER (SPY)', topic: 'SPY • COVERT RECONNAISSANCE', x: 16, y: 14,
-        skinColor: '#ca8a5b', hatColor: '#0f172a', shirtColor: '#334155',
-        fact: "AGENT CIPHER: Shh—I'm undercover in the steam! Neutrinos are ghostly subatomic particles that pass right through solid matter almost undetected!"
-      }
-    ]
-  },
-
-  // 15. DYNAMO ANVIL WORKS (Uses Signature Obstacle V = Tesla Coil Pylon)
-  FOUNDRY: {
-    id: 'FOUNDRY',
-    name: 'DYNAMO ANVIL WORKS',
-    subtitle: 'W: BADLANDS CANYON • HIGH-VOLTAGE MAGNETIC FORGE',
-    theme: { groundA: '#1e293b', groundB: '#334155', path: '#94a3b8', grass: '#ca8a04', grassTip: '#fef08a', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['pikachu', 'magnemite', 'voltorb', 'electabuzz', 'porygon'],
-    rows: [
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..VV..GGGG......GGGG..VV..R",
+      "R..KK..GGGG..PP..GGGG..KK..R",
       "R......GGGG.PPPP.GGGG......R",
-      "R..VV.......P..P.......VV..R",
+      "R..KK.......P..P.......KK..R",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....V..V....PGGGG..R",
+      "R..GGGGP....K..K....PGGGG..R",
+      "R..GGGGP....WWWW....PGGGG..R",
+      "R......P..KKWWWWKK..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPP...........R",
+      "R...........PPPP...........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....K..K....PGGGG..R",
       "R..GGGGP............PGGGG..R",
-      "R......P..VV....VV..P......R",
       "R......PPPPPPPPPPPPPP......R",
-      "EPPPPPPPP...PPPP...PPPPPPPPR",
-      "EPPPPPPPP...PPPP...PPPPPPPPR",
-      "R......PPPPPPPPPPPPPP......R",
-      "R......P..VV....VV..P......R",
-      "R..GGGGP............PGGGG..R",
-      "R..GGGGP....V..V....PGGGG..R",
-      "R......PPPPPPPPPPPPPP......R",
-      "R..VV.......P..P.......VV..R",
+      "R..KK.......P..P.......KK..R",
       "R......GGGG.PPPP.GGGG......R",
-      "R..VV..GGGG......GGGG..VV..R",
+      "R..KK..GGGG......GGGG..KK..R",
+      "R..........................R",
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
-    exits: {
-      west: { targetMap: 'NORTHEAST', spawnX: 26, spawnY: 9 }
-    },
+    exits: {},
     npcs: [
       {
-        id: 'developer_linus', name: 'DEVELOPER LINUS', topic: 'DEVELOPER • SOFTWARE LOGIC', x: 9, y: 4,
-        skinColor: '#fed7aa', hatColor: '#2563eb', shirtColor: '#93c5fd',
-        fact: "DEVELOPER LINUS: Writing clean code! Every computer processor relies on billions of microscopic semiconductor Transistors to switch binary signals!"
+        id: 'archaeologist_indy', name: 'DR. INDIANA', topic: 'MARINE ARCHAEOLOGIST • FOSSILS', x: 13, y: 8,
+        skinColor: '#e59866', hatColor: '#78350f', shirtColor: '#fde68a',
+        fact: "DR. INDIANA: Sedimentary rock layers preserve marine fossils over millions of years! Ancient Helix and Dome fossils rest in this subtidal reef!"
       },
-      {
-        id: 'contractor_bob', name: 'CONTRACTOR BOB', topic: 'CONTRACTOR • STRUCTURAL STEEL', x: 18, y: 4,
-        skinColor: '#e59866', hatColor: '#eab308', shirtColor: '#fde047',
-        fact: "CONTRACTOR BOB: Building this facility! Iron alloyed with Carbon makes structural Steel, the most widely used metal in construction!"
-      },
-      {
-        id: 'engineer_tesla', name: 'ENGINEER NIKOLA', topic: 'ENGINEER • POWER SYSTEMS', x: 11, y: 8,
-        skinColor: '#f5cba7', hatColor: '#0284c7', shirtColor: '#bae6fd',
-        fact: "ENGINEER NIKOLA: One Watt of electrical power equals one Joule of energy per second! Smelting extracts usable metal from raw mineral ore!"
-      },
-      {
-        id: 'technician_maya', name: 'TECHNICIAN MAYA', topic: 'TECHNICIAN • DIAGNOSTICS', x: 16, y: 8,
-        skinColor: '#ca8a5b', hatColor: '#0d9488', shirtColor: '#99f6e4',
-        fact: "TECHNICIAN MAYA: Calibrating instruments! We use a Voltmeter to measure electrical potential difference and an Ammeter to measure current in Amperes!"
-      },
-      {
-        id: 'mechanic_cid', name: 'MECHANIC CID', topic: 'MECHANIC • ALLOY HARDNESS', x: 9, y: 15,
-        skinColor: '#a16236', hatColor: '#1e3a8a', shirtColor: '#ef4444',
-        fact: "MECHANIC CID: Tuning heavy gears! Hardness measures a metal's resistance to scratching or indentation, while Tempering increases toughness!"
-      },
-      {
-        id: 'elec_engineer_faraday', name: 'ELEC. ENG. FARADAY', topic: 'ELECTRICAL ENGINEER • CIRCUITS', x: 14, y: 15,
-        skinColor: '#fed7aa', hatColor: '#4f46e5', shirtColor: '#c7d2fe',
-        fact: "ELEC. ENG. FARADAY: Electrons carry a negative charge! According to Ohm's Law, Voltage equals Current multiplied by Resistance!"
-      },
-      {
-        id: 'electrician_sparky', name: 'ELECTRICIAN SPARK', topic: 'ELECTRICIAN • CIRCUIT SAFETY', x: 19, y: 15,
-        skinColor: '#e59866', hatColor: '#f59e0b', shirtColor: '#fef08a',
-        fact: "ELECTRICIAN SPARK: Safety first! Conductors let electricity flow easily, while a Fuse contains a thin wire that melts if current gets too high!"
-      },
-      {
-        id: 'the_punisher', name: 'THE PUNISHER', topic: 'JUST BEING HUMAN • NOT MARVEL', x: 25, y: 8,
-        skinColor: '#e59866', hatColor: '#f59e0b', shirtColor: '#000000',
-        fact: "THE PUNISHER: In certain extreme situations, the law is inadequate. In order to shame its inadequacy, it is necessary to act outside the law. To pursue... natural justice."
+       {
+        id: 'overworld_kyogre', name: 'KYOGRE', topic: 'LEGENDARY POKéMON • HYDROSPHERE', x: 16, y: 7,
+        isMonster: true, monsterId: 'kyogre', isLegendary: true,
+        fact: "KYOGRE: Vwooooh! (Kyogre expanded the seas! The hydrosphere covers 71% of Earth's surface and regulates global climate!)"
       }
     ]
   },
 
-  // 16. NIGHTSHADE SPORE FEN (Uses Signature Obstacle U = Spore Toadstool)
+  // (4,1) N: Emerald Swamp • E: Navy Abyss
   BRAMBLE: {
     id: 'BRAMBLE',
-    name: 'NIGHTSHADE SPORE FEN',
-    subtitle: 'N: MANGROVE SWAMP • S: NOCTURNE SHADOW UNDERBELLY',
+    name: 'Purple Woods',
+    subtitle: 'N: Emerald Swamp • E: Navy Abyss',
     theme: { groundA: '#2e1065', groundB: '#14532d', path: '#a855f7', grass: '#15803d', grassTip: '#c084fc', tree: '#1e1b4b', treeTop: '#22c55e' },
     encounters: ['oddish', 'bellsprout', 'weedle', 'ekans', 'zubat', 'koffing'],
     rows: [
@@ -988,12 +1314,12 @@ const WORLD_MAPS = {
       "T......GGGG.PPPP.GGGG......T",
       "T..UU.......P..P.......UU..T",
       "T......PPPPPP..PPPPPP......T",
-      "T..GGGGP....U..U    PGGGG..R",
+      "T..GGGGP....U..U....PGGGG..R",
       "T..GGGGP....MMMM....PGGGG..T",
       "T......P..UUMMMMUU..P......T",
       "T......PPPPPPPPPPPPPP......T",
-      "T...........PPPP...........T",
-      "T..UU.......P..P.......UU..T",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T..UU.......P..PPPPPPPPPPPPE",
       "T......PPPPPP..PPPPPP......T",
       "T..GGGGP....U..U....PGGGG..T",
       "T..GGGGP............PGGGG..R",
@@ -1002,11 +1328,11 @@ const WORLD_MAPS = {
       "T......GGGG.PPPP.GGGG......T",
       "T..UU..GGGG..PP..GGGG..UU..T",
       "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
     ],
     exits: {
-      north: { targetMap: 'SOUTHWEST',    spawnX: 13, spawnY: 18 },
-      south: { targetMap: 'SHADOW_ALLEY', spawnX: 13, spawnY: 1 }
+      north: { targetMap: 'SOUTHWEST', spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'ABYSS',     spawnX: 1,  spawnY: 9 }
     },
     npcs: [
       {
@@ -1027,82 +1353,60 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 17. STARLIGHT CELESTIAL SPIRE (Uses Signature Obstacle A = Astral Crystal Obelisk)
-  SPIRE: {
-    id: 'SPIRE',
-    name: 'STARLIGHT CELESTIAL SPIRE',
-    subtitle: 'S: MYSTIC SANCTUARY • ASTRAL OBELISKS & PRESS SUMMIT',
-    theme: { groundA: '#311042', groundB: '#4a1d66', path: '#fbcfe8', grass: '#701a75', grassTip: '#f472b6', tree: '#1e1b4b', treeTop: '#e879f9' },
-    encounters: ['clefairy', 'jigglypuff', 'abra', 'drowzee'],
+  // (4,2) N: Golden Coast • W: Purple Woods • E: Obsidian Urban
+  ABYSS: {
+    id: 'ABYSS',
+    name: 'Navy Abyss',
+    subtitle: 'N: Golden Coast • W: Purple Woods • E: Obsidian Urban',
+    theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7', rock: '#1e293b', rockLight: '#64748b', rockDark: '#020617' },
+    encounters: ['horsea', 'goldeen', 'magikarp', 'slowpoke', 'dratini'],
     rows: [
-      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "T..AA..GGGG......GGGG..AA..T",
-      "T......GGGG.PPPP.GGGG......T",
-      "T..AA.......P..P.......AA..T",
-      "T......PPPPPP..PPPPPP......T",
-      "T..GGGGP....A..A....PGGGG..T",
-      "T..GGGGP....FFFF....PGGGG..T",
-      "T......P..AAFFFFAA..P......T",
-      "T......PPPPPPPPPPPPPP......T",
-      "T...........PPPP...........T",
-      "T..AA.......P..P.......AA..T",
-      "T......PPPPPP..PPPPPP......T",
-      "T..GGGGP....A..A....PGGGG..T",
-      "T..GGGGP............PGGGG..T",
-      "T......PPPPPPPPPPPPPP......T",
-      "T..AA.......P..P.......AA..T",
-      "T......GGGG.PPPP.GGGG......T",
-      "T..AA..GGGG..PP..GGGG..AA..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..K........PPPP........K..R",
+      "R..GGGGGG...PPPP...GGGGGG..R",
+      "R..GGGGGG....PP....GGGGGG..R",
+      "R..GGGGGG...PPPP...GGGGGG..R",
+      "R..........PP..PP..........R",
+      "R..WWWW...PP....PP...WWWW..R",
+      "R..KKKK..PPPPPPPPPP..KKKK..R",
+      "R..GGGG......PP......GGGG..R",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPBBPPPPPPPPPPPPE",
+      "RWWWWWWWWKKKKBBKKKKWWWWWWWWR",
+      "RWWWWWWWWWWWWBBWWWWWWWWWWWWR",
+      "RWWWWWWWWWWWWBBWWWWWWWWWWWWR",
+      "RWWWWWWWW...PPPP...WWWWWWWWR",
+      "RWWWWWWWK..GGGGGG..KWWWWWWWR",
+      "RWWWWWWWK..GGGGGG..KWWWWWWWR",
+      "RWWWWWWWW..........WWWWWWWWR",
+      "RWWWWWWWWWWWWWWWWWWWWWWWWWWR",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
     exits: {
-      south: { targetMap: 'SANCTUARY', spawnX: 13, spawnY: 1 }
+      north: { targetMap: 'BEACH',        spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'BRAMBLE',      spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'SHADOW_ALLEY', spawnX: 1,  spawnY: 9 }
     },
     npcs: [
       {
-        id: 'overworld_mewtwo', name: 'LEGENDARY MEWTWO', topic: 'LEGENDARY POKéMON • GENETIC ENGINEERING', x: 13, y: 5,
-        isMonster: true, monsterId: 'mewtwo', isLegendary: true,
-        fact: "MEWTWO: ★ Who am I? What is my purpose? ★ (Mewtwo was created by genetic manipulation based on Mew's genetic code!)"
+        id: 'scuba_diver_cousteau', name: 'DIVER COUSTEAU', topic: 'SCUBA DIVER • THERMOHALINE', x: 11, y: 7,
+        skinColor: '#e59866', hatColor: '#0284c7', shirtColor: '#38bdf8',
+        fact: "DIVER COUSTEAU: Thermohaline circulation is the global deep-ocean conveyor belt driven by differences in water temperature and salinity!"
       },
       {
-        id: 'publisher_pulitzer', name: 'PUBLISHER PERRY', topic: 'PUBLISHER • PRINT & FOLKLORE', x: 9, y: 4,
-        skinColor: '#fed7aa', hatColor: '#581c87', shirtColor: '#e9d5ff',
-        fact: "PUBLISHER PERRY: Publishing timeless stories! Traditional tales passed down orally before being written are called Folklore—like the Brothers Grimm collections!"
+        id: 'overworld_zapdos', name: 'ZAPDOS', topic: 'LEGENDARY POKéMON • BIOELECTRICITY', x: 13, y: 14,
+        isMonster: true, monsterId: 'zapdos', isLegendary: true,
+        fact: "ZAPDOS: Zzaaap! (Saltwater conducts electricity because dissolved sodium and chloride ions are free to move and carry electric charge!)"
       },
-      {
-        id: 'journalist_lois', name: 'JOURNALIST LOIS', topic: 'JOURNALIST • INVESTIGATIVE', x: 18, y: 4,
-        skinColor: '#f5cba7', hatColor: '#0284c7', shirtColor: '#bae6fd',
-        fact: "JOURNALIST LOIS: Investigating the truth! An Antonym is a word with the exact opposite meaning of another word, and the English alphabet has 26 letters!"
-      },
-      {
-        id: 'reporter_clark', name: 'REPORTER CLARK', topic: 'REPORTER • BREAKING NEWS', x: 9, y: 8,
-        skinColor: '#e59866', hatColor: '#dc2626', shirtColor: '#fecaca',
-        fact: "REPORTER CLARK: Live from the Celestial Spire! Assigning human emotions or traits to non-human nature in writing is called Anthropomorphism!"
-      },
-      {
-        id: 'correspondent_erin', name: 'CORRESPONDENT ERIN', topic: 'CORRESPONDENT • FIELD DISPATCH', x: 18, y: 8,
-        skinColor: '#ca8a5b', hatColor: '#d97706', shirtColor: '#fef3c7',
-        fact: "CORRESPONDENT ERIN: Reporting across regions! In quantum physics, Quantum Entanglement links particles across vast cosmic distances!"
-      },
-      {
-        id: 'social_worker_clara', name: 'SOCIAL WORKER CLARA', topic: 'SOCIAL WORKER • PUBLIC HEALTH', x: 10, y: 14,
-        skinColor: '#a16236', hatColor: '#0d9488', shirtColor: '#99f6e4',
-        fact: "SOCIAL WORKER CLARA: Supporting community wellness! Proper nutrition prevents deficiency disorders like Anemia (Iron) and Rickets (Vitamin D)!"
-      },
-      {
-        id: 'counselor_troi', name: 'COUNSELOR DEANNA', topic: 'COUNSELOR • EMPATHY & MEMORY', x: 17, y: 14,
-        skinColor: '#784212', hatColor: '#7e22ce', shirtColor: '#f3e8ff',
-        fact: "COUNSELOR DEANNA: Listening with empathy! Sensory signals are received by a neuron's branch-like Dendrites and sent along its Axon!"
-      }
+      
     ]
   },
 
-  // 18. DARK DANGEROUS AREA: NOCTURNE SHADOW UNDERBELLY (Uses N = Shadow Streetlamp)
+  // (4,3) N: Bronze Reef • W: Navy Abyss
   SHADOW_ALLEY: {
     id: 'SHADOW_ALLEY',
-    name: 'NOCTURNE SHADOW UNDERBELLY',
-    subtitle: 'N: SPORE FEN • E: MIRADOURO DA LUA • DARK DANGER ZONE',
+    name: 'Obsidian Urban',
+    subtitle: 'N: Bronze Reef • W: Navy Abyss',
     theme: {
       groundA: '#090d16', groundB: '#111827', path: '#27272a',
       grass: '#1e1b4b', grassTip: '#dc2626', tree: '#020617',
@@ -1115,25 +1419,25 @@ const WORLD_MAPS = {
       "R......GGGG.PPPP.GGGG......R",
       "R..NN.......P..P.......NN..R",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....N..N    PGGGG..R",
+      "R..GGGGP....N..N....PGGGG..R",
       "R..GGGGP............PGGGG..R",
       "R......P..NN....NN..P......R",
       "R......PPPPPPPPPPPPPP......R",
-      "R...........PPPPPPPPPPPPPPPE",
-      "R..NN.......P..PPPPPPPPIIIRE",
-      "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....N..N    PGGGG..R",
+      "EPPPPPPPPPPPPPPP...........R",
+      "EPPPPPPPPPPPPPPP...........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....N..N....PGGGG..R",
       "R..GGGGP............PGGGG..R",
       "R......PPPPPPPPPPPPPP......R",
       "R..NN.......P..P.......NN..R",
       "R......GGGG.PPPP.GGGG......R",
       "R..NN..GGGG......GGGG..NN..R",
       "R..........................R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
     exits: {
-      north: { targetMap: 'BRAMBLE',       spawnX: 13, spawnY: 18 },
-      east:  { targetMap: 'MIRADOURO_LUA', spawnX: 1,  spawnY: 9 }
+      north: { targetMap: 'SOUTHEAST', spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'ABYSS',     spawnX: 26, spawnY: 9 }
     },
     npcs: [
       {
@@ -1174,337 +1478,81 @@ const WORLD_MAPS = {
     ]
   },
 
-  // 19. MIRADOURO DA LUA VALLEY (Uses Signature Obstacle Q = Moon Badlands Spire + Alien Characters)
-  MIRADOURO_LUA: {
-    id: 'MIRADOURO_LUA',
-    name: 'MIRADOURO DA LUA VALLEY',
-    subtitle: 'N: SUNKEN ATOLL • W: SHADOW UNDERBELLY • ALIEN CLIFFS',
+  // (4,4) DETACHED CORNER — FLY ONLY (Both MOON and MIRADOURO_LUA keys supported)
+  MOON: {
+    id: 'MOON',
+    name: 'Ruby Badlands',
+    subtitle: 'DETACHED CORNER • ACCESSIBLE BY FLY ONLY',
     theme: {
       groundA: '#9a3412', groundB: '#c2410c', path: '#fde68a',
       grass: '#7c2d12', grassTip: '#38bdf8', tree: '#431407',
       treeTop: '#f97316', rock: '#b91c1c', rockLight: '#fca5a5', rockDark: '#450a0a'
     },
-    encounters: ['staryu', 'porygon', 'geodude'],
+    encounters: ['porygon'],
     rows: [
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..QQ..GGGG......GGGG..QQ..R",
       "R......GGGG.PPPP.GGGG......R",
       "R..QQ.......P..P.......QQ..R",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....Q..Q    PGGGG..R",
+      "R..GGGGP....Q..Q....PGGGG..R",
       "R..GGGGP............PGGGG..R",
       "R......P..QQ....QQ..P......R",
       "R......PPPPPPPPPPPPPP......R",
-      "EPPPPPPPP...PPPP...PPPPPPPPR",
-      "EPPPPPPPP...PPPP...PPPPPPPPR",
+      "R...........PPPP...........R",
+      "R...........PPPP...........R",
       "R......PPPPPPPPPPPPPP......R",
       "R......P..QQ....QQ..P......R",
       "R..GGGGP............PGGGG..R",
-      "R..GGGGP    Q..Q    PGGGG..R",
+      "R..GGGGP....Q..Q....PGGGG..R",
       "R......PPPPPPPPPPPPPP......R",
       "R..QQ.......P..P.......QQ..R",
       "R......GGGG.PPPP.GGGG......R",
       "R..QQ..GGGG......GGGG..QQ..R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
     ],
-    exits: {
-      north: { targetMap: 'SOUTHEAST',    spawnX: 26, spawnY: 18 },
-      west:  { targetMap: 'SHADOW_ALLEY', spawnX: 26, spawnY: 9 }
-    },
+    exits: {},
     npcs: [
       {
         id: 'alien_commander_xylar', name: 'ALIEN COMMANDER XYLAR', topic: 'ALIEN • LUNAR EROSION & GEOLOGY', x: 10, y: 4,
         isAlien: true, skinColor: '#4ade80', hatColor: '#22c55e', shirtColor: '#a855f7',
-        fact: "COMMANDER XYLAR: 👽 Greetings, Earthling! We landed at Miradouro da Lua because its red ochre cliffs and gullies carved by wind and rain erosion look just like the Moon!"
+        fact: "COMMANDER XYLAR: Greetings, Earthling! We landed at Ruby Badlands because its red ochre cliffs and gullies carved by wind and rain erosion look just like the Moon!"
       },
       {
         id: 'alien_navigator_zog', name: 'ALIEN NAVIGATOR ZOG', topic: 'ALIEN • GRAVITY & TIDES', x: 17, y: 4,
         isAlien: true, skinColor: '#4ade80', hatColor: '#4ade80', shirtColor: '#38bdf8',
-        fact: "NAVIGATOR ZOG: 👽 Bleep-blorp! From this Moon Viewpoint, remember that the Moon's gravitational pull is the primary force driving ocean tides on Earth!"
+        fact: "NAVIGATOR ZOG: Bleep-blorp! From this Moon Viewpoint, remember that the Moon's gravitational pull is the primary force driving ocean tides on Earth!"
       },
       {
         id: 'alien_biologist_blorp', name: 'ALIEN SCIENTIST VEX', topic: 'ALIEN • ASTROBIOLOGY & DNA', x: 10, y: 15,
         isAlien: true, skinColor: '#4ade80', hatColor: '#10b981', shirtColor: '#f472b6',
-        fact: "SCIENTIST VEX: 👽 Scanning terrestrial lifeforms! Earth organisms encode genetic information in DNA using four nitrogenous bases: Adenine, Thymine, Cytosine, and Guanine!"
+        fact: "SCIENTIST VEX: Scanning terrestrial lifeforms! Earth organisms encode genetic information in DNA using four nitrogenous bases: Adenine, Thymine, Cytosine, and Guanine!"
       },
       {
         id: 'alien_scout_orion', name: 'ALIEN SCOUT ORION', topic: 'ALIEN • WORMHOLES & SPACETIME', x: 17, y: 15,
         isAlien: true, skinColor: '#4ade80', hatColor: '#84cc16', shirtColor: '#fde047',
-        fact: "SCOUT ORION: 👽 Our saucer warped here through an Einstein-Rosen bridge—also known in physics as a Wormhole connecting distant points in spacetime!"
+        fact: "SCOUT ORION: Our saucer warped here through an Einstein-Rosen bridge—also known in physics as a Wormhole connecting distant points in spacetime!"
       },
       {
         id: 'overworld_deoxys', name: 'COSMIC DEOXYS', topic: 'EXTRATERRESTRIAL POKéMON • COSMOS', x: 13, y: 8,
         isMonster: true, monsterId: 'deoxys', isLegendary: true,
-        fact: "DEOXYS: ★ Vwooo-shhh! ★ (Deoxys crystallized from a space virus inside a meteor! Gamma rays are the highest-energy electromagnetic radiation in the cosmos!)"
-      }
-    ]
-  },
-  // 20. (Row 0, Col 0) FAR NORTHWEST: AURORA BOREALIS RIDGE
-  AURORA_RIDGE: {
-    id: 'AURORA_RIDGE',
-    name: 'AURORA BOREALIS RIDGE',
-    subtitle: 'S: CELESTIAL SPIRE • E: SKY WIND TEMPLE • SINNOH & ICE HABITAT',
-    theme: { groundA: '#0f172a', groundB: '#1e293b', path: '#7dd3fc', grass: '#0369a1', grassTip: '#38bdf8', tree: '#020617', treeTop: '#a855f7', rock: '#334155', rockLight: '#bae6fd', rockDark: '#0f172a' },
-    encounters: ['turtwig', 'chimchar', 'piplup', 'seel', 'jynx'],
-    rows: [
-      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
-      "I..AA..GGGG......GGGG..AA..I",
-      "I......GGGG.PPPP.GGGG......I",
-      "I..AA.......P..P.......AA..I",
-      "I......PPPPPP..PPPPPP......I",
-      "I..GGGGP....I..I....PGGGG..I",
-      "I..GGGGP............PGGGG..I",
-      "I......P..II....II..P......I",
-      "I......PPPPPPPPPPPPPP......I",
-      "I...........PPPPPPPPPPPPPPPE",
-      "I...........PPPPPPPPPPPPPPPE",
-      "I......PPPPPPPPPPPPPP......I",
-      "I......P..II....II..P......I",
-      "I..GGGGP............PGGGG..I",
-      "I..GGGGP....I..I....PGGGG..I",
-      "I......PPPPPPPPPPPPPP......I",
-      "I..AA.......P..P.......AA..I",
-      "I......GGGG.PPPP.GGGG......I",
-      "I..AA..GGGG..PP..GGGG..AA..I",
-      "IIIIIIIIIIIIIEEIIIIIIIIIIIII"
-    ],
-    exits: {
-      south: { targetMap: 'SPIRE',       spawnX: 13, spawnY: 1 },
-      east:  { targetMap: 'WIND_TEMPLE', spawnX: 1,  spawnY: 9 }
-    },
-    npcs: [
-      {
-        id: 'astrophysicist_vera', name: 'DR. VERA RUBIN', topic: 'ASTROPHYSICIST • AURORAS', x: 13, y: 5,
-        skinColor: '#fed7aa', hatColor: '#7e22ce', shirtColor: '#c084fc',
-        fact: "DR. VERA RUBIN: Auroras occur when charged solar wind particles collide with oxygen and nitrogen gases in Earth's magnetosphere!"
+        fact: "DEOXYS: Vwooo-shhh! (Deoxys crystallized from a space virus inside a meteor! Gamma rays are the highest-energy electromagnetic radiation in the cosmos!)"
       }
     ]
   },
 
-  // 21. (Row 0, Col 1) NORTH-NORTHWEST: SKY WIND TEMPLE
-  WIND_TEMPLE: {
-    id: 'WIND_TEMPLE',
-    name: 'ZEPHYR WIND TEMPLE',
-    subtitle: 'W: AURORA RIDGE • E: GLACIER • S: ALPINE SKY PLATEAU',
-    theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#f0f9ff', grass: '#0d9488', grassTip: '#99f6e4', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#1e293b' },
-    encounters: ['chikorita', 'cyndaquil', 'totodile', 'pidgey', 'spearow'],
-    rows: [
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..AA..GGGG......GGGG..AA..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..AA.......P..P.......AA..R",
-      "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....A..A....PGGGG..R",
-      "R..GGGGP............PGGGG..R",
-      "R......P..AA....AA..P......R",
-      "R......PPPPPPPPPPPPPP......R",
-      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
-      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
-      "R......PPPPPPPPPPPPPP......R",
-      "R......P..AA....AA..P......R",
-      "R..GGGGP............PGGGG..R",
-      "R..GGGGP....A..A....PGGGG..R",
-      "R......PPPPPPPPPPPPPP......R",
-      "R..AA.......P..P.......AA..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..AA..GGGG..PP..GGGG..AA..R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
-    ],
-    exits: {
-      west:  { targetMap: 'AURORA_RIDGE', spawnX: 26, spawnY: 9 },
-      east:  { targetMap: 'GLACIER',      spawnX: 1,  spawnY: 9 },
-      south: { targetMap: 'NORTHWEST',    spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'meteorologist_fujita', name: 'DR. FUJITA', topic: 'METEOROLOGIST • JET STREAM', x: 13, y: 8,
-        skinColor: '#fde68a', hatColor: '#0284c7', shirtColor: '#bae6fd',
-        fact: "DR. FUJITA: High-altitude Jet Streams blow from west to east in the upper Troposphere due to thermal gradients and the Coriolis Effect!"
-      }
-    ]
-  },
-
-  // 22. (Row 0, Col 3) NORTH-NORTHEAST: METEOR FALLS CRATER
-  METEOR_CRATER: {
-    id: 'METEOR_CRATER',
-    name: 'METEOR FALLS CRATER',
-    subtitle: 'W: GLACIER • E: CYBER NEXUS • S: BADLANDS CANYON',
-    theme: { groundA: '#312e81', groundB: '#1e1b4b', path: '#cbd5e1', grass: '#4338ca', grassTip: '#818cf8', tree: '#0f172a', treeTop: '#6366f1', rock: '#3730a3', rockLight: '#a5b4fc', rockDark: '#1e1b4b' },
-    encounters: ['treecko', 'torchic', 'mudkip', 'clefairy', 'dratini'],
-    rows: [
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..RR..GGGG......GGGG..RR..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..RR.......P..P.......RR..R",
-      "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....WWWW....PGGGG..R",
-      "R..GGGGP...WWWWWW...PGGGG..R",
-      "R......P...WWWWWW...P......R",
-      "R......PPPPPPPPPPPPPP......R",
-      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
-      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
-      "R......PPPPPPPPPPPPPP......R",
-      "R......P..RR....RR..P......R",
-      "R..GGGGP............PGGGG..R",
-      "R..GGGGP....R..R....PGGGG..R",
-      "R......PPPPPPPPPPPPPP......R",
-      "R..RR.......P..P.......RR..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..RR..GGGG..PP..GGGG..RR..R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
-    ],
-    exits: {
-      west:  { targetMap: 'GLACIER',     spawnX: 26, spawnY: 9 },
-      east:  { targetMap: 'CYBER_NEXUS', spawnX: 1,  spawnY: 9 },
-      south: { targetMap: 'NORTHEAST',   spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'paleontologist_grant', name: 'DR. GRANT', topic: 'PALEONTOLOGIST • CHICXULUB', x: 13, y: 11,
-        skinColor: '#e59866', hatColor: '#78350f', shirtColor: '#fde68a',
-        fact: "DR. GRANT: The Chicxulub asteroid impact 66 million years ago ended the Cretaceous Period and drove non-avian dinosaurs to extinction!"
-      }
-    ]
-  },
-
-  // 23. (Row 0, Col 4) FAR NORTHEAST: CYBERNETIC NEXUS DOME
-  CYBER_NEXUS: {
-    id: 'CYBER_NEXUS',
-    name: 'CYBERNETIC NEXUS DOME',
-    subtitle: 'W: METEOR CRATER • S: DYNAMO ANVIL WORKS • UNOVA & TECH',
-    theme: { groundA: '#090d16', groundB: '#111827', path: '#38bdf8', grass: '#0f766e', grassTip: '#2dd4bf', tree: '#1e293b', treeTop: '#06b6d4', rock: '#1e293b', rockLight: '#7dd3fc', rockDark: '#020617' },
-    encounters: ['snivy', 'tepig', 'oshawott', 'porygon', 'magnemite'],
-    rows: [
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..VV..GGGG......GGGG..VV..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..VV.......P..P.......VV..R",
-      "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....V..V....PGGGG..R",
-      "R..GGGGP............PGGGG..R",
-      "R......P..VV....VV..P......R",
-      "R......PPPPPPPPPPPPPP......R",
-      "EPPPPPPPPPPPPPPPP..........R",
-      "EPPPPPPPPPPPPPPPP..........R",
-      "R......PPPPPPPPPPPPPP......R",
-      "R......P..VV....VV..P......R",
-      "R..GGGGP............PGGGG..R",
-      "R..GGGGP....V..V....PGGGG..R",
-      "R......PPPPPPPPPPPPPP......R",
-      "R..VV.......P..P.......VV..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..VV..GGGG..PP..GGGG..VV..R",
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
-    ],
-    exits: {
-      west:  { targetMap: 'METEOR_CRATER', spawnX: 26, spawnY: 9 },
-      south: { targetMap: 'FOUNDRY',       spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'ai_researcher_turing', name: 'DR. TURING', topic: 'COMPUTER SCIENTIST • AI & LOGIC', x: 13, y: 8,
-        skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#e0f2fe',
-        fact: "DR. TURING: All digital data is encoded in Binary bits (0s and 1s), and Transistors amplify or switch electronic signals inside CPUs!"
-      }
-    ]
-  },
-
-  // 24. (Row 3, Col 0) WEST-SOUTHWEST: KALOSBAMBOO GROVE
-  KALOS_GROVE: {
-    id: 'KALOS_GROVE',
-    name: 'LUMIOSE BOTANICAL GROVE',
-    subtitle: 'N: MYSTIC SANCTUARY • E: SPORE FEN • S: SUNKEN ATLANTIS',
-    theme: { groundA: '#14532d', groundB: '#166534', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#052e16', treeTop: '#4ade80' },
-    encounters: ['chespin', 'fennekin', 'froakie', 'bulbasaur', 'eevee'],
-    rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T..FF..GGGG..PP..GGGG..FF..T",
-      "T......GGGG.PPPP.GGGG......T",
-      "T..FF.......P..P.......FF..T",
-      "T......PPPPPP..PPPPPP......T",
-      "T..GGGGP....F..F....PGGGG..T",
-      "T..GGGGP....FFFF....PGGGG..T",
-      "T......P..FFFFFFFF..P......T",
-      "T......PPPPPPPPPPPPPP......T",
-      "T...........PPPPPPPPPPPPPPPE",
-      "T...........PPPPPPPPPPPPPPPE",
-      "T......PPPPPPPPPPPPPP......T",
-      "T..GGGGP....F..F....PGGGG..T",
-      "T..GGGGP............PGGGG..T",
-      "T......PPPPPPPPPPPPPP......T",
-      "T..FF.......P..P.......FF..T",
-      "T......GGGG.PPPP.GGGG......T",
-      "T..FF..GGGG..PP..GGGG..FF..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
-    ],
-    exits: {
-      north: { targetMap: 'SANCTUARY',    spawnX: 13, spawnY: 18 },
-      east:  { targetMap: 'BRAMBLE',      spawnX: 1,  spawnY: 9 },
-      south: { targetMap: 'SUNKEN_RUINS', spawnX: 13, spawnY: 1 }
-    },
-    npcs: [
-      {
-        id: 'chef_auguste', name: 'CHEF AUGUSTE', topic: 'CULINARY SCIENTIST • MAILLARD', x: 13, y: 8,
-        skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#f8fafc',
-        fact: "CHEF AUGUSTE: Bon appétit! Welcome to the Kalos starter grove! Plants store solar energy as glucose carbohydrates in their chloroplasts!"
-      }
-    ]
-  },
-
-  // 25. (Row 4, Col 0) FAR SOUTHWEST: SUNKEN ATLANTIS RUINS
-  SUNKEN_RUINS: {
-    id: 'SUNKEN_RUINS',
-    name: 'SUNKEN ATLANTIS REEF',
-    subtitle: 'N: LUMIOSE GROVE • E: SHADOW UNDERBELLY • ANCIENT CORAL',
-    theme: { groundA: '#083344', groundB: '#164e63', path: '#67e8f9', grass: '#0e7490', grassTip: '#22d3ee', tree: '#042f2e', treeTop: '#06b6d4', rock: '#155e75', rockLight: '#a5f3fc', rockDark: '#083344' },
-    encounters: ['totodile', 'mudkip', 'piplup', 'oshawott', 'froakie', 'lapras'],
-    rows: [
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
-      "R..KK..GGGG..PP..GGGG..KK..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..KK.......P..P.......KK..R",
-      "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....K..K....PGGGG..R",
-      "R..GGGGP....WWWW....PGGGG..R",
-      "R......P..KKWWWWKK..P......R",
-      "R......PPPPPPPPPPPPPP......R",
-      "R...........PPPPPPPPPPPPPPPE",
-      "R...........PPPPPPPPPPPPPPPE",
-      "R......PPPPPPPPPPPPPP......R",
-      "R..GGGGP....K..K....PGGGG..R",
-      "R..GGGGP............PGGGG..R",
-      "R......PPPPPPPPPPPPPP......R",
-      "R..KK.......P..P.......KK..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..KK..GGGG......GGGG..KK..R",
-      "R..........................R",
-      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
-    ],
-    exits: {
-      north: { targetMap: 'KALOS_GROVE',  spawnX: 13, spawnY: 18 },
-      east:  { targetMap: 'SHADOW_ALLEY', spawnX: 1,  spawnY: 9 }
-    },
-    npcs: [
-      {
-        id: 'archaeologist_indy', name: 'DR. INDIANA', topic: 'MARINE ARCHAEOLOGIST • FOSSILS', x: 13, y: 8,
-        skinColor: '#e59866', hatColor: '#78350f', shirtColor: '#fde68a',
-        fact: "DR. INDIANA: Sedimentary rock layers preserve marine fossils over millions of years! You can find Water-type starters from every region swimming here!"
-      }
-    ]
-  },
   // ====================================================================
-  // EAST ASIA REGION (LINKED TO HABITAT REGION VIA 2x2 PORTAL AT 50 DEX)
+  // EAST ASIA REGION (LINKED TO BEIGE VILLAGE VIA 2x2 PORTAL AT 50 DEX)
   // ====================================================================
 
-  // E1. HONG KONG (EAST ASIA HUB)
+  // E1. HONG_KONG -> Ivory City
   HONG_KONG: {
     id: 'HONG_KONG',
-    name: 'HONG KONG VICTORIA HARBOUR HUB',
-    subtitle: 'N: CHINA • E: TAIWAN • W: MACAU • PORTAL: PALLET HUB',
+    name: 'Ivory City',
+    subtitle: 'N: Crimson Walls • E: Green Island • W: Bronze Casino • PORTAL: Beige Village',
     region: 'EAST_ASIA',
     theme: { groundA: '#1e293b', groundB: '#334155', path: '#f43f5e', grass: '#0d9488', grassTip: '#2dd4bf', tree: '#0f172a', treeTop: '#fb7185', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#0f172a' },
-    encounters: ['pikachu', 'meowth', 'persian', 'porygon', 'magnemite', 'gyarados', 'dratini', 'froakie'],
+    encounters: ['persian', 'gyarados'],
     rows: [
       "HHHHHHHHHHHHHEEHHHHHHHHHHHHH",
       "H..YYYY..PPPPPPPPPP..YYYY..H",
@@ -1541,7 +1589,7 @@ const WORLD_MAPS = {
       {
         id: 'hk_lion_dancer', name: 'SIFU WONG (LION DANCER)', topic: 'LION DANCER • ACOUSTICS & KINEMATICS', x: 17, y: 5,
         skinColor: '#f5cba7', hatColor: '#dc2626', shirtColor: '#facc15',
-        fact: "LION DANCER SIFU WONG: 🦁 Kung Hei Fat Choy! High-pole Lion Dancing requires explosive skeletal muscle ATP and precise balance coordinated by the brain's Cerebellum!"
+        fact: "LION DANCER SIFU WONG: Kung Hei Fat Choy! High-pole Lion Dancing requires explosive skeletal muscle ATP and precise balance coordinated by the brain's Cerebellum!"
       },
       {
         id: 'hk_dim_sum_chef', name: 'DIM SUM MASTER CHAN', topic: 'DIM SUM CHEF • STEAM CONVECTION', x: 11, y: 8,
@@ -1549,7 +1597,7 @@ const WORLD_MAPS = {
         fact: "DIM SUM MASTER CHAN: Har Gow and Siu Mai! Bamboo steamers cook dumplings evenly because rising water vapor releases latent heat of vaporization when it condenses!"
       },
       {
-        id: 'hk_star_ferry_captain', name: 'CAPTAIN LEUNG (STAR FERRY)', topic: 'FERRY CAPTAIN • BUOYANCY', x: 14, y: 13,
+        id: 'hk_star_ferry_captain', name: 'CAPTAIN LEUNG (STAR FERRY)', topic: 'FERRY CAPTAIN • BUOYANCY', x: 12, y: 13,
         skinColor: '#e59866', hatColor: '#15803d', shirtColor: '#f8fafc',
         fact: "CAPTAIN LEUNG: Crossing Victoria Harbour since 1888! By Archimedes' Principle, our Star Ferry floats because the upward buoyant force equals the weight of displaced seawater!"
       },
@@ -1561,38 +1609,43 @@ const WORLD_MAPS = {
       {
         id: 'hk_nurse_joy', name: 'NURSE JOY (HK)', topic: 'NURSE • PARTY HEAL', x: 14, y: 4,
         skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true,
-        fact: "NURSE JOY: Welcome to Hong Kong! I've fully healed your Pokémon party! Step into the glowing 2×2 Portal in the center whenever you want to warp back to Pallet Research Hub!"
+        fact: "NURSE JOY: Welcome to Ivory City! I've fully healed your Pokémon party! Step into the glowing 2×2 Portal in the center whenever you want to warp back to Beige Village!"
+      },
+      {
+        id: 'overworld_lugia', name: 'GUARDIAN LUGIA', topic: 'LEGENDARY POKéMON • OCEAN STORMS', x: 25, y: 13,
+        isMonster: true, monsterId: 'lugia', isLegendary: true,
+        fact: "LUGIA: Gyaaaoh! (Lugia calms raging typhoons across Victoria Harbour! The character 水 [shuǐ] means Water and 風 [fēng] means Wind!)"
       }
     ]
   },
 
-  // E2. MACAU (WEST OF HONG KONG)
+  // E2. MACAU -> Bronze Casino
   MACAU: {
     id: 'MACAU',
-    name: 'MACAU COTAI NEON PENINSULA (WEST)',
-    subtitle: 'E: HONG KONG • PORTUGUESE AZULEJO & NEON LIGHTS',
+    name: 'Bronze Casino',
+    subtitle: 'E: Ivory City • SLOT MACHINES & NEON LIGHTS',
     region: 'EAST_ASIA',
     theme: { groundA: '#064e3b', groundB: '#047857', path: '#fde047', grass: '#0f766e', grassTip: '#5eead4', tree: '#022c22', treeTop: '#fbbf24', rock: '#1e293b', rockLight: '#fef08a', rockDark: '#0f172a' },
-    encounters: ['meowth', 'psyduck', 'staryu', 'eevee', 'abra', 'fennekin'],
+    encounters: ['flareon', 'jolteon'],
     rows: [
       "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "H..FF..GGGG......GGGG..FF..H",
+      "H..XX..GGGG......GGGG..XX..H",
       "H......GGGG.PPPP.GGGG......H",
-      "H..NN.......P..P.......NN..H",
+      "H..YY.......P..P.......YY..H",
       "H......PPPPPP..PPPPPP......H",
-      "H..GGGGP....F..F....PGGGG..H",
+      "H..GGGGP....X..X....PGGGG..H",
       "H..GGGGP....HHHH....PGGGG..H",
-      "H......P..NNHHHHNN..P......H",
+      "H......P..YYHHHHYY..P......H",
       "H......PPPPPPPPPPPPPP......H",
       "H...........PPPPPPPPPPPPPPPE",
       "H...........PPPPPPPPPPPPPPPE",
       "H......PPPPPPPPPPPPPP......H",
-      "H..GGGGP....N..N....PGGGG..H",
+      "H..GGGGP....X..X....PGGGG..H",
       "H..GGGGP............PGGGG..H",
       "H......PPPPPPPPPPPPPP......H",
-      "H..FF.......P..P.......FF..H",
+      "H..XX.......P..P.......XX..H",
       "H......GGGG.PPPP.GGGG......H",
-      "H..FF..GGGG......GGGG..FF..H",
+      "H..XX..GGGG......GGGG..XX..H",
       "HWWWWWWWWWWWWWWWWWWWWWWWWWWH",
       "HHHHHHHHHHHHHHHHHHHHHHHHHHHH"
     ],
@@ -1609,34 +1662,39 @@ const WORLD_MAPS = {
         id: 'macau_probability_prof', name: 'PROFESSOR PASCAL', topic: 'MATHEMATICIAN • PROBABILITY', x: 16, y: 11,
         skinColor: '#fed7aa', hatColor: '#7e22ce', shirtColor: '#e9d5ff',
         fact: "PROFESSOR PASCAL: Expected Value in probability theory proves the house always has a mathematical edge over the long run!"
+      },
+      {
+        id: 'overworld_palkia', name: 'PALKIA', topic: 'LEGENDARY POKéMON • SPATIAL DIMENSIONS', x: 13, y: 11,
+        isMonster: true, monsterId: 'palkia', isLegendary: true,
+        fact: "PALKIA: Gggaaah! (Palkia warps space across Bronze Casino! The Chinese character 天 [tiān] means Sky/Heaven!)"
       }
     ]
   },
 
-  // E3. CHINA (NORTH OF HONG KONG • RED ZONE WITH GREAT WALL)
+  // E3. CHINA -> Crimson Walls
   CHINA: {
     id: 'CHINA',
-    name: 'GREAT WALL CRIMSON CITADEL (CHINA)',
-    subtitle: 'S: HONG KONG • N: MONGOLIA • E: JAPAN • RED ZONE & GREAT WALL',
+    name: 'Crimson Walls',
+    subtitle: 'S: Ivory City • N: Khaki Plains • E: Monster Island',
     region: 'EAST_ASIA',
     theme: { groundA: '#7f1d1d', groundB: '#991b1b', path: '#facc15', grass: '#b91c1c', grassTip: '#fde047', tree: '#450a0a', treeTop: '#ef4444', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#1c1917' },
-    encounters: ['growlithe', 'arcanine', 'ponyta', 'vulpix', 'dratini', 'dragonair', 'tepig', 'chimchar'],
+    encounters: ['arcanine', 'dragonair'],
     rows: [
-      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
-      "R............PP............R",
-      "HHHHHHHHHHHHHPPPPPPHHHHHHHHH",
-      "HHHHHHHHHHHHHHHHHPPGGGGGGGGH",
+      "ZZZZZZZZZZZZZEEZZZZZZZZZZZZZ",
+      "Z............PP............Z",
+      "ZZZZZZZZZZZZZPPPPPPZZZZZZZZZ",
+      "ZZZZZZZZZZZZZZZZZPPGGGGGGGGZ",
       "R..GGGG..PPPPPPPPPP..GGGG..R",
       "R..GGGG..P........P..GGGG..R",
-      "R........P..RRRR..P........R",
-      "R..RRRR..P..RRRR..P..RRRR..R",
+      "R........P..ZZZZ..P........R",
+      "R..ZZZZ..P..ZZZZ..P..ZZZZ..R",
       "R........PPPPPPPPPP........R",
       "R...........PPPPPPPPPPPPPPPE",
       "R...........PPPPPPPPPPPPPPPE",
       "R..GGGG..PPPPPPPPPP..GGGG..R",
       "R..GGGG..P........P..GGGG..R",
       "R........P..FFFF..P........R",
-      "R..RRRR..P..FFFF..P..RRRR..R",
+      "R..ZZZZ..P..FFFF..P..ZZZZ..R",
       "R........PPPPPPPPPP........R",
       "R..GGGGGG....PP....GGGGGG..R",
       "R..GGGGGG....PP....GGGGGG..R",
@@ -1658,33 +1716,38 @@ const WORLD_MAPS = {
         id: 'china_botanist_li', name: 'HERBALIST LI SHIZHEN', topic: 'BOTANIST • PHARMACOGNOSY', x: 10, y: 12,
         skinColor: '#f5cba7', hatColor: '#15803d', shirtColor: '#bbf7d0',
         fact: "HERBALIST LI: Tea leaves (Camellia sinensis) contain caffeine and polyphenols! Boiling water also sterilized drinking water throughout ancient history!"
+      },
+      {
+        id: 'overworld_rayquaza', name: 'JADE RAYQUAZA', topic: 'LEGENDARY POKéMON • CELESTIAL DRAGON', x: 13, y: 8,
+        isMonster: true, monsterId: 'rayquaza', isLegendary: true,
+        fact: "RAYQUAZA: Kyuraaaah! (Rayquaza soars above Crimson Walls! The Chinese character for Dragon is 龍 [lóng]!)"
       }
     ]
   },
 
-  // E4. TAIWAN (EAST OF HONG KONG, SOUTH OF JAPAN)
+  // E4. TAIWAN -> Green Island
   TAIWAN: {
     id: 'TAIWAN',
-    name: 'FORMOSA HIGHLAND & NIGHT MARKET (TAIWAN)',
-    subtitle: 'W: HONG KONG • N: JAPAN • SILICON FOUNDRY & JADE PEAKS',
+    name: 'Green Island',
+    subtitle: 'W: Ivory City • N: Monster Island • PLUM BLOSSOMS',
     region: 'EAST_ASIA',
     theme: { groundA: '#065f46', groundB: '#047857', path: '#fcd34d', grass: '#15803d', grassTip: '#86efac', tree: '#064e3b', treeTop: '#34d399', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['bulbasaur', 'treecko', 'turtwig', 'snivy', 'chespin', 'oddish', 'poliwag'],
+    encounters: ['ivysaur', 'gloom'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T..VV..GGGG..PP..GGGG..RR..T",
-      "T......GGGG.PPPP.GGGG..RR..T",
-      "T..VV.......P..P.......RR..T",
+      "T..OO..GGGG..PP..GGGG..OO..T",
+      "T......GGGG.PPPP.GGGG..OO..T",
+      "T..OO.......P..P.......RR..T",
       "T......PPPPPP..PPPPPP......T",
-      "T..GGGGP....F..F....PGGGG..T",
+      "T..GGGGP....O..O....PGGGG..T",
       "T..GGGGP............PGGGG..T",
-      "T......P..VV....RR..P......T",
+      "T......P..OO....OO..P......T",
       "T......PPPPPPPPPPPPPP......T",
       "EPPPPPPPPPPPPPPPP..........T",
       "EPPPPPPPPPPPPPPPP..........T",
       "T......PPPPPPPPPPPPPP......T",
-      "TWWWWWWP............P..RR..T",
-      "TWWWWWWP....F..F....P..RR..T",
+      "TWWWWWWP............P..OO..T",
+      "TWWWWWWP....O..O....P..OO..T",
       "TWWWWWWPPPPPPPPPPPPPP......T",
       "T...........P..P...........T",
       "T......GGGG.PPPP.GGGG......T",
@@ -1700,45 +1763,50 @@ const WORLD_MAPS = {
       {
         id: 'taiwan_chip_engineer', name: 'ENGINEER MORRIS', topic: 'SEMICONDUCTOR ENG. • PHOTOLITHOGRAPHY', x: 10, y: 5,
         skinColor: '#fde68a', hatColor: '#0284c7', shirtColor: '#e0f2fe',
-        fact: "ENGINEER MORRIS: Taiwan fabricates the world's most advanced microchips! Extreme Ultraviolet (EUV) photolithography etches silicon transistors smaller than 3 nanometers!"
+        fact: "ENGINEER MORRIS: Green Island fabricates the world's most advanced microchips! Extreme Ultraviolet (EUV) photolithography etches silicon transistors smaller than 3 nanometers!"
       },
       {
         id: 'taiwan_boba_vendor', name: 'VENDOR MEI (NIGHT MARKET)', topic: 'FOOD SCIENTIST • TAPIOCA POLYMERS', x: 16, y: 11,
         skinColor: '#fed7aa', hatColor: '#d97706', shirtColor: '#fef3c7',
         fact: "VENDOR MEI: Bubble tea pearls are made from cassava root starch! Boiling gelatinizes the starch polymers into chewy, elastic spheres!"
+      },
+      {
+        id: 'overworld_suicune', name: 'SUICUNE', topic: 'LEGENDARY POKéMON • PURE SPRING WATER', x: 13, y: 8,
+        isMonster: true, monsterId: 'suicune', isLegendary: true,
+        fact: "SUICUNE: Shuuu-aaah! (Suicune purifies mountain springs among the Plum Blossoms! The character 花 [huā] means Flower!)"
       }
     ]
   },
 
-  // E5. JAPAN (NORTH OF TAIWAN, EAST OF CHINA, SOUTH OF SOUTH KOREA)
+  // E5. JAPAN -> Monster Island
   JAPAN: {
     id: 'JAPAN',
-    name: 'SAKURA FUJI ARCHIPELAGO (JAPAN)',
-    subtitle: 'W: CHINA • S: TAIWAN • N: SOUTH KOREA • ONSEN & SAKURA',
+    name: 'Monster Island',
+    subtitle: 'W: Crimson Walls • S: Green Island • N: Neon Plaza',
     region: 'EAST_ASIA',
     theme: { groundA: '#4c1d95', groundB: '#5b21b6', path: '#fbcfe8', grass: '#be185d', grassTip: '#f9a8d4', tree: '#3b0764', treeTop: '#f472b6', rock: '#64748b', rockLight: '#f8fafc', rockDark: '#1e293b' },
-    encounters: ['pikachu', 'charmander', 'squirtle', 'cyndaquil', 'totodile', 'torchic', 'mudkip', 'oshawott', 'froakie'],
+    encounters: ['charmeleon', 'wartortle'],
     rows: [
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
-      "T..FF..GGGG..PP..GGGG..SS..T",
-      "T......GGGG.PPPP.GGGG..SS..T",
-      "T..FF.......P..P...........T",
-      "T......PPPPPP..PPPPPP......T",
-      "T..GGGGP...RRRRRR...PGGGG..T",
-      "T..GGGGP..RIIIIIIR..PGGGG..T",
-      "T......P..RIIIIIIR..P......T",
-      "T......PPPPPPPPPPPPPP......T",
-      "EPPPPPPPPPPPPPPPP..........T",
-      "EPPPPPPPPPPPPPPPP..........T",
-      "T......PPPPPPPPPPPPPP......T",
-      "T..SS..P....F..F....P..FF..T",
-      "T..SS..P............P..FF..T",
-      "T......PPPPPPPPPPPPPP......T",
-      "T...........P..P...........T",
-      "T......GGGG.PPPP.GGGG......T",
-      "T..FF..GGGG..PP..GGGG..FF..T",
-      "T............PP............T",
-      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+      "JJJJJJJJJJJJJEEJJJJJJJJJJJJJ",
+      "J..JJ..GGGG..PP..GGGG..SS..J",
+      "J......GGGG.PPPP.GGGG..SS..J",
+      "J..JJ.......P..P...........J",
+      "J......PPPPPP..PPPPPP......J",
+      "J..GGGGP...RRRRRR...PGGGG..J",
+      "J..GGGGP..RIIIIIIR..PGGGG..J",
+      "J......P..RIIIIIIR..P......J",
+      "J......PPPPPPPPPPPPPP......J",
+      "EPPPPPPPPPPPPPPPP..........J",
+      "EPPPPPPPPPPPPPPPP..........J",
+      "J......PPPPPPPPPPPPPP......J",
+      "J..SS..P....J..J....P..JJ..J",
+      "J..SS..P............P..JJ..J",
+      "J......PPPPPPPPPPPPPP......J",
+      "J...........P..P...........J",
+      "J......GGGG.PPPP.GGGG......J",
+      "J..JJ..GGGG..PP..GGGG..JJ..J",
+      "J............PP............J",
+      "JJJJJJJJJJJJJEEJJJJJJJJJJJJJ"
     ],
     exits: {
       west:  { targetMap: 'CHINA',       spawnX: 26, spawnY: 9 },
@@ -1754,38 +1822,43 @@ const WORLD_MAPS = {
       {
         id: 'japan_seismologist', name: 'DR. OMORI', topic: 'SEISMOLOGIST • PACIFIC RING OF FIRE', x: 17, y: 8,
         skinColor: '#f5cba7', hatColor: '#dc2626', shirtColor: '#fde047',
-        fact: "DR. OMORI: Mount Fuji is a stratovolcano formed along a tectonic subduction zone! Japan uses base-isolation shock absorbers so skyscrapers sway safely during earthquakes!"
+        fact: "DR. OMORI: Mount Fuji is a stratovolcano formed along a tectonic subduction zone! Monster Island uses base-isolation shock absorbers so skyscrapers sway safely during earthquakes!"
+      },
+      {
+        id: 'overworld_ho_oh', name: 'RAINBOW HO-OH', topic: 'LEGENDARY POKéMON • SACRED PHOENIX', x: 13, y: 4,
+        isMonster: true, monsterId: 'ho_oh', isLegendary: true,
+        fact: "HO-OH: Kyaaaooh! (Ho-Oh's wings glow in seven rainbow colors above the Cherry Blossoms! The character 火 [huǒ] means Fire!)"
       }
     ]
   },
 
-  // E6. SOUTH KOREA (NORTH OF JAPAN)
+  // E6. SOUTH_KOREA -> Neon Plaza
   SOUTH_KOREA: {
     id: 'SOUTH_KOREA',
-    name: 'HAN RIVER DIGITAL PLAZA (SOUTH KOREA)',
-    subtitle: 'S: JAPAN • ESPORTS ARENA, FERMENTATION & K-POP STAGE',
+    name: 'Neon Plaza',
+    subtitle: 'S: Monster Island • KIMCHI ONGGI JARS & ESPORTS ARENA',
     region: 'EAST_ASIA',
     theme: { groundA: '#1e1b4b', groundB: '#312e81', path: '#93c5fd', grass: '#1d4ed8', grassTip: '#60a5fa', tree: '#0f172a', treeTop: '#ec4899', rock: '#334155', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['jolteon', 'vaporeon', 'flareon', 'umbreon', 'piplup', 'fennekin', 'chikorita', 'porygon'],
+    encounters: ['vaporeon', 'raichu'],
     rows: [
       "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "H..VV..GGGG......GGGG..VV..H",
+      "H..kk..GGGG......GGGG..YY..H",
       "H......GGGG.PPPP.GGGG......H",
-      "H..VV.......P..P.......VV..H",
+      "H..kk.......P..P.......YY..H",
       "H......PPPPPP..PPPPPP......H",
-      "H..GGGGP....A..A....PGGGG..H",
+      "H..GGGGP....k..k....PGGGG..H",
       "H..GGGGP............PGGGG..H",
-      "H......P..AA....AA..P......H",
+      "H......P..kk....kk..P......H",
       "H......PPPPPPPPPPPPPP......H",
       "HWWWWWWWWWWWBBBBWWWWWWWWWWWH",
       "HWWWWWWWWWWWBBBBWWWWWWWWWWWH",
       "H......PPPPPPPPPPPPPP......H",
-      "H..GGGGP....V..V....PGGGG..H",
+      "H..GGGGP....Y..Y....PGGGG..H",
       "H..GGGGP............PGGGG..H",
       "H......PPPPPPPPPPPPPP......H",
-      "H..VV.......P..P.......VV..H",
+      "H..kk.......P..P.......YY..H",
       "H......GGGG.PPPP.GGGG......H",
-      "H..VV..GGGG..PP..GGGG..VV..H",
+      "H..kk..GGGG..PP..GGGG..YY..H",
       "H............PP............H",
       "HHHHHHHHHHHHHEEHHHHHHHHHHHHH"
     ],
@@ -1802,35 +1875,40 @@ const WORLD_MAPS = {
         id: 'korea_pro_gamer', name: 'PRO GAMER SANG-HYEOK', topic: 'ESPORTS PRO • REFLEX ARCS & MYELIN', x: 16, y: 12,
         skinColor: '#fed7aa', hatColor: '#2563eb', shirtColor: '#dbeafe',
         fact: "PRO GAMER SANG-HYEOK: Hitting 400 Actions Per Minute relies on myelinated motor neurons conducting action potentials from the motor cortex to your fingers in milliseconds!"
+      },
+      {
+        id: 'overworld_raikou', name: 'THUNDER RAIKOU', topic: 'LEGENDARY POKéMON • LIGHTNING SPEED', x: 13, y: 8,
+        isMonster: true, monsterId: 'raikou', isLegendary: true,
+        fact: "RAIKOU: Raaai-kou! (Raikou rides thunderclouds across the Han River! The character 電 [diàn] means Electricity!)"
       }
     ]
   },
 
-  // E7. MONGOLIA (NORTH OF CHINA)
+  // E7. MONGOLIA -> Khaki Plains
   MONGOLIA: {
     id: 'MONGOLIA',
-    name: 'ETERNAL BLUE SKY STEPPE (MONGOLIA)',
-    subtitle: 'S: CHINA • VAST GRASSLAND STEPPE & GOBI FOSSIL BEDS',
+    name: 'Khaki Plains',
+    subtitle: 'S: Crimson Walls • MONGOLIAN YURTS & STEPPE',
     region: 'EAST_ASIA',
     theme: { groundA: '#ca8a04', groundB: '#a16207', path: '#fef08a', grass: '#4d7c0f', grassTip: '#a3e635', tree: '#365314', treeTop: '#84cc16', rock: '#78350f', rockLight: '#fde68a', rockDark: '#451a03' },
-    encounters: ['ponyta', 'rapidash', 'tauros', 'doduo', 'aerodactyl', 'kabuto', 'omanyte', 'sandshrew'],
+    encounters: ['tauros', 'rapidash'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-      "R..GGGGGGGG......GGGGGGGG..R",
-      "R..GGGGGGGG.PPPP.GGGGGGGG..R",
-      "R..GGGGGGGG.P..P.GGGGGGGG..R",
+      "R..gg..GGGG......GGGG..gg..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..gg.......P..P.......gg..R",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....HHHH....PGGGG..R",
-      "R..GGGGP....HDDH....PGGGG..R",
-      "R......P............P......R",
+      "R..GGGGP....g..g....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..gg....gg..P......R",
       "R......PPPPPPPPPPPPPP......R",
       "R...........PPPP...........R",
       "R...........PPPP...........R",
       "R......PPPPPPPPPPPPPP......R",
-      "R..GGGGP....R..R....PGGGG..R",
+      "R..GGGGP....g..g....PGGGG..R",
       "R..GGGGP............PGGGG..R",
       "R......PPPPPPPPPPPPPP......R",
-      "R..GGGG.....P..P.....GGGG..R",
+      "R..gg.......P..P.......gg..R",
       "R..GGGGGGGG.PPPP.GGGGGGGG..R",
       "R..GGGGGGGG..PP..GGGGGGGG..R",
       "R............PP............R",
@@ -1841,7 +1919,7 @@ const WORLD_MAPS = {
     },
     npcs: [
       {
-        id: 'mongolia_throat_singer', name: 'KHOOMEI MASTER BATBAYAR', topic: 'ACOUSTICIAN • OVERTONE HARMONICS', x: 11, y: 8,
+        id: 'mongolia_throat_singer', name: 'KHOOMEI MASTER BATBAYAR', topic: 'ACOUSTICIAN • OVERTONE HARMONICS', x: 10, y: 8,
         skinColor: '#e59866', hatColor: '#0284c7', shirtColor: '#fde047',
         fact: "MASTER BATBAYAR: Traditional Mongolian throat singing (Khoomei) shapes the vocal tract as a resonator to amplify two distinct harmonic frequencies at the exact same time!"
       },
@@ -1849,7 +1927,15 @@ const WORLD_MAPS = {
         id: 'mongolia_gobi_paleo', name: 'NOMADIC RANGER ALTAN', topic: 'PALEONTOLOGIST • GOBI DINOSAUR EGGS', x: 16, y: 12,
         skinColor: '#ca8a5b', hatColor: '#78350f', shirtColor: '#fed7aa',
         fact: "RANGER ALTAN: The Flaming Cliffs of the Gobi Desert were where the first fossilized dinosaur eggs and Velociraptor skeletons were discovered in the 1920s!"
+      },
+      {
+        id: 'overworld_entei', name: 'VOLCANIC ENTEI', topic: 'LEGENDARY POKéMON • STEPPE FLAME', x: 13, y: 8,
+        isMonster: true, monsterId: 'entei', isLegendary: true,
+        fact: "ENTEI: Bwooo-oh! (Entei races across Khaki Plains! The character 山 [shān] means Mountain!)"
       }
     ]
   }
 };
+
+// Alias MIRADOURO_LUA to MOON so both keys work seamlessly across overworld.js & audio.js
+WORLD_MAPS.MIRADOURO_LUA = WORLD_MAPS.MOON;

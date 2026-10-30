@@ -491,6 +491,139 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
+
+  J: {
+    id: 'J', name: 'CHERRY BLOSSOM TREE', walkable: false,
+    palette: { p: '#f472b6', d: '#db2777', l: '#fbcfe8', b: '#451a03', s: '#be185d', t: '#fdf2f8' },
+    grid: [
+      "................",
+      ".....llttttt....",
+      "...ddlllttppt...",
+      "..dllllttppttt..",
+      "..dlllblpppppt..",
+      "..llllbppbbppt..",
+      "..llbllbpbpptt..",
+      "...lllbbbbppt...",
+      "....llbbbbtt....",
+      "......bbbb......",
+      ".....bbbbbb.....",
+      ".....bbbbbb..l..",
+      "..l.........ll..",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  O: {
+    id: 'O', name: 'PLUM BLOSSOM SHRUB', walkable: false,
+    palette: { p: '#e11d48', d: '#9f1239', l: '#fda4af', b: '#292524', s: '#fde047', t: '#fff1f2' },
+    grid: [
+      "................",
+      "....pp....pp....",
+      "...pspp..ppsp...",
+      "....pp.bb.pp....",
+      "..ll..bbbb..ll..",
+      ".lsllbb..bbllsl.",
+      "..llbb.pp.bbll..",
+      "....bbpspb.bb...",
+      "...bb..pp...bb..",
+      "...bb......bb...",
+      "....bbbbbbbb....",
+      "......bbbb......",
+      ".....bbbbbb.....",
+      "....bbbbbbbb....",
+      "................",
+      "................"
+    ]
+  },
+  Z: {
+    id: 'Z', name: 'GREAT WALL BATTLEMENT', walkable: false,
+    palette: { p: '#78716c', d: '#44403c', l: '#d6d3d1', b: '#1c1917', s: '#dc2626', t: '#a8a29e' },
+    grid: [
+      "bbbb..bbbb..bbbb",
+      "bllb..bllb..bllb",
+      "bppb..bppb..bppb",
+      "bbbbbbbbbbbbbbbb",
+      "bllllllllllllllb",
+      "bpppbppppppbpppb",
+      "bddddddddddddddb",
+      "bbbbbbbbbbbbbbbb",
+      "bpppbppppppbpppb",
+      "bpppbpsssspbpppb",
+      "bddddbsbbsbddddb",
+      "bbbbbbbsbsbbbbbb",
+      "bppppppbbppppppb",
+      "bddddddddddddddb",
+      "bbbbbbbbbbbbbbbb",
+      "................"
+    ]
+  },
+  X: {
+    id: 'X', name: 'CASINO SLOT MACHINE', walkable: false,
+    palette: { p: '#eab308', d: '#a16207', l: '#fef08a', b: '#0f172a', s: '#ef4444', t: '#ffffff' },
+    grid: [
+      "....bbbbbbbb....",
+      "...bllllllllb...",
+      "..bbssssssssbb..",
+      "..bppppppppppb..",
+      "..bpbbbbbbbbpb..",
+      "..bpbtsbtsbtpb..".replace(/bpbtsbtsbtpb/, 'bpbtstststpb'),
+      "..bpbtsbtsbtpb..".replace(/bpbtsbtsbtpb/, 'bpbsstststpb').slice(0, 16),
+      "..bpbbbbbbbbpb..".slice(0, 16),
+      "..bppppppppppb.s",
+      "..bpddddddddpb.b",
+      "..bpbbbbbbbbpb.b",
+      "..bppppppppppbbb",
+      "..bddddddddddb..",
+      "..bbbbbbbbbbbb..",
+      "................",
+      "................"
+    ]
+  },
+  g: {
+    id: 'g', name: 'MONGOLIAN YURT (GER)', walkable: false,
+    palette: { p: '#f8fafc', d: '#cbd5e1', l: '#38bdf8', b: '#0f172a', s: '#dc2626', t: '#f59e0b' },
+    grid: [
+      "......bbbb......",
+      "....bbssssbb....",
+      "...bssttttssb...",
+      "..bppppppppppb..",
+      ".bppppppppppppb.",
+      "bllllllllllllllb",
+      "bppppppppppppppb",
+      "bpdpdpbbbbpdpdpb",
+      "bpdpppbsbspppdpb",
+      "bpdpdpbstsbpdpdb",
+      "bpdpppbsbspppdpb",
+      "bdddddbbbbdddddb",
+      ".bbbbbbbbbbbbbb.",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  k: {
+    id: 'k', name: 'JARS OF KIMCHI (ONGGI)', walkable: false,
+    palette: { p: '#78350f', d: '#451a03', l: '#b45309', b: '#0f172a', s: '#dc2626', t: '#fde68a' },
+    grid: [
+      "................",
+      "...bbbb..bbbb...",
+      "..bddddbbddddb..",
+      "...bbbb..bbbb...",
+      "..bllppbbllppb..",
+      ".blllpppblllpppb",
+      ".blpppppbllppppb",
+      ".bppddddbppddddb",
+      "..bpddddbbpddddb",
+      "..bddddddbdddddb",
+      "...bbbbbbbbbbbb.",
+      "....ssssssssss..",
+      "................",
+      "................",
+      "................",
+      "................"
+    ]
+  },
   BERRY: {
     id: 'BERRY', name: 'WILD FLOOR BERRY', walkable: false, obtainable: true,
     palette: { p: '#a855f7', d: '#581c87', l: '#f3e8ff', b: '#0f172a', s: '#e9d5ff', t: '#fde047'  },
@@ -866,6 +999,7 @@ function drawOverworldCanvas() {
   const facingNpc = getFacingNPC();
   if (mapObj.npcs) {
     mapObj.npcs.forEach(npc => {
+      if (typeof isNPCActiveOnMap === 'function' && !isNPCActiveOnMap(npc)) return;
       if (npc.isMonster || npc.monsterId) {
         drawOverworldPokemonNPC(ctx, npc, p, facingNpc && facingNpc.id === npc.id, animTick);
       } else {
@@ -877,6 +1011,7 @@ function drawOverworldCanvas() {
   const facingPoke = typeof getFacingPokeNPC === 'function' ? getFacingPokeNPC() : null;
   if (mapObj.pokeNpcs) {
     mapObj.pokeNpcs.forEach(pNpc => {
+      if (typeof isNPCActiveOnMap === 'function' && !isNPCActiveOnMap(pNpc)) return;
       drawOverworldPokemonNPC(ctx, pNpc, p, facingPoke && facingPoke.id === pNpc.id, animTick);
     });
   }

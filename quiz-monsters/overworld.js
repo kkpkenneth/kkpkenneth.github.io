@@ -1,7 +1,8 @@
 /********************************************************************
  * overworld.js
  * Visible Floor Items, Blocking Collision, Space/A Talk Interactivity,
- * Live Map Thumbnails, 2x2 Portal (at 50 Dex) & East Asia Grand Map
+ * Two-Step Legendary Battles (Respawn on Area Re-entry if Defeated),
+ * Live Area Thumbnails, 2x2 Portal (at 50 Dex) & Grand Region Maps
  ********************************************************************/
 
 const FLOOR_ITEM_TYPES = [
@@ -84,19 +85,44 @@ const HUMAN_SKIN_PALETTE = [
   '#fde68a', '#fed7aa', '#f5cba7', '#e59866', '#ca8a5b', '#a16236', '#784212', '#5c3317'
 ];
 
-// 1. 5x5 Habitat Region Grand Map Matrix
+// 1. Original Region (5x5 Grand Map = 25 Walkable Areas)
 const GRAND_MAP_5X5_GRID = [
   ['AURORA_RIDGE', 'WIND_TEMPLE', 'GLACIER',  'METEOR_CRATER', 'CYBER_NEXUS'],
   ['SPIRE',        'NORTHWEST',   'MOUNTAIN', 'NORTHEAST',     'FOUNDRY'],
   ['SANCTUARY',    'FOREST',      'CENTER',   'DESERT',        'ONSEN'],
   ['KALOS_GROVE',  'SOUTHWEST',   'BEACH',    'SOUTHEAST',     'VOLCANO'],
-  ['SUNKEN_RUINS', 'BRAMBLE',     'ABYSS',    'SHADOW_ALLEY',  'MIRADOURO_LUA']
+  ['SUNKEN_RUINS', 'BRAMBLE',     'ABYSS',    'SHADOW_ALLEY',  'MOON']
 ];
 
-// 2. East Asia Region Matrix (Exact Geographical Layout)
-// Row 0: [null,    'MONGOLIA',  'SOUTH_KOREA']
-// Row 1: [null,    'CHINA',     'JAPAN'      ]
-// Row 2: ['MACAU', 'HONG_KONG', 'TAIWAN'     ]
+const OG_REGION_AREA_NAMES = {
+  AURORA_RIDGE:  'Obsidian Tundra',
+  WIND_TEMPLE:   'Azure Taiga',
+  GLACIER:       'Cyan Cliff',
+  METEOR_CRATER: 'Indigo Lake',
+  CYBER_NEXUS:   'Neon Zone',
+  SPIRE:         'Magenta Cave',
+  NORTHWEST:     'Cobalt Boreal',
+  MOUNTAIN:      'Slate Mountain',
+  NORTHEAST:     'Amber Desert',
+  FOUNDRY:       'Gray Town',
+  SANCTUARY:     'Magenta Shrubland',
+  FOREST:        'Teal Forest',
+  CENTER:        'Beige Village',
+  DESERT:        'Scarlet Savanna',
+  ONSEN:         'Silver Geyser',
+  KALOS_GROVE:   'Jade Jungle',
+  SOUTHWEST:     'Emerald Swamp',
+  BEACH:         'Golden Coast',
+  SOUTHEAST:     'Bronze Reef',
+  VOLCANO:       'Crimson Volcano',
+  SUNKEN_RUINS:  'Sapphire Ocean',
+  BRAMBLE:       'Purple Woods',
+  ABYSS:         'Navy Abyss',
+  SHADOW_ALLEY:  'Obsidian Urban',
+  MOON:          'Ruby Badlands'
+};
+
+// 2. East Asia Region Grand Map (7 Walkable Areas)
 const EAST_ASIA_MAP_GRID = [
   [null,    'MONGOLIA',  'SOUTH_KOREA'],
   [null,    'CHINA',     'JAPAN'],
@@ -107,9 +133,54 @@ const EAST_ASIA_MAP_IDS = new Set([
   'HONG_KONG', 'MACAU', 'CHINA', 'TAIWAN', 'JAPAN', 'SOUTH_KOREA', 'MONGOLIA'
 ]);
 
-const LEGENDARY_MONSTER_IDS = new Set(['articuno', 'zapdos', 'moltres', 'mewtwo', 'mew', 'deoxys']);
+const LEGENDARY_MONSTER_IDS = new Set([
+  'articuno', 'zapdos', 'moltres', 'mewtwo', 'mew', 'deoxys',
+  'raikou', 'entei', 'suicune', 'lugia', 'ho_oh',
+  'kyogre', 'groudon', 'rayquaza', 'dialga', 'palkia'
+]);
 
 const _mapThumbnailCache = {};
+
+function applyOriginalRegionAreaNames() {
+  if (typeof WORLD_MAPS === 'undefined') return;
+  Object.keys(OG_REGION_AREA_NAMES).forEach(areaKey => {
+    if (WORLD_MAPS[areaKey]) {
+      WORLD_MAPS[areaKey].name = OG_REGION_AREA_NAMES[areaKey];
+    }
+  });
+}
+
+function getCanonicalLegendaryId(npcOrMon) {
+  if (!npcOrMon) return '';
+  return (npcOrMon.monsterId || npcOrMon.speciesId || npcOrMon.id || '')
+    .toLowerCase()
+    .replace(/^overworld_/, '');
+}
+
+function isLegendarySpeciesId(idStr) {
+  if (!idStr) return false;
+  return LEGENDARY_MONSTER_IDS.has(idStr.toLowerCase().replace(/^overworld_/, ''));
+}
+
+function isNPCActiveOnMap(npc) {
+  if (!npc) return false;
+  const rawId = getCanonicalLegendaryId(npc);
+  const isLeg = Boolean(npc.isLegendary || isLegendarySpeciesId(rawId));
+  if (isLeg) {
+    if (state.dex && state.dex.some(p => p.id.toLowerCase() === rawId)) {
+      return false;
+    }
+    if (Array.isArray(state.defeatedLegendariesInArea) && state.defeatedLegendariesInArea.includes(rawId)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function clearAreaLegendaryStateOnTransit() {
+  state.pendingLegendaryChallengeId = null;
+  state.defeatedLegendariesInArea = [];
+}
 
 function renderMapThumbnailDataURL(mapObj) {
   if (!mapObj || !mapObj.rows) return '';
@@ -131,9 +202,12 @@ function renderMapThumbnailDataURL(mapObj) {
       else if (ch === 'W') color = '#0284c7';
       else if (ch === 'L') color = '#ef4444';
       else if (ch === 'I') color = '#7dd3fc';
-      else if (ch === 'H' || ch === 'D') color = '#f43f5e';
+      else if (ch === 'H' || ch === 'D' || ch === 'Y' || ch === 'X') color = '#f43f5e';
+      else if (ch === 'J' || ch === 'O') color = '#f472b6';
+      else if (ch === 'g') color = '#f8fafc';
+      else if (ch === 'k') color = '#b45309';
       else if (ch === 'T' || ch === 'C') color = th.treeTop || th.tree || '#14532d';
-      else if (ch === 'R' || ch === 'Q' || ch === 'V' || ch === 'A' || ch === 'N') color = th.rockLight || th.rock || '#94a3b8';
+      else if (ch === 'R' || ch === 'Z' || ch === 'Q' || ch === 'V' || ch === 'A' || ch === 'N') color = th.rockLight || th.rock || '#94a3b8';
 
       ctx.fillStyle = color;
       ctx.fillRect(c * 2, r * 2, 2, 2);
@@ -167,7 +241,6 @@ function drawPortalOnCanvas(ctx, animTick) {
   const pulse = Math.sin(animTick / 180) * 3;
 
   ctx.save();
-  // Outer 2x2 dimensional frame
   ctx.fillStyle = '#1e1b4b';
   ctx.fillRect(px + 2, py + 2, size - 4, size - 4);
 
@@ -175,7 +248,6 @@ function drawPortalOnCanvas(ctx, animTick) {
   ctx.lineWidth = 3;
   ctx.strokeRect(px + 4, py + 4, size - 8, size - 8);
 
-  // Swirling inner vortex rings
   ctx.fillStyle = '#7e22ce';
   ctx.fillRect(px + 8, py + 8, size - 16, size - 16);
 
@@ -186,15 +258,6 @@ function drawPortalOnCanvas(ctx, animTick) {
   ctx.fillRect(px + 24, py + 24, size - 48, size - 48);
 
   ctx.restore();
-}
-
-function isNPCActiveOnMap(npc) {
-  if (!npc) return false;
-  const monId = (npc.monsterId || npc.speciesId || '').toLowerCase();
-  if ((npc.isLegendary || LEGENDARY_MONSTER_IDS.has(monId)) && state.dex && state.dex.some(p => p.id.toLowerCase() === monId)) {
-    return false;
-  }
-  return true;
 }
 
 function getNPCSkinColor(npc) {
@@ -218,6 +281,7 @@ function easeInOutCubic(t) {
 }
 
 function getCurrentMap() {
+  applyOriginalRegionAreaNames();
   return WORLD_MAPS[state.currentMapId] || WORLD_MAPS.CENTER;
 }
 
@@ -245,15 +309,23 @@ function isTileBlocked(col, row) {
       tile === 'T' || tile === 'W' || tile === 'H' || tile === 'R' ||
       tile === 'I' || tile === 'C' || tile === 'K' || tile === 'L' ||
       tile === 'S' || tile === 'V' || tile === 'U' || tile === 'A' ||
-      tile === 'N' || tile === 'Q'
+      tile === 'N' || tile === 'Q' || tile === 'Y' || tile === 'J' ||
+      tile === 'O' || tile === 'Z' || tile === 'X' || tile === 'g' || tile === 'k'
     ) {
       return true;
     }
   }
 
   const mapObj = getCurrentMap();
+  
+  // Force any active Legendary NPC to act as a solid, blocking obstacle object
+  if (mapObj.npcs && mapObj.npcs.some(npc => isNPCActiveOnMap(npc) && (npc.isLegendary || isLegendarySpeciesId(getCanonicalLegendaryId(npc))) && npc.x === col && npc.y === row)) {
+    return true;
+  }
+
   if (mapObj.npcs && mapObj.npcs.some(npc => isNPCActiveOnMap(npc) && npc.x === col && npc.y === row)) return true;
   if (mapObj.pokeNpcs && mapObj.pokeNpcs.some(p => isNPCActiveOnMap(p) && p.x === col && p.y === row)) return true;
+
   return false;
 }
 
@@ -267,7 +339,7 @@ function spawnFloorItemsForCurrentMap() {
 
   for (let r = 2; r < MAP_ROWS - 2; r++) {
     for (let c = 2; c < MAP_COLS - 2; c++) {
-      if ((c === 13 || c === 14) && (r === 9 || r === 10)) continue; // Keep 2x2 portal area clear
+      if ((c === 13 || c === 14) && (r === 9 || r === 10)) continue;
       const tile = getTileAt(c, r);
       if ((tile === '.' || tile === 'P' || tile === 'G' || tile === 'F') && !isTileBlocked(c, r)) {
         if (state.playerWorld && state.playerWorld.gridX === c && state.playerWorld.gridY === r) continue;
@@ -328,7 +400,6 @@ function interactWithFloorItem(item) {
 }
 
 function drawFloorItemsOnCanvas(ctx, animTick) {
-  // Also render the 2x2 portal if on CENTER (with >=50 Pokemon) or HONG_KONG
   drawPortalOnCanvas(ctx, animTick);
 
   if (!Array.isArray(state.floorItems) || state.floorItems.length === 0) return;
@@ -366,6 +437,7 @@ function syncWorldMapButtonState() {
 }
 
 function renderGrandMapGridRegion(regionMode, mapModal) {
+  applyOriginalRegionAreaNames();
   const grid = document.getElementById('worldMapRegionsGrid');
   if (!grid) return;
   grid.innerHTML = '';
@@ -389,12 +461,11 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
       const mapObj = WORLD_MAPS[mapKey];
       const isCurrent = state.currentMapId === mapKey;
       const targetIsEastAsia = EAST_ASIA_MAP_IDS.has(mapKey);
-      // Enforces rule 6: Habitat region and East Asia region are linked by the 2x2 Portal only
       const sameRegionAsPlayer = (isCurrentInEastAsia === targetIsEastAsia);
       const allowFastTravelHere = canFly && !isCurrent && sameRegionAsPlayer;
 
       const bgHex = mapObj.theme?.groundA || '#334155';
-      const shortName = mapObj.name.replace(/\s*\([^)]*\)\s*/g, '');
+      const areaTitle = OG_REGION_AREA_NAMES[mapKey] || mapObj.name.replace(/\s*\([^)]*\)\s*/g, '');
       const thumbUrl = renderMapThumbnailDataURL(mapObj);
 
       const card = document.createElement('div');
@@ -406,15 +477,15 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
 
       card.innerHTML = `
         <div class="flex items-start justify-between gap-1">
-          <span class="text-[7px] sm:text-[8px] font-bold leading-tight drop-shadow-[1px_1px_0_#000] truncate">${shortName}</span>
+          <span class="text-[7px] sm:text-[8px] font-bold leading-tight drop-shadow-[1px_1px_0_#000] truncate">${areaTitle}</span>
           ${isCurrent ? '<span class="text-[6px] bg-amber-400 text-slate-950 px-1 py-0.5 rounded font-bold shrink-0">📍 YOU</span>' : ''}
         </div>
         <div class="w-full h-11 sm:h-12 rounded border border-slate-950 overflow-hidden bg-slate-950 my-0.5 shadow-inner relative">
-          <img src="${thumbUrl}" alt="${shortName}" class="w-full h-full object-cover" style="image-rendering: pixelated;" />
+          <img src="${thumbUrl}" alt="${areaTitle}" class="w-full h-full object-cover" style="image-rendering: pixelated;" />
           ${(mapKey === 'CENTER' || mapKey === 'HONG_KONG') && isPortalUnlocked() ? '<span class="absolute bottom-0.5 right-0.5 text-[6px] bg-purple-700 text-white px-1 rounded border border-white">🌀 PORTAL</span>' : ''}
         </div>
         <div class="flex items-center justify-between gap-1 mt-auto">
-          <span class="text-[6px] text-slate-200 drop-shadow-[1px_1px_0_#000]">${regionMode === 'EAST_ASIA' ? 'ASIA' : `(${cIdx - 2}, ${2 - rIdx})`}</span>
+          <span class="text-[6px] text-slate-200 drop-shadow-[1px_1px_0_#000]">${regionMode === 'EAST_ASIA' ? 'EAST ASIA AREA' : `AREA (${cIdx - 2}, ${2 - rIdx})`}</span>
           ${allowFastTravelHere
             ? `<button type="button" class="bg-sky-400 hover:bg-sky-300 text-slate-950 text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">✈️ FLY</button>`
             : (!sameRegionAsPlayer && !isCurrent ? `<span class="text-[6px] bg-purple-900/90 text-purple-200 px-1 py-0.5 rounded">USE PORTAL</span>` : '')}
@@ -426,13 +497,14 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
           sfx.heal();
           mapModal.classList.add('hidden');
           mapModal.classList.remove('flex');
-          runShutterTransition(`FLYING TO ${shortName}...`, () => {
+          runShutterTransition(`FLYING TO ${areaTitle}...`, () => {
+            clearAreaLegendaryStateOnTransit();
             state.currentMapId = mapKey;
             teleportPlayerToGrid(13, 12);
             sfx.startBGM(state.currentMapId);
             updateOverworldHUD();
             if (typeof saveGameProgress === 'function') saveGameProgress();
-            setOverworldDialogue(`Flew directly to ${mapObj.name}!`, mapObj.name, 'FAST TRAVEL ✈️');
+            setOverworldDialogue(`Flew directly to ${areaTitle}!`, areaTitle, 'AREA FAST TRAVEL ✈️');
           });
         });
       }
@@ -445,7 +517,7 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
 function openWorldMapModal() {
   if (state.dex.length < 20) {
     sfx.wrongBuzzer();
-    setOverworldDialogue(`🔒 WORLD MAP LOCKED! You have caught ${state.dex.length}/${MONSTER_SPECIES.length} Pokémon! Catch at least 20 Pokémon to unlock the Grand World Map.`, 'LOCKED FEATURE', 'WORLD MAP 🔒');
+    setOverworldDialogue(`🔒 GRAND REGION MAP LOCKED! You have caught ${state.dex.length}/${MONSTER_SPECIES.length} Pokémon! Catch at least 20 Pokémon to unlock the Region Map.`, 'LOCKED FEATURE', 'REGION MAP 🔒');
     return;
   }
 
@@ -459,12 +531,12 @@ function openWorldMapModal() {
       <div class="w-full max-w-4xl retro-box p-3 sm:p-5 flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
         <div class="flex flex-wrap items-center justify-between border-b-2 border-slate-300 pb-2 gap-2">
           <div>
-            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ GRAND WORLD MAP &amp; THUMBNAIL ATLAS</h2>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ GRAND REGION MAP (WALKABLE AREAS)</h2>
             <p id="mapModalStatusSubtitle" class="text-[8px] sm:text-[9px] text-slate-600 mt-0.5"></p>
           </div>
           <div class="flex items-center gap-1.5">
-            <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2.5 py-1 font-bold">🌍 HABITAT (5×5)</button>
-            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[8px] px-2.5 py-1 font-bold">🏮 EAST ASIA</button>
+            <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2.5 py-1 font-bold">🌍 OG REGION (25 AREAS)</button>
+            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[8px] px-2.5 py-1 font-bold">🏮 EAST ASIA REGION</button>
             <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
           </div>
         </div>
@@ -485,8 +557,8 @@ function openWorldMapModal() {
   const portalReady = isPortalUnlocked();
   const subtitleEl = document.getElementById('mapModalStatusSubtitle');
   if (subtitleEl) {
-    subtitleEl.textContent = `${canFly ? '✈️ FLY UNLOCKED (within current region)' : `✈️ FLY LOCKED (${state.dex.length}/30)`} • ${
-      portalReady ? '🌀 2×2 HK PORTAL ACTIVE IN PALLET HUB!' : `🌀 EAST ASIA PORTAL LOCKED (${state.dex.length}/50 Pokémon)`
+    subtitleEl.textContent = `${canFly ? '✈️ FLY UNLOCKED (between areas in current region)' : `✈️ FLY LOCKED (${state.dex.length}/30)`} • ${
+      portalReady ? '🌀 2×2 HK PORTAL ACTIVE IN VERDANT HUB!' : `🌀 EAST ASIA PORTAL LOCKED (${state.dex.length}/50 Pokémon)`
     }`;
   }
 
@@ -502,7 +574,7 @@ function openWorldMapModal() {
     tabAsia.onclick = () => {
       if (!isPortalUnlocked() && !EAST_ASIA_MAP_IDS.has(state.currentMapId)) {
         sfx.wrongBuzzer();
-        setOverworldDialogue(`🔒 EAST ASIA REGION LOCKED! Catch 50 Pokémon (${state.dex.length}/50) to open the 2×2 Portal in Pallet Research Hub!`, 'PORTAL LOCKED', '50 DEX REQUIRED');
+        setOverworldDialogue(`🔒 EAST ASIA REGION LOCKED! Catch 50 Pokémon (${state.dex.length}/50) to open the 2×2 Portal in Verdant Hub!`, 'PORTAL LOCKED', '50 DEX REQUIRED');
         return;
       }
       sfx.blip();
@@ -581,6 +653,28 @@ function getFacingPokeNPC() {
   return pokeNpcs.find(p => isNPCActiveOnMap(p) && p.x === tx && p.y === ty) || null;
 }
 
+function handleTwoStepLegendaryInteraction(npcObj, rawMonId) {
+  const targetSpecies = MONSTER_SPECIES.find(
+    m => m.id.toLowerCase() === rawMonId || m.name.toLowerCase() === (npcObj.name || '').toLowerCase()
+  );
+
+  if (state.pendingLegendaryChallengeId === rawMonId && targetSpecies) {
+    state.pendingLegendaryChallengeId = null;
+    triggerWildBattleFromOverworld(targetSpecies, true);
+    return;
+  }
+
+  sfx.pokemonCry(rawMonId);
+  state.pendingLegendaryChallengeId = rawMonId;
+  const baseText = npcObj.fact || `${npcObj.name} eyes you with intense legendary power!`;
+  setOverworldDialogue(
+    `${baseText} [Press SPACE or A • TALK again to challenge ${npcObj.name}!]`,
+    npcObj.name,
+    'PRESS SPACE / TALK TO BATTLE ★'
+  );
+  updateOverworldHUD();
+}
+
 function interactWithFacingNPC() {
   if (state.screen !== 'OVERWORLD' || state.busy || state.playerWorld.isStepping) return;
 
@@ -588,49 +682,59 @@ function interactWithFacingNPC() {
 
   const facingItem = getFloorItemAt(tx, ty);
   if (facingItem) {
+    state.pendingLegendaryChallengeId = null;
     interactWithFloorItem(facingItem);
     return;
   }
 
   const pokeNpc = getFacingPokeNPC();
   if (pokeNpc) {
-    const species = MONSTER_SPECIES.find(m => m.id === pokeNpc.speciesId);
+    const rawPokeId = getCanonicalLegendaryId(pokeNpc);
+    const isLeg = Boolean(pokeNpc.isLegendary || isLegendarySpeciesId(rawPokeId));
+    if (isLeg) {
+      handleTwoStepLegendaryInteraction(pokeNpc, rawPokeId);
+      return;
+    }
+    state.pendingLegendaryChallengeId = null;
+    const species = MONSTER_SPECIES.find(m => m.id.toLowerCase() === rawPokeId);
     const displayName = species ? species.name : pokeNpc.name;
-    sfx.pokemonCry(pokeNpc.speciesId);
+    sfx.pokemonCry(rawPokeId);
     setOverworldDialogue(`${displayName}! ${displayName}~`, displayName, 'POKéMON CALL ♪');
     return;
   }
 
   const npc = getFacingNPC();
   if (npc) {
-    const monId = (npc.monsterId || npc.id || '').toLowerCase();
-    const isLeg = npc.isLegendary || LEGENDARY_MONSTER_IDS.has(monId);
+    const rawMonId = getCanonicalLegendaryId(npc);
+    const isLeg = Boolean(npc.isLegendary || isLegendarySpeciesId(rawMonId));
 
     if (npc.healsParty || npc.name.includes('NURSE')) {
+      state.pendingLegendaryChallengeId = null;
       if (typeof sfx.playHealWithBgmPause === 'function') sfx.playHealWithBgmPause();
       else sfx.heal();
       state.dex.forEach(m => { m.hp = m.maxHp; });
       syncAllUI();
       if (typeof saveGameProgress === 'function') saveGameProgress();
       setOverworldDialogue(npc.fact, npc.name, npc.topic);
-    } else if (isLeg) {
-      sfx.pokemonCry(monId);
-      setOverworldDialogue(npc.fact, npc.name, 'LEGENDARY CHALLENGE ★');
-      const targetSpecies = MONSTER_SPECIES.find(m => m.id.toLowerCase() === monId);
-      if (targetSpecies) {
-        setTimeout(() => {
-          triggerWildBattleFromOverworld(targetSpecies);
-        }, 900);
-      }
-    } else if (npc.isMonster || npc.monsterId) {
-      sfx.pokemonCry(npc.monsterId || npc.id);
-      setOverworldDialogue(npc.fact, npc.name, npc.topic);
+      return;
+    }
+
+    if (isLeg) {
+      handleTwoStepLegendaryInteraction(npc, rawMonId);
+      return;
+    }
+
+    state.pendingLegendaryChallengeId = null;
+    if (npc.isMonster || npc.monsterId) {
+      sfx.pokemonCry(rawMonId);
     } else {
       sfx.npcChime();
-      setOverworldDialogue(npc.fact, npc.name, npc.topic);
     }
+    setOverworldDialogue(npc.fact, npc.name, npc.topic);
     return;
   }
+
+  state.pendingLegendaryChallengeId = null;
 
   if (state.partnerWorld && state.partnerWorld.gridX === tx && state.partnerWorld.gridY === ty) {
     const partner = getActivePlayer();
@@ -648,7 +752,7 @@ function interactWithFacingNPC() {
   if (tile === 'W') {
     setOverworldDialogue("Crystal-clear water! Remember: roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "HYDROLOGY");
   } else if (tile === 'G') {
-    setOverworldDialogue("Tall wild grass! Step inside to encounter regional wild monsters!", "TALL GRASS", "HABITAT");
+    setOverworldDialogue("Tall wild grass! Step inside to encounter wild monsters native to this area!", "TALL GRASS", "HABITAT");
   } else if (tile === 'T') {
     setOverworldDialogue("Canopy tree! Trees absorb Carbon Dioxide through leaf Stomata and use Chlorophyll to produce Oxygen and glucose via Photosynthesis!", obsDef?.name || "CANOPY TREE", "BOTANY");
   } else if (tile === 'R') {
@@ -679,10 +783,22 @@ function interactWithFacingNPC() {
     setOverworldDialogue("Flickering shadow streetlamp! In cosmology, Dark Matter accounts for ~85% of the universe's mass, while a Black Hole's Event Horizon traps even light!", obsDef?.name || "SHADOW LAMP", "DARK COSMOLOGY");
   } else if (tile === 'Q') {
     setOverworldDialogue("Miradouro da Lua cliff spire! Over millions of years, wind and rain erosion carved red clay and sandstone into lunar-like hoodoo pinnacles!", obsDef?.name || "MOON CLIFF SPIRE", "GEOMORPHOLOGY");
+  } else if (tile === 'Y') {
+    setOverworldDialogue("Glowing neon sign! Neon tubes contain low-pressure noble gases that ionize and emit vibrant photons when high voltage is applied!", obsDef?.name || "NEON SIGN", "ATOMIC PHYSICS");
+  } else if (tile === 'J') {
+    setOverworldDialogue("Sakura cherry blossom tree! Cherry trees (Prunus serrulata) bloom synchronously in spring in response to rising temperatures and photoperiod!", obsDef?.name || "CHERRY BLOSSOM", "BOTANY");
+  } else if (tile === 'O') {
+    setOverworldDialogue("Fragrant plum blossom shrub! Plum blossoms (Prunus mume) bloom in late winter even through frost, symbolizing resilience!", obsDef?.name || "PLUM BLOSSOM", "BOTANY");
+  } else if (tile === 'Z') {
+    setOverworldDialogue("Great Wall battlement! Ancient builders mixed sticky rice amylopectin mortar with slaked lime (calcium carbonate) to bind these stone fortifications!", obsDef?.name || "GREAT WALL", "MATERIALS ENGINEERING");
+  } else if (tile === 'X') {
+    setOverworldDialogue("Cotai slot machine! Modern slot reels are governed by a Pseudo-Random Number Generator (PRNG) and the mathematical Law of Large Numbers!", obsDef?.name || "SLOT MACHINE", "PROBABILITY");
+  } else if (tile === 'g') {
+    setOverworldDialogue("Traditional Mongolian Yurt (Ger)! Its circular lattice wall and wool felt insulation resist fierce steppe winds while retaining thermal energy!", obsDef?.name || "MONGOLIAN YURT", "ARCHITECTURE & PHYSICS");
+  } else if (tile === 'k') {
+    setOverworldDialogue("Breathable clay Onggi jars of Kimchi! Micropores in the glazed earthenware allow carbon dioxide from Lactobacillus fermentation to escape while blocking outside air!", obsDef?.name || "KIMCHI ONGGI JARS", "MICROBIOLOGY");
   } else if (tile === 'H' || tile === 'D') {
     setOverworldDialogue("Professor's words echoed: \"Walking into someone's house without permission is known as trespassing and it is illegal!\"", "LOCKED HOUSE", "LAW & CIVICS");
-    } else if (tile === 'Y') {
-    setOverworldDialogue("Glowing neon sign! Neon tubes contain low-pressure noble gases that ionize and emit vibrant photons when high voltage is applied—red-orange for pure Neon, and blue for Argon with Mercury!", obsDef?.name || "NEON SIGN", "ATOMIC PHYSICS");
   } else {
     setOverworldDialogue("Face any Specialist, Alien, Overworld Pokémon, Obstacle, or Floor Item (Berries & Stones) and press SPACE or A!", "FIELD JOURNAL", "TIP");
   }
@@ -721,7 +837,7 @@ function updateOverworldHUD() {
 
   if (coordsText) {
     const itemsLeft = Array.isArray(state.floorItems) ? state.floorItems.length : 0;
-    coordsText.textContent = `MAP: ${mapObj.id} • POS: (${gridX}, ${gridY}) • ITEMS: ${itemsLeft} • ${tile === 'G' ? '⚠️ IN TALL GRASS' : 'SAFE PATH'}`;
+    coordsText.textContent = `AREA: ${mapObj.name} • POS: (${gridX}, ${gridY}) • ITEMS: ${itemsLeft} • ${tile === 'G' ? '⚠️ IN TALL GRASS' : 'SAFE PATH'}`;
   }
   if (zoneName) zoneName.textContent = mapObj.name;
   if (zoneSub) zoneSub.textContent = mapObj.subtitle;
@@ -740,21 +856,29 @@ function updateOverworldHUD() {
   if (promptEl) {
     if (isPortalTileOnCurrentMap(tx, ty)) {
       promptEl.textContent = state.currentMapId === 'CENTER'
-        ? 'STEP ONTO 2×2 PORTAL TO WARP TO HONG KONG 🌀'
-        : 'STEP ONTO 2×2 PORTAL TO WARP TO PALLET HUB 🌀';
+        ? 'STEP ONTO 2×2 PORTAL TO WARP TO HONG KONG REGION 🌀'
+        : 'STEP ONTO 2×2 PORTAL TO WARP TO VERDANT HUB 🌀';
       promptEl.classList.remove('hidden');
     } else if (facingItem) {
       promptEl.textContent = `PRESS [SPACE] OR [A] TO COLLECT / INTERACT WITH ${facingItem.name}`;
       promptEl.classList.remove('hidden');
     } else if (facingPoke) {
-      promptEl.textContent = `PRESS [SPACE] OR [A] TO GREET ${facingPoke.name} ♪`;
+      const rawPokeId = getCanonicalLegendaryId(facingPoke);
+      const isLeg = Boolean(facingPoke.isLegendary || isLegendarySpeciesId(rawPokeId));
+      promptEl.textContent = isLeg && state.pendingLegendaryChallengeId === rawPokeId
+        ? `PRESS [SPACE] OR [A] AGAIN TO BATTLE ${facingPoke.name}! ⚔️`
+        : `PRESS [SPACE] OR [A] TO GREET ${facingPoke.name} ♪`;
       promptEl.classList.remove('hidden');
     } else if (facingNpc) {
-      const monId = (facingNpc.monsterId || facingNpc.id || '').toLowerCase();
-      const isLeg = facingNpc.isLegendary || LEGENDARY_MONSTER_IDS.has(monId);
-      promptEl.textContent = isLeg
-        ? `PRESS [SPACE] OR [A] TO CHALLENGE ${facingNpc.name} ★`
-        : `PRESS [SPACE] OR [A] TO TALK TO ${facingNpc.name}`;
+      const monId = getCanonicalLegendaryId(facingNpc);
+      const isLeg = Boolean(facingNpc.isLegendary || isLegendarySpeciesId(monId));
+      if (isLeg) {
+        promptEl.textContent = state.pendingLegendaryChallengeId === monId
+          ? `PRESS [SPACE] OR [A] AGAIN TO START LEGENDARY BATTLE! ⚔️`
+          : `PRESS [SPACE] OR [A] TO SPEAK TO ${facingNpc.name} ★`;
+      } else {
+        promptEl.textContent = `PRESS [SPACE] OR [A] TO TALK TO ${facingNpc.name}`;
+      }
       promptEl.classList.remove('hidden');
     } else if (facingObs) {
       promptEl.textContent = `PRESS [SPACE] OR [A] TO INSPECT ${facingObs.name}`;
@@ -773,6 +897,8 @@ function initiateOneBlockStep(dir) {
 
   const prevX = p.gridX;
   const prevY = p.gridY;
+
+  state.pendingLegendaryChallengeId = null;
 
   p.dir = dir;
   updateOverworldHUD();
@@ -815,7 +941,6 @@ function onSingleBlockStepLanded() {
   const tile = getTileAt(p.gridX, p.gridY);
   updateOverworldHUD();
 
-  // Check if player stepped onto the 2x2 Portal at (13..14, 9..10)
   if (isPortalTileOnCurrentMap(p.gridX, p.gridY)) {
     const destMapKey = state.currentMapId === 'CENTER' ? 'HONG_KONG' : 'CENTER';
     if (WORLD_MAPS[destMapKey]) {
@@ -825,17 +950,18 @@ function onSingleBlockStepLanded() {
       state.keysHeld = {};
       const destObj = WORLD_MAPS[destMapKey];
       runShutterTransition(`🌀 WARPING TO ${destObj.name}...`, () => {
+        clearAreaLegendaryStateOnTransit();
         state.currentMapId = destMapKey;
-        teleportPlayerToGrid(13, 12); // Spawn just below the 2x2 portal so it doesn't loop
+        teleportPlayerToGrid(13, 12);
         sfx.startBGM(state.currentMapId);
         updateOverworldHUD();
         if (typeof saveGameProgress === 'function') saveGameProgress();
         setOverworldDialogue(
           destMapKey === 'HONG_KONG'
-            ? 'Warped through the 2×2 Dimensional Portal to Hong Kong! Explore Macau (W), China (N), Taiwan (E), Japan, South Korea, and Mongolia!'
-            : 'Warped back through the 2×2 Portal to Pallet Research Hub!',
+            ? 'Warped through the 2×2 Dimensional Portal to the East Asia Region (Hong Kong Hub)! Explore Macau (W), China (N), Taiwan (E), Japan, South Korea, and Mongolia!'
+            : 'Warped back through the 2×2 Portal to Verdant Urban in the Original Region!',
           destObj.name,
-          'DIMENSIONAL PORTAL 🌀'
+          'REGION PORTAL 🌀'
         );
         state.busy = false;
       });
@@ -857,12 +983,13 @@ function onSingleBlockStepLanded() {
       state.keysHeld = {};
       const targetMapObj = WORLD_MAPS[exitCfg.targetMap];
       runShutterTransition(`ENTERING ${targetMapObj.name}...`, () => {
+        clearAreaLegendaryStateOnTransit();
         state.currentMapId = exitCfg.targetMap;
         teleportPlayerToGrid(exitCfg.spawnX, exitCfg.spawnY);
         sfx.startBGM(state.currentMapId);
         updateOverworldHUD();
         if (typeof saveGameProgress === 'function') saveGameProgress();
-        setOverworldDialogue(`Arrived at ${targetMapObj.name}! Fresh Berries and Evolutionary Stones have appeared on the ground!`, targetMapObj.name, 'REGION TRANSIT');
+        setOverworldDialogue(`Entered ${targetMapObj.name}! Fresh Berries and Evolutionary Stones have appeared in this area!`, targetMapObj.name, 'AREA TRANSIT');
         state.busy = false;
       });
       return;
@@ -920,6 +1047,8 @@ function enterOverworldFromTitle() {
   if (state.busy) return;
   sfx.init();
   sfx.blip();
+  applyOriginalRegionAreaNames();
+  clearAreaLegendaryStateOnTransit();
   if (!state.floorItems || state.floorItems.length === 0) {
     spawnFloorItemsForCurrentMap();
   }
@@ -935,10 +1064,11 @@ function enterOverworldFromTitle() {
   });
 }
 
-function triggerWildBattleFromOverworld(forcedSpecies = null) {
+function triggerWildBattleFromOverworld(forcedSpecies = null, isLegendaryEncounter = false) {
   if (state.busy || state.screen !== 'OVERWORLD') return;
   state.busy = true;
   state.keysHeld = {};
+  state.pendingLegendaryChallengeId = null;
 
   const mapObj = getCurrentMap();
   let chosenSpecies = forcedSpecies;
@@ -947,6 +1077,9 @@ function triggerWildBattleFromOverworld(forcedSpecies = null) {
     const randId = poolIds[Math.floor(Math.random() * poolIds.length)];
     chosenSpecies = MONSTER_SPECIES.find(m => m.id === randId) || MONSTER_SPECIES[0];
   }
+
+  const isLeg = Boolean(isLegendaryEncounter || isLegendarySpeciesId(chosenSpecies.id));
+  state.inLegendaryBattle = isLeg;
 
   sfx.stopBGM();
   sfx.encounterSiren();
@@ -959,7 +1092,9 @@ function triggerWildBattleFromOverworld(forcedSpecies = null) {
 
   overlay.classList.remove('hidden');
   flash.classList.add('strobe-active');
-  banner.querySelector('div').textContent = `WILD ${chosenSpecies.name} APPEARED!`;
+  banner.querySelector('div').textContent = isLeg
+    ? `★ LEGENDARY ${chosenSpecies.name} BATTLE! ★`
+    : `WILD ${chosenSpecies.name} APPEARED!`;
 
   setTimeout(() => {
     shutterTop.classList.remove('-translate-y-full');
@@ -974,7 +1109,7 @@ function triggerWildBattleFromOverworld(forcedSpecies = null) {
     document.getElementById('battleMasterContainer').classList.remove('hidden');
 
     setupBattleEncounter(chosenSpecies);
-    sfx.startBGM('BATTLE');
+    sfx.startBGM(isLeg && sfx.tracks && sfx.tracks.LEGENDARY_BATTLE ? 'LEGENDARY_BATTLE' : 'BATTLE');
 
     shutterTop.classList.add('-translate-y-full');
     shutterBottom.classList.add('translate-y-full');
@@ -992,7 +1127,21 @@ function returnToOverworldFromBattle(statusMessage = null) {
   state.busy = true;
   if (state.timerInterval) clearInterval(state.timerInterval);
 
-  runShutterTransition('RETURNING TO OVERWORLD...', () => {
+  if (state.enemy && isLegendarySpeciesId(state.enemy.id) && state.enemy.hp <= 0) {
+    const legId = state.enemy.id.toLowerCase();
+    const wasCaught = state.dex && state.dex.some(p => p.id.toLowerCase() === legId);
+    if (!wasCaught) {
+      if (!Array.isArray(state.defeatedLegendariesInArea)) {
+        state.defeatedLegendariesInArea = [];
+      }
+      if (!state.defeatedLegendariesInArea.includes(legId)) {
+        state.defeatedLegendariesInArea.push(legId);
+      }
+    }
+  }
+  state.inLegendaryBattle = false;
+
+  runShutterTransition('RETURNING TO AREA...', () => {
     state.screen = 'OVERWORLD';
     document.getElementById('battleMasterContainer').classList.add('hidden');
     const ow = document.getElementById('overworldView');
@@ -1004,7 +1153,7 @@ function returnToOverworldFromBattle(statusMessage = null) {
     updateOverworldHUD();
     if (statusMessage) {
       const portalNotice = state.dex.length === 50
-        ? ' 🌀 50 POKÉMON CAUGHT! The 2×2 Dimensional Portal to HONG KONG has opened in Pallet Research Hub!'
+        ? ' 🌀 50 POKÉMON CAUGHT! The 2×2 Dimensional Portal to HONG KONG has opened in Verdant Urban!'
         : '';
       setOverworldDialogue(statusMessage + portalNotice, 'BATTLE RESULT', 'EXPLORATION');
     }

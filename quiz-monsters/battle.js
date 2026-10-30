@@ -133,7 +133,9 @@ const EVOLUTION_CHAINS = {
   // Dragon lines (EXP)
   dratini:    { to: 'dragonair',  method: 'EXP',   winsNeeded: 2 },
   dragonair:  { to: 'dragonite',  method: 'EXP',   winsNeeded: 3 },
-  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 }
+  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 },
+
+  budew:      { to: 'roselia',    method: 'EXP',   winsNeeded: 2 },
 };
 
 function getEvolutionRequirement(speciesId) {
@@ -622,9 +624,18 @@ function renderMoveButtons() {
 }
 
 function pickRandomQuestion(elementType = null, difficulty = null) {
-  let pool = (state && Array.isArray(state.questions) && state.questions.length > 0)
-    ? state.questions
-    : (typeof DEFAULT_QUESTIONS !== 'undefined' ? DEFAULT_QUESTIONS : []);
+  const isEastAsia = (typeof EAST_ASIA_MAP_IDS !== 'undefined' && state && EAST_ASIA_MAP_IDS.has(state.currentMapId));
+
+  let pool;
+  if (isEastAsia && typeof EAST_ASIA_QUESTIONS !== 'undefined' && EAST_ASIA_QUESTIONS.length > 0) {
+    pool = EAST_ASIA_QUESTIONS;
+  } else if (!isEastAsia && typeof OG_REGION_QUESTIONS !== 'undefined' && OG_REGION_QUESTIONS.length > 0) {
+    pool = OG_REGION_QUESTIONS;
+  } else {
+    pool = (state && Array.isArray(state.questions) && state.questions.length > 0)
+      ? state.questions
+      : (typeof DEFAULT_QUESTIONS !== 'undefined' ? DEFAULT_QUESTIONS : []);
+  }
 
   if (pool.length === 0) {
     return {
@@ -1111,10 +1122,11 @@ function showDexSwitchView() {
 }
 
 function getMonsterHabitatName(monsterId, monsterName) {
-  if (typeof WORLD_MAPS === 'undefined') return 'Evolves / Special';
+  if (typeof WORLD_MAPS === 'undefined') return 'Habitat unknown';
   const cleanId = (monsterId || '').toLowerCase();
   const cleanName = (monsterName || '').toLowerCase();
   
+  // Check if it's found in any biome encounters or overworld NPC spawns
   for (const mapKey of Object.keys(WORLD_MAPS)) {
     const mapObj = WORLD_MAPS[mapKey];
     if (mapObj.encounters && mapObj.encounters.some(e => e.toLowerCase() === cleanId || e.toLowerCase() === cleanName)) {
@@ -1124,7 +1136,16 @@ function getMonsterHabitatName(monsterId, monsterName) {
       return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
     }
   }
-  return 'Evolution';
+
+  // If it's part of an evolution chain and not found as a wild/overworld encounter, it's evolution-only
+  if (typeof EVOLUTION_CHAINS !== 'undefined') {
+    const isEvolvedForm = Object.values(EVOLUTION_CHAINS).some(chain => chain.to.toLowerCase() === cleanId);
+    if (isEvolvedForm) {
+      return 'Unknown';
+    }
+  }
+
+  return 'Unknown';
 }
 
 function ensureOverworldDexSearchBarInDOM() {

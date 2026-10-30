@@ -444,6 +444,7 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
 
   const isCurrentInEastAsia = EAST_ASIA_MAP_IDS.has(state.currentMapId);
   const canFly = state.dex.length >= 30;
+  const portalReady = isPortalUnlocked();
   const matrix = regionMode === 'EAST_ASIA' ? EAST_ASIA_MAP_GRID : GRAND_MAP_5X5_GRID;
   const colsCount = regionMode === 'EAST_ASIA' ? 3 : 5;
   grid.className = `grid grid-cols-${colsCount} gap-2 bg-slate-900 p-2.5 sm:p-3 rounded-lg border-2 border-slate-950 min-w-[520px]`;
@@ -462,7 +463,11 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
       const isCurrent = state.currentMapId === mapKey;
       const targetIsEastAsia = EAST_ASIA_MAP_IDS.has(mapKey);
       const sameRegionAsPlayer = (isCurrentInEastAsia === targetIsEastAsia);
-      const allowFastTravelHere = canFly && !isCurrent && sameRegionAsPlayer;
+      
+      // Check travel permissions
+      const isLockedEastAsia = targetIsEastAsia && !portalReady;
+      const allowFastTravelHere = canFly && !isCurrent && sameRegionAsPlayer && !isLockedEastAsia;
+      const allowPortalTransitHere = !sameRegionAsPlayer && portalReady;
 
       const bgHex = mapObj.theme?.groundA || '#334155';
       const areaTitle = OG_REGION_AREA_NAMES[mapKey] || mapObj.name.replace(/\s*\([^)]*\)\s*/g, '');
@@ -471,7 +476,7 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
       const card = document.createElement('div');
       card.className = `pixel-btn p-1.5 sm:p-2 flex flex-col justify-between gap-1 text-left min-h-[108px] ${
         isCurrent ? 'ring-2 ring-amber-400 border-amber-400 scale-[1.02]' : ''
-      }`;
+      } ${isLockedEastAsia ? 'opacity-50 grayscale' : ''}`;
       card.style.backgroundColor = bgHex;
       card.style.color = '#ffffff';
 
@@ -482,29 +487,35 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
         </div>
         <div class="w-full h-11 sm:h-12 rounded border border-slate-950 overflow-hidden bg-slate-950 my-0.5 shadow-inner relative">
           <img src="${thumbUrl}" alt="${areaTitle}" class="w-full h-full object-cover" style="image-rendering: pixelated;" />
-          ${(mapKey === 'CENTER' || mapKey === 'HONG_KONG') && isPortalUnlocked() ? '<span class="absolute bottom-0.5 right-0.5 text-[6px] bg-purple-700 text-white px-1 rounded border border-white">🌀 PORTAL</span>' : ''}
+          ${(mapKey === 'CENTER' || mapKey === 'HONG_KONG') && portalReady ? '<span class="absolute bottom-0.5 right-0.5 text-[6px] bg-purple-700 text-white px-1 rounded border border-white">🌀 PORTAL</span>' : ''}
         </div>
         <div class="flex items-center justify-between gap-1 mt-auto">
           <span class="text-[6px] text-slate-200 drop-shadow-[1px_1px_0_#000]">${regionMode === 'EAST_ASIA' ? 'EAST ASIA AREA' : `AREA (${cIdx - 2}, ${2 - rIdx})`}</span>
-          ${allowFastTravelHere
-            ? `<button type="button" class="bg-sky-400 hover:bg-sky-300 text-slate-950 text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">✈️ FLY</button>`
-            : (!sameRegionAsPlayer && !isCurrent ? `<span class="text-[6px] bg-purple-900/90 text-purple-200 px-1 py-0.5 rounded">USE PORTAL</span>` : '')}
+          ${isLockedEastAsia 
+            ? `<span class="text-[6px] bg-red-800 text-white px-1 py-0.5 rounded font-bold">🔒 NEED 50 DEX</span>`
+            : (allowFastTravelHere
+              ? `<button type="button" class="bg-sky-400 hover:bg-sky-300 text-slate-950 text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">✈️ FLY</button>`
+              : (!sameRegionAsPlayer && !isCurrent && portalReady ? `<button type="button" class="bg-purple-600 hover:bg-purple-500 text-white text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">🌀 PORTAL</button>` : ''))}
         </div>
       `;
 
-      if (allowFastTravelHere) {
+      if (allowFastTravelHere || allowPortalTransitHere) {
         card.addEventListener('click', () => {
+          if (isLockedEastAsia) {
+            sfx.wrongBuzzer();
+            return;
+          }
           sfx.heal();
           mapModal.classList.add('hidden');
           mapModal.classList.remove('flex');
-          runShutterTransition(`FLYING TO ${areaTitle}...`, () => {
+          runShutterTransition(`WARPING TO ${areaTitle}...`, () => {
             clearAreaLegendaryStateOnTransit();
             state.currentMapId = mapKey;
             teleportPlayerToGrid(13, 12);
             sfx.startBGM(state.currentMapId);
             updateOverworldHUD();
             if (typeof saveGameProgress === 'function') saveGameProgress();
-            setOverworldDialogue(`Flew directly to ${areaTitle}!`, areaTitle, 'AREA FAST TRAVEL ✈️');
+            setOverworldDialogue(`Warped directly to ${areaTitle}!`, areaTitle, 'GRAND MAP WARP 🌀');
           });
         });
       }
@@ -531,12 +542,12 @@ function openWorldMapModal() {
       <div class="w-full max-w-4xl retro-box p-3 sm:p-5 flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
         <div class="flex flex-wrap items-center justify-between border-b-2 border-slate-300 pb-2 gap-2">
           <div>
-            <h2 class="text-xs sm:text-sm font-bold text-slate-900">🗺️ GRAND REGION MAP (WALKABLE AREAS)</h2>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">GRAND REGION MAP (WALKABLE AREAS)</h2>
             <p id="mapModalStatusSubtitle" class="text-[8px] sm:text-[9px] text-slate-600 mt-0.5"></p>
           </div>
           <div class="flex items-center gap-1.5">
-            <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2.5 py-1 font-bold">🌍 OG REGION (25 AREAS)</button>
-            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[8px] px-2.5 py-1 font-bold">🏮 EAST ASIA REGION</button>
+            <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2.5 py-1 font-bold">OG REGION (25 AREAS)</button>
+            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[8px] px-2.5 py-1 font-bold">EAST ASIA REGION</button>
             <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
           </div>
         </div>
@@ -557,8 +568,8 @@ function openWorldMapModal() {
   const portalReady = isPortalUnlocked();
   const subtitleEl = document.getElementById('mapModalStatusSubtitle');
   if (subtitleEl) {
-    subtitleEl.textContent = `${canFly ? '✈️ FLY UNLOCKED (between areas in current region)' : `✈️ FLY LOCKED (${state.dex.length}/30)`} • ${
-      portalReady ? '🌀 2×2 HK PORTAL ACTIVE IN VERDANT HUB!' : `🌀 EAST ASIA PORTAL LOCKED (${state.dex.length}/50 Pokémon)`
+    subtitleEl.textContent = `${canFly ? 'FLY UNLOCKED (between areas in current region)' : `FLY LOCKED (${state.dex.length}/30)`} • ${
+      portalReady ? '2×2 HK PORTAL ACTIVE IN VERDANT HUB!' : `EAST ASIA PORTAL LOCKED (${state.dex.length}/50 Pokémon)`
     }`;
   }
 
@@ -574,7 +585,7 @@ function openWorldMapModal() {
     tabAsia.onclick = () => {
       if (!isPortalUnlocked() && !EAST_ASIA_MAP_IDS.has(state.currentMapId)) {
         sfx.wrongBuzzer();
-        setOverworldDialogue(`🔒 EAST ASIA REGION LOCKED! Catch 50 Pokémon (${state.dex.length}/50) to open the 2×2 Portal in Verdant Hub!`, 'PORTAL LOCKED', '50 DEX REQUIRED');
+        setOverworldDialogue(`EAST ASIA REGION LOCKED! Catch 50 Pokémon (${state.dex.length}/50) to open the 2×2 Portal in Verdant Hub!`, 'PORTAL LOCKED', '50 DEX REQUIRED');
         return;
       }
       sfx.blip();

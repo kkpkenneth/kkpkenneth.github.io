@@ -40,14 +40,8 @@
       <button id="openEditorBtn" type="button" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5 flex items-center gap-1">
         <span>+QUIZ DECK</span>
       </button>
-      <button id="saveGameBtn" type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
-        SAVE
-      </button>
-      <button id="bgmToggleBtn" type="button" class="pixel-btn bg-emerald-700 hover:bg-emerald-600 text-emerald-200 text-[8px] sm:text-[9px] px-2 py-1.5">
-        BGM: ON
-      </button>
-      <button id="muteToggleBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-2 py-1.5">
-        SFX: ON
+      <button id="openSettingsModalBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-3 py-1.5 font-bold">
+        SETTINGS / SAVE &amp; LOAD
       </button>
       <button id="btnReturnTitle" type="button" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
         TITLE
@@ -75,18 +69,18 @@
       <div class="crt-overlay absolute inset-0 z-10"></div>
       <div class="w-full flex justify-between items-center text-[9px] text-amber-300/80 z-20">
         <span>VER 7.1 • 32 HABITATS &amp; GEN 1-6 STARTERS</span>
-        <span>8-COLOR PIXEL STUDIO</span>
+        <span>DRAW YOUR OWN MONSTERS IN THE 8-COLOR PIXEL STUDIO</span>
       </div>
 
       <div class="my-auto flex flex-col items-center z-20 max-w-xl">
         <div class="inline-block bg-amber-400 text-slate-950 text-[9px] sm:text-[10px] px-3 py-1 rounded border-2 border-slate-950 font-bold mb-3 shadow">
-          ELEMENTAL KNOWLEDGE RPG
+          PLAY AND LEARN RPG
         </div>
         <h2 class="text-2xl sm:text-4xl text-amber-400 tracking-tight drop-shadow-[0_4px_0_rgba(0,0,0,0.8)] mb-2">
           Quiz Monsters
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Travel with Pikachu as your Starter Partner • Explore 32 Biomes on the Grand Map • Talk to Specialists &amp; Challenge Legendaries!
+          Travel with your Partner • Explore the World • Talk to Specialists &amp; Challenge Legendaries! Unlock more functions as you befriend more monsters!
         </p>
 
         <!-- TITLE MASCOTS -->
@@ -99,7 +93,7 @@
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button id="startGameBtn" type="button" class="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-base font-bold px-7 py-3.5 animate-bounce">
-            PRESS START ADVENTURE
+            PRESS TO START ADVENTURE
           </button>
           <button id="openWhatsNewBtn" type="button" class="pixel-btn bg-amber-400 hover:bg-amber-300 text-slate-950 text-[8px] sm:text-[9px] font-bold px-3.5 py-2.5">
             WHAT'S NEW?
@@ -295,7 +289,7 @@
         <div id="moveSelectView" class="hidden retro-box p-3 sm:p-4 flex-1 flex flex-col justify-between gap-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-300 pb-2">
             <div class="text-[9px] sm:text-[10px] font-bold text-slate-700">
-              ⚡ DAMAGE = QUESTION DIFFICULTY (★1–★2) × ANSWER SPEED (25s TIMER)
+              DAMAGE = QUESTION DIFFICULTY (★1–★2) × ANSWER SPEED (25s TIMER)
             </div>
             <button id="backFromMovesBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
           </div>
@@ -335,7 +329,7 @@
                 id="battleDexSearchInput"
                 type="text"
                 autocomplete="off"
-                placeholder="🔍 Filter partner..."
+                placeholder="Filter partner..."
                 class="border-2 border-slate-800 rounded px-2 py-1 text-[8px] sm:text-[9px] bg-white text-slate-900 font-bold"
               />
               <button id="backFromDexBtn" type="button" class="pixel-btn bg-slate-700 text-white text-[9px] px-2.5 py-1">← BACK</button>
@@ -361,8 +355,8 @@
           <p class="text-[8px] text-slate-600 mt-0.5">Edit Monsters or Overworld Obstacles • Walkable Toggle • Unified Palette</p>
         </div>
         <div class="flex items-center gap-1.5">
-          <button id="studioModeMonsterBtn" type="button" class="pixel-btn bg-pink-600 text-white text-[8px] px-2.5 py-1 font-bold">👾 MONSTERS</button>
-          <button id="studioModeObstacleBtn" type="button" class="pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1">🌲 OBSTACLES</button>
+          <button id="studioModeMonsterBtn" type="button" class="pixel-btn bg-pink-600 text-white text-[8px] px-2.5 py-1 font-bold">MONSTERS</button>
+          <button id="studioModeObstacleBtn" type="button" class="pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1">OBSTACLES</button>
           <button id="closeSpriteStudioBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
         </div>
       </div>
@@ -564,7 +558,6 @@
         <button id="closeWhatsNewBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
       </div>
 
-      <!-- SCROLLABLE CONTAINER FOR ALL VERSION UPDATES -->
       <div class="text-[9px] sm:text-[10px] text-slate-800 space-y-2.5 leading-relaxed overflow-y-auto max-h-[50vh] pr-1">
         <div class="bg-emerald-50 border-l-4 border-emerald-600 p-2 rounded">
           <strong class="text-emerald-900 block mb-1">Version 7.1 (Latest Update)</strong>
@@ -572,13 +565,14 @@
           • New Habitat Area Naming across all 25 Original Region areas.<br>
           • East Asia Region expansion with regional signatures.<br>
           • Evolution prompt ("Huh? Is [Pokémon] evolving?...") waiting for space/talk input with `anim-evolve-flash` effect.<br>
-          • Enemy counterattacks now feature 2x type advantage damage multipliers.
+          • Enemy counterattacks now feature 2x type advantage damage multipliers.<br>
+          • Hardwired Save &amp; Load JSON file export/import modals.
         </div>
 
         <div class="bg-indigo-50 border-l-4 border-indigo-600 p-2 rounded">
           <strong class="text-indigo-900 block mb-1">Version 6.0 (Major Expansion)</strong>
           • Expanded National Roster featuring Gen 1 through Gen 6 starter lines up to #448 Lucario.<br>
-          • Built-in Pixel Sprite &amp; Obstacle Studio with unified color swatches (`p, d, l, b, s, t`).<br>
+          • Built-in Pixel Sprite &amp; Obstacle Studio with unified color swatches.<br>
           • Grand Region Map with live thumbnails and Fly fast-travel.
         </div>
 
@@ -600,6 +594,83 @@
         <button id="ackWhatsNewBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] sm:text-[10px] font-bold px-4 py-2">
           GOT IT, LET'S PLAY! ►
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: SETTINGS, SAVE & LOAD MENU -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+    <div class="w-full max-w-md retro-box p-4 sm:p-5 flex flex-col gap-3">
+      <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+        <h2 class="text-xs sm:text-sm font-bold text-slate-900">GAME SETTINGS &amp; SAVE/LOAD</h2>
+        <button id="closeSettingsModalBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+      </div>
+
+      <div class="flex flex-col gap-2.5 pt-1">
+        <button id="menuSaveBtn" type="button" class="pixel-btn bg-sky-600 hover:bg-sky-500 text-white text-[9px] sm:text-[10px] p-2.5 font-bold flex items-center justify-between">
+          <span>SAVE GAME (EXPORT CODE)</span>
+          <span>►</span>
+        </button>
+
+        <button id="menuLoadBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] sm:text-[10px] p-2.5 font-bold flex items-center justify-between">
+          <span>LOAD GAME (IMPORT CODE)</span>
+          <span>►</span>
+        </button>
+
+        <hr class="border-slate-300 my-1">
+
+        <button id="menuBgmToggleBtn" type="button" class="pixel-btn bg-emerald-700 hover:bg-emerald-600 text-emerald-100 text-[9px] sm:text-[10px] p-2 font-bold">
+          BGM: ON
+        </button>
+
+        <button id="menuMuteToggleBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[9px] sm:text-[10px] p-2 font-bold">
+          SFX: ON
+        </button>
+
+        <button id="menuResetBtn" type="button" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-[9px] sm:text-[10px] p-2 font-bold">
+          RESET ALL PROGRESS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: HARDWIRED SAVE DATA EXPORT POPUP (STATIC) -->
+  <div id="saveCodeModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+    <div class="w-full max-w-lg retro-box p-4 sm:p-5 flex flex-col gap-3">
+      <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+        <div>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">HARDWIRED SAVE DATA EXPORT</h2>
+          <p class="text-[9px] text-slate-600 mt-0.5">Your exact player location, stats, and caught Pokémon data:</p>
+        </div>
+        <button id="closeSaveCodeModalBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+      </div>
+      <textarea id="saveCodeTextarea" rows="8" readonly class="w-full border-2 border-slate-400 rounded p-2 text-slate-900 bg-white font-mono text-[10px] select-all"></textarea>
+      <div class="flex items-center justify-between pt-1">
+        <span id="saveCodeCopyStatus" class="text-[9px] text-emerald-700 font-bold"></span>
+        <button id="copySaveCodeBtn" type="button" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[9px] px-3 py-1.5 font-bold">COPY SAVE CODE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 7: LOAD GAME CODE IMPORT -->
+  <div id="loadCodeModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+    <div class="w-full max-w-lg retro-box p-4 sm:p-5 flex flex-col gap-3">
+      <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
+        <div>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">LOAD SAVE CODE / JSON FILE</h2>
+          <p class="text-[9px] text-slate-600 mt-0.5">Paste your hardwired save code string or upload your save file:</p>
+        </div>
+        <button id="closeLoadCodeModalBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <input type="file" id="loadJsonFileInput" accept=".json,.txt" class="text-[8px] text-slate-800 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[8px] file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
+        <textarea id="loadCodeTextarea" rows="6" placeholder="Paste save code JSON payload here..." class="w-full border-2 border-slate-400 rounded p-2 text-slate-900 bg-white font-mono text-[9px]"></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-1">
+        <span id="loadCodeStatusMsg" class="text-[9px] text-red-600 font-bold"></span>
+        <button id="confirmLoadCodeBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] px-4 py-2 font-bold">LOAD &amp; APPLY SAVE</button>
       </div>
     </div>
   </div>
@@ -875,27 +946,59 @@
       }
     }
 
-    function saveGameProgress() {
+    // Silent auto-save by default; only opens modal when showPopup === true
+    function saveGameProgress(showPopup = false) {
       try {
         const payload = {
+          version: '7.1',
+          timestamp: new Date().toISOString(),
           currentMapId: window.state.currentMapId,
           gridX: window.state.playerWorld.gridX,
           gridY: window.state.playerWorld.gridY,
           activeDexIndex: window.state.activeDexIndex,
           streak: window.state.streak,
-          dexIds: window.state.dex.map(m => ({ id: m.id, hp: m.hp, maxHp: m.maxHp, level: m.level, evoWins: m.evoWins || 0 }))
+          dexCount: window.state.dex.length,
+          caughtPokemon: window.state.dex.map(m => ({
+            id: m.id,
+            name: m.name,
+            level: m.level,
+            hp: m.hp,
+            maxHp: m.maxHp,
+            evoWins: m.evoWins || 0
+          })),
+          questions: window.state.questions,
+          customPixels: typeof MONSTER_PIXELS !== 'undefined' ? MONSTER_PIXELS : undefined,
+          customObstacles: typeof OBSTACLE_DEFS !== 'undefined' ? OBSTACLE_DEFS : undefined
         };
-        localStorage.setItem(window.SAVE_STORAGE_KEY, JSON.stringify(payload));
-        if (typeof sfx !== 'undefined') sfx.blip();
-        const badge = document.getElementById('saveToastBadge');
-        if (badge) {
-          badge.textContent = 'GAME SAVED!';
-          badge.classList.remove('hidden');
-          setTimeout(() => badge.classList.add('hidden'), 2000);
+
+        const saveJsonString = JSON.stringify(payload, null, 2);
+        localStorage.setItem(window.SAVE_STORAGE_KEY, saveJsonString);
+
+        if (showPopup === true) {
+          if (typeof sfx !== 'undefined') sfx.npcChime();
+
+          const badge = document.getElementById('saveToastBadge');
+          if (badge) {
+            badge.textContent = 'GAME SAVED!';
+            badge.classList.remove('hidden');
+            setTimeout(() => badge.classList.add('hidden'), 2000);
+          }
+
+          const saveModal = document.getElementById('saveCodeModal');
+          const ta = document.getElementById('saveCodeTextarea');
+          if (saveModal && ta) {
+            ta.value = saveJsonString;
+            saveModal.classList.remove('hidden');
+            saveModal.classList.add('flex');
+          }
         }
       } catch (err) {
         console.warn('Save error:', err);
       }
+    }
+
+    function autoSaveGameProgress() {
+      saveGameProgress(false);
     }
 
     function loadSavedGameProgress() {
@@ -903,13 +1006,14 @@
         const raw = localStorage.getItem(window.SAVE_STORAGE_KEY);
         if (!raw) return false;
         const data = JSON.parse(raw);
-        if (data && Array.isArray(data.dexIds) && data.dexIds.length > 0) {
+        const rawList = data.caughtPokemon || data.dexIds || data.dex;
+        if (data && Array.isArray(rawList) && rawList.length > 0) {
           const restoredDex = [];
-          data.dexIds.forEach(savedMon => {
+          rawList.forEach(savedMon => {
             const sp = findSpeciesObject(savedMon.id);
             if (sp) {
               const inst = createMonsterInstance(sp);
-              inst.hp = savedMon.hp || inst.maxHp;
+              inst.hp = savedMon.hp !== undefined ? savedMon.hp : inst.maxHp;
               inst.evoWins = savedMon.evoWins || 0;
               restoredDex.push(inst);
             }
@@ -923,6 +1027,16 @@
           }
           if (typeof data.gridX === 'number' && typeof data.gridY === 'number') {
             window.teleportPlayerToGrid(data.gridX, data.gridY);
+          }
+          if (typeof data.streak === 'number') window.state.streak = data.streak;
+          if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+            window.state.questions = data.questions;
+          }
+          if (data.customPixels && typeof MONSTER_PIXELS !== 'undefined') {
+            MONSTER_PIXELS = data.customPixels;
+          }
+          if (data.customObstacles && typeof OBSTACLE_DEFS !== 'undefined') {
+            Object.assign(OBSTACLE_DEFS, data.customObstacles);
           }
           return true;
         }
@@ -972,7 +1086,7 @@
         { slotId: 'titleSprite0', key: 'pikachu',    fallbackIdx: 0 },
         { slotId: 'titleSprite1', key: 'bulbasaur',  fallbackIdx: 1 },
         { slotId: 'titleSprite2', key: 'charmander', fallbackIdx: 2 },
-        { slotId: 'titleSprite9', key: 'squirtle',    fallbackIdx: 3 }
+        { slotId: 'titleSprite9', key: 'squirtle',   fallbackIdx: 3 }
       ];
 
       mascotConfigs.forEach(({ slotId, key, fallbackIdx }) => {
@@ -1048,7 +1162,6 @@
       bindClick('ackWhatsNewBtn', closeWhatsNew);
 
       bindClick('startGameBtn', enterOverworldFromTitle);
-      bindClick('saveGameBtn', saveGameProgress);
       bindClick('resetGameBtn', resetGameProgress);
       bindClick('overworldDexBtn', openOverworldDexModal);
       bindClick('overworldMapBtn', openWorldMapModal);
@@ -1056,6 +1169,141 @@
         sfx.blip();
         document.getElementById('overworldDexModal').classList.add('hidden');
         document.getElementById('overworldDexModal').classList.remove('flex');
+      });
+
+      // Settings and Save/Load Modals
+      const settingsModal = document.getElementById('settingsModal');
+      const loadCodeModal = document.getElementById('loadCodeModal');
+      const saveCodeModal = document.getElementById('saveCodeModal');
+
+      bindClick('openSettingsModalBtn', () => {
+        sfx.blip();
+        settingsModal.classList.remove('hidden');
+        settingsModal.classList.add('flex');
+      });
+
+      bindClick('closeSettingsModalBtn', () => {
+        sfx.blip();
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+      });
+
+      // Explicitly pass `true` ONLY when the manual Save button is clicked
+      bindClick('menuSaveBtn', () => {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+        saveGameProgress(true);
+      });
+
+      bindClick('closeSaveCodeModalBtn', () => {
+        sfx.blip();
+        saveCodeModal.classList.add('hidden');
+        saveCodeModal.classList.remove('flex');
+      });
+
+      bindClick('copySaveCodeBtn', () => {
+        const ta = document.getElementById('saveCodeTextarea');
+        if (ta) {
+          navigator.clipboard.writeText(ta.value);
+          sfx.captureFanfare();
+          const stat = document.getElementById('saveCodeCopyStatus');
+          if (stat) {
+            stat.textContent = 'COPIED SAVE CODE TO CLIPBOARD!';
+            setTimeout(() => { stat.textContent = ''; }, 2500);
+          }
+        }
+      });
+
+      bindClick('menuLoadBtn', () => {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+        document.getElementById('loadCodeTextarea').value = '';
+        document.getElementById('loadCodeStatusMsg').textContent = '';
+        loadCodeModal.classList.remove('hidden');
+        loadCodeModal.classList.add('flex');
+      });
+
+      bindClick('closeLoadCodeModalBtn', () => {
+        sfx.blip();
+        loadCodeModal.classList.add('hidden');
+        loadCodeModal.classList.remove('flex');
+      });
+
+      document.getElementById('loadJsonFileInput')?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById('loadCodeTextarea').value = event.target.result;
+        };
+        reader.readAsText(file);
+      });
+
+      bindClick('confirmLoadCodeBtn', () => {
+        const codeStr = document.getElementById('loadCodeTextarea').value.trim();
+        const statusMsg = document.getElementById('loadCodeStatusMsg');
+        if (!codeStr) {
+          statusMsg.textContent = 'Please paste or upload save code data!';
+          return;
+        }
+        try {
+          const parsed = JSON.parse(codeStr);
+          const rawList = parsed.caughtPokemon || parsed.dexIds || parsed.dex;
+          if (parsed && Array.isArray(rawList)) {
+            const restoredDex = [];
+            rawList.forEach(savedMon => {
+              const sp = findSpeciesObject(savedMon.id);
+              if (sp) {
+                const inst = createMonsterInstance(sp);
+                inst.hp = savedMon.hp !== undefined ? savedMon.hp : inst.maxHp;
+                inst.evoWins = savedMon.evoWins || 0;
+                restoredDex.push(inst);
+              }
+            });
+
+            if (restoredDex.length > 0) {
+              window.state.dex = restoredDex;
+              window.state.activeDexIndex = Math.min(parsed.activeDexIndex || 0, restoredDex.length - 1);
+            }
+            if (parsed.currentMapId && WORLD_MAPS[parsed.currentMapId]) {
+              window.state.currentMapId = parsed.currentMapId;
+            }
+            if (typeof parsed.gridX === 'number' && typeof parsed.gridY === 'number') {
+              window.teleportPlayerToGrid(parsed.gridX, parsed.gridY);
+            }
+            if (typeof parsed.streak === 'number') window.state.streak = parsed.streak;
+
+            saveGameProgress(false);
+            sfx.captureFanfare();
+            loadCodeModal.classList.add('hidden');
+            loadCodeModal.classList.remove('flex');
+            syncAllUI();
+            updateOverworldHUD();
+          } else {
+            statusMsg.textContent = 'Invalid save code structure!';
+          }
+        } catch (err) {
+          statusMsg.textContent = 'Error parsing JSON save code!';
+        }
+      });
+
+      bindClick('menuResetBtn', () => {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+        resetGameProgress();
+      });
+
+      bindClick('menuBgmToggleBtn', (e) => {
+        sfx.bgmMuted = !sfx.bgmMuted;
+        e.currentTarget.textContent = sfx.bgmMuted ? 'BGM: OFF' : 'BGM: ON';
+        if (sfx.bgmMuted) sfx.stopBGM();
+        else sfx.startBGM(window.state.screen === 'BATTLE' ? 'BATTLE' : 'OVERWORLD');
+      });
+
+      bindClick('menuMuteToggleBtn', (e) => {
+        sfx.sfxMuted = !sfx.sfxMuted;
+        e.currentTarget.textContent = sfx.sfxMuted ? 'SFX: OFF' : 'SFX: ON';
+        if (!sfx.sfxMuted) sfx.blip();
       });
 
       bindClick('btnReturnTitle', () => {
@@ -1138,23 +1386,6 @@
       });
 
       window.addEventListener('keyup', (e) => { window.state.keysHeld[e.code] = false; });
-
-      bindClick('bgmToggleBtn', (e) => {
-        sfx.bgmMuted = !sfx.bgmMuted;
-        e.currentTarget.textContent = sfx.bgmMuted ? 'BGM: OFF' : 'BGM: ON';
-        e.currentTarget.classList.toggle('bg-emerald-700', !sfx.bgmMuted);
-        e.currentTarget.classList.toggle('bg-slate-700', sfx.bgmMuted);
-        if (sfx.bgmMuted) sfx.stopBGM();
-        else sfx.startBGM(window.state.screen === 'BATTLE' ? 'BATTLE' : (window.state.screen === 'OVERWORLD' ? 'OVERWORLD' : 'TITLE'));
-      });
-
-      bindClick('muteToggleBtn', (e) => {
-        sfx.sfxMuted = !sfx.sfxMuted;
-        e.currentTarget.textContent = sfx.sfxMuted ? 'SFX: OFF' : 'SFX: ON';
-        e.currentTarget.classList.toggle('text-amber-300', !sfx.sfxMuted);
-        e.currentTarget.classList.toggle('text-slate-400', sfx.sfxMuted);
-        if (!sfx.sfxMuted) sfx.blip();
-      });
 
       requestAnimationFrame(window.overworldRenderLoop);
     }

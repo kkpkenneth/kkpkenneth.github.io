@@ -96,7 +96,47 @@ const EVOLUTION_CHAINS = {
   // Dragon lines (EXP)
   dratini:    { to: 'dragonair',  method: 'EXP',   winsNeeded: 2 },
   dragonair:  { to: 'dragonite',  method: 'EXP',   winsNeeded: 3 },
-  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 }
+  magikarp:   { to: 'gyarados',   method: 'EXP',   winsNeeded: 3 },
+
+  // Johto Starters (Gen 2)
+  chikorita:  { to: 'bayleef',    method: 'EXP', winsNeeded: 2 },
+  bayleef:    { to: 'meganium',   method: 'EXP', winsNeeded: 3 },
+  cyndaquil:  { to: 'quilava',    method: 'EXP', winsNeeded: 2 },
+  quilava:    { to: 'typhlosion', method: 'EXP', winsNeeded: 3 },
+  totodile:   { to: 'croconaw',   method: 'EXP', winsNeeded: 2 },
+  croconaw:   { to: 'feraligatr', method: 'EXP', winsNeeded: 3 },
+
+  // Hoenn Starters (Gen 3)
+  treecko:    { to: 'grovyle',    method: 'EXP', winsNeeded: 2 },
+  grovyle:    { to: 'sceptile',   method: 'EXP', winsNeeded: 3 },
+  torchic:    { to: 'combusken',  method: 'EXP', winsNeeded: 2 },
+  combusken:  { to: 'blaziken',   method: 'EXP', winsNeeded: 3 },
+  mudkip:     { to: 'marshtomp',  method: 'EXP', winsNeeded: 2 },
+  marshtomp:  { to: 'swampert',   method: 'EXP', winsNeeded: 3 },
+
+  // Sinnoh Starters (Gen 4)
+  turtwig:    { to: 'grotle',     method: 'EXP', winsNeeded: 2 },
+  grotle:     { to: 'torterra',   method: 'EXP', winsNeeded: 3 },
+  chimchar:   { to: 'monferno',   method: 'EXP', winsNeeded: 2 },
+  monferno:   { to: 'infernape',  method: 'EXP', winsNeeded: 3 },
+  piplup:     { to: 'prinplup',   method: 'EXP', winsNeeded: 2 },
+  prinplup:   { to: 'empoleon',   method: 'EXP', winsNeeded: 3 },
+
+  // Unova Starters (Gen 5)
+  snivy:      { to: 'servine',    method: 'EXP', winsNeeded: 2 },
+  servine:    { to: 'serperior',  method: 'EXP', winsNeeded: 3 },
+  tepig:      { to: 'pignite',    method: 'EXP', winsNeeded: 2 },
+  pignite:    { to: 'emboar',     method: 'EXP', winsNeeded: 3 },
+  oshawott:   { to: 'dewott',     method: 'EXP', winsNeeded: 2 },
+  dewott:     { to: 'samurott',   method: 'EXP', winsNeeded: 3 },
+
+  // Kalos Starters (Gen 6)
+  chespin:    { to: 'quilladin',  method: 'EXP', winsNeeded: 2 },
+  quilladin:  { to: 'chesnaught', method: 'EXP', winsNeeded: 3 },
+  fennekin:   { to: 'braixen',    method: 'EXP', winsNeeded: 2 },
+  braixen:    { to: 'delphox',    method: 'EXP', winsNeeded: 3 },
+  froakie:    { to: 'frogadier',  method: 'EXP', winsNeeded: 2 },
+  frogadier:  { to: 'greninja',   method: 'EXP', winsNeeded: 3 },
 };
 
 function getEvolutionRequirement(speciesId) {

@@ -1238,5 +1238,259 @@ const WORLD_MAPS = {
         fact: "DEOXYS: ★ Vwooo-shhh! ★ (Deoxys crystallized from a space virus inside a meteor! Gamma rays are the highest-energy electromagnetic radiation in the cosmos!)"
       }
     ]
+  },
+  // 20. (Row 0, Col 0) FAR NORTHWEST: AURORA BOREALIS RIDGE
+  AURORA_RIDGE: {
+    id: 'AURORA_RIDGE',
+    name: 'AURORA BOREALIS RIDGE',
+    subtitle: 'S: CELESTIAL SPIRE • E: SKY WIND TEMPLE • SINNOH & ICE HABITAT',
+    theme: { groundA: '#0f172a', groundB: '#1e293b', path: '#7dd3fc', grass: '#0369a1', grassTip: '#38bdf8', tree: '#020617', treeTop: '#a855f7', rock: '#334155', rockLight: '#bae6fd', rockDark: '#0f172a' },
+    encounters: ['turtwig', 'chimchar', 'piplup', 'seel', 'jynx'],
+    rows: [
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
+      "I..AA..GGGG......GGGG..AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA.......P..P.......AA..I",
+      "I......PPPPPP..PPPPPP......I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......P..II....II..P......I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I...........PPPPPPPPPPPPPPPE",
+      "I...........PPPPPPPPPPPPPPPE",
+      "I......PPPPPPPPPPPPPP......I",
+      "I......P..II....II..P......I",
+      "I..GGGGP............PGGGG..I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..AA.......P..P.......AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA..GGGG..PP..GGGG..AA..I",
+      "IIIIIIIIIIIIIEEIIIIIIIIIIIII"
+    ],
+    exits: {
+      south: { targetMap: 'SPIRE',       spawnX: 13, spawnY: 1 },
+      east:  { targetMap: 'WIND_TEMPLE', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'astrophysicist_vera', name: 'DR. VERA RUBIN', topic: 'ASTROPHYSICIST • AURORAS', x: 13, y: 5,
+        skinColor: '#fed7aa', hatColor: '#7e22ce', shirtColor: '#c084fc',
+        fact: "DR. VERA RUBIN: Auroras occur when charged solar wind particles collide with oxygen and nitrogen gases in Earth's magnetosphere!"
+      }
+    ]
+  },
+
+  // 21. (Row 0, Col 1) NORTH-NORTHWEST: SKY WIND TEMPLE
+  WIND_TEMPLE: {
+    id: 'WIND_TEMPLE',
+    name: 'ZEPHYR WIND TEMPLE',
+    subtitle: 'W: AURORA RIDGE • E: GLACIER • S: ALPINE SKY PLATEAU',
+    theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#f0f9ff', grass: '#0d9488', grassTip: '#99f6e4', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#1e293b' },
+    encounters: ['chikorita', 'cyndaquil', 'totodile', 'pidgey', 'spearow'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..AA..GGGG......GGGG..AA..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..AA.......P..P.......AA..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....A..A....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..AA....AA..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..AA....AA..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....A..A....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..AA.......P..P.......AA..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..AA..GGGG..PP..GGGG..AA..R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      west:  { targetMap: 'AURORA_RIDGE', spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'GLACIER',      spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'NORTHWEST',    spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'meteorologist_fujita', name: 'DR. FUJITA', topic: 'METEOROLOGIST • JET STREAM', x: 13, y: 8,
+        skinColor: '#fde68a', hatColor: '#0284c7', shirtColor: '#bae6fd',
+        fact: "DR. FUJITA: High-altitude Jet Streams blow from west to east in the upper Troposphere due to thermal gradients and the Coriolis Effect!"
+      }
+    ]
+  },
+
+  // 22. (Row 0, Col 3) NORTH-NORTHEAST: METEOR FALLS CRATER
+  METEOR_CRATER: {
+    id: 'METEOR_CRATER',
+    name: 'METEOR FALLS CRATER',
+    subtitle: 'W: GLACIER • E: CYBER NEXUS • S: BADLANDS CANYON',
+    theme: { groundA: '#312e81', groundB: '#1e1b4b', path: '#cbd5e1', grass: '#4338ca', grassTip: '#818cf8', tree: '#0f172a', treeTop: '#6366f1', rock: '#3730a3', rockLight: '#a5b4fc', rockDark: '#1e1b4b' },
+    encounters: ['treecko', 'torchic', 'mudkip', 'clefairy', 'dratini'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..RR..GGGG......GGGG..RR..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..RR.......P..P.......RR..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....WWWW....PGGGG..R",
+      "R..GGGGP...WWWWWW...PGGGG..R",
+      "R......P...WWWWWW...P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..RR....RR..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....R..R....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..RR.......P..P.......RR..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..RR..GGGG..PP..GGGG..RR..R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      west:  { targetMap: 'GLACIER',     spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'CYBER_NEXUS', spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'NORTHEAST',   spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'paleontologist_grant', name: 'DR. GRANT', topic: 'PALEONTOLOGIST • CHICXULUB', x: 13, y: 11,
+        skinColor: '#e59866', hatColor: '#78350f', shirtColor: '#fde68a',
+        fact: "DR. GRANT: The Chicxulub asteroid impact 66 million years ago ended the Cretaceous Period and drove non-avian dinosaurs to extinction!"
+      }
+    ]
+  },
+
+  // 23. (Row 0, Col 4) FAR NORTHEAST: CYBERNETIC NEXUS DOME
+  CYBER_NEXUS: {
+    id: 'CYBER_NEXUS',
+    name: 'CYBERNETIC NEXUS DOME',
+    subtitle: 'W: METEOR CRATER • S: DYNAMO ANVIL WORKS • UNOVA & TECH',
+    theme: { groundA: '#090d16', groundB: '#111827', path: '#38bdf8', grass: '#0f766e', grassTip: '#2dd4bf', tree: '#1e293b', treeTop: '#06b6d4', rock: '#1e293b', rockLight: '#7dd3fc', rockDark: '#020617' },
+    encounters: ['snivy', 'tepig', 'oshawott', 'porygon', 'magnemite'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..VV..GGGG......GGGG..VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV.......P..P.......VV..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..VV....VV..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R......P..VV....VV..P......R",
+      "R..GGGGP............PGGGG..R",
+      "R..GGGGP....V..V....PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..VV.......P..P.......VV..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..VV..GGGG..PP..GGGG..VV..R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      west:  { targetMap: 'METEOR_CRATER', spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'FOUNDRY',       spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'ai_researcher_turing', name: 'DR. TURING', topic: 'COMPUTER SCIENTIST • AI & LOGIC', x: 13, y: 8,
+        skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#e0f2fe',
+        fact: "DR. TURING: All digital data is encoded in Binary bits (0s and 1s), and Transistors amplify or switch electronic signals inside CPUs!"
+      }
+    ]
+  },
+
+  // 24. (Row 3, Col 0) WEST-SOUTHWEST: KALOSBAMBOO GROVE
+  KALOS_GROVE: {
+    id: 'KALOS_GROVE',
+    name: 'LUMIOSE BOTANICAL GROVE',
+    subtitle: 'N: MYSTIC SANCTUARY • E: SPORE FEN • S: SUNKEN ATLANTIS',
+    theme: { groundA: '#14532d', groundB: '#166534', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#052e16', treeTop: '#4ade80' },
+    encounters: ['chespin', 'fennekin', 'froakie', 'bulbasaur', 'eevee'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T..FF..GGGG..PP..GGGG..FF..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..FF.......P..P.......FF..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....F..F....PGGGG..T",
+      "T..GGGGP....FFFF....PGGGG..T",
+      "T......P..FFFFFFFF..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..GGGGP....F..F....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..FF.......P..P.......FF..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..FF..GGGG..PP..GGGG..FF..T",
+      "T............PP............T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'SANCTUARY',    spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'BRAMBLE',      spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'SUNKEN_RUINS', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'chef_auguste', name: 'CHEF AUGUSTE', topic: 'CULINARY SCIENTIST • MAILLARD', x: 13, y: 8,
+        skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#f8fafc',
+        fact: "CHEF AUGUSTE: Bon appétit! Welcome to the Kalos starter grove! Plants store solar energy as glucose carbohydrates in their chloroplasts!"
+      }
+    ]
+  },
+
+  // 25. (Row 4, Col 0) FAR SOUTHWEST: SUNKEN ATLANTIS RUINS
+  SUNKEN_RUINS: {
+    id: 'SUNKEN_RUINS',
+    name: 'SUNKEN ATLANTIS REEF',
+    subtitle: 'N: LUMIOSE GROVE • E: SHADOW UNDERBELLY • ANCIENT CORAL',
+    theme: { groundA: '#083344', groundB: '#164e63', path: '#67e8f9', grass: '#0e7490', grassTip: '#22d3ee', tree: '#042f2e', treeTop: '#06b6d4', rock: '#155e75', rockLight: '#a5f3fc', rockDark: '#083344' },
+    encounters: ['totodile', 'mudkip', 'piplup', 'oshawott', 'froakie', 'lapras'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..KK..GGGG..PP..GGGG..KK..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..KK.......P..P.......KK..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....K..K....PGGGG..R",
+      "R..GGGGP....WWWW....PGGGG..R",
+      "R......P..KKWWWWKK..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....K..K....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..KK.......P..P.......KK..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..KK..GGGG......GGGG..KK..R",
+      "R..........................R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'KALOS_GROVE',  spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'SHADOW_ALLEY', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'archaeologist_indy', name: 'DR. INDIANA', topic: 'MARINE ARCHAEOLOGIST • FOSSILS', x: 13, y: 8,
+        skinColor: '#e59866', hatColor: '#78350f', shirtColor: '#fde68a',
+        fact: "DR. INDIANA: Sedimentary rock layers preserve marine fossils over millions of years! You can find Water-type starters from every region swimming here!"
+      }
+    ]
   }
 };

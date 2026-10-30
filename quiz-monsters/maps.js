@@ -974,7 +974,7 @@ const WORLD_MAPS = {
       {
         id: 'f1_racer_jonathan', name: 'F1 RACER JONATHAN', topic: 'F1 RACER • BUDSUM BUDDY', x: 7, y: 5,
         skinColor: '#f5cba7', hatColor: '#dc2626', shirtColor: '#ffffff',
-        fact: "F1 RACER JONATHAN: Vroom! Vroom! I Love my buddy so much I named it Budsum!"
+        fact: "F1 RACER JONATHAN: Vroom! Vroom! I Love my buddy so much I named her Budsum!"
       },
       {
         id: 'budsum_budew', name: 'BUDSUM (BUDEW)', topic: 'PARTNER POKéMON • BUDEW', x: 8, y: 5,

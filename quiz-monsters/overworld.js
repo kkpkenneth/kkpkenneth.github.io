@@ -1,84 +1,27 @@
 /********************************************************************
  * overworld.js
- * Visible Floor Items, Blocking Collision, Space/A Talk Interactivity,
- * Two-Step Legendary Battles (Respawn on Area Re-entry if Defeated),
- * Live Area Thumbnails, 2x2 Portal (at 50 Dex) & Grand Region Maps
+ * 4-Region World Map (OG, East Asia, West Europe, North America),
+ * Tiered +10 Dex Portal Unlocks (50, 60, 70), All Evolution Stones,
+ * Milestone Pop-ups, Floor Items & Full Obstacle Inspection
  ********************************************************************/
 
 const FLOOR_ITEM_TYPES = [
-  {
-    id: 'oran_berry',
-    name: 'ORAN BERRY',
-    category: 'BERRY',
-    tileKey: 'BERRY',
-    color: '#3b82f6',
-    highlight: '#93c5fd',
-    desc: 'Restored +50 HP to your active partner!'
-  },
-  {
-    id: 'sitrus_berry',
-    name: 'SITRUS BERRY',
-    category: 'BERRY',
-    tileKey: 'BERRY',
-    color: '#facc15',
-    highlight: '#fef08a',
-    desc: 'Fully restored your active partner\'s HP!'
-  },
-  {
-    id: 'fire_stone',
-    name: 'FIRE STONE',
-    category: 'STONE',
-    tileKey: 'STONE',
-    stoneType: 'FIRE',
-    stoneLabel: 'FIRE STONE',
-    color: '#f97316',
-    highlight: '#fde047',
-    desc: 'A radiant Fire Stone! Interact with this stone while your Fire-type partner is active to evolve them!'
-  },
-  {
-    id: 'water_stone',
-    name: 'WATER STONE',
-    category: 'STONE',
-    tileKey: 'STONE',
-    stoneType: 'WATER',
-    stoneLabel: 'WATER STONE',
-    color: '#0284c7',
-    highlight: '#7dd3fc',
-    desc: 'A shimmering Water Stone! Interact with this stone while your Water-type partner is active to evolve them!'
-  },
-  {
-    id: 'thunder_stone',
-    name: 'THUNDER STONE',
-    category: 'STONE',
-    tileKey: 'STONE',
-    stoneType: 'ELECTRIC',
-    stoneLabel: 'THUNDER STONE',
-    color: '#eab308',
-    highlight: '#fef08a',
-    desc: 'A sparking Thunder Stone! Interact with this stone while Pikachu is active to evolve into Raichu!'
-  },
-  {
-    id: 'leaf_stone',
-    name: 'LEAF STONE',
-    category: 'STONE',
-    tileKey: 'STONE',
-    stoneType: 'GRASS',
-    stoneLabel: 'LEAF STONE',
-    color: '#16a34a',
-    highlight: '#86efac',
-    desc: 'A verdant Leaf Stone! Interact with this stone while your Grass-type partner is active to evolve them!'
-  },
-  {
-    id: 'moon_stone',
-    name: 'MOON STONE',
-    category: 'STONE',
-    tileKey: 'STONE',
-    stoneType: 'ANY',
-    stoneLabel: 'MOON STONE',
-    color: '#a855f7',
-    highlight: '#e9d5ff',
-    desc: 'A mystic Moon Stone! Interact with this stone with compatible Pokémon to trigger instant evolution!'
-  }
+  { id: 'oran_berry',    name: 'ORAN BERRY',    category: 'BERRY', tileKey: 'BERRY', color: '#3b82f6', highlight: '#93c5fd', desc: 'Restored +50 HP to your active partner!' },
+  { id: 'sitrus_berry',  name: 'SITRUS BERRY',  category: 'BERRY', tileKey: 'BERRY', color: '#facc15', highlight: '#fef08a', desc: 'Fully restored your active partner\'s HP!' },
+  { id: 'fire_stone',    name: 'FIRE STONE',    category: 'STONE', tileKey: 'STONE', stoneType: 'FIRE',    stoneLabel: 'FIRE STONE',    color: '#f97316', highlight: '#fde047', desc: 'Evolves Vulpix, Growlithe, or Eevee (into Flareon)!' },
+  { id: 'water_stone',   name: 'WATER STONE',   category: 'STONE', tileKey: 'STONE', stoneType: 'WATER',   stoneLabel: 'WATER STONE',   color: '#0284c7', highlight: '#7dd3fc', desc: 'Evolves Poliwhirl, Shellder, Staryu, Lombre, or Eevee (into Vaporeon)!' },
+  { id: 'thunder_stone', name: 'THUNDER STONE', category: 'STONE', tileKey: 'STONE', stoneType: 'THUNDER', stoneLabel: 'THUNDER STONE', color: '#eab308', highlight: '#fef08a', desc: 'Evolves Pikachu (into Raichu) or Eevee (into Jolteon)!' },
+  { id: 'leaf_stone',    name: 'LEAF STONE',    category: 'STONE', tileKey: 'STONE', stoneType: 'LEAF',    stoneLabel: 'LEAF STONE',    color: '#16a34a', highlight: '#86efac', desc: 'Evolves Gloom, Weepinbell, Exeggcute, Nuzleaf, or Eevee (into Leafeon)!' },
+  { id: 'moon_stone',    name: 'MOON STONE',    category: 'STONE', tileKey: 'STONE', stoneType: 'MOON',    stoneLabel: 'MOON STONE',    color: '#a855f7', highlight: '#e9d5ff', desc: 'Evolves Nidorina, Nidorino, Clefairy, Jigglypuff, Skitty, or Eevee (into Umbreon)!' },
+  { id: 'sun_stone',     name: 'SUN STONE',     category: 'STONE', tileKey: 'STONE', stoneType: 'SUN',     stoneLabel: 'SUN STONE',     color: '#dc2626', highlight: '#fde047', desc: 'Evolves Gloom (into Bellossom), Sunkern (into Sunflora), or Eevee (into Espeon)!' },
+  { id: 'ice_stone',     name: 'ICE STONE',     category: 'STONE', tileKey: 'STONE', stoneType: 'ICE',     stoneLabel: 'ICE STONE',     color: '#38bdf8', highlight: '#e0f2fe', desc: 'Evolves Eevee into Glaceon!' },
+  { id: 'shiny_stone',   name: 'SHINY STONE',   category: 'STONE', tileKey: 'STONE', stoneType: 'SHINY',   stoneLabel: 'SHINY STONE',   color: '#f472b6', highlight: '#fce7f3', desc: 'Evolves Eevee into Sylveon!' },
+  { id: 'kings_rock',    name: 'KINGS ROCK',    category: 'STONE', tileKey: 'STONE', stoneType: 'KINGS',   stoneLabel: 'KINGS ROCK',    color: '#eab308', highlight: '#ffffff', desc: 'Evolves Poliwhirl (into Politoed) or Slowpoke (into Slowking)!' },
+  { id: 'metal_coat',    name: 'METAL COAT',    category: 'STONE', tileKey: 'STONE', stoneType: 'METAL',   stoneLabel: 'METAL COAT',    color: '#94a3b8', highlight: '#f8fafc', desc: 'Evolves Onix (into Steelix) or Scyther (into Scizor)!' },
+  { id: 'dragon_scale',  name: 'DRAGON SCALE',  category: 'STONE', tileKey: 'STONE', stoneType: 'DRAGON',  stoneLabel: 'DRAGON SCALE',  color: '#2563eb', highlight: '#93c5fd', desc: 'Evolves Seadra into Kingdra!' },
+  { id: 'up_grade',      name: 'UP-GRADE',      category: 'STONE', tileKey: 'STONE', stoneType: 'UPGRADE', stoneLabel: 'UP-GRADE',      color: '#f43f5e', highlight: '#38bdf8', desc: 'Evolves Porygon into Porygon2!' },
+  { id: 'deep_sea_tooth',name: 'DEEP SEA TOOTH',category: 'STONE', tileKey: 'STONE', stoneType: 'TOOTH',   stoneLabel: 'DEEP SEA TOOTH',color: '#0284c7', highlight: '#e0f2fe', desc: 'Evolves Clamperl into Huntail!' },
+  { id: 'deep_sea_scale',name: 'DEEP SEA SCALE',category: 'STONE', tileKey: 'STONE', stoneType: 'SCALE',   stoneLabel: 'DEEP SEA SCALE',color: '#ec4899', highlight: '#fbcfe8', desc: 'Evolves Clamperl into Gorebyss!' }
 ];
 
 const HUMAN_SKIN_PALETTE = [
@@ -122,24 +65,78 @@ const OG_REGION_AREA_NAMES = {
   MOON:          'Ruby Badlands'
 };
 
-// 2. East Asia Region Grand Map (7 Walkable Areas)
+// 2. East Asia Region Grand Map (8 Areas: includes landlocked Fly-only NORTH_KOREA)
 const EAST_ASIA_MAP_GRID = [
-  [null,    'MONGOLIA',  'SOUTH_KOREA'],
-  [null,    'CHINA',     'JAPAN'],
-  ['MACAU', 'HONG_KONG', 'TAIWAN']
+  ['NORTH_KOREA', 'MONGOLIA',  'SOUTH_KOREA'],
+  [null,          'CHINA',     'JAPAN'],
+  ['MACAU',       'HONG_KONG', 'TAIWAN']
 ];
 
 const EAST_ASIA_MAP_IDS = new Set([
-  'HONG_KONG', 'MACAU', 'CHINA', 'TAIWAN', 'JAPAN', 'SOUTH_KOREA', 'MONGOLIA'
+  'HONG_KONG', 'MACAU', 'CHINA', 'TAIWAN', 'JAPAN', 'SOUTH_KOREA', 'MONGOLIA', 'NORTH_KOREA'
 ]);
+
+// 3. West Europe Region Grand Map (8 Areas: UK, Ireland, France, Germany, Spain, Portugal, Netherlands, Belgium)
+const WEST_EUROPE_MAP_GRID = [
+  ['IRELAND',  'UK',     'NETHERLANDS'],
+  [null,       'FRANCE', 'BELGIUM'],
+  ['PORTUGAL', 'SPAIN',  'GERMANY']
+];
+
+const WEST_EUROPE_MAP_IDS = new Set([
+  'UK', 'FRANCE', 'SPAIN', 'PORTUGAL', 'IRELAND', 'GERMANY', 'NETHERLANDS', 'BELGIUM'
+]);
+
+// 4. North America Region Grand Map (8 Areas: Canada Hub, USA, Mexico, Cuba, Haiti, Jamaica, Bahamas, Dominican Republic)
+const NORTH_AMERICA_MAP_GRID = [
+  [null,      'CANADA',  null],
+  ['MEXICO',  'USA',     'BAHAMAS'],
+  ['JAMAICA', 'CUBA',    'HAITI'],
+  [null,      null,      'DOMINICAN_REPUBLIC']
+];
+
+const NORTH_AMERICA_MAP_IDS = new Set([
+  'CANADA', 'USA', 'MEXICO', 'CUBA', 'HAITI', 'JAMAICA', 'BAHAMAS', 'DOMINICAN_REPUBLIC'
+]);
+
+// Tiered Regional Unlocks: 50 for East Asia, +10 for each subsequent region
+const REGION_PORTAL_TIERS = [
+  { id: 'EAST_ASIA',     name: 'EAST ASIA REGION',     hubMap: 'HONG_KONG', requiredDex: 50 },
+  { id: 'WEST_EUROPE',   name: 'WEST EUROPE REGION',   hubMap: 'UK',        requiredDex: 60 },
+  { id: 'NORTH_AMERICA', name: 'NORTH AMERICA REGION', hubMap: 'CANADA',    requiredDex: 70 }
+];
 
 const LEGENDARY_MONSTER_IDS = new Set([
   'articuno', 'zapdos', 'moltres', 'mewtwo', 'mew', 'deoxys',
-  'raikou', 'entei', 'suicune', 'lugia', 'ho_oh',
-  'kyogre', 'groudon', 'rayquaza', 'dialga', 'palkia'
+  'raikou', 'entei', 'suicune', 'lugia', 'ho_oh', 'celebi',
+  'regirock', 'regice', 'registeel', 'latias', 'latios',
+  'kyogre', 'groudon', 'rayquaza', 'jirachi', 'dialga', 'palkia'
 ]);
 
 const _mapThumbnailCache = {};
+
+function getRequiredDexForRegion(regionMode) {
+  if (regionMode === 'HABITAT') return 0;
+  const idx = REGION_PORTAL_TIERS.findIndex(r => r.id === regionMode);
+  return idx !== -1 ? (50 + idx * 10) : 50;
+}
+
+function isRegionUnlocked(regionMode) {
+  if (regionMode === 'HABITAT') return true;
+  const count = (state && Array.isArray(state.dex)) ? state.dex.length : 0;
+  return count >= getRequiredDexForRegion(regionMode);
+}
+
+function isPortalUnlocked() {
+  return isRegionUnlocked('EAST_ASIA');
+}
+
+function getRegionOfMapId(mapId) {
+  if (EAST_ASIA_MAP_IDS.has(mapId)) return 'EAST_ASIA';
+  if (WEST_EUROPE_MAP_IDS.has(mapId)) return 'WEST_EUROPE';
+  if (NORTH_AMERICA_MAP_IDS.has(mapId)) return 'NORTH_AMERICA';
+  return 'HABITAT';
+}
 
 function applyOriginalRegionAreaNames() {
   if (typeof WORLD_MAPS === 'undefined') return;
@@ -202,12 +199,12 @@ function renderMapThumbnailDataURL(mapObj) {
       else if (ch === 'W') color = '#0284c7';
       else if (ch === 'L') color = '#ef4444';
       else if (ch === 'I') color = '#7dd3fc';
-      else if (ch === 'H' || ch === 'D' || ch === 'Y' || ch === 'X') color = '#f43f5e';
-      else if (ch === 'J' || ch === 'O') color = '#f472b6';
-      else if (ch === 'g') color = '#f8fafc';
-      else if (ch === 'k') color = '#b45309';
-      else if (ch === 'T' || ch === 'C') color = th.treeTop || th.tree || '#14532d';
-      else if (ch === 'R' || ch === 'Z' || ch === 'Q' || ch === 'V' || ch === 'A' || ch === 'N') color = th.rockLight || th.rock || '#94a3b8';
+      else if (ch === 'H' || ch === 'D' || ch === 'Y' || ch === 'X' || ch === 'u' || ch === 'b') color = '#f43f5e';
+      else if (ch === 'J' || ch === 'O' || ch === 'n' || ch === 'q') color = '#f472b6';
+      else if (ch === 'g' || ch === 'c' || ch === 'w') color = '#f8fafc';
+      else if (ch === 'k' || ch === 'm' || ch === 'a') color = '#b45309';
+      else if (ch === 'T' || ch === 'C' || ch === 'j' || ch === 'l') color = th.treeTop || th.tree || '#14532d';
+      else color = th.rockLight || th.rock || '#94a3b8';
 
       ctx.fillStyle = color;
       ctx.fillRect(c * 2, r * 2, 2, 2);
@@ -219,20 +216,18 @@ function renderMapThumbnailDataURL(mapObj) {
   return url;
 }
 
-function isPortalUnlocked() {
-  return Boolean(state && Array.isArray(state.dex) && state.dex.length >= 50);
-}
-
 function isPortalTileOnCurrentMap(col, row) {
   if (!state) return false;
-  if (state.currentMapId !== 'CENTER' && state.currentMapId !== 'HONG_KONG') return false;
+  const portalHubs = new Set(['CENTER', 'HONG_KONG', 'UK', 'CANADA']);
+  if (!portalHubs.has(state.currentMapId)) return false;
   if (state.currentMapId === 'CENTER' && !isPortalUnlocked()) return false;
   return (col === 13 || col === 14) && (row === 9 || row === 10);
 }
 
 function drawPortalOnCanvas(ctx, animTick) {
   if (!state) return;
-  if (state.currentMapId !== 'CENTER' && state.currentMapId !== 'HONG_KONG') return;
+  const portalHubs = new Set(['CENTER', 'HONG_KONG', 'UK', 'CANADA']);
+  if (!portalHubs.has(state.currentMapId)) return;
   if (state.currentMapId === 'CENTER' && !isPortalUnlocked()) return;
 
   const px = 13 * TILE_SIZE;
@@ -258,6 +253,93 @@ function drawPortalOnCanvas(ctx, animTick) {
   ctx.fillRect(px + 24, py + 24, size - 48, size - 48);
 
   ctx.restore();
+}
+
+function showFeatureUnlockPopup(title, subtitle, description, badgeText = 'NEW FEATURE UNLOCKED!') {
+  let modal = document.getElementById('featureUnlockModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'featureUnlockModal';
+    modal.className = 'fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3';
+    modal.innerHTML = `
+      <div class="w-full max-w-md retro-box p-4 sm:p-5 flex flex-col gap-3 text-center border-4 border-amber-400 shadow-2xl">
+        <div class="flex items-center justify-center">
+          <span id="unlockModalBadge" class="bg-amber-400 text-slate-950 text-[8px] sm:text-[9px] px-2.5 py-1 rounded border-2 border-slate-950 font-bold"></span>
+        </div>
+        <h2 id="unlockModalTitle" class="text-sm sm:text-base font-bold text-indigo-900"></h2>
+        <div id="unlockModalSubtitle" class="text-[9px] sm:text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-400 rounded py-1 px-2"></div>
+        <p id="unlockModalDesc" class="text-[10px] sm:text-xs text-slate-800 leading-relaxed"></p>
+        <div class="flex justify-center pt-2 border-t border-slate-300">
+          <button id="closeUnlockModalBtn" type="button" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] sm:text-[10px] font-bold px-5 py-2">
+            GOT IT!
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('closeUnlockModalBtn').addEventListener('click', () => {
+      if (typeof sfx !== 'undefined') sfx.blip();
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    });
+  }
+
+  document.getElementById('unlockModalBadge').textContent = badgeText;
+  document.getElementById('unlockModalTitle').textContent = title;
+  document.getElementById('unlockModalSubtitle').textContent = subtitle;
+  document.getElementById('unlockModalDesc').textContent = description;
+
+  if (typeof sfx !== 'undefined' && typeof sfx.grandVictoryFanfare === 'function') {
+    sfx.grandVictoryFanfare();
+  }
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function checkMilestoneUnlocks() {
+  if (!state || !Array.isArray(state.dex)) return;
+  if (!state.unlockedMilestones) {
+    state.unlockedMilestones = { map20: false, fly30: false, portal50: false, portal60: false, portal70: false };
+  }
+
+  const count = state.dex.length;
+
+  if (count >= 20 && !state.unlockedMilestones.map20) {
+    state.unlockedMilestones.map20 = true;
+    showFeatureUnlockPopup(
+      'GRAND REGION MAP UNLOCKED!',
+      '20 POKEMON REGISTERED IN DEX',
+      'You can now open the Grand Region Map from the Overworld HUD to inspect all 25 Original Region habitats and track your location!'
+    );
+  } else if (count >= 30 && !state.unlockedMilestones.fly30) {
+    state.unlockedMilestones.fly30 = true;
+    showFeatureUnlockPopup(
+      'FLY FAST-TRAVEL UNLOCKED!',
+      '30 POKEMON REGISTERED IN DEX',
+      'You can now click any area on your Grand Region Map to Fly directly there, including detached/landlocked biomes like North Korea!'
+    );
+  } else if (count >= 50 && !state.unlockedMilestones.portal50) {
+    state.unlockedMilestones.portal50 = true;
+    showFeatureUnlockPopup(
+      'EAST ASIA PORTAL UNLOCKED!',
+      '50 POKEMON REGISTERED IN DEX',
+      'The 2x2 Dimensional Portal has opened in Beige Village! Warp to Hong Kong, Macau, China, Taiwan, Japan, South Korea, Mongolia, and Fly-only North Korea!'
+    );
+  } else if (count >= 60 && !state.unlockedMilestones.portal60) {
+    state.unlockedMilestones.portal60 = true;
+    showFeatureUnlockPopup(
+      'WEST EUROPE PORTAL UNLOCKED!',
+      '60 POKEMON REGISTERED IN DEX (+10 TIER)',
+      'Your Dimensional Portal now links to West Europe! Explore the UK, Ireland, France, Germany, Spain, Portugal, Netherlands, and Belgium!'
+    );
+  } else if (count >= 70 && !state.unlockedMilestones.portal70) {
+    state.unlockedMilestones.portal70 = true;
+    showFeatureUnlockPopup(
+      'NORTH AMERICA PORTAL UNLOCKED!',
+      '70 POKEMON REGISTERED IN DEX (+10 TIER)',
+      'Your Dimensional Portal now links to North America! Explore the Canada Hub, USA, Mexico, Cuba, Haiti, Jamaica, Bahamas, and Dominican Republic!'
+    );
+  }
 }
 
 function getNPCSkinColor(npc) {
@@ -298,31 +380,20 @@ function getFloorItemAt(col, row) {
 
 function isTileBlocked(col, row) {
   if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS) return true;
-  
   if (getFloorItemAt(col, row)) return true;
 
   const tile = getTileAt(col, row);
   if (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[tile] !== undefined) {
     if (!OBSTACLE_DEFS[tile].walkable) return true;
   } else {
-    if (
-      tile === 'T' || tile === 'W' || tile === 'H' || tile === 'R' ||
-      tile === 'I' || tile === 'C' || tile === 'K' || tile === 'L' ||
-      tile === 'S' || tile === 'V' || tile === 'U' || tile === 'A' ||
-      tile === 'N' || tile === 'Q' || tile === 'Y' || tile === 'J' ||
-      tile === 'O' || tile === 'Z' || tile === 'X' || tile === 'g' || tile === 'k'
-    ) {
-      return true;
-    }
+    const blockedFallback = new Set([
+      'T','W','H','R','I','C','K','L','S','V','U','A','N','Q','Y','J','O','Z','X',
+      'g','k','c','i','e','x','w','z','u','n','b','m','s','f','a','h','j','q','d','l'
+    ]);
+    if (blockedFallback.has(tile)) return true;
   }
 
   const mapObj = getCurrentMap();
-  
-  // Force any active Legendary NPC to act as a solid, blocking obstacle object
-  if (mapObj.npcs && mapObj.npcs.some(npc => isNPCActiveOnMap(npc) && (npc.isLegendary || isLegendarySpeciesId(getCanonicalLegendaryId(npc))) && npc.x === col && npc.y === row)) {
-    return true;
-  }
-
   if (mapObj.npcs && mapObj.npcs.some(npc => isNPCActiveOnMap(npc) && npc.x === col && npc.y === row)) return true;
   if (mapObj.pokeNpcs && mapObj.pokeNpcs.some(p => isNPCActiveOnMap(p) && p.x === col && p.y === row)) return true;
 
@@ -351,7 +422,7 @@ function spawnFloorItemsForCurrentMap() {
   for (let i = 0; i < numItems && validCoords.length > 0; i++) {
     const randIdx = Math.floor(Math.random() * validCoords.length);
     const coord = validCoords.splice(randIdx, 1)[0];
-    const isStone = Math.random() < 0.35;
+    const isStone = Math.random() < 0.45;
     const pool = FLOOR_ITEM_TYPES.filter(it => it.category === (isStone ? 'STONE' : 'BERRY'));
     const chosenItem = pool[Math.floor(Math.random() * pool.length)];
 
@@ -373,25 +444,26 @@ function interactWithFloorItem(item) {
     sfx.heal();
     if (item.id === 'oran_berry') {
       partner.hp = Math.min(partner.maxHp, partner.hp + 50);
-      setOverworldDialogue(`Collected ${item.name}! ${partner.name} recovered +50 HP! (${partner.hp}/${partner.maxHp})`, item.name, 'BERRY COLLECTED 🍓');
+      setOverworldDialogue(`Collected ${item.name}! ${partner.name} recovered +50 HP! (${partner.hp}/${partner.maxHp})`, item.name, 'BERRY COLLECTED');
     } else if (item.id === 'sitrus_berry') {
       partner.hp = partner.maxHp;
-      setOverworldDialogue(`Collected ${item.name}! ${partner.name}'s HP was fully restored!`, item.name, 'BERRY COLLECTED 🍋');
+      setOverworldDialogue(`Collected ${item.name}! ${partner.name}'s HP was fully restored!`, item.name, 'BERRY COLLECTED');
     }
   } else if (item.category === 'STONE') {
     const oldName = partner.name;
     const evolvedMsg = (typeof tryStoneEvolution === 'function') ? tryStoneEvolution(partner, item) : null;
     if (evolvedMsg) {
       state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
-      setOverworldDialogue(`Used ${item.name} with ${oldName}! ${evolvedMsg}`, 'STONE EVOLUTION! ★', item.name);
+      setOverworldDialogue(`Used ${item.name} with ${oldName}! ${evolvedMsg}`, 'STONE EVOLUTION!', item.name);
       const playerWrapper = document.getElementById('playerSpriteWrapper');
       if (playerWrapper && typeof renderMonsterSVG === 'function') {
         playerWrapper.innerHTML = renderMonsterSVG(partner);
       }
+      checkMilestoneUnlocks();
     } else {
       state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
       sfx.wrongBuzzer();
-      setOverworldDialogue(`The stone shattered and nothing happened. (${partner.name} cannot evolve with this stone!)`, 'STONE SHATTERED 💥', item.name);
+      setOverworldDialogue(`The ${item.name} shattered and nothing happened. (${partner.name} cannot evolve with ${item.name}!)`, 'STONE SHATTERED', item.name);
     }
   }
 
@@ -415,7 +487,12 @@ function drawFloorItemsOnCanvas(ctx, animTick) {
     ctx.fillRect(dx + 6, item.y * TILE_SIZE + 24, 20, 5);
 
     if (obsDef && typeof drawBitmap16 === 'function') {
-      drawBitmap16(ctx, obsDef.grid, obsDef.palette, dx, dy, TILE_SIZE, false);
+      const itemPalette = {
+        ...obsDef.palette,
+        t: item.color || obsDef.palette.t,
+        s: item.highlight || obsDef.palette.s
+      };
+      drawBitmap16(ctx, obsDef.grid, itemPalette, dx, dy, TILE_SIZE, false);
     } else {
       ctx.fillStyle = item.color || '#3b82f6';
       ctx.fillRect(dx + 8, dy + 8, 16, 16);
@@ -429,10 +506,10 @@ function syncWorldMapButtonState() {
   const caught = state.dex ? state.dex.length : 1;
   if (caught < 20) {
     mapBtn.className = 'pixel-btn bg-slate-600 hover:bg-slate-500 text-slate-300 text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2 grayscale opacity-80';
-    mapBtn.innerHTML = `🔒 MAP (${caught}/20)`;
+    mapBtn.innerHTML = `MAP (${caught}/20)`;
   } else {
     mapBtn.className = 'pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[7px] sm:text-[9px] px-2.5 py-2 sm:px-3 sm:py-2';
-    mapBtn.innerHTML = `🗺️ MAP`;
+    mapBtn.innerHTML = `MAP`;
   }
 }
 
@@ -442,11 +519,22 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
   if (!grid) return;
   grid.innerHTML = '';
 
-  const isCurrentInEastAsia = EAST_ASIA_MAP_IDS.has(state.currentMapId);
+  const currentRegion = getRegionOfMapId(state.currentMapId);
   const canFly = state.dex.length >= 30;
-  const portalReady = isPortalUnlocked();
-  const matrix = regionMode === 'EAST_ASIA' ? EAST_ASIA_MAP_GRID : GRAND_MAP_5X5_GRID;
-  const colsCount = regionMode === 'EAST_ASIA' ? 3 : 5;
+
+  let matrix = GRAND_MAP_5X5_GRID;
+  let colsCount = 5;
+  if (regionMode === 'EAST_ASIA') {
+    matrix = EAST_ASIA_MAP_GRID;
+    colsCount = 3;
+  } else if (regionMode === 'WEST_EUROPE') {
+    matrix = WEST_EUROPE_MAP_GRID;
+    colsCount = 3;
+  } else if (regionMode === 'NORTH_AMERICA') {
+    matrix = NORTH_AMERICA_MAP_GRID;
+    colsCount = 3;
+  }
+
   grid.className = `grid grid-cols-${colsCount} gap-2 bg-slate-900 p-2.5 sm:p-3 rounded-lg border-2 border-slate-950 min-w-[520px]`;
 
   matrix.forEach((rowKeys, rIdx) => {
@@ -461,47 +549,50 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
 
       const mapObj = WORLD_MAPS[mapKey];
       const isCurrent = state.currentMapId === mapKey;
-      const targetIsEastAsia = EAST_ASIA_MAP_IDS.has(mapKey);
-      const sameRegionAsPlayer = (isCurrentInEastAsia === targetIsEastAsia);
-      
-      // Check travel permissions
-      const isLockedEastAsia = targetIsEastAsia && !portalReady;
-      const allowFastTravelHere = canFly && !isCurrent && sameRegionAsPlayer && !isLockedEastAsia;
-      const allowPortalTransitHere = !sameRegionAsPlayer && portalReady;
+      const targetRegion = getRegionOfMapId(mapKey);
+      const sameRegionAsPlayer = (currentRegion === targetRegion);
+      const reqDexForTarget = getRequiredDexForRegion(targetRegion);
+      const isLockedPortalRegion = !isRegionUnlocked(targetRegion);
+      const allowFastTravelHere = canFly && !isCurrent && sameRegionAsPlayer && !isLockedPortalRegion;
+      const allowPortalTransitHere = !sameRegionAsPlayer && !isLockedPortalRegion;
 
       const bgHex = mapObj.theme?.groundA || '#334155';
       const areaTitle = OG_REGION_AREA_NAMES[mapKey] || mapObj.name.replace(/\s*\([^)]*\)\s*/g, '');
       const thumbUrl = renderMapThumbnailDataURL(mapObj);
+      const isHubPortal = (mapKey === 'CENTER' || mapKey === 'HONG_KONG' || mapKey === 'UK' || mapKey === 'CANADA');
 
       const card = document.createElement('div');
       card.className = `pixel-btn p-1.5 sm:p-2 flex flex-col justify-between gap-1 text-left min-h-[108px] ${
         isCurrent ? 'ring-2 ring-amber-400 border-amber-400 scale-[1.02]' : ''
-      } ${isLockedEastAsia ? 'opacity-50 grayscale' : ''}`;
+      } ${isLockedPortalRegion ? 'opacity-50 grayscale' : ''}`;
       card.style.backgroundColor = bgHex;
       card.style.color = '#ffffff';
 
       card.innerHTML = `
         <div class="flex items-start justify-between gap-1">
           <span class="text-[7px] sm:text-[8px] font-bold leading-tight drop-shadow-[1px_1px_0_#000] truncate">${areaTitle}</span>
-          ${isCurrent ? '<span class="text-[6px] bg-amber-400 text-slate-950 px-1 py-0.5 rounded font-bold shrink-0">📍 YOU</span>' : ''}
+          ${isCurrent ? '<span class="text-[6px] bg-amber-400 text-slate-950 px-1 py-0.5 rounded font-bold shrink-0">YOU</span>' : ''}
         </div>
         <div class="w-full h-11 sm:h-12 rounded border border-slate-950 overflow-hidden bg-slate-950 my-0.5 shadow-inner relative">
           <img src="${thumbUrl}" alt="${areaTitle}" class="w-full h-full object-cover" style="image-rendering: pixelated;" />
-          ${(mapKey === 'CENTER' || mapKey === 'HONG_KONG') && portalReady ? '<span class="absolute bottom-0.5 right-0.5 text-[6px] bg-purple-700 text-white px-1 rounded border border-white">🌀 PORTAL</span>' : ''}
+          ${isHubPortal && !isLockedPortalRegion ? '<span class="absolute bottom-0.5 right-0.5 text-[6px] bg-purple-700 text-white px-1 rounded border border-white">PORTAL</span>' : ''}
+          ${mapKey === 'NORTH_KOREA' ? '<span class="absolute top-0.5 left-0.5 text-[6px] bg-red-800 text-white px-1 rounded border border-white">FLY ONLY</span>' : ''}
         </div>
         <div class="flex items-center justify-between gap-1 mt-auto">
-          <span class="text-[6px] text-slate-200 drop-shadow-[1px_1px_0_#000]">${regionMode === 'EAST_ASIA' ? 'EAST ASIA AREA' : `AREA (${cIdx - 2}, ${2 - rIdx})`}</span>
-          ${isLockedEastAsia 
-            ? `<span class="text-[6px] bg-red-800 text-white px-1 py-0.5 rounded font-bold">🔒 NEED 50 DEX</span>`
+          <span class="text-[6px] text-slate-200 drop-shadow-[1px_1px_0_#000]">${
+            regionMode === 'HABITAT' ? `AREA (${cIdx - 2}, ${2 - rIdx})` : regionMode.replace('_', ' ')
+          }</span>
+          ${isLockedPortalRegion
+            ? `<span class="text-[6px] bg-red-800 text-white px-1 py-0.5 rounded font-bold">NEED ${reqDexForTarget} DEX</span>`
             : (allowFastTravelHere
-              ? `<button type="button" class="bg-sky-400 hover:bg-sky-300 text-slate-950 text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">✈️ FLY</button>`
-              : (!sameRegionAsPlayer && !isCurrent && portalReady ? `<button type="button" class="bg-purple-600 hover:bg-purple-500 text-white text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">🌀 PORTAL</button>` : ''))}
+              ? `<button type="button" class="bg-sky-400 hover:bg-sky-300 text-slate-950 text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">FLY</button>`
+              : (!sameRegionAsPlayer && !isCurrent && !isLockedPortalRegion ? `<button type="button" class="bg-purple-600 hover:bg-purple-500 text-white text-[6px] sm:text-[7px] px-1.5 py-0.5 rounded font-bold border border-slate-950 shadow">PORTAL</button>` : ''))}
         </div>
       `;
 
       if (allowFastTravelHere || allowPortalTransitHere) {
         card.addEventListener('click', () => {
-          if (isLockedEastAsia) {
+          if (isLockedPortalRegion) {
             sfx.wrongBuzzer();
             return;
           }
@@ -515,7 +606,7 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
             sfx.startBGM(state.currentMapId);
             updateOverworldHUD();
             if (typeof saveGameProgress === 'function') saveGameProgress();
-            setOverworldDialogue(`Warped directly to ${areaTitle}!`, areaTitle, 'GRAND MAP WARP 🌀');
+            setOverworldDialogue(`Warped directly to ${areaTitle}!`, areaTitle, 'GRAND MAP WARP');
           });
         });
       }
@@ -528,7 +619,7 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
 function openWorldMapModal() {
   if (state.dex.length < 20) {
     sfx.wrongBuzzer();
-    setOverworldDialogue(`🔒 GRAND REGION MAP LOCKED! You have caught ${state.dex.length}/${MONSTER_SPECIES.length} Pokémon! Catch at least 20 Pokémon to unlock the Region Map.`, 'LOCKED FEATURE', 'REGION MAP 🔒');
+    setOverworldDialogue(`GRAND REGION MAP LOCKED! You have caught ${state.dex.length}/${MONSTER_SPECIES.length} Pokemon! Catch at least 20 Pokemon to unlock the Region Map.`, 'LOCKED FEATURE', 'REGION MAP');
     return;
   }
 
@@ -545,9 +636,11 @@ function openWorldMapModal() {
             <h2 class="text-xs sm:text-sm font-bold text-slate-900">GRAND REGION MAP (WALKABLE AREAS)</h2>
             <p id="mapModalStatusSubtitle" class="text-[8px] sm:text-[9px] text-slate-600 mt-0.5"></p>
           </div>
-          <div class="flex items-center gap-1.5">
-            <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2.5 py-1 font-bold">OG REGION (25 AREAS)</button>
-            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[8px] px-2.5 py-1 font-bold">EAST ASIA REGION</button>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[8px] px-2.5 py-1 font-bold">OG (25)</button>
+            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[8px] px-2.5 py-1 font-bold">EAST ASIA (8)</button>
+            <button id="tabWestEuropeMapBtn" type="button" class="pixel-btn bg-emerald-700 text-white text-[8px] px-2.5 py-1 font-bold">WEST EUROPE (8)</button>
+            <button id="tabNorthAmericaMapBtn" type="button" class="pixel-btn bg-sky-700 text-white text-[8px] px-2.5 py-1 font-bold">NORTH AMERICA (8)</button>
             <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
           </div>
         </div>
@@ -565,31 +658,57 @@ function openWorldMapModal() {
   }
 
   const canFly = state.dex.length >= 30;
-  const portalReady = isPortalUnlocked();
   const subtitleEl = document.getElementById('mapModalStatusSubtitle');
   if (subtitleEl) {
-    subtitleEl.textContent = `${canFly ? 'FLY UNLOCKED (between areas in current region)' : `FLY LOCKED (${state.dex.length}/30)`} • ${
-      portalReady ? '2×2 HK PORTAL ACTIVE IN VERDANT HUB!' : `EAST ASIA PORTAL LOCKED (${state.dex.length}/50 Pokémon)`
+    subtitleEl.textContent = `${canFly ? 'FLY OPEN' : `FLY (${state.dex.length}/30)`} | EAST ASIA: ${
+      isRegionUnlocked('EAST_ASIA') ? 'OPEN' : `${state.dex.length}/50`
+    } | WEST EUROPE: ${
+      isRegionUnlocked('WEST_EUROPE') ? 'OPEN' : `${state.dex.length}/60`
+    } | NORTH AMERICA: ${
+      isRegionUnlocked('NORTH_AMERICA') ? 'OPEN' : `${state.dex.length}/70`
     }`;
   }
 
   const tabHab = document.getElementById('tabHabitatMapBtn');
   const tabAsia = document.getElementById('tabEastAsiaMapBtn');
-  const startTab = EAST_ASIA_MAP_IDS.has(state.currentMapId) ? 'EAST_ASIA' : 'HABITAT';
+  const tabEuro = document.getElementById('tabWestEuropeMapBtn');
+  const tabAmer = document.getElementById('tabNorthAmericaMapBtn');
+  const startTab = getRegionOfMapId(state.currentMapId);
 
-  if (tabHab && tabAsia) {
-    tabHab.onclick = () => {
-      sfx.blip();
-      renderGrandMapGridRegion('HABITAT', mapModal);
-    };
+  if (tabHab) {
+    tabHab.onclick = () => { sfx.blip(); renderGrandMapGridRegion('HABITAT', mapModal); };
+  }
+  if (tabAsia) {
     tabAsia.onclick = () => {
-      if (!isPortalUnlocked() && !EAST_ASIA_MAP_IDS.has(state.currentMapId)) {
+      if (!isRegionUnlocked('EAST_ASIA') && !EAST_ASIA_MAP_IDS.has(state.currentMapId)) {
         sfx.wrongBuzzer();
-        setOverworldDialogue(`EAST ASIA REGION LOCKED! Catch 50 Pokémon (${state.dex.length}/50) to open the 2×2 Portal in Verdant Hub!`, 'PORTAL LOCKED', '50 DEX REQUIRED');
+        setOverworldDialogue(`EAST ASIA LOCKED! Catch 50 Pokemon (${state.dex.length}/50) to open the East Asia Portal!`, 'PORTAL LOCKED', '50 DEX REQUIRED');
         return;
       }
       sfx.blip();
       renderGrandMapGridRegion('EAST_ASIA', mapModal);
+    };
+  }
+  if (tabEuro) {
+    tabEuro.onclick = () => {
+      if (!isRegionUnlocked('WEST_EUROPE') && !WEST_EUROPE_MAP_IDS.has(state.currentMapId)) {
+        sfx.wrongBuzzer();
+        setOverworldDialogue(`WEST EUROPE LOCKED! Catch 60 Pokemon (${state.dex.length}/60) to open the West Europe Portal!`, 'PORTAL LOCKED', '60 DEX REQUIRED');
+        return;
+      }
+      sfx.blip();
+      renderGrandMapGridRegion('WEST_EUROPE', mapModal);
+    };
+  }
+  if (tabAmer) {
+    tabAmer.onclick = () => {
+      if (!isRegionUnlocked('NORTH_AMERICA') && !NORTH_AMERICA_MAP_IDS.has(state.currentMapId)) {
+        sfx.wrongBuzzer();
+        setOverworldDialogue(`NORTH AMERICA LOCKED! Catch 70 Pokemon (${state.dex.length}/70) to open the North America Portal!`, 'PORTAL LOCKED', '70 DEX REQUIRED');
+        return;
+      }
+      sfx.blip();
+      renderGrandMapGridRegion('NORTH_AMERICA', mapModal);
     };
   }
 
@@ -679,9 +798,9 @@ function handleTwoStepLegendaryInteraction(npcObj, rawMonId) {
   state.pendingLegendaryChallengeId = rawMonId;
   const baseText = npcObj.fact || `${npcObj.name} eyes you with intense legendary power!`;
   setOverworldDialogue(
-    `${baseText} [Press SPACE or A • TALK again to challenge ${npcObj.name}!]`,
+    `${baseText} [Press SPACE or A - TALK again to challenge ${npcObj.name}!]`,
     npcObj.name,
-    'PRESS SPACE / TALK TO BATTLE ★'
+    'PRESS SPACE / TALK TO BATTLE'
   );
   updateOverworldHUD();
 }
@@ -710,7 +829,7 @@ function interactWithFacingNPC() {
     const species = MONSTER_SPECIES.find(m => m.id.toLowerCase() === rawPokeId);
     const displayName = species ? species.name : pokeNpc.name;
     sfx.pokemonCry(rawPokeId);
-    setOverworldDialogue(`${displayName}! ${displayName}~`, displayName, 'POKéMON CALL ♪');
+    setOverworldDialogue(`${displayName}! ${displayName}~`, displayName, 'POKEMON CALL');
     return;
   }
 
@@ -750,9 +869,8 @@ function interactWithFacingNPC() {
   if (state.partnerWorld && state.partnerWorld.gridX === tx && state.partnerWorld.gridY === ty) {
     const partner = getActivePlayer();
     sfx.pokemonCry(partner.id);
-    const req = typeof getEvolutionRequirement === 'function' ? getEvolutionRequirement(partner.id) : null;
-    const evoNote = req ? ` [EVO BAR: ${partner.evoWins || 0}/${req.winsNeeded} → ${req.to.toUpperCase()}]` : ' [MAX EVOLUTION ★]';
-    setOverworldDialogue(`${partner.name}! ${partner.name}~ (Your active partner is happily following you!${evoNote})`, partner.name, 'ACTIVE PARTNER ♪');
+    const evoNote = ` [${getEvoStatusText(partner)}]`;
+    setOverworldDialogue(`${partner.name}! ${partner.name}~ (Your active partner is happily following you!${evoNote})`, partner.name, 'ACTIVE PARTNER');
     return;
   }
 
@@ -760,58 +878,58 @@ function interactWithFacingNPC() {
   const obsDef = (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[tile]) ? OBSTACLE_DEFS[tile] : null;
   sfx.blip();
 
-  if (tile === 'W') {
-    setOverworldDialogue("Crystal-clear water! Remember: roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "HYDROLOGY");
-  } else if (tile === 'G') {
-    setOverworldDialogue("Tall wild grass! Step inside to encounter wild monsters native to this area!", "TALL GRASS", "HABITAT");
-  } else if (tile === 'T') {
-    setOverworldDialogue("Canopy tree! Trees absorb Carbon Dioxide through leaf Stomata and use Chlorophyll to produce Oxygen and glucose via Photosynthesis!", obsDef?.name || "CANOPY TREE", "BOTANY");
-  } else if (tile === 'R') {
-    setOverworldDialogue("Solid crag boulder! The Rock Cycle transitions rocks between Igneous, Sedimentary, and Metamorphic states over geological time!", obsDef?.name || "CRAG BOULDER", "GEOLOGY");
-  } else if (tile === 'I') {
-    setOverworldDialogue("Crystalline glacier ice block! Ordinary water ice forms a Hexagonal crystal lattice at 0°C and floats because it is less dense than liquid water!", obsDef?.name || "GLACIER ICE", "GLACIOLOGY");
-  } else if (tile === 'C') {
-    setOverworldDialogue("Desert saguaro cactus! Succulents store water in thick stems and use spines to minimize surface-area water loss from transpiration!", obsDef?.name || "SAGUARO CACTUS", "XEROPHYTE");
-  } else if (tile === 'K') {
-    setOverworldDialogue("Marine reef coral! Coral reefs are built by colonies of calcium-carbonate-secreting polyps living in symbiosis with photosynthetic algae!", obsDef?.name || "REEF CORAL", "MARINE ECOLOGY");
-  } else if (tile === 'L') {
-    setOverworldDialogue("Molten lava pool! Underground molten rock is called Magma, and once it erupts onto a planet's surface it is called Lava!", obsDef?.name || "MOLTEN LAVA", "VOLCANOLOGY");
-  } else if (tile === 'M') {
-    setOverworldDialogue("Nutrient-rich swamp mud! Anaerobic wetland sediments slow down organic decomposition and filter groundwater aquifers!", obsDef?.name || "SWAMP MUD", "WETLANDS");
-  } else if (tile === 'F') {
-    setOverworldDialogue("Blooming wildflower patch! Angiosperm flowers attract insect pollinators to transfer pollen and produce seeds enclosed within fruit!", obsDef?.name || "WILDFLOWERS", "BOTANY");
-  } else if (tile === 'B') {
-    setOverworldDialogue("Timber suspension bridge! Structural beams distribute compressive and tensile forces across the supports!", obsDef?.name || "WOODEN BRIDGE", "ENGINEERING");
-  } else if (tile === 'S') {
-    setOverworldDialogue("Geothermal steam geyser! Superheated groundwater rises through volcanic fissures to form mineral-rich hot springs!", obsDef?.name || "STEAM GEYSER", "GEOTHERMAL");
-  } else if (tile === 'V') {
-    setOverworldDialogue("High-voltage resonant Tesla coil! Alternating magnetic fields induce currents across conductive metal windings!", obsDef?.name || "TESLA PYLON", "ELECTROMAGNETISM");
-  } else if (tile === 'U') {
-    setOverworldDialogue("Bioluminescent spore toadstool! Fungi have cell walls made of Chitin, decompose organic matter, and reproduce via airborne spores!", obsDef?.name || "SPORE TOADSTOOL", "MYCOLOGY");
-  } else if (tile === 'A') {
-    setOverworldDialogue("Astral crystal obelisk! Birefringent crystals split incoming light beams into polarized rainbow spectra!", obsDef?.name || "ASTRAL OBELISK", "OPTICS & MYTH");
-  } else if (tile === 'N') {
-    setOverworldDialogue("Flickering shadow streetlamp! In cosmology, Dark Matter accounts for ~85% of the universe's mass, while a Black Hole's Event Horizon traps even light!", obsDef?.name || "SHADOW LAMP", "DARK COSMOLOGY");
-  } else if (tile === 'Q') {
-    setOverworldDialogue("Miradouro da Lua cliff spire! Over millions of years, wind and rain erosion carved red clay and sandstone into lunar-like hoodoo pinnacles!", obsDef?.name || "MOON CLIFF SPIRE", "GEOMORPHOLOGY");
-  } else if (tile === 'Y') {
-    setOverworldDialogue("Glowing neon sign! Neon tubes contain low-pressure noble gases that ionize and emit vibrant photons when high voltage is applied!", obsDef?.name || "NEON SIGN", "ATOMIC PHYSICS");
-  } else if (tile === 'J') {
-    setOverworldDialogue("Sakura cherry blossom tree! Cherry trees (Prunus serrulata) bloom synchronously in spring in response to rising temperatures and photoperiod!", obsDef?.name || "CHERRY BLOSSOM", "BOTANY");
-  } else if (tile === 'O') {
-    setOverworldDialogue("Fragrant plum blossom shrub! Plum blossoms (Prunus mume) bloom in late winter even through frost, symbolizing resilience!", obsDef?.name || "PLUM BLOSSOM", "BOTANY");
-  } else if (tile === 'Z') {
-    setOverworldDialogue("Great Wall battlement! Ancient builders mixed sticky rice amylopectin mortar with slaked lime (calcium carbonate) to bind these stone fortifications!", obsDef?.name || "GREAT WALL", "MATERIALS ENGINEERING");
-  } else if (tile === 'X') {
-    setOverworldDialogue("Cotai slot machine! Modern slot reels are governed by a Pseudo-Random Number Generator (PRNG) and the mathematical Law of Large Numbers!", obsDef?.name || "SLOT MACHINE", "PROBABILITY");
-  } else if (tile === 'g') {
-    setOverworldDialogue("Traditional Mongolian Yurt (Ger)! Its circular lattice wall and wool felt insulation resist fierce steppe winds while retaining thermal energy!", obsDef?.name || "MONGOLIAN YURT", "ARCHITECTURE & PHYSICS");
-  } else if (tile === 'k') {
-    setOverworldDialogue("Breathable clay Onggi jars of Kimchi! Micropores in the glazed earthenware allow carbon dioxide from Lactobacillus fermentation to escape while blocking outside air!", obsDef?.name || "KIMCHI ONGGI JARS", "MICROBIOLOGY");
+  const obstacleFacts = {
+    W: ["Crystal-clear water! Roughly 71% of Earth's surface is covered by water!", "WATER'S EDGE", "HYDROLOGY"],
+    G: ["Tall wild grass! Step inside to encounter wild monsters native to this area!", "TALL GRASS", "HABITAT"],
+    T: ["Canopy tree! Trees absorb Carbon Dioxide through leaf Stomata and use Chlorophyll to produce Oxygen and glucose!", "CANOPY TREE", "BOTANY"],
+    R: ["Solid crag boulder! The Rock Cycle transitions rocks between Igneous, Sedimentary, and Metamorphic states!", "CRAG BOULDER", "GEOLOGY"],
+    I: ["Crystalline glacier ice block! Ordinary water ice forms a Hexagonal crystal lattice at 0C!", "GLACIER ICE", "GLACIOLOGY"],
+    C: ["Desert saguaro cactus! Succulents store water in thick stems and use spines to minimize transpiration!", "SAGUARO CACTUS", "XEROPHYTE"],
+    K: ["Marine reef coral! Coral reefs are built by calcium-carbonate-secreting polyps in symbiosis with algae!", "REEF CORAL", "MARINE ECOLOGY"],
+    L: ["Molten lava pool! Underground molten rock is Magma, and once it erupts onto the surface it is Lava!", "MOLTEN LAVA", "VOLCANOLOGY"],
+    M: ["Nutrient-rich swamp mud! Anaerobic wetland sediments slow organic decomposition and filter aquifers!", "SWAMP MUD", "WETLANDS"],
+    F: ["Blooming wildflower patch! Angiosperm flowers attract pollinators to produce seeds enclosed within fruit!", "WILDFLOWERS", "BOTANY"],
+    B: ["Timber suspension bridge! Structural beams distribute compressive and tensile forces across supports!", "WOODEN BRIDGE", "ENGINEERING"],
+    S: ["Geothermal steam geyser! Superheated groundwater rises through volcanic fissures to form hot springs!", "STEAM GEYSER", "GEOTHERMAL"],
+    V: ["High-voltage Tesla coil! Alternating magnetic fields induce currents across conductive windings!", "TESLA PYLON", "ELECTROMAGNETISM"],
+    U: ["Bioluminescent spore toadstool! Fungi have cell walls made of Chitin and reproduce via spores!", "SPORE TOADSTOOL", "MYCOLOGY"],
+    A: ["Astral crystal obelisk! Birefringent crystals split incoming light beams into polarized spectra!", "ASTRAL OBELISK", "OPTICS"],
+    N: ["Flickering shadow streetlamp! Dark Matter accounts for ~85% of the universe's mass!", "SHADOW LAMP", "COSMOLOGY"],
+    Q: ["Miradouro da Lua cliff spire! Wind and rain erosion carved red clay into lunar hoodoo pinnacles!", "MOON CLIFF SPIRE", "GEOMORPHOLOGY"],
+    Y: ["Glowing neon sign! Noble gases ionize and emit vibrant photons when high voltage is applied!", "NEON SIGN", "ATOMIC PHYSICS"],
+    J: ["Sakura cherry blossom tree! Cherry trees bloom synchronously in spring in response to temperature!", "CHERRY BLOSSOM", "BOTANY"],
+    O: ["Fragrant plum blossom shrub! Plum blossoms bloom in late winter even through frost!", "PLUM BLOSSOM", "BOTANY"],
+    Z: ["Great Wall battlement! Ancient builders mixed sticky rice amylopectin mortar with slaked lime!", "GREAT WALL", "ENGINEERING"],
+    X: ["Cotai slot machine! Governed by a Pseudo-Random Number Generator (PRNG) and probability laws!", "SLOT MACHINE", "PROBABILITY"],
+    g: ["Mongolian Yurt (Ger)! Its circular lattice wall resists fierce steppe winds while retaining heat!", "MONGOLIAN YURT", "ARCHITECTURE"],
+    k: ["Breathable clay Onggi jars of Kimchi! Micropores allow CO2 from Lactobacillus fermentation to escape!", "KIMCHI ONGGI JARS", "MICROBIOLOGY"],
+    c: ["Royal Clock Tower! Pendulum clocks keep time using simple harmonic motion!", "CLOCK TOWER", "MECHANICS"],
+    i: ["Celtic Stone Cross! Carved from sandstone and granite with geometric knotwork and solar rings!", "CELTIC CROSS", "ARCHAEOLOGY"],
+    e: ["Eiffel Puddled-Iron Spire! Curved lattice trusses convert horizontal wind shear into compression!", "EIFFEL SPIRE", "ENGINEERING"],
+    x: ["Alpine Timber-Frame Chalet! Steeply pitched roofs prevent heavy winter snow accumulation!", "TIMBER CHALET", "ARCHITECTURE"],
+    w: ["La Mancha Windmill! Sails convert kinetic wind energy into rotational mechanical torque!", "WINDMILL", "PHYSICS"],
+    z: ["Portuguese Azulejo Tile Arch! Tin-glazed ceramic tiles reflect solar radiation and resist humidity!", "AZULEJO ARCH", "MATERIALS"],
+    u: ["Juche Monolith Tower! Carved from stacked granite blocks, monumental obelisks rely on a wide base to lower their center of gravity!", "MONOLITH TOWER", "STATICS"],
+    n: ["Dutch Polder Tulip Bed & Canal Mill! Polders reclaim low-lying land from the sea using dikes and wind-powered Archimedes screw pumps!", "POLDER TULIPS", "HYDROLOGY"],
+    b: ["Brussels Atomium Sphere! Modeled after an Iron (Fe) unit crystal cell magnified 165 billion times in a body-centered cubic lattice!", "ATOMIUM SPHERE", "CRYSTALLOGRAPHY"],
+    m: ["Canadian Sugar Maple Tree! During spring thaws, positive sap pressure pushes sucrose-rich xylem sap upward to be boiled into maple syrup!", "SUGAR MAPLE", "BOTANY"],
+    s: ["Copper Liberty Torch Statue! Exposed copper oxidizes over decades with atmospheric carbon dioxide and water to form a protective green patina!", "COPPER STATUE", "CHEMISTRY"],
+    f: ["Mesoamerican Stepped Pyramid! Built in alignment with the vernal and autumnal equinoxes to cast serpent-like solar shadows!", "STEPPED PYRAMID", "ARCHAEOASTRONOMY"],
+    a: ["Havana Classic Chrome Cruiser! 1950s internal combustion engines kept running for decades through resourceful mechanical fabrication!", "CLASSIC CRUISER", "THERMODYNAMICS"],
+    h: ["Citadelle Laferriere Cannon! Mounted atop northern Haiti's mountain peak, bronze cannons use rapid gunpowder combustion to launch iron spheres!", "CITADELLE CANNON", "BALLISTICS"],
+    j: ["Kingston Reggae Sound System Stack! Massive bass reflex speaker cabinets amplify low-frequency acoustic wavelengths!", "SOUND SYSTEM", "ACOUSTICS"],
+    q: ["Nassau Pink Conch Shell Monument! Queen conchs precipitate calcium carbonate in a logarithmic spiral shell for marine protection!", "CONCH MONUMENT", "MARINE BIOLOGY"],
+    d: ["Santo Domingo Colonial Coral-Limestone Arch! Built from fossilized Pleistocene reef limestone, the oldest cathedral stone in the Americas!", "COLONIAL ARCH", "GEOLOGY"],
+    l: ["Caribbean Coconut Palm! Buoyant fibrous husks allow coconut seeds (drupes) to float across ocean currents and colonize tropical islands!", "COCONUT PALM", "ECOLOGY"]
+  };
+
+  if (obstacleFacts[tile]) {
+    const [text, defaultTitle, topic] = obstacleFacts[tile];
+    setOverworldDialogue(text, obsDef?.name || defaultTitle, topic);
   } else if (tile === 'H' || tile === 'D') {
     setOverworldDialogue("Professor's words echoed: \"Walking into someone's house without permission is known as trespassing and it is illegal!\"", "LOCKED HOUSE", "LAW & CIVICS");
   } else {
-    setOverworldDialogue("Face any Specialist, Alien, Overworld Pokémon, Obstacle, or Floor Item (Berries & Stones) and press SPACE or A!", "FIELD JOURNAL", "TIP");
+    setOverworldDialogue("Face any Specialist, Alien, Overworld Pokemon, Obstacle, or Floor Item (Berries & Stones) and press SPACE or A!", "FIELD JOURNAL", "TIP");
   }
 }
 
@@ -848,7 +966,7 @@ function updateOverworldHUD() {
 
   if (coordsText) {
     const itemsLeft = Array.isArray(state.floorItems) ? state.floorItems.length : 0;
-    coordsText.textContent = `AREA: ${mapObj.name} • POS: (${gridX}, ${gridY}) • ITEMS: ${itemsLeft} • ${tile === 'G' ? '⚠️ IN TALL GRASS' : 'SAFE PATH'}`;
+    coordsText.textContent = `AREA: ${mapObj.name} - POS: (${gridX}, ${gridY}) - ITEMS: ${itemsLeft} - ${tile === 'G' ? 'IN TALL GRASS' : 'SAFE PATH'}`;
   }
   if (zoneName) zoneName.textContent = mapObj.name;
   if (zoneSub) zoneSub.textContent = mapObj.subtitle;
@@ -866,9 +984,7 @@ function updateOverworldHUD() {
 
   if (promptEl) {
     if (isPortalTileOnCurrentMap(tx, ty)) {
-      promptEl.textContent = state.currentMapId === 'CENTER'
-        ? 'STEP ONTO 2×2 PORTAL TO WARP TO HONG KONG REGION 🌀'
-        : 'STEP ONTO 2×2 PORTAL TO WARP TO VERDANT HUB 🌀';
+      promptEl.textContent = 'STEP ONTO 2x2 PORTAL TO WARP TO NEXT UNLOCKED REGION';
       promptEl.classList.remove('hidden');
     } else if (facingItem) {
       promptEl.textContent = `PRESS [SPACE] OR [A] TO COLLECT / INTERACT WITH ${facingItem.name}`;
@@ -877,16 +993,16 @@ function updateOverworldHUD() {
       const rawPokeId = getCanonicalLegendaryId(facingPoke);
       const isLeg = Boolean(facingPoke.isLegendary || isLegendarySpeciesId(rawPokeId));
       promptEl.textContent = isLeg && state.pendingLegendaryChallengeId === rawPokeId
-        ? `PRESS [SPACE] OR [A] AGAIN TO BATTLE ${facingPoke.name}! ⚔️`
-        : `PRESS [SPACE] OR [A] TO GREET ${facingPoke.name} ♪`;
+        ? `PRESS [SPACE] OR [A] AGAIN TO BATTLE ${facingPoke.name}!`
+        : `PRESS [SPACE] OR [A] TO GREET ${facingPoke.name}`;
       promptEl.classList.remove('hidden');
     } else if (facingNpc) {
       const monId = getCanonicalLegendaryId(facingNpc);
       const isLeg = Boolean(facingNpc.isLegendary || isLegendarySpeciesId(monId));
       if (isLeg) {
         promptEl.textContent = state.pendingLegendaryChallengeId === monId
-          ? `PRESS [SPACE] OR [A] AGAIN TO START LEGENDARY BATTLE! ⚔️`
-          : `PRESS [SPACE] OR [A] TO SPEAK TO ${facingNpc.name} ★`;
+          ? `PRESS [SPACE] OR [A] AGAIN TO START LEGENDARY BATTLE!`
+          : `PRESS [SPACE] OR [A] TO SPEAK TO ${facingNpc.name}`;
       } else {
         promptEl.textContent = `PRESS [SPACE] OR [A] TO TALK TO ${facingNpc.name}`;
       }
@@ -947,33 +1063,37 @@ function initiateOneBlockStep(dir) {
   }
 }
 
+function getNextUnlockedPortalHub(currentMapId) {
+  const hubs = ['CENTER'];
+  if (isRegionUnlocked('EAST_ASIA')) hubs.push('HONG_KONG');
+  if (isRegionUnlocked('WEST_EUROPE')) hubs.push('UK');
+  if (isRegionUnlocked('NORTH_AMERICA')) hubs.push('CANADA');
+  const idx = hubs.indexOf(currentMapId);
+  if (idx === -1) return 'CENTER';
+  return hubs[(idx + 1) % hubs.length];
+}
+
 function onSingleBlockStepLanded() {
   const p = state.playerWorld;
   const tile = getTileAt(p.gridX, p.gridY);
   updateOverworldHUD();
 
   if (isPortalTileOnCurrentMap(p.gridX, p.gridY)) {
-    const destMapKey = state.currentMapId === 'CENTER' ? 'HONG_KONG' : 'CENTER';
+    const destMapKey = getNextUnlockedPortalHub(state.currentMapId);
     if (WORLD_MAPS[destMapKey]) {
       if (typeof sfx.transformEffect === 'function') sfx.transformEffect();
       else sfx.heal();
       state.busy = true;
       state.keysHeld = {};
       const destObj = WORLD_MAPS[destMapKey];
-      runShutterTransition(`🌀 WARPING TO ${destObj.name}...`, () => {
+      runShutterTransition(`WARPING TO ${destObj.name}...`, () => {
         clearAreaLegendaryStateOnTransit();
         state.currentMapId = destMapKey;
         teleportPlayerToGrid(13, 12);
         sfx.startBGM(state.currentMapId);
         updateOverworldHUD();
         if (typeof saveGameProgress === 'function') saveGameProgress();
-        setOverworldDialogue(
-          destMapKey === 'HONG_KONG'
-            ? 'Warped through the 2×2 Dimensional Portal to the East Asia Region (Hong Kong Hub)! Explore Macau (W), China (N), Taiwan (E), Japan, South Korea, and Mongolia!'
-            : 'Warped back through the 2×2 Portal to Verdant Urban in the Original Region!',
-          destObj.name,
-          'REGION PORTAL 🌀'
-        );
+        setOverworldDialogue(`Warped through the 2x2 Dimensional Portal to ${destObj.name}!`, destObj.name, 'REGION PORTAL');
         state.busy = false;
       });
       return;
@@ -1051,9 +1171,6 @@ function overworldRenderLoop(now) {
   requestAnimationFrame(overworldRenderLoop);
 }
 
-/********************************************************************
- * SCREEN TRANSITIONS (TITLE <-> OVERWORLD <-> BATTLE)
- ********************************************************************/
 function enterOverworldFromTitle() {
   if (state.busy) return;
   sfx.init();
@@ -1104,7 +1221,7 @@ function triggerWildBattleFromOverworld(forcedSpecies = null, isLegendaryEncount
   overlay.classList.remove('hidden');
   flash.classList.add('strobe-active');
   banner.querySelector('div').textContent = isLeg
-    ? `★ LEGENDARY ${chosenSpecies.name} BATTLE! ★`
+    ? `LEGENDARY ${chosenSpecies.name} BATTLE!`
     : `WILD ${chosenSpecies.name} APPEARED!`;
 
   setTimeout(() => {
@@ -1163,13 +1280,11 @@ function returnToOverworldFromBattle(statusMessage = null) {
     syncAllUI();
     updateOverworldHUD();
     if (statusMessage) {
-      const portalNotice = state.dex.length === 50
-        ? ' 🌀 50 POKÉMON CAUGHT! The 2×2 Dimensional Portal to HONG KONG has opened in Verdant Urban!'
-        : '';
-      setOverworldDialogue(statusMessage + portalNotice, 'BATTLE RESULT', 'EXPLORATION');
+      setOverworldDialogue(statusMessage, 'BATTLE RESULT', 'EXPLORATION');
     }
     state.busy = false;
 
+    checkMilestoneUnlocks();
     if (typeof checkAllMonstersCaughtCelebration === 'function') {
       checkAllMonstersCaughtCelebration();
     }
@@ -1208,7 +1323,7 @@ const _canonicalInteractWithFacingNPC = interactWithFacingNPC;
 try {
   Object.defineProperty(window, 'interactWithFacingNPC', {
     get() { return _canonicalInteractWithFacingNPC; },
-    set() { /* Keep canonical overworld.js version with all obstacle & item interactions */ },
+    set() {},
     configurable: true
   });
 } catch (e) {}

@@ -1934,8 +1934,879 @@ const WORLD_MAPS = {
         fact: "ENTEI: Bwooo-oh! (Entei races across Khaki Plains! The character 山 [shān] means Mountain!)"
       }
     ]
+  },
+
+  NORTH_KOREA: {
+    id: 'NORTH_KOREA',
+    name: 'Crimson Monolith (North Korea)',
+    subtitle: 'LANDLOCKED FORTRESS - ACCESSIBLE BY FLY ONLY',
+    region: 'EAST_ASIA',
+    theme: { groundA: '#334155', groundB: '#1e293b', path: '#94a3b8', grass: '#475569', grassTip: '#ef4444', tree: '#0f172a', treeTop: '#dc2626', rock: '#1e293b', rockLight: '#cbd5e1', rockDark: '#020617' },
+    encounters: ['poochyena', 'mightyena', 'gulpin', 'swalot', 'baltoy', 'claydol', 'registeel'],
+    rows: [
+      "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+      "Z..uu..GGGG......GGGG..uu..Z",
+      "Z......GGGG.PPPP.GGGG......Z",
+      "Z..uu.......P..P.......uu..Z",
+      "Z......PPPPPP..PPPPPP......Z",
+      "Z..GGGGP....u..u....PGGGG..Z",
+      "Z..GGGGP............PGGGG..Z",
+      "Z......P..uu....uu..P......Z",
+      "Z......PPPPPPPPPPPPPP......Z",
+      "Z...........PPPP...........Z",
+      "Z...........PPPP...........Z",
+      "Z......PPPPPPPPPPPPPP......Z",
+      "Z..GGGGP....u..u....PGGGG..Z",
+      "Z..GGGGP............PGGGG..Z",
+      "Z......PPPPPPPPPPPPPP......Z",
+      "Z..uu.......P..P.......uu..Z",
+      "Z......GGGG.PPPP.GGGG......Z",
+      "Z..uu..GGGG......GGGG..uu..Z",
+      "Z..........................Z",
+      "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+    ],
+    exits: {},
+    npcs: [
+      { id: 'nk_rocket_1', name: 'UNIFORM GRUNT #01', topic: 'SYNCHRONIZED BRIGADE - CONFORMITY', x: 9,  y: 4,  skinColor: '#fde68a', hatColor: '#111827', shirtColor: '#dc2626', fact: "UNIFORM GRUNT #01: Prepare for trouble in strict formation! We all wear the exact same black-and-red Team Rocket uniform!" },
+      { id: 'nk_rocket_2', name: 'UNIFORM GRUNT #02', topic: 'SYNCHRONIZED BRIGADE - MARCHING',   x: 18, y: 4,  skinColor: '#fde68a', hatColor: '#111827', shirtColor: '#dc2626', fact: "UNIFORM GRUNT #02: Make it double in unison! When marching Soldiers step in cadence on a bridge, mechanical resonance can amplify oscillations!" },
+      { id: 'nk_rocket_3', name: 'UNIFORM GRUNT #03', topic: 'SYNCHRONIZED BRIGADE - OPTICS',     x: 9,  y: 8,  skinColor: '#fde68a', hatColor: '#111827', shirtColor: '#dc2626', fact: "UNIFORM GRUNT #03: Standing at attention! In stadium card stunts, thousands of people flip colored placards like pixels on a giant raster display!" },
+      { id: 'nk_rocket_4', name: 'UNIFORM GRUNT #04', topic: 'SYNCHRONIZED BRIGADE - RADIO',      x: 18, y: 8,  skinColor: '#fde68a', hatColor: '#111827', shirtColor: '#dc2626', fact: "UNIFORM GRUNT #04: All borders are sealed! Only shortwave radio frequencies reflect off the Earth's ionosphere via skywave propagation!" },
+      { id: 'nk_rocket_5', name: 'UNIFORM GRUNT #05', topic: 'SYNCHRONIZED BRIGADE - ACOUSTICS',  x: 9,  y: 14, skinColor: '#fde68a', hatColor: '#111827', shirtColor: '#dc2626', fact: "UNIFORM GRUNT #05: Loudspeakers broadcast across the plaza! Sound intensity follows the inverse-square law as distance increases!" },
+      { id: 'nk_rocket_6', name: 'UNIFORM GRUNT #06', topic: 'SYNCHRONIZED BRIGADE - STATICS',    x: 18, y: 14, skinColor: '#fde68a', hatColor: '#111827', shirtColor: '#dc2626', fact: "UNIFORM GRUNT #06: No exits by land—you could only Fly in and must Fly out! Granite monuments resist compressive stress for centuries!" },
+      { id: 'overworld_registeel', name: 'IRON REGISTEEL', topic: 'LEGENDARY POKEMON - TEMPERED ALLOY', x: 13, y: 8, isMonster: true, monsterId: 'registeel', isLegendary: true, fact: "REGISTEEL: Zzz-klink! (Registeel's body was forged under immense subterranean pressure into an indestructible metal lattice!)" }
+    ]
+  },
+
+  // ====================================================================
+  // WEST EUROPE REGION (UK, IRELAND, FRANCE, GERMANY, SPAIN, PORTUGAL)
+  // ====================================================================
+
+  // W1. UK (Royal Clockwork Hub - W: Ireland • S: France • 2x2 Portal)
+  UK: {
+    id: 'UK',
+    name: 'Royal Thames Hub (UK)',
+    subtitle: 'W: Emerald Cliffs (Ireland) - S: Lumiere Champs (France) - PORTAL: Beige Village',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#1e293b', groundB: '#334155', path: '#cbd5e1', grass: '#15803d', grassTip: '#4ade80', tree: '#0f172a', treeTop: '#16a34a', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
+    encounters: ['sentret', 'hoothoot', 'snubbull', 'porygon2', 'togepi', 'cleffa', 'igglybuff'],
+    rows: [
+      "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "H..NNNN..PPPPPPPPPP..NNNN..H",
+      "H.GGGGGG.P..HHHH..P.GGGGGG.H",
+      "H.GGGGGG.P..HDDH..P.GGGGGG.H",
+      "H........P........P........H",
+      "H..NNNN..PPPPPPPPPP..NNNN..H",
+      "H........P........P........H",
+      "H.GGGGGG.P.PPPPPP.P.GGGGGG.H",
+      "H........P.P....P.P........H",
+      "EPPPPPPPPP.P....P.PPPPPPPPPH",
+      "EPPPPPPPPP.P....P.PPPPPPPPPH",
+      "H........P.PPPPPP.P........H",
+      "HWWWWWWWWP........PWWWWWWWWH",
+      "HWWWWWWWWBBBBBBBBBBWWWWWWWWH",
+      "HWWWWWWWWPPPPPPPPPPWWWWWWWWH",
+      "H..NNNN......PP......NNNN..H",
+      "H.GGGGGGG.PPPPPPPP.GGGGGGG.H",
+      "H.GGGGGGG.P..FF..P.GGGGGGG.H",
+      "H.........P..PP..P.........H",
+      "HHHHHHHHHHHHHEEHHHHHHHHHHHHH"
+    ],
+    exits: {
+      west:  { targetMap: 'IRELAND', spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'FRANCE',  spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'uk_physicist_newton', name: 'SIR ISAAC', topic: 'PHYSICIST - CLASSICAL MECHANICS', x: 10, y: 5,
+        skinColor: '#fed7aa', hatColor: '#1e3a8a', shirtColor: '#dc2626',
+        fact: "SIR ISAAC: Every object in the universe attracts every other object with a gravitational force proportional to their masses and inversely proportional to the square of the distance between them!"
+      },
+      {
+        id: 'uk_nurse_joy', name: 'NURSE JOY (UK)', topic: 'NURSE - PARTY HEAL', x: 14, y: 4,
+        skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true,
+        fact: "NURSE JOY: Welcome to the Royal Thames Hub in the UK! Your party is fully restored! Step onto the 2x2 Portal in the center to warp back to Beige Village!"
+      }
+    ]
+  },
+
+  // W2. IRELAND (Emerald Cliffs - E: UK)
+  IRELAND: {
+    id: 'IRELAND',
+    name: 'Emerald Causeway (Ireland)',
+    subtitle: 'E: Royal Thames Hub (UK) - BASALT COLUMNS & LUSH MEADOWS',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#14532d', groundB: '#166534', path: '#d6d3d1', grass: '#15803d', grassTip: '#86efac', tree: '#052e16', treeTop: '#22c55e', rock: '#334155', rockLight: '#94a3b8', rockDark: '#0f172a' },
+    encounters: ['mareep', 'hoppip', 'marill', 'stantler', 'miltank', 'noctowl', 'azumarill', 'jumpluff'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..FF..GGGG......GGGG..FF..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..FF.......P..P.......FF..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....F..F....PGGGG..R",
+      "R..GGGGP....WWWW....PGGGG..R",
+      "R......P..FFWWWWFF..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....R..R....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..FF.......P..P.......FF..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..FF..GGGG......GGGG..FF..R",
+      "RWWWWWWWWWWWWWWWWWWWWWWWWWWR",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      east: { targetMap: 'UK', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'ireland_chemist_boyle', name: 'CHEMIST BOYLE', topic: 'CHEMIST - GAS LAWS & BASALT', x: 11, y: 5,
+        skinColor: '#fde68a', hatColor: '#15803d', shirtColor: '#86efac',
+        fact: "CHEMIST BOYLE: Boyle's Law states that at constant temperature, the pressure of an ideal gas is inversely proportional to its volume! And Giant's Causeway is made of hexagonal volcanic basalt columns!"
+      },
+      {
+        id: 'overworld_celebi', name: 'GUARDIAN CELEBI', topic: 'LEGENDARY POKEMON - FOREST TIME TRAVEL', x: 13, y: 11,
+        isMonster: true, monsterId: 'celebi', isLegendary: true,
+        fact: "CELEBI: Biii-bi! (Celebi travels through time protecting emerald forests! Dendrochronology studies tree ring growth to reconstruct past climates!)"
+      }
+    ]
+  },
+
+  // W3. FRANCE (Lumiere Champs - N: UK • E: Germany • S: Spain)
+  FRANCE: {
+    id: 'FRANCE',
+    name: 'Lumiere Lavender (France)',
+    subtitle: 'N: Royal Thames Hub (UK) - E: Black Forest (Germany) - S: Iberian Sun (Spain)',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#4c1d95', groundB: '#5b21b6', path: '#fef08a', grass: '#6d28d9', grassTip: '#d8b4fe', tree: '#2e1065', treeTop: '#a855f7', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#1e293b' },
+    encounters: ['smeargle', 'AIPOM'.toLowerCase(), 'girafarig', 'ledyba', 'furret', 'togetic', 'espeon', 'sylveon', 'bellossom'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T..FF..GGGG..PP..GGGG..FF..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..FF.......P..P.......FF..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....A..A....PGGGG..T",
+      "T..GGGGP....FFFF....PGGGG..T",
+      "T......P..AAFFFFAA..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T...........PPPPPPPPPPPPPPPE",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..GGGGP....F..F....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..FF.......P..P.......FF..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..FF..GGGG..PP..GGGG..FF..T",
+      "T............PP............T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'UK',      spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'GERMANY', spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'SPAIN',   spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      {
+        id: 'france_microbiologist_pasteur', name: 'DR. PASTEUR', topic: 'MICROBIOLOGIST - PASTEURIZATION', x: 10, y: 5,
+        skinColor: '#fed7aa', hatColor: '#1d4ed8', shirtColor: '#f8fafc',
+        fact: "DR. PASTEUR: Pasteurization heats liquids to eliminate pathogenic microbes, and vaccines train the adaptive immune system to produce antibodies!"
+      },
+      {
+        id: 'france_physicist_curie', name: 'MADAME CURIE', topic: 'PHYSICIST - RADIOACTIVITY', x: 16, y: 11,
+        skinColor: '#fde68a', hatColor: '#7e22ce', shirtColor: '#f3e8ff',
+        fact: "MADAME CURIE: I discovered Polonium and Radium! Radioactive decay occurs when an unstable atomic nucleus emits alpha, beta, or gamma radiation!"
+      }
+    ]
+  },
+
+  // W4. GERMANY (Black Forest & Alpine Foundry - W: France)
+  GERMANY: {
+    id: 'GERMANY',
+    name: 'Bavarian Forest (Germany)',
+    subtitle: 'W: Lumiere Lavender (France) - ALPINE WOODS & PRECISION ENGINEERING',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#1e293b', groundB: '#0f172a', path: '#fde047', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#0f172a' },
+    encounters: ['pineco', 'forretress', 'scizor', 'steelix', 'skarmory', 'heracross', 'ursaring', 'houndour', 'piloswine', 'delibird', 'sneasel'],
+    rows: [
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+      "T..VV..GGGG......GGGG..TT..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..VV.......P..P.......TT..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....V..V....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......P..VV....VV..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "EPPPPPPPPPPPPPPPP..........T",
+      "EPPPPPPPPPPPPPPPP..........T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..GGGGP....T..T....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..TT.......P..P.......TT..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..TT..GGGG..PP..GGGG..TT..T",
+      "T..........................T",
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+    ],
+    exits: {
+      west: { targetMap: 'FRANCE', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'germany_physicist_planck', name: 'PROFESSOR PLANCK', topic: 'THEORETICAL PHYSICIST - QUANTUM THEORY', x: 13, y: 8,
+        skinColor: '#fed7aa', hatColor: '#0f172a', shirtColor: '#eab308',
+        fact: "PROFESSOR PLANCK: Electromagnetic energy is quantized! The energy of a photon is directly proportional to its frequency multiplied by Planck's constant (E = hf)!"
+      }
+    ]
+  },
+
+  // W5. SPAIN (Iberian Meseta & Strait - N: France • W: Portugal)
+  SPAIN: {
+    id: 'SPAIN',
+    name: 'Iberian Sierra (Spain)',
+    subtitle: 'N: Lumiere Lavender (France) - W: Atlantic Douro (Portugal)',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#b45309', groundB: '#d97706', path: '#fef08a', grass: '#15803d', grassTip: '#fde047', tree: '#78350f', treeTop: '#22c55e', rock: '#92400e', rockLight: '#fcd34d', rockDark: '#451a03' },
+    encounters: ['sunkern', 'sunflora', 'yanma', 'gligar', 'teddiursa', 'slugma', 'magcargo', 'phanpy', 'donphan', 'larvitar', 'pupitar', 'tyranitar', 'hitmontop'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..FF..GGGG..PP..GGGG..FF..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..FF.......P..P.......FF..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....R..R....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..FF....FF..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....F..F....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "RWWWWWWWW...P..P...WWWWWWWWR",
+      "RWWWWWWWWGG.PPPP.GGWWWWWWWWR",
+      "RWWWWWWWWGG......GGWWWWWWWWR",
+      "RWWWWWWWWWWWWWWWWWWWWWWWWWWR",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'FRANCE',   spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'PORTUGAL', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'spain_neuroscientist_cajal', name: 'DR. RAMON Y CAJAL', topic: 'NEUROSCIENTIST - NEURON DOCTRINE', x: 11, y: 5,
+        skinColor: '#e59866', hatColor: '#dc2626', shirtColor: '#fde047',
+        fact: "DR. RAMON Y CAJAL: From Zaragoza to Madrid, my drawings proved the Neuron Doctrine: the nervous system is made of discrete individual cells (neurons) communicating across synapses!"
+      },
+      {
+        id: 'spain_wind_engineer_tarifa', name: 'ENGINEER CARMEN (TARIFA)', topic: 'RENEWABLE ENERGY - STRAIT WIND', x: 16, y: 12,
+        skinColor: '#f5cba7', hatColor: '#ea580c', shirtColor: '#fef3c7',
+        fact: "ENGINEER CARMEN: Along the Strait of Tarifa where the Mediterranean meets the Atlantic, Venturi wind funneling drives clean kinetic wind turbines!"
+      }
+    ]
+  },
+
+  // W6. PORTUGAL (Atlantic Douro Coast - E: Spain)
+  PORTUGAL: {
+    id: 'PORTUGAL',
+    name: 'Atlantic Douro (Portugal)',
+    subtitle: 'E: Iberian Sierra (Spain) - AZULEJO COAST & GRANITE VALLEYS',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#fef3c7', grass: '#15803d', grassTip: '#38bdf8', tree: '#14532d', treeTop: '#4ade80', rock: '#475569', rockLight: '#bae6fd', rockDark: '#0f172a' },
+    encounters: ['chinchou', 'lanturn', 'corsola', 'remoraid', 'octillery', 'mantine', 'qwilfish', 'wooper', 'quagsire', 'kingdra', 'politoed', 'slowking', 'shuckle', 'suicune'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "RWWWWWWGGGG......GGGG..KK..R",
+      "RWWWWWWGGGG.PPPP.GGGG......R",
+      "RWWWWWW.....P..P.......KK..R",
+      "RWWWWWWPPPPPP..PPPPPP......R",
+      "RWWWWWWP....K..K....PGGGG..R",
+      "RWWWWWWP............PGGGG..R",
+      "RWWWWWWP..KK....KK..P......R",
+      "RWWWWWWPPPPPPPPPPPPPP......R",
+      "RBBBBBBBBBBBBPPPPPPPPPPPPPPPE",
+      "RBBBBBBBBBBBBPPPPPPPPPPPPPPPE",
+      "RWWWWWWPPPPPPPPPPPPPP......R",
+      "RWWWWWWP....R..R....PGGGG..R",
+      "RWWWWWWP............PGGGG..R",
+      "RWWWWWWPPPPPPPPPPPPPP......R",
+      "RWWWWWW.....P..P.......FF..R",
+      "RWWWWWWGGGG.PPPP.GGGG......R",
+      "RWWWWWWGGGG......GGGG..FF..R",
+      "RWWWWWWWWWWWWWWWWWWWWWWWWWWR",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      east: { targetMap: 'SPAIN', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      {
+        id: 'portugal_navigator_henrique', name: 'NAVIGATOR HENRIQUE (PORTO)', topic: 'OCEANOGRAPHER - ATLANTIC GYRES & ASTROLABE', x: 13, y: 5,
+        skinColor: '#e59866', hatColor: '#1e3a8a', shirtColor: '#38bdf8',
+        fact: "NAVIGATOR HENRIQUE: From the Douro bridges of Porto to the granite hills of Viseu! Early maritime navigators used the astrolabe to measure star altitude and determine latitude across the Atlantic!"
+      },
+      {
+        id: 'portugal_forester_duarte', name: 'ECOLOGIST DUARTE', topic: 'BOTANIST - QUERCUS SUBER (CORK OAK)', x: 16, y: 12,
+        skinColor: '#f5cba7', hatColor: '#166534', shirtColor: '#bbf7d0',
+        fact: "ECOLOGIST DUARTE: Portugal's Cork Oak (Quercus suber) regenerates its outer bark every 9 years! Suberin makes cork cells impermeable, buoyant, and fire-resistant!"
+      },
+      {
+        id: 'prince_joao_portugal', name: 'PRINCE JOAO', topic: 'ROYALTY - GERMAN PSYDUCK LORE', x: 13, y: 8,
+        skinColor: '#fed7aa', hatColor: '#eab308', shirtColor: '#dc2626',
+        fact: "PRINCE JOAO: You know Psyducks in Germany are called Antons? I love Antons!"
+      },
+      { id: 'pt_psyduck_1',  name: 'ANTON (PSYDUCK #1)',  topic: 'OVERWORLD PSYDUCK', x: 9,  y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #1: Psy-yi-yi! (Anton waddles happily along the Douro riverbank!)" },
+      { id: 'pt_psyduck_2',  name: 'ANTON (PSYDUCK #2)',  topic: 'OVERWORLD PSYDUCK', x: 11, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #2: Quack? Psy-duck! (Anton is holding its head in deep thought!)" },
+      { id: 'pt_psyduck_3',  name: 'ANTON (PSYDUCK #3)',  topic: 'OVERWORLD PSYDUCK', x: 15, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #3: Psy-psy! (Anton admires the blue Azulejo tiles!)" },
+      { id: 'pt_psyduck_4',  name: 'ANTON (PSYDUCK #4)',  topic: 'OVERWORLD PSYDUCK', x: 18, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #4: Duck-duck! (Anton splashes near the Atlantic bridge!)" },
+      { id: 'pt_psyduck_5',  name: 'ANTON (PSYDUCK #5)',  topic: 'OVERWORLD PSYDUCK', x: 9,  y: 7,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #5: Psy~ (Anton islistening to Prince Joao!)" },
+      { id: 'pt_psyduck_6',  name: 'ANTON (PSYDUCK #6)',  topic: 'OVERWORLD PSYDUCK', x: 18, y: 7,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #6: Psy-yi! (Anton tilts its head curiously!)" },
+      { id: 'pt_psyduck_7',  name: 'ANTON (PSYDUCK #7)',  topic: 'OVERWORLD PSYDUCK', x: 9,  y: 12, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #7: Quack! (Anton is taking a sunny afternoon nap!)" },
+      { id: 'pt_psyduck_8',  name: 'ANTON (PSYDUCK #8)',  topic: 'OVERWORLD PSYDUCK', x: 12, y: 14, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #8: Psy-duck~ (Anton dances in a circle!)" },
+      { id: 'pt_psyduck_9',  name: 'ANTON (PSYDUCK #9)',  topic: 'OVERWORLD PSYDUCK', x: 15, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #9: Psy-yi-yi! (Anton unleashes a tiny harmless water splash!)" },
+      { id: 'pt_psyduck_10', name: 'ANTON (PSYDUCK #10)', topic: 'OVERWORLD PSYDUCK', x: 19, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #10: Anton! Eh, Psyduck! (All 10 Antons are accounted for!)" }
+    ]
+  },
+  NETHERLANDS: {
+    id: 'NETHERLANDS',
+    name: 'Tulip Polder (Netherlands)',
+    subtitle: 'W: Royal Thames Hub (UK) - S: Atomium Plaza (Belgium)',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#047857', groundB: '#065f46', path: '#fde047', grass: '#16a34a', grassTip: '#f97316', tree: '#064e3b', treeTop: '#fb923c', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['roselia', 'surskit', 'masquerain', 'wingull', 'pelipper', 'lotad', 'lombre', 'ludicolo'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "W..nn..GGGG......GGGG..nn..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..nn.......P..P.......nn..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....n..n....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......P..nn....nn..P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....n..n....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..nn.......P..P.......nn..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..nn..GGGG..PP..GGGG..nn..W",
+      "W............PP............W",
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE')
+    ],
+    exits: {
+      west:  { targetMap: 'UK',      spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'BELGIUM', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'nl_microscopist_leeuwenhoek', name: 'VAN LEEUWENHOEK', topic: 'MICROSCOPIST - MICROBIOLOGY', x: 13, y: 8, skinColor: '#fed7aa', hatColor: '#ea580c', shirtColor: '#fed7aa', fact: "VAN LEEUWENHOEK: By grinding precision glass lenses in Delft, I became the first human to observe single-celled bacteria and protozoa ('animalcules')!" }
+    ]
+  },
+
+  BELGIUM: {
+    id: 'BELGIUM',
+    name: 'Atomium Plaza (Belgium)',
+    subtitle: 'N: Tulip Polder (Netherlands) - W: Lumiere Lavender (France) - S: Bavarian Forest (Germany)',
+    region: 'WEST_EUROPE',
+    theme: { groundA: '#334155', groundB: '#1e293b', path: '#fde68a', grass: '#15803d', grassTip: '#facc15', tree: '#0f172a', treeTop: '#ef4444', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
+    encounters: ['aron', 'lairon', 'aggron', 'beldum', 'metang', 'metagross', 'mawile', 'plusle', 'minun'],
+    rows: [
+      "HHHHHHHHHHHHHEEHHHHHHHHHHHHH",
+      "H..bb..GGGG..PP..GGGG..bb..H",
+      "H......GGGG.PPPP.GGGG......H",
+      "H..bb.......P..P.......bb..H",
+      "H......PPPPPP..PPPPPP......H",
+      "H..GGGGP....b..b....PGGGG..H",
+      "H..GGGGP............PGGGG..H",
+      "H......P..bb....bb..P......H",
+      "H......PPPPPPPPPPPPPP......H",
+      "EPPPPPPPPPPPPPPPP..........H",
+      "EPPPPPPPPPPPPPPPP..........H",
+      "H......PPPPPPPPPPPPPP......H",
+      "H..GGGGP....b..b....PGGGG..H",
+      "H..GGGGP............PGGGG..H",
+      "H......PPPPPPPPPPPPPP......H",
+      "H..bb.......P..P.......bb..H",
+      "H......GGGG.PPPP.GGGG......H",
+      "H..bb..GGGG..PP..GGGG..bb..H",
+      "H............PP............H",
+      "HHHHHHHHHHHHHEEHHHHHHHHHHHHH"
+    ],
+    exits: {
+      north: { targetMap: 'NETHERLANDS', spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'FRANCE',      spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'GERMANY',     spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'be_cosmologist_lemaitre', name: 'GEORGES LEMAITRE', topic: 'COSMOLOGIST - BIG BANG THEORY', x: 13, y: 8, skinColor: '#fed7aa', hatColor: '#0f172a', shirtColor: '#f8fafc', fact: "GEORGES LEMAITRE: I proposed the 'Primeval Atom' hypothesis—that the expanding universe originated from a single dense point, now known as the Big Bang!" }
+    ]
+  },
+  // NORTH AMERICA REGION (CANADA HUB + USA, MEXICO, CUBA, HAITI, JAMAICA, BAHAMAS, DOMINICAN REP.)
+  // ====================================================================
+  CANADA: {
+    id: 'CANADA',
+    name: 'Maple Boreal Hub (Canada)',
+    subtitle: 'S: Liberty Canyon (USA) - 2x2 PORTAL: Beige Village',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#7f1d1d', groundB: '#991b1b', path: '#fef3c7', grass: '#14532d', grassTip: '#4ade80', tree: '#450a0a', treeTop: '#ef4444', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
+    encounters: ['spheal', 'sealeo', 'walrein', 'snorunt', 'glalie', 'absol', 'zangoose', 'glaceon'],
+    rows: [
+      "mmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+      "m..mmmm..PPPPPPPPPP..mmmm..m",
+      "m.GGGGGG.P..HHHH..P.GGGGGG.m",
+      "m.GGGGGG.P..HDDH..P.GGGGGG.m",
+      "m........P........P........m",
+      "m..mmmm..PPPPPPPPPP..mmmm..m",
+      "m........P........P........m",
+      "m.GGGGGG.P.PPPPPP.P.GGGGGG.m",
+      "m........P.P....P.P........m",
+      "m........P.P....P.P........m",
+      "m........P.P....P.P........m",
+      "m........P.PPPPPP.P........m",
+      "mWWWWWWWWP........PWWWWWWWWm",
+      "mWWWWWWWWBBBBBBBBBBWWWWWWWWm",
+      "mWWWWWWWWPPPPPPPPPPWWWWWWWWm",
+      "m..mmmm......PP......mmmm..m",
+      "m.GGGGGGG.PPPPPPPP.GGGGGGG.m",
+      "m.GGGGGGG.P..FF..P.GGGGGGG.m",
+      "m.........P..PP..P.........m",
+      "mmmmmmmmmmmmmeemmmmmmmmmmmmm".replace(/ee/,'EE')
+    ],
+    exits: {
+      south: { targetMap: 'USA', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'ca_doctor_banting', name: 'DR. BANTING', topic: 'ENDOCRINOLOGIST - INSULIN', x: 10, y: 5, skinColor: '#fed7aa', hatColor: '#dc2626', shirtColor: '#ffffff', fact: "DR. BANTING: Our discovery of Insulin in Toronto revolutionized medicine! Insulin is a peptide hormone produced by beta cells of the pancreas to regulate blood glucose!" },
+      { id: 'ca_nurse_joy', name: 'NURSE JOY (CANADA)', topic: 'NURSE - PARTY HEAL', x: 14, y: 4, skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true, fact: "NURSE JOY: Welcome to the Maple Boreal Hub in Canada! I've healed your party to full HP! Step onto the 2x2 Portal in the center to cycle regions!" },
+      { id: 'overworld_regice', name: 'CRYSTAL REGICE', topic: 'LEGENDARY POKEMON - ABSOLUTE ZERO', x: 22, y: 8, isMonster: true, monsterId: 'regice', isLegendary: true, fact: "REGICE: Jii-jii-jii! (Regice cloaks itself in air at -200C! Even molten magma cannot melt its Antarctic ice crystal body!)" }
+    ]
+  },
+
+  USA: {
+    id: 'USA',
+    name: 'Liberty Canyon (USA)',
+    subtitle: 'N: Maple Boreal (Canada) - W: Sun Pyramid (Mexico) - E: Coral Cay (Bahamas) - S: Malecón (Cuba)',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#f8fafc', grass: '#15803d', grassTip: '#86efac', tree: '#0f172a', treeTop: '#38bdf8', rock: '#78350f', rockLight: '#fca5a5', rockDark: '#451a03' },
+    encounters: ['taillow', 'swellow', 'electrike', 'manectric', 'solrock', 'lunatone', 'bagon', 'shelgon', 'salamence'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..ss..GGGG..PP..GGGG..ss..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..ss.......P..P.......ss..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....s..s....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..ss....ss..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....s..s....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..ss.......P..P.......ss..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..ss..GGGG..PP..GGGG..ss..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'CANADA',  spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'MEXICO',  spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'BAHAMAS', spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'CUBA',    spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'usa_physicist_feynman', name: 'PROF. FEYNMAN', topic: 'QUANTUM ELECTRODYNAMICS', x: 13, y: 8, skinColor: '#fed7aa', hatColor: '#1d4ed8', shirtColor: '#f8fafc', fact: "PROF. FEYNMAN: Surely you're joking! Feynman diagrams visualize how subatomic particles interact by exchanging virtual photons!" },
+      { id: 'overworld_latios', name: 'EON LATIOS', topic: 'LEGENDARY POKEMON - JET STREAM', x: 18, y: 12, isMonster: true, monsterId: 'latios', isLegendary: true, fact: "LATIOS: Kii-yaaah! (By folding its wings, Latios overtakes jet planes by minimizing aerodynamic form drag!)" }
+    ]
+  },
+
+  MEXICO: {
+    id: 'MEXICO',
+    name: 'Sun Pyramid Sierra (Mexico)',
+    subtitle: 'E: Liberty Canyon (USA) - AGAVE HIGHLANDS & CENOTES',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#b45309', groundB: '#92400e', path: '#fde047', grass: '#15803d', grassTip: '#4ade80', tree: '#451a03', treeTop: '#22c55e', rock: '#78350f', rockLight: '#fcd34d', rockDark: '#451a03' },
+    encounters: ['lotad', 'lombre', 'ludicolo', 'cacnea', 'cacturne', 'trapinch', 'vibrava', 'flygon', 'numel', 'camerupt', 'torkoal'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..ff..GGGG......GGGG..CC..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..ff.......P..P.......CC..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....f..f....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..ff....ff..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....C..C....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..ff.......P..P.......CC..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..ff..GGGG......GGGG..CC..R",
+      "R..........................R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      east: { targetMap: 'USA', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'mx_chemist_molina', name: 'DR. MARIO MOLINA', topic: 'ATMOSPHERIC CHEMIST - OZONE LAYER', x: 13, y: 8, skinColor: '#e59866', hatColor: '#16a34a', shirtColor: '#f8fafc', fact: "DR. MARIO MOLINA: My research showed how CFC gases catalytically destroy stratospheric Ozone (O3), which shields Earth from ultraviolet radiation!" },
+      { id: 'overworld_regirock', name: 'DESERT REGIROCK', topic: 'LEGENDARY POKEMON - LITHOSPHERE', x: 10, y: 12, isMonster: true, monsterId: 'regirock', isLegendary: true, fact: "REGIROCK: Zuu-zuu! (If Regirock is chipped in battle, it repairs itself by fusing new igneous and sedimentary rocks onto its body!)" }
+    ]
+  },
+
+  BAHAMAS: {
+    id: 'BAHAMAS',
+    name: 'Nassau Coral Cay (Bahamas)',
+    subtitle: 'W: Liberty Canyon (USA) - CONCH SALAD & FESTIVAL MUSEUM',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#14532d', treeTop: '#4ade80', rock: '#f472b6', rockLight: '#fce7f3', rockDark: '#be185d' },
+    encounters: ['wingull', 'pelipper', 'carvanha', 'sharpedo', 'wailmer', 'wailord', 'clamperl', 'huntail', 'gorebyss', 'luvdisc', 'relicanth'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "W..qq..GGGG......GGGG..qq..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..qq.......P..P.......qq..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....q..q....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......P..qq....qq..P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....q..q....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..qq.......P..P.......qq..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..qq..GGGG......GGGG..qq..W",
+      "W..........................W",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      west: { targetMap: 'USA', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'bs_nassau_curator', name: 'CURATOR MARCUS (NASSAU)', topic: 'JUNKANOO FESTIVAL MUSEUM & CONCH', x: 13, y: 8, skinColor: '#784212', hatColor: '#f43f5e', shirtColor: '#fde047', fact: "CURATOR MARCUS: Welcome to Nassau's Junkanoo Festival Museum! Fresh Bahamian conch salad uses citrus acid (lime juice) to denature proteins in raw queen conch—just like ceviche!" }
+    ]
+  },
+
+  CUBA: {
+    id: 'CUBA',
+    name: 'Havana Malecon (Cuba)',
+    subtitle: 'N: Liberty Canyon (USA) - W: Blue Mountain (Jamaica) - E: Citadelle Peak (Haiti)',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#0f766e', groundB: '#115e59', path: '#fde68a', grass: '#15803d', grassTip: '#86efac', tree: '#064e3b', treeTop: '#22c55e', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['treecko', 'grovyle', 'sceptile', 'ralts', 'kirlia', 'gardevoir', 'slakoth', 'vigoroth', 'slaking', 'tropius'],
+    rows: [
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
+      "W..aa..GGGG..PP..GGGG..aa..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..aa.......P..P.......aa..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....a..a....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......P..aa....aa..P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....a..a....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..aa.......P..P.......aa..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..aa..GGGG......GGGG..aa..W",
+      "W..........................W",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      north: { targetMap: 'USA',     spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'JAMAICA', spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'HAITI',   spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'cu_doctor_finlay', name: 'DR. CARLOS FINLAY', topic: 'EPIDEMIOLOGIST - VECTOR BIOLOGY', x: 13, y: 8, skinColor: '#f5cba7', hatColor: '#f8fafc', shirtColor: '#38bdf8', fact: "DR. CARLOS FINLAY: In Havana, I discovered that Yellow Fever is transmitted by Aedes aegypti mosquitoes, founding modern vector epidemiology!" }
+    ]
+  },
+
+  JAMAICA: {
+    id: 'JAMAICA',
+    name: 'Blue Mountain Bay (Jamaica)',
+    subtitle: 'E: Havana Malecon (Cuba) - REGGAE ACOUSTICS & CLOUD FORESTS',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#14532d', groundB: '#166534', path: '#facc15', grass: '#15803d', grassTip: '#fde047', tree: '#052e16', treeTop: '#22c55e', rock: '#1e293b', rockLight: '#facc15', rockDark: '#0f172a' },
+    encounters: ['torchic', 'combusken', 'blaziken', 'whismur', 'loudred', 'exploud', 'makuhita', 'hariyama', 'meditite', 'medicham', 'chimecho'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "W..jj..GGGG......GGGG..ll..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..jj.......P..P.......ll..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....j..j....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......P..jj....jj..P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W...........PPPPPPPPPPPPPPPE",
+      "W...........PPPPPPPPPPPPPPPE",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....l..l....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..jj.......P..P.......ll..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..jj..GGGG......GGGG..ll..W",
+      "W..........................W",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      east: { targetMap: 'CUBA', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'jm_sound_engineer_king', name: 'DUB ENGINEER OSBOURNE', topic: 'ACOUSTICAL ENGINEER - BASS FREQUENCIES', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#dc2626', shirtColor: '#facc15', fact: "DUB ENGINEER OSBOURNE: Reggae dub music pioneered spring reverb and high-pass/low-pass frequency filtering! Sub-bass sound waves (20-60 Hz) have wavelengths up to 17 meters long!" }
+    ]
+  },
+
+  HAITI: {
+    id: 'HAITI',
+    name: 'Citadelle Peak (Haiti)',
+    subtitle: 'W: Havana Malecon (Cuba) - S: Amber Quisqueya (Dominican Republic)',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#1e3a8a', groundB: '#7f1d1d', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#334155', rockLight: '#94a3b8', rockDark: '#0f172a' },
+    encounters: ['mudkip', 'marshtomp', 'swampert', 'shuppet', 'banette', 'duskull', 'dusclops', 'sableye', 'mawile', 'kecleon'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..hh..GGGG......GGGG..hh..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..hh.......P..P.......hh..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....h..h....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..hh....hh..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....h..h....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..hh.......P..P.......hh..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..hh..GGGG..PP..GGGG..hh..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      west:  { targetMap: 'CUBA',               spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'DOMINICAN_REPUBLIC', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'ht_historian_toussaint', name: 'ARCHITECT HENRI', topic: 'MOUNTAIN FORTIFICATION & BALLISTICS', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#1e3a8a', shirtColor: '#dc2626', fact: "ARCHITECT HENRI: Built atop Pic Laferriere at 900 meters elevation, the Citadelle's angled stone bastions deflect cannonball kinetic energy!" }
+    ]
+  },
+
+  DOMINICAN_REPUBLIC: {
+    id: 'DOMINICAN_REPUBLIC',
+    name: 'Amber Quisqueya (Dominican Republic)',
+    subtitle: 'N: Citadelle Peak (Haiti) - FOSSIL AMBER MINES & CORAL LIMESTONE',
+    region: 'NORTH_AMERICA',
+    theme: { groundA: '#0369a1', groundB: '#b45309', path: '#fef3c7', grass: '#15803d', grassTip: '#fde047', tree: '#14532d', treeTop: '#4ade80', rock: '#d97706', rockLight: '#fef08a', rockDark: '#78350f' },
+    encounters: ['lileep', 'cradily', 'anorith', 'armaldo', 'feebas', 'milotic', 'swablu', 'altaria', 'castform', 'jirachi'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..dd..GGGG..PP..GGGG..ll..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..dd.......P..P.......ll..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....d..d....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..dd....dd..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPP...........R",
+      "R...........PPPP...........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....l..l....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "RWWWWWWWW...P..P...WWWWWWWWR",
+      "RWWWWWWWWGG.PPPP.GGWWWWWWWWR",
+      "RWWWWWWWWGG......GGWWWWWWWWR",
+      "RWWWWWWWWWWWWWWWWWWWWWWWWWWR",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'HAITI', spawnX: 13, spawnY: 18 }
+    },
+    npcs: [
+      { id: 'do_paleontologist_amber', name: 'PALEONTOLOGIST SOFIA', topic: 'FOSSILIZATION - DOMINICAN AMBER', x: 13, y: 8, skinColor: '#e59866', hatColor: '#d97706', shirtColor: '#fef3c7', fact: "PALEONTOLOGIST SOFIA: Dominican Amber is fossilized resin from the extinct Hymenaea protera tree! Free-radical polymerization preserved 20-million-year-old Miocene insects in 3D detail!" },
+      { id: 'overworld_latias', name: 'EON LATIAS', topic: 'LEGENDARY POKEMON - REFRACTION', x: 18, y: 12, isMonster: true, monsterId: 'latias', isLegendary: true, fact: "LATIAS: Shuu-aaah! (Latias coats its glass-like down feathers to refract light and become invisible!)" }
+    ]
   }
 };
+
+/********************************************************************
+ * COUNTRY CHEF NPCs (24 COUNTRIES ACROSS EAST ASIA, WEST EUROPE & NORTH AMERICA)
+ * Each Chef shares the country's most iconic dish and its key ingredients
+ ********************************************************************/
+const COUNTRY_CHEF_NPCS = {
+  // --- EAST ASIA (8 COUNTRIES / TERRITORIES) ---
+  HONG_KONG: {
+    id: 'chef_country_hk', name: 'CHEF MAK (HONG KONG)', topic: 'COUNTRY CHEF - WONTON NOODLES & HAR GOW', x: 16, y: 8,
+    skinColor: '#fde68a', hatColor: '#ffffff', shirtColor: '#f8fafc',
+    fact: "CHEF MAK: Hong Kong's signature dishes are Cantonese Har Gow and Wonton Noodles! Har Gow wraps fresh shrimp, bamboo shoots, and pork fat in a translucent wheat-and-tapioca starch skin, while Wonton broth is simmered from roasted flounder, pork bones, yellow chives, and egg noodles!"
+  },
+  MACAU: {
+    id: 'chef_country_mo', name: 'CHEF AFONSO (MACAU)', topic: 'COUNTRY CHEF - MINCHI & PASTEIS DE NATA', x: 13, y: 8,
+    skinColor: '#f5cba7', hatColor: '#ffffff', shirtColor: '#fef3c7',
+    fact: "CHEF AFONSO: Macau's iconic Macanese dish is Minchi alongside Pasteis de Nata! Minchi sautes minced beef or pork with cubed fried potatoes, onions, garlic, soy sauce, Worcestershire sauce, and molasses, topped with a sunny-side-up egg over white rice!"
+  },
+  CHINA: {
+    id: 'chef_country_cn', name: 'CHEF DONGPO (CHINA)', topic: 'COUNTRY CHEF - PEKING ROAST DUCK', x: 16, y: 12,
+    skinColor: '#fde68a', hatColor: '#ffffff', shirtColor: '#fee2e2',
+    fact: "CHEF DONGPO: China's imperial signature dish is Peking Roast Duck! A whole duck is glazed with maltose syrup, five-spice, and vinegar, air-dried, and roasted over fruitwood until crispy, then wrapped in thin wheat pancakes with scallions, cucumber, and sweet bean sauce (Tianmianjiang)!"
+  },
+  TAIWAN: {
+    id: 'chef_country_tw', name: 'CHEF LIN (TAIWAN)', topic: 'COUNTRY CHEF - TAIWANESE BEEF NOODLE SOUP', x: 13, y: 11,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#e0f2fe',
+    fact: "CHEF LIN: Taiwan's national comfort dish is Red-Braised Beef Noodle Soup (Niu Rou Mian)! We slow-simmer beef shank with spicy broad-bean paste (Doubanjiang), soy sauce, star anise, ginger, garlic, and tomatoes, served over chewy wheat noodles with bok choy and pickled mustard greens!"
+  },
+  JAPAN: {
+    id: 'chef_country_jp', name: 'CHEF JIRO (JAPAN)', topic: 'COUNTRY CHEF - TAKOYAKI & KATSUO NO TATAKI', x: 13, y: 11,
+    skinColor: '#fde68a', hatColor: '#ffffff', shirtColor: '#f1f5f9',
+    fact: "CHEF JIRO: In Japan we celebrate Osaka Takoyaki and Kochi Katsuo no Tataki! Takoyaki grills dashi-seasoned wheat batter around diced octopus (tako), pickled red ginger (beni shoga), tenkasu tempura scraps, and green onions; Katsuo no Tataki sears skipjack tuna over straw fire with garlic, ginger, and ponzu!"
+  },
+  SOUTH_KOREA: {
+    id: 'chef_country_kr', name: 'CHEF MIN-JUN (SOUTH KOREA)', topic: 'COUNTRY CHEF - BIBIMBAP & KIMCHI', x: 13, y: 11,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#ffe4e6',
+    fact: "CHEF MIN-JUN: South Korea's classic dish is Dolsot Bibimbap with Napa Kimchi! Steamed white rice is topped with sauteed fernbrake, spinach, bean sprouts, julienned carrots, shiitake mushrooms, marinated bulgogi beef, a raw egg yolk, toasted sesame oil, and fermented red chili paste (Gochujang)!"
+  },
+  MONGOLIA: {
+    id: 'chef_country_mn', name: 'CHEF TEMUULEN (MONGOLIA)', topic: 'COUNTRY CHEF - KHUUSHUUR & BUUZ', x: 13, y: 11,
+    skinColor: '#e59866', hatColor: '#ffffff', shirtColor: '#fef08a',
+    fact: "CHEF TEMUULEN: Across the Mongolian steppe, our most famous dishes are Buuz and Khuushuur! We knead wheat flour and water into dough pockets filled with minced mutton or beef, wild steppe onion, garlic, salt, and black pepper, then steam or pan-fry them until golden!"
+  },
+  NORTH_KOREA: {
+    id: 'chef_country_kp', name: 'UNIFORM CHEF #07 (NORTH KOREA)', topic: 'COUNTRY CHEF - PYONGYANG NAENGMYEON', x: 13, y: 11,
+    skinColor: '#fde68a', hatColor: '#111827', shirtColor: '#dc2626',
+    fact: "UNIFORM CHEF #07: Even the kitchen brigade wears the uniform! Our most famous dish is Pyongyang Raengmyon (Cold Buckwheat Noodles), made from buckwheat and sweet potato starch noodles in an icy beef-and-pheasant broth with dongchimi radish water, sliced Korean pear, cucumber, and half a boiled egg!"
+  },
+
+  // --- WEST EUROPE (8 COUNTRIES) ---
+  UK: {
+    id: 'chef_country_uk', name: 'CHEF GORDON (UK)', topic: 'COUNTRY CHEF - FISH AND CHIPS', x: 17, y: 5,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#e2e8f0',
+    fact: "CHEF GORDON: Britain's iconic dish is Fish and Chips! Fresh Atlantic cod or haddock fillets are dipped in a cold batter of wheat flour, baking powder, and sparkling beer or water, deep-fried until crisp alongside thick-cut Maris Piper potato chips, crushed marrowfat mushy peas, and malt vinegar!"
+  },
+  IRELAND: {
+    id: 'chef_country_ie', name: 'CHEF SIOBHAN (IRELAND)', topic: 'COUNTRY CHEF - TRADITIONAL IRISH STEW', x: 16, y: 8,
+    skinColor: '#fde68a', hatColor: '#ffffff', shirtColor: '#dcfce7',
+    fact: "CHEF SIOBHAN: Ireland's national dish is Traditional Irish Lamb Stew (Stobhach Gaelach)! We slow-braise pasture-raised lamb shoulder with floury potatoes, carrots, onions, leeks, pearl barley, fresh thyme, and parsley in rich stock until the potatoes naturally thicken the gravy!"
+  },
+  FRANCE: {
+    id: 'chef_country_fr', name: 'CHEF ESCOFFIER (FRANCE)', topic: 'COUNTRY CHEF - BOEUF BOURGUIGNON', x: 13, y: 8,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#f8fafc',
+    fact: "CHEF ESCOFFIER: France's celebrated classic is Boeuf Bourguignon! Charolais beef is slowly braised in red Burgundy wine and beef stock with smoked lardons (bacon), pearl onions, button mushrooms, carrots, garlic, and a bouquet garni of thyme and bay leaf!"
+  },
+  GERMANY: {
+    id: 'chef_country_de', name: 'CHEF HANS (GERMANY)', topic: 'COUNTRY CHEF - SAUERBRATEN & SPATZLE', x: 16, y: 8,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#fef9c3',
+    fact: "CHEF HANS: Germany's signature roast is Rheinischer Sauerbraten with Spatzle! Beef is marinated for days in wine vinegar, water, juniper berries, cloves, bay leaves, and onions, then braised and served with egg-and-flour Spatzle noodles and braised red cabbage (Rotkohl)!"
+  },
+  SPAIN: {
+    id: 'chef_country_es', name: 'CHEF FERRAN (SPAIN)', topic: 'COUNTRY CHEF - PAELLA DE ARROZ NEGRO & GAZPACHO', x: 13, y: 8,
+    skinColor: '#e59866', hatColor: '#ffffff', shirtColor: '#fef08a',
+    fact: "CHEF FERRAN: In Spain we love Paella de Arroz Negro, Salmorejo, and Andalusian Gazpacho! Arroz Negro simmers short-grain Bomba rice in seafood stock with cuttlefish, squid ink, prawns, garlic, olive oil, and paprika; Gazpacho and Salmorejo blend ripe tomatoes, extra-virgin olive oil, garlic, bread, and sherry vinegar!"
+  },
+  PORTUGAL: {
+    id: 'chef_country_pt', name: 'CHEF AVILLEZ (PORTUGAL)', topic: 'COUNTRY CHEF - BACALHAU A BRAS & FRANCESINHA', x: 16, y: 8,
+    skinColor: '#f5cba7', hatColor: '#ffffff', shirtColor: '#dbeafe',
+    fact: "CHEF AVILLEZ: Welcome to Portugal! Our most famous dish is Bacalhau a Bras (and Porto's Francesinha)! We shred desalted Atlantic cod (bacalhau) and bind it over low heat with thinly sliced matchstick potatoes, caramelized onions, garlic, extra-virgin olive oil, lightly scrambled eggs, black olives, and fresh parsley!"
+  },
+  NETHERLANDS: {
+    id: 'chef_country_nl', name: 'CHEF PIETER (NETHERLANDS)', topic: 'COUNTRY CHEF - STAMPPOT & STROOPWAFELS', x: 16, y: 8,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#ffedd5',
+    fact: "CHEF PIETER: The Netherlands' heartiest dish is Boerenkool Stamppot! Floury potatoes are boiled and mashed together with finely chopped curly kale, butter, and milk, served steaming hot with a smoked Rookworst sausage and a pool of savory gravy!"
+  },
+  BELGIUM: {
+    id: 'chef_country_be', name: 'CHEF BENOIT (BELGIUM)', topic: 'COUNTRY CHEF - MOULES-FRITES & CARBONADE', x: 16, y: 8,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#fef3c7',
+    fact: "CHEF BENOIT: Belgium's national dish is Moules-Frites! Fresh North Sea black mussels are steamed in white wine with shallots, celery, garlic, parsley, and butter, served alongside twice-fried Bintje potatoes cooked first at low heat and crisped at high heat!"
+  },
+
+  // --- NORTH AMERICA & CARIBBEAN (8 COUNTRIES) ---
+  CANADA: {
+    id: 'chef_country_ca', name: 'CHEF MARTIN (CANADA)', topic: 'COUNTRY CHEF - QUEBEC POUTINE', x: 17, y: 5,
+    skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#fee2e2',
+    fact: "CHEF MARTIN: Canada's iconic dish is Quebecois Poutine! Crispy hand-cut Russet potato fries are topped with fresh, squeaky cheddar cheese curds and smothered in hot brown beef-and-chicken gravy thickened with a toasted wheat flour roux!"
+  },
+  USA: {
+    id: 'chef_country_us', name: 'CHEF ALICE (USA)', topic: 'COUNTRY CHEF - SMOKED BRISKET & BURGERS', x: 16, y: 8,
+    skinColor: '#f5cba7', hatColor: '#ffffff', shirtColor: '#e0f2fe',
+    fact: "CHEF ALICE: Classic American barbecue and burgers! Texas Smoked Brisket rubs beef chest cut with coarse black pepper and kosher salt, smoking it low-and-slow over post oak wood for 12 hours until tough collagen melts into tender gelatin!"
+  },
+  MEXICO: {
+    id: 'chef_country_mx', name: 'CHEF ENRIQUE (MEXICO)', topic: 'COUNTRY CHEF - MOLE POBLANO & TACOS', x: 16, y: 8,
+    skinColor: '#e59866', hatColor: '#ffffff', shirtColor: '#dcfce7',
+    fact: "CHEF ENRIQUE: Mexico's culinary masterpiece is Mole Poblano with corn tortillas! Over 20 ingredients—including mulato, pasilla, and ancho chilies, toasted sesame seeds, pumpkin seeds, almonds, plantains, cinnamon, tomatoes, and dark cacao chocolate—are ground into a rich sauce over turkey or chicken!"
+  },
+  CUBA: {
+    id: 'chef_country_cu', name: 'CHEF PALADAR (CUBA)', topic: 'COUNTRY CHEF - ROPA VIEJA & MOROS', x: 16, y: 8,
+    skinColor: '#f5cba7', hatColor: '#ffffff', shirtColor: '#fef9c3',
+    fact: "CHEF PALADAR: Cuba's national dish is Ropa Vieja! Flank steak is simmered until shreddable in a Criollo sofrito sauce of bell peppers, onions, garlic, plum tomatoes, cumin, oregano, bay leaves, and dry white wine, served with black beans, white rice, and fried sweet plantains (Maduros)!"
+  },
+  HAITI: {
+    id: 'chef_country_ht', name: 'CHEF NADEGE (HAITI)', topic: 'COUNTRY CHEF - GRIOT, PIKLIZ & DIRI DJONDJON', x: 16, y: 8,
+    skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#ffe4e6',
+    fact: "CHEF NADEGE: Haiti's beloved feast is Griot with Pikliz and Diri ak Djondjon! Pork shoulder is marinated in sour Seville orange juice, Epis (blended scallions, garlic, peppers, and herbs), boiled, and fried crisp, served with fiery pickled cabbage-carrot-habanero Pikliz and black mushroom rice!"
+  },
+  JAMAICA: {
+    id: 'chef_country_jm', name: 'CHEF RASTA LEVI (JAMAICA)', topic: 'COUNTRY CHEF - ACKEE & SALTFISH & JERK', x: 16, y: 8,
+    skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#fef08a',
+    fact: "CHEF RASTA LEVI: Jamaica's national dish is Ackee and Saltfish alongside Jerk Chicken! Sun-ripened Ackee fruit pods are sauteed with flaked salted cod, Scotch bonnet peppers, onions, tomatoes, sweet bell peppers, and thyme; while Jerk seasoning combines allspice (pimento) and Scotch bonnets!"
+  },
+  BAHAMAS: {
+    id: 'chef_country_bs', name: 'CHEF SHERELLE (BAHAMAS)', topic: 'COUNTRY CHEF - CONCH SALAD & BAHAMA MAMA', x: 16, y: 8,
+    skinColor: '#784212', hatColor: '#ffffff', shirtColor: '#fce7f3',
+    fact: "CHEF SHERELLE: Right here in Nassau, our signature dish is Tropical Conch Salad paired with a Bahama Mama! We dice fresh raw Queen Conch and marinate it in freshly squeezed lime and sour orange juice with diced green bell peppers, ripe tomatoes, onions, cucumber, and goat pepper!"
+  },
+  DOMINICAN_REPUBLIC: {
+    id: 'chef_country_do', name: 'CHEF ESPERANZA (DOMINICAN REP.)', topic: 'COUNTRY CHEF - LA BANDERA & SANCOCHO', x: 16, y: 8,
+    skinColor: '#ca8a5b', hatColor: '#ffffff', shirtColor: '#e0f2fe',
+    fact: "CHEF ESPERANZA: The Dominican Republic's daily pride is La Bandera Dominicana and Sancocho! La Bandera combines white rice, red kidney beans stewed with pumpkin (auyama), oregano, and cilantro, and braised chicken or beef, served with crispy twice-fried green plantains (Tostones)!"
+  }
+};
+
+(function registerCountryChefs() {
+  if (typeof WORLD_MAPS === 'undefined') return;
+  Object.keys(COUNTRY_CHEF_NPCS).forEach(mapKey => {
+    const mapObj = WORLD_MAPS[mapKey];
+    if (!mapObj) return;
+    if (!Array.isArray(mapObj.npcs)) mapObj.npcs = [];
+    const chef = COUNTRY_CHEF_NPCS[mapKey];
+    if (!mapObj.npcs.some(n => n.id === chef.id)) {
+      mapObj.npcs.push(chef);
+    }
+  });
+})();
+
 
 // Alias MIRADOURO_LUA to MOON so both keys work seamlessly across overworld.js & audio.js
 WORLD_MAPS.MIRADOURO_LUA = WORLD_MAPS.MOON;

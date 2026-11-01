@@ -277,7 +277,218 @@ const MONSTER_SPECIES = [
   { id: 'dialga',    pokedexNo: 483, name: 'DIALGA',    type: 'DRAGON',    baseHp: 365, level: 50 },
   { id: 'palkia',    pokedexNo: 484, name: 'PALKIA',    type: 'DRAGON',   baseHp: 365, level: 50 },
 
-  { id: 'budew',      pokedexNo: 406, name: 'BUDEW',      type: 'GRASS',    baseHp: 125, level: 10 }
+  { id: 'budew',      pokedexNo: 406, name: 'BUDEW',      type: 'GRASS',    baseHp: 125, level: 10 },
+  { id: 'espeon',     pokedexNo: 196, name: 'ESPEON',     type: 'PSYCHIC',  baseHp: 180, level: 22 },
+  { id: 'roselia',    pokedexNo: 315, name: 'ROSELIA',    type: 'GRASS',    baseHp: 160, level: 18 },
+  { id: 'leafeon',    pokedexNo: 470, name: 'LEAFEON',    type: 'GRASS',    baseHp: 185, level: 22 },
+  { id: 'glaceon',    pokedexNo: 471, name: 'GLACEON',    type: 'ICE',      baseHp: 185, level: 22 },
+  { id: 'sylveon',    pokedexNo: 700, name: 'SYLVEON',    type: 'FAIRY',    baseHp: 195, level: 22 },
+
+  // --- COMPLETE GEN 2 JOHTO ROSTER (#161 - #251) + EEVEELUTIONS ---
+  { id: 'sentret',    pokedexNo: 161, name: 'SENTRET',    type: 'NORMAL',   baseHp: 120, level: 10 },
+  { id: 'furret',     pokedexNo: 162, name: 'FURRET',     type: 'NORMAL',   baseHp: 165, level: 18 },
+  { id: 'hoothoot',   pokedexNo: 163, name: 'HOOTHOOT',   type: 'FLYING',   baseHp: 125, level: 10 },
+  { id: 'noctowl',    pokedexNo: 164, name: 'NOCTOWL',    type: 'FLYING',   baseHp: 175, level: 20 },
+  { id: 'ledyba',     pokedexNo: 165, name: 'LEDYBA',     type: 'BUG',      baseHp: 120, level: 10 },
+  { id: 'ledian',     pokedexNo: 166, name: 'LEDIAN',     type: 'BUG',      baseHp: 155, level: 18 },
+  { id: 'spinarak',   pokedexNo: 167, name: 'SPINARAK',   type: 'BUG',      baseHp: 120, level: 10 },
+  { id: 'ariados',    pokedexNo: 168, name: 'ARIADOS',    type: 'POISON',   baseHp: 165, level: 19 },
+  { id: 'crobat',     pokedexNo: 169, name: 'CROBAT',     type: 'POISON',   baseHp: 190, level: 24 },
+  { id: 'chinchou',   pokedexNo: 170, name: 'CHINCHOU',   type: 'ELECTRIC', baseHp: 140, level: 13 },
+  { id: 'lanturn',    pokedexNo: 171, name: 'LANTURN',    type: 'ELECTRIC', baseHp: 195, level: 22 },
+  { id: 'pichu',      pokedexNo: 172, name: 'PICHU',      type: 'ELECTRIC', baseHp: 110, level: 8 },
+  { id: 'cleffa',     pokedexNo: 173, name: 'CLEFFA',     type: 'FAIRY',    baseHp: 115, level: 8 },
+  { id: 'igglybuff',  pokedexNo: 174, name: 'IGGLYBUFF',  type: 'FAIRY',    baseHp: 120, level: 8 },
+  { id: 'togepi',     pokedexNo: 175, name: 'TOGEPI',     type: 'FAIRY',    baseHp: 125, level: 10 },
+  { id: 'togetic',    pokedexNo: 176, name: 'TOGETIC',    type: 'FAIRY',    baseHp: 165, level: 18 },
+  { id: 'natu',       pokedexNo: 177, name: 'NATU',       type: 'PSYCHIC',  baseHp: 125, level: 12 },
+  { id: 'xatu',       pokedexNo: 178, name: 'XATU',       type: 'PSYCHIC',  baseHp: 170, level: 20 },
+  { id: 'mareep',     pokedexNo: 179, name: 'MAREEP',     type: 'ELECTRIC', baseHp: 130, level: 12 },
+  { id: 'flaaffy',    pokedexNo: 180, name: 'FLAAFFY',    type: 'ELECTRIC', baseHp: 160, level: 16 },
+  { id: 'ampharos',   pokedexNo: 181, name: 'AMPHAROS',   type: 'ELECTRIC', baseHp: 195, level: 24 },
+  { id: 'bellossom',  pokedexNo: 182, name: 'BELLOSSOM',  type: 'GRASS',    baseHp: 180, level: 21 },
+  { id: 'marill',     pokedexNo: 183, name: 'MARILL',     type: 'WATER',    baseHp: 145, level: 13 },
+  { id: 'azumarill',  pokedexNo: 184, name: 'AZUMARILL',  type: 'WATER',    baseHp: 190, level: 20 },
+  { id: 'sudowoodo',  pokedexNo: 185, name: 'SUDOWOODO',  type: 'ROCK',     baseHp: 170, level: 18 },
+  { id: 'politoed',   pokedexNo: 186, name: 'POLITOED',   type: 'WATER',    baseHp: 190, level: 23 },
+  { id: 'hoppip',     pokedexNo: 187, name: 'HOPPIP',     type: 'GRASS',    baseHp: 120, level: 10 },
+  { id: 'skiploom',   pokedexNo: 188, name: 'SKIPLOOM',   type: 'GRASS',    baseHp: 145, level: 15 },
+  { id: 'jumpluff',   pokedexNo: 189, name: 'JUMPLUFF',   type: 'GRASS',    baseHp: 175, level: 21 },
+  { id: 'aipom',      pokedexNo: 190, name: 'AIPOM',      type: 'NORMAL',   baseHp: 135, level: 14 },
+  { id: 'sunkern',    pokedexNo: 191, name: 'SUNKERN',    type: 'GRASS',    baseHp: 110, level: 9 },
+  { id: 'sunflora',   pokedexNo: 192, name: 'SUNFLORA',   type: 'GRASS',    baseHp: 170, level: 19 },
+  { id: 'yanma',      pokedexNo: 193, name: 'YANMA',      type: 'BUG',      baseHp: 145, level: 15 },
+  { id: 'wooper',     pokedexNo: 194, name: 'WOOPER',     type: 'WATER',    baseHp: 130, level: 11 },
+  { id: 'quagsire',   pokedexNo: 195, name: 'QUAGSIRE',   type: 'GROUND',   baseHp: 185, level: 20 },
+  { id: 'espeon',     pokedexNo: 196, name: 'ESPEON',     type: 'PSYCHIC',  baseHp: 185, level: 22 },
+  { id: 'slowking',   pokedexNo: 199, name: 'SLOWKING',   type: 'PSYCHIC',  baseHp: 195, level: 24 },
+  { id: 'misdreavus', pokedexNo: 200, name: 'MISDREAVUS', type: 'GHOST',    baseHp: 150, level: 17 },
+  { id: 'unown',      pokedexNo: 201, name: 'UNOWN',      type: 'PSYCHIC',  baseHp: 130, level: 14 },
+  { id: 'wobbuffet',  pokedexNo: 202, name: 'WOBBUFFET',  type: 'PSYCHIC',  baseHp: 230, level: 20 },
+  { id: 'girafarig',  pokedexNo: 203, name: 'GIRAFARIG',  type: 'PSYCHIC',  baseHp: 165, level: 18 },
+  { id: 'pineco',     pokedexNo: 204, name: 'PINECO',     type: 'BUG',      baseHp: 135, level: 12 },
+  { id: 'forretress', pokedexNo: 205, name: 'FORRETRESS', type: 'STEEL',    baseHp: 185, level: 22 },
+  { id: 'dunsparce',  pokedexNo: 206, name: 'DUNSPARCE',  type: 'NORMAL',   baseHp: 175, level: 16 },
+  { id: 'gligar',     pokedexNo: 207, name: 'GLIGAR',     type: 'GROUND',   baseHp: 155, level: 16 },
+  { id: 'steelix',    pokedexNo: 208, name: 'STEELIX',    type: 'STEEL',    baseHp: 210, level: 25 },
+  { id: 'snubbull',   pokedexNo: 209, name: 'SNUBBULL',   type: 'FAIRY',    baseHp: 140, level: 13 },
+  { id: 'granbull',   pokedexNo: 210, name: 'GRANBULL',   type: 'FAIRY',    baseHp: 185, level: 21 },
+  { id: 'qwilfish',   pokedexNo: 211, name: 'QWILFISH',   type: 'POISON',   baseHp: 155, level: 16 },
+  { id: 'scizor',     pokedexNo: 212, name: 'SCIZOR',     type: 'STEEL',    baseHp: 195, level: 24 },
+  { id: 'shuckle',    pokedexNo: 213, name: 'SHUCKLE',    type: 'ROCK',     baseHp: 210, level: 18 },
+  { id: 'heracross',  pokedexNo: 214, name: 'HERACROSS',  type: 'FIGHTING', baseHp: 185, level: 21 },
+  { id: 'sneasel',    pokedexNo: 215, name: 'SNEASEL',    type: 'ICE',      baseHp: 145, level: 17 },
+  { id: 'teddiursa',  pokedexNo: 216, name: 'TEDDIURSA',  type: 'NORMAL',   baseHp: 135, level: 13 },
+  { id: 'ursaring',   pokedexNo: 217, name: 'URSARING',   type: 'NORMAL',   baseHp: 195, level: 23 },
+  { id: 'slugma',     pokedexNo: 218, name: 'SLUGMA',     type: 'FIRE',     baseHp: 130, level: 13 },
+  { id: 'magcargo',   pokedexNo: 219, name: 'MAGCARGO',   type: 'ROCK',     baseHp: 170, level: 21 },
+  { id: 'swinub',     pokedexNo: 220, name: 'SWINUB',     type: 'ICE',      baseHp: 130, level: 12 },
+  { id: 'piloswine',  pokedexNo: 221, name: 'PILOSWINE',  type: 'ICE',      baseHp: 185, level: 21 },
+  { id: 'corsola',    pokedexNo: 222, name: 'CORSOLA',    type: 'ROCK',     baseHp: 150, level: 16 },
+  { id: 'remoraid',   pokedexNo: 223, name: 'REMORAID',   type: 'WATER',    baseHp: 120, level: 12 },
+  { id: 'octillery',  pokedexNo: 224, name: 'OCTILLERY',  type: 'WATER',    baseHp: 175, level: 21 },
+  { id: 'delibird',   pokedexNo: 225, name: 'DELIBIRD',   type: 'ICE',      baseHp: 135, level: 15 },
+  { id: 'mantine',    pokedexNo: 226, name: 'MANTINE',    type: 'WATER',    baseHp: 180, level: 20 },
+  { id: 'skarmory',   pokedexNo: 227, name: 'SKARMORY',   type: 'STEEL',    baseHp: 175, level: 21 },
+  { id: 'houndour',   pokedexNo: 228, name: 'HOUNDOUR',   type: 'DARK',     baseHp: 135, level: 14 },
+  { id: 'kingdra',    pokedexNo: 230, name: 'KINGDRA',    type: 'DRAGON',   baseHp: 195, level: 25 },
+  { id: 'phanpy',     pokedexNo: 231, name: 'PHANPY',     type: 'GROUND',   baseHp: 150, level: 13 },
+  { id: 'donphan',    pokedexNo: 232, name: 'DONPHAN',    type: 'GROUND',   baseHp: 190, level: 22 },
+  { id: 'porygon2',   pokedexNo: 233, name: 'PORYGON2',   type: 'NORMAL',   baseHp: 185, level: 22 },
+  { id: 'stantler',   pokedexNo: 234, name: 'STANTLER',   type: 'NORMAL',   baseHp: 165, level: 18 },
+  { id: 'smeargle',   pokedexNo: 235, name: 'SMEARGLE',   type: 'NORMAL',   baseHp: 145, level: 16 },
+  { id: 'tyrogue',    pokedexNo: 236, name: 'TYROGUE',    type: 'FIGHTING', baseHp: 125, level: 11 },
+  { id: 'hitmontop',  pokedexNo: 237, name: 'HITMONTOP',  type: 'FIGHTING', baseHp: 160, level: 20 },
+  { id: 'smoochum',   pokedexNo: 238, name: 'SMOOCHUM',   type: 'ICE',      baseHp: 120, level: 10 },
+  { id: 'elekid',     pokedexNo: 239, name: 'ELEKID',     type: 'ELECTRIC', baseHp: 125, level: 10 },
+  { id: 'magby',      pokedexNo: 240, name: 'MAGBY',      type: 'FIRE',     baseHp: 125, level: 10 },
+  { id: 'miltank',    pokedexNo: 241, name: 'MILTANK',    type: 'NORMAL',   baseHp: 190, level: 20 },
+  { id: 'blissey',    pokedexNo: 242, name: 'BLISSEY',    type: 'NORMAL',   baseHp: 255, level: 24 },
+  { id: 'larvitar',   pokedexNo: 246, name: 'LARVITAR',   type: 'ROCK',     baseHp: 140, level: 14 },
+  { id: 'pupitar',    pokedexNo: 247, name: 'PUPITAR',    type: 'ROCK',     baseHp: 170, level: 20 },
+  { id: 'tyranitar',  pokedexNo: 248, name: 'TYRANITAR',  type: 'DARK',     baseHp: 220, level: 28 },
+  { id: 'celebi',     pokedexNo: 251, name: 'CELEBI',     type: 'PSYCHIC',  baseHp: 250, level: 30 },
+  { id: 'poochyena',  pokedexNo: 261, name: 'POOCHYENA',  type: 'DARK',     baseHp: 120, level: 10 },
+  { id: 'mightyena',  pokedexNo: 262, name: 'MIGHTYENA',  type: 'DARK',     baseHp: 170, level: 18 },
+  { id: 'zigzagoon',  pokedexNo: 263, name: 'ZIGZAGOON',  type: 'NORMAL',   baseHp: 120, level: 10 },
+  { id: 'linoone',    pokedexNo: 264, name: 'LINOONE',    type: 'NORMAL',   baseHp: 165, level: 18 },
+  { id: 'wurmple',    pokedexNo: 265, name: 'WURMPLE',    type: 'BUG',      baseHp: 115, level: 7 },
+  { id: 'silcoon',    pokedexNo: 266, name: 'SILCOON',    type: 'BUG',      baseHp: 130, level: 10 },
+  { id: 'beautifly',  pokedexNo: 267, name: 'BEAUTIFLY',  type: 'BUG',      baseHp: 160, level: 15 },
+  { id: 'cascoon',    pokedexNo: 268, name: 'CASCOON',    type: 'BUG',      baseHp: 130, level: 10 },
+  { id: 'dustox',     pokedexNo: 269, name: 'DUSTOX',     type: 'POISON',   baseHp: 160, level: 15 },
+  { id: 'lotad',      pokedexNo: 270, name: 'LOTAD',      type: 'WATER',    baseHp: 125, level: 11 },
+  { id: 'lombre',     pokedexNo: 271, name: 'LOMBRE',     type: 'WATER',    baseHp: 155, level: 16 },
+  { id: 'ludicolo',   pokedexNo: 272, name: 'LUDICOLO',   type: 'GRASS',    baseHp: 190, level: 22 },
+  { id: 'seedot',     pokedexNo: 273, name: 'SEEDOT',     type: 'GRASS',    baseHp: 120, level: 11 },
+  { id: 'nuzleaf',    pokedexNo: 274, name: 'NUZLEAF',    type: 'DARK',     baseHp: 155, level: 16 },
+  { id: 'shiftry',    pokedexNo: 275, name: 'SHIFTRY',    type: 'DARK',     baseHp: 190, level: 22 },
+  { id: 'taillow',    pokedexNo: 276, name: 'TAILLOW',    type: 'FLYING',   baseHp: 125, level: 11 },
+  { id: 'swellow',    pokedexNo: 277, name: 'SWELLOW',    type: 'FLYING',   baseHp: 170, level: 20 },
+  { id: 'wingull',    pokedexNo: 278, name: 'WINGULL',    type: 'WATER',    baseHp: 125, level: 11 },
+  { id: 'pelipper',   pokedexNo: 279, name: 'PELIPPER',   type: 'FLYING',   baseHp: 175, level: 20 },
+  { id: 'ralts',      pokedexNo: 280, name: 'RALTS',      type: 'PSYCHIC',  baseHp: 120, level: 10 },
+  { id: 'kirlia',     pokedexNo: 281, name: 'KIRLIA',     type: 'PSYCHIC',  baseHp: 150, level: 16 },
+  { id: 'gardevoir',  pokedexNo: 282, name: 'GARDEVOIR',  type: 'FAIRY',    baseHp: 195, level: 24 },
+  { id: 'surskit',    pokedexNo: 283, name: 'SURSKIT',    type: 'BUG',      baseHp: 120, level: 11 },
+  { id: 'masquerain', pokedexNo: 284, name: 'MASQUERAIN', type: 'FLYING',   baseHp: 165, level: 19 },
+  { id: 'shroomish',  pokedexNo: 285, name: 'SHROOMISH',  type: 'GRASS',    baseHp: 130, level: 12 },
+  { id: 'breloom',    pokedexNo: 286, name: 'BRELOOM',    type: 'FIGHTING', baseHp: 180, level: 21 },
+  { id: 'slakoth',    pokedexNo: 287, name: 'SLAKOTH',    type: 'NORMAL',   baseHp: 135, level: 12 },
+  { id: 'vigoroth',   pokedexNo: 288, name: 'VIGOROTH',   type: 'NORMAL',   baseHp: 170, level: 18 },
+  { id: 'slaking',    pokedexNo: 289, name: 'SLAKING',    type: 'NORMAL',   baseHp: 235, level: 26 },
+  { id: 'nincada',    pokedexNo: 290, name: 'NINCADA',    type: 'BUG',      baseHp: 120, level: 11 },
+  { id: 'ninjask',    pokedexNo: 291, name: 'NINJASK',    type: 'FLYING',   baseHp: 165, level: 20 },
+  { id: 'shedinja',   pokedexNo: 292, name: 'SHEDINJA',   type: 'GHOST',    baseHp: 100, level: 20 },
+  { id: 'whismur',    pokedexNo: 293, name: 'WHISMUR',    type: 'NORMAL',   baseHp: 130, level: 11 },
+  { id: 'loudred',    pokedexNo: 294, name: 'LOUDRED',    type: 'NORMAL',   baseHp: 165, level: 17 },
+  { id: 'exploud',    pokedexNo: 295, name: 'EXPLOUD',    type: 'NORMAL',   baseHp: 195, level: 23 },
+  { id: 'makuhita',   pokedexNo: 296, name: 'MAKUHITA',   type: 'FIGHTING', baseHp: 145, level: 13 },
+  { id: 'hariyama',   pokedexNo: 297, name: 'HARIYAMA',   type: 'FIGHTING', baseHp: 210, level: 22 },
+  { id: 'azurill',    pokedexNo: 298, name: 'AZURILL',    type: 'FAIRY',    baseHp: 115, level: 8 },
+  { id: 'nosepass',   pokedexNo: 299, name: 'NOSEPASS',   type: 'ROCK',     baseHp: 160, level: 16 },
+  { id: 'skitty',     pokedexNo: 300, name: 'SKITTY',     type: 'NORMAL',   baseHp: 125, level: 11 },
+  { id: 'delcatty',   pokedexNo: 301, name: 'DELCATTY',   type: 'NORMAL',   baseHp: 165, level: 19 },
+  { id: 'sableye',    pokedexNo: 302, name: 'SABLEYE',    type: 'GHOST',    baseHp: 155, level: 17 },
+  { id: 'mawile',     pokedexNo: 303, name: 'MAWILE',     type: 'STEEL',    baseHp: 155, level: 17 },
+  { id: 'aron',       pokedexNo: 304, name: 'ARON',       type: 'STEEL',    baseHp: 140, level: 13 },
+  { id: 'lairon',     pokedexNo: 305, name: 'LAIRON',     type: 'STEEL',    baseHp: 175, level: 19 },
+  { id: 'aggron',     pokedexNo: 306, name: 'AGGRON',     type: 'STEEL',    baseHp: 215, level: 26 },
+  { id: 'meditite',   pokedexNo: 307, name: 'MEDITITE',   type: 'FIGHTING', baseHp: 125, level: 13 },
+  { id: 'medicham',   pokedexNo: 308, name: 'MEDICHAM',   type: 'PSYCHIC',  baseHp: 175, level: 21 },
+  { id: 'electrike',  pokedexNo: 309, name: 'ELECTRIKE',  type: 'ELECTRIC', baseHp: 130, level: 13 },
+  { id: 'manectric',  pokedexNo: 310, name: 'MANECTRIC',  type: 'ELECTRIC', baseHp: 175, level: 21 },
+  { id: 'plusle',     pokedexNo: 311, name: 'PLUSLE',     type: 'ELECTRIC', baseHp: 140, level: 15 },
+  { id: 'minun',      pokedexNo: 312, name: 'MINUN',      type: 'ELECTRIC', baseHp: 140, level: 15 },
+  { id: 'volbeat',    pokedexNo: 313, name: 'VOLBEAT',    type: 'BUG',      baseHp: 150, level: 16 },
+  { id: 'illumise',   pokedexNo: 314, name: 'ILLUMISE',   type: 'BUG',      baseHp: 150, level: 16 },
+  { id: 'gulpin',     pokedexNo: 316, name: 'GULPIN',     type: 'POISON',   baseHp: 140, level: 13 },
+  { id: 'swalot',     pokedexNo: 317, name: 'SWALOT',     type: 'POISON',   baseHp: 190, level: 21 },
+  { id: 'carvanha',   pokedexNo: 318, name: 'CARVANHA',   type: 'WATER',    baseHp: 125, level: 13 },
+  { id: 'sharpedo',   pokedexNo: 319, name: 'SHARPEDO',   type: 'DARK',     baseHp: 180, level: 22 },
+  { id: 'wailmer',    pokedexNo: 320, name: 'WAILMER',    type: 'WATER',    baseHp: 180, level: 16 },
+  { id: 'wailord',    pokedexNo: 321, name: 'WAILORD',    type: 'WATER',    baseHp: 245, level: 25 },
+  { id: 'numel',      pokedexNo: 322, name: 'NUMEL',      type: 'FIRE',     baseHp: 140, level: 13 },
+  { id: 'camerupt',   pokedexNo: 323, name: 'CAMERUPT',   type: 'FIRE',     baseHp: 190, level: 22 },
+  { id: 'torkoal',    pokedexNo: 324, name: 'TORKOAL',    type: 'FIRE',     baseHp: 180, level: 19 },
+  { id: 'spoink',     pokedexNo: 325, name: 'SPOINK',     type: 'PSYCHIC',  baseHp: 135, level: 13 },
+  { id: 'grumpig',    pokedexNo: 326, name: 'GRUMPIG',    type: 'PSYCHIC',  baseHp: 180, level: 21 },
+  { id: 'spinda',     pokedexNo: 327, name: 'SPINDA',     type: 'NORMAL',   baseHp: 145, level: 15 },
+  { id: 'trapinch',   pokedexNo: 328, name: 'TRAPINCH',   type: 'GROUND',   baseHp: 130, level: 14 },
+  { id: 'vibrava',    pokedexNo: 329, name: 'VIBRAVA',    type: 'DRAGON',   baseHp: 165, level: 19 },
+  { id: 'flygon',     pokedexNo: 330, name: 'FLYGON',     type: 'DRAGON',   baseHp: 200, level: 25 },
+  { id: 'cacnea',     pokedexNo: 331, name: 'CACNEA',     type: 'GRASS',    baseHp: 130, level: 13 },
+  { id: 'cacturne',   pokedexNo: 332, name: 'CACTURNE',   type: 'DARK',     baseHp: 180, level: 21 },
+  { id: 'swablu',     pokedexNo: 333, name: 'SWABLU',     type: 'FLYING',   baseHp: 125, level: 12 },
+  { id: 'altaria',    pokedexNo: 334, name: 'ALTARIA',    type: 'DRAGON',   baseHp: 190, level: 23 },
+  { id: 'zangoose',   pokedexNo: 335, name: 'ZANGOOSE',   type: 'NORMAL',   baseHp: 175, level: 19 },
+  { id: 'seviper',    pokedexNo: 336, name: 'SEVIPER',    type: 'POISON',   baseHp: 175, level: 19 },
+  { id: 'lunatone',   pokedexNo: 337, name: 'LUNATONE',   type: 'ROCK',     baseHp: 170, level: 19 },
+  { id: 'solrock',    pokedexNo: 338, name: 'SOLROCK',    type: 'ROCK',     baseHp: 170, level: 19 },
+  { id: 'barboach',   pokedexNo: 339, name: 'BARBOACH',   type: 'WATER',    baseHp: 130, level: 12 },
+  { id: 'whiscash',   pokedexNo: 340, name: 'WHISCASH',   type: 'GROUND',   baseHp: 190, level: 21 },
+  { id: 'corphish',   pokedexNo: 341, name: 'CORPHISH',   type: 'WATER',    baseHp: 130, level: 13 },
+  { id: 'crawdaunt',  pokedexNo: 342, name: 'CRAWDAUNT',  type: 'DARK',     baseHp: 180, level: 21 },
+  { id: 'baltoy',     pokedexNo: 343, name: 'BALTOY',     type: 'GROUND',   baseHp: 130, level: 13 },
+  { id: 'claydol',    pokedexNo: 344, name: 'CLAYDOL',    type: 'PSYCHIC',  baseHp: 185, level: 22 },
+  { id: 'lileep',     pokedexNo: 345, name: 'LILEEP',     type: 'ROCK',     baseHp: 145, level: 15 },
+  { id: 'cradily',    pokedexNo: 346, name: 'CRADILY',    type: 'GRASS',    baseHp: 195, level: 24 },
+  { id: 'anorith',    pokedexNo: 347, name: 'ANORITH',    type: 'ROCK',     baseHp: 140, level: 15 },
+  { id: 'armaldo',    pokedexNo: 348, name: 'ARMALDO',    type: 'BUG',      baseHp: 195, level: 24 },
+  { id: 'feebas',     pokedexNo: 349, name: 'FEEBAS',     type: 'WATER',    baseHp: 105, level: 8 },
+  { id: 'milotic',    pokedexNo: 350, name: 'MILOTIC',    type: 'WATER',    baseHp: 205, level: 25 },
+  { id: 'castform',   pokedexNo: 351, name: 'CASTFORM',   type: 'NORMAL',   baseHp: 150, level: 16 },
+  { id: 'kecleon',    pokedexNo: 352, name: 'KECLEON',    type: 'NORMAL',   baseHp: 160, level: 17 },
+  { id: 'shuppet',    pokedexNo: 353, name: 'SHUPPET',    type: 'GHOST',    baseHp: 125, level: 13 },
+  { id: 'banette',    pokedexNo: 354, name: 'BANETTE',    type: 'GHOST',    baseHp: 175, level: 21 },
+  { id: 'duskull',    pokedexNo: 355, name: 'Duskull'.toUpperCase(), type: 'GHOST', baseHp: 125, level: 13 },
+  { id: 'dusclops',   pokedexNo: 356, name: 'DUSCLOPS',   type: 'GHOST',    baseHp: 180, level: 21 },
+  { id: 'tropius',    pokedexNo: 357, name: 'TROPIUS',    type: 'GRASS',    baseHp: 190, level: 21 },
+  { id: 'chimecho',   pokedexNo: 358, name: 'CHIMECHO',   type: 'PSYCHIC',  baseHp: 160, level: 18 },
+  { id: 'wynaut',     pokedexNo: 360, name: 'WYNAUT',     type: 'PSYCHIC',  baseHp: 140, level: 10 },
+  { id: 'snorunt',    pokedexNo: 361, name: 'SNORUNT',    type: 'ICE',      baseHp: 130, level: 13 },
+  { id: 'glalie',     pokedexNo: 362, name: 'GLALIE',     type: 'ICE',      baseHp: 185, level: 22 },
+  { id: 'spheal',     pokedexNo: 363, name: 'SPHEAL',     type: 'ICE',      baseHp: 140, level: 12 },
+  { id: 'sealeo',     pokedexNo: 364, name: 'SEALEO',     type: 'ICE',      baseHp: 175, level: 18 },
+  { id: 'walrein',    pokedexNo: 365, name: 'WALREIN',    type: 'ICE',      baseHp: 210, level: 25 },
+  { id: 'clamperl',   pokedexNo: 366, name: 'CLAMPERL',   type: 'WATER',    baseHp: 130, level: 13 },
+  { id: 'huntail',    pokedexNo: 367, name: 'HUNTAIL',    type: 'WATER',    baseHp: 180, level: 22 },
+  { id: 'gorebyss',   pokedexNo: 368, name: 'GOREBYSS',   type: 'WATER',    baseHp: 180, level: 22 },
+  { id: 'relicanth',  pokedexNo: 369, name: 'RELICANTH',  type: 'ROCK',     baseHp: 190, level: 21 },
+  { id: 'luvdisc',    pokedexNo: 370, name: 'LUVDISC',    type: 'WATER',    baseHp: 130, level: 14 },
+  { id: 'bagon',      pokedexNo: 371, name: 'BAGON',      type: 'DRAGON',   baseHp: 135, level: 14 },
+  { id: 'shelgon',    pokedexNo: 372, name: 'SHELGON',    type: 'DRAGON',   baseHp: 170, level: 20 },
+  { id: 'salamence',  pokedexNo: 373, name: 'SALAMENCE',  type: 'DRAGON',   baseHp: 220, level: 28 },
+  { id: 'beldum',     pokedexNo: 374, name: 'BELDUM',     type: 'STEEL',    baseHp: 130, level: 14 },
+  { id: 'metang',     pokedexNo: 375, name: 'METANG',     type: 'STEEL',    baseHp: 170, level: 20 },
+  { id: 'metagross',  pokedexNo: 376, name: 'METAGROSS',  type: 'STEEL',    baseHp: 225, level: 28 },
+  { id: 'regirock',   pokedexNo: 377, name: 'REGIROCK',   type: 'ROCK',     baseHp: 250, level: 40 },
+  { id: 'regice',     pokedexNo: 378, name: 'REGICE',     type: 'ICE',      baseHp: 250, level: 40 },
+  { id: 'registeel',  pokedexNo: 379, name: 'REGISTEEL',  type: 'STEEL',    baseHp: 250, level: 40 },
+  { id: 'latias',     pokedexNo: 380, name: 'LATIAS',     type: 'DRAGON',   baseHp: 245, level: 40 },
+  { id: 'latios',     pokedexNo: 381, name: 'LATIOS',     type: 'DRAGON',   baseHp: 245, level: 40 },
+  { id: 'jirachi',    pokedexNo: 385, name: 'JIRACHI',    type: 'STEEL',    baseHp: 250, level: 40 }
+
 ];
 
 const DEFAULT_MONSTER_PIXELS = {
@@ -1989,9 +2200,630 @@ budew: {
       ".....l...l......",
       "................",
       "................"
-    ]
-  }
+  ]},
 
+  sentret: { palette: { p: '#b45309', d: '#78350f', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "....pp....pp....","....pd....dp....","....pppppppp....","...pppbppbppp...","...pppppppppp...","..ppplllllllpp..","..ppllpppppllpp.","...pplllllllpp..","....pppppppp....",".....pp..pp.....","....ppp..ppp....",".....dddddd.....",".....pppppp.....","......dddd......","................","................"
+  ]},
+  furret: { palette: { p: '#d97706', d: '#78350f', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "...dd......dd...","...pppppppppp...","...ppbppppbpp...","....llllllll....","....dddddddd....",".....llllll..dd.","....dddddddd.pp.","....llllllll.dd.",".....dddddddd...",".....pppppppp...","....pp....pp....","................","................","................","................","................"
+  ]},
+  hoothoot: { palette: { p: '#a16207', d: '#451a03', l: '#fef08a', s: '#ef4444', b: '#0f172a' }, grid: [
+    "..dd........dd..","...dddd..dddd...","...pppppppppp...","..ppdsbllbsdp...","..ppdsbllbsdp...","..pppppppppppp..","...ppllllllpp...","...ppllllllpp...","....pppppppp....","......l..l......","......llll......","................","................","................","................","................"
+  ]},
+  noctowl: { palette: { p: '#92400e', d: '#451a03', l: '#fde68a', s: '#ef4444', b: '#0f172a' }, grid: [
+    "..dddd....dddd..","...dddddddddd...","....ppbppbpp....","....ppsllspp....","..ddppppppppdd..",".dddpllllllpddd.",".dd.plddddlp.dd.","....pllllllp....","....pppppppp....",".....dddddd.....","......l..l......",".....ll..ll.....","................","................","................","................"
+  ]},
+  ledyba: { palette: { p: '#ef4444', d: '#0f172a', l: '#fef3c7', s: '#f97316', b: '#0f172a' }, grid: [
+    "....d......d....",".....d....d.....","....ssssssss....","....sbssssbs....","...pppppppppp...","..ppddppppddpp..","..ppddppppddpp..","..ppppddddpppp..","...pppppppppp...","..ll..l..l..ll..","......l..l......","................","................","................","................","................"
+  ]},
+  ledian: { palette: { p: '#dc2626', d: '#0f172a', l: '#ffffff', s: '#fde047', b: '#0f172a' }, grid: [
+    "...d........d...","....d.pppp.d....","....pppppppp....","....psbllbsp....","..ll..pppp..ll..",".ll..ppddpp..ll.","....ppsdppdsp...","....pppppppp....",".....ssssss.....","....pp....pp....","...ll......ll...","................","................","................","................","................"
+  ]},
+  spinarak: { palette: { p: '#22c55e', d: '#0f172a', l: '#ffffff', s: '#ef4444', b: '#0f172a' }, grid: [
+    "................","......llll......","....pppppppp....","...ppdbppbdpp...","..ss.pppppp.ss..",".ss..ppsspp..ss.","..ss.pppppp.ss..","...s..pppp..s...","................","................","................","................","................","................","................","................"
+  ]},
+  ariados: { palette: { p: '#ef4444', d: '#7e22ce', l: '#fde047', s: '#ffffff', b: '#0f172a' }, grid: [
+    ".......ss.......","..ll..pppp..ll..",".ll..ppbppb..ll.","....pppppppp....","..llppddddppll..",".ll.pppppppp.ll.","....ppddddpp..s.",".....pppppp..ss.","....dd....dd....","................","................","................","................","................","................","................"
+  ]},
+  crobat: { palette: { p: '#7e22ce', d: '#4c1d95', l: '#ef4444', s: '#ffffff', b: '#0f172a' }, grid: [
+    "pp............pp","ppp..p....p..ppp",".ppdppppppppdpp.","..pddplbbplddp..","...pppssssppp...","..ppddddddddpp..",".pp..pppppp..pp.","p.....pppp.....p","......l..l......","................","................","................","................","................","................","................"
+  ]},
+  chinchou: { palette: { p: '#3b82f6', d: '#1d4ed8', l: '#facc15', b: '#0f172a' }, grid: [
+    "..ll........ll..",".llll......llll.","..l..........l..","...p..pppp..p...","....pppppppp....","...pplbppblpp...","...pppppppppp...","..ddppppppppdd..","....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  lanturn: { palette: { p: '#38bdf8', d: '#0284c7', l: '#facc15', s: '#ef4444', b: '#0f172a' }, grid: [
+    "......llll......",".....llllll.....","......d..d......","....pppppppp....","...pppbllbpp....","..pppppppppppp..","..ppsspppppppd..","...ppppppppddd..","....dddddd..dd..","................","................","................","................","................","................","................"
+  ]},
+  pichu: { palette: { p: '#fef08a', d: '#0f172a', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "................","..dd........dd..","..dpp......ppd..","...ddppppppdd...","....pppppppp....","....pbppppbp....","....lppppppl....",".....dddddd.....",".....pppppp..d..",".....pppppp.dd..",".....pp..pp.....","................","................","................","................","................"
+  ]},
+  cleffa: { palette: { p: '#f9a8d4', d: '#be185d', l: '#78350f', b: '#0f172a' }, grid: [
+    "................","...ll......ll...","..llpp....ppll..","...pppppppppp...","..ppppbppbpppp..","..ppppddddpppp..","...pppppppppp...","....pppppppp....",".....pp..pp.....","................","................","................","................","................","................","................"
+  ]},
+  igglybuff: { palette: { p: '#fbcfe8', d: '#db2777', l: '#ef4444', b: '#0f172a' }, grid: [
+    "................","......pppp......",".....pppppp.....","....pppppppp....","...pppbppbppp...","...pplppppppl...","...ppppddpppp...","....pppppppp....",".....pp..pp.....","................","................","................","................","................","................","................"
+  ]},
+  togepi: { palette: { p: '#fef3c7', d: '#f8fafc', l: '#ef4444', s: '#3b82f6', b: '#0f172a' }, grid: [
+    "................","....pp.pp.pp....","...pppppppppp...","...pppbppbppp...","..dddddddddddd..","..ddllssssddll..","..ddddssssdddd..","...dddllllddd...","....dddddddd....",".....pp..pp.....","................","................","................","................","................","................"
+  ]},
+  togetic: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ef4444', s: '#3b82f6', b: '#0f172a' }, grid: [
+    ".....p.pp.p.....","....pppppppp....","....ppbppbpp....",".....pppppp.....","..dd..pppp..dd..",".dddppppppppddd.","..ddppllssppdd..","....ppsssspp....","....pppppppp....",".....pp..pp.....","................","................","................","................","................","................"
+  ]},
+  natu: { palette: { p: '#22c55e', d: '#15803d', l: '#ef4444', s: '#facc15', b: '#0f172a' }, grid: [
+    ".......ll.......","......llll......","....pppppppp....","...pppbssbppp...","..llppppppppll..","..sslpppppp.ss..","...pppppppppp...","....pppppppp....",".....ss..ss.....","................","................","................","................","................","................","................"
+  ]},
+  xatu: { palette: { p: '#16a34a', d: '#ffffff', l: '#ef4444', s: '#facc15', b: '#0f172a' }, grid: [
+    "......llll......",".....pppppp.....","....ppsbbspp....","....pppppppp....","...dddddddddd...","..llssddddssll..","..llppppppppll..","...pppppppppp...","....dddddddd....",".....ll..ll.....","....ll....ll....","................","................","................","................","................"
+  ]},
+  mareep: { palette: { p: '#fef08a', d: '#3b82f6', l: '#f97316', s: '#0f172a', b: '#0f172a' }, grid: [
+    "................","....pppppppp....","..ssddddddddss..","...pppddddppp...","..ppppdbbdpppp..","..pppppppppppp..","...pppppppppp.s.","....dddddddd.sl.","....dd....dd..l.","................","................","................","................","................","................","................"
+  ]},
+  flaaffy: { palette: { p: '#f472b6', d: '#fce7f3', l: '#38bdf8', s: '#0f172a', b: '#0f172a' }, grid: [
+    "....dddddddd....","...dddddddddd...","..ssppppppppss..","....ppbppbpp....","...dddddddddd...", "..dddddddddddd..","...pppppppppp.s.","....ppsssspp.sl.","....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  ampharos: { palette: { p: '#facc15', d: '#0f172a', l: '#ffffff', s: '#ef4444', b: '#0f172a' }, grid: [
+    "...dp......pd...","....pp.ss.pp....","....pppppppp....","....ppbppbpp....",".....dddddd.....","....pppppppp....","...pppllllppp...", "...pppllllppp.d.","....ppllllpp.dd.","....pp....pp..s.","...ddd....ddd...","................","................","................","................","................"
+  ]},
+  bellossom: { palette: { p: '#4ade80', d: '#16a34a', l: '#ef4444', s: '#facc15', b: '#0f172a' }, grid: [
+    "...lll....lll...","..lllls..sllll..","...lllpppp.ll...","....pppppppp....","....pplbppbl....",".....pppppp.....","...dddddddddd...","..ddssddddssdd..","..ddssddddssdd..","...dddddddddd...","................","................","................","................","................","................"
+  ]},
+  marill: { palette: { p: '#3b82f6', d: '#1d4ed8', l: '#ffffff', s: '#ef4444', b: '#0f172a' }, grid: [
+    "................","..ppp......ppp..",".ppspp....ppspp.","..pppppppppppp..","..ppppbppbpppp..","..pppppppppppp..","..pppllllllppp..","...ppllllllpp.d.","....llllllll.sp.",".....pp..pp..ss.","................","................","................","................","................","................"
+  ]},
+  azumarill: { palette: { p: '#2563eb', d: '#1e3a8a', l: '#ffffff', s: '#f43f5e', b: '#0f172a' }, grid: [
+    "..ppp......ppp..",".ppspp....ppspp.","..pp.pppppp.pp..","...pppppppppp...","...pppbppbppp...","..pppppppppppp..","..plpplandlplp..".replace(/and/,'ppp'),"..llllllllllll..","...llllllllll.p.","....pp....pp.ss.","................","................","................","................","................","................"
+  ]},
+  sudowoodo: { palette: { p: '#92400e', d: '#78350f', l: '#22c55e', s: '#fde047', b: '#0f172a' }, grid: [
+    "......pppp......","..ll..pppp..ll..",".llll.pbpb.llll.","..ll..pppp..ll..","...pppppppppp...","....ppsssspp....","....ppsssspp....",".....pppppp.....","....pp....pp....","....dd....dd....","................","................","................","................","................","................"
+  ]},
+  politoed: { palette: { p: '#22c55e', d: '#15803d', l: '#fef08a', s: '#38bdf8', b: '#0f172a' }, grid: [
+    ".......ss.......","......s..s......","....pp....pp....","...pppppppppp...","...ppbppppbpp...","..pppppppppppp..","..ppllllllllpp..","..ppllsbbllspp..","...pllllllllp...","....pp....pp....","...lll....lll...","................","................","................","................","................"
+  ]},
+  hoppip: { palette: { p: '#f43f5e', d: '#be185d', l: '#22c55e', s: '#fde047', b: '#0f172a' }, grid: [
+    "..llll....llll..",".llllll..llllll.","...ll.pppp.ll...","....pppppppp....","...ppsbppbspl...","...pppppppppp...","....pppppppp....","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  skiploom: { palette: { p: '#22c55e', d: '#15803d', l: '#facc15', s: '#ef4444', b: '#0f172a' }, grid: [
+    "....llllllll....","...llllllllll...","....dddddddd....","...pppppppppp...","..ppppbppbpppp..","..pppppppppppp..","...pppppppppp...","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  jumpluff: { palette: { p: '#3b82f6', d: '#1d4ed8', l: '#f8fafc', s: '#ef4444', b: '#0f172a' }, grid: [
+    "......llll......",".....llllll.....","..ll.pppppp.ll..",".llllpsbbpsllll.",".llllppppppllll.","..ll.pppppp.ll..",".....pp..pp.....","................","................","................","................","................","................","................","................","................"
+  ]},
+  aipom: { palette: { p: '#a855f7', d: '#6b21a8', l: '#fde68a', b: '#0f172a' }, grid: [
+    "......p..p......","...pp.pppp.pp...","..pdppppppppdp..","...pplbppblpp...","...ppllllllpp...","....pppppppp..p.",".....pppppp..pp.","....pp....pp.ll.","....ll....ll.ll.","................","................","................","................","................","................","................"
+  ]},
+  sunkern: { palette: { p: '#facc15', d: '#78350f', l: '#22c55e', b: '#0f172a' }, grid: [
+    "......llll......",".....llllll.....","......ll........","....pppppppp....","...ppddppddpp...","...ppdbppbdpp...","...ppddppddpp...","....pppppppp....",".....dddddd.....","................","................","................","................","................","................","................"
+  ]},
+  sunflora: { palette: { p: '#fde047', d: '#16a34a', l: '#fef3c7', s: '#78350f', b: '#0f172a' }, grid: [
+    "....pppppppp....","..pppssssssppp..",".pppssbssbssppp.",".pppssssssssppp.","..pppssssssppp..","....pppppppp....","...dddddddddd...","..dd..dddd..dd..","......dddd......",".....dd..dd.....","................","................","................","................","................","................"
+  ]},
+  yanma: { palette: { p: '#ef4444', d: '#991b1b', l: '#e0f2fe', s: '#22c55e', b: '#0f172a' }, grid: [
+    ".llll......llll.","llllll.ss.llllll","..lll.sbbs.lll..","......pppp......",".llll.pppp.llll.","llllllpppp.lllll","......pppp......","......dddd......","......pppp......",".......pp.......","................","................","................","................","................","................"
+  ]},
+  wooper: { palette: { p: '#38bdf8', d: '#1d4ed8', l: '#a855f7', b: '#0f172a' }, grid: [
+    "................","..ll........ll..",".llll.pppp.llll.","..ll.pppppp.ll..","....ppbppbpp....","....pppppppp....","....ppddddpp.pp.","....ppddddpp.pp.",".....pp..pp.....","................","................","................","................","................","................","................"
+  ]},
+  quagsire: { palette: { p: '#38bdf8', d: '#0284c7', l: '#a855f7', b: '#0f172a' }, grid: [
+    ".....pppppp.....","....pppppppp....","....ppbppbpp....","...pppppppppp...","..pppppppppppp..",".pp..pppppp..pp.",".pp..pppppp..pp.","....pppppppp.dd.","....ppp..ppp.dd.","....ddd..ddd....","................","................","................","................","................","................"
+  ]},
+  espeon: { palette: { p: '#d8b4fe', d: '#9333ea', l: '#fae8ff', s: '#ef4444', b: '#0f172a' }, grid: [
+    "................","..dd........dd..","..ppp......ppp..","...pppppppppp...","....pppsspppp...","....pbppppbp....",".....pppppp..d..","....pppppppp.dd.","....pppppppp.d..","....pp....pp....","....dd....dd....","................","................","................","................","................"
+  ]},
+  slowking: { palette: { p: '#f472b6', d: '#94a3b8', l: '#ef4444', s: '#fde047', b: '#0f172a' }, grid: [
+    "......dddd......",".....ddlldd.....","....dddddddd....","....ssssssss....","....ppbppbpp....","...pppppppppp...","..lllsllllslll..","...pppllllppp...", "...pppllllppp...","....pppppppp....","....pp....pp....","................","................","................","................","................"
+  ]},
+  misdreavus: { palette: { p: '#0f766e', d: '#134e4a', l: '#f43f5e', s: '#fde047', b: '#0f172a' }, grid: [
+    ".....llllll.....","....pppppppp....","...pppppppppp...","...ppsbppbspl...","....pppppppp....","....llllllll....","...pppppppppp...","..ppddddddddpp..","..p.p..dd..p.p..","................","................","................","................","................","................","................"
+  ]},
+  unown: { palette: { p: '#1e293b', d: '#0f172a', l: '#ffffff', b: '#0f172a' }, grid: [
+    ".......pp.......","......pppp......","......pppp......",".....pppppp.....","....pplllpp.....","....pplblpp.....","....pplllpp.....","....pppppppp....","...pp..pp..pp...","...p...pp...p...","................","................","................","................","................","................"
+  ]},
+  wobbuffet: { palette: { p: '#38bdf8', d: '#0284c7', l: '#0f172a', s: '#f43f5e', b: '#0f172a' }, grid: [
+    ".....pppppp.....","....pppppppp....","...pppppppppp...","...ppbppppbpp...","...pppssssppp...","..pppppppppppp..","..pppppppppppp..","...pppppppppp.ll","...pppppppppp.lb","...ppp.pp.ppp...","................","................","................","................","................","................"
+  ]},
+  girafarig: { palette: { p: '#facc15', d: '#78350f', l: '#f472b6', b: '#0f172a' }, grid: [
+    "...l..l.........","...pppp.........","..ppbp..........","...ppp..........","....pp..........","....ppdd....dd..","....pppdddddbl..","....pppddddddd..","....pp....dd....","....pp....dd....","................","................","................","................","................","................"
+  ]},
+  pineco: { palette: { p: '#0f766e', d: '#134e4a', l: '#fde047', b: '#0f172a' }, grid: [
+    ".......dd.......",".....pppppp.....","....dddddddd....","...pppppppppp...","..ddddlbbldddd..","...pppppppppp...","....dddddddd....",".....pppppp.....","......dddd......","................","................","................","................","................","................","................"
+  ]},
+  forretress: { palette: { p: '#cbd5e1', d: '#991b1b', l: '#64748b', b: '#0f172a' }, grid: [
+    "....pppppppp....","..ppddddddddpp..",".ddppppppppppdd.","ddppbppppppbppdd","ppppddddddddpppp","ddppppppppppppdd",".ddppppppppppdd.","..ppddddddddpp..","....pppppppp....","................","................","................","................","................","................","................"
+  ]},
+  dunsparce: { palette: { p: '#fde047', d: '#38bdf8', l: '#ffffff', b: '#0f172a' }, grid: [
+    "................","...pppppp.......","..ppddddpp..ll..","..ppdbbdpp..ll..","...ppppppppppp..","....ddddpppppp..", ".....ppppppppp.p","......ddddddddp.","................","................","................","................","................","................","................","................"
+  ]},
+  gligar: { palette: { p: '#c084fc', d: '#7e22ce', l: '#f472b6', b: '#0f172a' }, grid: [
+    "..pp..p..p..pp..",".ppp.pppppp.ppp.",".pplppbppbpp.pp.","..plllpppplllp..","...lllpppplll...","....pppppppp....",".....pppppp..pp.","....pp....pppp..","....dd....dd....","................","................","................","................","................","................","................"
+  ]},
+  steelix: { palette: { p: '#94a3b8', d: '#475569', l: '#f8fafc', s: '#ef4444', b: '#0f172a' }, grid: [
+    "...ll.pppp.ll...","..lllpppppp.ll..","...ppppbppbpp...","...pllllllllp...","....dddddddd....",".....pppppp.....","....dddddddd....","...pppppp.......","....dddddd......",".....pppppp.....","......dddd......","................","................","................","................","................"
+  ]},
+  snubbull: { palette: { p: '#f472b6', d: '#1e3a8a', l: '#ffffff', b: '#0f172a' }, grid: [
+    "..pp........pp..","..pppppppppppp..","...pppbppbppp...","..pppppppppppp..","..pplpppppplpp..","...dddddddddd...", "...ddppppppdd...", "...dddddddddd...", "....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  granbull: { palette: { p: '#c084fc', d: '#581c87', l: '#ffffff', s: '#0f172a', b: '#0f172a' }, grid: [
+    "..pp........pp..","...pppppppppp...","...pppbppbppp...","..pplpppppplpp..","..pppppppppppp..",".pp.ssssssss.pp.","....pppppppp....","....pppppppp....","....pp....pp....","...ddd....ddd...","................","................","................","................","................","................"
+  ]},
+  qwilfish: { palette: { p: '#0f766e', d: '#fef08a', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "...p...pp...p...","....pppppppp....","..pppppppppppp..",".pppppbppbppppp.","..pppppplppppp..","..dddddddddddd..","...dddddddddd...", "....d..dd..d....","................","................","................","................","................","................","................","................"
+  ]},
+  scizor: { palette: { p: '#dc2626', d: '#7f1d1d', l: '#facc15', s: '#cbd5e1', b: '#0f172a' }, grid: [
+    "....p..p..p.....","....ppppppp.....","..ss.pbppbp.ss..",".ppp..dddd..ppp.","ppbp.pppppp.pbpp",".ppp..dddd..ppp.","......pppp......",".....pppppp.....",".....pp..pp.....","....dd....dd....","................","................","................","................","................","................"
+  ]},
+  shuckle: { palette: { p: '#ef4444', d: '#fde047', l: '#ffffff', b: '#0f172a' }, grid: [
+    "......dddd......",".....ddbbdd.....","......dddd......","....pppppppp....","...ppllpppllpp..","..pppppppppppp..","..ppllpppppllpp.","...pppppppppp...","..dd..dddd..dd..","................","................","................","................","................","................","................"
+  ]},
+  heracross: { palette: { p: '#1d4ed8', d: '#1e3a8a', l: '#facc15', b: '#0f172a' }, grid: [
+    "......dddd......",".......pp.......",".......pp.......",".....pppppp.....","....pplbbllp....","..pppppppppppp..",".pp..pppppp..pp.",".....pppppp.....","....ppp..ppp....","....dd....dd....","................","................","................","................","................","................"
+  ]},
+  sneasel: { palette: { p: '#1e293b', d: '#0f172a', l: '#f43f5e', s: '#fde047', b: '#0f172a' }, grid: [
+    "...ll...........","..lll..pp.......","...llpppppp.....","....ppsbbspp....",".....pppppp.....","...pppppppppp...", "..ss.ppsspp.ss..",".....pppppp..ll.","....pp....pp.ll.","...ss......ss...","................","................","................","................","................","................"
+  ]},
+  teddiursa: { palette: { p: '#d97706', d: '#78350f', l: '#fef08a', b: '#0f172a' }, grid: [
+    "..ppp......ppp..",".ppdpp....ppdpp.","..pppppppppppp..","..ppppllllpppp..","..pppbllllbppp..","...ppplllppp....","...pppppppppp...", "...pppppppppp...", "....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  ursaring: { palette: { p: '#92400e', d: '#451a03', l: '#fde047', b: '#0f172a' }, grid: [
+    "..pp........pp..","...pppppppppp...","...ppbppppbpp...","...pppllllppp...", "..pppppppppppp..", ".ppppplllllppppp",".pppplpppppplppp",".ppppplllllppppp","..pppppppppppp..","...ppp....ppp...","................","................","................","................","................","................"
+  ]},
+  slugma: { palette: { p: '#ef4444', d: '#dc2626', l: '#facc15', b: '#0f172a' }, grid: [
+    ".....p....p.....","....ppp..ppp....","....pplbblpp....","....pppppppp....","....pppppppp....","...pppppppppp...", "..ddddppppdddd..",".dddddddddddddd.","................","................","................","................","................","................","................","................"
+  ]},
+  magcargo: { palette: { p: '#ef4444', d: '#78716c', l: '#facc15', b: '#0f172a' }, grid: [
+    ".......dddd.....",".....dddddddd...","...ppddddlldr...","..ppbppdddddd...","..ppppddddddd...","...pppppppppp...","..pppppppppppp..",".dddddddddddddd.","................","................","................","................","................","................","................","................"
+  ]},
+  swinub: { palette: { p: '#a16207', d: '#451a03', l: '#f472b6', b: '#0f172a' }, grid: [
+    "................","................",".....pppppp.....","...ppddddddpp...","..ppppddddpppp..","..pbppddddppppp.",".llppppppppppppp","..pppppppppppp..","................","................","................","................","................","................","................","................"
+  ]},
+  piloswine: { palette: { p: '#92400e', d: '#78350f', l: '#ffffff', b: '#0f172a' }, grid: [
+    "....pppppppp....","..ppppddddpppp..",".pppppppppppppp.",".ppddddddddddpp.",".ppllppppppppll.","..lllppppppppll.","....pppppppp....","....dd....dd....","................","................","................","................","................","................","................","................"
+  ]},
+  corsola: { palette: { p: '#f472b6', d: '#db2777', l: '#ffffff', b: '#0f172a' }, grid: [
+    "..pp..pp..pp....",".pppp.pppp.pp...","..ppppppppppp...","...pppppppppp...","...ppbppppbpp...","...pppppppppp...","...llllllllll...","....ll....ll....","................","................","................","................","................","................","................","................"
+  ]},
+  remoraid: { palette: { p: '#94a3b8', d: '#334155', l: '#e0f2fe', b: '#0f172a' }, grid: [
+    "................","......ll........","....pppppppp.d..","..ppppddpppppdd.",".ppbpppddpppppp.","..pppppppppppdd.",".....ll....lld..","................","................","................","................","................","................","................","................","................"
+  ]},
+  octillery: { palette: { p: '#dc2626', d: '#991b1b', l: '#facc15', b: '#0f172a' }, grid: [
+    ".....pppppp.....","....ppllllpp....","...pppppppppp...","...ppbppppbpp...","....pppbbppp....","..pppppppppppp..",".pp.pp.pp.pp.pp.",".ll.ll.ll.ll.ll.","................","................","................","................","................","................","................","................"
+  ]},
+  delibird: { palette: { p: '#ef4444', d: '#991b1b', l: '#ffffff', s: '#facc15', b: '#0f172a' }, grid: [
+    "....ll....ll....","....llppppll....","....lllbbl.l....","...llllllllll...","...lllsssllll...","..ppppppppppp.ll","..pplllllllpp.ll","...ppppppppp.ll.","....ss....ss....","................","................","................","................","................","................","................"
+  ]},
+  mantine: { palette: { p: '#3b82f6', d: '#1e3a8a', l: '#cbd5e1', b: '#0f172a' }, grid: [
+    "...d........d...","..ppp..pp..ppp..",".pppppppppppppp.","ppppppbppbpppppp",".ppppllllllpppp.","..pp.llllll.pp..","......pppp......",".......pp.......",".......pp.......","................","................","................","................","................","................","................"
+  ]},
+  skarmory: { palette: { p: '#94a3b8', d: '#334155', l: '#dc2626', s: '#facc15', b: '#0f172a' }, grid: [
+    "......ppp.......",".ll..ppppp..ll..","llll.psbps.llll.",".lllppdddpplll..","..pppppppppppp..","...pppddddppp...","......dddd......",".....dd..dd.....","....ss....ss....","................","................","................","................","................","................","................"
+  ]},
+  houndour: { palette: { p: '#1e293b', d: '#ea580c', l: '#cbd5e1', b: '#0f172a' }, grid: [
+    "...pp......pp...","...llllllllll...","...ppddddddpp...","...ppdbppbdpp...","....dddddddd....","....pppppppp.p..","....ppllllpppp..","....pppppppp....","....dd....dd....","................","................","................","................","................","................","................"
+  ]},
+  kingdra: { palette: { p: '#38bdf8', d: '#0284c7', l: '#fef08a', b: '#0f172a' }, grid: [
+    "..ll........ll..","...ll.pppp.ll...","....pppppppp....","..ppppbppbp.....","..pp.pppppp.ll..",".....pplllp.ll..","....ppplllpp....","....ppplllpp....",".....pppppp.....","......pppp......",".....pppp.......","................","................","................","................","................"
+  ]},
+  phanpy: { palette: { p: '#60a5fa', d: '#2563eb', l: '#ef4444', b: '#0f172a' }, grid: [
+    "................","..dddd....dddd..",".dppppppppppppd.",".dppppbppbppppd.","..pppplllppppp..","....pplllppppp..","....pplllpppp...","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  donphan: { palette: { p: '#94a3b8', d: '#1e293b', l: '#ffffff', b: '#0f172a' }, grid: [
+    "....dddddddd....","..dddddddddddd..",".ppppddddddddpp.","llpppbddddddpppl","llpppddddddddppl",".ppppdddpppppp..","...pppddd..pp...","...ddd.....dd...","................","................","................","................","................","................","................","................"
+  ]},
+  porygon2: { palette: { p: '#f43f5e', d: '#38bdf8', l: '#ffffff', b: '#0f172a' }, grid: [
+    "......pppp......",".....pppppp.....","...ddddpbpp.....","...ddddpppp.....","......pppp......","....pppppppp.dd.","...pppddddpppdd.","...pppppppppp...","....dd....dd....","................","................","................","................","................","................","................"
+  ]},
+  stantler: { palette: { p: '#b45309', d: '#78350f', l: '#fef08a', b: '#0f172a' }, grid: [
+    "..ll........ll..",".llbl......lbll.","...ll.pppp.ll...","....pppppppp....","...ddpbppbp.....","....pppppp......",".....pppppppp...", "....pppppppppp.l","....pp....pp....","....dd....dd....","................","................","................","................","................","................"
+  ]},
+  smeargle: { palette: { p: '#fef3c7', d: '#78350f', l: '#22c55e', b: '#0f172a' }, grid: [
+    "....dddddddd....","...dddddddddd...","....pppppppp....","...ddpbppbpdd...","....pppppppp....","...dddddddddd...", "...pppppppppp.ll","....pppppppp..dd","....pp....pp..p.","...ddd....ddd...","................","................","................","................","................","................"
+  ]},
+  tyrogue: { palette: { p: '#c084fc', d: '#78350f', l: '#ffffff', b: '#0f172a' }, grid: [
+    "....p..p..p.....","....pppppppp....","....ppbppbpp....","....pppppppp....","...lppppppppl...", "....dddddddd....","....dddddddd....",".....pp..pp.....","....ddd..ddd....","................","................","................","................","................","................","................"
+  ]},
+  hitmontop: { palette: { p: '#a16207', d: '#38bdf8', l: '#fef08a', b: '#0f172a' }, grid: [
+    "...pp......pp...","....pp....pp....",".....dddddd.....","...dddddddddd...", "..pppppppppppp..","...pppbppbppp...","....pppppppp....","......dddd......",".......dd.......","................","................","................","................","................","................","................"
+  ]},
+  smoochum: { palette: { p: '#f472b6', d: '#fde047', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "....dddddddd....","...dddddddddd...","...ddppppppdd...","...ddpbppbpdd...","....ppplllpp....","....pppppppp....","....llllllll....",".....pp..pp.....","................","................","................","................","................","................","................","................"
+  ]},
+  elekid: { palette: { p: '#facc15', d: '#0f172a', l: '#fef08a', b: '#0f172a' }, grid: [
+    "....pp....pp....","....pp....pp....","...pppppppppp...","...pppbppbppp...","...pppddddppp...","..pppppppppppp..","...pppddddppp...","....pppppppp....",".....pp..pp.....","................","................","................","................","................","................","................"
+  ]},
+  magby: { palette: { p: '#ef4444', d: '#991b1b', l: '#facc15', b: '#0f172a' }, grid: [
+    "....ppp..ppp....","...pppppppppp...","...pppppppppp...","...pppbppbppp...","....llllllll....","...pppllllppp...", "...pppppppppp.p.","....pppppppp.pp.",".....pp..pp.....","................","................","................","................","................","................","................"
+  ]},
+  miltank: { palette: { p: '#f472b6', d: '#1e293b', l: '#fef08a', b: '#0f172a' }, grid: [
+    "...dd......dd...","..llllpppp.lll..","...pppppppppp...","...pppbppbppp...","..ddppppppppdd..","..ddppllllppdd..","...pppllllppp...", "...pppppppppp...", "....dd....dd....","................","................","................","................","................","................"
+  ]},
+  blissey: { palette: { p: '#f9a8d4', d: '#db2777', l: '#ffffff', b: '#0f172a' }, grid: [
+    "...ll......ll...","..llppppppppll..","..llppbppbpp.l..","...pppppppppp...","..llllllllllll..",".llllppppppllll.",".llllpllllp.lll.","..lllpppppp.ll..","...pppppppppp...","....dd....dd....","................","................","................","................","................","................"
+  ]},
+  larvitar: { palette: { p: '#84cc16', d: '#15803d', l: '#ef4444', b: '#0f172a' }, grid: [
+    ".......pp.......","......pppp......","....pppppppp....","....ppbppbpp....","....pppppppp....","...pppllllppp...","...pppllllppp.pp","....pppppppp.ppp","....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  pupitar: { palette: { p: '#38bdf8', d: '#0284c7', l: '#0f172a', b: '#0f172a' }, grid: [
+    "......pppp......",".....pppppp.....","....pplllpp.....","...pppppppppp...","...pppbppbppp...","..pppplllppppp..","...pppppppppp...","....ppddddpp....",".....pppppp.....","......dddd......","................","................","................","................","................","................"
+  ]},
+
+  espeon: { palette: { p: '#d8b4fe', d: '#9333ea', l: '#fae8ff', s: '#ef4444', b: '#0f172a' }, grid: [
+    "................","..dd........dd..","..ppp......ppp..","...pppppppppp...","....pppsspppp...","....pbppppbp....",".....pppppp..d..","....pppppppp.dd.","....pppppppp.d..","....pp....pp....","....dd....dd....","................","................","................","................","................"
+  ]},
+  leafeon: { palette: { p: '#fef08a', d: '#16a34a', l: '#4ade80', s: '#78350f', b: '#0f172a' }, grid: [
+    "................","...dd......dd...","..dll......lld..","....ppppdlpp....","....pbppppbp....","...pppppppppp...","...pppppppppp.dd","....pppppppp.ddl","....pp...pp..dd.","....ss...ss.....","................","................","................","................","................","................"
+  ]},
+  glaceon: { palette: { p: '#bae6fd', d: '#0284c7', l: '#38bdf8', s: '#1e3a8a', b: '#0f172a' }, grid: [
+    "................","...dd......dd...","..dll.dddd.lld..","...ddppppppdd...","....pbppppbp....","...llpppppp.ll..","...llppppppp.dd.","....pppppppp.dd.","....pp...pp.....","....dd...dd.....","................","................","................","................","................","................"
+  ]},
+  sylveon: { palette: { p: '#fce7f3', d: '#f472b6', l: '#38bdf8', s: '#ffffff', b: '#0f172a' }, grid: [
+    "................","...dd......dd...","...dp.ssss.pd...","...dddddddddd...","....ppbppbpp....","..ssddddddddss..","...pppppppppp.dd","....pppppppp..pp","....pp...pp.....","....dd...dd.....","................","................","................","................","................","................"
+  ]},
+  roselia: { palette: { p: '#4ade80', d: '#15803d', l: '#ef4444', s: '#3b82f6', b: '#0f172a' }, grid: [
+    "................","......dddd......",".....pppppp.....","....ppbppbpp....","..ll.pppppp.ss..",".llllddddddssss.","..ll.pppppp.ss..",".....dddddd.....",".....pppppp.....","......p..p......","................","................","................","................","................","................"
+  ]},
+
+  celebi: { palette: { p: '#86efac', d: '#15803d', l: '#ecfccb', s: '#38bdf8', b: '#0f172a' }, grid: ["......dd..dd....",".....d..dd..d...","....pppppppp....","...pppppppppp...","...ppsbppbspl...","....pppppppp....","..ss.dddddd.ss..",".ss..pppppp..ss.",".....pppppp.....","......p..p......","................","................","................","................","................","................"]},
+  tyranitar: { palette: { p: '#16a34a', d: '#14532d', l: '#38bdf8', s: '#0f172a', b: '#0f172a' }, grid: ["....dd.dd.dd....","...pppppppppp...","..ppppbppbpppp..",".pppppppppppppp.",".ppppllllllpppp.","..pppllllllppp..","..ppppppppppppd.","...ppp....pppdd.","...ddd....ddd...","................","................","................","................","................","................","................"]},
+poochyena: { palette: { p: '#94a3b8', d: '#1e293b', l: '#ef4444', b: '#0f172a' }, grid: [
+    "................","..dd........dd..","..dpp......ppd..","...pppppppppp...","...pplbppblpp...","...pppddddppp...","....dddddddd..pp","...ppppppppppppp","...ppddddpppppp.","...pp....pp.....","...dd....dd.....","................","................","................","................","................"
+  ]},
+  mightyena: { palette: { p: '#94a3b8', d: '#0f172a', l: '#ef4444', b: '#0f172a' }, grid: [
+    "..dd........dd..",".dddd......dddd.","..ddppppppppdd..","...pplbppblpp...","...dddddddddd...","..ddddppppdddddd",".ddddppppppddddd","...ppppppppppdd.","...pp......pp...","...dd......dd...","................","................","................","................","................","................"
+  ]},
+  zigzagoon: { palette: { p: '#a16207', d: '#451a03', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "................","..pp..ll..pp....",".ppdpplllppdp...","..ppddddddddpp..","..llpbppppbpll..","...llllppllll...","..ppddllllppdd..",".ppddppppppddpp.","...pp......pp...","...ll......ll...","................","................","................","................","................","................"
+  ]},
+  linoone: { palette: { p: '#fef3c7', d: '#92400e', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "................","...pp......pp...","..ppppddddpppp..","..pplbppppblpp..","...pppppppppp...", "..ddddppppppdddd",".ppppddddddddppp","....pppppppp.ppp","...pp......pp...","................","................","................","................","................","................","................"
+  ]},
+  wurmple: { palette: { p: '#ef4444', d: '#be185d', l: '#fef08a', b: '#0f172a' }, grid: [
+    "......l..l......",".....pppppp.....","....pppppppp....","....plbppblp....","....pppppppp....",".....ppddpp.....",".....pppppp..l..","......ppddp.pp..","......llllllll..","................","................","................","................","................","................","................"
+  ]},
+  silcoon: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ef4444', b: '#0f172a' }, grid: [
+    ".......pp.......","....pppppppp....","..ppppddddpppp..",".pppppppppppppp.",".ppplbpppppblpp.",".ppppddddddddpp.","..pppppppppppp..","....dddddddd....","................","................","................","................","................","................","................","................"
+  ]},
+  beautifly: { palette: { p: '#fde047', d: '#0f172a', l: '#ef4444', s: '#38bdf8', b: '#0f172a' }, grid: [
+    ".ddd........ddd.","ddppd......dppdd","dpllpd.dd.dpllpd","dppppddddddppppd",".dddssdbbdssddd.","..dd..dddd..dd..",".dss..dddd..ssd.","..dd...dd...dd..","................","................","................","................","................","................","................","................"
+  ]},
+  cascoon: { palette: { p: '#d8b4fe', d: '#9333ea', l: '#ef4444', b: '#0f172a' }, grid: [
+    ".......pp.......","....pppppppp....","..ppppddddpppp..",".pppppppppppppp.",".ppplbpppppblpp.",".ppppddddddddpp.","..pppppppppppp..","....dddddddd....","................","................","................","................","................","................","................","................"
+  ]},
+  dustox: { palette: { p: '#22c55e', d: '#7e22ce', l: '#facc15', s: '#ef4444', b: '#0f172a' }, grid: [
+    ".ppp...ll...ppp.","ppspp.dddd.ppspp","ppppppdbbdpppppp",".ppppddddddpppp.","..pppddddddppp..",".pp..dddddd..pp.","......dddd......","................","................","................","................","................","................","................","................","................"
+  ]},
+  lotad: { palette: { p: '#22c55e', d: '#15803d', l: '#38bdf8', s: '#fde047', b: '#0f172a' }, grid: [
+    "................","...pppppppppp...","..ppppddddpppp..",".ppppppddpppppp.","..pppppppppppp..","...llllllllll...","...lllbssblll...","...llllllllll...","....ll.ll.ll....","................","................","................","................","................","................","................"
+  ]},
+  lombre: { palette: { p: '#4ade80', d: '#15803d', l: '#38bdf8', s: '#ef4444', b: '#0f172a' }, grid: [
+    "..dddddddddddd..",".ddppppppppppdd.","..dddddddddddd..","....llbppbll....","....llssssll....","...pppppppppp...", "..llppppppppll..","...pppppppppp...","....ll....ll....","................","................","................","................","................","................","................"
+  ]},
+  ludicolo: { palette: { p: '#eab308', d: '#16a34a', l: '#fde047', s: '#f97316', b: '#0f172a' }, grid: [
+    "......dddd......","...dddddddddd...","..ddlllllllldd..","....llpbppll....","....llssssll....","..pppppppppppp..",".ppppdddddddppp.",".pppppppppppppp.","..pppppppppppp..","....dd....dd....","................","................","................","................","................","................"
+  ]},
+  seedot: { palette: { p: '#a16207', d: '#78350f', l: '#fde68a', b: '#0f172a' }, grid: [
+    ".......dd.......",".....dddddd.....","...dddddddddd...","...llllllllll...","...lllbllblll...","...pppppppppp...","....pppppppp....",".....dddddd.....",".....ll..ll.....","................","................","................","................","................","................","................"
+  ]},
+  nuzleaf: { palette: { p: '#a16207', d: '#16a34a', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "......dddd......",".....dddddd.....","....pppppppp....","....ppbppbpp....","....pppplppp....","...llllllllll...","..pp.pppppp.pp..","....dddddddd....","....pp....pp....","....ll....ll....","................","................","................","................","................","................"
+  ]},
+  shiftry: { palette: { p: '#78350f', d: '#f8fafc', l: '#16a34a', s: '#facc15', b: '#0f172a' }, grid: [
+    "...dddddddddd...","..dddddddddddd..","..ddppsbbsppdd..","...dddppppddd...",".lllpppppppplll.","llllppppppppllll",".ll..pppppp..ll.","....dddddddd....","....pp....pp....","...ddd....ddd...","................","................","................","................","................","................"
+  ]},
+  taillow: { palette: { p: '#1e3a8a', d: '#ef4444', l: '#ffffff', s: '#facc15', b: '#0f172a' }, grid: [
+    "................",".....pppppp.....","....ppbppbpp....","....ppddddpp....","..ppppllllpppp..",".pppppllllppppp.","..pp..llll..pp..",".....pp..pp.....",".....ss..ss.....","................","................","................","................","................","................","................"
+  ]},
+  swellow: { palette: { p: '#1e3a8a', d: '#dc2626', l: '#ffffff', s: '#facc15', b: '#0f172a' }, grid: [
+    ".pp..........pp.","ppp..pppppp..ppp","ppppppbppbpppppp",".ppppdddddddppp.","..pppllllllppp..","....pllllllp....","...pp..pp..pp...","..pp...ss...pp..","................","................","................","................","................","................","................","................"
+  ]},
+  wingull: { palette: { p: '#f8fafc', d: '#38bdf8', l: '#facc15', b: '#0f172a' }, grid: [
+    "................",".pp..........pp.","pdpp..pppp..ppdp",".ddppppbppbppdd.","...pppplllppp...",".....pppppp.....","......l..l......","................","................","................","................","................","................","................","................","................"
+  ]},
+  pelipper: { palette: { p: '#f8fafc', d: '#38bdf8', l: '#facc15', b: '#0f172a' }, grid: [
+    "....dddddddd....","...pppppppppp...","...ppbppppbpp...","..llllllllllll..",".llllllllllllll.","..llllllllllll..","..ddppppppppdd..","...pppppppppp...",".....ll..ll.....","................","................","................","................","................","................","................"
+  ]},
+  ralts: { palette: { p: '#f8fafc', d: '#4ade80', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "......llll......","....dddddddd....","...dddddddddd...","...dddllllddd...","....pppppppp....",".....pppppp.....","....pppppppp....","...pppppppppp...","....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  kirlia: { palette: { p: '#f8fafc', d: '#4ade80', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "....ll....ll....","...dddddddddd...","...ddpbppbpdd...","....pppppppp....",".....pppppp.....","...dddddddddd...","..ddddppppdddd..","....pp....pp....","....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  gardevoir: { palette: { p: '#f8fafc', d: '#22c55e', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "....dddddddd....","...dddddddddd...","...ddpbppbpdd...","....ppllllpp....","...dddddddddd...","..ddppppppppdd..","..pppppppppppp..",".pppppppppppppp.",".ppppddddddpppp.","................","................","................","................","................","................","................"
+  ]},
+  surskit: { palette: { p: '#38bdf8', d: '#0284c7', l: '#facc15', s: '#f43f5e', b: '#0f172a' }, grid: [
+    ".......ll.......","......llll......","....pppppppp....","...ppsbppbspl...","....pppppppp....","..pp..dddd..pp..",".pp..........pp.","p..............p","................","................","................","................","................","................","................","................"
+  ]},
+  masquerain: { palette: { p: '#bae6fd', d: '#f97316', l: '#1e293b', s: '#38bdf8', b: '#0f172a' }, grid: [
+    ".dddd......dddd.","ddllld....dllldd","ddllldssssdllldd",".ddddsbbbsddddd.","....ssssssss....","...pp.ssss.pp...","..pp........pp..","................","................","................","................","................","................","................","................","................"
+  ]},
+  shroomish: { palette: { p: '#fde68a', d: '#16a34a', l: '#a16207', b: '#0f172a' }, grid: [
+    ".....dddddd.....","...ppddddddpp...","..ppppddddpppp..","..ppddppppddpp..","..pppbppppbppp..","..ppppbbbbpppp..","...dddddddddd...","....ll....ll....","................","................","................","................","................","................","................","................"
+  ]},
+  breloom: { palette: { p: '#22c55e', d: '#15803d', l: '#fde68a', s: '#ef4444', b: '#0f172a' }, grid: [
+    ".....ssssss.....","...pppppppppp...","....llbppbll....",".....llllll.....","...pppppppppp...","..ss.llllll.ss..","....llllllll.pp.","....pp....pppp..","...sss....sss...","................","................","................","................","................","................","................"
+  ]},
+  slakoth: { palette: { p: '#d6d3d1', d: '#78716c', l: '#f472b6', b: '#0f172a' }, grid: [
+    "................","....dddddddd....","...ddpbppbpdd...","...ppppllpppp...","..pppppppppppp..",".pp..dddddd..pp.","....pp....pp....","................","................","................","................","................","................","................","................","................"
+  ]},
+  vigoroth: { palette: { p: '#f8fafc', d: '#dc2626', l: '#78350f', b: '#0f172a' }, grid: [
+    ".....dddddd.....","....pppppppp....","...pppbppbppp...","..pppppppppppp..",".pp..ppddpp..pp.","ll...pppppp...ll","....ppp..ppp....","...lll....lll...","................","................","................","................","................","................","................","................"
+  ]},
+  slaking: { palette: { p: '#a16207', d: '#451a03', l: '#fef3c7', s: '#f472b6', b: '#0f172a' }, grid: [
+    "....dddddddd....","...ddpbppbpdd...","...ddllssllpp...","..pppppppppppp..",".ppppplllllppppp","pppppplllllppppp",".pppppppppppppp.","..ppp......ppp..","................","................","................","................","................","................","................","................"
+  ]},
+  nincada: { palette: { p: '#e7e5e4', d: '#78350f', l: '#84cc16', b: '#0f172a' }, grid: [
+    "................","....llllllll....","...pppppppppp...","..ddpbppppbpdd..","..ddddppppdddd..","...dd..dd..dd...","................","................","................","................","................","................","................","................","................","................"
+  ]},
+  ninjask: { palette: { p: '#facc15', d: '#1e293b', l: '#e0f2fe', s: '#ef4444', b: '#0f172a' }, grid: [
+    ".llll......llll.","llllll.pp.llllll",".llll.pssp.llll.",".....ddbbdd.....","....dddddddd....","....pppppppp....",".....dd..dd.....","................","................","................","................","................","................","................","................","................"
+  ]},
+  shedinja: { palette: { p: '#d97706', d: '#78350f', l: '#fef08a', b: '#0f172a' }, grid: [
+    ".....llllll.....","................","...pp.pppp.pp...","..ppppddddpppp..","..pppddbbddppp..","...ppddddddpp...","....pppppppp....",".....pp..pp.....","................","................","................","................","................","................","................","................"
+  ]},
+  whismur: { palette: { p: '#f472b6', d: '#be185d', l: '#fde047', b: '#0f172a' }, grid: [
+    "..pp........pp..",".pllp......pllp.","..pppppppppppp..","...pppbppbppp...","...ppppddpppp...","...pppppppppp...","....pp....pp....","................","................","................","................","................","................","................","................","................"
+  ]},
+  loudred: { palette: { p: '#7e22ce', d: '#4c1d95', l: '#facc15', s: '#f43f5e', b: '#0f172a' }, grid: [
+    "..ll........ll..",".llll.pppp.llll.","..llppppppppll..","...pppbppbppp...","...ppsssssspp...","...ppsbbbbspp...","...pppppppppp...","....pp....pp....","...lll....lll...","................","................","................","................","................","................","................"
+  ]},
+  exploud: { palette: { p: '#6366f1', d: '#312e81', l: '#fde047', s: '#ef4444', b: '#0f172a' }, grid: [
+    ".ll..ll..ll..ll.","..llllllllllll..","..ppppbppbpppp..","..ppsssssssspp..","..ppsbbbbbbspp..",".pppppppppppppp.",".pp.ppllllpp.pp.","....ppp..ppp....","...lll....lll...","................","................","................","................","................","................","................"
+  ]},
+  makuhita: { palette: { p: '#facc15', d: '#1e293b', l: '#ef4444', b: '#0f172a' }, grid: [
+    "......pppp......",".....pppppp.....","....pppppppp....","...pllbppbllp...","..ddddppppdddd..",".ddppppppppppdd.","..pppppppppppp..","...dddd..dddd...","................","................","................","................","................","................","................","................"
+  ]},
+  hariyama: { palette: { p: '#fef08a', d: '#1e3a8a', l: '#f97316', b: '#0f172a' }, grid: [
+    ".....dddddd.....","....pppppppp....","...pppbppbppp...",".ll..dddddd..ll.","llllppppppppllll",".ll.dddddddd.ll.","...llllllllll...","...ppp....ppp...","...lll....lll...","................","................","................","................","................","................","................"
+  ]},
+  azurill: { palette: { p: '#38bdf8', d: '#0284c7', l: '#f472b6', b: '#0f172a' }, grid: [
+    "................","...pp......pp...","..plpp....pplp..","...pppppppppp...","...pppbppbppp...","....pppppppp....",".....d....d.....",".........ppp....","........ppppp...",".........ppp....","................","................","................","................","................","................"
+  ]},
+  nosepass: { palette: { p: '#475569', d: '#1e293b', l: '#ef4444', b: '#0f172a' }, grid: [
+    "....pppppppp....","...pppppppppp...","...ppddddddpp...","...pppllllppp...","..ppppllllpppp..","..pppppppppppp..","...dddddddddd...", "....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  skitty: { palette: { p: '#f472b6', d: '#db2777', l: '#fef08a', b: '#0f172a' }, grid: [
+    "..dd........dd..",".dpp........ppd.","..pppppppppppp..","..ppllllllllpp..","..pplbppppblpp..","...llllllllll.ll","....pppppppp.lll","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  delcatty: { palette: { p: '#fde68a', d: '#7e22ce', l: '#f472b6', b: '#0f172a' }, grid: [
+    "..dd........dd..","..dddd....dddd..","...pppppppppp...","...ppbppppbpp...","..dddddddddddd..","...dddddddddd...", "....pppppppp.dd.","....pp....pp.dd.","................","................","................","................","................","................","................","................"
+  ]},
+  sableye: { palette: { p: '#6b21a8', d: '#3b0764', l: '#38bdf8', s: '#ef4444', b: '#0f172a' }, grid: [
+    "..pp........pp..","..pppp....pppp..","...pppppppppp...","...ppllppbllp...","....pppppppp....","...ppppsspspp...","..pp..pppp..pp..",".....pp..pp.....","....dd....dd....","................","................","................","................","................","................","................"
+  ]},
+  mawile: { palette: { p: '#fde047', d: '#0f172a', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "..dddddddddd....",".dddddddddddd...",".ddlldddddddd...","..ddddpppppp....","..dddppbppbpp...","...ddpppppppp...",".....pppppppp...","....pppppppppp..",".....pp....pp...","................","................","................","................","................","................","................"
+  ]},
+  aron: { palette: { p: '#cbd5e1', d: '#334155', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "................","....pppppppp....","...ppddppddpp...","..ppplbppblppp..","..pppppppppppp..","...dddddddddd...", "...pp..pp..pp...","...dd..dd..dd...","................","................","................","................","................","................","................","................"
+  ]},
+  lairon: { palette: { p: '#94a3b8', d: '#1e293b', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "....pp....pp....","...pppppppppp...","..pppbppppbppp..","..dddddddddddd..",".ppddddddddddpp.","..pppppppppppp..","...pp..pp..pp...","...dd..dd..dd...","................","................","................","................","................","................","................","................"
+  ]},
+  aggron: { palette: { p: '#cbd5e1', d: '#1e293b', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "..pp..pppp..pp..","...pppppppppp...","...pppbppbppp...","..dddddddddddd..",".ppddddddddddpp.","pp.pppddddppp.pp","...dddddddddd.dd","...ppp....ppp...","...ddd....ddd...","................","................","................","................","................","................","................"
+  ]},
+  meditite: { palette: { p: '#38bdf8', d: '#f8fafc', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "......dddd......","....dddddddd....","...dd.dddd.dd...","....pppppppp....","....ppbppbpp....",".....pppppp.....","...dddddddddd...","..dddddddddddd..","....pp....pp....","................","................","................","................","................","................","................"
+  ]},
+  medicham: { palette: { p: '#f43f5e', d: '#f8fafc', l: '#facc15', b: '#0f172a' }, grid: [
+    "....ll.pp.ll....","...pppppppppp...","....ddbppbdd....",".....dddddd.....","....pppppppp....","...pppppppppp...","..ppppddddpppp..","...ppp....ppp...","....dd....dd....","................","................","................","................","................","................","................"
+  ]},
+  electrike: { palette: { p: '#22c55e', d: '#15803d', l: '#facc15', b: '#0f172a' }, grid: [
+    "................","...pppppppp.....","..pplllllllp....","..ppbppppbpp....","...pppppppp..ll.","...ppplllpppppp.","...pppppppppppp.","...pp......pp...","...ll......ll...","................","................","................","................","................","................","................"
+  ]},
+  manectric: { palette: { p: '#3b82f6', d: '#1d4ed8', l: '#facc15', b: '#0f172a' }, grid: [
+    "....llllllll....","...llllllllll...","...lllpbpplll...","....pppppppp....","...lllpppppp.ll.","...llpppppppppp.","...pppppppppppp.","...ll......ll...","...pp......pp...","................","................","................","................","................","................","................"
+  ]},
+  plusle: { palette: { p: '#fef08a', d: '#ef4444', l: '#ffffff', b: '#0f172a' }, grid: [
+    "..dd........dd..","..dddd....dddd..","...pppppppppp...","...ppbppppbpp...","...ddppppppdd...","....pppppppp.dd.","....ppppppppddd.","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  minun: { palette: { p: '#fef08a', d: '#38bdf8', l: '#ffffff', b: '#0f172a' }, grid: [
+    "..dd........dd..","..dddd....dddd..","...pppppppppp...","...ppbppppbpp...","...ddppppppdd...","....pppppppp.dd.","....ppppppppddd.","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  volbeat: { palette: { p: '#3b82f6', d: '#1e293b', l: '#facc15', s: '#ef4444', b: '#0f172a' }, grid: [
+    "....l......l....","....dddddddd....","...ddpbppbpdd...","..ssppppppppss..","..ssppddddppss..","...pppppppppp...","....llllllll....","....dd....dd....","................","................","................","................","................","................","................","................"
+  ]},
+  illumise: { palette: { p: '#a855f7', d: '#1e293b', l: '#facc15', s: '#f472b6', b: '#0f172a' }, grid: [
+    "....s......s....","...ssddddddss...","...ddpbppbpdd...","..llppppppppll..","..llppddddppll..","...pppppppppp...","....dddddddd....","....dd....dd....","................","................","................","................","................","................","................","................"
+  ]},
+  gulpin: { palette: { p: '#4ade80', d: '#15803d', l: '#facc15', b: '#0f172a' }, grid: [
+    ".......ll.......","......llll......","....pppppppp....","...pppppppppp...","..ppppbppbpppp..","..pppppppppppp..","..pppddddddppp..","..ddddppppdddd..","................","................","................","................","................","................","................","................"
+  ]},
+  swalot: { palette: { p: '#a855f7', d: '#581c87', l: '#facc15', b: '#0f172a' }, grid: [
+    "....pppppppp....","...pppppppppp...","..ppppbppbpppp..",".llpppppppppp.ll","ll.ppddddddpp.ll","..pppppppppppp..","..ppddppddppdd..","..dddddddddddd..","................","................","................","................","................","................","................","................"
+  ]},
+  carvanha: { palette: { p: '#ef4444', d: '#1d4ed8', l: '#facc15', s: '#ffffff', b: '#0f172a' }, grid: [
+    "......dddd......","....dddddddd....","...ddlbppbldd...","..dddddddddd.ll.","..ppssssssssppl.","...pppppppppp.ll","....pp....pp....","................","................","................","................","................","................","................","................","................"
+  ]},
+  sharpedo: { palette: { p: '#1d4ed8', d: '#1e3a8a', l: '#facc15', s: '#ffffff', b: '#0f172a' }, grid: [
+    "......pppp......","....pppppppp....","..pppllpppplpp..",".ppppbppppbpppp.",".pppssssssssppp.","..pp.ssssss.pp..","......pppp......","................","................","................","................","................","................","................","................","................"
+  ]},
+  wailmer: { palette: { p: '#38bdf8', d: '#1d4ed8', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "....pppppppp....","..pppppppppppp..",".pppppppppppppp.","ppppppbppbpppppp","ppppllllllllpppp",".pppllllllllppp.","..llllllllllll..","................","................","................","................","................","................","................","................","................"
+  ]},
+  wailord: { palette: { p: '#2563eb', d: '#1e3a8a', l: '#f8fafc', b: '#0f172a' }, grid: [
+    "................","..pppppppppppp..",".pppppppppppppp.","ppppppbppppppppp","pppppppppppppppp","llllllllllllllll",".llllllllllllll.","................","................","................","................","................","................","................","................","................"
+  ]},
+  numel: { palette: { p: '#facc15', d: '#16a34a', l: '#fef08a', b: '#0f172a' }, grid: [
+    "................","......dddd......","...ppddddddpp...","..ppbppddppppp..","..pppppppppppp..","...pppppppppp...","...pp......pp...","................","................","................","................","................","................","................","................","................"
+  ]},
+  camerupt: { palette: { p: '#ea580c', d: '#78350f', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "...ddd....ddd...","..ddddd..ddddd..",".ppppdddddddppp.","pppbpplllppppppp","pppppppppppppppp",".pppppppppppppp.","..ppp......ppp..","..ddd......ddd..","................","................","................","................","................","................","................","................"
+  ]},
+  torkoal: { palette: { p: '#ea580c', d: '#334155', l: '#fde047', b: '#0f172a' }, grid: [
+    "......llll......","....dddddddd....","...ddlllllldd...","..ppddddddddpp..",".ppbpddddddpppp.","..pppddddddppp..","...pp......pp...","................","................","................","................","................","................","................","................","................"
+  ]},
+  spoink: { palette: { p: '#94a3b8', d: '#475569', l: '#f472b6', b: '#0f172a' }, grid: [
+    "......llll......",".....llllll.....","....pppppppp....","...pppbppbppp...","...pppppppppp...","....dddddddd....","......dddd......",".....dddddd.....","......dddd......",".....dddddd.....","................","................","................","................","................","................"
+  ]},
+  grumpig: { palette: { p: '#a855f7', d: '#1e293b', l: '#f43f5e', b: '#0f172a' }, grid: [
+    "...pp......pp...","...pp.llll.pp...","....pppppppp....","....ppbppbpp....","...pppppppppp...","..ddddllllldddd.","..dddddddddddd..","...pppppppppp.d.","....pp....pp.dd.","................","................","................","................","................","................","................"
+  ]},
+  spinda: { palette: { p: '#fef3c7', d: '#ef4444', l: '#f97316', b: '#0f172a' }, grid: [
+    "..dd........dd..",".dppd......dppd.","..ppppddddpppp..","..ppddbppbddpp..","...pppppppppp...","....dddddddd....","...pppppppppp...","....dd....dd....","................","................","................","................","................","................","................","................"
+  ]},
+  trapinch: { palette: { p: '#f97316', d: '#c2410c', l: '#ffffff', b: '#0f172a' }, grid: [
+    "....pppppppp....","..pppppppppppp..",".pppllpbbpllppp.",".pppllllllllppp.","..pppppppppppp..","....pppppppp....","...pp..pp..pp...","................","................","................","................","................","................","................","................","................"
+  ]},
+  vibrava: { palette: { p: '#fde047', d: '#22c55e', l: '#a3e635', b: '#0f172a' }, grid: [
+    ".dddd......dddd.",".dddd.pppp.dddd.","..dd.ppbppb.dd..",".ddddppppppdddd.",".....pppppp.....",".....dddddd.....","......pppp......","................","................","................","................","................","................","................","................","................"
+  ]},
+  flygon: { palette: { p: '#22c55e', d: '#15803d', l: '#ef4444', s: '#a3e635', b: '#0f172a' }, grid: [
+    "..dd........dd..","...dd.pppp.dd...",".ss..plbbpl..ss.","ssss.pppppp.ssss",".ss..pppppp..ss.","....pppppppp.dd.","....pp....pp.ll.","................","................","................","................","................","................","................","................","................"
+  ]},
+  cacnea: { palette: { p: '#16a34a', d: '#14532d', l: '#facc15', b: '#0f172a' }, grid: [
+    "......llll......","....pppppppp....","..ddppppppppdd..",".ddpppbppbpppdd.","..ddppbbbbppdd..","...pppppppppp...","....dddddddd....","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  cacturne: { palette: { p: '#15803d', d: '#052e16', l: '#facc15', b: '#0f172a' }, grid: [
+    "....dddddddd....","..dddddddddddd..","...pppbppbppp...","...pppbbbbppp...",".ppppdddddddppp.","pp..pppppppp..pp","....ppddddpp....","....pp....pp....","...ddd....ddd...","................","................","................","................","................","................","................"
+  ]},
+  swablu: { palette: { p: '#38bdf8', d: '#0284c7', l: '#ffffff', b: '#0f172a' }, grid: [
+    ".....p....p.....","....pppppppp....","....ppbppbpp....",".lllpppppppplll.","llllllppppllllll",".lllllpppplllll.","......d..d......","................","................","................","................","................","................","................","................","................"
+  ]},
+  altaria: { palette: { p: '#38bdf8', d: '#0284c7', l: '#ffffff', b: '#0f172a' }, grid: [
+    "....pp....pp....",".....pppppp.....",".....ppbppbp....","..lll.ppppp.lll.","llllllllllllllll","llllllllllllllll",".llllllllllllll.",".....dd..dd.....","................","................","................","................","................","................","................","................"
+  ]},
+  zangoose: { palette: { p: '#f8fafc', d: '#dc2626', l: '#1e293b', b: '#0f172a' }, grid: [
+    "..dd........pp..","..dpp......pppp.","...ppddpppppppp.","...ddpbppppbppp.","..ppppddddpppp..",".llppppddpppp.dd","...ppppppppppddd","...ppp....ppp...","...lll....lll...","................","................","................","................","................","................","................"
+  ]},
+  seviper: { palette: { p: '#1e293b', d: '#7e22ce', l: '#facc15', s: '#dc2626', b: '#0f172a' }, grid: [
+    "....llll........","...pppppp.......","..pppbppbp......","..ppsspppp......","....ppppllpp....","...pppllpppp.ss.","..pppppppppppss.","...llllllllll...","................","................","................","................","................","................","................","................"
+  ]},
+  lunatone: { palette: { p: '#fde68a', d: '#a16207', l: '#ef4444', b: '#0f172a' }, grid: [
+    ".....pppppp.....","...pppppppppp...","..ppppddddpppp..","..pppplllppppp..","..pppblllbpp....","..pppplllppp....","...pppppppppp...",".....pppppp.....","................","................","................","................","................","................","................","................"
+  ]},
+  solrock: { palette: { p: '#f97316', d: '#b45309', l: '#facc15', s: '#ef4444', b: '#0f172a' }, grid: [
+    "..ll...ll...ll..","...pppppppppp...",".llppdddddddpll.","..pppsbppbsspp..",".llppdddddddpll.","...pppppppppp...","..ll...ll...ll..","................","................","................","................","................","................","................","................","................"
+  ]},
+  barboach: { palette: { p: '#94a3b8', d: '#1d4ed8', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "................","..ll..pppp......","...ppppddpppp.l.","..ppbppddpppppll","...ppppddpppp.l.","......pppp......","................","................","................","................","................","................","................","................","................","................"
+  ]},
+  whiscash: { palette: { p: '#1e3a8a', d: '#0f172a', l: '#facc15', b: '#0f172a' }, grid: [
+    "....ll....ll....","..pppppppppppp..",".pppplllllppppp.",".pppbppppppbppp.","..pppppppppppp..","...dddddddddd...", "................","................","................","................","................","................","................","................","................","................"
+  ]},
+  corphish: { palette: { p: '#ef4444', d: '#991b1b', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "......p..p......","..pp..pppp..pp..",".ppppppbppbpppp.",".pp..pppppp..pp.",".....llllll.....","....pppppppp....","....dd....dd....","................","................","................","................","................","................","................","................","................"
+  ]},
+  crawdaunt: { palette: { p: '#dc2626', d: '#1e3a8a', l: '#facc15', b: '#0f172a' }, grid: [
+    "......llll......","..pp.pppppp.pp..",".ppppppbppbpppp.",".ppp.dddddd.ppp.","....pppppppp....","...ppddddddpp...","...pp......pp...","................","................","................","................","................","................","................","................","................"
+  ]},
+  baltoy: { palette: { p: '#d97706', d: '#78350f', l: '#ef4444', b: '#0f172a' }, grid: [
+    ".......pp.......",".....pppppp.....","....pplbblpp....","..ppppddddpppp..","....pppppppp....",".....dddddd.....","......pppp......",".......pp.......","................","................","................","................","................","................","................","................"
+  ]},
+  claydol: { palette: { p: '#1e293b', d: '#0f172a', l: '#f43f5e', s: '#fde68a', b: '#0f172a' }, grid: [
+    ".....pppppp.....","....pplllpp.....","...pppsbbsppp...","..ss.pppppp.ss..","..ssppppppppss..","...ppsssssspp...","....pppppppp....",".....pp..pp.....","................","................","................","................","................","................","................","................"
+  ]},
+  lileep: { palette: { p: '#a855f7', d: '#581c87', l: '#f472b6', s: '#facc15', b: '#0f172a' }, grid: [
+    "..lll.llll.lll..","...llllllllll...","....dddddddd....","....dsbppbsd....",".....pppppp.....",".....pppppp.....","....dddddddd....","...pppppppppp...","................","................","................","................","................","................","................","................"
+  ]},
+  cradily: { palette: { p: '#22c55e', d: '#15803d', l: '#f472b6', s: '#facc15', b: '#0f172a' }, grid: [
+    "..lll.llll.lll..","...llllllllll...","....dddddddd....","....dsbppbsd....",".....pppppp.....","....pppppppp....","...ppsssssspp...","..pppppppppppp..","................","................","................","................","................","................","................","................"
+  ]},
+  anorith: { palette: { p: '#64748b', d: '#15803d', l: '#ef4444', b: '#0f172a' }, grid: [
+    "..ll........ll..","...pp.pppp.pp...","..ppppddddpppp..","...dddddddddd...", "....pppppppp....",".....dddddd.....","......pppp......","................","................","................","................","................","................","................","................","................"
+  ]},
+  armaldo: { palette: { p: '#3b82f6', d: '#1e293b', l: '#facc15', s: '#ef4444', b: '#0f172a' }, grid: [
+    "..ss........ss..","...pppppppppp...","..ppppbppbpppp..",".llpppddddpppll.","..ppppllllpppp..","...pppppppppp.s.","...ppp....ppp.ss","...ddd....ddd...","................","................","................","................","................","................","................","................"
+  ]},
+  feebas: { palette: { p: '#a16207', d: '#38bdf8', l: '#f472b6', b: '#0f172a' }, grid: [
+    "......dddd......","....pppppppp....","...pppbpppppp.d.","..ppplllppppppdd","...pppppppppp.d.",".....dddddd.....","................","................","................","................","................","................","................","................","................","................"
+  ]},
+  milotic: { palette: { p: '#fef3c7', d: '#f43f5e', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "...ddd....ddd...","..ddppppppppdd..","...ddpbppbpdd...",".....pppppp.....","....pppppppp....","...pppppppppp...","..ppppddddpppp..","...pppllllppp...","....llllllll....","................","................","................","................","................","................","................"
+  ]},
+  castform: { palette: { p: '#cbd5e1', d: '#94a3b8', l: '#ffffff', b: '#0f172a' }, grid: [
+    ".......pp.......",".....pppppp.....","....pppppppp....","...pplbppblpp...","...pppppppppp...","....dddddddd....","...dddddddddd...","....ddd..ddd....","................","................","................","................","................","................","................","................"
+  ]},
+  kecleon: { palette: { p: '#22c55e', d: '#15803d', l: '#ef4444', s: '#facc15', b: '#0f172a' }, grid: [
+    "...ss..ss..ss...","...pppppppppp...","...ppbppppbpp...","....pppppppp....","...llllllllll...","...pppppppppp.d.","....pppppppp.dd.","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  shuppet: { palette: { p: '#475569', d: '#1e293b', l: '#facc15', b: '#0f172a' }, grid: [
+    ".......pp.......","......pppp......","....pppppppp....","...pppbllbppp...","...pppppppppp...","..ddddppppdddd..",".dddddddddddddd.","..d..d..d..d..d.","................","................","................","................","................","................","................","................"
+  ]},
+  banette: { palette: { p: '#334155', d: '#0f172a', l: '#facc15', s: '#f43f5e', b: '#0f172a' }, grid: [
+    ".....pppppp.....","....pppppppp....","...ppsbppbspl...","...pppllllppp...","..pppppppppppp..","..pp..pppp..pp..",".....pp..pp.....","....dd....dd....","................","................","................","................","................","................","................","................"
+  ]},
+  duskull: { palette: { p: '#334155', d: '#0f172a', l: '#f8fafc', s: '#ef4444', b: '#0f172a' }, grid: [
+    "....llllllll....","...llllllllll...","...llbbssbbll...","....llllllll....","...pppppppppp...","..ppppddddpppp..","..pp.p.dd.p.pp..","................","................","................","................","................","................","................","................","................"
+  ]},
+  dusclops: { palette: { p: '#64748b', d: '#334155', l: '#ef4444', s: '#e2e8f0', b: '#0f172a' }, grid: [
+    "....pppppppp....","...pppddddppp...","...ppddlllddp...","..ppppddddpppp..",".ssppppppppppss.",".ssppddddddppss.","...pppppppppp...","...ddd....ddd...","................","................","................","................","................","................","................","................"
+  ]},
+  tropius: { palette: { p: '#a16207', d: '#16a34a', l: '#facc15', b: '#0f172a' }, grid: [
+    "...dddd..dddd...","....ddppppdd....","....ppbppbp.....","....pplllpp.....","..ddddppppdddd..",".ddddddppdddddd.","...pppppppppp...","...pp..pp..pp...","................","................","................","................","................","................","................","................"
+  ]},
+  chimecho: { palette: { p: '#e0f2fe', d: '#38bdf8', l: '#f43f5e', s: '#facc15', b: '#0f172a' }, grid: [
+    ".......ss.......",".....pppppp.....","....pppppppp....","....ppbppbpp....","....dddddddd....","......llll......","......llll......","......llll......",".......ll.......","................","................","................","................","................","................","................"
+  ]},
+  wynaut: { palette: { p: '#38bdf8', d: '#0284c7', l: '#f43f5e', b: '#0f172a' }, grid: [
+    ".....pppppp.....","...pppppppppp...","..pppbppppbppp..","..ppppllllpppp..","...pppppppppp...","..pp.pppppp.pp..","....pppppppp.dd.",".....pp..pp.....","................","................","................","................","................","................","................","................"
+  ]},
+  snorunt: { palette: { p: '#facc15', d: '#0f172a', l: '#f97316', s: '#38bdf8', b: '#0f172a' }, grid: [
+    ".......pp.......",".....pplllp.....","....pplllppp....","...pppddddppp...","..pppdsbbspppp..","..pppddddddppp..",".ppppddddddpppp.",".....ss..ss.....","................","................","................","................","................","................","................","................"
+  ]},
+  glalie: { palette: { p: '#f8fafc', d: '#0f172a', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "..dd........dd..",".ddddppppppdddd.","..ppppddddpppp..",".ppddlbppblddpp.",".ppppddddddddpp.",".pp..pppppp..pp.","..pppppppppppp..","................","................","................","................","................","................","................","................","................"
+  ]},
+  spheal: { palette: { p: '#38bdf8', d: '#0284c7', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "................","....pppppppp....","..ppppddddpppp..",".ppppbppppbpppp.",".ppppllllllpppp.",".ppppllllllpppp.","..llllllllllll..","...ll......ll...","................","................","................","................","................","................","................","................"
+  ]},
+  sealeo: { palette: { p: '#38bdf8', d: '#0284c7', l: '#fef3c7', s: '#ffffff', b: '#0f172a' }, grid: [
+    "....pppppppp....","...pppbppbppp...","..ssssssssssss..","..ppppllllpppp..",".pppppllllppppp.",".pp.ppllllpp.pp.","....pppppppp....","................","................","................","................","................","................","................","................","................"
+  ]},
+  walrein: { palette: { p: '#0284c7', d: '#f8fafc', l: '#fef3c7', b: '#0f172a' }, grid: [
+    "...dddddddddd...","..dddddddddddd..","..ddppbppbppdd..","...ppddppddpp...","..pppddppddppp..",".pppppllllppppp.",".pppppllllppppp.","..ppp......ppp..","................","................","................","................","................","................","................","................"
+  ]},
+  clamperl: { palette: { p: '#3b82f6', d: '#1d4ed8', l: '#f472b6', s: '#ffffff', b: '#0f172a' }, grid: [
+    "....pppppppp....","..ppppddddpppp..",".pppllllllllppp.",".pppllsbbsllppp.",".ppppllllllpppp.","..ppppddddpppp..","....pppppppp....","................","................","................","................","................","................","................","................","................"
+  ]},
+  huntail: { palette: { p: '#0284c7', d: '#f97316', l: '#fef08a', b: '#0f172a' }, grid: [
+    "....dddd........","...pppppp.......","..pppbppbp......","..pppplllp......","....ppppddpp....","...pppddpppp.dd.","..pppppppppppdd.","....dddddddd....","................","................","................","................","................","................","................","................"
+  ]},
+  gorebyss: { palette: { p: '#f472b6', d: '#a855f7', l: '#fef08a', b: '#0f172a' }, grid: [
+    "....ll..........","...pppppp.......","..pppbppppll....","...pppppp.......","....ppddpp......","...pppppppp..dd.","..ppppppppppppp.","....pppppppp....","................","................","................","................","................","................","................","................"
+  ]},
+  relicanth: { palette: { p: '#78350f', d: '#a8a29e', l: '#ef4444', b: '#0f172a' }, grid: [
+    ".....dddddd.....","...ddddppppdd...","..ddddbppppppp.d",".dddddllppppppdd","..ddddppppppppd.","....pp....pp....","................","................","................","................","................","................","................","................","................","................"
+  ]},
+  luvdisc: { palette: { p: '#f472b6', d: '#db2777', l: '#fce7f3', b: '#0f172a' }, grid: [
+    ".....pppppp.....","...pppppppppp...","..pppbpppppppp..","..ppllpppppp....","..pppppppppp....","...pppppppppp...",".....pppppp.....","................","................","................","................","................","................","................","................","................"
+  ]},
+  bagon: { palette: { p: '#3b82f6', d: '#cbd5e1', l: '#facc15', b: '#0f172a' }, grid: [
+    "....dddddddd....","...dddddddddd...","...ddpbppbpdd...","....pppppppp....","...pppllllppp...", "...pppllllppp...","....pppppppp....","....pp....pp....","................","................","................","................","................","................","................","................"
+  ]},
+  shelgon: { palette: { p: '#f8fafc', d: '#475569', l: '#ef4444', b: '#0f172a' }, grid: [
+    "....pppppppp....","..ppppddddpppp..",".pppppppppppppp.",".pppddlbpblddpp.",".ppppddddddddpp.","..pppppppppppp..","...dd..dd..dd...","................","................","................","................","................","................","................","................","................"
+  ]},
+  salamence: { palette: { p: '#38bdf8', d: '#dc2626', l: '#f8fafc', b: '#0f172a' }, grid: [
+    ".ddd........ddd.","ddddd.pppp.ddddd","dddddppbppbddddd",".ddd.pppppp.ddd.","....ppplllpp....","...pppplllppp...","...pppppppppp.pp","...pp......pp...","................","................","................","................","................","................","................","................"
+  ]},
+  beldum: { palette: { p: '#3b82f6', d: '#cbd5e1', l: '#ef4444', b: '#0f172a' }, grid: [
+    ".........dddd...",".......pppppp...",".....pppppppp...","....ppppppppp...","...ppbllppppp...","...ddbllppppp...","....ddddppppp...","................","................","................","................","................","................","................","................","................"
+  ]},
+  metang: { palette: { p: '#3b82f6', d: '#cbd5e1', l: '#ef4444', b: '#0f172a' }, grid: [
+    "................","..dd..pppp..dd..",".dddppppppppddd.",".ppddllbpblddpp.",".pp..pppppp..pp.","..dd........dd..","................","................","................","................","................","................","................","................","................","................"
+  ]},
+  metagross: { palette: { p: '#2563eb', d: '#cbd5e1', l: '#ef4444', b: '#0f172a' }, grid: [
+    "....pppppppp....","..ppppddddpppp..",".ppddllbpblddpp.","ppppddddddddpppp","ppp..pppppp..ppp","ppp..pp..pp..ppp","ddd..........ddd","................","................","................","................","................","................","................","................","................"
+  ]},
+  regirock: { palette: { p: '#b45309', d: '#78350f', l: '#f97316', b: '#0f172a' }, grid: [
+    "...dddddddddd...","..ddppppppppdd..",".ddpppllplppdd.","ddppppplllppppdd","ddppppplllppppdd",".ddppppppppppdd.","..ddddppppdddd..","...ppp....ppp...","...ddd....ddd...","................","................","................","................","................","................","................"
+  ]},
+  regice: { palette: { p: '#7dd3fc', d: '#0284c7', l: '#fde047', b: '#0f172a' }, grid: [
+    "......pppp......","....pppppppp....","..ppppddddpppp..",".pppllllllllppp.","ppppddddddddpppp","..ppppddddpppp..","....pppppppp....",".....pp..pp.....","................","................","................","................","................","................","................","................"
+  ]},
+  registeel: { palette: { p: '#94a3b8', d: '#1e293b', l: '#ef4444', b: '#0f172a' }, grid: [
+    "....dddddddd....","..ddppppppppdd..",".ddpppllllpppdd.","ddppppllllppppdd","ddppppppppppppdd",".dddddddddddd..","..ppp......ppp..","..ddd......ddd..","................","................","................","................","................","................","................","................"
+  ]},
+  latias: { palette: { p: '#ef4444', d: '#f8fafc', l: '#facc15', b: '#0f172a' }, grid: [
+    "...pp......pp...","....dddddddd....","...ddpbppbpdd...",".ppppdddddddppp.","pppppppppppppppp",".pp..pppppp..pp.",".....pppppp.....","................","................","................","................","................","................","................","................","................"
+  ]},
+  latios: { palette: { p: '#2563eb', d: '#f8fafc', l: '#ef4444', b: '#0f172a' }, grid: [
+    "...pp......pp...","....dddddddd....","...ddpbppbpdd...",".ppppdddddddppp.","pppppppppppppppp",".pp..pppppp..pp.",".....pppppp.....","................","................","................","................","................","................","................","................","................"
+  ]},
+  jirachi: { palette: { p: '#f8fafc', d: '#facc15', l: '#38bdf8', b: '#0f172a' }, grid: [
+    "......dddd......","...dddddddddd...","..ddddppppdddd..","...ddpbppbpdd...","..ll..pppp..ll..",".ll..pppppp..ll.",".....ppllpp.....",".....pp..pp.....","................","................","................","................","................","................","................","................"
+  ]}
 };
 
 const PIXEL_COLOR_PRESETS = [

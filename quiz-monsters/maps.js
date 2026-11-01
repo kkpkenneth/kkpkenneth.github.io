@@ -282,7 +282,7 @@ const WORLD_MAPS = {
       {
         id: 'journalist_lois', name: 'JOURNALIST LOIS', topic: 'JOURNALIST • INVESTIGATIVE', x: 18, y: 4,
         skinColor: '#f5cba7', hatColor: '#0284c7', shirtColor: '#bae6fd',
-        fact: "JOURNALIST LOIS: Investigating the truth! An Antonym is a word with the exact opposite meaning of another word, and the English alphabet has 26 letters!"
+        fact: "JOURNALIST LOIS: Investigating the truth! An ENTONym is a word with the exact opposite meaning of another word, and the English alphabet has 26 letters!"
       },
       {
         id: 'reporter_clark', name: 'REPORTER CLARK', topic: 'REPORTER • BREAKING NEWS', x: 9, y: 8,
@@ -2264,16 +2264,16 @@ const WORLD_MAPS = {
         skinColor: '#fed7aa', hatColor: '#eab308', shirtColor: '#dc2626',
         fact: "PRINCE JOAO: You know Psyducks in Germany are called Entons? I love my Entons!"
       },
-      { id: 'pt_psyduck_1',  name: 'ANTON (PSYDUCK #1)',  topic: 'OVERWORLD PSYDUCK', x: 13,  y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #1: Psy-yi-yi! (Anton waddles happily along the Douro riverbank!)" },
-      { id: 'pt_psyduck_2',  name: 'ANTON (PSYDUCK #2)',  topic: 'OVERWORLD PSYDUCK', x: 10, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #2: Quack? Psy-duck! (Anton is holding its head in deep thought!)" },
-      { id: 'pt_psyduck_3',  name: 'ANTON (PSYDUCK #3)',  topic: 'OVERWORLD PSYDUCK', x: 11, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #3: Psy-psy! (Anton admires the blue Azulejo tiles!)" },
-      { id: 'pt_psyduck_4',  name: 'ANTON (PSYDUCK #4)',  topic: 'OVERWORLD PSYDUCK', x: 12, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #4: Duck-duck! (Anton splashes near the Atlantic bridge!)" },
-      { id: 'pt_psyduck_5',  name: 'ANTON (PSYDUCK #5)',  topic: 'OVERWORLD PSYDUCK', x: 9,  y: 5,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #5: Psy~ (Anton islistening to Prince Joao!)" },
-      { id: 'pt_psyduck_6',  name: 'ANTON (PSYDUCK #6)',  topic: 'OVERWORLD PSYDUCK', x: 10, y: 5,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #6: Psy-yi! (Anton tilts its head curiously!)" },
-      { id: 'pt_psyduck_7',  name: 'ANTON (PSYDUCK #7)',  topic: 'OVERWORLD PSYDUCK', x: 11,  y: 5, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #7: Quack! (Anton is taking a sunny afternoon nap!)" },
-      { id: 'pt_psyduck_8',  name: 'ANTON (PSYDUCK #8)',  topic: 'OVERWORLD PSYDUCK', x: 13, y: 6, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #8: Psy-duck~ (Anton dances in a circle!)" },
-      { id: 'pt_psyduck_9',  name: 'ANTON (PSYDUCK #9)',  topic: 'OVERWORLD PSYDUCK', x: 15, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #9: Psy-yi-yi! (Anton unleashes a tiny harmless water splash!)" },
-      { id: 'pt_psyduck_10', name: 'ANTON (PSYDUCK #10)', topic: 'OVERWORLD PSYDUCK', x: 19, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #10: Anton! Eh, Psyduck! (All 10 Antons are accounted for!)" }
+      { id: 'pt_psyduck_1',  name: 'ENTON (PSYDUCK #1)',  topic: 'OVERWORLD PSYDUCK', x: 13,  y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #1: Psy-yi-yi! (ENTON waddles happily along the Douro riverbank!)" },
+      { id: 'pt_psyduck_2',  name: 'ENTON (PSYDUCK #2)',  topic: 'OVERWORLD PSYDUCK', x: 10, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #2: Quack? Psy-duck! (ENTON is holding its head in deep thought!)" },
+      { id: 'pt_psyduck_3',  name: 'ENTON (PSYDUCK #3)',  topic: 'OVERWORLD PSYDUCK', x: 11, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #3: Psy-psy! (ENTON admires the blue Azulejo tiles!)" },
+      { id: 'pt_psyduck_4',  name: 'ENTON (PSYDUCK #4)',  topic: 'OVERWORLD PSYDUCK', x: 12, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #4: Duck-duck! (ENTON splashes near the Atlantic bridge!)" },
+      { id: 'pt_psyduck_5',  name: 'ENTON (PSYDUCK #5)',  topic: 'OVERWORLD PSYDUCK', x: 12,  y: 6,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #5: Psy~ (ENTON islistening to Prince Joao!)" },
+      { id: 'pt_psyduck_6',  name: 'ENTON (PSYDUCK #6)',  topic: 'OVERWORLD PSYDUCK', x: 10, y: 5,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #6: Psy-yi! (ENTON tilts its head curiously!)" },
+      { id: 'pt_psyduck_7',  name: 'ENTON (PSYDUCK #7)',  topic: 'OVERWORLD PSYDUCK', x: 11,  y: 5, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #7: Quack! (ENTON is taking a sunny afternoon nap!)" },
+      { id: 'pt_psyduck_8',  name: 'ENTON (PSYDUCK #8)',  topic: 'OVERWORLD PSYDUCK', x: 13, y: 6, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #8: Psy-duck~ (ENTON dances in a circle!)" },
+      { id: 'pt_psyduck_9',  name: 'ENTON (PSYDUCK #9)',  topic: 'OVERWORLD PSYDUCK', x: 15, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #9: Psy-yi-yi! (ENTON unleashes a tiny harmless water splash!)" },
+      { id: 'pt_psyduck_10', name: 'ENTON (PSYDUCK #10)', topic: 'OVERWORLD PSYDUCK', x: 19, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #10: ENTON! Eh, Psyduck! (All 10 ENTONs are accounted for!)" }
     ]
   },
   NETHERLANDS: {
@@ -2671,7 +2671,7 @@ const COUNTRY_CHEF_NPCS = {
   HONG_KONG: {
     id: 'chef_country_hk', name: 'CHEF MAK (HONG KONG)', topic: 'COUNTRY CHEF - WONTON NOODLES & HAR GOW', x: 16, y: 8,
     skinColor: '#fde68a', hatColor: '#ffffff', shirtColor: '#f8fafc',
-    fact: "CHEF MAK: Hong Kong's signature dishes are Cantonese Har Gow and Wonton Noodles! Har Gow wraps fresh shrimp, bamboo shoots, and pork fat in a translucent wheat-and-tapioca starch skin, while Wonton broth is simmered from roasted flounder, pork bones, yellow chives, and egg noodles!"
+    fact: "CHEF MAK: Hong Kong's signature dishes are CENTONese Har Gow and Wonton Noodles! Har Gow wraps fresh shrimp, bamboo shoots, and pork fat in a translucent wheat-and-tapioca starch skin, while Wonton broth is simmered from roasted flounder, pork bones, yellow chives, and egg noodles!"
   },
   MACAU: {
     id: 'chef_country_mo', name: 'CHEF AFONSO (MACAU)', topic: 'COUNTRY CHEF - MINCHI & PASTEIS DE NATA', x: 13, y: 8,

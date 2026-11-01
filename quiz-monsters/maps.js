@@ -2264,14 +2264,14 @@ const WORLD_MAPS = {
         skinColor: '#fed7aa', hatColor: '#eab308', shirtColor: '#dc2626',
         fact: "PRINCE JOAO: You know Psyducks in Germany are called Entons? I love my Entons!"
       },
-      { id: 'pt_psyduck_1',  name: 'ANTON (PSYDUCK #1)',  topic: 'OVERWORLD PSYDUCK', x: 9,  y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #1: Psy-yi-yi! (Anton waddles happily along the Douro riverbank!)" },
+      { id: 'pt_psyduck_1',  name: 'ANTON (PSYDUCK #1)',  topic: 'OVERWORLD PSYDUCK', x: 13,  y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #1: Psy-yi-yi! (Anton waddles happily along the Douro riverbank!)" },
       { id: 'pt_psyduck_2',  name: 'ANTON (PSYDUCK #2)',  topic: 'OVERWORLD PSYDUCK', x: 10, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #2: Quack? Psy-duck! (Anton is holding its head in deep thought!)" },
       { id: 'pt_psyduck_3',  name: 'ANTON (PSYDUCK #3)',  topic: 'OVERWORLD PSYDUCK', x: 11, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #3: Psy-psy! (Anton admires the blue Azulejo tiles!)" },
       { id: 'pt_psyduck_4',  name: 'ANTON (PSYDUCK #4)',  topic: 'OVERWORLD PSYDUCK', x: 12, y: 4,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #4: Duck-duck! (Anton splashes near the Atlantic bridge!)" },
       { id: 'pt_psyduck_5',  name: 'ANTON (PSYDUCK #5)',  topic: 'OVERWORLD PSYDUCK', x: 9,  y: 5,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #5: Psy~ (Anton islistening to Prince Joao!)" },
       { id: 'pt_psyduck_6',  name: 'ANTON (PSYDUCK #6)',  topic: 'OVERWORLD PSYDUCK', x: 10, y: 5,  isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #6: Psy-yi! (Anton tilts its head curiously!)" },
       { id: 'pt_psyduck_7',  name: 'ANTON (PSYDUCK #7)',  topic: 'OVERWORLD PSYDUCK', x: 11,  y: 5, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #7: Quack! (Anton is taking a sunny afternoon nap!)" },
-      { id: 'pt_psyduck_8',  name: 'ANTON (PSYDUCK #8)',  topic: 'OVERWORLD PSYDUCK', x: 12, y: 14, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #8: Psy-duck~ (Anton dances in a circle!)" },
+      { id: 'pt_psyduck_8',  name: 'ANTON (PSYDUCK #8)',  topic: 'OVERWORLD PSYDUCK', x: 13, y: 6, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #8: Psy-duck~ (Anton dances in a circle!)" },
       { id: 'pt_psyduck_9',  name: 'ANTON (PSYDUCK #9)',  topic: 'OVERWORLD PSYDUCK', x: 15, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #9: Psy-yi-yi! (Anton unleashes a tiny harmless water splash!)" },
       { id: 'pt_psyduck_10', name: 'ANTON (PSYDUCK #10)', topic: 'OVERWORLD PSYDUCK', x: 19, y: 15, isMonster: true, monsterId: 'psyduck', fact: "PSYDUCK #10: Anton! Eh, Psyduck! (All 10 Antons are accounted for!)" }
     ]

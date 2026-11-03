@@ -76,6 +76,61 @@ const CHAR_BITMAPS = {
     "....bbb..bbb....",
     "....bbb..bbb....",
     "................"
+  ],
+  // Add inside CHAR_BITMAPS in characters.js:
+  TRAINER_SURF_DOWN: [
+    "....rrrrrrrr....",
+    "...rrrrrrrrrr...",
+    "...rrwwwwwwrr...",
+    "...bbbbbbbbbb...",
+    "...ssssssssss...",
+    "...ssbbssbbss...",
+    "....ssssssss....",
+    "...jjjjyyjjjj...",
+    "..jjjjjyyjjjjj..",
+    "...jjjjyyjjjj...",
+    "....pppppppp....",
+    "..bbbbbbbbbbbb..",
+    ".bbyyyyyyyyyybb.",
+    "bbyyccccccccyybb",
+    ".bbbbbbbbbbbbbb.",
+    "..ww...ww...ww.."
+  ],
+  TRAINER_SURF_UP: [
+    "....rrrrrrrr....",
+    "...rrrrrrrrrr...",
+    "...rrrrrrrrrr...",
+    "...bbbbbbbbbb...",
+    "...ssssssssss...",
+    "....ssssssss....",
+    "...jjjjjjjjjj...",
+    "..jjjjjjjjjjjj..",
+    "...jjjjjjjjjj...",
+    "....pppppppp....",
+    "..bbbbbbbbbbbb..",
+    ".bbyyyyyyyyyybb.",
+    "bbyyccccccccyybb",
+    ".bbbbbbbbbbbbbb.",
+    "..ww...ww...ww..",
+    "................"
+  ],
+  TRAINER_SURF_LEFT: [
+    "....rrrrrrrr....",
+    "..rrrrrrrrrrr...",
+    "..wwwwrrrrrrr...",
+    "...bbbbbbbbbb...",
+    "...sbbsssssss...",
+    "....ssssssss....",
+    "....jjjjjjjj....",
+    "...jjjjyyjjjj...",
+    "....jjjjjjjj....",
+    "....pppppppp....",
+    ".bbbbbbbbbbbbbb.",
+    "bbyyyyyyyyyyyybb",
+    "bbyyccccccccyybb",
+    ".bbbbbbbbbbbbbb.",
+    "..ww....ww....ww",
+    "................"
   ]
 };
 
@@ -208,12 +263,14 @@ function drawOverworldPokemonNPC(ctx, pNpc, playerWorld, isFacingThisPoke, animT
 }
 
 function drawPlayerTrainerSprite(ctx, p, theme, standingTile) {
+  const isSurfing = standingTile === 'W';
+  const surfBob = isSurfing ? Math.sin(performance.now() / 180) * 2 : 0;
   const px = Math.round(p.pixelX);
-  const py = Math.round(p.pixelY + p.hopOffsetY);
+  const py = Math.round(p.pixelY + p.hopOffsetY + surfBob);
   const shadowY = Math.round(p.pixelY);
 
-  ctx.fillStyle = 'rgba(0,0,0,0.38)';
-  ctx.fillRect(px + 6, shadowY + 26, 20, 4);
+  ctx.fillStyle = isSurfing ? 'rgba(56, 189, 248, 0.45)' : 'rgba(0,0,0,0.38)';
+  ctx.fillRect(px + 4, shadowY + 26, 24, 4);
 
   const palette = {
     r: '#dc2626',
@@ -222,14 +279,20 @@ function drawPlayerTrainerSprite(ctx, p, theme, standingTile) {
     b: '#0f172a',
     j: '#2563eb',
     y: '#facc15',
-    p: '#1e3a8a'
+    p: '#1e3a8a',
+    c: '#06b6d4'
   };
 
-  let grid = CHAR_BITMAPS.TRAINER_DOWN;
+  let grid = isSurfing ? CHAR_BITMAPS.TRAINER_SURF_DOWN : CHAR_BITMAPS.TRAINER_DOWN;
   let flipX = false;
-  if (p.dir === 'up') grid = CHAR_BITMAPS.TRAINER_UP;
-  else if (p.dir === 'left') grid = CHAR_BITMAPS.TRAINER_LEFT;
-  else if (p.dir === 'right') { grid = CHAR_BITMAPS.TRAINER_LEFT; flipX = true; }
+  if (p.dir === 'up') {
+    grid = isSurfing ? CHAR_BITMAPS.TRAINER_SURF_UP : CHAR_BITMAPS.TRAINER_UP;
+  } else if (p.dir === 'left') {
+    grid = isSurfing ? CHAR_BITMAPS.TRAINER_SURF_LEFT : CHAR_BITMAPS.TRAINER_LEFT;
+  } else if (p.dir === 'right') {
+    grid = isSurfing ? CHAR_BITMAPS.TRAINER_SURF_LEFT : CHAR_BITMAPS.TRAINER_LEFT;
+    flipX = true;
+  }
 
   drawBitmap16(ctx, grid, palette, px, py, TILE_SIZE, flipX);
 

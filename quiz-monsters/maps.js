@@ -1938,7 +1938,7 @@ const WORLD_MAPS = {
 
   NORTH_KOREA: {
     id: 'NORTH_KOREA',
-    name: 'Crimson Monolith (North Korea)',
+    name: 'Granite Monolith (North Korea)',
     subtitle: 'LANDLOCKED FORTRESS - ACCESSIBLE BY FLY ONLY',
     region: 'EAST_ASIA',
     theme: { groundA: '#334155', groundB: '#1e293b', path: '#94a3b8', grass: '#475569', grassTip: '#ef4444', tree: '#0f172a', treeTop: '#dc2626', rock: '#1e293b', rockLight: '#cbd5e1', rockDark: '#020617' },
@@ -2233,8 +2233,8 @@ const WORLD_MAPS = {
       "RWWWWWWP............PGGGG..R",
       "RWWWWWWP..KK....KK..P......R",
       "RWWWWWWPPPPPPPPPPPPPP......R",
-      "RBBBBBBBBBBBBPPPPPPPPPPPPPPPE",
-      "RBBBBBBBBBBBBPPPPPPPPPPPPPPPE",
+      "RBBBBBBBBBBBBPPPPPPPPPPPPPPE",
+      "RBBBBBBBBBBBBPPPPPPPPPPPPPPE",
       "RWWWWWWPPPPPPPPPPPPPP......R",
       "RWWWWWWP....R..R....PGGGG..R",
       "RWWWWWWP............PGGGG..R",
@@ -2659,6 +2659,321 @@ const WORLD_MAPS = {
       { id: 'do_paleontologist_amber', name: 'PALEONTOLOGIST SOFIA', topic: 'FOSSILIZATION - DOMINICAN AMBER', x: 13, y: 8, skinColor: '#e59866', hatColor: '#d97706', shirtColor: '#fef3c7', fact: "PALEONTOLOGIST SOFIA: Dominican Amber is fossilized resin from the extinct Hymenaea protera tree! Free-radical polymerization preserved 20-million-year-old Miocene insects in 3D detail!" },
       { id: 'overworld_latias', name: 'EON LATIAS', topic: 'LEGENDARY POKEMON - REFRACTION', x: 18, y: 12, isMonster: true, monsterId: 'latias', isLegendary: true, fact: "LATIAS: Shuu-aaah! (Latias coats its glass-like down feathers to refract light and become invisible!)" }
     ]
+  },
+  // ====================================================================
+  // SOUTHERN AFRICA REGION (SOUTH AFRICA HUB, LESOTHO, ESWATINI, MOZAMBIQUE, ZIMBABWE, ZAMBIA, BOTSWANA, NAMIBIA)
+  // ====================================================================
+  SOUTH_AFRICA: {
+    id: 'SOUTH_AFRICA',
+    name: 'Table Mesa Hub (South Africa)',
+    subtitle: 'N: Okavango Delta (Botswana) - W: Maloti Kingdom (Lesotho) - E: Ezulwini Valley (Eswatini) - PORTAL',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#065f46', groundB: '#047857', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
+    encounters: ['girafarig', 'phanpy', 'donphan', 'tauros', 'rhyhorn', 'doduo', 'dodrio'],
+    rows: [
+      "vvvvvvvvvvvvvEEvvvvvvvvvvvvv",
+      "v..vvvv..PPPPPPPPPP..vvvv..v",
+      "v.GGGGGG.P..HHHH..P.GGGGGG.v",
+      "v.GGGGGG.P..HDDH..P.GGGGGG.v",
+      "v........P........P........v",
+      "v..vvvv..PPPPPPPPPP..vvvv..v",
+      "v........P........P........v",
+      "v.GGGGGG.P.PPPPPP.P.GGGGGG.v",
+      "v........P.P....P.P........v",
+      "EPPPPPPPPP.P....P.PPPPPPPPPE",
+      "EPPPPPPPPP.P....P.PPPPPPPPPE",
+      "v........P.PPPPPP.P........v",
+      "vWWWWWWWWP........PWWWWWWWWv",
+      "vWWWWWWWWBBBBBBBBBBWWWWWWWWv",
+      "vWWWWWWWWPPPPPPPPPPWWWWWWWWv",
+      "v..vvvv......PP......vvvv..v",
+      "v.GGGGGGG.PPPPPPPP.GGGGGGG.v",
+      "v.GGGGGGG.P..FF..P.GGGGGGG.v",
+      "v.........P......P.........v",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+    ],
+    exits: {
+      north: { targetMap: 'BOTSWANA', spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'LESOTHO',  spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'ESWATINI', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'za_surgeon_barnard', name: 'DR. BARNARD (CAPE TOWN)', topic: 'CARDIAC SURGEON - HEART TRANSPLANT', x: 10, y: 5, skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#bae6fd', fact: "DR. BARNARD: At Groote Schuur Hospital in Cape Town, our team performed the world's first successful human-to-human heart transplant in 1967!" },
+      { id: 'za_nurse_joy', name: 'NURSE JOY (SOUTH AFRICA)', topic: 'NURSE - PARTY HEAL', x: 14, y: 4, skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true, fact: "NURSE JOY: Welcome to Table Mesa Hub in South Africa! Your party is fully healed! Step onto the 2x2 Portal in the center to warp between regions!" },
+      { id: 'chef_country_za', name: 'CHEF ZANELE (SOUTH AFRICA)', topic: 'COUNTRY CHEF - BOBOTIE & BILTONG', x: 17, y: 5, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#fef08a', fact: "CHEF ZANELE: South Africa's national dish is Cape Malay Bobotie! Spiced minced beef or lamb is simmered with curry powder, turmeric, ginger, garlic, onions, chutney, and raisins, topped with a savory custard of egg and milk and baked with bay leaves, served over yellow turmeric rice!" }
+    ]
+  },
+
+  LESOTHO: {
+    id: 'LESOTHO',
+    name: 'Maloti Sky Kingdom (Lesotho)',
+    subtitle: 'E: Table Mesa Hub (South Africa) - HIGHLAND PLATEAU ABOVE 1,400M',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#e2e8f0', grass: '#15803d', grassTip: '#86efac', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['mareep', 'flaaffy', 'ampharos', 'ponyta', 'rapidash', 'swablu', 'altaria'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..tt..GGGG......GGGG..tt..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..tt.......P..P.......tt..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....t..t....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..tt....tt..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....t..t....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..tt.......P..P.......tt..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..tt..GGGG......GGGG..tt..R",
+      "R..........................R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      east: { targetMap: 'SOUTH_AFRICA', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'ls_hydrologist_katse', name: 'ENGINEER LETSIE', topic: 'HYDROELECTRIC ENG. - HIGHLAND DAMS', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#1d4ed8', shirtColor: '#f8fafc', fact: "ENGINEER LETSIE: Lesotho is the only country on Earth that lies entirely above 1,000 meters elevation! Our high-altitude Katse Dam converts gravitational potential energy into hydroelectric power!" },
+      { id: 'chef_country_ls', name: 'CHEF MPHO (LESOTHO)', topic: 'COUNTRY CHEF - PAPA LE MOROHO & OXTAIL', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#dbeafe', fact: "CHEF MPHO: Lesotho's mountain staple is Papa le Moroho with braised Oxtail! We cook white maize meal (Papa) until fluffy and serve it with braised leafy spinach/chard greens (Moroho) sautéed with onions, tomatoes, and garlic alongside slow-simmered oxtail stew!" }
+    ]
+  },
+
+  ESWATINI: {
+    id: 'ESWATINI',
+    name: 'Ezulwini Sibebe (Eswatini)',
+    subtitle: 'W: Table Mesa Hub (South Africa) - SIBEBE GRANITE MONOLITH',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#3f6212', groundB: '#365314', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#292524' },
+    encounters: ['scyther', 'pinsir', 'heracross', 'beautifly', 'nuzleaf', 'shiftry'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..tt..GGGG......GGGG..RR..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..tt.......P..P.......RR..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....t..t....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..tt....tt..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "EPPPPPPPPPPPPPPPP..........R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....R..R....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..tt.......P..P.......RR..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..tt..GGGG......GGGG..RR..R",
+      "R..........................R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      west: { targetMap: 'SOUTH_AFRICA', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'sz_geologist_sibebe', name: 'GEOLOGIST THANDI', topic: 'GEOLOGIST - PLUTONIC GRANITE DOME', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#ca8a04', shirtColor: '#fef08a', fact: "GEOLOGIST THANDI: Eswatini's Sibebe Rock is a 3-billion-year-old Archean granite batholith—the second-largest exposed monolith in the world!" },
+      { id: 'chef_country_sz', name: 'CHEF SIPHO (ESWATINI)', topic: 'COUNTRY CHEF - SISHWALA & UMBIDVO', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#fef3c7', fact: "CHEF SIPHO: Eswatini's traditional dish is Sishwala with Umbidvo weMaswati! Sishwala is a thick porridge of maize meal and slow-simmered beef or goat, paired with pumpkin leaves (Umbidvo) cooked with finely ground roasted peanuts!" }
+    ]
+  },
+
+  BOTSWANA: {
+    id: 'BOTSWANA',
+    name: 'Okavango Baobab (Botswana)',
+    subtitle: 'S: Table Mesa (South Africa) - W: Sossusvlei (Namibia) - E: Great Ruins (Zimbabwe) - N: Victoria Falls (Zambia)',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#0284c7', groundB: '#ca8a04', path: '#fef08a', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78350f', rockLight: '#fde68a', rockDark: '#451a03' },
+    encounters: ['lotad', 'lombre', 'wooper', 'quagsire', 'Psyduck'.toLowerCase(), 'golduck', 'farfetchd'],
+    rows: [
+      "pppppppppppppEEppppppppppppp",
+      "p..pppp..GGGG..PP..GGGG..pp..p".slice(0,28),
+      "p......GGGG.PPPP.GGGG......p",
+      "p..pp.......P..P.......pp..p",
+      "p......PPPPPP..PPPPPP......p",
+      "p..GGGGP....W..W....PGGGG..p",
+      "p..GGGGP...WWWWWW...PGGGG..p",
+      "p......P...WWWWWW...P......p",
+      "p......PPPPPPPPPPPPPP......p",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "p......PPPPPPPPPPPPPP......p",
+      "p..GGGGP....p..p....PGGGG..p",
+      "p..GGGGP............PGGGG..p",
+      "p......PPPPPPPPPPPPPP......p",
+      "p..pp.......P..P.......pp..p",
+      "p......GGGG.PPPP.GGGG......p",
+      "p..pp..GGGG..PP..GGGG..pp..p",
+      "p............PP............p",
+      "pppppppppppppEEppppppppppppp"
+    ],
+    exits: {
+      south: { targetMap: 'SOUTH_AFRICA', spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'NAMIBIA',      spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'ZIMBABWE',     spawnX: 1,  spawnY: 9 },
+      north: { targetMap: 'ZAMBIA',       spawnX: 13, spawnY: 18 }
+    },
+    npcs: [
+      { id: 'bw_ecologist_okavango', name: 'ECOLOGIST KABELO', topic: 'WETLAND ECOLOGIST - ENDORHEIC DELTA', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#0284c7', shirtColor: '#e0f2fe', fact: "ECOLOGIST KABELO: The Okavango Delta is one of the world's largest inland endorheic deltas—instead of flowing into the ocean, seasonal floodwaters fan out across the Kalahari Desert sands!" },
+      { id: 'chef_country_bw', name: 'CHEF LORATO (BOTSWANA)', topic: 'COUNTRY CHEF - SESWAA & SORGHUM BOGOBE', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#e0f2fe', fact: "CHEF LORATO: Botswana's national dish is Seswaa! Beef or goat meat on the bone is boiled in a three-legged cast-iron pot with just water, onion, bay leaf, and salt until tender, then pounded with a wooden pestle until shredded and served over fermented sorghum porridge (Ting)!" }
+    ]
+  },
+
+  NAMIBIA: {
+    id: 'NAMIBIA',
+    name: 'Sossusvlei Dunes (Namibia)',
+    subtitle: 'E: Okavango Baobab (Botswana) - IRON-OXIDE STAR DUNES & SKELETON COAST',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#c2410c', groundB: '#9a3412', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#431407', treeTop: '#f97316', rock: '#7c2d12', rockLight: '#fdba74', rockDark: '#431407' },
+    encounters: ['trapinch', 'vibrava', 'flygon', 'sandshrew', 'sandslash', 'cacnea', 'cacturne'],
+    rows: [
+      "yyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+      "y..yy..GGGG......GGGG..yy..y",
+      "y......GGGG.PPPP.GGGG......y",
+      "y..yy.......P..P.......yy..y",
+      "y......PPPPPP..PPPPPP......y",
+      "y..GGGGP....y..y....PGGGG..y",
+      "y..GGGGP............PGGGG..y",
+      "y......P..yy....yy..P......y",
+      "y......PPPPPPPPPPPPPP......y",
+      "y...........PPPPPPPPPPPPPPPE",
+      "y...........PPPPPPPPPPPPPPPE",
+      "y......PPPPPPPPPPPPPP......y",
+      "y..GGGGP....y..y....PGGGG..y",
+      "y..GGGGP............PGGGG..y",
+      "y......PPPPPPPPPPPPPP......y",
+      "y..yy.......P..P.......yy..y",
+      "y......GGGG.PPPP.GGGG......y",
+      "y..yy..GGGG......GGGG..yy..y",
+      "y..........................y",
+      "yyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+    ],
+    exits: {
+      east: { targetMap: 'BOTSWANA', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'na_botanist_welwitschia', name: 'BOTANIST LUKAS', topic: 'BOTANIST - WELWITSCHIA MIRABILIS', x: 13, y: 8, skinColor: '#e59866', hatColor: '#ea580c', shirtColor: '#ffedd5', fact: "BOTANIST LUKAS: In the Namib Desert, Welwitschia mirabilis plants live over 1,500 years with only two continuously growing strap-like leaves that harvest coastal fog moisture!" },
+      { id: 'chef_country_na', name: 'CHEF TJENGO (NAMIBIA)', topic: 'COUNTRY CHEF - KAPANA & OSHIFIMA', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#ffedd5', fact: "CHEF TJENGO: Namibia's famous street dish is Kapana! Freshly cut strips of beef are grilled over hot open coals, dipped into spicy chili-onion-salt seasoning powder, and served with a salsa of diced tomatoes, onions, chili, and vinegar alongside pearl millet porridge (Oshifima)!" }
+    ]
+  },
+
+  ZIMBABWE: {
+    id: 'ZIMBABWE',
+    name: 'Great Ruins Valley (Zimbabwe)',
+    subtitle: 'W: Okavango (Botswana) - N: Victoria Falls (Zambia) - E: Bazaruto Coast (Mozambique)',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#57534e', groundB: '#44403c', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
+    encounters: ['baltoy', 'claydol', 'nosepass', 'aron', 'lairon', 'solrock', 'lunatone'],
+    rows: [
+      "rrrrrrrrrrrrrEErrrrrrrrrrrrr",
+      "r..rr..GGGG..PP..GGGG..pp..r",
+      "r......GGGG.PPPP.GGGG......r",
+      "r..rr.......P..P.......pp..r",
+      "r......PPPPPP..PPPPPP......r",
+      "r..GGGGP....r..r....PGGGG..r",
+      "r..GGGGP............PGGGG..r",
+      "r......P..rr....rr..P......r",
+      "r......PPPPPPPPPPPPPP......r",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "r......PPPPPPPPPPPPPP......r",
+      "r..GGGGP....p..p....PGGGG..r",
+      "r..GGGGP............PGGGG..r",
+      "r......PPPPPPPPPPPPPP......r",
+      "r..rr.......P..P.......pp..r",
+      "r......GGGG.PPPP.GGGG......r",
+      "r..rr..GGGG......GGGG..pp..r",
+      "r..........................r",
+      "rrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+    ],
+    exits: {
+      west:  { targetMap: 'BOTSWANA',   spawnX: 26, spawnY: 9 },
+      north: { targetMap: 'ZAMBIA',     spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'MOZAMBIQUE', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'zw_archaeologist_munhumutapa', name: 'ARCHAEOLOGIST TENDAI', topic: 'ARCHAEOLOGIST - MORTARLESS GRANITE', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#78350f', shirtColor: '#fef08a', fact: "ARCHAEOLOGIST TENDAI: The Great Enclosure of Great Zimbabwe was constructed in the 11th-15th centuries using interlocking exfoliated granite blocks with zero mortar!" },
+      { id: 'chef_country_zw', name: 'CHEF RUVIMBO (ZIMBABWE)', topic: 'COUNTRY CHEF - SADZA NE NYAMA & DOVI', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#fef9c3', fact: "CHEF RUVIMBO: Zimbabwe's beloved dish is Sadza ne Nyama with Peanut Butter Stew (Dovi)! White cornmeal Sadza is served with chicken or beef braised in roasted peanut butter paste, tomatoes, onions, garlic, and collard greens (Covo)!" }
+    ]
+  },
+
+  ZAMBIA: {
+    id: 'ZAMBIA',
+    name: 'Mosi-oa-Tunya Falls (Zambia)',
+    subtitle: 'S: Okavango (Botswana) / Great Ruins (Zimbabwe) - E: Bazaruto Coast (Mozambique)',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#0f766e', groundB: '#115e59', path: '#fed7aa', grass: '#15803d', grassTip: '#5eead4', tree: '#042f2e', treeTop: '#14b8a6', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['electrike', 'manectric', 'volbeat', 'illumise', 'yanma', 'tropius'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "W..SS..GGGG......GGGG..SS..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..SS.......P..P.......SS..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....S..S....PGGGG..W",
+      "W..GGGGP...WWWWWW...PGGGG..W",
+      "W......P...WWWWWW...P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W...........PPPPPPPPPPPPPPPE",
+      "W...........PPPPPPPPPPPPPPPE",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....S..S....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..SS.......P..P.......SS..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..SS..GGGG..PP..GGGG..SS..W",
+      "W............PP............W",
+      "WWWWWWWWWWWWWEEWWWWWWWWWWWWW"
+    ],
+    exits: {
+      south: { targetMap: 'BOTSWANA',   spawnX: 13, spawnY: 1 },
+      east:  { targetMap: 'MOZAMBIQUE', spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'zm_geologist_zambezi', name: 'HYDROLOGIST CHANDA', topic: 'HYDROLOGIST - VICTORIA FALLS GORGE', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#0d9488', shirtColor: '#ccfbf1', fact: "HYDROLOGIST CHANDA: Mosi-oa-Tunya ('The Smoke That Thunders') plunges 108 meters into a basalt gorge along the Zambezi River, creating permanent updraft mist rainbows!" },
+      { id: 'chef_country_zm', name: 'CHEF MUTALE (ZAMBIA)', topic: 'COUNTRY CHEF - NSHIMA & IFISASHI', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#ccfbf1', fact: "CHEF MUTALE: Zambia's essential meal is Nshima with Ifisashi and Kapenta! Nshima (pounded white maize meal) is eaten with Ifisashi—pumpkin leaves and spinach simmered in pounded raw peanuts, tomatoes, and onions—alongside crispy pan-fried Lake Tanganyika sardines (Kapenta)!" }
+    ]
+  },
+
+  MOZAMBIQUE: {
+    id: 'MOZAMBIQUE',
+    name: 'Bazaruto Coral Coast (Mozambique)',
+    subtitle: 'W: Mosi-oa-Tunya (Zambia) / Great Ruins (Zimbabwe) - INDIAN OCEAN DHOWS',
+    region: 'SOUTHERN_AFRICA',
+    theme: { groundA: '#0284c7', groundB: '#eab308', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80', rock: '#0369a1', rockLight: '#7dd3fc', rockDark: '#0c4a6e' },
+    encounters: ['corphish', 'crawdaunt', 'clamperl', 'gorebyss', 'huntail', 'corsola', 'mantine'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "W..oo..GGGG......GGGG..KK..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..oo.......P..P.......KK..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....o..o....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......P..oo....oo..P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....K..K....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..oo.......P..P.......KK..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..oo..GGGG......GGGG..KK..W",
+      "W..........................W",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      west: { targetMap: 'ZIMBABWE', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'mz_marine_biologist_dugong', name: 'BIOLOGIST SAMORA', topic: 'MARINE BIOLOGIST - SEAGRASS & DUGONGS', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#0284c7', shirtColor: '#bae6fd', fact: "BIOLOGIST SAMORA: The Bazaruto Archipelago protects the last viable population of Dugongs in East Africa, which graze exclusively on shallow subtidal seagrass meadows!" },
+      { id: 'chef_country_mz', name: 'CHEF FATIMA (MOZAMBIQUE)', topic: 'COUNTRY CHEF - MATAPA & PERI-PERI PRAWNS', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#fef08a', fact: "CHEF FATIMA: Mozambique's signature dishes are Matapa and Grilled Peri-Peri Prawns! Matapa slow-cooks young cassava leaves with garlic, onion, fresh coconut milk, cashew nuts, and crab or shrimp; while Queen Prawns are basted in bird's-eye chili (Peri-Peri), lemon juice, garlic, and olive oil!" }
+    ]
   }
 };
 
@@ -2758,9 +3073,9 @@ const COUNTRY_CHEF_NPCS = {
     fact: "CHEF MARTIN: Canada's iconic dish is Quebecois Poutine! Crispy hand-cut Russet potato fries are topped with fresh, squeaky cheddar cheese curds and smothered in hot brown beef-and-chicken gravy thickened with a toasted wheat flour roux!"
   },
   USA: {
-    id: 'chef_country_us', name: 'CHEF ALICE (USA)', topic: 'COUNTRY CHEF - SMOKED BRISKET & BURGERS', x: 16, y: 8,
+    id: 'chef_country_us', name: 'CHEF TERESSA (USA)', topic: 'COUNTRY CHEF - BUFFALO WINGS', x: 16, y: 8,
     skinColor: '#f5cba7', hatColor: '#ffffff', shirtColor: '#e0f2fe',
-    fact: "CHEF ALICE: Classic American barbecue and burgers! Texas Smoked Brisket rubs beef chest cut with coarse black pepper and kosher salt, smoking it low-and-slow over post oak wood for 12 hours until tough collagen melts into tender gelatin!"
+    fact: "CHEF TERESSA: America's favorite game-day dish is crispy Buffalo Wings! Unbreaded chicken wings (flats and drumettes) are deep-fried until the skin renders crisp, then tossed in a glossy emulsion of aged cayenne pepper hot sauce, melted butter, white vinegar, Worcestershire sauce, and garlic powder, served with celery sticks and blue cheese dressing!"
   },
   MEXICO: {
     id: 'chef_country_mx', name: 'CHEF ENRIQUE (MEXICO)', topic: 'COUNTRY CHEF - MOLE POBLANO & TACOS', x: 16, y: 8,

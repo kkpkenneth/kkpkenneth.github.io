@@ -94,8 +94,8 @@ function handleActivePartnerFainted() {
 // Linear Catch Rate Calculation: 1% at >=500 HP scaling linearly to 99% at 1 HP
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
-  const currentHp = Math.max(1, Math.min(500, enemy.hp));
-  const rawProb = 0.01 + ((500 - currentHp) / 499) * 0.98;
+  const currentHp = Math.max(1, Math.min(300, enemy.hp));
+  const rawProb = 0.01 + ((300 - currentHp) / 299) * 0.98;
   return Math.min(0.99, Math.max(0.01, Math.round(rawProb * 100) / 100));
 }
 
@@ -310,9 +310,51 @@ function hideAllBottomViews() {
   document.getElementById('dexSwitchView').classList.add('hidden');
 }
 
+function setEvolutionActionLock(isLocked, pokemonName = 'PARTNER') {
+  const actionIds = ['btnFight', 'btnBall', 'btnSwitch', 'btnRun'];
+  const firstBtn = document.getElementById('btnFight');
+  const gridContainer = firstBtn ? firstBtn.parentElement : null;
+
+  actionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.disabled = isLocked;
+    if (isLocked) el.classList.add('hidden');
+    else el.classList.remove('hidden');
+  });
+
+  if (!gridContainer) return;
+
+  let evolveBtn = document.getElementById('btnMergedEvolve');
+  if (isLocked) {
+    if (!evolveBtn) {
+      evolveBtn = document.createElement('button');
+      evolveBtn.id = 'btnMergedEvolve';
+      evolveBtn.type = 'button';
+      evolveBtn.className = 'col-span-2 pixel-btn bg-purple-600 hover:bg-purple-500 text-amber-300 p-4 flex flex-col items-center justify-center gap-1.5';
+      evolveBtn.addEventListener('click', () => {
+        handleEvolutionConfirmationStep();
+      });
+      gridContainer.appendChild(evolveBtn);
+    }
+    evolveBtn.disabled = false;
+    evolveBtn.classList.remove('hidden');
+    evolveBtn.innerHTML = `
+      <span class="text-sm sm:text-base font-bold tracking-wider">EVOLVE ${pokemonName}!</span>
+      <span class="text-[8px] sm:text-[9px] text-purple-100">TAP TO COMPLETE EVOLUTION</span>
+    `;
+  } else if (evolveBtn) {
+    evolveBtn.disabled = true;
+    evolveBtn.classList.add('hidden');
+  }
+}
+
 function showCommandView() {
   hideAllBottomViews();
   document.getElementById('commandView').classList.remove('hidden');
+  if (!state.waitingForEvolutionConfirmation) {
+    setEvolutionActionLock(false);
+  }
 }
 
 function showMoveSelectView() {
@@ -768,10 +810,12 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
         }
 
         if (evoCheck && evoCheck.ready) {
-          setDialogue(`Huh? Is ${player.name} evolving?... [Press SPACE or A - TALK to continue]`, 'EVOLUTION?');
           state.pendingEvolutionTargetId = evoCheck.req.to;
           state.waitingForEvolutionConfirmation = true;
           state.busy = false;
+          showCommandView();
+          setEvolutionActionLock(true, player.name);
+          setDialogue(`Huh? ${player.name} is evolving! Tap the EVOLVE button to transform!`, 'EVOLUTION READY!');
           return;
         }
 
@@ -824,6 +868,11 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
 function handleEvolutionConfirmationStep() {
   if (!state.waitingForEvolutionConfirmation || !state.pendingEvolutionTargetId) return false;
   state.waitingForEvolutionConfirmation = false;
+  state.busy = true;
+
+  const evolveBtn = document.getElementById('btnMergedEvolve');
+  if (evolveBtn) evolveBtn.disabled = true;
+
   const player = getActivePlayer();
   const targetId = state.pendingEvolutionTargetId;
   state.pendingEvolutionTargetId = null;
@@ -841,6 +890,7 @@ function handleEvolutionConfirmationStep() {
 
   setDialogue(evoMsg, 'EVOLUTION!');
   setTimeout(() => {
+    setEvolutionActionLock(false);
     returnToOverworldFromBattle(evoMsg);
   }, 2200);
   return true;

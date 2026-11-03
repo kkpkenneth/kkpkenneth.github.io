@@ -1017,6 +1017,48 @@ const DEFAULT_OBSTACLE_DEFS = {
       "................"
     ]
   },
+  v: {
+    id: 'v', name: 'TABLE MOUNTAIN SANDSTONE BLUFF (SOUTH AFRICA)', walkable: false,
+    palette: { p: '#a8a29e', d: '#57534e', l: '#f5f5f4', b: '#1c1917', s: '#22c55e', t: '#78716c' },
+    grid: [
+      "................","..bbbbbbbbbbbb..",".bllllllllllllb.","bppppppppppppppb","bpttttttttttttpb","bpddddddddddddpb","bppddppppppddppb","bddddddddddddd.b".replace(/\./,'d'),"bbssssssssssssbb",".bbbbbbbbbbbbbb.","................","................","................","................","................","................"
+    ]
+  },
+  p: {
+    id: 'p', name: 'AFRICAN BAOBAB TREE (BOTSWANA / ZIMBABWE)', walkable: false,
+    palette: { p: '#16a34a', d: '#78350f', l: '#4ade80', b: '#292524', s: '#92400e', t: '#15803d' },
+    grid: [
+      "..llll....llll..",".llpppl..lpppll.",".lppppppppppppl.","..ttttbbbbtttt..","....bbddddbb....","....bdsddsdb....","...bbddddddbb...","...bdsddddsdb...","...bddddddddb...","..bbdsddddsdbb..","..bddddddddddb..","..bbbbbbbbbbbb..","................","................","................","................"
+    ]
+  },
+  r: {
+    id: 'r', name: 'GREAT ZIMBABWE CONICAL TOWER (ZIMBABWE)', walkable: false,
+    palette: { p: '#78716c', d: '#44403c', l: '#d6d3d1', b: '#1c1917', s: '#a8a29e', t: '#57534e' },
+    grid: [
+      "......bbbb......",".....bllllb.....",".....bpddpb.....","....bssppssb....","....bppddppb....","...bssttttssb...","...bppddddppb...","...bssssssssb...","..bppddddddppb..","..bssttttttssb..","..bppddddddppb..",".bssssssssssssb.",".bbbbbbbbbbbbbb.","................","................","................"
+    ]
+  },
+  t: {
+    id: 't', name: 'BASOTHO MOKOROTLO CONICAL HUT (LESOTHO / ESWATINI)', walkable: false,
+    palette: { p: '#d97706', d: '#92400e', l: '#fde68a', b: '#451a03', s: '#e7e5e4', t: '#78350f' },
+    grid: [
+      ".......bb.......","......bllb......",".....bppppb.....","....bpddddpb....","...bppppppppb...","..bpddddddddpb..",".bbbbbbbbbbbbbb.","..bssssssssssb..","..bsssbbbbsssb..","..bsssbttbsssb..","..bsssbttbsssb..","..bssssssssssb..","..bbbbbbbbbbbb..","................","................","................"
+    ]
+  },
+  y: {
+    id: 'y', name: 'SOSSUSVLEI RED STAR DUNE (NAMIBIA)', walkable: false,
+    palette: { p: '#ea580c', d: '#9a3412', l: '#fdba74', b: '#431407', s: '#f97316', t: '#fed7aa' },
+    grid: [
+      ".......bb.......","......blpb......",".....bllppb.....","....blllppdb....","...bllllpppddb..","..bllllppppdddb.",".blllllppppddddb","bllllllppppddddb","bssssssddddddddb",".bbbbbbbbbbbbbb.","................","................","................","................","................","................"
+    ]
+  },
+  o: {
+    id: 'o', name: 'INDIAN OCEAN DHOW SAIL (MOZAMBIQUE)', walkable: false,
+    palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ffffff', b: '#0f172a', s: '#78350f', t: '#0284c7' },
+    grid: [
+      ".........bb.....",".......bbllb....",".....bblllpb....","...bbllllpppb...","..blllllppppb...",".bllllpppppddb..","..bbbbbbbbbbbbb.","......bssssb....","..bbbbssssssbbbb","..bssssssssssssb","...bssssssssssb.","..tttttttttttttt","................","................","................","................"
+    ]
+  },
   BERRY: {
     id: 'BERRY', name: 'WILD FLOOR BERRY', walkable: false, obtainable: true,
     palette: { p: '#a855f7', d: '#581c87', l: '#f3e8ff', b: '#0f172a', s: '#e9d5ff', t: '#fde047' },

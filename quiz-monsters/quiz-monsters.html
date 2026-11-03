@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='5' y='2' width='6' height='1' fill='%230f172a'/%3E%3Crect x='3' y='3' width='2' height='1' fill='%230f172a'/%3E%3Crect x='5' y='3' width='6' height='1' fill='%23ef4444'/%3E%3Crect x='11' y='3' width='2' height='1' fill='%230f172a'/%3E%3Crect x='2' y='4' width='1' height='2' fill='%230f172a'/%3E%3Crect x='3' y='4' width='10' height='2' fill='%23ef4444'/%3E%3Crect x='13' y='4' width='1' height='2' fill='%230f172a'/%3E%3Crect x='1' y='6' width='1' height='4' fill='%230f172a'/%3E%3Crect x='2' y='6' width='12' height='1' fill='%23ef4444'/%3E%3Crect x='14' y='6' width='1' height='4' fill='%230f172a'/%3E%3Crect x='2' y='7' width='5' height='2' fill='%230f172a'/%3E%3Crect x='7' y='7' width='2' height='2' fill='%23fde047'/%3E%3Crect x='9' y='7' width='5' height='2' fill='%230f172a'/%3E%3Crect x='2' y='9' width='12' height='1' fill='%23f8fafc'/%3E%3Crect x='2' y='10' width='1' height='2' fill='%230f172a'/%3E%3Crect x='3' y='10' width='10' height='2' fill='%23f8fafc'/%3E%3Crect x='13' y='10' width='1' height='2' fill='%230f172a'/%3E%3Crect x='3' y='12' width='2' height='1' fill='%230f172a'/%3E%3Crect x='5' y='12' width='6' height='1' fill='%23f8fafc'/%3E%3Crect x='11' y='12' width='2' height='1' fill='%230f172a'/%3E%3Crect x='5' y='13' width='6' height='1' fill='%230f172a'/%3E%3C/svg%3E" />
   <title>Quiz Monsters - Play &amp; Learn RPG</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,13 +148,13 @@
         <div class="absolute bottom-3 left-3 z-20 w-28 h-28 sm:w-32 sm:h-32 bg-slate-950/50 rounded-2xl border border-slate-700/70 backdrop-blur-[1px] flex items-center justify-center shadow-lg">
           <div class="grid grid-cols-3 gap-1 w-24 h-24 sm:w-28 sm:h-28 items-center justify-items-center">
             <div></div>
-            <button type="button" data-dir="up" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[9px]">U</button>
+            <button type="button" data-dir="up" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▲</button>
             <div></div>
-            <button type="button" data-dir="left" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[9px]">L</button>
+            <button type="button" data-dir="left" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">◀</button>
             <div class="w-5 h-5 rounded-full bg-slate-900 border border-slate-600"></div>
-            <button type="button" data-dir="right" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[9px]">R</button>
+            <button type="button" data-dir="right" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▶</button>
             <div></div>
-            <button type="button" data-dir="down" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[9px]">D</button>
+            <button type="button" data-dir="down" class="dpad-btn pixel-btn bg-slate-800 hover:bg-slate-700 text-white w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[10px]">▼</button>
             <div></div>
           </div>
         </div>
@@ -197,7 +198,7 @@
         <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 w-44 sm:w-64 retro-box p-1.5 sm:p-2.5">
           <div class="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
             <div class="flex items-center gap-1 truncate">
-              <span id="enemyCaughtIcon" class="hidden text-[8px] sm:text-[10px]" title="Already Caught in Dex">[CAUGHT]</span>
+              <span id="enemyCaughtIcon" class="hidden text-[8px] sm:text-[10px]" title="Already Caught in Dex">*</span>
               <span id="enemyName" class="text-[8px] sm:text-xs font-bold tracking-tight truncate">CHARMANDER</span>
             </div>
             <span id="enemyLevel" class="text-[8px] sm:text-[10px] text-slate-700 shrink-0">Lv12</span>
@@ -1334,12 +1335,6 @@
       });
 
       bindClick('btnInteractA', () => {
-        if (window.state && window.state.waitingForEvolutionConfirmation) {
-          if (typeof handleEvolutionConfirmationStep === 'function') {
-            handleEvolutionConfirmationStep();
-          }
-          return;
-        }
         window.interactWithFacingNPC();
       });
 

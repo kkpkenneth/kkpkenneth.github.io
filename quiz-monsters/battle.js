@@ -635,7 +635,11 @@ function startCaptureBallSequence() {
               syncAllUI();
             }, 340);
 
-            setDialogue(`Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG!`, 'BROKE FREE!');
+            const superEffText = typeAdvantageMult > 1 ? "It's SUPER EFFECTIVE! " : (typeAdvantageMult < 1 ? "It's not very effective... " : "");
+            setDialogue(
+              `Argh! Wild ${enemy.name} broke free (${pctText}% odds) and counterattacked for ${enemyDmg} DMG! ${superEffText}`,
+              typeAdvantageMult > 1 ? 'SUPER EFFECTIVE HIT!' : 'BROKE FREE!'
+            );
             setTimeout(() => {
               if (player.hp <= 0) {
                 handleActivePartnerFainted();

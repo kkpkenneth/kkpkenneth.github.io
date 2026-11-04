@@ -1102,11 +1102,11 @@ const WORLD_MAPS = {
     ]
   },
 
-  // (3,3) N: Scarlet Savanna • S: Obsidian Urban • W: Golden Coast • E: Crimson Volcano
+  // (3,3) N: Scarlet Savanna • S: Charcoal Urban • W: Golden Coast • E: Crimson Volcano
   SOUTHEAST: {
     id: 'SOUTHEAST',
     name: 'Bronze Reef',
-    subtitle: 'N: Scarlet Savanna • S: Obsidian Urban • W: Golden Coast • E: Crimson Volcano',
+    subtitle: 'N: Scarlet Savanna • S: Charcoal Urban • W: Golden Coast • E: Crimson Volcano',
     theme: { groundA: '#f59e0b', groundB: '#d97706', path: '#fef3c7', grass: '#0284c7', grassTip: '#38bdf8', tree: '#15803d', treeTop: '#4ade80' },
     encounters: ['tentacool', 'staryu', 'meowth', 'snorlax', 'kangaskhan'],
     rows: [
@@ -1353,11 +1353,11 @@ const WORLD_MAPS = {
     ]
   },
 
-  // (4,2) N: Golden Coast • W: Purple Woods • E: Obsidian Urban
+  // (4,2) N: Golden Coast • W: Purple Woods • E: Charcoal Urban
   ABYSS: {
     id: 'ABYSS',
     name: 'Navy Abyss',
-    subtitle: 'N: Golden Coast • W: Purple Woods • E: Obsidian Urban',
+    subtitle: 'N: Golden Coast • W: Purple Woods • E: Charcoal Urban',
     theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7', rock: '#1e293b', rockLight: '#64748b', rockDark: '#020617' },
     encounters: ['horsea', 'goldeen', 'magikarp', 'slowpoke', 'dratini'],
     rows: [
@@ -1405,7 +1405,7 @@ const WORLD_MAPS = {
   // (4,3) N: Bronze Reef • W: Navy Abyss
   SHADOW_ALLEY: {
     id: 'SHADOW_ALLEY',
-    name: 'Obsidian Urban',
+    name: 'Charcoal Urban',
     subtitle: 'N: Bronze Reef • W: Navy Abyss',
     theme: {
       groundA: '#090d16', groundB: '#111827', path: '#27272a',
@@ -2973,6 +2973,810 @@ const WORLD_MAPS = {
     npcs: [
       { id: 'mz_marine_biologist_dugong', name: 'BIOLOGIST SAMORA', topic: 'MARINE BIOLOGIST - SEAGRASS & DUGONGS', x: 13, y: 8, skinColor: '#5c3317', hatColor: '#0284c7', shirtColor: '#bae6fd', fact: "BIOLOGIST SAMORA: The Bazaruto Archipelago protects the last viable population of Dugongs in East Africa, which graze exclusively on shallow subtidal seagrass meadows!" },
       { id: 'chef_country_mz', name: 'CHEF FATIMA (MOZAMBIQUE)', topic: 'COUNTRY CHEF - MATAPA & PERI-PERI PRAWNS', x: 16, y: 8, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#fef08a', fact: "CHEF FATIMA: Mozambique's signature dishes are Matapa and Grilled Peri-Peri Prawns! Matapa slow-cooks young cassava leaves with garlic, onion, fresh coconut milk, cashew nuts, and crab or shrimp; while Queen Prawns are basted in bird's-eye chili (Peri-Peri), lemon juice, garlic, and olive oil!" }
+    ]
+  },
+  // ====================================================================
+  // OCEANIA REGION (ALL BORDERS SURROUNDED BY WATER 'W' -> REQUIRES SURF/SWIM!)
+  // Grid:
+  // ['SOLOMON_ISLANDS', 'TUVALU',      'SAMOA']
+  // ['VANUATU',         'AUSTRALIA',   'FIJI']
+  // [null,              'NEW_ZEALAND', 'TONGA']
+  // ====================================================================
+
+  AUSTRALIA: {
+    id: 'AUSTRALIA',
+    name: 'Outback Reef Hub (Australia)',
+    subtitle: 'SWIM EXITS: N-Tuvalu, S-New Zealand, W-Vanuatu, E-Fiji - 2x2 PORTAL',
+    region: 'OCEANIA',
+    theme: { groundA: '#c2410c', groundB: '#9a3412', path: '#fde68a', grass: '#15803d', grassTip: '#84cc16', tree: '#431407', treeTop: '#22c55e', rock: '#7c2d12', rockLight: '#fdba74', rockDark: '#431407' },
+    encounters: ['kangaskhan', 'turtwig', 'grotle', 'torterra', 'hippopotas', 'hippowdon', 'skorupi', 'drapion', 'gible', 'gabite', 'garchomp'],
+    rows: [
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW..11..~~~~PPPP~~~~..11..WW",
+      "WW..GGGG....P..P....GGGG..WW",
+      "WW..GGGGPPPPPPPPPPPPGGGG..WW",
+      "WW......P..HHHHHH..P......WW",
+      "WW..11..P..HDDDDH..P..11..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..~~~~P..PPPPPP..P~~~~..WW",
+      "EWW.~~~~P..P....P..P~~~~.WWE",
+      "EWW.~~~~P..P....P..P~~~~.WWE",
+      "WW..~~~~P..PPPPPP..P~~~~..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..11......P..P......11..WW",
+      "WW..GGGG....P..P....GGGG..WW",
+      "WW..GGGG..PPPPPPPP..GGGG..WW",
+      "WW..11....P......P....11..WW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE')
+    ],
+    exits: {
+      north: { targetMap: 'TUVALU',      spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'NEW_ZEALAND', spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'VANUATU',     spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'FIJI',        spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'au_nurse_joy', name: 'NURSE JOY (AUSTRALIA)', topic: 'NURSE - PARTY HEAL', x: 14, y: 7, skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true, fact: "NURSE JOY: G'day and welcome to Outback Reef Hub in Australia! Your party is healed! Every island border in Oceania is surrounded by ocean waves, so Surf across the water to explore!" },
+      { id: 'chef_country_au', name: 'CHEF KYLIE (AUSTRALIA)', topic: 'COUNTRY CHEF - MEAT PIE & LAMINGTON', x: 11, y: 7, skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#fef08a', fact: "CHEF KYLIE: Australia's iconic dishes are the Aussie Meat Pie and Lamington! Our flaky shortcrust and puff pastry pie is filled with minced beef, rich onion-and-beef gravy, Worcestershire sauce, and black pepper; Lamingtons dip sponge cake in chocolate icing and desiccated coconut!" },
+      { id: 'overworld_heatran', name: 'MAGMA HEATRAN', topic: 'LEGENDARY POKEMON - ULURU PLUME', x: 20, y: 14, isMonster: true, monsterId: 'heatran', isLegendary: true, fact: "HEATRAN: Grr-gaaah! (Heatran's steel body surges with boiling magma deep beneath the continental crust!)" }
+    ]
+  },
+
+  NEW_ZEALAND: {
+    id: 'NEW_ZEALAND',
+    name: 'Rotorua Kiwi Fjord (New Zealand)',
+    subtitle: 'SWIM EXITS: N-Australia, E-Tonga - GEOTHERMAL GEYSERS & MAORI POU',
+    region: 'OCEANIA',
+    theme: { groundA: '#065f46', groundB: '#047857', path: '#d6d3d1', grass: '#15803d', grassTip: '#4ade80', tree: '#064e3b', treeTop: '#34d399', rock: '#334155', rockLight: '#cbd5e1', rockDark: '#0f172a' },
+    encounters: ['piplup', 'prinplup', 'empoleon', 'starly', 'staravia', 'staraptor', 'buizel', 'floatzel', 'mareep', 'snover', 'abomasnow'],
+    rows: [
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW..22..GGGG....GGGG..SS..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WW..22......P..P......SS..WW",
+      "WW......PPPPP..PPPPP......WW",
+      "WW..GGGGP...2..2...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......P..PPPPPP..P......WW",
+      "WW.........P....P........WWE",
+      "WW.........P....P........WWE",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..GGGGP...S..S...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..22......P..P......22..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      north: { targetMap: 'AUSTRALIA', spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'TONGA',     spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'nz_physicist_rutherford', name: 'ERNEST RUTHERFORD', topic: 'NUCLEAR PHYSICIST - ATOMIC NUCLEUS', x: 11, y: 8, skinColor: '#fed7aa', hatColor: '#1e3a8a', shirtColor: '#bae6fd', fact: "ERNEST RUTHERFORD: Born in Nelson, New Zealand! My gold foil alpha-scattering experiment proved that an atom is mostly empty space with a tiny, dense, positively charged nucleus!" },
+      { id: 'chef_country_nz', name: 'CHEF HEMI (NEW ZEALAND)', topic: 'COUNTRY CHEF - MAORI HANGI & PAVLOVA', x: 16, y: 8, skinColor: '#ca8a5b', hatColor: '#ffffff', shirtColor: '#dcfce7', fact: "CHEF HEMI: New Zealand's traditional feast is the Maori Hangi and Pavlova! In a Hangi earth oven, baskets of lamb, pork, chicken, kumara (sweet potato), taro, and pumpkin are steamed underground over volcanic stones; Pavlova bakes whipped egg-white meringue topped with whipped cream and kiwifruit!" }
+    ]
+  },
+
+  TUVALU: {
+    id: 'TUVALU',
+    name: 'Funafuti Atoll Strip (Tuvalu)',
+    subtitle: 'SWIM EXITS: S-Australia, W-Solomon Islands, E-Samoa - NARROW CORAL ATOLL',
+    region: 'OCEANIA',
+    theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80', rock: '#38bdf8', rockLight: '#e0f2fe', rockDark: '#0369a1' },
+    encounters: ['finneon', 'lumineon', 'mantyke', 'shellos', 'gastrodon', 'wingull', 'pelipper', 'phione', 'manaphy'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWW3333WWWWWWWWWWWW",
+      "WWWWWWWWWWWWPPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWWPPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWGGPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWGGPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWWPPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWWPPPPWWWWWWWWWWWW",
+      "EWWWWWWWWWWWPPPPWWWWWWWWWWWE",
+      "EWWWWWWWWWWWPPPPWWWWWWWWWWWE",
+      "WWWWWWWWWWWWPPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWPPGGGWWWWWWWWWWWW",
+      "WWWWWWWWWWWPPGGGWWWWWWWWWWWW",
+      "WWWWWWWWWWWWPPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWWPPPPWWWWWWWWWWWW",
+      "WWWWWWWWWWWW3333WWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE')
+    ],
+    exits: {
+      south: { targetMap: 'AUSTRALIA',       spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'SOLOMON_ISLANDS', spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'SAMOA',           spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'tv_climatologist_teafa', name: 'WALKER TEAFA (FUNAFUTI)', topic: 'CLIMATOLOGIST - ATOLL ELEVATION', x: 12, y: 8, skinColor: '#ca8a5b', hatColor: '#0284c7', shirtColor: '#fef08a', fact: "WALKER TEAFA: You can walk across narrow Funafuti Atoll from the southern tip to the northern tip! Coral atolls average under 2 meters above sea level, making tide gauge monitoring vital!" },
+      { id: 'chef_country_tv', name: 'CHEF MELE (TUVALU)', topic: 'COUNTRY CHEF - PULAKA & TUNA PALUSAMI', x: 14, y: 11, skinColor: '#ca8a5b', hatColor: '#ffffff', shirtColor: '#e0f2fe', fact: "CHEF MELE: Tuvalu's staple is Pulaka (swamp taro) and Tuna Palusami! We bake giant swamp taro corms and fresh yellowfin tuna wrapped in taro leaves with thick pressed coconut cream, onion, and sea salt!" },
+      { id: 'overworld_manaphy', name: 'PRINCE MANAPHY', topic: 'LEGENDARY POKEMON - LAGOON HEART', x: 13, y: 4, isMonster: true, monsterId: 'manaphy', isLegendary: true, fact: "MANAPHY: Mana-phy! (Born on the warm tropical seafloor, Manaphy's body is 80% pure ocean water!)" }
+    ]
+  },
+
+  SAMOA: {
+    id: 'SAMOA',
+    name: 'Upolu Fale Lagoon (Samoa)',
+    subtitle: 'SWIM EXITS: W-Tuvalu, S-Fiji - OPEN-AIR FALES & OCEAN TRENCH',
+    region: 'OCEANIA',
+    theme: { groundA: '#0d9488', groundB: '#0f766e', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['chimchar', 'monferno', 'infernape', 'chatot', 'cherubi', 'cherrim', 'azurill', 'marill'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW..44..GGGG....GGGG..44..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WW..44......P..P......44..WW",
+      "WW......PPPPP..PPPPP......WW",
+      "WW..GGGGP...4..4...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "EWW.........PPPP..........WW",
+      "EWW.........PPPP..........WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..GGGGP...l..l...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..44......P..P......44..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE')
+    ],
+    exits: {
+      west:  { targetMap: 'TUVALU', spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'FIJI',   spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'ws_navigator_tupaia', name: 'WAYFINDER TUPAIA', topic: 'POLYNESIAN CELESTIAL NAVIGATION', x: 12, y: 8, skinColor: '#ca8a5b', hatColor: '#dc2626', shirtColor: '#fef08a', fact: "WAYFINDER TUPAIA: Polynesian navigators crossed thousands of kilometers of open Pacific Ocean by reading zenith star paths, ocean swell refraction patterns off islands, and seabird flight vectors!" },
+      { id: 'chef_country_ws', name: 'CHEF TAVITA (SAMOA)', topic: 'COUNTRY CHEF - OKA I\'A & PALUSAMI', x: 15, y: 11, skinColor: '#ca8a5b', hatColor: '#ffffff', shirtColor: '#ccfbf1', fact: "CHEF TAVITA: Samoa's signature dish is Oka I'a with Umu-baked Palusami! Fresh cubed yellowfin tuna is marinated in lime juice and tossed with fresh coconut cream, diced cucumber, tomatoes, onions, and chili!" }
+    ]
+  },
+
+  FIJI: {
+    id: 'FIJI',
+    name: 'Nadi Sleeping Giant (Fiji)',
+    subtitle: 'SWIM EXITS: N-Samoa, W-Australia, S-Tonga - SLEEPING GIANT ORCHIDS & KUATA REEF',
+    region: 'OCEANIA',
+    theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#fef08a', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#4ade80', rock: '#d946ef', rockLight: '#f5d0fe', rockDark: '#701a75' },
+    encounters: ['carnivine', 'roserade', 'combee', 'vespiquen', 'burmy', 'mothim', 'wormadam', 'carvanha', 'sharpedo'],
+    rows: [
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW..55..GGGG....GGGG..KK..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WW..55......P..P......KK..WW",
+      "WW......PPPPP..PPPPP......WW",
+      "WW..GGGGP...5..5...PGGGG..WW",
+      "WW..GGGGP..FFFFFF..PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "EWW.........PPPP..........WW",
+      "EWW.........PPPP..........WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..GGGGP...K..K...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..55......P..P......KK..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE')
+    ],
+    exits: {
+      north: { targetMap: 'SAMOA',     spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'AUSTRALIA', spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'TONGA',     spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'fj_botanist_nadi', name: 'GUIDE RATU (NADI)', topic: 'BOTANIST - SLEEPING GIANT ORCHIDS & KUATA', x: 12, y: 8, skinColor: '#784212', hatColor: '#16a34a', shirtColor: '#dcfce7', fact: "GUIDE RATU: Bula from Nadi, the Fiji Culture Village, the Garden of the Sleeping Giant, and Barefoot Kuata Island! Over 2,000 orchid hybrids thrive in our humid tropical foothills while reef sharks patrol the Kuata channels!" },
+      { id: 'chef_country_fj', name: 'CHEF SERU (FIJI)', topic: 'COUNTRY CHEF - FIJIAN KOKODA & LOVO', x: 15, y: 11, skinColor: '#784212', hatColor: '#ffffff', shirtColor: '#e0f2fe', fact: "CHEF SERU: Fiji's national dish is Kokoda served in a half coconut shell! We cure diced Mahi-Mahi or Spanish Mackerel (Walu) in fresh lime and lemon juice, then fold in rich miti (thick coconut cream), diced tomatoes, spring onions, red chilies, and sea salt!" },
+      { id: 'overworld_shaymin', name: 'GRATITUDE SHAYMIN', topic: 'LEGENDARY POKEMON - ORCHID BLOOM', x: 14, y: 7, isMonster: true, monsterId: 'shaymin', isLegendary: true, fact: "SHAYMIN: Shay-min! (Shaymin absorbs airborne toxins in the Garden of the Sleeping Giant and bursts them into fragrant Gracidea flowers!)" }
+    ]
+  },
+
+  TONGA: {
+    id: 'TONGA',
+    name: 'Haapai Whale Trench (Tonga)',
+    subtitle: 'SWIM EXITS: N-Fiji, W-New Zealand - HUMPBACK WHALES & FIRE DANCES',
+    region: 'OCEANIA',
+    theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#d6d3d1', rockLight: '#f5f5f4', rockDark: '#57534e' },
+    encounters: ['wailmer', 'wailord', 'finneon', 'lumineon', 'clamperl', 'chatot', 'drifloon', 'drifblim'],
+    rows: [
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW..66..GGGG....GGGG..66..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WW..66......P..P......66..WW",
+      "WW......PPPPP..PPPPP......WW",
+      "WW..GGGGP...6..6...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "EWW.........PPPP..........WW",
+      "EWW.........PPPP..........WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..GGGGP...L..L...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..66......P..P......66..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      north: { targetMap: 'FIJI',        spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'NEW_ZEALAND', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'to_cetologist_sione', name: 'CETOLOGIST SIONE', topic: 'MARINE BIOLOGIST - HUMPBACK WHALES & FIRE DANCE', x: 12, y: 8, skinColor: '#ca8a5b', hatColor: '#dc2626', shirtColor: '#fee2e2', fact: "CETOLOGIST SIONE: Malo e lelei! Every winter, Antarctic Humpback Whales (Megaptera novaeangliae) migrate to Tonga's warm, predator-free coral waters to calve—and at night we spin flaming Me'etu'upaki fire-dance torches!" },
+      { id: 'chef_country_to', name: 'CHEF SALOTE (TONGA)', topic: 'COUNTRY CHEF - LU PULU & OTA IKA', x: 15, y: 11, skinColor: '#ca8a5b', hatColor: '#ffffff', shirtColor: '#fee2e2', fact: "CHEF SALOTE: Tonga's beloved feast is Lu Pulu baked in an Umu! Corned beef, diced onions, tomatoes, and rich coconut cream are wrapped inside tender young taro leaves (Lu) and banana leaves, then slow-baked over hot volcanic rocks!" }
+    ]
+  },
+
+  VANUATU: {
+    id: 'VANUATU',
+    name: 'Yasur Ash Caldera (Vanuatu)',
+    subtitle: 'SWIM EXITS: N-Solomon Islands, E-Australia - TANNA ACTIVE VOLCANO & PENTECOST',
+    region: 'OCEANIA',
+    theme: { groundA: '#450a0a', groundB: '#7f1d1d', path: '#fca5a5', grass: '#15803d', grassTip: '#f97316', tree: '#1c1917', treeTop: '#dc2626', rock: '#44403c', rockLight: '#f97316', rockDark: '#1c1917' },
+    encounters: ['magby', 'magmar', 'magmortar', 'slugma', 'magcargo', 'cranidos', 'rampardos', 'shieldon', 'bastiodon'],
+    rows: [
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW..77..GGGG....GGGG..LL..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WW..77......P..P......LL..WW",
+      "WW......PPPPP..PPPPP......WW",
+      "WW..GGGGP...7..7...PGGGG..WW",
+      "WW..GGGGP...LLLL...PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..........PPPP.........WWE",
+      "WW..........PPPP.........WWE",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..GGGGP...7..7...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..77......P..P......LL..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      north: { targetMap: 'SOLOMON_ISLANDS', spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'AUSTRALIA',       spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'vu_volcanologist_tanna', name: 'VOLCANOLOGIST TARI (TANNA)', topic: 'VOLCANOLOGIST - MOUNT YASUR & NAGHOL', x: 12, y: 8, skinColor: '#5c3317', hatColor: '#ea580c', shirtColor: '#fed7aa', fact: "VOLCANOLOGIST TARI: From Port Vila and Pentecost land-diving vines to Tanna Island! Walking right up to the rim of active Mount Yasur lets you feel shockwaves from Strombolian lava fountains erupting every few minutes!" },
+      { id: 'chef_country_vu', name: 'CHEF KALTACK (VANUATU)', topic: 'COUNTRY CHEF - VANUATU LAP LAP', x: 15, y: 11, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#ffedd5', fact: "CHEF KALTACK: Vanuatu's national dish is Lap Lap! We grate fresh yam, taro, or manioc (cassava) into a paste, layer it with island cabbage (bele), fresh coconut cream, and pork, beef, or flying fox, wrap it in heliconia leaves, and bake it under hot volcanic stones!" }
+    ]
+  },
+
+  SOLOMON_ISLANDS: {
+    id: 'SOLOMON_ISLANDS',
+    name: 'Marovo Blue Lagoon (Solomon Islands)',
+    subtitle: 'SWIM EXITS: E-Tuvalu, S-Vanuatu - DOUBLE-BARRIER REEF LAGOON',
+    region: 'OCEANIA',
+    theme: { groundA: '#047857', groundB: '#0284c7', path: '#fef08a', grass: '#15803d', grassTip: '#4ade80', tree: '#064e3b', treeTop: '#34d399', rock: '#0369a1', rockLight: '#67e8f9', rockDark: '#0c4a6e' },
+    encounters: ['chatot', 'bonsly', 'sudowoodo', 'mime_jr', 'mr_mime', 'croagunk', 'toxicroak', 'remoraid', 'octillery'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW..88..GGGG....GGGG..KK..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WW..88......P..P......KK..WW",
+      "WW......PPPPP..PPPPP......WW",
+      "WW..GGGGP...8..8...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..........PPPP.........WWE",
+      "WW..........PPPP.........WWE",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..GGGGP...K..K...PGGGG..WW",
+      "WW..GGGGP..........PGGGG..WW",
+      "WW......PPPPPPPPPPPP......WW",
+      "WW..88......P..P......KK..WW",
+      "WW......GGGGPPPPGGGG......WW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE')
+    ],
+    exits: {
+      east:  { targetMap: 'TUVALU',  spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'VANUATU', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'sb_ecologist_marovo', name: 'ECOLOGIST GIDEON', topic: 'MARINE ECOLOGIST - MAROVO LAGOON', x: 12, y: 8, skinColor: '#5c3317', hatColor: '#0284c7', shirtColor: '#bae6fd', fact: "ECOLOGIST GIDEON: Marovo Lagoon in the Solomon Islands is the largest saltwater double-barrier reef lagoon in the world, sheltering bioluminescent corals and giant clams!" },
+      { id: 'chef_country_sb', name: 'CHEF JOYCE (SOLOMON ISLANDS)', topic: 'COUNTRY CHEF - CASSAVA PUDDING & POI', x: 15, y: 11, skinColor: '#5c3317', hatColor: '#ffffff', shirtColor: '#dcfce7', fact: "CHEF JOYCE: In the Solomon Islands, our signature dish is Cassava Pudding (Kakake) and Fish in Coconut Milk! Grated cassava root, taro, and ripe bananas are mixed with rich coconut cream and ngali nuts, wrapped in banana leaves, and baked in a stone Motu oven!" }
+    ]
+  },
+  // ====================================================================
+  // SOUTH AMERICA REGION (7 COUNTRIES: ECUADOR HUB, PERU, BOLIVIA, PARAGUAY, CHILE, ARGENTINA, URUGUAY)
+  // ====================================================================
+  ECUADOR: {
+    id: 'ECUADOR',
+    name: 'Equatorial Galapagos Hub (Ecuador)',
+    subtitle: 'E: Andean Machu (Peru) - S: Atacama Observatory (Chile) - 2x2 PORTAL',
+    region: 'SOUTH_AMERICA',
+    theme: { groundA: '#065f46', groundB: '#047857', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['turtwig', 'grotle', 'torterra', 'torkoal', 'wingull', 'pelipper', 'chatot', 'carnivine'],
+    rows: [
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+      "T..KKKK..PPPPPPPPPP..KKKK..T",
+      "T.GGGGGG.P..HHHH..P.GGGGGG.T",
+      "T.GGGGGG.P..HDDH..P.GGGGGG.T",
+      "T........P........P........T",
+      "T..KKKK..PPPPPPPPPP..KKKK..T",
+      "T........P........P........T",
+      "T.GGGGGG.P.PPPPPP.P.GGGGGG.T",
+      "T........P.P....P.P........T",
+      "T........P.P....P.PPPPPPPPPE",
+      "T........P.P....P.PPPPPPPPPE",
+      "T........P.PPPPPP.P........T",
+      "TWWWWWWWWP........PWWWWWWWWT",
+      "TWWWWWWWWBBBBBBBBBBWWWWWWWWT",
+      "TWWWWWWWWPPPPPPPPPPWWWWWWWWT",
+      "T..KKKK......PP......KKKK..T",
+      "T.GGGGGGG.PPPPPPPP.GGGGGGG.T",
+      "T.GGGGGGG.P..FF..P.GGGGGGG.T",
+      "T.........P..PP..P.........T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      east:  { targetMap: 'PERU',  spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'CHILE', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'ec_biologist_darwin', name: 'NATURALIST DARWIN', topic: 'EVOLUTIONARY BIOLOGIST - GALAPAGOS FINCHES', x: 10, y: 5, skinColor: '#fed7aa', hatColor: '#78350f', shirtColor: '#fef3c7', fact: "NATURALIST DARWIN: On the Galapagos Islands of Ecuador, adaptive radiation shaped 13 finch species with distinct beak morphologies specialized for different seeds and insects!" },
+      { id: 'ec_nurse_joy', name: 'NURSE JOY (ECUADOR)', topic: 'NURSE - PARTY HEAL', x: 14, y: 4, skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true, fact: "NURSE JOY: Welcome to the Equatorial Galapagos Hub in Ecuador! Your party is fully healed! Step onto the 2x2 Portal in the center to warp between regions!" },
+      { id: 'chef_country_ec', name: 'CHEF RODRIGO (ECUADOR)', topic: 'COUNTRY CHEF - ENCEBOLLADO & LLAPINGACHOS', x: 17, y: 5, skinColor: '#e59866', hatColor: '#ffffff', shirtColor: '#fef08a', fact: "CHEF RODRIGO: Ecuador's national dish is Encebollado! We poach fresh albacore tuna in a broth of cassava root (yuca), tomatoes, cumin, and chili pepper, topped with lime-pickled red onions, cilantro, and crispy plantain chifles!" }
+    ]
+  },
+
+  PERU: {
+    id: 'PERU',
+    name: 'Andean Machu Sanctuary (Peru)',
+    subtitle: 'W: Equatorial Hub (Ecuador) - E: Uyuni Salt Flats (Bolivia) - S: Gran Chaco (Paraguay)',
+    region: 'SOUTH_AMERICA',
+    theme: { groundA: '#57534e', groundB: '#44403c', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
+    encounters: ['natu', 'xatu', 'sigilyph' in DEFAULT_MONSTER_PIXELS ? 'sigilyph' : 'baltoy', 'claydol', 'bronzor', 'bronzong', 'aerodactyl'],
+    rows: [
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+      "R..ff..GGGG......GGGG..ff..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..ff.......P..P.......ff..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....f..f....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..ff....ff..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....f..f....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..ff.......P..P.......ff..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..ff..GGGG..PP..GGGG..ff..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      west:  { targetMap: 'ECUADOR',  spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'BOLIVIA',  spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'PARAGUAY', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'pe_agronomist_cusco', name: 'AGRONOMIST INCA', topic: 'AGRONOMIST - TERRACE MICROCLIMATES', x: 13, y: 8, skinColor: '#ca8a5b', hatColor: '#dc2626', shirtColor: '#fde047', fact: "AGRONOMIST INCA: Inca agricultural terraces (Andenes) at Moray create 15C temperature gradients from bottom to top, domesticating over 3,000 varieties of native Andean potatoes!" },
+      { id: 'chef_country_pe', name: 'CHEF GASTON (PERU)', topic: 'COUNTRY CHEF - CEVICHE PERUANO & LOMO SALTADO', x: 16, y: 8, skinColor: '#e59866', hatColor: '#ffffff', shirtColor: '#fee2e2', fact: "CHEF GASTON: Peru's world-famous dish is Ceviche Clasico! Cubes of fresh sea bass (Corvina) are cured in Leche de Tigre—freshly squeezed key lime juice, aji limo chili, garlic, and fish stock—tossed with julienned red onion and cilantro, and served with giant Andean corn (Choclo) and sweet potato (Camote)!" }
+    ]
+  },
+
+  BOLIVIA: {
+    id: 'BOLIVIA',
+    name: 'Uyuni Mirror Salt Flats (Bolivia)',
+    subtitle: 'W: Andean Machu (Peru) - S: Gran Chaco (Paraguay) - LITHIUM BRINE MIRROR',
+    region: 'SOUTH_AMERICA',
+    theme: { groundA: '#e0f2fe', groundB: '#bae6fd', path: '#f8fafc', grass: '#0284c7', grassTip: '#7dd3fc', tree: '#0f172a', treeTop: '#38bdf8', rock: '#94a3b8', rockLight: '#ffffff', rockDark: '#475569' },
+    encounters: ['magnemite', 'magneton', 'magnezone', 'carbink' in DEFAULT_MONSTER_PIXELS ? 'carbink' : 'sableye', 'cranidos', 'shieldon', 'shuckle'],
+    rows: [
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
+      "I..AA..GGGG......GGGG..AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA.......P..P.......AA..I",
+      "I......PPPPPP..PPPPPP......I",
+      "I..GGGGP....A..A....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......P..AA....AA..P......I",
+      "I......PPPPPPPPPPPPPP......I",
+      "EPPPPPPPPPPPPPPPP..........I",
+      "EPPPPPPPPPPPPPPPP..........I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..GGGGP....A..A....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..AA.......P..P.......AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA..GGGG..PP..GGGG..AA..I",
+      "I............PP............I",
+      "IIIIIIIIIIIIIEEIIIIIIIIIIIII"
+    ],
+    exits: {
+      west:  { targetMap: 'PERU',     spawnX: 26, spawnY: 9 },
+      south: { targetMap: 'PARAGUAY', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'bo_chemist_uyuni', name: 'CHEMIST NAYRA', topic: 'INORGANIC CHEMIST - SALAR DE UYUNI LITHIUM', x: 13, y: 8, skinColor: '#ca8a5b', hatColor: '#0284c7', shirtColor: '#f8fafc', fact: "CHEMIST NAYRA: Salar de Uyuni is the world's largest salt flat! Beneath its halite (NaCl) crust lies brine rich in Lithium ions (Li+), the lightest metal on the periodic table and key to rechargeable batteries!" },
+      { id: 'chef_country_bo', name: 'CHEF KAMILA (BOLIVIA)', topic: 'COUNTRY CHEF - SALTENAS BOLIVIANAS', x: 16, y: 8, skinColor: '#ca8a5b', hatColor: '#ffffff', shirtColor: '#e0f2fe', fact: "CHEF KAMILA: Bolivia's signature morning pastry is the Saltena! We fill braided sweet-savory dough with diced beef or chicken, potatoes, peas, hard-boiled egg, olives, raisins, and spicy aji sauce set in chilled gelatin—which melts into steaming juicy broth inside the oven!" }
+    ]
+  },
+
+  PARAGUAY: {
+    id: 'PARAGUAY',
+    name: 'Gran Chaco Wetlands (Paraguay)',
+    subtitle: 'N: Andean Machu (Peru) - W: Atacama (Chile) - E: Rambla Coast (Uruguay) - S: Pampas (Argentina)',
+    region: 'SOUTH_AMERICA',
+    theme: { groundA: '#14532d', groundB: '#166534', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#052e16', treeTop: '#22c55e', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#292524' },
+    encounters: ['wooper', 'quagsire', 'barboach', 'whiscash', 'croagunk', 'toxicroak', 'yanma', 'yanmega'],
+    rows: [
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
+      "T..MM..GGGG..PP..GGGG..MM..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..MM.......P..P.......MM..T",
+      "T......PPPPPP..PPPPPP......T",
+      "T..GGGGP....M..M....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......P..MM....MM..P......T",
+      "T......PPPPPPPPPPPPPP......T",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..GGGGP....M..M....PGGGG..T",
+      "T..GGGGP............PGGGG..T",
+      "T......PPPPPPPPPPPPPP......T",
+      "T..MM.......P..P.......MM..T",
+      "T......GGGG.PPPP.GGGG......T",
+      "T..MM..GGGG..PP..GGGG..MM..T",
+      "T............PP............T",
+      "TTTTTTTTTTTTTEETTTTTTTTTTTTT"
+    ],
+    exits: {
+      north: { targetMap: 'PERU',      spawnX: 13, spawnY: 18 },
+      west:  { targetMap: 'CHILE',     spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'URUGUAY',   spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'ARGENTINA', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'py_engineer_itaipu', name: 'ENGINEER ARNALDO', topic: 'HYDROELECTRIC ENG. - PARANA TURBINES', x: 13, y: 8, skinColor: '#e59866', hatColor: '#1d4ed8', shirtColor: '#bae6fd', fact: "ENGINEER ARNALDO: Along the Parana River, giant Francis hydro-turbines convert the kinetic energy of falling water into clean alternating current (AC) electricity for the entire country!" },
+      { id: 'chef_country_py', name: 'CHEF SOLEDAD (PARAGUAY)', topic: 'COUNTRY CHEF - SOPA PARAGUAYA & CHIPA', x: 16, y: 8, skinColor: '#e59866', hatColor: '#ffffff', shirtColor: '#dcfce7', fact: "CHEF SOLEDAD: Paraguay's national dish is Sopa Paraguaya—the only 'soup' in the world that is a solid cornbread! We bake fine yellow cornmeal, sauteed onions, milk, eggs, butter, and generous chunks of Paraguayan cheese into a rich, savory cake alongside cassava-starch Chipa!" }
+    ]
+  },
+
+  CHILE: {
+    id: 'CHILE',
+    name: 'Atacama Starlight Desert (Chile)',
+    subtitle: 'N: Equatorial Hub (Ecuador) - E: Gran Chaco (Paraguay) - S: Pampas (Argentina)',
+    region: 'SOUTH_AMERICA',
+    theme: { groundA: '#7c2d12', groundB: '#9a3412', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#431407', treeTop: '#f97316', rock: '#57534e', rockLight: '#cbd5e1', rockDark: '#1e293b' },
+    encounters: ['solrock', 'lunatone', 'clefairy', 'clefable', 'trapinch', 'vibrava', 'flygon', 'gible', 'gabite'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..~~..GGGG..PP..GGGG..~~..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..~~.......P..P.......~~..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....~..~....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..~~....~~..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....~..~....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..~~.......P..P.......~~..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..~~..GGGG..PP..GGGG..~~..R",
+      "R............PP............R",
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'ECUADOR',   spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'PARAGUAY',  spawnX: 1,  spawnY: 9 },
+      south: { targetMap: 'ARGENTINA', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'cl_astronomer_alma', name: 'ASTRONOMER VALENTINA', topic: 'RADIO ASTRONOMER - ATACAMA INTERFEROMETRY', x: 13, y: 8, skinColor: '#f5cba7', hatColor: '#1e3a8a', shirtColor: '#e0f2fe', fact: "ASTRONOMER VALENTINA: Because the high-altitude Atacama Desert has near-zero humidity and zero light pollution, our 66 ALMA radio telescopes combine signals via interferometry to image protoplanetary disks!" },
+      { id: 'chef_country_cl', name: 'CHEF MATIAS (CHILE)', topic: 'COUNTRY CHEF - PASTEL DE CHOCLO & EMPANADAS', x: 16, y: 8, skinColor: '#f5cba7', hatColor: '#ffffff', shirtColor: '#fef3c7', fact: "CHEF MATIAS: Chile's signature comfort dish is Pastel de Choclo baked in a clay Paila bowl! A savory base of minced beef (Pino), onions, cumin, smoked paprika (Merquen), black olives, raisins, and hard-boiled egg is topped with sweet basil-infused ground corn puree and baked golden!" }
+    ]
+  },
+
+  ARGENTINA: {
+    id: 'ARGENTINA',
+    name: 'Patagonia Pampas (Argentina)',
+    subtitle: 'N: Gran Chaco (Paraguay) / Atacama (Chile) - E: Rambla Coast (Uruguay)',
+    region: 'SOUTH_AMERICA',
+    theme: { groundA: '#0284c7', groundB: '#15803d', path: '#fef08a', grass: '#16a34a', grassTip: '#86efac', tree: '#14532d', treeTop: '#4ade80', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#1e293b' },
+    encounters: ['tauros', 'miltank', 'ponyta', 'rapidash', 'starly', 'staravia', 'staraptor', 'absol'],
+    rows: [
+      "RRRRRRRRRRRRREERRRRRRRRRRRRR",
+      "R..FF..GGGG..PP..GGGG..FF..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..FF.......P..P.......FF..R",
+      "R......PPPPPP..PPPPPP......R",
+      "R..GGGGP....F..F....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......P..FF....FF..P......R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R...........PPPPPPPPPPPPPPPE",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..GGGGP....I..I....PGGGG..R",
+      "R..GGGGP............PGGGG..R",
+      "R......PPPPPPPPPPPPPP......R",
+      "R..II.......P..P.......II..R",
+      "R......GGGG.PPPP.GGGG......R",
+      "R..II..GGGG......GGGG..II..R",
+      "R..........................R",
+      "RRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+    ],
+    exits: {
+      north: { targetMap: 'PARAGUAY', spawnX: 13, spawnY: 18 },
+      east:  { targetMap: 'URUGUAY',  spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'ar_paleontologist_patagonia', name: 'DR. CORIA (PATAGONIA)', topic: 'PALEONTOLOGIST - ARGENTINOSAURUS', x: 13, y: 8, skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#f8fafc', fact: "DR. CORIA: In the Cretaceous rock formations of Patagonia, we unearthed Argentinosaurus—one of the largest land animals to ever walk the Earth at over 70 metric tons!" },
+      { id: 'chef_country_ar', name: 'CHEF FRANCIS (ARGENTINA)', topic: 'COUNTRY CHEF - ASADO CRIOLLO & CHIMICHURRI', x: 16, y: 8, skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#e0f2fe', fact: "CHEF FRANCIS: Argentina's culinary heart is the Asado Criollo! Grass-fed Pampas beef short ribs (Tira de Asado) and flank steak (Vacio) are slow-grilled over quebracho wood embers and served with Chimichurri—finely chopped flat-leaf parsley, garlic, oregano, chili flakes, olive oil, and red wine vinegar!" }
+    ]
+  },
+
+  URUGUAY: {
+    id: 'URUGUAY',
+    name: 'Rambla Plata Coast (Uruguay)',
+    subtitle: 'W: Gran Chaco (Paraguay) / Patagonia Pampas (Argentina) - RIO DE LA PLATA ESTUARY',
+    region: 'SOUTH_AMERICA',
+    theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#64748b', rockLight: '#e2e8f0', rockDark: '#1e293b' },
+    encounters: ['mareep', 'flaaffy', 'ampharos', 'wingull', 'pelipper', 'buizel', 'floatzel', 'finneon'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "W..FF..GGGG......GGGG..FF..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..FF.......P..P.......FF..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....F..F....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......P..FF....FF..P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "EPPPPPPPPPPPPPPPP..........W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....F..F....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..FF.......P..P.......FF..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..FF..GGGG......GGGG..FF..W",
+      "W..........................W",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    exits: {
+      west: { targetMap: 'PARAGUAY', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'uy_engineer_wind', name: 'ENGINEER LUCIA (MONTEVIDEO)', topic: 'RENEWABLE GRID ENG. - 98% CLEAN POWER', x: 13, y: 8, skinColor: '#fed7aa', hatColor: '#0284c7', shirtColor: '#fef08a', fact: "ENGINEER LUCIA: Uruguay generates over 98% of its national electricity from renewable hydropower, coastal wind turbines, and biomass!" },
+      { id: 'chef_country_uy', name: 'CHEF MATEO (URUGUAY)', topic: 'COUNTRY CHEF - CHIVITO URUGUAYO & DULCE DE LECHE', x: 16, y: 8, skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#dbeafe', fact: "CHEF MATEO: Uruguay's national sandwich is the Chivito! Thinly sliced grilled beef tenderloin (Lomo) is stacked on a toasted bun with cured ham, bacon, melted mozzarella, a fried egg, tomatoes, lettuce, olives, and mayonnaise!" }
+    ]
+  },
+
+  // ====================================================================
+  // ANTARCTICA SEPARATE REGION (PARADISE BAY IN THE MIDDLE + RESPAWNING OVERWORLD ULTRA BEASTS)
+  // Grid:
+  // [null,           'DRAKE_ICEBERG', null]
+  // ['WEDDELL_PACK', 'PARADISE_BAY',  'ROSS_SHELF']
+  // [null,           'VOSTOK_DOME',   null]
+  // ====================================================================
+  PARADISE_BAY: {
+    id: 'PARADISE_BAY',
+    name: 'Paradise Bay Hub (Antarctica)',
+    subtitle: 'CENTER HUB - N: Drake Iceberg - S: Vostok Dome - W: Weddell Pack - E: Ross Shelf - 2x2 PORTAL',
+    region: 'ANTARCTICA',
+    theme: { groundA: '#bae6fd', groundB: '#7dd3fc', path: '#f0f9ff', grass: '#0284c7', grassTip: '#e0f2fe', tree: '#0f172a', treeTop: '#38bdf8', rock: '#0369a1', rockLight: '#e0f2fe', rockDark: '#0c4a6e' },
+    encounters: ['piplup', 'prinplup', 'empoleon', 'spheal', 'sealeo', 'walrein', 'seel', 'dewgong', 'delibird'],
+    rows: [
+      "IIIIIIIIIIIIIEEIIIIIIIIIIIII",
+      "I..IIII..PPPPPPPPPP..IIII..I",
+      "I.GGGGGG.P..HHHH..P.GGGGGG.I",
+      "I.GGGGGG.P..HDDH..P.GGGGGG.I",
+      "I........P........P........I",
+      "I..IIII..PPPPPPPPPP..IIII..I",
+      "I........P........P........I",
+      "I.GGGGGG.P.PPPPPP.P.GGGGGG.I",
+      "I........P.P....P.P........I",
+      "EPPPPPPPPP.P....P.PPPPPPPPPE",
+      "EPPPPPPPPP.P....P.PPPPPPPPPE",
+      "I........P.PPPPPP.P........I",
+      "IWWWWWWWWP........PWWWWWWWWI",
+      "IWWWWWWWWBBBBBBBBBBWWWWWWWWI",
+      "IWWWWWWWWPPPPPPPPPPWWWWWWWWI",
+      "I..IIII......PP......IIII..I",
+      "I.GGGGGGG.PPPPPPPP.GGGGGGG.I",
+      "I.GGGGGGG.P......P.GGGGGGG.I",
+      "I.........P..PP..P.........I",
+      "IIIIIIIIIIIIIEEIIIIIIIIIIIII"
+    ],
+    exits: {
+      north: { targetMap: 'DRAKE_ICEBERG', spawnX: 13, spawnY: 18 },
+      south: { targetMap: 'VOSTOK_DOME',   spawnX: 13, spawnY: 1 },
+      west:  { targetMap: 'WEDDELL_PACK',  spawnX: 26, spawnY: 9 },
+      east:  { targetMap: 'ROSS_SHELF',    spawnX: 1,  spawnY: 9 }
+    },
+    npcs: [
+      { id: 'aq_nurse_joy', name: 'NURSE JOY (PARADISE BAY)', topic: 'EXPEDITION NURSE - PARTY HEAL', x: 14, y: 4, skinColor: '#fed7aa', hatColor: '#f43f5e', shirtColor: '#fda4af', healsParty: true, fact: "NURSE JOY: Welcome to Paradise Bay Research Hub in the heart of Antarctica! I've warmed and healed your entire party! Watch out—Ultra Wormholes have opened across Antarctica, and the Ultra Beasts respawn every time you re-enter an area!" },
+      { id: 'chef_country_aq', name: 'CHEF ROALD (ANTARCTICA)', topic: 'EXPEDITION CHEF - PEMMICAN & HOOSH STEW', x: 10, y: 5, skinColor: '#fed7aa', hatColor: '#ffffff', shirtColor: '#e0f2fe', fact: "CHEF ROALD: At Paradise Bay Station, our high-calorie polar ration is Polar Hoosh! We melt glacier ice and simmer Pemmican (dried lean beef pounded with rendered suet fat and dried cranberries) with crushed sledging biscuits and butter to fuel 5,000-calorie polar treks!" },
+      { id: 'ub_nihilego_paradise', name: 'UB-01 NIHILEGO', topic: 'ULTRA BEAST - PARASITE GLASS', x: 20, y: 7, isMonster: true, monsterId: 'nihilego', isLegendary: true, isUltraBeast: true, fact: "NIHILEGO: Vwooo-shhh! (UB-01 Nihilego drifts out of an Ultra Wormhole above Paradise Bay! It respawns whenever you re-enter the bay!)" },
+      { id: 'ub_celesteela_paradise', name: 'UB-04 CELESTEELA', topic: 'ULTRA BEAST - BLASTER ROCKET', x: 7, y: 7, isMonster: true, monsterId: 'celesteela', isLegendary: true, isUltraBeast: true, fact: "CELESTEELA: Zzz-booom! (UB-04 Celesteela towers over the glacier! It respawns whenever you re-enter the bay!)" }
+    ]
+  },
+
+  DRAKE_ICEBERG: {
+    id: 'DRAKE_ICEBERG',
+    name: 'Drake Passage Icebergs (Antarctica)',
+    subtitle: 'S: Paradise Bay Hub - CIRCUMPOLAR CURRENT & ULTRA BEAST PHEROMOSA',
+    region: 'ANTARCTICA',
+    theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#075985', grassTip: '#7dd3fc', tree: '#0f172a', treeTop: '#38bdf8', rock: '#bae6fd', rockLight: '#ffffff', rockDark: '#0284c7' },
+    encounters: ['lapras', 'sealeo', 'walrein', 'shellder', 'cloyster', 'mantine'],
+    rows: [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "W..II..GGGG......GGGG..II..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..II.......P..P.......II..W",
+      "W......PPPPPP..PPPPPP......W",
+      "W..GGGGP....I..I....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......P..II....II..P......W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W...........PPPP...........W",
+      "W...........PPPP...........W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..GGGGP....I..I....PGGGG..W",
+      "W..GGGGP............PGGGG..W",
+      "W......PPPPPPPPPPPPPP......W",
+      "W..II.......P..P.......II..W",
+      "W......GGGG.PPPP.GGGG......W",
+      "W..II..GGGG..PP..GGGG..II..W",
+      "W............PP............W",
+      "WWWWWWWWWWWWWEEWWWWWWWWWWWWW"
+    ],
+    exits: {
+      south: { targetMap: 'PARADISE_BAY', spawnX: 13, spawnY: 1 }
+    },
+    npcs: [
+      { id: 'ub_pheromosa_drake', name: 'UB-02 PHEROMOSA', topic: 'ULTRA BEAST - LIGHTNING AGILITY', x: 13, y: 8, isMonster: true, monsterId: 'pheromosa', isLegendary: true, isUltraBeast: true, fact: "PHEROMOSA: Shhh-riii! (UB-02 Beauty darts across the icebergs at 120 mph! It respawns whenever you re-enter this area!)" }
+    ]
+  },
+
+  WEDDELL_PACK: {
+    id: 'WEDDELL_PACK',
+    name: 'Weddell Pack Ice (Antarctica)',
+    subtitle: 'E: Paradise Bay Hub - ABYSSAL BOTTOM WATER & ULTRA BEAST BUZZWOLE',
+    region: 'ANTARCTICA',
+    theme: { groundA: '#7dd3fc', groundB: '#38bdf8', path: '#f8fafc', grass: '#0369a1', grassTip: '#bae6fd', tree: '#0f172a', treeTop: '#7dd3fc', rock: '#0284c7', rockLight: '#e0f2fe', rockDark: '#0c4a6e' },
+    encounters: ['snorunt', 'glalie', 'froslass', 'swinub', 'piloswine', 'mamoswine'],
+    rows: [
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
+      "I..II..GGGG......GGGG..II..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..II.......P..P.......II..I",
+      "I......PPPPPP..PPPPPP......I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......P..II....II..P......I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I...........PPPPPPPPPPPPPPPE",
+      "I...........PPPPPPPPPPPPPPPE",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..II.......P..P.......II..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..II..GGGG......GGGG..II..I",
+      "I..........................I",
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII"
+    ],
+    exits: {
+      east: { targetMap: 'PARADISE_BAY', spawnX: 1, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'ub_buzzwole_weddell', name: 'UB-02 BUZZWOLE', topic: 'ULTRA BEAST - ABSORPTION', x: 13, y: 8, isMonster: true, monsterId: 'buzzwole', isLegendary: true, isUltraBeast: true, fact: "BUZZWOLE: Bzzz-flex! (UB-02 Absorption flexes its swollen muscles on the pack ice! It respawns whenever you re-enter this area!)" }
+    ]
+  },
+
+  ROSS_SHELF: {
+    id: 'ROSS_SHELF',
+    name: 'Ross Ice Shelf (Antarctica)',
+    subtitle: 'W: Paradise Bay Hub - TABULAR GLACIER & ULTRA BEASTS XURKITREE & KARTANA',
+    region: 'ANTARCTICA',
+    theme: { groundA: '#e0f2fe', groundB: '#bae6fd', path: '#ffffff', grass: '#0284c7', grassTip: '#7dd3fc', tree: '#0f172a', treeTop: '#38bdf8', rock: '#0369a1', rockLight: '#f0f9ff', rockDark: '#0c4a6e' },
+    encounters: ['sneasel', 'weavile', 'snover', 'abomasnow', 'jynx', 'glaceon'],
+    rows: [
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
+      "I..II..GGGG......GGGG..II..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..II.......P..P.......II..I",
+      "I......PPPPPP..PPPPPP......I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......P..II....II..P......I",
+      "I......PPPPPPPPPPPPPP......I",
+      "EPPPPPPPPPPPPPPPP..........I",
+      "EPPPPPPPPPPPPPPPP..........I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..II.......P..P.......II..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..II..GGGG......GGGG..II..I",
+      "I..........................I",
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII"
+    ],
+    exits: {
+      west: { targetMap: 'PARADISE_BAY', spawnX: 26, spawnY: 9 }
+    },
+    npcs: [
+      { id: 'ub_xurkitree_ross', name: 'UB-03 XURKITREE', topic: 'ULTRA BEAST - HIGH VOLTAGE', x: 11, y: 8, isMonster: true, monsterId: 'xurkitree', isLegendary: true, isUltraBeast: true, fact: "XURKITREE: Zzzt-krack! (UB-03 Lighting discharges 1,000,000 volts into the ice shelf! It respawns whenever you re-enter this area!)" },
+      { id: 'ub_kartana_ross', name: 'UB-04 KARTANA', topic: 'ULTRA BEAST - ORIGAMI BLADE', x: 16, y: 8, isMonster: true, monsterId: 'kartana', isLegendary: true, isUltraBeast: true, fact: "KARTANA: Shing-shing! (UB-04 Blade's paper-thin edges slice through glacial ice! It respawns whenever you re-enter this area!)" }
+    ]
+  },
+
+  VOSTOK_DOME: {
+    id: 'VOSTOK_DOME',
+    name: 'Subglacial Vostok Dome (Antarctica)',
+    subtitle: 'N: Paradise Bay Hub - ICE CORE ARCHIVE & ULTRA BEAST GUZZLORD',
+    region: 'ANTARCTICA',
+    theme: { groundA: '#0f172a', groundB: '#1e293b', path: '#7dd3fc', grass: '#0369a1', grassTip: '#38bdf8', tree: '#020617', treeTop: '#a855f7', rock: '#334155', rockLight: '#bae6fd', rockDark: '#0f172a' },
+    encounters: ['beldum', 'metang', 'metagross', 'piloswine', 'mamoswine', 'glalie'],
+    rows: [
+      "IIIIIIIIIIIIIEEIIIIIIIIIIIII",
+      "I..AA..GGGG..PP..GGGG..AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA.......P..P.......AA..I",
+      "I......PPPPPP..PPPPPP......I",
+      "I..GGGGP....A..A....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......P..AA....AA..P......I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I...........PPPP...........I",
+      "I...........PPPP...........I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..GGGGP....I..I....PGGGG..I",
+      "I..GGGGP............PGGGG..I",
+      "I......PPPPPPPPPPPPPP......I",
+      "I..AA.......P..P.......AA..I",
+      "I......GGGG.PPPP.GGGG......I",
+      "I..AA..GGGG......GGGG..AA..I",
+      "I..........................I",
+      "IIIIIIIIIIIIIIIIIIIIIIIIIIII"
+    ],
+    exits: {
+      north: { targetMap: 'PARADISE_BAY', spawnX: 13, spawnY: 18 }
+    },
+    npcs: [
+      { id: 'ub_guzzlord_vostok', name: 'UB-05 GUZZLORD', topic: 'ULTRA BEAST - GLUTTONY', x: 13, y: 8, isMonster: true, monsterId: 'guzzlord', isLegendary: true, isUltraBeast: true, fact: "GUZZLORD: Gaaah-gulp! (UB-05 Glutton devours entire mountains of subglacial ice! It respawns whenever you re-enter this area!)" }
     ]
   }
 };

@@ -1059,6 +1059,69 @@ const DEFAULT_OBSTACLE_DEFS = {
       ".........bb.....",".......bbllb....",".....bblllpb....","...bbllllpppb...","..blllllppppb...",".bllllpppppddb..","..bbbbbbbbbbbbb.","......bssssb....","..bbbbssssssbbbb","..bssssssssssssb","...bssssssssssb.","..tttttttttttttt","................","................","................","................"
     ]
   },
+  '~': {
+    id: '~', name: 'WILD DESERT SAND DUNE', walkable: true,
+    palette: { p: '#f59e0b', d: '#b45309', l: '#fde68a', b: '#78350f', s: '#fbbf24', t: '#fef3c7' },
+    grid: [
+      "pppppppppppppppp","pppppppppppppppp","ppststpppppppppp","ppppststppppdddd","pppppppppppppppp","ppppddddpppppppp","ppppppppppststpp","ppststpppppppppp","pppppppppppppppp","ppppppppddddpppp","ppllllpppppppppp","ppppllllppppstst","pppppppppppppppp","ppppddddpppppppp","pppppppppppppppp","pppppppppppppppp"
+    ]
+  },
+  '1': {
+    id: '1', name: 'ULURU RED MONOLITH (AUSTRALIA)', walkable: false,
+    palette: { p: '#c2410c', d: '#7c2d12', l: '#fb923c', b: '#431407', s: '#ea580c', t: '#fed7aa' },
+    grid: [
+      "................","................","....bbbbbbbb....","..bbllllllllbb..",".blpppppppppplb.","blppddppppddpplb","bppddddddddddppb","bpddppppppppddpb","bddddddddddddddb","bbbbbbbbbbbbbbbb","................","................","................","................","................","................"
+    ]
+  },
+  '2': {
+    id: '2', name: 'MAORI CARVED TOTEM POU (NEW ZEALAND)', walkable: false,
+    palette: { p: '#991b1b', d: '#450a0a', l: '#ef4444', b: '#0f172a', s: '#2dd4bf', t: '#fde047' },
+    grid: [
+      ".....bbbbbb.....","....bllllllb....","....bpsbbspb....","....bppttpbb....","....bddddddB....".replace(/B/,'b'),"....bbbbbbbb....","....bllllllb....","....bssbbssb....","....bppppppb....","....bpddddpb....","....bppppppb....","....bddddddb....","...bbbbbbbbbb...","................","................","................"
+    ]
+  },
+  '3': {
+    id: '3', name: 'FUNAFUTI CORAL ATOLL BEACON (TUVALU)', walkable: false,
+    palette: { p: '#38bdf8', d: '#0284c7', l: '#fef08a', b: '#0f172a', s: '#f43f5e', t: '#ffffff' },
+    grid: [
+      ".......ll.......","......lttl......","......bbbb......",".....bssssb.....",".....bttttb.....",".....bssssb.....","....bbttttbb....","....bssssssb....","...bbppppppbb...","..bbddddddddbb..","..bbbbbbbbbbbb..","................","................","................","................","................"
+    ]
+  },
+  '4': {
+    id: '4', name: 'SAMOAN DOMED FALE (SAMOA)', walkable: false,
+    palette: { p: '#d97706', d: '#92400e', l: '#fde68a', b: '#451a03', s: '#78350f', t: '#fef3c7' },
+    grid: [
+      ".....bbbbbb.....","...bbllllllbb...","..bllppppppllb..",".blpppppppppplb.",".bpddddddddddpb.","bbbbbbbbbbbbbbbb",".bss..bssb..ssb.",".bss..bssb..ssb.",".bss..bssb..ssb.",".bttttttttttttb.",".bbbbbbbbbbbbbb.","................","................","................","................","................"
+    ]
+  },
+  '5': {
+    id: '5', name: 'SLEEPING GIANT ORCHID ARCH (FIJI)', walkable: false,
+    palette: { p: '#d946ef', d: '#15803d', l: '#f5d0fe', b: '#052e16', s: '#fde047', t: '#22c55e' },
+    grid: [
+      "....ppp..ppp....","..pppsl..lsppp..",".pppsslbblssppp.",".ppttbbbbbbttpp.","..tbb......bbt..","..tb........bt..","..db........bd..","..db........bd..","..db........bd..",".ddbb......bbdd.",".bbbb......bbbb.","................","................","................","................","................"
+    ]
+  },
+  '6': {
+    id: '6', name: 'HAAMONGA CORAL TRILITHON (TONGA)', walkable: false,
+    palette: { p: '#d6d3d1', d: '#78716c', l: '#f5f5f4', b: '#1c1917', s: '#a8a29e', t: '#57534e' },
+    grid: [
+      "................",".bbbbbbbbbbbbbb.","bllllllllllllllb","bppppppppppppppb","bddddddddddddddb",".bbbbbbbbbbbbbb.","..bllpb..bpllb..","..bppdb..bpddb..","..bppdb..bpddb..","..bppdb..bpddb..","..bppdb..bpddb..","..bdddd..ddddb..","..bbbbb..bbbbb..","................","................","................"
+    ]
+  },
+  '7': {
+    id: '7', name: 'MOUNT YASUR ASH CALDERA (VANUATU)', walkable: false,
+    palette: { p: '#44403c', d: '#1c1917', l: '#f97316', b: '#09090b', s: '#fde047', t: '#dc2626' },
+    grid: [
+      "....s..ll..s....",".....llssll.....","....bbttttbb....","...bppddddppb...","..bppddddddppb..",".bppddttttddppb.",".bpddtlllltddpb.","bpddddddddddddpb","bddddddddddddddb","bbbbbbbbbbbbbbbb","................","................","................","................","................","................"
+    ]
+  },
+  '8': {
+    id: '8', name: 'SOLOMON PROW CANOE (SOLOMON ISLANDS)', walkable: false,
+    palette: { p: '#78350f', d: '#451a03', l: '#67e8f9', b: '#0f172a', s: '#f8fafc', t: '#0284c7' },
+    grid: [
+      "................","..bb........bb..",".bllb......bllb.",".blpb......bplb.",".bpdbbbbbbbbdpb.","..bpppsssspppp..","..bpppddddpppp..","...bddddddddb...","....bbbbbbbb....","..tttttttttttt..","................","................","................","................","................","................"
+    ]
+  },
   BERRY: {
     id: 'BERRY', name: 'WILD FLOOR BERRY', walkable: false, obtainable: true,
     palette: { p: '#a855f7', d: '#581c87', l: '#f3e8ff', b: '#0f172a', s: '#e9d5ff', t: '#fde047' },

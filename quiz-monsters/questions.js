@@ -5,6 +5,65 @@
  * 2. EAST_ASIA_QUESTIONS: Chinese character (Hanzi) questions across all 18 types
  * (Original scientific trivia questions preserved in comments below)
  ********************************************************************/
+const FOOD_VOCAB_QUESTIONS = [
+  {
+    type: 'GRASS',
+    difficulty: 1,
+    q: 'Look at the 16x16 image. What food is this?',
+    options: ['Apple', 'Banana', 'Grapes', 'Carrot'],
+    answer: 0,
+    pixelArt: {
+      palette: { r: '#ef4444', d: '#b91c1c', w: '#fca5a5', g: '#22c55e', s: '#78350f', b: '#0f172a' },
+      grid: [
+        ".......bb.......",
+        "......bsbgggg...",
+        ".....bsbggggg...",
+        "...bbbbbgggg....",
+        "..brrrrrbbbb....",
+        ".brwwrrrrrrrb...",
+        "brwwwrrrrrrrrb..",
+        "brwrrrrrrrrrrdb.",
+        "brrrrrrrrrrrrddb",
+        "brrrrrrrrrrrrddb",
+        "brrrrrrrrrrrdddb",
+        ".brrrrrrrrrdddb.",
+        ".bddddddddddddb.",
+        "..bdddddddddddb.",
+        "...bbbb..bbbb...",
+        "................"
+      ]
+    }
+  },
+  {
+    type: 'ELECTRIC',
+    difficulty: 1,
+    q: 'Look at the 16x16 image. What food is this?',
+    options: ['Banana', 'Lemon', 'Cheese', 'Corn'],
+    answer: 0,
+    pixelArt: {
+      palette: { y: '#facc15', d: '#ca8a04', l: '#fef08a', s: '#78350f', b: '#0f172a' },
+      grid: [
+        "...........bbb..",
+        "..........bssb..",
+        ".........byyyb..",
+        "........bylyyb..",
+        ".......bylyyyb..",
+        "......bylyyyyb..",
+        ".....bylyyyyddb.",
+        "....bylyyyydddb.",
+        "...bylyyyyddddb.",
+        "..bylyyyyddddb..",
+        ".byyyyyyddddb...",
+        ".bsyyyyddddb....",
+        "..bbbbbbbb......",
+        "................",
+        "................",
+        "................"
+      ]
+    }
+  }
+  // Add more image/pixel-art questions here following the same structure
+];
 
 const OG_REGION_QUESTIONS = [
   // --- NORMAL ---

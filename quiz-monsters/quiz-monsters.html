@@ -30,7 +30,7 @@
       </div>
       <div class="bg-slate-900 px-2 py-1.5 rounded border border-emerald-500/50 hidden md:flex items-center gap-1">
         <span class="text-[8px] text-slate-400">DEX:</span>
-        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/500</span>
+        <span id="dexCountText" class="text-[9px] sm:text-[10px] text-emerald-400">1/1025</span>
       </div>
     </div>
 
@@ -38,7 +38,7 @@
       <button id="menuBgmToggleBtn" type="button" class="pixel-btn bg-emerald-700 hover:bg-emerald-600 text-emerald-100 text-[8px] sm:text-[9px] px-2.5 py-1.5 font-bold">
         BGM: ON
       </button>
-      <button id="menuMuteToggleBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-2.5 py-1.5 font-bold">
+      <button id="menuMuteToggleBtn" type="button" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-[8px] sm:text-[9px] px-2.5 py-1.5 font-bold">
         SFX: ON
       </button>
       <button id="openSettingsModalBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-3 py-1.5 font-bold">
@@ -69,7 +69,7 @@
     <section id="titleScreenView" class="relative w-full min-h-[500px] sm:min-h-[535px] rounded-lg border-4 border-slate-950 overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-between p-5 sm:p-8 text-center">
       <div class="crt-overlay absolute inset-0 z-10"></div>
       <div class="w-full flex justify-between items-center text-[9px] text-amber-300/80 z-20">
-        <span>VER 9.5 - 8 WORLD REGIONS &amp; ANTARCTICA ULTRA BEASTS</span>
+        <span>VER 10.0 - FULL 1025 NATIONAL DEX &amp; 8 REGIONS</span>
         <span>EXPLORE 62 HABITAT BIOMES ACROSS THE GLOBE</span>
       </div>
 
@@ -224,7 +224,7 @@
         </div>
 
         <!-- PLAYER SPRITE CONTAINER -->
-        <div class="absolute bottom-2 left-2 sm:bottom-3 sm:left-20 w-20 sm:w-32 flex flex-col items-center z-10">
+        <div id="playerContainer" class="absolute bottom-2 left-2 sm:bottom-3 sm:left-20 w-20 sm:w-32 flex flex-col items-center z-10">
           <div id="playerFloatContainer" class="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-6 flex items-center justify-center overflow-visible pointer-events-none z-30"></div>
           <div id="playerSpriteWrapper" class="w-20 h-20 sm:w-32 sm:h-32 flex items-center justify-center anim-idle relative z-10"></div>
           <div class="w-16 sm:w-28 h-3.5 sm:h-5 bg-slate-900/35 rounded-full blur-[1px] -mt-1.5 sm:-mt-2 shrink-0"></div>
@@ -344,7 +344,7 @@
   </main>
 
   <footer class="w-full max-w-4xl mt-2 px-2 flex flex-wrap items-center justify-between text-[8px] sm:text-[9px] text-slate-400 gap-2">
-    <div>8 WORLD REGIONS: CHROMA ARCHIPELAGO, EAST ASIA, WEST EUROPE, NORTH AMERICA, SOUTHERN AFRICA, OCEANIA, SOUTH AMERICA &amp; ANTARCTICA</div>
+    <div>8 WORLD REGIONS: CHROMA ARCHIPELAGO, ASIA, EUROPE, NORTH AMERICA, AFRICA, OCEANIA, SOUTH AMERICA &amp; ANTARCTICA</div>
     <div>OPEN SETTINGS FOR SPRITE STUDIO, QUIZ DECK &amp; COMPACT SAVE/LOAD</div>
   </footer>
 
@@ -562,11 +562,11 @@
 
       <div class="text-[9px] sm:text-[10px] text-slate-800 space-y-2.5 leading-relaxed overflow-y-auto max-h-[50vh] pr-1">
         <div class="bg-sky-50 border-l-4 border-sky-600 p-2 rounded">
-          <strong class="text-sky-900 block mb-1">Version 9.5 (Latest Update)</strong>
-          - South America Region (100 Dex): Ecuador, Peru, Bolivia, Paraguay, Chile, Argentina, and Uruguay.<br>
-          - Separate Antarctica Region (110 Dex): Centered on Paradise Bay with overworld Ultra Beasts (Nihilego, Buzzwole, Pheromosa, Xurkitree, Celesteela, Kartana, Guzzlord) that respawn like floor items whenever you enter an area.<br>
-          - Ultra-Compact Save Codes (QM9:...): 90% smaller single-line save strings with full backward compatibility.<br>
-          - All Country Chefs &amp; Nurses heal your party; fainted monsters must be healed before switching.
+          <strong class="text-sky-900 block mb-1">Version 10.0 (Latest Update)</strong>
+          - Complete 1,025 National Dex (Gen 1 through Gen 9 Paldea) with 60 FPS offscreen canvas caching &amp; O(1) lookup optimization.<br>
+          - 16x16 Visual Vocabulary Clue Pop-up Window for the 4th move slot (Wild Move).<br>
+          - South America Region (100 Dex) &amp; Antarctica Region (110 Dex) with Paradise Bay and respawning Ultra Beasts.<br>
+          - Ultra-Compact Save Codes (QM9:...) &amp; Country Chef / Nurse full party healing.
         </div>
 
         <div class="bg-amber-50 border-l-4 border-amber-600 p-2 rounded">
@@ -575,7 +575,7 @@
           - Added West Europe (60 Dex), North America + SURF surfboard ability (70 Dex), Southern Africa (80 Dex), and Oceania swim-border islands (90 Dex).<br>
           - All 8 Eeveelutions, all Evolution Stones, and random Tyrogue/Wurmple/Burmy evolutions.<br>
           - Wild encounters in Tall Grass (G), Swamp Mud (M), Desert Sand (~), and Water (W) while Surfing.<br>
-          - Linear Catch Rate scaling from 1% (at 500 HP) to 99% (at 1 HP) &amp; merged EVOLVE battle button.
+          - Linear Catch Rate scaling from 1% (at 300 HP) to 99% (at 1 HP) &amp; merged EVOLVE battle button.
         </div>
 
         <div class="bg-emerald-50 border-l-4 border-emerald-600 p-2 rounded">
@@ -800,64 +800,74 @@
       };
     }
 
-    function findSpeciesObject(speciesOrId) {
-      if (typeof MONSTER_SPECIES === 'undefined' || !speciesOrId) return null;
-      if (typeof speciesOrId === 'string') {
-        const clean = speciesOrId.toLowerCase();
-        return MONSTER_SPECIES.find(m => m.id.toLowerCase() === clean || (m.name && m.name.toLowerCase() === clean)) || MONSTER_SPECIES[0];
+    // O(1) Species Lookup Maps (Replaces linear MONSTER_SPECIES.find scans)
+    let _speciesByIdMap = null;
+    let _speciesByNameMap = null;
+
+    function ensureSpeciesLookupMaps() {
+      if (typeof MONSTER_SPECIES === 'undefined') return;
+      if (_speciesByIdMap && _speciesByIdMap.size === MONSTER_SPECIES.length) return;
+      _speciesByIdMap = new Map();
+      _speciesByNameMap = new Map();
+      for (let i = 0; i < MONSTER_SPECIES.length; i++) {
+        const m = MONSTER_SPECIES[i];
+        _speciesByIdMap.set(m.id.toLowerCase(), m);
+        if (m.name) _speciesByNameMap.set(m.name.toLowerCase(), m);
       }
-      return MONSTER_SPECIES.find(m => m.id === speciesOrId.id) || speciesOrId;
     }
 
-    const _monsterCanvasImageCache = {};
-    const _monsterParsedRectsCache = {};
+    function findSpeciesObject(speciesOrId) {
+      if (typeof MONSTER_SPECIES === 'undefined' || !speciesOrId) return null;
+      ensureSpeciesLookupMaps();
+      if (typeof speciesOrId === 'string') {
+        const clean = speciesOrId.toLowerCase();
+        return _speciesByIdMap.get(clean) || _speciesByNameMap.get(clean) || MONSTER_SPECIES[0];
+      }
+      return _speciesByIdMap.get((speciesOrId.id || '').toLowerCase()) || speciesOrId;
+    }
+
+    // Lazy 16x16 Offscreen Canvas Cache (Zero SVG regex parsing or eager startup lag)
+    const _monsterOffscreenCanvasCache = {};
 
     function getMonsterCanvasImage(speciesOrId) {
       const species = findSpeciesObject(speciesOrId);
       if (!species) return null;
 
-      const cacheKey = species.id + '_' + JSON.stringify(species.palette || {});
-      if (_monsterCanvasImageCache[cacheKey]) {
-        return _monsterCanvasImageCache[cacheKey];
+      const monId = species.id;
+      const customArt = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[monId]) ? MONSTER_PIXELS[monId] : null;
+      const art = customArt || (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[monId] : null);
+      if (!art || !art.grid || !art.palette) return null;
+
+      if (!customArt && _monsterOffscreenCanvasCache[monId]) {
+        return _monsterOffscreenCanvasCache[monId];
       }
 
-      if (typeof renderMonsterSVG === 'function') {
-        let svgMarkup = renderMonsterSVG(species);
-        if (svgMarkup) {
-          if (!svgMarkup.includes('xmlns=')) {
-            svgMarkup = svgMarkup.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-          }
-          if (!/width=/i.test(svgMarkup)) {
-            svgMarkup = svgMarkup.replace('<svg', '<svg width="64" height="64"');
-          }
-          const img = new Image();
-          img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMarkup);
-          _monsterCanvasImageCache[cacheKey] = img;
+      const offCvs = document.createElement('canvas');
+      offCvs.width = 16;
+      offCvs.height = 16;
+      const offCtx = offCvs.getContext('2d');
 
-          const rects = [];
-          const rectRegex = /<rect[^>]*>/gi;
-          let match;
-          while ((match = rectRegex.exec(svgMarkup)) !== null) {
-            const tag = match[0];
-            const x = parseFloat((tag.match(/x="([^"]+)"/) || [])[1] || 0);
-            const y = parseFloat((tag.match(/y="([^"]+)"/) || [])[1] || 0);
-            const w = parseFloat((tag.match(/width="([^"]+)"/) || [])[1] || 1);
-            const h = parseFloat((tag.match(/height="([^"]+)"/) || [])[1] || 1);
-            const fill = (tag.match(/fill="([^"]+)"/) || [])[1];
-            if (fill && fill !== 'none' && fill !== 'transparent') {
-              rects.push({ x, y, w, h, fill });
-            }
+      for (let y = 0; y < 16; y++) {
+        const rowStr = art.grid[y];
+        if (!rowStr) continue;
+        for (let x = 0; x < 16; x++) {
+          const ch = rowStr.charAt(x);
+          if (ch !== '.' && art.palette[ch]) {
+            offCtx.fillStyle = art.palette[ch];
+            offCtx.fillRect(x, y, 1, 1);
           }
-          _monsterParsedRectsCache[cacheKey] = rects;
-          return img;
         }
       }
-      return null;
+
+      if (!customArt) {
+        _monsterOffscreenCanvasCache[monId] = offCvs;
+      }
+      return offCvs;
     }
 
     function drawMonsterOnCanvas(ctx, speciesOrId, screenX, screenY, flipX = false) {
-      const species = findSpeciesObject(speciesOrId);
-      if (!species) return;
+      const offCvs = getMonsterCanvasImage(speciesOrId);
+      if (!offCvs) return;
 
       ctx.fillStyle = 'rgba(15, 23, 42, 0.38)';
       ctx.beginPath();
@@ -870,40 +880,20 @@
       );
       ctx.fill();
 
-      const img = getMonsterCanvasImage(species);
-      const size = SAFE_TILE_SIZE * 0.88;
-      const dx = screenX + (SAFE_TILE_SIZE - size) / 2;
-      const dy = screenY + (SAFE_TILE_SIZE - size) - 2;
+      const size = Math.round(SAFE_TILE_SIZE * 0.88);
+      const dx = Math.round(screenX + (SAFE_TILE_SIZE - size) / 2);
+      const dy = Math.round(screenY + (SAFE_TILE_SIZE - size) - 2);
 
-      if (img && img.complete && img.naturalWidth > 0) {
-        ctx.save();
-        if (flipX) {
-          ctx.translate(dx + size, dy);
-          ctx.scale(-1, 1);
-          ctx.drawImage(img, 0, 0, size, size);
-        } else {
-          ctx.drawImage(img, dx, dy, size, size);
-        }
-        ctx.restore();
-        return;
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      if (flipX) {
+        ctx.translate(dx + size, dy);
+        ctx.scale(-1, 1);
+        ctx.drawImage(offCvs, 0, 0, size, size);
+      } else {
+        ctx.drawImage(offCvs, dx, dy, size, size);
       }
-
-      const cacheKey = species.id + '_' + JSON.stringify(species.palette || {});
-      const rects = _monsterParsedRectsCache[cacheKey];
-      if (rects && rects.length > 0) {
-        const scale = size / 16;
-        for (let i = 0; i < rects.length; i++) {
-          const r = rects[i];
-          ctx.fillStyle = r.fill;
-          const rx = flipX ? (16 - r.x - r.w) : r.x;
-          ctx.fillRect(
-            Math.floor(dx + rx * scale),
-            Math.floor(dy + r.y * scale),
-            Math.ceil(r.w * scale),
-            Math.ceil(r.h * scale)
-          );
-        }
-      }
+      ctx.restore();
     }
 
     function setupAudioExtensions() {
@@ -948,18 +938,21 @@
 
           if (mapObj && Array.isArray(mapObj.npcs)) {
             const bob = Math.sin(performance.now() / 200) * 2;
-            mapObj.npcs.forEach(npc => {
-              if (typeof isNPCActiveOnMap === 'function' && !isNPCActiveOnMap(npc)) return;
+            const facing = (typeof getFacingNPC === 'function') ? getFacingNPC() : null;
+            for (let i = 0; i < mapObj.npcs.length; i++) {
+              const npc = mapObj.npcs[i];
+              if (typeof isNPCActiveOnMap === 'function' && !isNPCActiveOnMap(npc)) continue;
               if (npc.isMonster || npc.monsterId) {
                 const tileX = Math.round(npc.x * SAFE_TILE_SIZE - camX);
                 const tileY = Math.round(npc.y * SAFE_TILE_SIZE - camY);
+                if (tileX < -SAFE_TILE_SIZE || tileX > canvas.width || tileY < -SAFE_TILE_SIZE || tileY > canvas.height) continue;
+
                 const tile = getTileAt(npc.x, npc.y);
-                ctx.fillStyle = (tile === 'P' || tile === 'E') ? mapObj.theme.path : mapObj.theme.groundA;
+                ctx.fillStyle = (tile === 'P' || tile === 'E') ? mapObj.theme.path : (tile === 'W' ? '#0284c7' : mapObj.theme.groundA);
                 ctx.fillRect(tileX, tileY, SAFE_TILE_SIZE, SAFE_TILE_SIZE);
 
                 drawMonsterOnCanvas(ctx, npc.monsterId || npc.id, tileX, Math.round(tileY + bob), false);
 
-                const facing = (typeof getFacingNPC === 'function') ? getFacingNPC() : null;
                 if (facing && facing.id === npc.id) {
                   ctx.fillStyle = '#f59e0b';
                   ctx.beginPath();
@@ -970,7 +963,7 @@
                   ctx.fillText('!', tileX + 14, tileY - 3);
                 }
               }
-            });
+            }
           }
         };
       }
@@ -978,8 +971,6 @@
 
     /********************************************************************
      * DELTA-ENCODED + BASE64 COMPRESSED SAVE / LOAD ENGINE (`QM9:...`)
-     * Stores only compact tuples and modified diffs; 100% compatible
-     * with both `QM9:...` compact codes and legacy JSON save files.
      ********************************************************************/
     function utf8ToBase64(str) {
       const bytes = new TextEncoder().encode(str);
@@ -1023,7 +1014,7 @@
       }
 
       const compactObj = {
-        v: 9,
+        v: 10,
         m: window.state.currentMapId,
         x: window.state.playerWorld.gridX,
         y: window.state.playerWorld.gridY,
@@ -1046,7 +1037,6 @@
     function applyDecodedSaveObject(data) {
       if (!data) return false;
 
-      // Support both compact `d: [[id, hp, evoWins], ...]` and legacy `caughtPokemon` / `dex`
       const rawList = data.d || data.caughtPokemon || data.dexIds || data.dex;
       if (!Array.isArray(rawList) || rawList.length === 0) return false;
 
@@ -1219,11 +1209,6 @@
     }
 
     function refreshTitleScreenSprites() {
-      const thumbImg = document.getElementById('titleWorldThumbImg');
-      if (thumbImg && typeof renderMapThumbnailDataURL === 'function' && typeof WORLD_MAPS !== 'undefined') {
-        thumbImg.src = renderMapThumbnailDataURL(WORLD_MAPS.CENTER);
-      }
-
       if (typeof MONSTER_SPECIES === 'undefined' || typeof renderMonsterSVG !== 'function') return;
       const mascotConfigs = [
         { slotId: 'titleSprite0', key: 'pikachu',    fallbackIdx: 0 },
@@ -1235,9 +1220,7 @@
       mascotConfigs.forEach(({ slotId, key, fallbackIdx }) => {
         const el = document.getElementById(slotId);
         if (!el) return;
-        const species = MONSTER_SPECIES.find(
-          m => m.id.toLowerCase() === key || (m.name && m.name.toLowerCase() === key)
-        ) || MONSTER_SPECIES[fallbackIdx] || MONSTER_SPECIES[0];
+        const species = findSpeciesObject(key) || MONSTER_SPECIES[fallbackIdx] || MONSTER_SPECIES[0];
         if (species) {
           el.innerHTML = renderMonsterSVG(species);
         }
@@ -1245,17 +1228,16 @@
     }
 
     function initGame() {
+      // Ensure studio.js cannot override our compact QM9 save function
+      window.saveGameProgress = saveGameProgress;
+
       if (!window.state.questions || window.state.questions.length === 0) {
         window.state.questions = (typeof DEFAULT_QUESTIONS !== 'undefined') ? safeClone(DEFAULT_QUESTIONS) : [];
       }
 
+      ensureSpeciesLookupMaps();
       setupAudioExtensions();
       setupOverworldHooks();
-
-      if (typeof MONSTER_SPECIES !== 'undefined') {
-        MONSTER_SPECIES.forEach(sp => getMonsterCanvasImage(sp));
-      }
-
       refreshTitleScreenSprites();
 
       const pikachuSpecies = findSpeciesObject('pikachu') || MONSTER_SPECIES[0];

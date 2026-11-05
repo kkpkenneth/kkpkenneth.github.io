@@ -91,7 +91,7 @@ function handleActivePartnerFainted() {
   }
 }
 
-// Linear Catch Rate Calculation: 1% at >=500 HP scaling linearly to 99% at 1 HP
+// Linear Catch Rate Calculation: 1% at >=300 HP scaling linearly to 99% at 1 HP
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
   const currentHp = Math.max(1, Math.min(300, enemy.hp));
@@ -422,18 +422,18 @@ function renderMoveButtons() {
   const isUntransformedDitto = player.id === 'ditto' && !player.transformedSpeciesId;
 
   const moveConfigs = [
-    { title: 'NORMAL STRIKE', typeId: 'NORMAL', diff: 1, desc: 'Everyday Logic (Lv1 - Normal)' },
-    { title: `${activeType} EASY STRIKE`, typeId: activeType, diff: 1, desc: `${primarySubject} (Lv1 - Easy STAB)` },
-    { title: `${activeType} MEDIUM STRIKE`, typeId: activeType, diff: 2, desc: `${primarySubject} (Lv2 - Medium STAB)` },
+    { title: 'NORMAL STRIKE', typeId: 'NORMAL', diff: 1, desc: 'Everyday Logic (Lv1 - Normal)', isVisual: false },
+    { title: `${activeType} EASY STRIKE`, typeId: activeType, diff: 1, desc: `${primarySubject} (Lv1 - Easy STAB)`, isVisual: false },
+    { title: `${activeType} MEDIUM STRIKE`, typeId: activeType, diff: 2, desc: `${primarySubject} (Lv2 - Medium STAB)`, isVisual: false },
     isUntransformedDitto
-      ? { title: 'TRANSFORM', typeId: 'NORMAL', diff: 1, isTransform: true, desc: `Morph into ${enemy ? enemy.name : 'Enemy'} & copy moves` }
-      : { title: `${secondaryType} WILD STRIKE`, typeId: secondaryType, diff: 2, desc: `${secondarySubject} (Lv2 - Partner Move)` }
+      ? { title: 'TRANSFORM', typeId: 'NORMAL', diff: 1, isTransform: true, desc: `Morph into ${enemy ? enemy.name : 'Enemy'} & copy moves`, isVisual: false }
+      : { title: `${secondaryType} WILD STRIKE`, typeId: secondaryType, diff: 2, desc: `Visual Identification Clue (Lv2 - Wild Move)`, isVisual: true }
   ];
 
   moveConfigs.forEach(cfg => {
-    const typeObj = ELEMENT_TYPES[cfg.typeId] || { name: cfg.typeId, btnClass: 'bg-slate-700 text-white', badgeClass: 'bg-slate-700' };
-    const mult = getEffectiveness(cfg.typeId, enemy.type);
-    const hasStab = activeType === cfg.typeId && cfg.typeId !== 'NORMAL';
+    const typeObj = ELEMENT_TYPES[cfg.typeId] || { name: cfg.typeId, btnClass: 'bg-slate-700 hover:bg-slate-600 text-white' };
+    const mult = cfg.isTransform ? 1 : getEffectiveness(cfg.typeId, enemy.type);
+    const hasStab = !cfg.isTransform && cfg.typeId === activeType && cfg.typeId !== 'NORMAL';
 
     let effLabel = cfg.isTransform ? 'MORPH' : '1x';
     let effBadgeClass = cfg.isTransform ? 'bg-purple-300 text-slate-950 font-bold animate-pulse' : 'bg-slate-900/40 text-white';
@@ -463,7 +463,7 @@ function renderMoveButtons() {
       if (cfg.isTransform) {
         executeDittoTransform();
       } else {
-        startElementalTriviaAttack(cfg.typeId, cfg.diff);
+        startElementalTriviaAttack(cfg.typeId, cfg.diff, cfg.isVisual);
       }
     });
     grid.appendChild(btn);
@@ -524,11 +524,128 @@ function getDifficultyMultiplier(diff) {
   return 1.0;
 }
 
-function startElementalTriviaAttack(elementType, difficulty = 2) {
+function startElementalTriviaAttack(elementType, difficulty = 2, isVisual = false) {
   sfx.blip();
   state.selectedAttackType = elementType;
   state.selectedDifficulty = difficulty;
-  launchQuizQuestion(elementType, difficulty, 25.0);
+  launchQuizQuestion(elementType, difficulty, 25.0, isVisual);
+}
+
+function pickVisualVocabularyQuestion(elementType = null) {
+  const pool = (typeof FOOD_VOCAB_QUESTIONS !== 'undefined' && FOOD_VOCAB_QUESTIONS.length > 0)
+    ? FOOD_VOCAB_QUESTIONS
+    : (typeof DEFAULT_QUESTIONS !== 'undefined' ? DEFAULT_QUESTIONS : []);
+
+  let filtered = pool;
+  if (elementType) {
+    const typeMatch = pool.filter(q => q.type === elementType);
+    if (typeMatch.length > 0) filtered = typeMatch;
+  }
+
+  const chosen = filtered[Math.floor(Math.random() * filtered.length)];
+  const indexedOptions = chosen.options.map((text, idx) => ({
+    text,
+    isCorrect: idx === chosen.answer
+  }));
+
+  for (let i = indexedOptions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+  }
+  return { chosen, indexedOptions };
+}
+
+function renderQuestionPixelArtSVG(pixelArt) {
+  if (!pixelArt || !Array.isArray(pixelArt.grid) || !pixelArt.palette) return '';
+  let rects = '';
+  for (let y = 0; y < 16; y++) {
+    const row = pixelArt.grid[y] || '';
+    for (let x = 0; x < 16; x++) {
+      const ch = row.charAt(x);
+      if (ch && ch !== '.' && pixelArt.palette[ch]) {
+        rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${pixelArt.palette[ch]}"/>`;
+      }
+    }
+  }
+  return `<svg viewBox="0 0 16 16" class="w-full h-full" shape-rendering="crispEdges" style="image-rendering: pixelated;">${rects}</svg>`;
+}
+
+function launchQuizQuestion(elementType, difficulty, durationSeconds, isVisual = false) {
+  hideAllBottomViews();
+  document.getElementById('quizCombatView').classList.remove('hidden');
+
+  const { chosen, indexedOptions } = isVisual
+    ? pickVisualVocabularyQuestion(elementType)
+    : pickRandomQuestion(elementType, difficulty);
+
+  state.currentQuestion = chosen;
+  state.shuffledOptions = indexedOptions;
+  state.maxTime = durationSeconds;
+  state.timeRemaining = durationSeconds;
+  state.questionStartTime = performance.now();
+
+  const tInfo = ELEMENT_TYPES[elementType] || { name: elementType, subject: 'General', badgeClass: 'bg-slate-700' };
+  const contextBadge = document.getElementById('quizContextBadge');
+  contextBadge.textContent = `${tInfo.name} - ${tInfo.subject.toUpperCase()}`;
+  contextBadge.className = `text-[9px] sm:text-[10px] px-2 py-1 rounded text-white font-bold ${tInfo.badgeClass}`;
+
+  const diff = chosen.difficulty || difficulty;
+  const diffBadge = document.getElementById('quizDifficultyBadge');
+  if (diff >= 2) {
+    diffBadge.textContent = 'LV2 MEDIUM (1.35x DMG)';
+    diffBadge.className = 'text-[9px] px-2 py-1 rounded bg-purple-200 text-purple-950 font-bold border border-purple-500';
+  } else {
+    diffBadge.textContent = 'LV1 EASY (1.0x DMG)';
+    diffBadge.className = 'text-[9px] px-2 py-1 rounded bg-emerald-200 text-emerald-950 font-bold border border-emerald-500';
+  }
+
+  const mult = getEffectiveness(elementType, state.enemy.type);
+  document.getElementById('quizMultiplierBadge').textContent = `${mult}x TYPE EFFECT`;
+
+  const qTextEl = document.getElementById('quizQuestionText');
+  const qBox = qTextEl ? qTextEl.parentElement : null;
+
+  if (qBox) {
+    qBox.className = 'bg-slate-100 border-2 border-slate-300 rounded p-2.5 sm:p-3 flex items-center justify-between gap-3';
+    let popupEl = document.getElementById('quizPixelPopupWindow');
+    if (chosen.pixelArt) {
+      if (!popupEl) {
+        popupEl = document.createElement('div');
+        popupEl.id = 'quizPixelPopupWindow';
+        popupEl.className = 'retro-box-dark p-1.5 flex flex-col items-center shrink-0 shadow-lg border-2 border-amber-400';
+        qBox.insertBefore(popupEl, qTextEl);
+      }
+      popupEl.classList.remove('hidden');
+      popupEl.innerHTML = `
+        <span class="text-[6px] text-amber-300 font-bold mb-0.5 tracking-tighter">16x16 CLUE</span>
+        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-950 rounded border border-slate-700 p-1">
+          ${renderQuestionPixelArtSVG(chosen.pixelArt)}
+        </div>
+      `;
+    } else if (popupEl) {
+      popupEl.classList.add('hidden');
+    }
+  }
+  if (qTextEl) {
+    qTextEl.textContent = chosen.q;
+  }
+
+  const choicesGrid = document.getElementById('quizChoicesGrid');
+  choicesGrid.innerHTML = '';
+
+  const labels = ['A', 'B', 'C', 'D'];
+  indexedOptions.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'pixel-btn bg-white hover:bg-indigo-50 text-slate-900 p-2 sm:p-2.5 text-left flex items-center gap-2';
+    btn.innerHTML = `
+      <span class="inline-block px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[9px] font-bold shrink-0">${labels[i]}</span>
+      <span class="text-[10px] sm:text-xs leading-tight">${opt.text}</span>
+    `;
+    btn.addEventListener('click', () => handleQuizAnswer(opt.isCorrect, btn));
+    choicesGrid.appendChild(btn);
+  });
+
+  startQuizCountdown();
 }
 
 function startCaptureBallSequence() {
@@ -655,52 +772,8 @@ function startCaptureBallSequence() {
   }, 550);
 }
 
-function launchQuizQuestion(elementType, difficulty, durationSeconds) {
-  hideAllBottomViews();
-  document.getElementById('quizCombatView').classList.remove('hidden');
-
-  const { chosen, indexedOptions } = pickRandomQuestion(elementType, difficulty);
-  state.currentQuestion = chosen;
-  state.shuffledOptions = indexedOptions;
-  state.maxTime = durationSeconds;
-  state.timeRemaining = durationSeconds;
-  state.questionStartTime = performance.now();
-
-  const tInfo = ELEMENT_TYPES[elementType] || { name: elementType, subject: 'General', badgeClass: 'bg-slate-700' };
-  const contextBadge = document.getElementById('quizContextBadge');
-  contextBadge.textContent = `${tInfo.name} - ${tInfo.subject.toUpperCase()}`;
-  contextBadge.className = `text-[9px] sm:text-[10px] px-2 py-1 rounded text-white font-bold ${tInfo.badgeClass}`;
-
-  const diff = chosen.difficulty || difficulty;
-  const diffBadge = document.getElementById('quizDifficultyBadge');
-  if (diff >= 2) {
-    diffBadge.textContent = 'LV2 MEDIUM (1.35x DMG)';
-    diffBadge.className = 'text-[9px] px-2 py-1 rounded bg-purple-200 text-purple-950 font-bold border border-purple-500';
-  } else {
-    diffBadge.textContent = 'LV1 EASY (1.0x DMG)';
-    diffBadge.className = 'text-[9px] px-2 py-1 rounded bg-emerald-200 text-emerald-950 font-bold border border-emerald-500';
-  }
-
-  const mult = getEffectiveness(elementType, state.enemy.type);
-  document.getElementById('quizMultiplierBadge').textContent = `${mult}x TYPE EFFECT`;
-
-  document.getElementById('quizQuestionText').textContent = chosen.q;
-  const choicesGrid = document.getElementById('quizChoicesGrid');
-  choicesGrid.innerHTML = '';
-
-  const labels = ['A', 'B', 'C', 'D'];
-  indexedOptions.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'pixel-btn bg-white hover:bg-indigo-50 text-slate-900 p-2 sm:p-2.5 text-left flex items-center gap-2';
-    btn.innerHTML = `
-      <span class="inline-block px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[9px] font-bold shrink-0">${labels[i]}</span>
-      <span class="text-[10px] sm:text-xs leading-tight">${opt.text}</span>
-    `;
-    btn.addEventListener('click', () => handleQuizAnswer(opt.isCorrect, btn));
-    choicesGrid.appendChild(btn);
-  });
-
-  startQuizCountdown();
+function startquistCountdown() {
+  // handled by startQuizCountdown
 }
 
 function startQuizCountdown() {
@@ -857,7 +930,12 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
     }, 200);
 
     const reason = isTimeout ? 'TIME UP!' : 'INCORRECT!';
-    setDialogue(`${reason} Combo streak reset! Wild ${enemy.name} counterattacked ${player.name} for ${enemyDmg} DMG!`, 'COUNTERATTACK!');
+    const superEffText = typeAdvantageMult > 1 ? "It's SUPER EFFECTIVE! " : (typeAdvantageMult < 1 ? "It's not very effective... " : "");
+    setDialogue(
+      `${reason} Combo streak reset! Wild ${enemy.name} counterattacked ${player.name} for ${enemyDmg} DMG! ${superEffText}`,
+      typeAdvantageMult > 1 ? 'SUPER EFFECTIVE COUNTER!' : 'COUNTERATTACK!'
+    );
+
 
     setTimeout(() => {
       if (player.hp <= 0) {

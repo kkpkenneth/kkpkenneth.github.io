@@ -3925,7 +3925,3 @@ const COUNTRY_CHEF_NPCS = {
     }
   });
 })();
-
-
-// Alias MIRADOURO_LUA to MOON so both keys work seamlessly across overworld.js & audio.js
-WORLD_MAPS.MIRADOURO_LUA = WORLD_MAPS.MOON;

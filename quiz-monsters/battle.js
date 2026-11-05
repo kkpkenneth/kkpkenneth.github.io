@@ -1104,9 +1104,6 @@ function getMonsterHabitatName(monsterId, monsterName) {
         return c.to && c.to.toLowerCase() === cleanId;
       });
     });
-    if (isEvolvedForm) {
-      return 'Evolve Only';
-    }
   }
 
   return 'Unknown';

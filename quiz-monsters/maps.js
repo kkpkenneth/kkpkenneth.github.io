@@ -2222,7 +2222,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Iberian Sierra (Spain) - AZULEJO COAST & GRANITE VALLEYS',
     region: 'WEST_EUROPE',
     theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#fef3c7', grass: '#15803d', grassTip: '#38bdf8', tree: '#14532d', treeTop: '#4ade80', rock: '#475569', rockLight: '#bae6fd', rockDark: '#0f172a' },
-    encounters: ['chinchou', 'lanturn', 'corsola', 'remoraid', 'octillery', 'mantine', 'qwilfish', 'wooper', 'quagsire', 'kingdra', 'politoed', 'slowking', 'shuckle', 'suicune'],
+    encounters: ['psyduck','chinchou', 'lanturn', 'corsola', 'remoraid', 'mantine', 'qwilfish', 'wooper', 'shuckle'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "RWWWWWWGGGG......GGGG..KK..R",
@@ -2282,7 +2282,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Royal Thames Hub (UK) - S: Atomium Plaza (Belgium)',
     region: 'WEST_EUROPE',
     theme: { groundA: '#047857', groundB: '#065f46', path: '#fde047', grass: '#16a34a', grassTip: '#f97316', tree: '#064e3b', treeTop: '#fb923c', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['roselia', 'surskit', 'masquerain', 'wingull', 'pelipper', 'lotad', 'lombre', 'ludicolo'],
+    encounters: ['roselia', 'surskit', 'wingull', 'lotad'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..nn..GGGG......GGGG..nn..W",
@@ -2320,7 +2320,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Tulip Polder (Netherlands) - W: Lumiere Lavender (France) - S: Bavarian Forest (Germany)',
     region: 'WEST_EUROPE',
     theme: { groundA: '#334155', groundB: '#1e293b', path: '#fde68a', grass: '#15803d', grassTip: '#facc15', tree: '#0f172a', treeTop: '#ef4444', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['aron', 'lairon', 'aggron', 'beldum', 'metang', 'metagross', 'mawile', 'plusle', 'minun'],
+    encounters: ['aron', 'beldum', 'mawile', 'plusle', 'minun'],
     rows: [
       "HHHHHHHHHHHHHEEHHHHHHHHHHHHH",
       "H..bb..GGGG..PP..GGGG..bb..H",
@@ -2360,7 +2360,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Liberty Canyon (USA) - 2x2 PORTAL: Beige Village',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#7f1d1d', groundB: '#991b1b', path: '#fef3c7', grass: '#14532d', grassTip: '#4ade80', tree: '#450a0a', treeTop: '#ef4444', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['spheal', 'sealeo', 'walrein', 'snorunt', 'glalie', 'absol', 'zangoose', 'glaceon'],
+    encounters: ['spheal', 'snorunt', 'absol', 'zangoose', 'glaceon'],
     rows: [
       "mmmmmmmmmmmmmmmmmmmmmmmmmmmm",
       "m..mmmm..PPPPPPPPPP..mmmm..m",
@@ -2399,7 +2399,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Maple Boreal (Canada) - W: Sun Pyramid (Mexico) - E: Coral Cay (Bahamas) - S: Malecón (Cuba)',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#f8fafc', grass: '#15803d', grassTip: '#86efac', tree: '#0f172a', treeTop: '#38bdf8', rock: '#78350f', rockLight: '#fca5a5', rockDark: '#451a03' },
-    encounters: ['taillow', 'swellow', 'electrike', 'manectric', 'solrock', 'lunatone', 'bagon', 'shelgon', 'salamence'],
+    encounters: ['taillow', 'electrike', 'solrock', 'lunatone', 'bagon'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..ss..GGGG..PP..GGGG..ss..R",
@@ -2440,7 +2440,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Liberty Canyon (USA) - AGAVE HIGHLANDS & CENOTES',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#b45309', groundB: '#92400e', path: '#fde047', grass: '#15803d', grassTip: '#4ade80', tree: '#451a03', treeTop: '#22c55e', rock: '#78350f', rockLight: '#fcd34d', rockDark: '#451a03' },
-    encounters: ['lotad', 'lombre', 'ludicolo', 'cacnea', 'cacturne', 'trapinch', 'vibrava', 'flygon', 'numel', 'camerupt', 'torkoal'],
+    encounters: ['ludicolo', 'cacnea', 'trapinch', 'numel', 'torkoal'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..ff..GGGG......GGGG..CC..R",
@@ -2669,7 +2669,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Okavango Delta (Botswana) - W: Maloti Kingdom (Lesotho) - E: Ezulwini Valley (Eswatini) - PORTAL',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#065f46', groundB: '#047857', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['girafarig', 'phanpy', 'donphan', 'tauros', 'rhyhorn', 'doduo', 'dodrio'],
+    encounters: ['girafarig', 'phanpy', 'tauros', 'rhyhorn', 'doduo'],
     rows: [
       "vvvvvvvvvvvvvEEvvvvvvvvvvvvv",
       "v..vvvv..PPPPPPPPPP..vvvv..v",
@@ -2710,7 +2710,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Table Mesa Hub (South Africa) - HIGHLAND PLATEAU ABOVE 1,400M',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#e2e8f0', grass: '#15803d', grassTip: '#86efac', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['mareep', 'flaaffy', 'ampharos', 'ponyta', 'rapidash', 'swablu', 'altaria'],
+    encounters: ['mareep', 'flaaffy', 'ponyta', 'swablu'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..tt..GGGG......GGGG..tt..R",
@@ -2748,7 +2748,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Table Mesa Hub (South Africa) - SIBEBE GRANITE MONOLITH',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#3f6212', groundB: '#365314', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['scyther', 'pinsir', 'heracross', 'beautifly', 'nuzleaf', 'shiftry'],
+    encounters: ['scyther', 'pinsir', 'heracross', 'beautifly', 'nuzleaf'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..tt..GGGG......GGGG..RR..R",
@@ -2786,7 +2786,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Table Mesa (South Africa) - W: Sossusvlei (Namibia) - E: Great Ruins (Zimbabwe) - N: Victoria Falls (Zambia)',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#0284c7', groundB: '#ca8a04', path: '#fef08a', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78350f', rockLight: '#fde68a', rockDark: '#451a03' },
-    encounters: ['lotad', 'lombre', 'wooper', 'quagsire', 'Psyduck'.toLowerCase(), 'golduck', 'farfetchd'],
+    encounters: [' 'wooper', 'quagsire', 'psyduck', 'golduck', 'farfetchd'],
     rows: [
       "pppppppppppppEEppppppppppppp",
       "p..pppp..GGGG..PP..GGGG..pp..p".slice(0,28),
@@ -2944,7 +2944,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Mosi-oa-Tunya (Zambia) / Great Ruins (Zimbabwe) - INDIAN OCEAN DHOWS',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#0284c7', groundB: '#eab308', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80', rock: '#0369a1', rockLight: '#7dd3fc', rockDark: '#0c4a6e' },
-    encounters: ['corphish', 'crawdaunt', 'clamperl', 'gorebyss', 'huntail', 'corsola', 'mantine'],
+    encounters: ['corphish', 'crawdaunt', 'clamperl', 'corsola', 'mantine'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..oo..GGGG......GGGG..KK..W",
@@ -2989,7 +2989,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: N-Tuvalu, S-New Zealand, W-Vanuatu, E-Fiji - 2x2 PORTAL',
     region: 'OCEANIA',
     theme: { groundA: '#c2410c', groundB: '#9a3412', path: '#fde68a', grass: '#15803d', grassTip: '#84cc16', tree: '#431407', treeTop: '#22c55e', rock: '#7c2d12', rockLight: '#fdba74', rockDark: '#431407' },
-    encounters: ['kangaskhan', 'turtwig', 'grotle', 'torterra', 'hippopotas', 'hippowdon', 'skorupi', 'drapion', 'gible', 'gabite', 'garchomp'],
+    encounters: ['kangaskhan', 'grotle', 'hippopotas', 'skorupi', 'gible', 'gabite'],
     rows: [
       "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3070,7 +3070,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: S-Australia, W-Solomon Islands, E-Samoa - NARROW CORAL ATOLL',
     region: 'OCEANIA',
     theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80', rock: '#38bdf8', rockLight: '#e0f2fe', rockDark: '#0369a1' },
-    encounters: ['finneon', 'lumineon', 'mantyke', 'shellos', 'gastrodon', 'wingull', 'pelipper', 'phione', 'manaphy'],
+    encounters: ['finneon', 'lumineon', 'mantyke', 'shellos', 'wingull', 'phione'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3111,7 +3111,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: W-Tuvalu, S-Fiji - OPEN-AIR FALES & OCEAN TRENCH',
     region: 'OCEANIA',
     theme: { groundA: '#0d9488', groundB: '#0f766e', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['chimchar', 'monferno', 'infernape', 'chatot', 'cherubi', 'cherrim', 'azurill', 'marill'],
+    encounters: ['chimchar', 'chatot', 'cherubi','marill']
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",

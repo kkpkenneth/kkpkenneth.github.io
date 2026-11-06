@@ -3,6 +3,7 @@
  * 8-Region Overworld Engine, Tiered +10 Dex Portal Unlocks,
  * Yellow Asterisk (*) on Completed Areas, Water/Flying Surf Filter,
  * Deep-Sea Freshwater Exclusion, Respawning Antarctica Ultra Beasts,
+ * Letter-Based Pokemon Calls (1st, 3rd, 4th-last, 2nd-last),
  * Chef + Nurse Party Healing & 60 FPS Optimized Render Loop
  * (Map grid constants in maps.js; Obstacle & Floor Item defs in obstacle.js)
  ********************************************************************/
@@ -13,6 +14,16 @@ const HUMAN_SKIN_PALETTE = [
 
 const _mapThumbnailCache = {};
 let _originalAreaNamesApplied = false;
+
+function getPokemonCallText(nameOrId) {
+  const clean = String(nameOrId || 'PIKACHU').replace(/[^a-zA-Z]/g, '').toUpperCase() || 'PIKA';
+  const len = clean.length;
+  const l1 = clean.charAt(0);
+  const l3 = clean.charAt(Math.min(2, len - 1)).toLowerCase();
+  const l4Last = clean.charAt(Math.max(0, len - 4)).toLowerCase();
+  const l2Last = clean.charAt(Math.max(0, len - 2)).toLowerCase();
+  return `${l1}${l3}-${l4Last}${l2Last}! ${l1}${l3}${l4Last}${l2Last}~`;
+}
 
 function isAreaPokedexComplete(mapObj) {
   if (!mapObj || !state || !Array.isArray(state.dex)) return false;
@@ -67,10 +78,10 @@ function isSurfUnlocked() {
 }
 
 function getRegionOfMapId(mapId) {
-  if (EAST_ASIA_MAP_IDS.has(mapId)) return 'EAST_ASIA';
-  if (WEST_EUROPE_MAP_IDS.has(mapId)) return 'WEST_EUROPE';
+  if (EAST_ASIA_MAP_IDS.has(mapId)) return 'ASIA';
+  if (WEST_EUROPE_MAP_IDS.has(mapId)) return 'EUROPE';
   if (NORTH_AMERICA_MAP_IDS.has(mapId)) return 'NORTH_AMERICA';
-  if (SOUTHERN_AFRICA_MAP_IDS.has(mapId)) return 'SOUTHERN_AFRICA';
+  if (SOUTHERN_AFRICA_MAP_IDS.has(mapId)) return 'AFRICA';
   if (OCEANIA_MAP_IDS.has(mapId)) return 'OCEANIA';
   if (SOUTH_AMERICA_MAP_IDS.has(mapId)) return 'SOUTH_AMERICA';
   if (ANTARCTICA_MAP_IDS.has(mapId)) return 'ANTARCTICA';
@@ -469,7 +480,7 @@ function spawnFloorItemsForCurrentMap() {
     ? preferredCoords
     : preferredCoords.concat(fallbackCoords);
 
-  const stonePool = FLOOR_ITEM_TYPES.filter(it => it.category === 'EVOITEM' && localStoneIds.includes(it.id));
+  const stonePool = FLOOR_ITEM_TYPES.filter(it => it.category === 'STONE' && localStoneIds.includes(it.id));
   const berryPool = FLOOR_ITEM_TYPES.filter(it => it.category === 'BERRY');
 
   for (let i = 0; i < numItems && candidatePool.length > 0; i++) {
@@ -502,15 +513,16 @@ function interactWithFloorItem(item) {
       partner.hp = partner.maxHp;
       setOverworldDialogue(`Collected ${item.name}! ${partner.name}'s HP was fully restored!`, item.name, 'BERRY COLLECTED');
     }
-  } else if (item.category === 'EVOITEM') {
+  } else if (item.category === 'STONE') {
     const oldName = partner.name;
     const evolvedMsg = (typeof tryStoneEvolution === 'function') ? tryStoneEvolution(partner, item) : null;
     if (evolvedMsg) {
+      if (typeof deduplicateDexKeepNewest === 'function') deduplicateDexKeepNewest();
       state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
-      setOverworldDialogue(`Used ${item.name} with ${oldName}! ${evolvedMsg}`, 'ITEM EVOLUTION!', item.name);
+      setOverworldDialogue(`Used ${item.name} with ${oldName}! ${evolvedMsg}`, 'STONE EVOLUTION!', item.name);
       const playerWrapper = document.getElementById('playerSpriteWrapper');
       if (playerWrapper && typeof renderMonsterSVG === 'function') {
-        playerWrapper.innerHTML = renderMonsterSVG(partner);
+        playerWrapper.innerHTML = renderMonsterSVG(getActivePlayer());
       }
       checkMilestoneUnlocks();
     } else {
@@ -534,7 +546,7 @@ function drawFloorItemsOnCanvas(ctx, animTick) {
   state.floorItems.forEach(item => {
     const dx = item.x * TILE_SIZE;
     const dy = item.y * TILE_SIZE + bob;
-    const tileKey = item.tileKey || (item.category === 'EVOITEM' ? 'EVOITEM' : 'BERRY');
+    const tileKey = item.tileKey || (item.category === 'STONE' ? 'STONE' : 'BERRY');
     const obsDef = (typeof OBSTACLE_DEFS !== 'undefined') ? OBSTACLE_DEFS[tileKey] : null;
 
     ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
@@ -725,12 +737,12 @@ function openWorldMapModal() {
           </div>
           <div class="flex flex-wrap items-center gap-1">
             <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">${OG_REGION_FULL_NAME} (25)</button>
-            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">EAST ASIA (8)</button>
-            <button id="tabWestEuropeMapBtn" type="button" class="pixel-btn bg-emerald-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">WEST EUROPE (8)</button>
+            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">ASIA (8)</button>
+            <button id="tabWestEuropeMapBtn" type="button" class="pixel-btn bg-emerald-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">EUROPE (8)</button>
             <button id="tabNorthAmericaMapBtn" type="button" class="pixel-btn bg-sky-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">NORTH AMERICA (8)</button>
-            <button id="tabSouthernAfricaMapBtn" type="button" class="pixel-btn bg-amber-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">S. AFRICA (8)</button>
+            <button id="tabSouthernAfricaMapBtn" type="button" class="pixel-btn bg-amber-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">AFRICA (8)</button>
             <button id="tabOceaniaMapBtn" type="button" class="pixel-btn bg-cyan-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">OCEANIA (8)</button>
-            <button id="tabSouthAmericaMapBtn" type="button" class="pixel-btn bg-teal-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">S. AMERICA (7)</button>
+            <button id="tabSouthAmericaMapBtn" type="button" class="pixel-btn bg-teal-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">SOUTH AMERICA (7)</button>
             <button id="tabAntarcticaMapBtn" type="button" class="pixel-btn bg-slate-700 text-sky-200 text-[7px] sm:text-[8px] px-2 py-1 font-bold">ANTARCTICA (5)</button>
             <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
           </div>
@@ -869,9 +881,11 @@ function handleTwoStepLegendaryInteraction(npcObj, rawMonId) {
     return;
   }
 
-  sfx.pokemonCry(rawMonId);
+  const displayName = targetSpecies ? targetSpecies.name : (npcObj.name || rawMonId);
+  const callStr = getPokemonCallText(displayName);
+  sfx.pokemonCry(displayName);
   state.pendingLegendaryChallengeId = rawMonId;
-  const baseText = npcObj.fact || `${npcObj.name} eyes you with intense legendary power!`;
+  const baseText = npcObj.fact || `${npcObj.name}: "${callStr}"`;
   setOverworldDialogue(
     `${baseText} [Press SPACE or A - TALK again to challenge ${npcObj.name}!]`,
     npcObj.name,
@@ -903,8 +917,9 @@ function interactWithFacingNPC() {
     state.pendingLegendaryChallengeId = null;
     const species = MONSTER_SPECIES.find(m => m.id.toLowerCase() === rawPokeId);
     const displayName = species ? species.name : pokeNpc.name;
-    sfx.pokemonCry(rawPokeId);
-    setOverworldDialogue(`${displayName}! ${displayName}~`, displayName, 'POKEMON CALL');
+    const callStr = getPokemonCallText(displayName);
+    sfx.pokemonCry(displayName);
+    setOverworldDialogue(`${displayName}: "${callStr}"`, displayName, 'POKEMON CALL');
     return;
   }
 
@@ -935,11 +950,15 @@ function interactWithFacingNPC() {
 
     state.pendingLegendaryChallengeId = null;
     if (npc.isMonster || npc.monsterId) {
-      sfx.pokemonCry(rawMonId);
+      const species = MONSTER_SPECIES.find(m => m.id.toLowerCase() === rawMonId);
+      const displayName = species ? species.name : (npc.name || rawMonId);
+      const callStr = getPokemonCallText(displayName);
+      sfx.pokemonCry(displayName);
+      setOverworldDialogue(`${displayName}: "${callStr}" ${npc.fact ? `(${npc.fact})` : ''}`, npc.name, npc.topic);
     } else {
       sfx.npcChime();
+      setOverworldDialogue(npc.fact, npc.name, npc.topic);
     }
-    setOverworldDialogue(npc.fact, npc.name, npc.topic);
     return;
   }
 
@@ -947,9 +966,10 @@ function interactWithFacingNPC() {
 
   if (state.partnerWorld && state.partnerWorld.gridX === tx && state.partnerWorld.gridY === ty) {
     const partner = getActivePlayer();
-    sfx.pokemonCry(partner.id);
+    const callStr = getPokemonCallText(partner.name);
+    sfx.pokemonCry(partner.name);
     const evoNote = ` [${getEvoStatusText(partner)}]`;
-    setOverworldDialogue(`${partner.name}! ${partner.name}~ (Your active partner is happily following you!${evoNote})`, partner.name, 'ACTIVE PARTNER');
+    setOverworldDialogue(`${partner.name}: "${callStr}" (Your active partner is happily following you!${evoNote})`, partner.name, 'ACTIVE PARTNER');
     return;
   }
 
@@ -1169,7 +1189,7 @@ function onSingleBlockStepLanded() {
         sfx.startBGM(state.currentMapId);
         updateOverworldHUD();
         if (typeof saveGameProgress === 'function') saveGameProgress();
-        setOverworldDialogue(`Entered ${targetMapObj.name}! Localized Berries, Floor items have refreshed!`, targetMapObj.name, 'AREA TRANSIT');
+        setOverworldDialogue(`Entered ${targetMapObj.name}! Localized Berries, Evolutionary Stones, and Ultra Beasts have refreshed!`, targetMapObj.name, 'AREA TRANSIT');
         state.busy = false;
       });
       return;

@@ -1,8 +1,9 @@
 /********************************************************************
  * battle.js
- * Trivia Combat Engine, Auto-Switch on Faint, Professor Oak Duplicate
- * Transfer, 500->1 HP Linear Catch Rate & EXP Bar Animation
- * (Evolution chains & helpers extracted to evolution.js)
+ * Trivia Combat Engine, Auto-Switch on Faint, Fainted Partner Block,
+ * Professor Oak Older-Duplicate Transfer (Zero Duplicate Species in Dex),
+ * Letter-Extracted Pokemon Calls (1st, 3rd, 4th-last, 2nd-last),
+ * 300->1 HP Linear Catch Rate & EXP Bar Animation
  ********************************************************************/
 
 function createMonsterInstance(template) {
@@ -20,6 +21,41 @@ function createMonsterInstance(template) {
   };
 }
 
+// Removes any older duplicate of the same species (sent to Professor Oak)
+// while keeping the newest caught/evolved instance and preserving activeDexIndex
+function deduplicateDexKeepNewest(preferredMon = null) {
+  if (!state || !Array.isArray(state.dex) || state.dex.length <= 1) return false;
+  const currentActiveMon = preferredMon || state.dex[state.activeDexIndex] || state.dex[0];
+
+  const seenIds = new Set();
+  const uniqueReversed = [];
+  let hadDuplicate = false;
+
+  // Iterate backward so the newest instance of any species is kept and older ones are transferred to Professor Oak
+  for (let i = state.dex.length - 1; i >= 0; i--) {
+    const mon = state.dex[i];
+    if (!mon || !mon.id) continue;
+    const key = mon.id.toLowerCase();
+    if (seenIds.has(key)) {
+      hadDuplicate = true;
+      continue;
+    }
+    seenIds.add(key);
+    uniqueReversed.push(mon);
+  }
+
+  if (hadDuplicate) {
+    state.dex = uniqueReversed.reverse();
+    if (currentActiveMon) {
+      const newIdx = state.dex.findIndex(m => m.id.toLowerCase() === currentActiveMon.id.toLowerCase());
+      state.activeDexIndex = newIdx !== -1 ? newIdx : 0;
+    } else {
+      state.activeDexIndex = Math.min(state.activeDexIndex, state.dex.length - 1);
+    }
+  }
+  return hadDuplicate;
+}
+
 function clearPartyTransformations() {
   if (!state.dex) return;
   state.dex.forEach(m => {
@@ -34,7 +70,17 @@ function getActivePlayer() {
     state.dex = [createMonsterInstance(MONSTER_SPECIES[0])];
     state.activeDexIndex = 0;
   }
+  deduplicateDexKeepNewest();
+
   if (state.activeDexIndex >= state.dex.length) state.activeDexIndex = 0;
+
+  if (state.dex[state.activeDexIndex].hp <= 0) {
+    const healthyIdx = state.dex.findIndex(m => m.hp > 0);
+    if (healthyIdx !== -1) {
+      state.activeDexIndex = healthyIdx;
+    }
+  }
+
   const dexMon = state.dex[state.activeDexIndex];
   const liveSpecies = MONSTER_SPECIES.find(m => m.id === dexMon.id);
   if (liveSpecies) {
@@ -71,11 +117,12 @@ function handleActivePartnerFainted() {
       playerWrapper.innerHTML = renderMonsterSVG(newPartner);
       triggerSpriteAnimation('player', 'anim-lunge-player');
     }
-    const partnerCall = (typeof getPokemonCallText === 'function') ? getPokemonCallText(newPartner.name) : `${newPartner.name}!`;
-    setDialogue(`${faintedMon.name} fainted! Go, ${newPartner.name}! "${partnerCall}"`, 'PARTNER SWITCHED!');
+    sfx.pokemonCry(newPartner.name);
     if (typeof saveGameProgress === 'function') saveGameProgress();
     syncAllUI();
-    setDialogue(`${faintedMon.name} fainted! Go, ${newPartner.name}! "${newPartner.name}! ${newPartner.name}~"`, 'PARTNER SWITCHED!');
+
+    const partnerCall = (typeof getPokemonCallText === 'function') ? getPokemonCallText(newPartner.name) : `${newPartner.name}!`;
+    setDialogue(`${faintedMon.name} fainted! Go, ${newPartner.name}! "${partnerCall}"`, 'PARTNER SWITCHED!');
     setTimeout(() => {
       state.busy = false;
     }, 1000);
@@ -92,7 +139,6 @@ function handleActivePartnerFainted() {
   }
 }
 
-// Linear Catch Rate Calculation: 1% at >=300 HP scaling linearly to 99% at 1 HP
 function calculateCatchProbability(enemy) {
   if (!enemy) return 0.25;
   const currentHp = Math.max(1, Math.min(300, enemy.hp));
@@ -134,11 +180,11 @@ function setupBattleEncounter(chosenSpecies) {
     playerWrapper.style.opacity = '1';
   }
 
-  const enemyCall = (typeof getPokemonCallText === 'function') ? getPokemonCallText(state.enemy.name) : `${state.enemy.name}!`;
-  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! "${enemyCall}"`, 'WILD ENCOUNTER');
+  setTimeout(() => sfx.pokemonCry(state.enemy.name), 350);
 
   showCommandView();
-  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! "${state.enemy.name}! ${state.enemy.name}~"`, 'WILD ENCOUNTER');
+  const enemyCall = (typeof getPokemonCallText === 'function') ? getPokemonCallText(state.enemy.name) : `${state.enemy.name}!`;
+  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! "${enemyCall}"`, 'WILD ENCOUNTER');
   syncAllUI();
 }
 
@@ -226,12 +272,6 @@ function syncAllUI() {
     const eBadge = document.getElementById('enemyTypeBadge');
     eBadge.textContent = eTypeInfo ? eTypeInfo.name : enemy.type;
     eBadge.className = `text-[7px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded text-white font-bold ${eTypeInfo ? eTypeInfo.badgeClass : 'bg-slate-700'}`;
-
-    const zoneHint = document.getElementById('enemyZoneHint');
-    if (zoneHint) {
-      zoneHint.textContent = '';
-      zoneHint.classList.add('hidden');
-    }
 
     const alreadyOwned = state.dex.some(p => p.id === enemy.id);
     document.getElementById('enemyCaughtIcon').classList.toggle('hidden', !alreadyOwned);
@@ -377,7 +417,7 @@ function executeDittoTransform() {
   if (typeof sfx.transformEffect === 'function') {
     sfx.transformEffect();
   } else {
-    sfx.pokemonCry(enemy.id);
+    sfx.pokemonCry(enemy.name);
   }
 
   const playerWrapper = document.getElementById('playerSpriteWrapper');
@@ -400,7 +440,7 @@ function executeDittoTransform() {
       if (playerWrapper) {
         playerWrapper.innerHTML = renderMonsterSVG(enemy.id);
       }
-      sfx.pokemonCry(enemy.id);
+      sfx.pokemonCry(enemy.name);
       spawnFloatingText('player', `TRANSFORMED!`, 'text-purple-300');
       syncAllUI();
       renderMoveButtons();
@@ -419,7 +459,6 @@ function renderMoveButtons() {
   const activeType = player.transformedType || player.type;
   const secondaryType = player.transformedRandomType || player.consistentRandomType || 'NORMAL';
   const primarySubject = ELEMENT_TYPES[activeType] ? ELEMENT_TYPES[activeType].subject : 'General';
-  const secondarySubject = ELEMENT_TYPES[secondaryType] ? ELEMENT_TYPES[secondaryType].subject : 'General';
 
   const isUntransformedDitto = player.id === 'ditto' && !player.transformedSpeciesId;
 
@@ -534,8 +573,8 @@ function startElementalTriviaAttack(elementType, difficulty = 2, isVisual = fals
 }
 
 function pickVisualVocabularyQuestion(elementType = null) {
-  const pool = (typeof VISUAL_QUESTIONS !== 'undefined' && VISUAL_QUESTIONS.length > 0)
-    ? VISUAL_QUESTIONS
+  const pool = (typeof FOOD_VOCAB_QUESTIONS !== 'undefined' && FOOD_VOCAB_QUESTIONS.length > 0)
+    ? FOOD_VOCAB_QUESTIONS
     : (typeof DEFAULT_QUESTIONS !== 'undefined' ? DEFAULT_QUESTIONS : []);
 
   let filtered = pool;
@@ -619,6 +658,7 @@ function launchQuizQuestion(elementType, difficulty, durationSeconds, isVisual =
       }
       popupEl.classList.remove('hidden');
       popupEl.innerHTML = `
+        <span class="text-[6px] text-amber-300 font-bold mb-0.5 tracking-tighter">16x16 CLUE</span>
         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-950 rounded border border-slate-700 p-1">
           ${renderQuestionPixelArtSVG(chosen.pixelArt)}
         </div>
@@ -710,12 +750,18 @@ function startCaptureBallSequence() {
             enemyWrapper.innerHTML = renderCaptureBallSVG(true);
             spawnFloatingText('enemy', 'GOTCHA!', 'text-emerald-300');
 
-            const alreadyInDex = state.dex.some(p => p.id === enemy.id);
+            const existingIdx = state.dex.findIndex(p => p.id === enemy.id);
+            const alreadyInDex = existingIdx !== -1;
+            const freshCapturedMon = createMonsterInstance(enemy);
+
             if (!alreadyInDex) {
-              state.dex.push(createMonsterInstance(enemy));
+              state.dex.push(freshCapturedMon);
               setDialogue(`GOTCHA! ${enemy.name} was caught and saved to your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`, 'CAPTURED!');
             } else {
-              setDialogue(`GOTCHA! ${enemy.name} was caught again! The extra Pokemon was sent to Professor Oak's Lab!`, 'PROFESSOR OAK');
+              // Replace older instance of the same species and send the older one to Professor Oak
+              state.dex[existingIdx] = freshCapturedMon;
+              deduplicateDexKeepNewest(freshCapturedMon);
+              setDialogue(`GOTCHA! ${enemy.name} was caught! Your older ${enemy.name} was sent to Professor Oak's Lab!`, 'PROFESSOR OAK');
             }
             clearPartyTransformations();
             if (typeof saveGameProgress === 'function') saveGameProgress();
@@ -723,7 +769,7 @@ function startCaptureBallSequence() {
 
             setTimeout(() => {
               returnToOverworldFromBattle(alreadyInDex 
-                ? `GOTCHA! Extra ${enemy.name} caught and transferred to Professor Oak!` 
+                ? `GOTCHA! Caught a fresh ${enemy.name} and transferred the older ${enemy.name} to Professor Oak!` 
                 : `GOTCHA! ${enemy.name} (${enemy.type}) registered & auto-saved in your Dex! (${state.dex.length}/${MONSTER_SPECIES.length})`);
             }, 2000);
           } else {
@@ -771,10 +817,6 @@ function startCaptureBallSequence() {
       }, 300);
     }
   }, 550);
-}
-
-function startquistCountdown() {
-  // handled by startQuizCountdown
 }
 
 function startQuizCountdown() {
@@ -937,7 +979,6 @@ function resolveAttackOutcome(isCorrect, speedMult, isTimeout) {
       typeAdvantageMult > 1 ? 'SUPER EFFECTIVE COUNTER!' : 'COUNTERATTACK!'
     );
 
-
     setTimeout(() => {
       if (player.hp <= 0) {
         handleActivePartnerFainted();
@@ -966,8 +1007,13 @@ function handleEvolutionConfirmationStep() {
     setTimeout(() => pWrap.classList.remove('anim-evolve-flash'), 1200);
   }
 
-  const evoMsg = evolveMonsterInstance(player, targetId);
-  if (pWrap) pWrap.innerHTML = renderMonsterSVG(player);
+  let evoMsg = evolveMonsterInstance(player, targetId);
+  const transferredOld = deduplicateDexKeepNewest(player);
+  if (transferredOld) {
+    evoMsg += ` (Your older ${player.name} was sent to Professor Oak's Lab!)`;
+  }
+
+  if (pWrap) pWrap.innerHTML = renderMonsterSVG(getActivePlayer());
   syncAllUI();
   if (typeof saveGameProgress === 'function') saveGameProgress();
 
@@ -986,6 +1032,8 @@ function renderBattleDexCards(filterQuery = '') {
   const container = document.getElementById('dexGridContainer');
   if (!container) return;
   container.innerHTML = '';
+
+  deduplicateDexKeepNewest();
 
   const query = (filterQuery || '').trim().toLowerCase();
 
@@ -1009,9 +1057,9 @@ function renderBattleDexCards(filterQuery = '') {
 
     const card = document.createElement('button');
     card.disabled = isFainted;
-    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : (isFainted ? 'bg-slate-300 opacity-60' : 'bg-white hover:bg-slate-100')} text-slate-900 p-2.5 flex items-center gap-2.5 text-left w-full`;
+    card.className = `pixel-btn ${isCurrent ? 'bg-amber-100 border-amber-500' : (isFainted ? 'bg-red-100/80 border-red-500 opacity-65 cursor-not-allowed' : 'bg-white hover:bg-slate-100')} text-slate-900 p-2.5 flex items-center gap-2.5 text-left w-full`;
     card.innerHTML = `
-      <div class="w-12 h-12 shrink-0 bg-slate-200 rounded p-1 border border-slate-400">
+      <div class="w-12 h-12 shrink-0 bg-slate-200 rounded p-1 border border-slate-400 ${isFainted ? 'grayscale' : ''}">
         ${renderMonsterSVG(mon)}
       </div>
       <div class="flex-1 min-w-0">
@@ -1021,25 +1069,29 @@ function renderBattleDexCards(filterQuery = '') {
         </div>
         <div class="flex items-center gap-1 mt-1">
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${displayType}</span>
-          <span class="text-[8px] text-slate-600">HP ${Math.max(0, mon.hp)}/${mon.maxHp} - ${getEvoStatusText(mon)}</span>
+          <span class="text-[8px] ${isFainted ? 'text-red-700 font-bold' : 'text-slate-600'}">HP ${Math.max(0, mon.hp)}/${mon.maxHp} - ${getEvoStatusText(mon)}</span>
         </div>
       </div>
     `;
     card.addEventListener('click', () => {
-      if (isFainted) return;
+      if (isFainted) {
+        sfx.wrongBuzzer();
+        return;
+      }
       if (idx === state.activeDexIndex) {
         showCommandView();
         return;
       }
       clearPartyTransformations();
-      sfx.pokemonCry(mon.id);
+      sfx.pokemonCry(displayName);
       state.activeDexIndex = idx;
       if (typeof saveGameProgress === 'function') saveGameProgress();
       const playerWrapper = document.getElementById('playerSpriteWrapper');
       if (playerWrapper) playerWrapper.innerHTML = renderMonsterSVG(getActivePlayer());
       syncAllUI();
       showCommandView();
-      setDialogue(`Partner switched to ${displayName}! "${displayName}! ${displayName}~"`, 'PARTNER SWITCHED!');
+      const switchCall = (typeof getPokemonCallText === 'function') ? getPokemonCallText(displayName) : `${displayName}!`;
+      setDialogue(`Partner switched to ${displayName}! "${switchCall}"`, 'PARTNER SWITCHED!');
     });
     container.appendChild(card);
   });
@@ -1082,32 +1134,46 @@ function showDexSwitchView() {
   renderBattleDexCards(searchInput ? searchInput.value : '');
 }
 
+let _habitatLookupCache = null;
+
 function getMonsterHabitatName(monsterId, monsterName) {
   if (typeof WORLD_MAPS === 'undefined') return 'Unknown';
+  if (!_habitatLookupCache) {
+    _habitatLookupCache = new Map();
+    for (const mapKey of Object.keys(WORLD_MAPS)) {
+      const mapObj = WORLD_MAPS[mapKey];
+      const cleanMapName = mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
+      if (Array.isArray(mapObj.encounters)) {
+        mapObj.encounters.forEach(e => {
+          const k = e.toLowerCase();
+          if (!_habitatLookupCache.has(k)) _habitatLookupCache.set(k, cleanMapName);
+        });
+      }
+      if (Array.isArray(mapObj.npcs)) {
+        mapObj.npcs.forEach(n => {
+          const k = (n.monsterId || '').toLowerCase();
+          if (k && !_habitatLookupCache.has(k)) _habitatLookupCache.set(k, cleanMapName);
+        });
+      }
+    }
+    if (typeof EVOLUTION_CHAINS !== 'undefined') {
+      Object.values(EVOLUTION_CHAINS).forEach(chain => {
+        const list = Array.isArray(chain) ? chain : [chain];
+        list.forEach(c => {
+          const targets = Array.isArray(c.to) ? c.to : [c.to];
+          targets.forEach(t => {
+            if (t && !_habitatLookupCache.has(t.toLowerCase())) {
+              _habitatLookupCache.set(t.toLowerCase(), 'Evolve Only');
+            }
+          });
+        });
+      });
+    }
+  }
+
   const cleanId = (monsterId || '').toLowerCase();
   const cleanName = (monsterName || '').toLowerCase();
-  
-  for (const mapKey of Object.keys(WORLD_MAPS)) {
-    const mapObj = WORLD_MAPS[mapKey];
-    if (mapObj.encounters && mapObj.encounters.some(e => e.toLowerCase() === cleanId || e.toLowerCase() === cleanName)) {
-      return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
-    }
-    if (mapObj.npcs && mapObj.npcs.some(n => (n.monsterId || '').toLowerCase() === cleanId)) {
-      return mapObj.name.replace(/\s*\([^)]*\)\s*/g, '').trim();
-    }
-  }
-
-  if (typeof EVOLUTION_CHAINS !== 'undefined') {
-    const isEvolvedForm = Object.values(EVOLUTION_CHAINS).some(chain => {
-      const list = Array.isArray(chain) ? chain : [chain];
-      return list.some(c => {
-        if (Array.isArray(c.to)) return c.to.some(t => t.toLowerCase() === cleanId);
-        return c.to && c.to.toLowerCase() === cleanId;
-      });
-    });
-  }
-
-  return 'Unknown';
+  return _habitatLookupCache.get(cleanId) || _habitatLookupCache.get(cleanName) || 'Wild / Special';
 }
 
 function ensureOverworldDexSearchBarInDOM() {
@@ -1153,20 +1219,29 @@ function ensureOverworldDexSearchBarInDOM() {
   return searchInput;
 }
 
-function renderOverworldDexCards(filterQuery = '') {
+function renderOverworldDexCards(filterQuery = '', maxRenderLimit = 80) {
   const list = document.getElementById('overworldDexList');
   if (!list) return;
   list.innerHTML = '';
+
+  deduplicateDexKeepNewest();
 
   const totalMonsters = MONSTER_SPECIES.length;
   const caughtCount = state.dex.length;
   const pct = Math.round((caughtCount / totalMonsters) * 100);
   const query = (filterQuery || '').trim().toLowerCase();
 
-  let statusRight = `NEED ${20 - caughtCount} FOR MAP`;
-  if (caughtCount >= 70) statusRight = 'ALL 4 REGIONS OPEN!';
-  else if (caughtCount >= 60) statusRight = `WEST EUROPE OPEN (${70 - caughtCount} TO N. AMERICA)`;
-  else if (caughtCount >= 50) statusRight = `EAST ASIA OPEN (${60 - caughtCount} TO W. EUROPE)`;
+  const caughtByIdMap = new Map();
+  state.dex.forEach((p, idx) => caughtByIdMap.set(p.id, { mon: p, idx }));
+
+  let statusRight = `NEED ${Math.max(0, 20 - caughtCount)} FOR MAP`;
+  if (caughtCount >= 110) statusRight = 'ALL 8 REGIONS OPEN!';
+  else if (caughtCount >= 100) statusRight = `S. AMERICA OPEN (${110 - caughtCount} TO ANTARCTICA)`;
+  else if (caughtCount >= 90) statusRight = `OCEANIA OPEN (${100 - caughtCount} TO S. AMERICA)`;
+  else if (caughtCount >= 80) statusRight = `AFRICA OPEN (${90 - caughtCount} TO OCEANIA)`;
+  else if (caughtCount >= 70) statusRight = `N. AMERICA + SURF OPEN (${80 - caughtCount} TO AFRICA)`;
+  else if (caughtCount >= 60) statusRight = `EUROPE OPEN (${70 - caughtCount} TO N. AMERICA)`;
+  else if (caughtCount >= 50) statusRight = `ASIA OPEN (${60 - caughtCount} TO EUROPE)`;
   else if (caughtCount >= 30) statusRight = `FLY OPEN (${50 - caughtCount} TO PORTAL)`;
   else if (caughtCount >= 20) statusRight = `MAP OPEN (${30 - caughtCount} TO FLY)`;
 
@@ -1180,7 +1255,7 @@ function renderOverworldDexCards(filterQuery = '') {
 
   const filteredSpecies = MONSTER_SPECIES.filter(species => {
     if (!query) return true;
-    const isCaught = state.dex.some(p => p.id === species.id);
+    const isCaught = caughtByIdMap.has(species.id);
     const habitat = getMonsterHabitatName(species.id, species.name).toLowerCase();
     return (
       species.name.toLowerCase().includes(query) ||
@@ -1201,17 +1276,26 @@ function renderOverworldDexCards(filterQuery = '') {
     return;
   }
 
-  filteredSpecies.forEach(species => {
-    const dexIndex = state.dex.findIndex(p => p.id === species.id);
-    const caughtMon = dexIndex !== -1 ? state.dex[dexIndex] : null;
+  const fragment = document.createDocumentFragment();
+  const visibleSlice = filteredSpecies.slice(0, maxRenderLimit);
+
+  visibleSlice.forEach(species => {
+    const entry = caughtByIdMap.get(species.id);
+    const caughtMon = entry ? entry.mon : null;
+    const dexIndex = entry ? entry.idx : -1;
     const isCurrent = dexIndex === state.activeDexIndex;
+    const isFainted = Boolean(caughtMon && caughtMon.hp <= 0);
     const tInfo = ELEMENT_TYPES[species.type] || { name: species.type, badgeClass: 'bg-slate-700' };
     const habitatLocation = getMonsterHabitatName(species.id, species.name);
 
     const card = document.createElement('div');
-    card.className = `pixel-btn ${caughtMon ? (isCurrent ? 'bg-amber-100' : 'bg-white') : 'bg-slate-200 opacity-65'} text-slate-900 p-2.5 flex items-center gap-3`;
+    card.className = `pixel-btn ${
+      caughtMon
+        ? (isFainted ? 'bg-red-100/80 border-red-500 opacity-65 cursor-not-allowed' : (isCurrent ? 'bg-amber-100' : 'bg-white hover:bg-slate-50'))
+        : 'bg-slate-200 opacity-65'
+    } text-slate-900 p-2.5 flex items-center gap-3`;
     card.innerHTML = `
-      <div class="w-12 h-12 shrink-0 bg-slate-800 rounded p-1 border border-slate-900">
+      <div class="w-12 h-12 shrink-0 bg-slate-800 rounded p-1 border border-slate-900 ${isFainted ? 'grayscale' : ''}">
         ${renderMonsterSVG(species)}
       </div>
       <div class="flex-1 min-w-0">
@@ -1219,24 +1303,52 @@ function renderOverworldDexCards(filterQuery = '') {
           <span class="text-[10px] font-bold truncate">#${species.pokedexNo} ${species.name}</span>
           <span class="text-[8px] px-1.5 py-0.5 rounded text-white ${tInfo.badgeClass}">${species.type}</span>
         </div>
-        <div class="text-[8px] text-slate-600 mt-1">
-          ${caughtMon ? `CAUGHT - HP ${Math.max(0, caughtMon.hp)}/${caughtMon.maxHp} - ${getEvoStatusText(caughtMon)} ${isCurrent ? '[ACTIVE]' : ''}` : `HABITAT: ${habitatLocation}`}
+        <div class="text-[8px] ${isFainted ? 'text-red-700 font-bold' : 'text-slate-600'} mt-1">
+          ${caughtMon
+            ? (isFainted
+              ? `FAINTED (0/${caughtMon.maxHp} HP) - HEAL AT NURSE OR CHEF!`
+              : `CAUGHT - HP ${Math.max(0, caughtMon.hp)}/${caughtMon.maxHp} - ${getEvoStatusText(caughtMon)} ${isCurrent ? '[ACTIVE]' : ''}`)
+            : `HABITAT: ${habitatLocation}`}
         </div>
       </div>
     `;
     if (caughtMon) {
       card.addEventListener('click', () => {
-        if (caughtMon.hp <= 0) caughtMon.hp = caughtMon.maxHp;
-        sfx.pokemonCry(species.id);
+        if (caughtMon.hp <= 0) {
+          sfx.wrongBuzzer();
+          if (typeof setOverworldDialogue === 'function') {
+            setOverworldDialogue(
+              `${species.name} has fainted (0 HP) and cannot be selected as your partner! Visit any Nurse Joy or Country Chef to heal your party first!`,
+              'FAINTED PARTNER',
+              'HEAL REQUIRED'
+            );
+          }
+          return;
+        }
+        sfx.pokemonCry(species.name);
         state.activeDexIndex = dexIndex;
         if (typeof saveGameProgress === 'function') saveGameProgress();
         syncAllUI();
         const searchInput = document.getElementById('overworldDexSearchInput');
-        renderOverworldDexCards(searchInput ? searchInput.value : '');
+        renderOverworldDexCards(searchInput ? searchInput.value : '', maxRenderLimit);
       });
     }
-    list.appendChild(card);
+    fragment.appendChild(card);
   });
+
+  if (filteredSpecies.length > maxRenderLimit) {
+    const loadMoreBtn = document.createElement('button');
+    loadMoreBtn.type = 'button';
+    loadMoreBtn.className = 'col-span-full pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-[9px] py-2.5 font-bold';
+    loadMoreBtn.textContent = `SHOW MORE POKEMON (${visibleSlice.length} OF ${filteredSpecies.length} SHOWN)`;
+    loadMoreBtn.addEventListener('click', () => {
+      sfx.blip();
+      renderOverworldDexCards(filterQuery, maxRenderLimit + 120);
+    });
+    fragment.appendChild(loadMoreBtn);
+  }
+
+  list.appendChild(fragment);
 }
 
 function openOverworldDexModal() {
@@ -1266,7 +1378,7 @@ function launchGrandCelebrationModal() {
   sfx.grandVictoryFanfare();
   stage.innerHTML = '';
 
-  MONSTER_SPECIES.forEach((mon, idx) => {
+  MONSTER_SPECIES.slice(0, 60).forEach((mon, idx) => {
     const floater = document.createElement('div');
     floater.className = 'absolute w-12 h-12 sm:w-16 sm:h-16 pointer-events-none float-celebrate';
     floater.style.left = `${(idx * 19) % 88 + 3}%`;
@@ -1277,6 +1389,6 @@ function launchGrandCelebrationModal() {
     stage.appendChild(floater);
   });
 
-  modal.classList.add('hidden');
-  modal.classList.remove('flex');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
 }

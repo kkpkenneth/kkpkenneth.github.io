@@ -5,63 +5,309 @@
  * 2. EAST_ASIA_QUESTIONS: Chinese character (Hanzi) questions across all 18 types
  * (Original scientific trivia questions preserved in comments below)
  ********************************************************************/
-const FOOD_VOCAB_QUESTIONS = [
-  {
-    type: 'GRASS',
-    difficulty: 1,
-    q: 'Look at the 16x16 image. What food is this?',
-    options: ['Apple', 'Banana', 'Grapes', 'Carrot'],
-    answer: 0,
-    pixelArt: {
-      palette: { r: '#ef4444', d: '#b91c1c', w: '#fca5a5', g: '#22c55e', s: '#78350f', b: '#0f172a' },
-      grid: [
-        ".......bb.......",
-        "......bsbgggg...",
-        ".....bsbggggg...",
-        "...bbbbbgggg....",
-        "..brrrrrbbbb....",
-        ".brwwrrrrrrrb...",
-        "brwwwrrrrrrrrb..",
-        "brwrrrrrrrrrrdb.",
-        "brrrrrrrrrrrrddb",
-        "brrrrrrrrrrrrddb",
-        "brrrrrrrrrrrdddb",
-        ".brrrrrrrrrdddb.",
-        ".bddddddddddddb.",
-        "..bdddddddddddb.",
-        "...bbbb..bbbb...",
-        "................"
-      ]
-    }
-  },
-  {
-    type: 'ELECTRIC',
-    difficulty: 1,
-    q: 'Look at the 16x16 image. What food is this?',
-    options: ['Banana', 'Lemon', 'Cheese', 'Corn'],
-    answer: 0,
-    pixelArt: {
-      palette: { y: '#facc15', d: '#ca8a04', l: '#fef08a', s: '#78350f', b: '#0f172a' },
-      grid: [
-        "...........bbb..",
-        "..........bssb..",
-        ".........byyyb..",
-        "........bylyyb..",
-        ".......bylyyyb..",
-        "......bylyyyyb..",
-        ".....bylyyyyddb.",
-        "....bylyyyydddb.",
-        "...bylyyyyddddb.",
-        "..bylyyyyddddb..",
-        ".byyyyyyddddb...",
-        ".bsyyyyddddb....",
-        "..bbbbbbbb......",
-        "................",
-        "................",
-        "................"
-      ]
-    }
-  }
+const VISUAL_QUESTIONS = [
+  // --- Food (50 QUESTIONS: #1 - #50) ---
+  // 1. Apple
+  { type: 'GRASS', difficulty: 1, q: 'What is this?', options: ['Apple', 'Banana', 'Grapes', 'Carrot'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#b91c1c', l: '#fca5a5', b: '#0f172a', s: '#22c55e', t: '#78350f' }, grid: [".......bb.......","......btbssss...",".....btbsssss...","...bbbbbssss....","..bppppppbbb....",".bpllpppppppb...","bplllppppppppb..","bplppppppppppdb.","bppppppppppppddb","bppppppppppppddb","bpppppppppppdddb",".bppppppppppdddb.",".bddddddddddddb.","..bdddddddddddb.","...bbbb..bbbb...","................"] } },
+  // 2. Banana
+  { type: 'ELECTRIC', difficulty: 1, q: 'What is this?', options: ['Banana', 'Lemon', 'Cheese', 'Corn'], answer: 0,
+    pixelArt: { palette: {p:"#facc15",d:"#cca714",l:"#a16207",b:"#a16207",s:"#14532d",t:"#166534"}, grid: ["................","................","................","......llll......",".......lllll....",".......pbdllll..","......ppdpdplll.",".....ppddppbll..","....ppddpppdp...",".ppppddpppddp...","..ppddppppdpp...","..dddppppdpp....","...ppppddpp.....","....pddpppp.....","......pppp......","................"]} },
+  // 3. Watermelon
+  { type: 'WATER', difficulty: 1, q: 'What is this?', options: ['Watermelon', 'Strawberry', 'Tomato', 'Peach'], answer: 0,
+    pixelArt: { palette: { p: '#f43f5e', d: '#e11d48', l: '#bbf7d0', b: '#0f172a', s: '#16a34a', t: '#ffffff' }, grid: ["................",".......bb.......","......bppb......",".....bppppb.....","....bpbppppb....","...bpppppbppb...","..bpppbppppppb..",".bpppppppbpppdb.","bpppbppppppppddb","bllllllllllllllb",".bssssssssssssb.","..bssssssssssb..","...bbbbbbbbbb...","................","................","................"] } },
+  // 4. Pizza
+  { type: 'FIRE', difficulty: 1, q: 'What is this?', options: ['Pizza', 'Sandwich', 'Taco', 'Pancake'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#d97706', l: '#fef08a', b: '#0f172a', s: '#dc2626', t: '#b45309' }, grid: ["....bbbbbbbb....","...bddddddddb...","..bdddddddddddb.","..bpppppppppppb.","...bpssbppppb...","...bpssbpppb....","....bppppppb....","....bpppbppb....",".....bpppppb....",".....bppssbb....","......bpppb.....","......bppb......",".......bpb......",".......bb.......","................","................"] } },
+  // 5. Hamburger
+  { type: 'GROUND', difficulty: 1, q: 'What is this?', options: ['Hamburger', 'Hot Dog', 'Donut', 'Muffin'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#78350f', l: '#fef3c7', b: '#0f172a', s: '#22c55e', t: '#ef4444' }, grid: ["....bbbbbbbb....","..bbppppppppbb..",".bpplpplpplpppb.","bppppppppppppppb","bbbbbbbbbbbbbbbb","bssssssssssssssb","bttttttttttttttb","bllllllllllllllb","bddddddddddddddb","bddddddddddddddb","bbbbbbbbbbbbbbbb",".bppppppppppppb.","..bbbbbbbbbbbb..","................","................","................"] } },
+  // 6. Sushi
+  { type: 'WATER', difficulty: 1, q: 'What is this?', options: ['Sushi', 'Dumpling', 'Bread', 'Omelette'], answer: 0,
+    pixelArt: { palette: { p: '#fb7185', d: '#e11d48', l: '#fecdd3', b: '#0f172a', s: '#f8fafc', t: '#cbd5e1' }, grid: ["................","................","....bbbbbbbb....","..bbppppppppbb..",".bppplpppppppbb.","bpppplppbbbbpppb","bppppppbbbbbbppb",".bbbbbbbbbbbbppb","..bssssssbbbbssb","..bssssssbbbbssb","..bssssstbbbbssb","...bbbbbbbbbbbb.","................","................","................","................"] } },
+  // 7. Ice Cream
+  { type: 'ICE', difficulty: 1, q: 'What is this?', options: ['Ice Cream', 'Cupcake', 'Lollipop', 'Pudding'], answer: 0,
+    pixelArt: { palette: { p: '#f472b6', d: '#d97706', l: '#fbcfe8', b: '#0f172a', s: '#ef4444', t: '#b45309' }, grid: [".......bb.......","......bssb......","....bbppppbb....","...bppllllppb...","..bpppllllpppb..","..bppppppppppb..",".bppppppppppppb.","..bbbbbbbbbbbb..","...bddtddtddb...","....bddddddb....","....bddtdddb....",".....bddddb.....",".....bddtdb.....","......bddb......",".......bb.......","................"] } },
+  // 8. Fried Egg
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Fried Egg', 'Pancake', 'Cheese', 'Cookie'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#e2e8f0', l: '#facc15', b: '#0f172a', s: '#f97316', t: '#ffffff' }, grid: ["................","....bbbbbbb.....","..bbpppppppbb...",".bpppppppppppb..","bppppbbbbpppppb.","bpppblsslbpppppb","bppblsssssbppppb","bppbssssssbppppb","bpppblsslbppppdb",".bpppbbbbppppddb",".bppppppppppddb.","..bbddddddddbb..","....bbbbbbbb....","................","................","................"] } },
+  // 9. Carrot
+  { type: 'GROUND', difficulty: 1, q: 'What is this?', options: ['Carrot', 'Chili Pepper', 'Corn', 'Radish'], answer: 0,
+    pixelArt: { palette: { p: '#f97316', d: '#c2410c', l: '#fdba74', b: '#0f172a', s: '#22c55e', t: '#15803d' }, grid: ["..........bb.bb.",".........bssbssb",".........bssssb.","........bbttbb..","......bbppppb...",".....bppddppb...","....bppppppb....","...bppddppb.....","..bppppppb......","..bppddpb.......",".bpppppb........",".bppddb.........","bppppb..........","bppdb...........",".bbb............","................"] } },
+  // 10. Strawberry
+  { type: 'FAIRY', difficulty: 1, q: 'What is this?', options: ['Strawberry', 'Cherry', 'Apple', 'Tomato'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#b91c1c', l: '#fef08a', b: '#0f172a', s: '#22c55e', t: '#15803d' }, grid: ["......bbbb......","....bbssssbb....","...bssssssssb...","..bbbbssssbbbb..",".bppppbbbbppppb.","bpplppplppplpppb","bpppppppppppppdb","bpplppplppplppdb",".bpppppppppppdb.",".bpplppplpppddb.","..bpppppppppdb..","...bpplpppddb...","....bpppppdb....",".....bppddb.....","......bbbb......","................"] } },
+  // 11. Grapes
+  { type: 'POISON', difficulty: 1, q: 'What is this?', options: ['Grapes', 'Blueberries', 'Plums', 'Eggplant'], answer: 0,
+    pixelArt: { palette: { p: '#9333ea', d: '#581c87', l: '#d8b4fe', b: '#0f172a', s: '#22c55e', t: '#78350f' }, grid: [".......bb.......","......bttbss....",".....bbbbsss....","...bbppbbppbb...","..bplppbbplppb..","..bppppbbppppb..","..bbppbbppbbpb..",".bplppbbplppbb..",".bppppbbppppb...","..bbppbbppbb....","...bplppbbplb...","...bppppbbppb...","....bbppbbpb....",".....bplppb.....","......bbbb......","................"] } },
+  // 12. Pineapple
+  { type: 'ELECTRIC', difficulty: 1, q: 'What is this?', options: ['Pineapple', 'Mango', 'Coconut', 'Durian'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#b45309', l: '#4ade80', b: '#0f172a', s: '#16a34a', t: '#fef08a' }, grid: [".....bb..bb.....","....bssbbssb....","...bslsssslss...","....bssssssb....","...bbbbbbbbbb...","..bppdpppdpppb..",".bppdpppdpppdppb",".bppppppppppppb.",".bpdpptdpppdpppb",".bppppppppppppb.",".bppdpppdpppdppb",".bppppppppppppb.","..bpdpptdpppdb..","...bbbbbbbbbb...","................","................"] } },
+  // 13. Chili Pepper
+  { type: 'FIRE', difficulty: 1, q: 'What is this?', options: ['Chili Pepper', 'Carrot', 'Strawberry', 'Sausage'], answer: 0,
+    pixelArt: { palette: { p: '#dc2626', d: '#7f1d1d', l: '#fca5a5', b: '#0f172a', s: '#16a34a', t: '#15803d' }, grid: ["...........bb...","..........bssb..",".........bssssb.","........bbssssb.",".......bppbbbb..","......bpllppb...",".....bpllppdb...","....bppppppdb...","...bppppppdddb..","..bppppppddddb..",".bppppppddddb...","bppppppddddb....","bpppppddddb.....",".bbbbbbbb.......","................","................"] } },
+  // 14. Cheese
+  { type: 'ROCK', difficulty: 1, q: 'What is this?', options: ['Cheese', 'Butter', 'Cake', 'Bread'], answer: 0,
+    pixelArt: { palette: { p: '#fde047', d: '#eab308', l: '#fef9c3', b: '#0f172a', s: '#ca8a04', t: '#a16207' }, grid: ["................","........bbbb....","......bbppppb...","....bbpppppppb..","..bbppppssppppb.",".bppppppsspppppb","bbbbbbbbbbbbbbbb","bddddssddddddddb","bddddssddddssddb","bddddddddddssddb","bssddddddddddddb","bssddddddddddddb","bbbbbbbbbbbbbbbb","................","................","................"] } },
+  // 15. Rice Ball (Onigiri)
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Rice Ball', 'Sandwich', 'Dumpling', 'Tofu'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ffffff', b: '#0f172a', s: '#1e293b', t: '#334155' }, grid: ["................",".......bb.......","......bppb......",".....bppppb.....","....bppppppb....","...bppppppppb...","..bppppppppppb..",".bppppppppppppb.",".bpppbbbbbbpppb.","bppppbsssssbpppb","bppppbsssssbppdb","bpppdpbssssbpddb",".bdddbsssssbddb.","..bbbbbbbbbbbb..","................","................"] } },
+  // 16. Donut
+  { type: 'FAIRY', difficulty: 1, q: 'What is this?', options: ['Donut', 'Bagel', 'Cookie', 'Pancake'], answer: 0,
+    pixelArt: { palette: { p: '#ec4899', d: '#d97706', l: '#fde047', b: '#0f172a', s: '#38bdf8', t: '#ffffff' }, grid: ["................","....bbbbbbbb....","..bbppppppppbb..",".bppplppppspppb.","bppppppppppppppb","bppsppbbbbppplpb","bpppppbbbbpppppb","bdppppbbbbppppdb","bddppppppppppddb",".bddddppppddddb.","..bbddddddddbb..","....bbbbbbbb....","................","................","................","................"] } },
+  // 17. Noodle Bowl (Ramen)
+  { type: 'DRAGON', difficulty: 1, q: 'What is this?', options: ['Noodle Bowl', 'Salad', 'Porridge', 'Fried Rice'], answer: 0,
+    pixelArt: { palette: { p: '#dc2626', d: '#991b1b', l: '#fde047', b: '#0f172a', s: '#f8fafc', t: '#22c55e' }, grid: ["................","...s...s...s....","..s...s...s.....","................",".bbbbbbbbbbbbbb.","blllssllllttlllb","bllssssllllttllb","bbbbbbbbbbbbbbbb","bppppppppppppppb","bpsssssssssssspb",".bppppppppppppb.","..bddddddddddb..","...bbbbbbbbbb...","....bbbbbbbb....","................","................"] } },
+  // 18. Chicken Leg
+  { type: 'FIGHTING', difficulty: 1, q: 'What is this?', options: ['Chicken Leg', 'Steak', 'Sausage', 'Fish'], answer: 0,
+    pixelArt: { palette: { p: '#b45309', d: '#78350f', l: '#f59e0b', b: '#0f172a', s: '#f8fafc', t: '#cbd5e1' }, grid: ["................","....bbbbbb......","..bbppppppbb....",".bpplllpppppb...","bppllllppppppb..","bppppppppppppdb.","bppppppppppppddb",".bppppppppppddb.","..bbpppppppddbb.","....bbbbppppbb..","........bssb....",".........bssb...",".........bssbbb.","..........bssssb","..........bbbbbb","................"] } },
+  // 19. Croissant
+  { type: 'FLYING', difficulty: 1, q: 'What is this?', options: ['Croissant', 'Pretzel', 'Baguette', 'Waffle'], answer: 0,
+    pixelArt: { palette: { p: '#f59e0b', d: '#b45309', l: '#fde047', b: '#0f172a', s: '#fef3c7', t: '#78350f' }, grid: ["................","....bbbbbbbb....","..bbppllllpbb...",".bpppbllllbpppb.","bpppbddddddbpppb","bppb..bbbb..bppb","bddb........bddb",".bbb........bbb.","................","................","................","................","................","................","................","................"] } },
+  // 20. Takoyaki
+  { type: 'PSYCHIC', difficulty: 1, q: 'What is this?', options: ['Takoyaki', 'Meatball', 'Potato', 'Mushroom'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#78350f', l: '#fef3c7', b: '#0f172a', s: '#22c55e', t: '#ef4444' }, grid: [".......tt.......",".....bbllbb.....","...bbddddddbb...","..bddddddddddb..",".bddlsddddslddb.",".bdllddddddllddb","bppppddddddppppb","bppppppppppppppb","bppppppppppppppb","bppppppppppppppb",".bppppppppppppb.","..bbppppppppbb..","...bbbbbbbbbb...","................","................","................"] } },
+  // 21. Cherries
+  { type: 'GRASS', difficulty: 1, q: 'What is this?', options: ['Cherries', 'Strawberries', 'Plums', 'Apples'], answer: 0,
+    pixelArt: { palette: { p: '#dc2626', d: '#991b1b', l: '#fca5a5', b: '#0f172a', s: '#22c55e', t: '#15803d' }, grid: ["........bbbb....",".......bssssb...","......bsb..bb...",".....bsb..bsb...","....bsb...bsb...","...bsb....bsb...","..bbbb...bbbb...",".bppppb.bppppb..","bplpppbbplppppb.","bpppppdbpppppdb.","bppppddbppppddb.",".bddddb..bddddb.","..bbbb....bbbb..","................","................","................"] } },
+  // 22. Lemon
+  { type: 'ELECTRIC', difficulty: 1, q: 'What is this?', options: ['Lemon', 'Orange', 'Potato', 'Peach'], answer: 0,
+    pixelArt: { palette: { p: '#fde047', d: '#ca8a04', l: '#fef9c3', b: '#0f172a', s: '#22c55e', t: '#eab308' }, grid: ["................",".....bbbbbb.....","...bbppppppbb...","..bpplllllpppb..",".bpplllllpppppb.","bbppppppppppppbb","bpppppppppppppdb","bbpppppppppppddb",".bppppppppppddb.","..bdddddddddddb.","...bbddddddbb...",".....bbbbbb.....","................","................","................","................"] } },
+  // 23. Broccoli
+  { type: 'GRASS', difficulty: 1, q: 'What is this?', options: ['Broccoli', 'Cabbage', 'Spinach', 'Celery'], answer: 0,
+    pixelArt: { palette: { p: '#16a34a', d: '#14532d', l: '#4ade80', b: '#0f172a', s: '#86efac', t: '#a3e635' }, grid: ["....bbbbbbbb....","..bbppppppppbb..",".bppllpplllpppb.","bpplpppppppppddb","bppppppppppppddb","bpppddddddddppdb",".bbddddddddddbb.","...bbbssssbbb...",".....bssssb.....",".....bssssb.....",".....bssssb.....",".....bssssb.....","......bbbb......","................","................","................"] } },
+  // 24. Corn
+  { type: 'GROUND', difficulty: 1, q: 'What is this?', options: ['Corn', 'Banana', 'Wheat', 'Pineapple'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#ca8a04', l: '#fef08a', b: '#0f172a', s: '#22c55e', t: '#15803d' }, grid: ["......bbbb......",".....bppdpb.....","....bplppdpb....","....bppdpplb....","...bplppdpppb...","...bppdpplppb...","..bbppdppdppbb..",".bssbppdppdbssb.",".bsssbppppbsssb.","..bsssbbbbsssb..","...bssssssssb...","....bbttttbb....","......bbbb......","................","................","................"] } },
+  // 25. Mushroom
+  { type: 'POISON', difficulty: 1, q: 'What is this?', options: ['Mushroom', 'Onion', 'Garlic', 'Turnip'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#991b1b', l: '#f8fafc', b: '#0f172a', s: '#fde68a', t: '#d6d3d1' }, grid: ["....bbbbbbbb....","..bbppppppppbb..",".bpplllppppllpb.","bppllllpppplllpb","bppppppppppppppb","bpppppplllpppppb","bdddddlllllddddb",".bbbbbbbbbbbbbb.","....bssssssb....","....bssssssb....","...bssssssttb...","...bssssssttb...","....bbbbbbbb....","................","................","................"] } },
+  // 26. Bread Loaf
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Bread', 'Cheese', 'Cake', 'Steak'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#92400e', l: '#fef3c7', b: '#0f172a', s: '#fde68a', t: '#78350f' }, grid: ["................","...bbbbbbbbbb...","..bppppppppppb..",".bppddddddddppb.","bpppllllllllpppb","bbllllllllllllbb",".bllllllllllllb.",".bllllllllllllb.",".blllllllllllssb",".bllllllllllssb.",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  // 27. Pretzel
+  { type: 'ROCK', difficulty: 1, q: 'What is this?', options: ['Pretzel', 'Croissant', 'Donut', 'Cookie'], answer: 0,
+    pixelArt: { palette: { p: '#b45309', d: '#78350f', l: '#f8fafc', b: '#0f172a', s: '#d97706', t: '#fef08a' }, grid: ["..bbbb....bbbb..",".bppplb..bppppb.","bpppppb..bpppppb","bpbbbpb..bpbbbpb","bpppbpbbbbpbpppb",".bpppbppppbpppb.","..bbppplpppppbb.","...bppppppppb...","..bppbbppbbppb..","..bddddbbddddb..","...bbbb..bbbb...","................","................","................","................","................"] } },
+  // 28. Taco
+  { type: 'GROUND', difficulty: 1, q: 'What is this?', options: ['Taco', 'Pizza', 'Burger', 'Burrito'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#ca8a04', l: '#fef08a', b: '#0f172a', s: '#22c55e', t: '#ef4444' }, grid: ["................","................","....bbbbbbbb....","..bbssstttssbb..",".bsstttssstttsb.","bbddddddddddddbb","bppppppppppppppb","bppppllllllppppb","bpppppppppppppdb",".bppddddddddddpb","..bbbbbbbbbbbb..","................","................","................","................","................"] } },
+  // 29. Hot Dog
+  { type: 'FIRE', difficulty: 1, q: 'What is this?', options: ['Hot Dog', 'Sandwich', 'Sausage', 'Taco'], answer: 0,
+    pixelArt: { palette: { p: '#dc2626', d: '#d97706', l: '#facc15', b: '#0f172a', s: '#fef3c7', t: '#991b1b' }, grid: ["................","................","...bbbbbbbbbb...","..bddddddddddb..",".bddddddddddddd.","bbppppppppppppbb","bpplllppplllpppb","bpppplllppplllpb","bbddddddddddddbb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................","................"] } },
+  // 30. French Fries
+  { type: 'ELECTRIC', difficulty: 1, q: 'What is this?', options: ['French Fries', 'Popcorn', 'Noodles', 'Chips'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#b91c1c', l: '#facc15', b: '#0f172a', s: '#eab308', t: '#fde047' }, grid: ["...bb.bb.bb.....","..bllbllbllb.bb.",".bbllbllbllbbllb","bllbllbllbllbllb","bllbllbllbllbllb","bbbbbbbbbbbbbbbb","bppppppppppppppb","bpppppplllpppppb","bpppppplllppppdb",".bpppppppppppdb.",".bppppppppppddb.","..bdddddddddddb.","...bbbbbbbbbb...","................","................","................"] } },
+  // 31. Steak
+  { type: 'FIGHTING', difficulty: 1, q: 'What is this?', options: ['Steak', 'Chicken', 'Bread', 'Pie'], answer: 0,
+    pixelArt: { palette: { p: '#b91c1c', d: '#78350f', l: '#f8fafc', b: '#0f172a', s: '#fca5a5', t: '#451a03' }, grid: ["................","...bbbbbbbbbb...","..bllllllllllb..",".blpppppppppplb.","blppppsssspppplb","blpppsbllbsppplb","blpppsbllbsppplb",".blpppsssspppplb",".bddddddddddddb.","..bdddddddddddb.","...bbbbbbbbbb...","................","................","................","................","................"] } },
+  // 32. Shrimp (Prawn)
+  { type: 'WATER', difficulty: 1, q: 'What is this?', options: ['Shrimp', 'Crab', 'Fish', 'Lobster'], answer: 0,
+    pixelArt: { palette: { p: '#fb7185', d: '#e11d48', l: '#f8fafc', b: '#0f172a', s: '#fda4af', t: '#fef08a' }, grid: ["....bbbbbbbb....","..bbppppppppbb..",".bppddppppddppb.","bpppbpppppppbppb","bpppb..bbbbppppb",".bppb.....bddddb","..bbb....bppppb.",".........bddddb.","........bppppb..","....bb..bddddb..","...bppbbppppb...","...bddddddddb...","....bbbbbbbb....","................","................","................"] } },
+  // 33. Crab
+  { type: 'WATER', difficulty: 1, q: 'What is this?', options: ['Crab', 'Lobster', 'Spider', 'Shrimp'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#991b1b', l: '#fef08a', b: '#0f172a', s: '#fca5a5', t: '#ffffff' }, grid: [".bb..........bb.","bppb........bppb","bpppbb....bbpppb",".bpppbppppbpppb.","..bbppbpbbppbb..","...bppppppppb...","..bppppppppppb..",".bbpddddddddpbb.","bpb.bdddddddb.bp","bb...bb..bb...bb","................","................","................","................","................","................"] } },
+  // 34. Fish
+  { type: 'WATER', difficulty: 1, q: 'What is this?', options: ['Fish', 'Whale', 'Shark', 'Dolphin'], answer: 0,
+    pixelArt: { palette: { p: '#38bdf8', d: '#0284c7', l: '#bae6fd', b: '#0f172a', s: '#facc15', t: '#ffffff' }, grid: ["................","......bbbb......","....bbssssbb..bb","..bbppppppppbbpb",".bpptbpppppppppb","bpppppppppppddpb","bppplllllllppdpb",".bddddddddddddbb","....bbddddbb..bb","......bbbb......","................","................","................","................","................","................"] } },
+  // 35.Cupcake
+  { type: 'FAIRY', difficulty: 1, q: 'What is this?', options: ['Cupcake', 'Ice Cream', 'Muffin', 'Cake'], answer: 0,
+    pixelArt: { palette: { p: '#f472b6', d: '#d97706', l: '#fbcfe8', b: '#0f172a', s: '#ef4444', t: '#fde68a' }, grid: [".......bb.......","......bssb......","....bbppppbb....","..bbppllllppbb..",".bppppllllppppb.",".bppppppppppppb.","..bbbbbbbbbbbb..","..bdtdtdtdtdtb..","...bdtdtdtdtb...","...bdtdtdtdtb...","....bdddddddb...","....bbbbbbbb....","................","................","................","................"] } },
+  // 36. Cookie
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Cookie', 'Pancake', 'Donut', 'Potato'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#451a03', l: '#f59e0b', b: '#0f172a', s: '#92400e', t: '#fef3c7' }, grid: ["................","....bbbbbbbb....","..bbppppppppbb..",".bppddppppllppb.","bpppddppppddpppb","bpppppddpppppppb","bpplllppppddpppb","bppddpppppppppsb",".bppppddpppppsb.","..bbssssssssbb..","....bbbbbbbb....","................","................","................","................","................"] } },
+  // 37. Candy
+  { type: 'FAIRY', difficulty: 1, q: 'What is this?', options: ['Candy', 'Bowtie', 'Cookie', 'Lollipop'], answer: 0,
+    pixelArt: { palette: { p: '#ec4899', d: '#be185d', l: '#f8fafc', b: '#0f172a', s: '#38bdf8', t: '#fde047' }, grid: ["................","................","bb....bbbb....bb","bsb..bppppb..bsb","bssbbppllppbbssb","bssssbppppbssssb","bssbbppddppbbssb","bsb..bddddb..bsb","bb....bbbb....bb","................","................","................","................","................","................","................"] } },
+  // 38. Lollipop
+  { type: 'PSYCHIC', difficulty: 1, q: 'What is this?', options: ['Lollipop', 'Ice Cream', 'Balloon', 'Spoon'], answer: 0,
+    pixelArt: { palette: { p: '#f43f5e', d: '#e11d48', l: '#ffffff', b: '#0f172a', s: '#fde047', t: '#cbd5e1' }, grid: ["....bbbbbbbb....","..bbppppppppbb..",".bppllllllllppb.","bpplppppppppllpb","bpplppllllppplpb","bpplpplsslppplpb","bpplpppllllpplpb",".bppllllllllppb.","..bbppppppppbb..","....bbbbbbbb....",".......bb.......",".......bb.......",".......bb.......",".......bb.......",".......bb.......","................"] } },
+  // 39. Chocolate Bar
+  { type: 'DARK', difficulty: 1, q: 'What is this?', options: ['Chocolate', 'Waffle', 'Brick', 'Book'], answer: 0,
+    pixelArt: { palette: { p: '#78350f', d: '#451a03', l: '#92400e', b: '#0f172a', s: '#ef4444', t: '#f8fafc' }, grid: ["...bbbbbbbbbb...","...bllbllbllb...","...bpdbpdbpdb...","...bbbbbbbbbb...","...bllbllbllb...","...bpdbpdbpdb...","...bbbbbbbbbb...","..bttttttttttb..","..bssssssssssb..","..bssssssssssb..","..bssssssssssb..","..bssssssssssb..","...bbbbbbbbbb...","................","................","................"] } },
+  // 40. Pancake Stack
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Pancakes', 'Hamburger', 'Sandwich', 'Cake'], answer: 0,
+    pixelArt: { palette: { p: '#f59e0b', d: '#b45309', l: '#fde047', b: '#0f172a', s: '#78350f', t: '#f8fafc' }, grid: ["......bbbb......","....bbllllbb....","..bbssssssssbb..",".bppppppppppppb.",".bddddddddddddb.",".bppppppppppppb.",".bddddddddddddb.",".bppppppppppppb.",".bddddddddddddb.","tttttttttttttttt",".bbbbbbbbbbbbbb.","................","................","................","................","................"] } },
+  // 41. Waffle
+  { type: 'GROUND', difficulty: 1, q: 'What is this?', options: ['Waffle', 'Cookie', 'Toast', 'Cheese'], answer: 0,
+    pixelArt: { palette: { p: '#f59e0b', d: '#b45309', l: '#fde047', b: '#0f172a', s: '#fef3c7', t: '#78350f' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpddppddppddpb.",".bpddppddppddpb.",".bppppppllllppb.",".bpddppllllddpb.",".bpddppddppddpb.",".bppppppppppppb.",".bpddppddppddpb.",".bppppppppppppb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  // 42. Sandwich
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Sandwich', 'Cake', 'Toast', 'Burger'], answer: 0,
+    pixelArt: { palette: { p: '#fef3c7', d: '#d97706', l: '#ffffff', b: '#0f172a', s: '#22c55e', t: '#ef4444' }, grid: ["................","..bbbbbbbbbbbb..",".bddddddddddddb.",".bppppppppppppb.","..bppppppppppb..","..bssssssssssb..","..bttttttttttb..","..bppppppppppb..",".bppppppppppppb.",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................","................"] } },
+  // 43. Dumpling (Gyoza / Bao)
+  { type: 'DRAGON', difficulty: 1, q: 'What is this?', options: ['Dumpling', 'Garlic', 'Cloud', 'Egg'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ffffff', b: '#0f172a', s: '#fde68a', t: '#94a3b8' }, grid: ["................","................","......bbbb......","....bbppppbb....","..bbptpptppbb...",".bppllllllllppb.","bppllllllllllppb","bppppppppppppppb","bppppppppppppddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................","................"] } },
+  // 44. Coffee Cup
+  { type: 'DARK', difficulty: 1, q: 'What is this?', options: ['Coffee', 'Soup', 'Juice', 'Milk'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#78350f', b: '#0f172a', s: '#94a3b8', t: '#ffffff' }, grid: ["....s...s.......","...s...s........","................",".bbbbbbbbbbbb...","bllllllllllllbbb","bppppppppppppbpb","bppppppppppppbpb","bppppppppppppbbb",".bppppppppddpb..","..bdddddddddb...","...bbbbbbbbb....","bbbbbbbbbbbbbbbb","................","................","................","................"] } },
+  // 45. Milk Carton
+  { type: 'ICE', difficulty: 1, q: 'What is this?', options: ['Milk', 'Juice', 'Water', 'Soda'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#38bdf8', l: '#ffffff', b: '#0f172a', s: '#0284c7', t: '#cbd5e1' }, grid: [".....bbbbbb.....","....bppppppb....","...bppddddppb...","..bbbbbbbbbbbb..","..bppppppppppb..","..bdddddddddddb.","..bdddddddddddb.","..bppppppppppb..","..bppddddddppb..","..bppppppppppb..","..bppppppppppb..","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  // 46. Orange Juice
+  { type: 'ELECTRIC', difficulty: 1, q: 'What is this?', options: ['Orange Juice', 'Tea', 'Coffee', 'Soup'], answer: 0,
+    pixelArt: { palette: { p: '#f97316', d: '#ea580c', l: '#e0f2fe', b: '#0f172a', s: '#ef4444', t: '#fde047' }, grid: ["..........sss...",".........ss.....","........ss......","...bbbbbbbbbb...","...bllllllllb...","...bppppppppb...","...bppptttppb...","...bppppppppb...","...bpppppppddb..","...bppppppdddb..","...bdddddddddb..","....bbbbbbbbb...","................","................","................","................"] } },
+  // 47. Bubble Tea (Boba)
+  { type: 'PSYCHIC', difficulty: 1, q: 'What is this?', options: ['Bubble Tea', 'Coffee', 'Smoothie', 'Soda'], answer: 0,
+    pixelArt: { palette: { p: '#fde68a', d: '#d97706', l: '#fef3c7', b: '#0f172a', s: '#f472b6', t: '#451a03' }, grid: [".......bbb......",".......bsb......","...bbbbbsbbbbb..","..blllllllllllb.","...bpppppppppb..","...bpplllllppb..","...bpppppppppb..","...bptpbptpbpb..","...bpbptpbptpb..","...bttbttbttdb..","....bbbbbbbbb...","................","................","................","................","................"] } },
+  // 48. Birthday Cake
+  { type: 'FAIRY', difficulty: 1, q: 'What is this?', options: ['Cake', 'Pie', 'Pudding', 'Bread'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#f472b6', l: '#facc15', b: '#0f172a', s: '#ef4444', t: '#fbcfe8' }, grid: ["....l...l...l...","....s...s...s...","....b...b...b...","..bbbbbbbbbbbb..",".bppppppppppppb.",".bppddsddsddppb.",".bddddddddddddb.",".bttttttttttttb.",".bddddddddddddb.","bbbbbbbbbbbbbbbb","................","................","................","................","................","................"] } },
+  // 49. Popcorn
+  { type: 'FIRE', difficulty: 1, q: 'What is this?', options: ['Popcorn', 'French Fries', 'Cupcake', 'Ice Cream'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#f8fafc', l: '#fde047', b: '#0f172a', s: '#facc15', t: '#dc2626' }, grid: ["....bbbbbbbb....","..bbllllslllbb..",".bllllslllllllb.",".bbbbbbbbbbbbbb.","..bppddppddppb..","..bppddppddppb..","..bppddppddppb..","...bpddppddpb...","...bpddppddpb...","...bpddppddpb...","....bbbbbbbb....","................","................","................","................","................"] } },
+  // 50. Avocado
+  { type: 'GRASS', difficulty: 1, q: 'What is this?', options: ['Avocado', 'Pear', 'Kiwi', 'Mango'], answer: 0,
+    pixelArt: { palette: { p: '#84cc16', d: '#14532d', l: '#bef264', b: '#0f172a', s: '#78350f', t: '#a16207' }, grid: ["......bbbb......","....bbddddbb....","...bdppppppdb...","..bdppllllppdb..","..bdpllllllppdb.",".bdppbbbbllllpdb",".bdpbsstssbllpdb",".bdpbsstssbllpdb",".bdppbbbbblllpdb","..bdpppppppppdb.","...bdddddddddb..","....bbbbbbbbb...","................","................","................","................"] } },
+    // --- COLORS (15 QUESTIONS: #51 - #65) ---
+  { type: 'FIRE', difficulty: 1, q: 'What color is this?', options: ['Red', 'Blue', 'Green', 'Yellow'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#b91c1c', l: '#fca5a5', b: '#0f172a', s: '#dc2626', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'WATER', difficulty: 1, q: 'What color is this?', options: ['Blue', 'Red', 'Yellow', 'Orange'], answer: 0,
+    pixelArt: { palette: { p: '#2563eb', d: '#1e3a8a', l: '#93c5fd', b: '#0f172a', s: '#3b82f6', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'GRASS', difficulty: 1, q: 'What color is this?', options: ['Green', 'Purple', 'Red', 'Pink'], answer: 0,
+    pixelArt: { palette: { p: '#22c55e', d: '#15803d', l: '#86efac', b: '#0f172a', s: '#16a34a', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'ELECTRIC', difficulty: 1, q: 'What color is this?', options: ['Yellow', 'Blue', 'Black', 'Purple'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#ca8a04', l: '#fef08a', b: '#0f172a', s: '#eab308', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'FIRE', difficulty: 1, q: 'What color is this?', options: ['Orange', 'Green', 'Blue', 'Gray'], answer: 0,
+    pixelArt: { palette: { p: '#f97316', d: '#c2410c', l: '#fdba74', b: '#0f172a', s: '#ea580c', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'POISON', difficulty: 1, q: 'What color is this?', options: ['Purple', 'Yellow', 'Green', 'Orange'], answer: 0,
+    pixelArt: { palette: { p: '#9333ea', d: '#581c87', l: '#d8b4fe', b: '#0f172a', s: '#7e22ce', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'FAIRY', difficulty: 1, q: 'What color is this?', options: ['Pink', 'Brown', 'Green', 'Black'], answer: 0,
+    pixelArt: { palette: { p: '#f472b6', d: '#db2777', l: '#fbcfe8', b: '#0f172a', s: '#ec4899', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'GROUND', difficulty: 1, q: 'What color is this?', options: ['Brown', 'Blue', 'Pink', 'White'], answer: 0,
+    pixelArt: { palette: { p: '#92400e', d: '#451a03', l: '#d97706', b: '#0f172a', s: '#78350f', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'DARK', difficulty: 1, q: 'What color is this?', options: ['Black', 'White', 'Yellow', 'Pink'], answer: 0,
+    pixelArt: { palette: { p: '#1e293b', d: '#020617', l: '#475569', b: '#64748b', s: '#0f172a', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bssssssssssssb.",".bsllllsssssssb.",".bslllssssssssb.",".bslssssssssssb.",".bssssssssssssb.",".bssssssssssssb.",".bsssssssssssddb",".bssssssssssdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What color is this?', options: ['White', 'Black', 'Red', 'Purple'], answer: 0,
+    pixelArt: { palette: { p: '#ffffff', d: '#cbd5e1', l: '#f8fafc', b: '#0f172a', s: '#e2e8f0', t: '#94a3b8' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'STEEL', difficulty: 1, q: 'What color is this?', options: ['Gray', 'Red', 'Green', 'Yellow'], answer: 0,
+    pixelArt: { palette: { p: '#94a3b8', d: '#475569', l: '#cbd5e1', b: '#0f172a', s: '#64748b', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'ICE', difficulty: 1, q: 'What color is this?', options: ['Cyan', 'Red', 'Brown', 'Orange'], answer: 0,
+    pixelArt: { palette: { p: '#06b6d4', d: '#0e7490', l: '#a5f3fc', b: '#0f172a', s: '#22d3ee', t: '#ffffff' }, grid: ["................","..bbbbbbbbbbbb..",".bppppppppppppb.",".bpllllpppppppb.",".bplllppppppppb.",".bplppppppppppb.",".bppppppppppppb.",".bppppppppppppb.",".bpppppppppppddb",".bppppppppppdddb",".bddddddddddddb.","..bbbbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'ROCK', difficulty: 1, q: 'What is this?', options: ['Gold Coin', 'Silver Key', 'Red Apple', 'Blue Gem'], answer: 0,
+    pixelArt: { palette: { p: '#eab308', d: '#a16207', l: '#fef08a', b: '#0f172a', s: '#facc15', t: '#ffffff' }, grid: ["....bbbbbbbb....","..bbllllllllbb..",".bllppppppppllb.","blppbbbbbbbbpplb","blppbssssssbpplb","blppbslppddbpplb","blppbslppddbpplb","blppbslppddbpplb","blppbddddddbppdb",".blppbbbbbbppdb.","..bbddddddddbb..","....bbbbbbbb....","................","................","................","................"] } },
+  { type: 'FAIRY', difficulty: 1, q: 'What is this?', options: ['Rainbow', 'Cloud', 'Lightning', 'Moon'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#f97316', l: '#facc15', b: '#0f172a', s: '#22c55e', t: '#3b82f6' }, grid: ["................","....pppppppp....","..ppddddddddpp..",".pddllllllllldp.","pdlssssssssssldp","pdsttttttttttsdp","pdt..bbbbbb..tdp","dst..........tsd","................","................","................","................","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Paint Palette', 'Clock', 'Plate', 'Cookie'], answer: 0,
+    pixelArt: { palette: { p: '#d6b37c', d: '#92400e', l: '#ef4444', b: '#0f172a', s: '#22c55e', t: '#3b82f6' }, grid: ["....bbbbbbbb....","..bbppppppppbb..",".bppplllppppppb.","bpppllllpppssppb","bpppppppppplsspb","bpppptttpppppppb","bpppplttppbbbppb",".bppppppppb.bppb","..bbpppppppbbbb.","....bbbbbbbb....","................","................","................","................","................","................"] } },
+
+  // --- BODY PARTS (25 QUESTIONS: #66 - #90) ---
+  { type: 'PSYCHIC', difficulty: 1, q: 'What body part is this?', options: ['Eye', 'Ear', 'Nose', 'Mouth'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#38bdf8', b: '#0f172a', s: '#1d4ed8', t: '#ffffff' }, grid: ["................","................","....bbbbbbbb....","..bbppppppppbb..",".bppllllssppppb.","bpplltbbsslppppb","bppllbbsbslppppb","bpplllssssppppdb",".bpppppppppppdb.","..bbddddddddbb..","....bbbbbbbb....","................","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What body part is this?', options: ['Ear', 'Eye', 'Hand', 'Foot'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#9a3412' }, grid: ["....bbbbbbbb....","...bllllllllb...","..blpppppppplb..",".blppbbbbbbpplb.",".blppbddddbpplb.",".blppbdsbsbpplb.",".blppbbssbbpplb.","..blpppbpppppdb.","...bpppbbppppdb.","...bppddddppdb..","....bdddddddb...",".....bbbbbbb....","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What body part is this?', options: ['Nose', 'Ear', 'Eye', 'Thumb'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#78350f' }, grid: [".......bb.......","......bllb......","......bppb......",".....bppppb.....",".....bppppb.....","....bppppppb....","...bppppppppb...","..bppllllppppb..",".bppppppppppppb.",".bppbbppppbbppb.","..bdddddddddddb.","...bbbbbbbbbb...","................","................","................","................"] } },
+  { type: 'FAIRY', difficulty: 1, q: 'What body part is this?', options: ['Mouth / Lips', 'Eye', 'Ear', 'Hand'], answer: 0,
+    pixelArt: { palette: { p: '#f43f5e', d: '#be185d', l: '#ffffff', b: '#0f172a', s: '#fda4af', t: '#881337' }, grid: ["................","................","..bbbb....bbbb..",".bppppb..bppppb.","bppppppbbppppppb","bllllllllllllllb","bttttttttttttttb",".bppppppppppppb.","..bppddddddppb..","...bbddddddbb...",".....bbbbbb.....","................","................","................","................","................"] } },
+  { type: 'POISON', difficulty: 1, q: 'What body part is this?', options: ['Tongue', 'Tooth', 'Knee', 'Finger'], answer: 0,
+    pixelArt: { palette: { p: '#f43f5e', d: '#be185d', l: '#fda4af', b: '#0f172a', s: '#ffffff', t: '#9f1239' }, grid: ["................","..bbbbbbbbbbbb..",".bssssssssssssb.",".bttttttttttttb.","..bbppppppppbb..","...bpppddpppb...","...bpppddpppb...","...bpppddpppb...","...bpplddllpb...","....bppddppb....","....bdddddddb...",".....bbbbbbb....","................","................","................","................"] } },
+  { type: 'ROCK', difficulty: 1, q: 'What body part is this?', options: ['Tooth', 'Bone', 'Skull', 'Nail'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ffffff', b: '#0f172a', s: '#94a3b8', t: '#e2e8f0' }, grid: ["..bbbb....bbbb..",".bllllb..bllllb.","bppppppbbppppppb","bppppppppppppppb","bppppppppppppppb","bpppppppppppppdb",".bpppppppppppdb.",".bppppbbbbpppdb.","..bpppbbbbppdb..","..bpppb..bppdb..","...bppb..bpdb...","...bbb....bbb...","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What body part is this?', options: ['Hand', 'Foot', 'Ear', 'Knee'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#9a3412' }, grid: ["....bb.bb.bb....","...bppbppbppb...","...bppbppbppb.bb","bb.bppbppbppbbpb","bpbbppppppppbppb","bppbpppppppppppb",".bppppppppppppb.",".bppppppppppppb.","..bppppppppppdb.","..bdddddddddddb.","...bdddddddddb..","....bbbbbbbbb...","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What body part is this?', options: ['Fist', 'Foot', 'Head', 'Elbow'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#78350f' }, grid: ["................","...bbbbbbbbbb...","..bppbppbppbpb..",".bppbppbppbpppb.",".bbbbbbbbbbbbbb.",".bppppppppppppb.",".bpppbbbbpppppb.",".bppppppppppppb.","..bppppppppppdb.","...bdddddddddb..","....bdddddddb...","....bbbbbbbbb...","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What body part is this?', options: ['Pointing Finger', 'Foot', 'Nose', 'Ear'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#ffffff' }, grid: ["......bbbb......",".....bllllb.....",".....bppppb.....",".....bppppb.....",".....bppppbbbb..","...bbbppppbppb..","..bppbppppppppb.","..bpppppppppppb.","..bppppppppppdb.","...bppppppppddb.","...bddddddddddb.","....bbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What gesture / body part is this?', options: ['Thumbs Up', 'Foot', 'Ear', 'Knee'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#ffffff' }, grid: [".....bbbb.......","....bllllb......","....bppppb......","....bppppb......","....bppppbbbbbb.","..bbbppppppppppb","..bpppppppppppbb","..bppppppppppppb","..bpppppppppppbb","..bppppppppppppb","...bddddddddddb.","....bbbbbbbbbb..","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What body part is this?', options: ['Foot', 'Hand', 'Ear', 'Arm'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#78350f' }, grid: ["....bbbb........","...bppppb.......","...bppppb.......","...bppppb.......","...bppppb.......","...bppppbbbb....","...bppppppppbb..","..bpppppppppppbb","..bpppppppppbppb","...bddddddddbbbb","....bbbbbbbb....","................","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What body part is this?', options: ['Arm / Bicep', 'Leg', 'Neck', 'Back'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#9a3412' }, grid: ["...bbbb.........","..bppppb........","..bppppb........",".bpppppb..bbbb..",".bppppbb.bllllb.",".bpppb..bppppppb",".bppppbbpppppppb","..bppppppppppppb","...bddddddddddb.","....bbbbbbbbbb..","................","................","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What body part is this?', options: ['Leg', 'Arm', 'Finger', 'Neck'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#78350f' }, grid: [".....bbbbbb.....","....bppppppb....","....bppppppb....","....bppddppb....",".....bppppb.....",".....bppppb.....",".....bppppb.....",".....bppppb.....","....bppppppbb...","....bddddddddb..","....bbbbbbbbbb..","................","................","................","................","................"] } },
+  { type: 'PSYCHIC', difficulty: 1, q: 'What organ is this?', options: ['Brain', 'Heart', 'Lungs', 'Stomach'], answer: 0,
+    pixelArt: { palette: { p: '#f472b6', d: '#be185d', l: '#fbcfe8', b: '#0f172a', s: '#db2777', t: '#ffffff' }, grid: ["....bbbbbbbb....","..bbppppppppbb..",".bppddppppddppb.","bpppllddpplllppb","bpppddppppddpppb","bppddppddppddppb","bppppddddddppppb",".bppppppppppppb.","..bbddddddddbb..","......bddddb....",".......bbbb.....","................","................","................","................","................"] } },
+  { type: 'FAIRY', difficulty: 1, q: 'What is this?', options: ['Heart', 'Brain', 'Apple', 'Strawberry'], answer: 0,
+    pixelArt: { palette: { p: '#ef4444', d: '#b91c1c', l: '#fca5a5', b: '#0f172a', s: '#dc2626', t: '#ffffff' }, grid: ["................","..bbbb....bbbb..",".bppppb..bppppb.","bplllppbbppppppb","bplllppppppppppb","bplppppppppppppb","bppppppppppppddb",".bppppppppppddb.","..bppppppppddb..","...bppppppddb...","....bppppddb....",".....bppddb.....","......bddb......",".......bb.......","................","................"] } },
+  { type: 'FLYING', difficulty: 1, q: 'What organ is this?', options: ['Lungs', 'Heart', 'Brain', 'Liver'], answer: 0,
+    pixelArt: { palette: { p: '#fb7185', d: '#e11d48', l: '#fecdd3', b: '#0f172a', s: '#f8fafc', t: '#cbd5e1' }, grid: [".......bb.......",".......bsb......","...bbbbbsbbbbb..","..bppppbsbppppb.",".bpplppb.bpplppb","bppppppb.bpppppb","bppppppb.bpppppb","bpppppdb.bpddddb","bppdddb...bddddb",".bbbbb.....bbbbb","................","................","................","................","................","................"] } },
+  { type: 'GROUND', difficulty: 1, q: 'What body part is this?', options: ['Bone', 'Tooth', 'Stick', 'Spoon'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ffffff', b: '#0f172a', s: '#94a3b8', t: '#e2e8f0' }, grid: ["..bbb......bbb..",".blllb....blllb.",".bppppbbbbppppb.","..bbppppppppbb..","....bppppppb....","....bppppppb....","....bppppppb....","....bppppppb....","..bbppppppppbb..",".bppppbbbbppppb.",".bddddb....bdddd",".bbbbb......bbbb","................","................","................","................"] } },
+  { type: 'GHOST', difficulty: 1, q: 'What is this?', options: ['Skull', 'Tooth', 'Egg', 'Helmet'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ffffff', b: '#0f172a', s: '#94a3b8', t: '#e2e8f0' }, grid: ["....bbbbbbbb....","..bbllllllllbb..",".blppppppppppplb","blpppppppppppppb","bpppbbppppbbpppb","bppbbbbppbbbbppb","bppppppppppppppb",".bpppppbbpppppb.","..bbppppppppbb..","...bpbbppbbpb...","...bddddddddb...","....bbbbbbbb....","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Hair', 'Hat', 'Shoes', 'Gloves'], answer: 0,
+    pixelArt: { palette: { p: '#78350f', d: '#451a03', l: '#b45309', b: '#0f172a', s: '#fed7aa', t: '#d97706' }, grid: ["....bbbbbbbb....","..bbllllllllbb..",".blppppppppppplb","blpppppppppppppb","bpppbbbbbbbbpppb","bppbssssssssbppb","bppbssbppbssbppb","bppbssssssssbppb","bppbssttttssbppb",".bbbssssssssbbb.","....bbbbbbbb....","................","................","................","................","................"] } },
+  { type: 'POISON', difficulty: 1, q: 'What organ is this?', options: ['Stomach', 'Brain', 'Eye', 'Foot'], answer: 0,
+    pixelArt: { palette: { p: '#fb7185', d: '#be185d', l: '#fecdd3', b: '#0f172a', s: '#f43f5e', t: '#fda4af' }, grid: [".....bbb........","....bpppb.......","....bpppb.......","....bpppb.bbbb..","...bppppbbppppb.","..bpplllpppppppb",".bpplllppppppppb",".bppppppppppppdb","..bppppppppppddb","...bddddddddddb.","....bbbbbbbppdb.","..........bbbb..","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Mustache', 'Eyebrow', 'Mouth', 'Ear'], answer: 0,
+    pixelArt: { palette: { p: '#78350f', d: '#451a03', l: '#b45309', b: '#0f172a', s: '#92400e', t: '#d97706' }, grid: ["................","................","................","................","...bbbb..bbbb...","..bllllbbllllb..",".bppppppppppppb.","bbppppppppppppbb","bdddddb..bdddddb",".bbbbb....bbbbb.","................","................","................","................","................","................"] } },
+  { type: 'GROUND', difficulty: 1, q: 'What is this?', options: ['Footprint', 'Handprint', 'Leaf', 'Shoe'], answer: 0,
+    pixelArt: { palette: { p: '#475569', d: '#1e293b', l: '#94a3b8', b: '#0f172a', s: '#334155', t: '#cbd5e1' }, grid: ["...bb.bb.bb.....","..bppbpdbppb.bb.","...bb.bb.bb..bpb","....bbbbbbbb....","...bppppppppb...","...bppppppppb...","....bppppppb....","....bppddddb....","....bdddddddb...","....bdddddddb...",".....bbbbbbb....","................","................","................","................","................"] } },
+  { type: 'WATER', difficulty: 1, q: 'What is this?', options: ['Teardrop / Water Drop', 'Fire', 'Leaf', 'Rock'], answer: 0,
+    pixelArt: { palette: { p: '#38bdf8', d: '#0284c7', l: '#e0f2fe', b: '#0f172a', s: '#7dd3fc', t: '#ffffff' }, grid: [".......bb.......","......bppb......",".....bppppb.....","....bplppppb....","...bpllpppppb...","...bpllpppppb...","..bpplppppppdb..","..bpppppppppddb.","..bpppppppppddb.","...bddddddddddb.","....bbbbbbbbbb..","................","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What body part is this?', options: ['Knee / Bent Leg', 'Hand', 'Ear', 'Eye'], answer: 0,
+    pixelArt: { palette: { p: '#fed7aa', d: '#d97706', l: '#ffedd5', b: '#0f172a', s: '#ea580c', t: '#78350f' }, grid: ["..bbbb..........",".bppppb.........",".bppppppbb......","..bpppppplbb....","...bppppppplb...","....bbbbppppb...",".......bppppb...",".......bppppb...","......bpppppb...","......bdddddb...","......bbbbbbb...","................","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What is this?', options: ['Smile / Face', 'Hand', 'Foot', 'Heart'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#ca8a04', l: '#fef08a', b: '#0f172a', s: '#ef4444', t: '#ffffff' }, grid: ["....bbbbbbbb....","..bbllllllllbb..",".blppppppppppplb","blppbppppppbpppb","bpppbbppppbbpppb","bppppppppppppppb","bpppbppppppbpppb","bppppbbbbbbppppb",".bppppppppppppb.","..bbddddddddbb..","....bbbbbbbb....","................","................","................","................","................"] } },
+
+  // --- ANIMALS (60 QUESTIONS: #91 - #150) ---
+  { type: 'NORMAL', difficulty: 1, q: 'What animal is this?', options: ['Dog', 'Cat', 'Cow', 'Pig'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#78350f', l: '#fef3c7', b: '#0f172a', s: '#ef4444', t: '#ffffff' }, grid: ["..bbbb....bbbb..",".bddddb..bddddb.",".bdppppbbppppdb.",".bdppbppppbppdb.","..bpppllllpppp..","...bpplbblppp...","....bppbsppb....","....bbbbbbbb....","...bssssssssb...","..bppppppppppb..","..bpp..bb..ppb..","..bbb..bb..bbb..","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What animal is this?', options: ['Cat', 'Dog', 'Mouse', 'Rabbit'], answer: 0,
+    pixelArt: { palette: { p: '#f97316', d: '#c2410c', l: '#fef3c7', b: '#0f172a', s: '#f472b6', t: '#ffffff' }, grid: ["..bb........bb..",".bpsb......bspb.",".bppbbbbbbbbppb.",".bppppppppppppb.",".bppbppppppbppb.",".bppppssssppppb.","..bllllllllllb..","...bbbbbbbbbb...","...bppppppppb.bb","...bppppppppb.bp","...bpp....ppb.bp","...bbb....bbbb..","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What animal is this?', options: ['Mouse', 'Cat', 'Bear', 'Pig'], answer: 0,
+    pixelArt: { palette: { p: '#94a3b8', d: '#475569', l: '#f472b6', b: '#0f172a', s: '#cbd5e1', t: '#ffffff' }, grid: ["..bbbb....bbbb..",".bllllb..bllllb.",".blppppbbpppplb.","..bppppppppppb..","..bppbppppbppb..","...bpppsspppp...","....bppllppb..bb","...bppppppppb.bl","...bppppppppbbl.","....bb....bb....","................","................","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What animal is this?', options: ['Rabbit', 'Dog', 'Fox', 'Bear'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#f472b6', b: '#0f172a', s: '#ef4444', t: '#ffffff' }, grid: ["...bbb....bbb...","..bplpb..bplpb..","..bplpb..bplpb..","..bplpb..bplpb..","...bppbbbbppb...","..bppppppppppb..","..bppppssppppb..","..bppppllppppb..","...bppppppppb...","..bppppppppppb..","..bdddd..ddddb..","...bbbb..bbbb...","................","................","................","................"] } },
+  { type: 'FIRE', difficulty: 1, q: 'What animal is this?', options: ['Fox', 'Wolf', 'Cat', 'Rabbit'], answer: 0,
+    pixelArt: { palette: { p: '#ea580c', d: '#9a3412', l: '#f8fafc', b: '#0f172a', s: '#1e293b', t: '#fde047' }, grid: ["..bb........bb..",".bssb......bssb.",".bpppbbbbbbpppb.",".bppppppppppppb.",".bppbppppppbppb.",".blllpppppppllb.","..bllllbbllllb..","...bllllllllb...","...bppppppppb.bb","...bppppppppbbll","...bss....ssb.bb","................","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What animal is this?', options: ['Bear', 'Lion', 'Pig', 'Monkey'], answer: 0,
+    pixelArt: { palette: { p: '#92400e', d: '#451a03', l: '#fde68a', b: '#0f172a', s: '#78350f', t: '#ffffff' }, grid: ["..bbbb....bbbb..",".bppppb..bppppb.",".bpppppbbpppppb.",".bppppppppppppb.",".bppbppppppbppb.",".bppplllllllppb.","..bppllbllbppb..","...bllllllllb...","..bppppppppppb..","..bppppppppppb..","..bdddd..ddddb..","...bbbb..bbbb...","................","................","................","................"] } },
+  { type: 'GRASS', difficulty: 1, q: 'What animal is this?', options: ['Panda', 'Koala', 'Bear', 'Zebra'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#1e293b', l: '#cbd5e1', b: '#0f172a', s: '#22c55e', t: '#ffffff' }, grid: ["..bbbb....bbbb..",".bddddb..bddddb.",".bddddbbbbddddb.",".bppppppppppppb.",".bpddbppppbddpb.",".bpddbppppbddpb.","..bppppbbppppb..","...bppppppppb...","..bdddddddddddb.","..bddppppppdddb.","..bdddd..ddddb..","...bbbb..bbbb...","................","................","................","................"] } },
+  { type: 'GRASS', difficulty: 1, q: 'What animal is this?', options: ['Koala', 'Panda', 'Monkey', 'Sloth'], answer: 0,
+    pixelArt: { palette: { p: '#94a3b8', d: '#475569', l: '#f8fafc', b: '#0f172a', s: '#1e293b', t: '#22c55e' }, grid: [".bbbb......bbbb.","bllllb....bllllb","blpppbbbbbbppplb","blpppppppppppplb",".bppbssssssbppb.","..bppssssssppb..","..bppppppppppb..","...bllllllllb...","..bppppppppppb..","..bpp..bb..ppb..","...bb......bb...","................","................","................","................","................"] } },
+  { type: 'FIRE', difficulty: 1, q: 'What animal is this?', options: ['Lion', 'Tiger', 'Bear', 'Fox'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#b45309', l: '#fef08a', b: '#0f172a', s: '#92400e', t: '#ffffff' }, grid: ["...bbbbbbbbbb...","..bssssssssssb..",".bssppppppppssb.","bsspbppppppbssb.","bssppllllllppssb","bsspppbppbpppssb",".bssssssssssssb.","..bbssssssssbb..","...bppppppppb...","...bpp....ppb...","...bbb....bbb...","................","................","................","................","................"] } },
+  { type: 'FIRE', difficulty: 1, q: 'What animal is this?', options: ['Tiger', 'Lion', 'Cheetah', 'Cat'], answer: 0,
+    pixelArt: { palette: { p: '#f97316', d: '#0f172a', l: '#f8fafc', b: '#0f172a', s: '#f472b6', t: '#fde047' }, grid: ["..bbbb....bbbb..",".bppppbbbbppppb.",".bpddppppppddpb.",".bppppddddppppb.",".bpddbppppbddpb.",".blllpssssplllb.","..bllllllllllb..","...bppppppppb...","..bppddppddppb..","..bpp..bb..ppb..","..bbb......bbb..","................","................","................","................","................"] } },
+  { type: 'GROUND', difficulty: 1, q: 'What animal is this?', options: ['Elephant', 'Rhino', 'Hippo', 'Cow'], answer: 0,
+    pixelArt: { palette: { p: '#94a3b8', d: '#475569', l: '#f8fafc', b: '#0f172a', s: '#f472b6', t: '#cbd5e1' }, grid: [".bbbbbbbbbbbbbb.","bppppppppppppppb","bpssppbppbpppssb","bpsspppppppppssb","bpssppbppppbppsb",".bbbb.bllllb.bbb","......bppppb....","......bppppb....","......bppppbb...",".......bddddb...",".......bbbbbb...","................","................","................","................","................"] } },
+  { type: 'PSYCHIC', difficulty: 1, q: 'What animal is this?', options: ['Giraffe', 'Horse', 'Camel', 'Deer'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#92400e', l: '#fef08a', b: '#0f172a', s: '#78350f', t: '#ffffff' }, grid: ["...bb..bb.......","...bsbbssb......","..bpppppppb.....","..bppbppppb.....","...bppppbb......","....bppdb.......","....bdppb.......","....bppdbbbbb...","...bpppddppppb..","...bppddddpppb..","...bpp....pppb..","...bbb....bbbb..","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What animal is this?', options: ['Zebra', 'Horse', 'Donkey', 'Cow'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#0f172a', l: '#cbd5e1', b: '#0f172a', s: '#475569', t: '#ffffff' }, grid: ["...bbbb.........","..bddddb........",".bppddppb.......",".bppbpddb.......","..bppddpbbbb....","..bddppddpppb...","..bppddppddpb...","..bpp....pppb...","..bdd....dddb...","..bbb....bbbb...","................","................","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What animal is this?', options: ['Monkey', 'Bear', 'Dog', 'Sloth'], answer: 0,
+    pixelArt: { palette: { p: '#92400e', d: '#451a03', l: '#fde68a', b: '#0f172a', s: '#f59e0b', t: '#ffffff' }, grid: ["....bbbbbbbb....","..bbppppppppbb..","bbppllbppbllppbb","blppllllllllppbl","bbppplllllllppbb","..bllllllllllb..","...bbbbbbbbbb...","...bppppppppb.bb","..bppppppppppbpb","...bpp....ppb.bb","...bbb....bbb...","................","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What animal is this?', options: ['Cow', 'Pig', 'Sheep', 'Horse'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#0f172a', l: '#f472b6', b: '#0f172a', s: '#fde047', t: '#cbd5e1' }, grid: ["..ss........ss..",".bssbbbbbbbbssb.",".bpppddddddpppb.",".bppppddddppppb.",".bppbppppppbppb.",".bllllllllllllb.",".bllbbllllbbllb.","..bllllllllllb..","...bbbbbbbbbb...","...bppddddppb...","...bbb....bbb...","................","................","................","................","................"] } },
+  { type: 'FAIRY', difficulty: 1, q: 'What animal is this?', options: ['Pig', 'Cow', 'Hamster', ' Hippo'], answer: 0,
+    pixelArt: { palette: { p: '#f472b6', d: '#db2777', l: '#fbcfe8', b: '#0f172a', s: '#be185d', t: '#ffffff' }, grid: ["..bbbb....bbbb..",".bppddb..bddppb.",".bppppbbbbppppb.",".bppppppppppppb.",".bppbppppppbppb.",".bpppllllllppppb","..bpplbssblpppb.","..bpplllllllppb.","...bpppppppppb..","...bpp....pppb..","...bbb....bbbb..","................","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What animal is this?', options: ['Sheep', 'Cloud', 'Goat', 'Dog'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#1e293b', l: '#cbd5e1', b: '#0f172a', s: '#94a3b8', t: '#ffffff' }, grid: ["...bbbbbbbbbb...","..bppppppppppb..",".bppbbbbbbbbppb.","bppddddddddddppb","bppddpbppppbddpb","bppddddddddddppb",".bppddddddddppb.","..bppppppppppb..","...bdd....ddb...","...bbb....bbb...","................","................","................","................","................","................"] } },
+  { type: 'GROUND', difficulty: 1, q: 'What animal is this?', options: ['Horse', 'Cow', 'Deer', 'Camel'], answer: 0,
+    pixelArt: { palette: { p: '#b45309', d: '#451a03', l: '#f8fafc', b: '#0f172a', s: '#78350f', t: '#fde68a' }, grid: ["...bbbb.........","..bppddb........",".bppplddb.......",".bppbppddb......","..bppppddbbbb...","...bpppddppppb..","..bpppppppppppb.","..bpppppppppppb.","..bpp......pppb.","..bdd......dddb.","..bbb......bbbb.","................","................","................","................","................"] } },
+  { type: 'ROCK', difficulty: 1, q: 'What animal is this?', options: ['Goat', 'Sheep', 'Cow', 'Pig'], answer: 0,
+    pixelArt: { palette: { p: '#d6d3d1', d: '#57534e', l: '#f8fafc', b: '#0f172a', s: '#a16207', t: '#fde047' }, grid: ["..ss........ss..","..bssbbbbbbssb..","...bppppppppb...","...bppbppbppb...","....bppppppb....","....bllllllb....",".....bddddb.....","...bbppppppbb...","..bppppppppppb..","..bpp......ppb..","..bbb......bbb..","................","................","................","................","................"] } },
+  { type: 'GRASS', difficulty: 1, q: 'What animal is this?', options: ['Deer', 'Horse', 'Goat', 'Giraffe'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#78350f', l: '#fef3c7', b: '#0f172a', s: '#451a03', t: '#ffffff' }, grid: [".ss..ss..ss..ss.","..ssss....ssss..","...bbbbbbbbbb...","..bppppppppppb..","..bppbppppbppb..","...bppllllppb...","....bppppppb....","...bppppppppb...","..bppptpptpppb..","..bpp......ppb..","..bbb......bbb..","................","................","................","................","................"] } },
+  { type: 'GROUND', difficulty: 1, q: 'What animal is this?', options: ['Camel', 'Horse', 'Giraffe', 'Llama'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#92400e', l: '#fde68a', b: '#0f172a', s: '#78350f', t: '#ffffff' }, grid: ["..bbbb..........",".bppppb..bbbb...",".bppbpbb.bppppb.","..bpppbb.bppppb.","...bpppbpppppppb","...bpppppppppppb","...bpppppppppppb","...bpp......pppb","...bpp......pppb","...bbb......bbbb","................","................","................","................","................","................"] } },
+  { type: 'FIGHTING', difficulty: 1, q: 'What animal is this?', options: ['Kangaroo', 'Rabbit', 'Deer', 'Fox'], answer: 0,
+    pixelArt: { palette: { p: '#d97706', d: '#92400e', l: '#fef3c7', b: '#0f172a', s: '#78350f', t: '#ffffff' }, grid: ["...bb....bb.....","..bppbbbbppb....","..bppbppbppb....","...bppppppb.....","....bppppb......","...bppplllb.....","..bppplllllb.bb.","..bpppplllpbbpb.","...bpppppppppb..","...bdddd..ddbb..","..bbbbbb........","................","................","................","................","................"] } },
+  { type: 'WATER', difficulty: 1, q: 'What animal is this?', options: ['Hippo', 'Rhino', 'Pig', 'Whale'], answer: 0,
+    pixelArt: { palette: { p: '#a855f7', d: '#6b21a8', l: '#e9d5ff', b: '#0f172a', s: '#f8fafc', t: '#f472b6' }, grid: ["..bbb......bbb..",".bpppbbbbbbpppb.",".bppbppppppbppb.",".bllllllllllllb.","bllbppppppppbllb","bllllllllllllllb","blssllllllllsslb",".bbbbbbbbbbbbbb.","..bdddd..ddddb..","...bbbb..bbbb...","................","................","................","................","................","................"] } },
+  { type: 'ROCK', difficulty: 1, q: 'What animal is this?', options: ['Rhino', 'Hippo', 'Elephant', 'Bull'], answer: 0,
+    pixelArt: { palette: { p: '#94a3b8', d: '#475569', l: '#f8fafc', b: '#0f172a', s: '#cbd5e1', t: '#1e293b' }, grid: [".......bb.......","......bllb..bb..",".....blllb.bppb.","....bblllbbppppb","...bpppppppppppb","...bppbppppppppb","..bppppddddppppb","..bddddddddddddb","...bdd......ddb.","...bbb......bbb.","................","................","................","................","................","................"] } },
+  { type: 'DARK', difficulty: 1, q: 'What animal is this?', options: ['Wolf', 'Fox', 'Cat', 'Bear'], answer: 0,
+    pixelArt: { palette: { p: '#64748b', d: '#1e293b', l: '#cbd5e1', b: '#0f172a', s: '#facc15', t: '#f8fafc' }, grid: ["..bb........bb..",".bddb......bddb.",".bpppbbbbbbpppb.",".bppbsbppbspppb.",".bpppllllllppppb","..bllllllllllb..","...bllllllllb...","..bppppppppppb..","..bpppddddppppb.","..bdd......dddb.","..bbb......bbbb.","................","................","................","................","................"] } },
+  { type: 'GRASS', difficulty: 1, q: 'What animal is this?', options: ['Squirrel', 'Mouse', 'Rabbit', 'Cat'], answer: 0,
+    pixelArt: { palette: { p: '#c2410c', d: '#7c2d12', l: '#fed7aa', b: '#0f172a', s: '#ea580c', t: '#ffffff' }, grid: [".........bbbb...","..bb..bb.bpppb..",".bppbbppb.bpppb.",".bppbppb..bpppb.","..bppppb..bpppb.","..bppllb.bppppb.","..bpplllbbppppb.","...bpppppppppb..","...bpp....ppbb..","...bbb....bbb...","................","................","................","................","................","................"] } },
+  { type: 'GROUND', difficulty: 1, q: 'What animal is this?', options: ['Hedgehog', 'Porcupine', 'Mouse', 'Turtle'], answer: 0,
+    pixelArt: { palette: { p: '#78350f', d: '#451a03', l: '#fde68a', b: '#0f172a', s: '#b45309', t: '#ffffff' }, grid: ["................","....bb.bb.bb....","..bbppbpdbppbb..",".bppddppppddppb.","bppddppppppddppb","bllllllppppddppb","bllblllbppppddpb",".bllllllpppppdb.","..bbbbbbbbbbbb..","...bb......bb...","................","................","................","................","................","................"] } },
+  { type: 'DARK', difficulty: 1, q: 'What animal is this?', options: ['Bat', 'Crow', 'Owl', 'Spider'], answer: 0,
+    pixelArt: { palette: { p: '#4c1d95', d: '#1e1b4b', l: '#a855f7', b: '#0f172a', s: '#ef4444', t: '#ffffff' }, grid: ["................","bb...bb..bb...bb","bpb..bppppb..bpb","bppbbpsbbspbbppb","bppppppppppppppb","bpddddppppddddpb",".b..bbddddbb..b.","......b..b......","................","................","................","................","................","................","................","................"] } },
+  { type: 'DARK', difficulty: 1, q: 'What bird is this?', options: ['Owl', 'Eagle', 'Duck', 'Parrot'], answer: 0,
+    pixelArt: { palette: { p: '#92400e', d: '#451a03', l: '#fef08a', b: '#0f172a', s: '#f97316', t: '#ffffff' }, grid: ["..bbb......bbb..",".bddddbbbbddddb.",".bdlllllllllldb.",".bdllbppbllbldb.",".bdlllssllllldb.","..bppppppppppb..",".bppddddddddppb.",".bppdlllllldppb.","..bppppppppppb..","...bddddddddb...","....ss....ss....","................","................","................","................","................"] } },
+  { type: 'FLYING', difficulty: 1, q: 'What bird is this?', options: ['Eagle', 'Duck', 'Chicken', 'Penguin'], answer: 0,
+    pixelArt: { palette: { p: '#78350f', d: '#451a03', l: '#f8fafc', b: '#0f172a', s: '#facc15', t: '#ca8a04' }, grid: ["....bbbbbbbb....","...bllllllllb...","..blllbppblllb..","..blllsssslllb..",".bbbbbssssbbbbb.","bppppppppppppppb","bppppddddddppppb",".bb..bddddb..bb.",".....bddddb.....",".....ss..ss.....","................","................","................","................","................","................"] } },
+  { type: 'WATER', difficulty: 1, q: 'What bird is this?', options: ['Duck', 'Chicken', 'Penguin', 'Swan'], answer: 0,
+    pixelArt: { palette: { p: '#facc15', d: '#ca8a04', l: '#fef08a', b: '#0f172a', s: '#f97316', t: '#22c55e' }, grid: ["....bbbbbb......","...bppppppb.....","..bppbppppb.....","..bpppppsssb....","...bppppbbbb....","..bbppppppppbb..",".bppppddddppppb.",".bppppddddppppb.","..bddddddddddb..","....ss....ss....","...sss....sss...","................","................","................","................","................"] } },
+  { type: 'NORMAL', difficulty: 1, q: 'What bird is this?', options: ['Chicken / Rooster', 'Duck', 'Owl', 'Crow'], answer: 0,
+    pixelArt: { palette: { p: '#f8fafc', d: '#cbd5e1', l: '#ef4444', b: '#0f172a', s: '#facc15', t: '#ffffff' }, grid: [".....bllb.......","....bllllb......","...bppppppb.....","...bppbpppb.....","...bpppppssb....","...bpppllbbb....","..bppppppppppb..",".bppppddddppppb.","..bdddddddddddb.","....ss....ss....","...sss....sss...","................","................","................","................","................"] } },
+  { type: 'ICE', difficulty: 1, q: 'What bird is this?', options: ['Penguin', 'Duck', 'Owl', 'Seagull'], answer: 0,
+    pixelArt: { palette: { p: '#1e293b', d: '#0f172a', l: '#f8fafc', b: '#0f172a', s: '#facc15', t: '#f97316' }, grid: ["....bbbbbbbb....","...bppppppppb...","..bpppbppbpppb..","..bppppssppppb..",".bppppllllppppb.","bppllllllllllppb","bppllllllllllppb",".bpllllllllllpb.","..bdddddddddddb.","...ttt....ttt...","................","................","................","................","................","................"] } }
   // Add more image/pixel-art questions here following the same structure
 ];
 

@@ -1,229 +1,50 @@
 /********************************************************************
  * overworld.js
- * 8-Region World Map (Chroma Archipelago, East Asia, West Europe,
- * North America, Southern Africa, Oceania, South America, Antarctica),
- * Tiered +10 Dex Portal Unlocks (50, 60, 70+SURF, 80, 90, 100, 110),
- * Respawning Antarctica Ultra Beasts, Chef + Nurse Party Healing,
- * Grass (G), Mud (M), Sand (~) & Water (W) Wild Encounters
+ * 8-Region Overworld Engine, Tiered +10 Dex Portal Unlocks,
+ * Yellow Asterisk (*) on Completed Areas, Water/Flying Surf Filter,
+ * Deep-Sea Freshwater Exclusion, Respawning Antarctica Ultra Beasts,
+ * Chef + Nurse Party Healing & 60 FPS Optimized Render Loop
+ * (Map grid constants in maps.js; Obstacle & Floor Item defs in obstacle.js)
  ********************************************************************/
-
-const FLOOR_ITEM_TYPES = [
-  { id: 'oran_berry',     name: 'ORAN BERRY',     category: 'BERRY', tileKey: 'BERRY', color: '#3b82f6', highlight: '#93c5fd', desc: 'Restored +50 HP to your active partner!' },
-  { id: 'sitrus_berry',   name: 'SITRUS BERRY',   category: 'BERRY', tileKey: 'BERRY', color: '#facc15', highlight: '#fef08a', desc: 'Fully restored your active partner\'s HP!' },
-  { id: 'fire_stone',     name: 'FIRE STONE',     category: 'STONE', tileKey: 'STONE', stoneType: 'FIRE',    stoneLabel: 'FIRE STONE',     color: '#f97316', highlight: '#fde047', desc: 'Evolves Vulpix, Growlithe, Magmar, or Eevee (into Flareon)!' },
-  { id: 'water_stone',    name: 'WATER STONE',    category: 'STONE', tileKey: 'STONE', stoneType: 'WATER',   stoneLabel: 'WATER STONE',    color: '#0284c7', highlight: '#7dd3fc', desc: 'Evolves Poliwhirl, Shellder, Staryu, Lombre, or Eevee (into Vaporeon)!' },
-  { id: 'thunder_stone',  name: 'THUNDER STONE',  category: 'STONE', tileKey: 'STONE', stoneType: 'THUNDER', stoneLabel: 'THUNDER STONE',  color: '#eab308', highlight: '#fef08a', desc: 'Evolves Pikachu, Magneton, Nosepass, Electabuzz, or Eevee (into Jolteon)!' },
-  { id: 'leaf_stone',     name: 'LEAF STONE',     category: 'STONE', tileKey: 'STONE', stoneType: 'LEAF',    stoneLabel: 'LEAF STONE',     color: '#16a34a', highlight: '#86efac', desc: 'Evolves Gloom, Weepinbell, Exeggcute, Nuzleaf, or Eevee (into Leafeon)!' },
-  { id: 'moon_stone',     name: 'MOON STONE',     category: 'STONE', tileKey: 'STONE', stoneType: 'MOON',    stoneLabel: 'MOON STONE',     color: '#a855f7', highlight: '#e9d5ff', desc: 'Evolves Nidorina, Nidorino, Clefairy, Jigglypuff, Skitty, or Eevee (into Umbreon)!' },
-  { id: 'sun_stone',      name: 'SUN STONE',      category: 'STONE', tileKey: 'STONE', stoneType: 'SUN',     stoneLabel: 'SUN STONE',      color: '#dc2626', highlight: '#fde047', desc: 'Evolves Gloom (into Bellossom), Sunkern (into Sunflora), or Eevee (into Espeon)!' },
-  { id: 'ice_stone',      name: 'ICE STONE',      category: 'STONE', tileKey: 'STONE', stoneType: 'ICE',     stoneLabel: 'ICE STONE',      color: '#38bdf8', highlight: '#e0f2fe', desc: 'Evolves Eevee (into Glaceon) or Sneasel (into Weavile)!' },
-  { id: 'shiny_stone',    name: 'SHINY STONE',    category: 'STONE', tileKey: 'STONE', stoneType: 'SHINY',   stoneLabel: 'SHINY STONE',    color: '#f472b6', highlight: '#fce7f3', desc: 'Evolves Togetic, Roselia, Feebas, or Eevee (into Sylveon)!' },
-  { id: 'dusk_stone',     name: 'DUSK STONE',     category: 'STONE', tileKey: 'STONE', stoneType: 'DUSK',    stoneLabel: 'DUSK STONE',     color: '#4c1d95', highlight: '#c084fc', desc: 'Evolves Murkrow, Misdreavus, Gligar, or Dusclops!' },
-  { id: 'dawn_stone',     name: 'DAWN STONE',     category: 'STONE', tileKey: 'STONE', stoneType: 'DAWN',    stoneLabel: 'DAWN STONE',     color: '#06b6d4', highlight: '#a5f3fc', desc: 'Evolves Kirlia (into Gallade) or Snorunt (into Froslass)!' },
-  { id: 'kings_rock',     name: 'KINGS ROCK',     category: 'STONE', tileKey: 'STONE', stoneType: 'KINGS',   stoneLabel: 'KINGS ROCK',     color: '#eab308', highlight: '#ffffff', desc: 'Evolves Poliwhirl (into Politoed) or Slowpoke (into Slowking)!' },
-  { id: 'metal_coat',     name: 'METAL COAT',     category: 'STONE', tileKey: 'STONE', stoneType: 'METAL',   stoneLabel: 'METAL COAT',     color: '#94a3b8', highlight: '#f8fafc', desc: 'Evolves Onix (into Steelix), Scyther (into Scizor), or Rhydon (into Rhyperior)!' },
-  { id: 'dragon_scale',   name: 'DRAGON SCALE',   category: 'STONE', tileKey: 'STONE', stoneType: 'DRAGON',  stoneLabel: 'DRAGON SCALE',   color: '#2563eb', highlight: '#93c5fd', desc: 'Evolves Seadra into Kingdra!' },
-  { id: 'up_grade',       name: 'UP-GRADE',       category: 'STONE', tileKey: 'STONE', stoneType: 'UPGRADE', stoneLabel: 'UP-GRADE',       color: '#f43f5e', highlight: '#38bdf8', desc: 'Evolves Porygon into Porygon2 or Porygon2 into Porygon-Z!' },
-  { id: 'deep_sea_tooth', name: 'DEEP SEA TOOTH', category: 'STONE', tileKey: 'STONE', stoneType: 'TOOTH',   stoneLabel: 'DEEP SEA TOOTH', color: '#0284c7', highlight: '#e0f2fe', desc: 'Evolves Clamperl into Huntail!' },
-  { id: 'deep_sea_scale', name: 'DEEP SEA SCALE', category: 'STONE', tileKey: 'STONE', stoneType: 'SCALE',   stoneLabel: 'DEEP SEA SCALE', color: '#ec4899', highlight: '#fbcfe8', desc: 'Evolves Clamperl into Gorebyss!' }
-];
 
 const HUMAN_SKIN_PALETTE = [
   '#fde68a', '#fed7aa', '#f5cba7', '#e59866', '#ca8a5b', '#a16236', '#784212', '#5c3317'
 ];
 
-// 1. Chroma Archipelago (Original Region - 5x5 Grand Map = 25 Walkable Areas)
-const OG_REGION_FULL_NAME = 'CHROMA ARCHIPELAGO';
-
-const GRAND_MAP_5X5_GRID = [
-  ['AURORA_RIDGE', 'WIND_TEMPLE', 'GLACIER',  'METEOR_CRATER', 'CYBER_NEXUS'],
-  ['SPIRE',        'NORTHWEST',   'MOUNTAIN', 'NORTHEAST',     'FOUNDRY'],
-  ['SANCTUARY',    'FOREST',      'CENTER',   'DESERT',        'ONSEN'],
-  ['KALOS_GROVE',  'SOUTHWEST',   'BEACH',    'SOUTHEAST',     'VOLCANO'],
-  ['SUNKEN_RUINS', 'BRAMBLE',     'ABYSS',    'SHADOW_ALLEY',  'MOON']
-];
-
-const OG_REGION_AREA_NAMES = {
-  AURORA_RIDGE:  'Obsidian Tundra',
-  WIND_TEMPLE:   'Azure Taiga',
-  GLACIER:       'Cyan Cliff',
-  METEOR_CRATER: 'Indigo Lake',
-  CYBER_NEXUS:   'Neon Zone',
-  SPIRE:         'Magenta Cave',
-  NORTHWEST:     'Cobalt Boreal',
-  MOUNTAIN:      'Slate Mountain',
-  NORTHEAST:     'Amber Desert',
-  FOUNDRY:       'Gray Town',
-  SANCTUARY:     'Magenta Shrubland',
-  FOREST:        'Teal Forest',
-  CENTER:        'Beige Village',
-  DESERT:        'Scarlet Savanna',
-  ONSEN:         'Silver Geyser',
-  KALOS_GROVE:   'Jade Jungle',
-  SOUTHWEST:     'Emerald Swamp',
-  BEACH:         'Golden Coast',
-  SOUTHEAST:     'Bronze Reef',
-  VOLCANO:       'Crimson Volcano',
-  SUNKEN_RUINS:  'Sapphire Ocean',
-  BRAMBLE:       'Purple Woods',
-  ABYSS:         'Navy Abyss',
-  SHADOW_ALLEY:  'Obsidian Urban',
-  MOON:          'Ruby Badlands'
-};
-
-// 2. East Asia Region 3x3 Grand Map (8 Areas including Fly-only NORTH_KOREA)
-const EAST_ASIA_MAP_GRID = [
-  ['NORTH_KOREA', 'MONGOLIA',  'SOUTH_KOREA'],
-  [null,          'CHINA',     'JAPAN'],
-  ['MACAU',       'HONG_KONG', 'TAIWAN']
-];
-
-const EAST_ASIA_MAP_IDS = new Set([
-  'HONG_KONG', 'MACAU', 'CHINA', 'TAIWAN', 'JAPAN', 'SOUTH_KOREA', 'MONGOLIA', 'NORTH_KOREA'
-]);
-
-// 3. West Europe Region 3x3 Grand Map (8 Areas)
-const WEST_EUROPE_MAP_GRID = [
-  ['IRELAND',  'UK',     'NETHERLANDS'],
-  [null,       'FRANCE', 'BELGIUM'],
-  ['PORTUGAL', 'SPAIN',  'GERMANY']
-];
-
-const WEST_EUROPE_MAP_IDS = new Set([
-  'UK', 'FRANCE', 'SPAIN', 'PORTUGAL', 'IRELAND', 'GERMANY', 'NETHERLANDS', 'BELGIUM'
-]);
-
-// 4. North America 3x3 Grand Map (Canada Top, USA Center, Mexico Below USA, Islands Scattered Around)
-const NORTH_AMERICA_MAP_GRID = [
-  ['JAMAICA', 'CANADA', 'BAHAMAS'],
-  ['CUBA',    'USA',    'HAITI'],
-  [null,      'MEXICO', 'DOMINICAN_REPUBLIC']
-];
-
-const NORTH_AMERICA_MAP_IDS = new Set([
-  'CANADA', 'USA', 'MEXICO', 'CUBA', 'HAITI', 'JAMAICA', 'BAHAMAS', 'DOMINICAN_REPUBLIC'
-]);
-
-// 5. Southern Africa 3x3 Grand Map (8 Countries)
-const SOUTHERN_AFRICA_MAP_GRID = [
-  [null,      'ZAMBIA',       'MOZAMBIQUE'],
-  ['NAMIBIA', 'BOTSWANA',     'ZIMBABWE'],
-  ['LESOTHO', 'SOUTH_AFRICA', 'ESWATINI']
-];
-
-const SOUTHERN_AFRICA_MAP_IDS = new Set([
-  'SOUTH_AFRICA', 'LESOTHO', 'ESWATINI', 'MOZAMBIQUE', 'ZIMBABWE', 'ZAMBIA', 'BOTSWANA', 'NAMIBIA'
-]);
-
-// 6. Oceania 3x3 Grand Map (8 Countries - All Borders Require Swim/Surf)
-const OCEANIA_MAP_GRID = [
-  ['SOLOMON_ISLANDS', 'TUVALU',      'SAMOA'],
-  ['VANUATU',         'AUSTRALIA',   'FIJI'],
-  [null,              'NEW_ZEALAND', 'TONGA']
-];
-
-const OCEANIA_MAP_IDS = new Set([
-  'AUSTRALIA', 'NEW_ZEALAND', 'TUVALU', 'SAMOA', 'FIJI', 'TONGA', 'VANUATU', 'SOLOMON_ISLANDS'
-]);
-
-// 7. South America 3x3 Grand Map (7 Countries: Ecuador, Peru, Bolivia, Paraguay, Chile, Argentina, Uruguay)
-const SOUTH_AMERICA_MAP_GRID = [
-  ['ECUADOR', 'PERU',      'BOLIVIA'],
-  ['CHILE',   'PARAGUAY',  'URUGUAY'],
-  [null,      'ARGENTINA', null]
-];
-
-const SOUTH_AMERICA_MAP_IDS = new Set([
-  'ECUADOR', 'PERU', 'BOLIVIA', 'PARAGUAY', 'CHILE', 'ARGENTINA', 'URUGUAY'
-]);
-
-// 8. Antarctica Separate 3x3 Grand Map (Paradise Bay in the exact center + Respawning Ultra Beasts)
-const ANTARCTICA_MAP_GRID = [
-  [null,           'DRAKE_ICEBERG', null],
-  ['WEDDELL_PACK', 'PARADISE_BAY',  'ROSS_SHELF'],
-  [null,           'VOSTOK_DOME',   null]
-];
-
-const ANTARCTICA_MAP_IDS = new Set([
-  'PARADISE_BAY', 'DRAKE_ICEBERG', 'WEDDELL_PACK', 'ROSS_SHELF', 'VOSTOK_DOME'
-]);
-
-const ULTRA_BEAST_IDS = new Set([
-  'nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana', 'guzzlord'
-]);
-
-const FALLBACK_AREA_META = {
-  CENTER:             { name: 'Beige Village',            bg: '#d6b37c' },
-  SOUTH_AFRICA:       { name: 'Table Mesa Hub',           bg: '#065f46' },
-  LESOTHO:            { name: 'Maloti Sky Kingdom',       bg: '#1e3a8a' },
-  ESWATINI:           { name: 'Ezulwini Sibebe',          bg: '#3f6212' },
-  BOTSWANA:           { name: 'Okavango Baobab',          bg: '#0284c7' },
-  NAMIBIA:            { name: 'Sossusvlei Dunes',         bg: '#c2410c' },
-  ZIMBABWE:           { name: 'Great Ruins Valley',       bg: '#57534e' },
-  ZAMBIA:             { name: 'Mosi-oa-Tunya Falls',      bg: '#0f766e' },
-  MOZAMBIQUE:         { name: 'Bazaruto Coral Coast',     bg: '#0369a1' },
-  CANADA:             { name: 'Maple Boreal Hub',         bg: '#7f1d1d' },
-  USA:                { name: 'Liberty Canyon',           bg: '#1e3a8a' },
-  MEXICO:             { name: 'Sun Pyramid Sierra',       bg: '#b45309' },
-  BAHAMAS:            { name: 'Nassau Coral Cay',         bg: '#0284c7' },
-  CUBA:               { name: 'Havana Malecon',           bg: '#0f766e' },
-  JAMAICA:            { name: 'Blue Mountain Bay',        bg: '#14532d' },
-  HAITI:              { name: 'Citadelle Peak',           bg: '#1e3a8a' },
-  DOMINICAN_REPUBLIC: { name: 'Amber Quisqueya',          bg: '#0369a1' },
-  UK:                 { name: 'Royal Thames Hub',         bg: '#1e293b' },
-  IRELAND:            { name: 'Emerald Causeway',         bg: '#14532d' },
-  FRANCE:             { name: 'Lumiere Lavender',         bg: '#4c1d95' },
-  GERMANY:            { name: 'Bavarian Forest',          bg: '#1e293b' },
-  SPAIN:              { name: 'Iberian Sierra',           bg: '#b45309' },
-  PORTUGAL:           { name: 'Atlantic Douro',           bg: '#0369a1' },
-  NETHERLANDS:        { name: 'Tulip Polder',             bg: '#047857' },
-  BELGIUM:            { name: 'Atomium Plaza',            bg: '#334155' },
-  NORTH_KOREA:        { name: 'Granite Monolith',         bg: '#334155' },
-  AUSTRALIA:          { name: 'Outback Reef Hub',         bg: '#c2410c' },
-  NEW_ZEALAND:        { name: 'Rotorua Kiwi Fjord',       bg: '#065f46' },
-  TUVALU:             { name: 'Funafuti Atoll Strip',     bg: '#0284c7' },
-  SAMOA:              { name: 'Upolu Fale Lagoon',        bg: '#0d9488' },
-  FIJI:               { name: 'Nadi Sleeping Giant',      bg: '#0369a1' },
-  TONGA:              { name: 'Haapai Whale Trench',      bg: '#1e3a8a' },
-  VANUATU:            { name: 'Yasur Ash Caldera',        bg: '#7f1d1d' },
-  SOLOMON_ISLANDS:    { name: 'Marovo Blue Lagoon',       bg: '#047857' },
-  ECUADOR:            { name: 'Equatorial Galapagos Hub', bg: '#065f46' },
-  PERU:               { name: 'Andean Machu Sanctuary',   bg: '#57534e' },
-  BOLIVIA:            { name: 'Uyuni Mirror Salt Flats',  bg: '#0284c7' },
-  PARAGUAY:           { name: 'Gran Chaco Wetlands',      bg: '#14532d' },
-  CHILE:              { name: 'Atacama Starlight Desert', bg: '#7c2d12' },
-  ARGENTINA:          { name: 'Patagonia Pampas',         bg: '#0284c7' },
-  URUGUAY:            { name: 'Rambla Plata Coast',       bg: '#0369a1' },
-  PARADISE_BAY:       { name: 'Paradise Bay Hub',         bg: '#0284c7' },
-  DRAKE_ICEBERG:      { name: 'Drake Passage Icebergs',   bg: '#0369a1' },
-  WEDDELL_PACK:       { name: 'Weddell Pack Ice',         bg: '#0284c7' },
-  ROSS_SHELF:         { name: 'Ross Ice Shelf',           bg: '#0369a1' },
-  VOSTOK_DOME:        { name: 'Subglacial Vostok Dome',   bg: '#0f172a' }
-};
-
-// Tiered Regional Unlocks: 50 for East Asia, +10 for each subsequent region
-const REGION_PORTAL_TIERS = [
-  { id: 'EAST_ASIA',       name: 'EAST ASIA REGION',       hubMap: 'HONG_KONG',    requiredDex: 50 },
-  { id: 'WEST_EUROPE',     name: 'WEST EUROPE REGION',     hubMap: 'UK',           requiredDex: 60 },
-  { id: 'NORTH_AMERICA',   name: 'NORTH AMERICA REGION',   hubMap: 'CANADA',       requiredDex: 70 },
-  { id: 'SOUTHERN_AFRICA', name: 'SOUTHERN AFRICA REGION', hubMap: 'SOUTH_AFRICA', requiredDex: 80 },
-  { id: 'OCEANIA',         name: 'OCEANIA REGION',         hubMap: 'AUSTRALIA',    requiredDex: 90 },
-  { id: 'SOUTH_AMERICA',   name: 'SOUTH AMERICA REGION',   hubMap: 'ECUADOR',      requiredDex: 100 },
-  { id: 'ANTARCTICA',      name: 'ANTARCTICA REGION',      hubMap: 'PARADISE_BAY', requiredDex: 110 }
-];
-
-const LEGENDARY_MONSTER_IDS = new Set([
-  'articuno', 'zapdos', 'moltres', 'mewtwo', 'mew', 'deoxys',
-  'raikou', 'entei', 'suicune', 'lugia', 'ho_oh', 'celebi',
-  'regirock', 'regice', 'registeel', 'latias', 'latios',
-  'kyogre', 'groudon', 'rayquaza', 'jirachi',
-  'uxie', 'mesprit', 'azelf', 'dialga', 'palkia', 'heatran',
-  'regigigas', 'giratina', 'cresselia', 'phione', 'manaphy',
-  'darkrai', 'shaymin', 'arceus',
-  'nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana', 'guzzlord'
-]);
-
 const _mapThumbnailCache = {};
+let _originalAreaNamesApplied = false;
+
+function isAreaPokedexComplete(mapObj) {
+  if (!mapObj || !state || !Array.isArray(state.dex)) return false;
+  const caughtIds = new Set(state.dex.map(p => (p.id || '').toLowerCase()));
+  const requiredIds = new Set();
+
+  if (Array.isArray(mapObj.encounters)) {
+    mapObj.encounters.forEach(id => {
+      if (id) requiredIds.add(id.toLowerCase());
+    });
+  }
+  if (Array.isArray(mapObj.npcs)) {
+    mapObj.npcs.forEach(npc => {
+      if (npc.isMonster || npc.monsterId) {
+        const monId = getCanonicalLegendaryId(npc);
+        if (monId) requiredIds.add(monId);
+      }
+    });
+  }
+  if (Array.isArray(mapObj.pokeNpcs)) {
+    mapObj.pokeNpcs.forEach(p => {
+      const monId = getCanonicalLegendaryId(p);
+      if (monId) requiredIds.add(monId);
+    });
+  }
+
+  if (requiredIds.size === 0) return false;
+  for (const reqId of requiredIds) {
+    if (!caughtIds.has(reqId)) return false;
+  }
+  return true;
+}
 
 function getRequiredDexForRegion(regionMode) {
   if (regionMode === 'HABITAT') return 0;
@@ -280,7 +101,8 @@ function injectSandPatchesIntoDesertyMaps() {
 }
 
 function applyOriginalRegionAreaNames() {
-  if (typeof WORLD_MAPS === 'undefined') return;
+  if (_originalAreaNamesApplied || typeof WORLD_MAPS === 'undefined') return;
+  _originalAreaNamesApplied = true;
   Object.keys(OG_REGION_AREA_NAMES).forEach(areaKey => {
     if (WORLD_MAPS[areaKey]) {
       WORLD_MAPS[areaKey].name = OG_REGION_AREA_NAMES[areaKey];
@@ -305,8 +127,6 @@ function isNPCActiveOnMap(npc) {
   if (!npc) return false;
   const rawId = getCanonicalLegendaryId(npc);
 
-  // Ultra Beasts respawn every time you enter or re-enter an area (just like floor items!),
-  // disappearing only for the remainder of the current visit after being battled or caught.
   if (npc.isUltraBeast || ULTRA_BEAST_IDS.has(rawId)) {
     if (Array.isArray(state.defeatedLegendariesInArea) && state.defeatedLegendariesInArea.includes(rawId)) {
       return false;
@@ -574,13 +394,8 @@ function isTileBlocked(col, row) {
     // Sand (~) and Swamp Mud (M) are always walkable encounter terrains
   } else if (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[tile] !== undefined) {
     if (!OBSTACLE_DEFS[tile].walkable) return true;
-  } else {
-    const blockedFallback = new Set([
-      'T','W','H','R','I','C','K','L','S','V','U','A','N','Q','Y','J','O','Z','X',
-      'g','k','c','i','e','x','w','z','u','n','b','m','s','f','a','h','j','q','d','l','v','p','r','t','y','o',
-      '1','2','3','4','5','6','7','8'
-    ]);
-    if (blockedFallback.has(tile)) return true;
+  } else if (typeof BLOCKED_TILE_FALLBACK_SET !== 'undefined' && BLOCKED_TILE_FALLBACK_SET.has(tile)) {
+    return true;
   }
 
   const mapObj = getCurrentMap();
@@ -591,51 +406,36 @@ function isTileBlocked(col, row) {
 }
 
 function getLocalizedStoneIdsForMap(mapObj) {
-  if (!mapObj || !Array.isArray(mapObj.rows)) return ['moon_stone', 'sun_stone', 'shiny_stone', 'kings_rock'];
+  if (!mapObj || !Array.isArray(mapObj.rows)) return ['moon_stone', 'sun_stone', 'shiny_stone', 'kings_rock', 'linking_cord'];
   const gridStr = mapObj.rows.join('');
-  const pool = new Set();
+  const pool = new Set(['linking_cord']);
 
   if (/[LCfy~7]/.test(gridStr) || /VOLCANO|DESERT|SPAIN|MEXICO|NAMIBIA|AUSTRALIA|VANUATU|CHILE/.test(mapObj.id)) {
-    pool.add('fire_stone');
-    pool.add('sun_stone');
+    ['fire_stone', 'sun_stone', 'magmarizer', 'protector', 'auspicious_armor'].forEach(id => pool.add(id));
   }
   if (/[WKBqo134568]/.test(gridStr) || /BEACH|ABYSS|SUNKEN|PORTUGAL|BAHAMAS|MOZAMBIQUE|ZAMBIA|TUVALU|SAMOA|FIJI|TONGA|SOLOMON|ECUADOR|URUGUAY/.test(mapObj.id)) {
-    pool.add('water_stone');
-    pool.add('deep_sea_tooth');
-    pool.add('deep_sea_scale');
-    pool.add('kings_rock');
+    ['water_stone', 'deep_sea_tooth', 'deep_sea_scale', 'prism_scale', 'kings_rock', 'scroll_of_waters'].forEach(id => pool.add(id));
   }
   if (/[I]/.test(gridStr) || /GLACIER|AURORA|CANADA|LESOTHO|NEW_ZEALAND|BOLIVIA|ARGENTINA|PARADISE_BAY|DRAKE|WEDDELL|ROSS|VOSTOK/.test(mapObj.id)) {
-    pool.add('ice_stone');
-    pool.add('dawn_stone');
+    ['ice_stone', 'dawn_stone', 'razor_claw'].forEach(id => pool.add(id));
   }
-  if (/[VYXub]/.test(gridStr) || /FOUNDRY|CYBER|BELGIUM|GERMANY|USA|SOUTH_KOREA/.test(mapObj.id)) {
-    pool.add('thunder_stone');
-    pool.add('metal_coat');
-    pool.add('up_grade');
+  if (/[VYXub]/.test(gridStr) || /FOUNDRY|CYBER|BELGIUM|GERMANY|USA|SOUTH_KOREA|MACAU/.test(mapObj.id)) {
+    ['thunder_stone', 'metal_coat', 'up_grade', 'dubious_disc', 'electirizer', 'metal_alloy', 'gimmighoul_coin', 'leaders_crest'].forEach(id => pool.add(id));
   }
-  if (/[TFJOmp2]/.test(gridStr) || /FOREST|KALOS|BRAMBLE|IRELAND|NETHERLANDS|BOTSWANA|ESWATINI|NEW_ZEALAND|PARAGUAY/.test(mapObj.id)) {
-    pool.add('leaf_stone');
-    pool.add('shiny_stone');
-    pool.add('dawn_stone');
+  if (/[TFJOmp2]/.test(gridStr) || /FOREST|KALOS|BRAMBLE|IRELAND|NETHERLANDS|BOTSWANA|ESWATINI|NEW_ZEALAND|PARAGUAY|TAIWAN|UK|FRANCE/.test(mapObj.id)) {
+    ['leaf_stone', 'shiny_stone', 'oval_stone', 'whipped_dream', 'sachet', 'tart_apple', 'sweet_apple', 'syrupy_apple', 'strawberry_sweet', 'unremarkable_cup', 'peat_block'].forEach(id => pool.add(id));
   }
-  if (/[RANQZr]/.test(gridStr) || /MOUNTAIN|SPIRE|SANCTUARY|MOON|CHINA|ZIMBABWE|SHADOW_ALLEY|PERU/.test(mapObj.id)) {
-    pool.add('moon_stone');
-    pool.add('dusk_stone');
-    pool.add('dragon_scale');
-    pool.add('kings_rock');
+  if (/[RANQZr]/.test(gridStr) || /MOUNTAIN|SPIRE|SANCTUARY|MOON|CHINA|ZIMBABWE|SHADOW_ALLEY|PERU|HAITI|JAPAN/.test(mapObj.id)) {
+    ['moon_stone', 'dusk_stone', 'dragon_scale', 'reaper_cloth', 'razor_fang', 'black_augurite', 'cracked_pot', 'malicious_armor'].forEach(id => pool.add(id));
   }
 
-  if (pool.size === 0) {
-    return ['fire_stone', 'water_stone', 'thunder_stone', 'leaf_stone', 'moon_stone', 'sun_stone', 'dusk_stone', 'dawn_stone'];
-  }
   return Array.from(pool);
 }
 
 function spawnFloorItemsForCurrentMap() {
   state.floorItems = [];
   const mapObj = getCurrentMap();
-  if (!mapObj) return;
+  if (!mapObj || typeof FLOOR_ITEM_TYPES === 'undefined') return;
 
   const numItems = 3 + Math.floor(Math.random() * 3);
   const preferredCoords = [];
@@ -669,7 +469,7 @@ function spawnFloorItemsForCurrentMap() {
     ? preferredCoords
     : preferredCoords.concat(fallbackCoords);
 
-  const stonePool = FLOOR_ITEM_TYPES.filter(it => it.category === 'STONE' && localStoneIds.includes(it.id));
+  const stonePool = FLOOR_ITEM_TYPES.filter(it => it.category === 'EVOITEM' && localStoneIds.includes(it.id));
   const berryPool = FLOOR_ITEM_TYPES.filter(it => it.category === 'BERRY');
 
   for (let i = 0; i < numItems && candidatePool.length > 0; i++) {
@@ -702,12 +502,12 @@ function interactWithFloorItem(item) {
       partner.hp = partner.maxHp;
       setOverworldDialogue(`Collected ${item.name}! ${partner.name}'s HP was fully restored!`, item.name, 'BERRY COLLECTED');
     }
-  } else if (item.category === 'STONE') {
+  } else if (item.category === 'EVOITEM') {
     const oldName = partner.name;
     const evolvedMsg = (typeof tryStoneEvolution === 'function') ? tryStoneEvolution(partner, item) : null;
     if (evolvedMsg) {
       state.floorItems = (state.floorItems || []).filter(it => !(it.x === item.x && it.y === item.y));
-      setOverworldDialogue(`Used ${item.name} with ${oldName}! ${evolvedMsg}`, 'STONE EVOLUTION!', item.name);
+      setOverworldDialogue(`Used ${item.name} with ${oldName}! ${evolvedMsg}`, 'ITEM EVOLUTION!', item.name);
       const playerWrapper = document.getElementById('playerSpriteWrapper');
       if (playerWrapper && typeof renderMonsterSVG === 'function') {
         playerWrapper.innerHTML = renderMonsterSVG(partner);
@@ -721,6 +521,7 @@ function interactWithFloorItem(item) {
   }
 
   syncAllUI();
+  updateOverworldHUD();
   if (typeof saveGameProgress === 'function') saveGameProgress();
 }
 
@@ -733,7 +534,7 @@ function drawFloorItemsOnCanvas(ctx, animTick) {
   state.floorItems.forEach(item => {
     const dx = item.x * TILE_SIZE;
     const dy = item.y * TILE_SIZE + bob;
-    const tileKey = item.tileKey || (item.category === 'STONE' ? 'STONE' : 'BERRY');
+    const tileKey = item.tileKey || (item.category === 'EVOITEM' ? 'EVOITEM' : 'BERRY');
     const obsDef = (typeof OBSTACLE_DEFS !== 'undefined') ? OBSTACLE_DEFS[tileKey] : null;
 
     ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
@@ -827,6 +628,8 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
         : (mapObj?.theme?.groundA || fallbackMeta.bg);
 
       const areaTitle = OG_REGION_AREA_NAMES[mapKey] || (mapObj ? mapObj.name.replace(/\s*\([^)]*\)\s*/g, '') : fallbackMeta.name);
+      const areaComplete = isAreaPokedexComplete(mapObj);
+      const starHtml = areaComplete ? ' <span class="text-amber-300 font-bold drop-shadow-[1px_1px_0_#000]">*</span>' : '';
       const thumbUrl = mapObj ? renderMapThumbnailDataURL(mapObj) : '';
       const isHubPortal = (
         mapKey === 'CENTER' || mapKey === 'HONG_KONG' ||
@@ -844,7 +647,7 @@ function renderGrandMapGridRegion(regionMode, mapModal) {
 
       card.innerHTML = `
         <div class="flex items-start justify-between gap-1">
-          <span class="text-[7px] sm:text-[8px] font-bold leading-tight drop-shadow-[1px_1px_0_#000] truncate">${areaTitle}</span>
+          <span class="text-[7px] sm:text-[8px] font-bold leading-tight drop-shadow-[1px_1px_0_#000] truncate">${areaTitle}${starHtml}</span>
           ${isCurrent ? '<span class="text-[6px] bg-amber-400 text-slate-950 px-1 py-0.5 rounded font-bold shrink-0">YOU</span>' : ''}
         </div>
         <div class="w-full h-11 sm:h-12 rounded border border-slate-950 overflow-hidden bg-slate-950 my-0.5 shadow-inner relative flex items-center justify-center">
@@ -922,12 +725,12 @@ function openWorldMapModal() {
           </div>
           <div class="flex flex-wrap items-center gap-1">
             <button id="tabHabitatMapBtn" type="button" class="pixel-btn bg-indigo-600 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">${OG_REGION_FULL_NAME} (25)</button>
-            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">ASIA (8)</button>
-            <button id="tabWestEuropeMapBtn" type="button" class="pixel-btn bg-emerald-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">EUROPE (8)</button>
+            <button id="tabEastAsiaMapBtn" type="button" class="pixel-btn bg-rose-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">EAST ASIA (8)</button>
+            <button id="tabWestEuropeMapBtn" type="button" class="pixel-btn bg-emerald-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">WEST EUROPE (8)</button>
             <button id="tabNorthAmericaMapBtn" type="button" class="pixel-btn bg-sky-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">NORTH AMERICA (8)</button>
-            <button id="tabSouthernAfricaMapBtn" type="button" class="pixel-btn bg-amber-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">AFRICA (8)</button>
+            <button id="tabSouthernAfricaMapBtn" type="button" class="pixel-btn bg-amber-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">S. AFRICA (8)</button>
             <button id="tabOceaniaMapBtn" type="button" class="pixel-btn bg-cyan-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">OCEANIA (8)</button>
-            <button id="tabSouthAmericaMapBtn" type="button" class="pixel-btn bg-teal-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">SOUTH AMERICA (7)</button>
+            <button id="tabSouthAmericaMapBtn" type="button" class="pixel-btn bg-teal-700 text-white text-[7px] sm:text-[8px] px-2 py-1 font-bold">S. AMERICA (7)</button>
             <button id="tabAntarcticaMapBtn" type="button" class="pixel-btn bg-slate-700 text-sky-200 text-[7px] sm:text-[8px] px-2 py-1 font-bold">ANTARCTICA (5)</button>
             <button id="closeWorldMapBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1">X</button>
           </div>
@@ -1112,7 +915,6 @@ function interactWithFacingNPC() {
     const upperName = (npc.name || '').toUpperCase();
     const upperTopic = (npc.topic || '').toUpperCase();
 
-    // All Nurses AND all Chefs restore your entire Party's HP!
     const isChef = upperName.includes('CHEF') || upperTopic.includes('CHEF') || (npc.id || '').startsWith('chef_');
     if (npc.healsParty || upperName.includes('NURSE') || isChef) {
       state.pendingLegendaryChallengeId = null;
@@ -1155,68 +957,12 @@ function interactWithFacingNPC() {
   const obsDef = (typeof OBSTACLE_DEFS !== 'undefined' && OBSTACLE_DEFS[tile]) ? OBSTACLE_DEFS[tile] : null;
   sfx.blip();
 
-  const obstacleFacts = {
-    W: [isSurfUnlocked() ? "Crystal-clear water! SURF is unlocked—step directly onto the water to ride your surfboard!" : "Crystal-clear water! Catch 70 Pokemon to unlock North America and the SURF surfboard ability!", "WATER'S EDGE", "HYDROLOGY"],
-    G: ["Tall wild grass! Step inside to encounter wild monsters native to this area!", "TALL GRASS", "HABITAT"],
-    M: ["Nutrient-rich swamp mud! Step inside the mud to encounter wild wetland monsters!", "SWAMP MUD", "WETLANDS HABITAT"],
-    '~': ["Wind-swept desert sand! Step across the loose sand dunes to encounter burrowing desert monsters!", "DESERT SAND", "ARID HABITAT"],
-    T: ["Canopy tree! Trees absorb Carbon Dioxide through leaf Stomata and use Chlorophyll to produce Oxygen and glucose!", "CANOPY TREE", "BOTANY"],
-    R: ["Solid crag boulder! The Rock Cycle transitions rocks between Igneous, Sedimentary, and Metamorphic states!", "CRAG BOULDER", "GEOLOGY"],
-    I: ["Crystalline glacier ice block! Ordinary water ice forms a Hexagonal crystal lattice at 0C!", "GLACIER ICE", "GLACIOLOGY"],
-    C: ["Desert saguaro cactus! Succulents store water in thick stems and use spines to minimize transpiration!", "SAGUARO CACTUS", "XEROPHYTE"],
-    K: ["Marine reef coral! Coral reefs are built by calcium-carbonate-secreting polyps in symbiosis with algae!", "REEF CORAL", "MARINE ECOLOGY"],
-    L: ["Molten lava pool! Underground molten rock is Magma, and once it erupts onto the surface it is Lava!", "MOLTEN LAVA", "VOLCANOLOGY"],
-    F: ["Blooming wildflower patch! Angiosperm flowers attract pollinators to produce seeds enclosed within fruit!", "WILDFLOWERS", "BOTANY"],
-    B: ["Timber suspension bridge! Structural beams distribute compressive and tensile forces across supports!", "WOODEN BRIDGE", "ENGINEERING"],
-    S: ["Geothermal steam geyser! Superheated groundwater rises through volcanic fissures to form hot springs!", "STEAM GEYSER", "GEOTHERMAL"],
-    V: ["High-voltage Tesla coil! Alternating magnetic fields induce currents across conductive windings!", "TESLA PYLON", "ELECTROMAGNETISM"],
-    U: ["Bioluminescent spore toadstool! Fungi have cell walls made of Chitin and reproduce via spores!", "SPORE TOADSTOOL", "MYCOLOGY"],
-    A: ["Astral crystal obelisk! Birefringent crystals split incoming light beams into polarized spectra!", "ASTRAL OBELISK", "OPTICS"],
-    N: ["Flickering shadow streetlamp! Dark Matter accounts for ~85% of the universe's mass!", "SHADOW LAMP", "COSMOLOGY"],
-    Q: ["Miradouro da Lua cliff spire! Wind and rain erosion carved red clay into lunar hoodoo pinnacles!", "MOON CLIFF SPIRE", "GEOMORPHOLOGY"],
-    Y: ["Glowing neon sign! Noble gases ionize and emit vibrant photons when high voltage is applied!", "NEON SIGN", "ATOMIC PHYSICS"],
-    J: ["Sakura cherry blossom tree! Cherry trees bloom synchronously in spring in response to temperature!", "CHERRY BLOSSOM", "BOTANY"],
-    O: ["Fragrant plum blossom shrub! Plum blossoms bloom in late winter even through frost!", "PLUM BLOSSOM", "BOTANY"],
-    Z: ["Great Wall battlement! Ancient builders mixed sticky rice amylopectin mortar with slaked lime!", "GREAT WALL", "ENGINEERING"],
-    X: ["Cotai slot machine! Governed by a Pseudo-Random Number Generator (PRNG) and probability laws!", "SLOT MACHINE", "PROBABILITY"],
-    g: ["Mongolian Yurt (Ger)! Its circular lattice wall resists fierce steppe winds while retaining heat!", "MONGOLIAN YURT", "ARCHITECTURE"],
-    k: ["Breathable clay Onggi jars of Kimchi! Micropores allow CO2 from Lactobacillus fermentation to escape!", "KIMCHI ONGGI JARS", "MICROBIOLOGY"],
-    c: ["Royal Clock Tower! Pendulum clocks keep time using simple harmonic motion!", "CLOCK TOWER", "MECHANICS"],
-    i: ["Celtic Stone Cross! Carved from sandstone and granite with geometric knotwork and solar rings!", "CELTIC CROSS", "ARCHAEOLOGY"],
-    e: ["Eiffel Puddled-Iron Spire! Curved lattice trusses convert horizontal wind shear into compression!", "EIFFEL SPIRE", "ENGINEERING"],
-    x: ["Alpine Timber-Frame Chalet! Steeply pitched roofs prevent heavy winter snow accumulation!", "TIMBER CHALET", "ARCHITECTURE"],
-    w: ["La Mancha Windmill! Sails convert kinetic wind energy into rotational mechanical torque!", "WINDMILL", "PHYSICS"],
-    z: ["Portuguese Azulejo Tile Arch! Tin-glazed ceramic tiles reflect solar radiation and resist humidity!", "AZULEJO ARCH", "MATERIALS"],
-    u: ["Juche Monolith Tower! Carved from stacked granite blocks, monumental obelisks rely on a wide base to lower their center of gravity!", "MONOLITH TOWER", "STATICS"],
-    n: ["Dutch Polder Tulip Bed & Canal Mill! Polders reclaim low-lying land from the sea using dikes and wind-powered Archimedes screw pumps!", "POLDER TULIPS", "HYDROLOGY"],
-    b: ["Brussels Atomium Sphere! Modeled after an Iron (Fe) unit crystal cell magnified 165 billion times in a body-centered cubic lattice!", "ATOMIUM SPHERE", "CRYSTALLOGRAPHY"],
-    m: ["Canadian Sugar Maple Tree! During spring thaws, positive sap pressure pushes sucrose-rich xylem sap upward to be boiled into maple syrup!", "SUGAR MAPLE", "BOTANY"],
-    s: ["Copper Liberty Torch Statue! Exposed copper oxidizes over decades with atmospheric carbon dioxide and water to form a protective green patina!", "COPPER STATUE", "CHEMISTRY"],
-    f: ["Mesoamerican Stepped Pyramid! Built in alignment with the vernal and autumnal equinoxes to cast serpent-like solar shadows!", "STEPPED PYRAMID", "ARCHAEOASTRONOMY"],
-    a: ["Havana Classic Chrome Cruiser! 1950s internal combustion engines kept running for decades through resourceful mechanical fabrication!", "CLASSIC CRUISER", "THERMODYNAMICS"],
-    h: ["Citadelle Laferriere Cannon! Mounted atop northern Haiti's mountain peak, bronze cannons use rapid gunpowder combustion to launch iron spheres!", "CITADELLE CANNON", "BALLISTICS"],
-    j: ["Kingston Reggae Sound System Stack! Massive bass reflex speaker cabinets amplify low-frequency acoustic wavelengths!", "SOUND SYSTEM", "ACOUSTICS"],
-    q: ["Nassau Pink Conch Shell Monument! Queen conchs precipitate calcium carbonate in a logarithmic spiral shell for marine protection!", "CONCH MONUMENT", "MARINE BIOLOGY"],
-    d: ["Santo Domingo Colonial Coral-Limestone Arch! Built from fossilized Pleistocene reef limestone, the oldest cathedral stone in the Americas!", "COLONIAL ARCH", "GEOLOGY"],
-    l: ["Caribbean Coconut Palm! Buoyant fibrous husks allow coconut seeds (drupes) to float across ocean currents and colonize tropical islands!", "COCONUT PALM", "ECOLOGY"],
-    v: ["Table Mountain Sandstone Bluff! Flat-topped quartzitic sandstone mesas resist wind and water erosion over hundreds of millions of years!", "TABLE MOUNTAIN BLUFF", "GEOLOGY"],
-    p: ["African Baobab Tree (Adansonia digitata)! Its spongy, fibrous trunk can store over 100,000 liters of water to survive severe dry seasons!", "BAOBAB TREE", "BOTANY"],
-    r: ["Great Zimbabwe Conical Tower! Built from heat-fractured granite blocks stacked in dry-stone courses without a single drop of mortar!", "CONICAL TOWER", "ARCHAEOLOGY"],
-    t: ["Basotho Mokorotlo Conical Hut! Thick stone walls and thatched grass roofs provide high thermal mass, keeping interiors cool in summer and warm in winter!", "MOKOROTLO HUT", "THERMODYNAMICS"],
-    y: ["Sossusvlei Red Star Dune! Namib desert quartz sands owe their deep red-orange hue to a coating of oxidized iron (hematite) aged over millions of years!", "RED STAR DUNE", "MINERALOGY"],
-    o: ["Indian Ocean Dhow Sail! Triangular lateen sails allow traditional wooden vessels to tack upwind using aerodynamic lift across monsoon trade winds!", "DHOW SAIL", "AERODYNAMICS"],
-    '1': ["Uluru Arkose Sandstone Monolith (Australia)! Its iron-bearing feldspar minerals oxidize into a glowing rust-red surface!", "ULURU MONOLITH", "GEOLOGY"],
-    '2': ["Maori Carved Totem Pou (New Zealand)! Carved from native Totara heartwood rich in natural rot-resistant oils!", "MAORI TOTEM POU", "BOTANY & CULTURE"],
-    '3': ["Funafuti Coral Atoll Beacon (Tuvalu)! Ring-shaped coral atolls form as fringing reefs grow upward while volcanic islands subside!", "ATOLL BEACON", "MARINE GEOLOGY"],
-    '4': ["Samoan Open-Air Fale (Samoa)! Domed timber roofs lashed with braided coconut sennit rope flex safely during tropical cyclones!", "SAMOAN FALE", "STRUCTURAL ENGINEERING"],
-    '5': ["Sleeping Giant Orchid Arch (Fiji)! Tropical epiphytic orchids absorb moisture and nutrients directly from humid air using aerial velamen roots!", "ORCHID ARCH", "BOTANY"],
-    '6': ["Ha'amonga 'a Maui Trilithon (Tonga)! Built in the 13th century from three 40-ton coral limestone slabs mortised into upright lintels!", "TONGAN TRILITHON", "ARCHAEOLOGY"],
-    '7': ["Mount Yasur Strombolian Crater (Vanuatu)! Regular gas-slug bursts eject incandescent magma bombs along the New Hebrides subduction zone!", "YASUR VOLCANO", "VOLCANOLOGY"],
-    '8': ["Solomon Melanesian Prow Canoe (Solomon Islands)! Inlaid with mother-of-pearl nacre, which diffracts light into iridescent colors!", "PROW CANOE", "OPTICS & NAVIGATION"]
-  };
+  const factEntry = (typeof getObstacleFact === 'function')
+    ? getObstacleFact(tile)
+    : (typeof OBSTACLE_FACTS_MAP !== 'undefined' ? OBSTACLE_FACTS_MAP[tile] : null);
 
-  if (obstacleFacts[tile]) {
-    const [text, defaultTitle, topic] = obstacleFacts[tile];
+  if (factEntry) {
+    const [text, defaultTitle, topic] = factEntry;
     setOverworldDialogue(text, obsDef?.name || defaultTitle, topic);
   } else if (tile === 'H' || tile === 'D') {
     setOverworldDialogue("Professor's words echoed: \"Walking into someone's house without permission is known as trespassing and it is illegal!\"", "LOCKED HOUSE", "LAW & CIVICS");
@@ -1256,13 +1002,18 @@ function updateOverworldHUD() {
   const zoneSub = document.getElementById('zoneSubBadge');
   const promptEl = document.getElementById('npcPromptBanner');
 
+  const areaComplete = isAreaPokedexComplete(mapObj);
+  const starHtml = areaComplete ? ' <span class="text-amber-400 font-bold drop-shadow-[1px_1px_0_#000]">*</span>' : '';
+
   if (coordsText) {
     const itemsLeft = Array.isArray(state.floorItems) ? state.floorItems.length : 0;
     const isWildTile = (tile === 'G' || tile === 'M' || tile === '~');
     const terrainLabel = tile === 'W' ? 'SURFING ON WATER' : (isWildTile ? 'IN WILD HABITAT' : 'SAFE PATH');
-    coordsText.textContent = `AREA: ${mapObj.name} - POS: (${gridX}, ${gridY}) - ITEMS: ${itemsLeft} - ${terrainLabel}`;
+    coordsText.innerHTML = `AREA: ${mapObj.name}${starHtml} - POS: (${gridX}, ${gridY}) - ITEMS: ${itemsLeft} - ${terrainLabel}`;
   }
-  if (zoneName) zoneName.textContent = mapObj.name;
+  if (zoneName) {
+    zoneName.innerHTML = `${mapObj.name}${starHtml}`;
+  }
   if (zoneSub) zoneSub.textContent = mapObj.subtitle;
 
   syncWorldMapButtonState();
@@ -1418,14 +1169,13 @@ function onSingleBlockStepLanded() {
         sfx.startBGM(state.currentMapId);
         updateOverworldHUD();
         if (typeof saveGameProgress === 'function') saveGameProgress();
-        setOverworldDialogue(`Entered ${targetMapObj.name}! Localized Berries, Evolutionary Stones, and Ultra Beasts have refreshed!`, targetMapObj.name, 'AREA TRANSIT');
+        setOverworldDialogue(`Entered ${targetMapObj.name}! Localized Berries, Floor items have refreshed!`, targetMapObj.name, 'AREA TRANSIT');
         state.busy = false;
       });
       return;
     }
   }
 
-  // Wild encounters in Tall Grass ('G'), Swamp Mud ('M'), Desert Sand ('~'), and Surfing Water ('W')
   if (tile === 'G' || tile === 'M' || tile === '~') {
     sfx.stepGrass();
     p.stepsSinceBattle++;
@@ -1445,7 +1195,6 @@ function onSingleBlockStepLanded() {
 
 function overworldRenderLoop(now) {
   if (state.screen === 'OVERWORLD') {
-    if (typeof syncCanvasAspect === 'function') syncCanvasAspect();
     const p = state.playerWorld;
 
     if (p.isStepping) {
@@ -1493,9 +1242,62 @@ function enterOverworldFromTitle() {
     const ow = document.getElementById('overworldView');
     ow.classList.remove('hidden');
     ow.classList.add('flex');
+    if (typeof syncCanvasAspect === 'function') syncCanvasAspect();
     sfx.startBGM(state.currentMapId);
     updateOverworldHUD();
   });
+}
+
+const BABY_PRE_EVOLUTION_IDS = new Set([
+  'pichu', 'cleffa', 'igglybuff', 'togepi', 'tyrogue', 'smoochum',
+  'elekid', 'magby', 'azurill', 'wynaut', 'budew', 'chingling',
+  'bonsly', 'mime_jr', 'happiny', 'munchlax', 'riolu', 'mantyke', 'toxel'
+]);
+
+function isEvolvedSpeciesId(speciesId) {
+  if (typeof EVOLUTION_CHAINS === 'undefined' || !speciesId) return false;
+  const clean = speciesId.toLowerCase();
+  return Object.entries(EVOLUTION_CHAINS).some(([fromId, chain]) => {
+    if (BABY_PRE_EVOLUTION_IDS.has(fromId.toLowerCase())) return false;
+    const list = Array.isArray(chain) ? chain : [chain];
+    return list.some(c => {
+      if (Array.isArray(c.to)) return c.to.some(t => t.toLowerCase() === clean);
+      return c.to && c.to.toLowerCase() === clean;
+    });
+  });
+}
+
+function pickWildEncounterSpeciesForCurrentTile() {
+  const mapObj = getCurrentMap();
+  const p = state.playerWorld;
+  const standingTile = getTileAt(p.gridX, p.gridY);
+  const isDeepSeaMap = DEEP_SEA_MAP_IDS.has(state.currentMapId);
+
+  let candidateSpecies = (mapObj.encounters || [])
+    .map(id => MONSTER_SPECIES.find(m => m.id === id))
+    .filter(m => m && !isEvolvedSpeciesId(m.id) && !isLegendarySpeciesId(m.id));
+
+  if (isDeepSeaMap) {
+    candidateSpecies = candidateSpecies.filter(m => !FRESHWATER_ONLY_FISH_IDS.has(m.id));
+  }
+
+  if (standingTile === 'W') {
+    let waterOrFlying = candidateSpecies.filter(m => m.type === 'WATER' || m.type === 'FLYING');
+    if (waterOrFlying.length === 0) {
+      waterOrFlying = MONSTER_SPECIES.filter(m =>
+        (m.type === 'WATER' || m.type === 'FLYING') &&
+        !isEvolvedSpeciesId(m.id) &&
+        !isLegendarySpeciesId(m.id) &&
+        (!isDeepSeaMap || !FRESHWATER_ONLY_FISH_IDS.has(m.id))
+      );
+    }
+    candidateSpecies = waterOrFlying;
+  }
+
+  if (candidateSpecies.length === 0) {
+    return MONSTER_SPECIES[0];
+  }
+  return candidateSpecies[Math.floor(Math.random() * candidateSpecies.length)];
 }
 
 function triggerWildBattleFromOverworld(forcedSpecies = null, isLegendaryEncounter = false) {
@@ -1504,12 +1306,9 @@ function triggerWildBattleFromOverworld(forcedSpecies = null, isLegendaryEncount
   state.keysHeld = {};
   state.pendingLegendaryChallengeId = null;
 
-  const mapObj = getCurrentMap();
   let chosenSpecies = forcedSpecies;
   if (!chosenSpecies) {
-    const poolIds = mapObj.encounters;
-    const randId = poolIds[Math.floor(Math.random() * poolIds.length)];
-    chosenSpecies = MONSTER_SPECIES.find(m => m.id === randId) || MONSTER_SPECIES[0];
+    chosenSpecies = pickWildEncounterSpeciesForCurrentTile();
   }
 
   const isUB = ULTRA_BEAST_IDS.has((chosenSpecies.id || '').toLowerCase());
@@ -1572,8 +1371,6 @@ function returnToOverworldFromBattle(statusMessage = null) {
     const isUB = ULTRA_BEAST_IDS.has(legId);
     const isLeg = isLegendarySpeciesId(legId);
 
-    // Ultra Beasts disappear for the remainder of the current visit once battled or caught,
-    // and respawn automatically when you re-enter the area (via clearAreaLegendaryStateOnTransit).
     if (isUB || (isLeg && state.enemy.hp <= 0)) {
       if (!Array.isArray(state.defeatedLegendariesInArea)) {
         state.defeatedLegendariesInArea = [];
@@ -1591,6 +1388,7 @@ function returnToOverworldFromBattle(statusMessage = null) {
     const ow = document.getElementById('overworldView');
     ow.classList.remove('hidden');
     ow.classList.add('flex');
+    if (typeof syncCanvasAspect === 'function') syncCanvasAspect();
 
     sfx.startBGM(state.currentMapId);
     syncAllUI();

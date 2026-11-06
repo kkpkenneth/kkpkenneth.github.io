@@ -71,7 +71,8 @@ function handleActivePartnerFainted() {
       playerWrapper.innerHTML = renderMonsterSVG(newPartner);
       triggerSpriteAnimation('player', 'anim-lunge-player');
     }
-    sfx.pokemonCry(newPartner.id);
+    const partnerCall = (typeof getPokemonCallText === 'function') ? getPokemonCallText(newPartner.name) : `${newPartner.name}!`;
+    setDialogue(`${faintedMon.name} fainted! Go, ${newPartner.name}! "${partnerCall}"`, 'PARTNER SWITCHED!');
     if (typeof saveGameProgress === 'function') saveGameProgress();
     syncAllUI();
     setDialogue(`${faintedMon.name} fainted! Go, ${newPartner.name}! "${newPartner.name}! ${newPartner.name}~"`, 'PARTNER SWITCHED!');
@@ -133,7 +134,8 @@ function setupBattleEncounter(chosenSpecies) {
     playerWrapper.style.opacity = '1';
   }
 
-  setTimeout(() => sfx.pokemonCry(state.enemy.id), 350);
+  const enemyCall = (typeof getPokemonCallText === 'function') ? getPokemonCallText(state.enemy.name) : `${state.enemy.name}!`;
+  setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! "${enemyCall}"`, 'WILD ENCOUNTER');
 
   showCommandView();
   setDialogue(`Wild ${state.enemy.name} (${state.enemy.type}) appeared! "${state.enemy.name}! ${state.enemy.name}~"`, 'WILD ENCOUNTER');
@@ -532,8 +534,8 @@ function startElementalTriviaAttack(elementType, difficulty = 2, isVisual = fals
 }
 
 function pickVisualVocabularyQuestion(elementType = null) {
-  const pool = (typeof FOOD_VOCAB_QUESTIONS !== 'undefined' && FOOD_VOCAB_QUESTIONS.length > 0)
-    ? FOOD_VOCAB_QUESTIONS
+  const pool = (typeof VISUAL_QUESTIONS !== 'undefined' && VISUAL_QUESTIONS.length > 0)
+    ? VISUAL_QUESTIONS
     : (typeof DEFAULT_QUESTIONS !== 'undefined' ? DEFAULT_QUESTIONS : []);
 
   let filtered = pool;
@@ -617,7 +619,6 @@ function launchQuizQuestion(elementType, difficulty, durationSeconds, isVisual =
       }
       popupEl.classList.remove('hidden');
       popupEl.innerHTML = `
-        <span class="text-[6px] text-amber-300 font-bold mb-0.5 tracking-tighter">16x16 CLUE</span>
         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-950 rounded border border-slate-700 p-1">
           ${renderQuestionPixelArtSVG(chosen.pixelArt)}
         </div>

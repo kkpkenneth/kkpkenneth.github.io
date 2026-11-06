@@ -2717,24 +2717,7 @@ const DEFAULT_MONSTER_PIXELS = {
     "................",
     "................"
   ]},
-  groudon: { palette: { p: '#dc2626', d: '#0f172a', l: '#facc15', s: '#f8fafc', b: '#0f172a' }, grid: [
-    "....s..s..s.....",
-    "...pppppppppp...",
-    "..ppppbppbpppp..",
-    ".ppppddddddpppp.",
-    ".pppplllllppppp.",
-    "..pppddddddppp..",
-    "..ppppppppppppd.",
-    "...ppp....pppdd.",
-    "...sss....sss...",
-    "................",
-    "................",
-    "................",
-    "................",
-    "................",
-    "................",
-    "................"
-  ]},
+  groudon: { palette: {p:"#dc2626",d:"#0f172a",l:"#8c866e",s:"#ffffff",b:"#0f172a",t:"#facc15"}, grid: ["................","................","................","....pp.pp.pp....","....pppppppp....","...sdtpppptds...","....pdppppdp....","...spppppppps...","....pspsspsp....",".spppllllllppps.","..ppdlllllldpp.p","....pllllllp.spp","....pllllllppppp","..ppdlllllldppps",".spppllllllppps.","................"] },
   rayquaza: { palette: { p: '#16a34a', d: '#052e16', l: '#facc15', s: '#ef4444', b: '#0f172a' }, grid: [
     "....l......l....",
     "...pppl..lppp...",

@@ -1,7 +1,8 @@
 /********************************************************************
  * studio.js
- * SVG Renderer, Pixel Sprite Studio (Monsters & Overworld Obstacles),
- * Walkable Checkbox, Unified Palette (p, d, l, b, s, t) & Save/Reset
+ * SVG Renderer, 3-Mode Pixel Sprite Studio (Monsters, Overworld
+ * Obstacles & 16x16 Visual Quiz Pics), Walkable Checkbox, Unified
+ * Palette (p, d, l, b, s, t) & Single-Line Retrofit Code Export
  ********************************************************************/
 
 if (typeof MONSTER_PIXELS === 'undefined') {
@@ -12,12 +13,11 @@ function renderMonsterSVG(speciesOrInstance) {
   const monId = typeof speciesOrInstance === 'string'
     ? speciesOrInstance
     : (speciesOrInstance?.transformedSpeciesId || speciesOrInstance?.id || 'bulbasaur');
-  
+
   const art = (typeof MONSTER_PIXELS !== 'undefined' && MONSTER_PIXELS[monId])
     ? MONSTER_PIXELS[monId]
     : (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' ? DEFAULT_MONSTER_PIXELS[monId] : null);
-  
-  // Safe fallback if the art grid or palette is missing/undefined
+
   if (!art || !Array.isArray(art.grid) || !art.palette) {
     return '<svg viewBox="0 0 16 16"></svg>';
   }
@@ -25,8 +25,8 @@ function renderMonsterSVG(speciesOrInstance) {
   let rects = '';
   for (let y = 0; y < art.grid.length; y++) {
     const rowStr = art.grid[y];
-    if (typeof rowStr !== 'string') continue; // Prevents crash if row is undefined
-    
+    if (typeof rowStr !== 'string') continue;
+
     for (let x = 0; x < rowStr.length; x++) {
       const ch = rowStr.charAt(x);
       if (ch !== '.' && art.palette[ch]) {
@@ -45,7 +45,27 @@ function renderObstacleSVG(obsKey) {
 
   let rects = '';
   for (let y = 0; y < 16; y++) {
-    const rowStr = art.grid[y];
+    const rowStr = art.grid[y] || '';
+    for (let x = 0; x < 16; x++) {
+      const ch = rowStr.charAt(x);
+      if (ch !== '.' && art.palette[ch]) {
+        rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${art.palette[ch]}"/>`;
+      }
+    }
+  }
+  return `<svg viewBox="0 0 16 16" class="w-full h-full" style="image-rendering: pixelated;">${rects}</svg>`;
+}
+
+function renderQuizPicSVG(questionIndex) {
+  if (typeof FOOD_VOCAB_QUESTIONS === 'undefined' || !FOOD_VOCAB_QUESTIONS[questionIndex]) {
+    return '<svg viewBox="0 0 16 16"></svg>';
+  }
+  const art = FOOD_VOCAB_QUESTIONS[questionIndex].pixelArt;
+  if (!art || !Array.isArray(art.grid) || !art.palette) return '<svg viewBox="0 0 16 16"></svg>';
+
+  let rects = '';
+  for (let y = 0; y < 16; y++) {
+    const rowStr = art.grid[y] || '';
     for (let x = 0; x < 16; x++) {
       const ch = rowStr.charAt(x);
       if (ch !== '.' && art.palette[ch]) {
@@ -82,106 +102,34 @@ function renderCaptureBallSVG(isCaught = false) {
 }
 
 /********************************************************************
- * LOCALSTORAGE SAVE, LOAD & RESET SYSTEM
- ********************************************************************/
-const SAVE_STORAGE_KEY = 'POKEQUIZ_DX_SAVE_V6';
-
-function saveGameProgress(showToast = false) {
-  try {
-    const saveData = {
-      dex: state.dex,
-      activeDexIndex: state.activeDexIndex,
-      currentMapId: state.currentMapId,
-      gridX: state.playerWorld.gridX,
-      gridY: state.playerWorld.gridY,
-      streak: state.streak,
-      celebrationShown: state.celebrationShown || false,
-      questions: state.questions,
-      customPixels: MONSTER_PIXELS,
-      customObstacles: typeof OBSTACLE_DEFS !== 'undefined' ? OBSTACLE_DEFS : undefined
-    };
-    localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(saveData));
-
-    if (showToast) {
-      sfx.npcChime();
-      const saveBtn = document.getElementById('saveGameBtn');
-      if (saveBtn) {
-        const orig = saveBtn.textContent;
-        saveBtn.textContent = '✓ SAVED!';
-        setTimeout(() => { saveBtn.textContent = orig; }, 1400);
-      }
-    }
-  } catch (e) {
-    console.error('Failed to save game progress:', e);
-  }
-}
-
-function loadGameProgress() {
-  try {
-    const raw = localStorage.getItem(SAVE_STORAGE_KEY);
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (data.dex && Array.isArray(data.dex) && data.dex.length > 0) {
-      state.dex = data.dex;
-    }
-    if (typeof data.activeDexIndex === 'number') {
-      state.activeDexIndex = Math.min(data.activeDexIndex, state.dex.length - 1);
-    }
-    if (data.currentMapId && WORLD_MAPS[data.currentMapId]) {
-      state.currentMapId = data.currentMapId;
-    }
-    if (typeof data.gridX === 'number' && typeof data.gridY === 'number') {
-      teleportPlayerToGrid(data.gridX, data.gridY);
-    }
-    if (typeof data.streak === 'number') state.streak = data.streak;
-    if (typeof data.celebrationShown === 'boolean') state.celebrationShown = data.celebrationShown;
-    if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
-      state.questions = data.questions;
-    }
-    if (data.customPixels) MONSTER_PIXELS = data.customPixels;
-    if (data.customObstacles && typeof OBSTACLE_DEFS !== 'undefined') {
-      Object.assign(OBSTACLE_DEFS, data.customObstacles);
-    }
-    return true;
-  } catch (e) {
-    console.error('Failed to load save data:', e);
-    return false;
-  }
-}
-
-function resetGameSaveData() {
-  localStorage.removeItem(SAVE_STORAGE_KEY);
-  MONSTER_PIXELS = {};
-  if (typeof DEFAULT_OBSTACLE_DEFS !== 'undefined') {
-    OBSTACLE_DEFS = structuredClone(DEFAULT_OBSTACLE_DEFS);
-  }
-  state.currentMapId = 'CENTER';
-  state.dex = [createMonsterInstance(MONSTER_SPECIES[0])];
-  state.activeDexIndex = 0;
-  state.streak = 0;
-  state.celebrationShown = false;
-  state.questions = structuredClone(DEFAULT_QUESTIONS);
-  teleportPlayerToGrid(13, 10);
-  syncAllUI();
-  refreshTitleScreenSprites();
-  sfx.captureFanfare();
-}
-
-/********************************************************************
- * STUDIO MODE HELPERS (MONSTERS & OVERWORLD OBSTACLES)
+ * STUDIO MODE HELPERS (MONSTERS, OBSTACLES & 16x16 QUIZ PICS)
  ********************************************************************/
 function ensureStudioObstacleControlsInDOM() {
   const closeBtn = document.getElementById('closeSpriteStudioBtn');
-  if (closeBtn && !document.getElementById('studioModeMonsterBtn')) {
+  if (closeBtn && !document.getElementById('studioModeQuizBtn')) {
     const headerBar = closeBtn.parentElement;
-    const modeWrap = document.createElement('div');
-    modeWrap.className = 'flex items-center gap-1.5';
-    modeWrap.innerHTML = `
-      <button id="studioModeMonsterBtn" type="button" class="pixel-btn bg-pink-600 text-white text-[8px] px-2.5 py-1 font-bold">👾 MONSTERS</button>
-      <button id="studioModeObstacleBtn" type="button" class="pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1">🌲 OBSTACLES</button>
-    `;
-    headerBar.insertBefore(modeWrap, closeBtn);
-    modeWrap.appendChild(closeBtn);
+    if (!document.getElementById('studioModeMonsterBtn')) {
+      const monBtn = document.createElement('button');
+      monBtn.id = 'studioModeMonsterBtn';
+      monBtn.type = 'button';
+      monBtn.className = 'pixel-btn bg-pink-600 text-white text-[8px] px-2.5 py-1 font-bold';
+      monBtn.textContent = 'MONSTERS';
+      headerBar.insertBefore(monBtn, closeBtn);
+    }
+    if (!document.getElementById('studioModeObstacleBtn')) {
+      const obsBtn = document.createElement('button');
+      obsBtn.id = 'studioModeObstacleBtn';
+      obsBtn.type = 'button';
+      obsBtn.className = 'pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1';
+      obsBtn.textContent = 'OBSTACLES';
+      headerBar.insertBefore(obsBtn, closeBtn);
+    }
+    const quizBtn = document.createElement('button');
+    quizBtn.id = 'studioModeQuizBtn';
+    quizBtn.type = 'button';
+    quizBtn.className = 'pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1';
+    quizBtn.textContent = 'QUIZ PICS';
+    headerBar.insertBefore(quizBtn, closeBtn);
   }
 
   const typeSelect = document.getElementById('studioMonsterTypeSelect');
@@ -207,6 +155,12 @@ function getActiveStudioTargetArt() {
       OBSTACLE_DEFS[obsKey] = structuredClone(DEFAULT_OBSTACLE_DEFS[obsKey]);
     }
     return OBSTACLE_DEFS[obsKey];
+  } else if (state.studio.editTarget === 'QUIZ_PIC') {
+    const qIdx = Number(state.studio.selectedQuizPicIndex) || 0;
+    if (typeof FOOD_VOCAB_QUESTIONS !== 'undefined' && FOOD_VOCAB_QUESTIONS[qIdx]) {
+      return FOOD_VOCAB_QUESTIONS[qIdx].pixelArt;
+    }
+    return null;
   } else {
     const monId = state.studio.selectedMonsterId || (MONSTER_SPECIES[0] && MONSTER_SPECIES[0].id);
     if (!MONSTER_PIXELS[monId] && typeof DEFAULT_MONSTER_PIXELS !== 'undefined' && DEFAULT_MONSTER_PIXELS[monId]) {
@@ -236,6 +190,21 @@ function populateStudioSelectorDropdown() {
       }
       sel.value = state.studio.selectedObstacleId;
     }
+  } else if (state.studio.editTarget === 'QUIZ_PIC') {
+    if (labelEl) labelEl.textContent = '1. SELECT 16x16 QUIZ IMAGE:';
+    if (typeof FOOD_VOCAB_QUESTIONS !== 'undefined') {
+      FOOD_VOCAB_QUESTIONS.forEach((qObj, idx) => {
+        const ansLabel = qObj.options && qObj.options[qObj.answer || 0] ? qObj.options[qObj.answer || 0] : `Item #${idx + 1}`;
+        const opt = document.createElement('option');
+        opt.value = String(idx);
+        opt.textContent = `#${idx + 1} ${ansLabel.toUpperCase()} (${qObj.type})`;
+        sel.appendChild(opt);
+      });
+      if (state.studio.selectedQuizPicIndex === undefined || !FOOD_VOCAB_QUESTIONS[state.studio.selectedQuizPicIndex]) {
+        state.studio.selectedQuizPicIndex = 0;
+      }
+      sel.value = String(state.studio.selectedQuizPicIndex);
+    }
   } else {
     if (labelEl) labelEl.textContent = '1. SELECT MONSTER:';
     if (typeof MONSTER_SPECIES !== 'undefined') {
@@ -258,6 +227,7 @@ function initSpriteStudio() {
 
   if (!state.studio.editTarget) state.studio.editTarget = 'MONSTER';
   if (!state.studio.selectedObstacleId) state.studio.selectedObstacleId = 'T';
+  if (state.studio.selectedQuizPicIndex === undefined) state.studio.selectedQuizPicIndex = 0;
 
   populateStudioSelectorDropdown();
 
@@ -266,6 +236,8 @@ function initSpriteStudio() {
     sel.addEventListener('change', (e) => {
       if (state.studio.editTarget === 'OBSTACLE') {
         state.studio.selectedObstacleId = e.target.value;
+      } else if (state.studio.editTarget === 'QUIZ_PIC') {
+        state.studio.selectedQuizPicIndex = parseInt(e.target.value, 10) || 0;
       } else {
         state.studio.selectedMonsterId = e.target.value;
       }
@@ -294,6 +266,13 @@ function initSpriteStudio() {
     renderStudioEditor();
   });
 
+  document.getElementById('studioModeQuizBtn')?.addEventListener('click', () => {
+    sfx.blip();
+    state.studio.editTarget = 'QUIZ_PIC';
+    populateStudioSelectorDropdown();
+    renderStudioEditor();
+  });
+
   const walkCheckbox = document.getElementById('studioObstacleWalkableCheckbox');
   if (walkCheckbox) {
     walkCheckbox.addEventListener('change', (e) => {
@@ -304,7 +283,7 @@ function initSpriteStudio() {
         sfx.blip();
         populateStudioSelectorDropdown();
         refreshStudioVisualsOnly();
-        saveGameProgress();
+        if (typeof saveGameProgress === 'function') saveGameProgress();
       }
     });
   }
@@ -319,6 +298,16 @@ function initSpriteStudio() {
           obs.name = e.target.value.toUpperCase().trim() || 'OBSTACLE';
           const opt = sel?.querySelector(`option[value="${obsKey}"]`);
           if (opt) opt.textContent = `[${obs.id}] ${obs.name} (${obs.walkable ? 'WALK PASS: YES' : 'WALK PASS: NO'})`;
+          refreshStudioVisualsOnly();
+        }
+      } else if (state.studio.editTarget === 'QUIZ_PIC') {
+        const qIdx = Number(state.studio.selectedQuizPicIndex) || 0;
+        const qObj = (typeof FOOD_VOCAB_QUESTIONS !== 'undefined') ? FOOD_VOCAB_QUESTIONS[qIdx] : null;
+        if (qObj && Array.isArray(qObj.options)) {
+          const ansIdx = qObj.answer || 0;
+          qObj.options[ansIdx] = e.target.value.trim() || 'Answer';
+          const opt = sel?.querySelector(`option[value="${qIdx}"]`);
+          if (opt) opt.textContent = `#${qIdx + 1} ${qObj.options[ansIdx].toUpperCase()} (${qObj.type})`;
           refreshStudioVisualsOnly();
         }
       } else {
@@ -340,6 +329,18 @@ function initSpriteStudio() {
   if (typeSelect) {
     typeSelect.addEventListener('change', (e) => {
       if (state.studio.editTarget === 'OBSTACLE') return;
+      if (state.studio.editTarget === 'QUIZ_PIC') {
+        const qIdx = Number(state.studio.selectedQuizPicIndex) || 0;
+        const qObj = (typeof FOOD_VOCAB_QUESTIONS !== 'undefined') ? FOOD_VOCAB_QUESTIONS[qIdx] : null;
+        if (qObj) {
+          qObj.type = e.target.value;
+          const ansLabel = qObj.options[qObj.answer || 0] || `Item #${qIdx + 1}`;
+          const opt = sel?.querySelector(`option[value="${qIdx}"]`);
+          if (opt) opt.textContent = `#${qIdx + 1} ${ansLabel.toUpperCase()} (${qObj.type})`;
+          refreshStudioVisualsOnly();
+        }
+        return;
+      }
       const monId = state.studio.selectedMonsterId;
       const species = MONSTER_SPECIES.find(m => m.id === monId);
       if (species) {
@@ -369,7 +370,7 @@ function initSpriteStudio() {
           art.palette[activeKey] = hex;
           sfx.blip();
           renderStudioEditor();
-          saveGameProgress();
+          if (typeof saveGameProgress === 'function') saveGameProgress();
         }
       });
       presetBar.appendChild(swatchBtn);
@@ -393,7 +394,7 @@ function initSpriteStudio() {
     sfx.blip();
     document.getElementById('spriteStudioModal')?.classList.add('hidden');
     document.getElementById('spriteStudioModal')?.classList.remove('flex');
-    saveGameProgress();
+    if (typeof saveGameProgress === 'function') saveGameProgress();
   });
 
   document.getElementById('studioClearGridBtn')?.addEventListener('click', () => {
@@ -402,7 +403,7 @@ function initSpriteStudio() {
     if (art) {
       art.grid = Array(16).fill('................');
       renderStudioEditor();
-      saveGameProgress();
+      if (typeof saveGameProgress === 'function') saveGameProgress();
     }
   });
 
@@ -414,21 +415,19 @@ function initSpriteStudio() {
         OBSTACLE_DEFS[obsKey] = structuredClone(DEFAULT_OBSTACLE_DEFS[obsKey]);
       }
       populateStudioSelectorDropdown();
-    } else {
+    } else if (state.studio.editTarget === 'MONSTER') {
       const monId = state.studio.selectedMonsterId;
       if (typeof DEFAULT_MONSTER_PIXELS !== 'undefined' && DEFAULT_MONSTER_PIXELS[monId]) {
         MONSTER_PIXELS[monId] = structuredClone(DEFAULT_MONSTER_PIXELS[monId]);
       }
     }
     renderStudioEditor();
-    saveGameProgress();
+    if (typeof saveGameProgress === 'function') saveGameProgress();
   });
 
   document.getElementById('studioCopyCodeBtn')?.addEventListener('click', () => {
     navigator.clipboard.writeText(document.getElementById('studioCodeTextarea').value);
     sfx.captureFanfare();
-    const msg = document.getElementById('studioCopyStatus');
-    if (msg) { msg.textContent = 'COPIED!'; setTimeout(() => { msg.textContent = ''; }, 3000); }
   });
 
   window.addEventListener('mouseup', () => { state.studio.isPainting = false; });
@@ -462,24 +461,22 @@ function setPixelAt(gridArr, x, y, charKey) {
 function renderStudioEditor() {
   ensureStudioObstacleControlsInDOM();
 
-  const isObstacleMode = state.studio.editTarget === 'OBSTACLE';
-  const btnMon = document.getElementById('studioModeMonsterBtn');
-  const btnObs = document.getElementById('studioModeObstacleBtn');
-  if (btnMon && btnObs) {
-    btnMon.className = `pixel-btn text-[8px] px-2.5 py-1 ${!isObstacleMode ? 'bg-pink-600 text-white font-bold' : 'bg-slate-700 text-slate-200'}`;
-    btnObs.className = `pixel-btn text-[8px] px-2.5 py-1 ${isObstacleMode ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-700 text-slate-200'}`;
-  }
+  const mode = state.studio.editTarget || 'MONSTER';
+  const btnMon  = document.getElementById('studioModeMonsterBtn');
+  const btnObs  = document.getElementById('studioModeObstacleBtn');
+  const btnQuiz = document.getElementById('studioModeQuizBtn');
+
+  if (btnMon)  btnMon.className  = `pixel-btn text-[8px] px-2.5 py-1 ${mode === 'MONSTER'  ? 'bg-pink-600 text-white font-bold' : 'bg-slate-700 text-slate-200'}`;
+  if (btnObs)  btnObs.className  = `pixel-btn text-[8px] px-2.5 py-1 ${mode === 'OBSTACLE' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-700 text-slate-200'}`;
+  if (btnQuiz) btnQuiz.className = `pixel-btn text-[8px] px-2.5 py-1 ${mode === 'QUIZ_PIC' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-700 text-slate-200'}`;
 
   const art = getActiveStudioTargetArt();
   if (!art || !art.palette) return;
 
-  // Ensure unified (p, d, l, b, s, t) color slots exist on obstacles and monsters
   const unifiedSlots = ['p', 'd', 'l', 'b', 's', 't'];
-  if (isObstacleMode) {
-    unifiedSlots.forEach(slot => {
-      if (!art.palette[slot]) art.palette[slot] = '#0f172a';
-    });
-  }
+  unifiedSlots.forEach(slot => {
+    if (!art.palette[slot]) art.palette[slot] = '#0f172a';
+  });
   const palKeys = Object.keys(art.palette);
 
   const nameInput = document.getElementById('studioMonsterNameInput');
@@ -487,11 +484,21 @@ function renderStudioEditor() {
   const walkableWrap = document.getElementById('studioObstacleWalkableWrapper');
   const walkCheckbox = document.getElementById('studioObstacleWalkableCheckbox');
 
-  if (isObstacleMode) {
+  if (mode === 'OBSTACLE') {
     if (nameInput) nameInput.value = art.name || state.studio.selectedObstacleId;
     if (typeSelectWrap) typeSelectWrap.classList.add('hidden');
     if (walkableWrap) walkableWrap.classList.remove('hidden');
     if (walkCheckbox) walkCheckbox.checked = Boolean(art.walkable);
+  } else if (mode === 'QUIZ_PIC') {
+    const qIdx = Number(state.studio.selectedQuizPicIndex) || 0;
+    const qObj = (typeof FOOD_VOCAB_QUESTIONS !== 'undefined') ? FOOD_VOCAB_QUESTIONS[qIdx] : null;
+    if (qObj) {
+      if (nameInput) nameInput.value = qObj.options[qObj.answer || 0] || '';
+      const typeSelect = document.getElementById('studioMonsterTypeSelect');
+      if (typeSelect) typeSelect.value = qObj.type || 'NORMAL';
+    }
+    if (typeSelectWrap) typeSelectWrap.classList.remove('hidden');
+    if (walkableWrap) walkableWrap.classList.add('hidden');
   } else {
     const species = MONSTER_SPECIES.find(m => m.id === state.studio.selectedMonsterId);
     if (species) {
@@ -506,7 +513,7 @@ function renderStudioEditor() {
   const tMirr = document.getElementById('toolMirrorBtn');
   if (tMirr) {
     tMirr.className = `pixel-btn text-[8px] px-2 py-1 ${state.studio.mirrorX ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-200'}`;
-    tMirr.textContent = `🪞 MIRROR X: ${state.studio.mirrorX ? 'ON' : 'OFF'}`;
+    tMirr.textContent = `MIRROR X: ${state.studio.mirrorX ? 'ON' : 'OFF'}`;
   }
 
   const brushContainer = document.getElementById('studioBrushList');
@@ -535,7 +542,7 @@ function renderStudioEditor() {
         state.studio.toolMode = 'BRUSH';
         refreshStudioGridColorsOnly();
         refreshStudioVisualsOnly();
-        saveGameProgress();
+        if (typeof saveGameProgress === 'function') saveGameProgress();
       });
       brushContainer.appendChild(card);
     });
@@ -563,7 +570,7 @@ function renderStudioEditor() {
         }
         refreshStudioGridColorsOnly();
         refreshStudioVisualsOnly();
-        saveGameProgress();
+        if (typeof saveGameProgress === 'function') saveGameProgress();
       };
 
       cell.addEventListener('mousedown', (e) => { e.preventDefault(); state.studio.isPainting = e.button === 2 ? 'ERASER' : 'PAINT'; applyStroke(x, y, e.button === 2); });
@@ -590,35 +597,44 @@ function refreshStudioGridColorsOnly() {
 }
 
 function refreshStudioVisualsOnly() {
-  const isObstacleMode = state.studio.editTarget === 'OBSTACLE';
+  const mode = state.studio.editTarget || 'MONSTER';
   const livePrev = document.getElementById('studioLivePreview');
+  const codeArea = document.getElementById('studioCodeTextarea');
 
-  if (isObstacleMode) {
+  if (mode === 'OBSTACLE') {
     if (livePrev) livePrev.innerHTML = renderObstacleSVG(state.studio.selectedObstacleId);
     if (state.screen === 'OVERWORLD' && typeof drawOverworldCanvas === 'function') {
       drawOverworldCanvas();
     }
-    const codeArea = document.getElementById('studioCodeTextarea');
     const obsKey = state.studio.selectedObstacleId;
     const obs = OBSTACLE_DEFS[obsKey];
     if (codeArea && obs) {
-      codeArea.value = `// --- Retrofit Code for Overworld Obstacle [${obsKey}] (${obs.name}) ---\n  ${obsKey}: ${JSON.stringify(obs, null, 2).replace(/\n/g, '\n  ')},`;
+      codeArea.value = `${obsKey}: { id: '${obs.id}', name: '${obs.name}', walkable: ${Boolean(obs.walkable)}, palette: ${JSON.stringify(obs.palette)}, grid: ${JSON.stringify(obs.grid)} },`;
+    }
+  } else if (mode === 'QUIZ_PIC') {
+    const qIdx = Number(state.studio.selectedQuizPicIndex) || 0;
+    if (livePrev) livePrev.innerHTML = renderQuizPicSVG(qIdx);
+    const qObj = (typeof FOOD_VOCAB_QUESTIONS !== 'undefined') ? FOOD_VOCAB_QUESTIONS[qIdx] : null;
+    if (codeArea && qObj && qObj.pixelArt) {
+      codeArea.value = `{ type: '${qObj.type}', difficulty: ${qObj.difficulty || 1}, q: ${JSON.stringify(qObj.q)}, options: ${JSON.stringify(qObj.options)}, answer: ${qObj.answer || 0},\n  pixelArt: { palette: ${JSON.stringify(qObj.pixelArt.palette)}, grid: ${JSON.stringify(qObj.pixelArt.grid)} } },`;
     }
   } else {
+    if (typeof _monsterOffscreenCanvasCache !== 'undefined') {
+      delete _monsterOffscreenCanvasCache[state.studio.selectedMonsterId];
+    }
     if (livePrev) livePrev.innerHTML = renderMonsterSVG(state.studio.selectedMonsterId);
     if (typeof refreshTitleScreenSprites === 'function') refreshTitleScreenSprites();
     if (state.enemy) document.getElementById('enemySpriteWrapper').innerHTML = renderMonsterSVG(state.enemy);
     if (state.dex?.length > 0) document.getElementById('playerSpriteWrapper').innerHTML = renderMonsterSVG(getActivePlayer());
 
-    const codeArea = document.getElementById('studioCodeTextarea');
     if (codeArea && typeof MONSTER_SPECIES !== 'undefined') {
       const monId = state.studio.selectedMonsterId;
       const species = MONSTER_SPECIES.find(m => m.id === monId);
-      const art = MONSTER_PIXELS[monId];
+      const art = getActiveStudioTargetArt();
       if (species && art) {
-        const speciesCode = `  { id: '${species.id}', pokedexNo: ${species.pokedexNo}, name: '${species.name}', type: '${species.type}', baseHp: ${species.baseHp}, level: ${species.level} }`;
-        const pixelCode = `  ${species.id}: ${JSON.stringify(art, null, 2).replace(/\n/g, '\n  ')}`;
-        codeArea.value = `// --- Retrofit Code for ${species.name} ---\n\n// 1. Update in MONSTER_SPECIES array:\n${speciesCode},\n\n// 2. Update in MONSTER_PIXELS object:\n${pixelCode}`;
+        const pixelCode = `${species.id}: { palette: ${JSON.stringify(art.palette)}, grid: ${JSON.stringify(art.grid)} },`;
+        const speciesCode = `{ id: '${species.id}', pokedexNo: ${species.pokedexNo}, name: '${species.name}', type: '${species.type}', baseHp: ${species.baseHp}, level: ${species.level} },`;
+        codeArea.value = `${pixelCode}\n${speciesCode}`;
       }
     }
   }
@@ -635,7 +651,7 @@ function initQuestionEditor() {
     sfx.blip();
     document.getElementById('editorModal')?.classList.add('hidden');
     document.getElementById('editorModal')?.classList.remove('flex');
-    saveGameProgress();
+    if (typeof saveGameProgress === 'function') saveGameProgress();
   });
 
   document.getElementById('addQuestionForm')?.addEventListener('submit', (e) => {
@@ -655,7 +671,7 @@ function initQuestionEditor() {
     sfx.attackHit(true);
     e.target.reset();
     syncJsonTextarea();
-    saveGameProgress();
+    if (typeof saveGameProgress === 'function') saveGameProgress();
   });
 }
 

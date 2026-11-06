@@ -11,6 +11,219 @@ const MAP_COLS = 28;
 const MAP_ROWS = 20;
 const TILE_SIZE = 32;
 
+// 1. Chroma Archipelago (Original Region - 5x5 Grand Map = 25 Walkable Areas)
+const OG_REGION_FULL_NAME = 'CHROMA ARCHIPELAGO';
+
+const GRAND_MAP_5X5_GRID = [
+  ['AURORA_RIDGE', 'WIND_TEMPLE', 'GLACIER',  'METEOR_CRATER', 'CYBER_NEXUS'],
+  ['SPIRE',        'NORTHWEST',   'MOUNTAIN', 'NORTHEAST',     'FOUNDRY'],
+  ['SANCTUARY',    'FOREST',      'CENTER',   'DESERT',        'ONSEN'],
+  ['KALOS_GROVE',  'SOUTHWEST',   'BEACH',    'SOUTHEAST',     'VOLCANO'],
+  ['SUNKEN_RUINS', 'BRAMBLE',     'ABYSS',    'SHADOW_ALLEY',  'MOON']
+];
+
+const OG_REGION_AREA_NAMES = {
+  AURORA_RIDGE:  'Obsidian Tundra',
+  WIND_TEMPLE:   'Azure Taiga',
+  GLACIER:       'Cyan Cliff',
+  METEOR_CRATER: 'Indigo Lake',
+  CYBER_NEXUS:   'Neon Zone',
+  SPIRE:         'Magenta Cave',
+  NORTHWEST:     'Cobalt Boreal',
+  MOUNTAIN:      'Slate Mountain',
+  NORTHEAST:     'Amber Desert',
+  FOUNDRY:       'Gray Town',
+  SANCTUARY:     'Magenta Shrubland',
+  FOREST:        'Teal Forest',
+  CENTER:        'Beige Village',
+  DESERT:        'Scarlet Savanna',
+  ONSEN:         'Silver Geyser',
+  KALOS_GROVE:   'Jade Jungle',
+  SOUTHWEST:     'Emerald Swamp',
+  BEACH:         'Golden Coast',
+  SOUTHEAST:     'Bronze Reef',
+  VOLCANO:       'Crimson Volcano',
+  SUNKEN_RUINS:  'Sapphire Ocean',
+  BRAMBLE:       'Purple Woods',
+  ABYSS:         'Navy Abyss',
+  SHADOW_ALLEY:  'Obsidian Urban',
+  MOON:          'Ruby Badlands'
+};
+
+// 2. East Asia Region 3x3 Grand Map (8 Areas)
+const EAST_ASIA_MAP_GRID = [
+  ['NORTH_KOREA', 'MONGOLIA',  'SOUTH_KOREA'],
+  [null,          'CHINA',     'JAPAN'],
+  ['MACAU',       'HONG_KONG', 'TAIWAN']
+];
+
+const EAST_ASIA_MAP_IDS = new Set([
+  'HONG_KONG', 'MACAU', 'CHINA', 'TAIWAN', 'JAPAN', 'SOUTH_KOREA', 'MONGOLIA', 'NORTH_KOREA'
+]);
+
+// 3. West Europe Region 3x3 Grand Map (8 Areas)
+const WEST_EUROPE_MAP_GRID = [
+  ['IRELAND',  'UK',     'NETHERLANDS'],
+  [null,       'FRANCE', 'BELGIUM'],
+  ['PORTUGAL', 'SPAIN',  'GERMANY']
+];
+
+const WEST_EUROPE_MAP_IDS = new Set([
+  'UK', 'FRANCE', 'SPAIN', 'PORTUGAL', 'IRELAND', 'GERMANY', 'NETHERLANDS', 'BELGIUM'
+]);
+
+// 4. North America 3x3 Grand Map (8 Areas)
+const NORTH_AMERICA_MAP_GRID = [
+  ['JAMAICA', 'CANADA', 'BAHAMAS'],
+  ['CUBA',    'USA',    'HAITI'],
+  [null,      'MEXICO', 'DOMINICAN_REPUBLIC']
+];
+
+const NORTH_AMERICA_MAP_IDS = new Set([
+  'CANADA', 'USA', 'MEXICO', 'CUBA', 'HAITI', 'JAMAICA', 'BAHAMAS', 'DOMINICAN_REPUBLIC'
+]);
+
+// 5. Southern Africa 3x3 Grand Map (8 Countries)
+const SOUTHERN_AFRICA_MAP_GRID = [
+  [null,      'ZAMBIA',       'MOZAMBIQUE'],
+  ['NAMIBIA', 'BOTSWANA',     'ZIMBABWE'],
+  ['LESOTHO', 'SOUTH_AFRICA', 'ESWATINI']
+];
+
+const SOUTHERN_AFRICA_MAP_IDS = new Set([
+  'SOUTH_AFRICA', 'LESOTHO', 'ESWATINI', 'MOZAMBIQUE', 'ZIMBABWE', 'ZAMBIA', 'BOTSWANA', 'NAMIBIA'
+]);
+
+// 6. Oceania 3x3 Grand Map (8 Countries)
+const OCEANIA_MAP_GRID = [
+  ['SOLOMON_ISLANDS', 'TUVALU',      'SAMOA'],
+  ['VANUATU',         'AUSTRALIA',   'FIJI'],
+  [null,              'NEW_ZEALAND', 'TONGA']
+];
+
+const OCEANIA_MAP_IDS = new Set([
+  'AUSTRALIA', 'NEW_ZEALAND', 'TUVALU', 'SAMOA', 'FIJI', 'TONGA', 'VANUATU', 'SOLOMON_ISLANDS'
+]);
+
+// 7. South America 3x3 Grand Map (7 Countries)
+const SOUTH_AMERICA_MAP_GRID = [
+  ['ECUADOR', 'PERU',      'BOLIVIA'],
+  ['CHILE',   'PARAGUAY',  'URUGUAY'],
+  [null,      'ARGENTINA', null]
+];
+
+const SOUTH_AMERICA_MAP_IDS = new Set([
+  'ECUADOR', 'PERU', 'BOLIVIA', 'PARAGUAY', 'CHILE', 'ARGENTINA', 'URUGUAY'
+]);
+
+// 8. Antarctica Separate 3x3 Grand Map (5 Areas)
+const ANTARCTICA_MAP_GRID = [
+  [null,           'DRAKE_ICEBERG', null],
+  ['WEDDELL_PACK', 'PARADISE_BAY',  'ROSS_SHELF'],
+  [null,           'VOSTOK_DOME',   null]
+];
+
+const ANTARCTICA_MAP_IDS = new Set([
+  'PARADISE_BAY', 'DRAKE_ICEBERG', 'WEDDELL_PACK', 'ROSS_SHELF', 'VOSTOK_DOME'
+]);
+
+const ULTRA_BEAST_IDS = new Set([
+  'nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana', 'guzzlord'
+]);
+
+const DEEP_SEA_MAP_IDS = new Set([
+  'ABYSS', 'SUNKEN_RUINS', 'TONGA', 'DRAKE_ICEBERG', 'WEDDELL_PACK',
+  'ROSS_SHELF', 'MOZAMBIQUE', 'BAHAMAS', 'PORTUGAL', 'SOLOMON_ISLANDS', 'TUVALU'
+]);
+
+const FRESHWATER_ONLY_FISH_IDS = new Set([
+  'magikarp', 'feebas', 'goldeen', 'poliwag', 'lotad', 'tympole',
+  'barboach', 'corphish', 'wooper', 'psyduck', 'totodile', 'mudkip',
+  'piplup', 'oshawott', 'froakie', 'buizel', 'panpour', 'ducklett', 'bidoof', 'chewtle', 'tadbulb'
+]);
+
+const FALLBACK_AREA_META = {
+  CENTER:             { name: 'Beige Village',            bg: '#d6b37c' },
+  SOUTH_AFRICA:       { name: 'Table Mesa Hub',           bg: '#065f46' },
+  LESOTHO:            { name: 'Maloti Sky Kingdom',       bg: '#1e3a8a' },
+  ESWATINI:           { name: 'Ezulwini Sibebe',          bg: '#3f6212' },
+  BOTSWANA:           { name: 'Okavango Baobab',          bg: '#0284c7' },
+  NAMIBIA:            { name: 'Sossusvlei Dunes',         bg: '#c2410c' },
+  ZIMBABWE:           { name: 'Great Ruins Valley',       bg: '#57534e' },
+  ZAMBIA:             { name: 'Mosi-oa-Tunya Falls',      bg: '#0f766e' },
+  MOZAMBIQUE:         { name: 'Bazaruto Coral Coast',     bg: '#0369a1' },
+  CANADA:             { name: 'Maple Boreal Hub',         bg: '#7f1d1d' },
+  USA:                { name: 'Liberty Canyon',           bg: '#1e3a8a' },
+  MEXICO:             { name: 'Sun Pyramid Sierra',       bg: '#b45309' },
+  BAHAMAS:            { name: 'Nassau Coral Cay',         bg: '#0284c7' },
+  CUBA:               { name: 'Havana Malecon',           bg: '#0f766e' },
+  JAMAICA:            { name: 'Blue Mountain Bay',        bg: '#14532d' },
+  HAITI:              { name: 'Citadelle Peak',           bg: '#1e3a8a' },
+  DOMINICAN_REPUBLIC: { name: 'Amber Quisqueya',          bg: '#0369a1' },
+  UK:                 { name: 'Royal Thames Hub',         bg: '#1e293b' },
+  IRELAND:            { name: 'Emerald Causeway',         bg: '#14532d' },
+  FRANCE:             { name: 'Lumiere Lavender',         bg: '#4c1d95' },
+  GERMANY:            { name: 'Bavarian Forest',          bg: '#1e293b' },
+  SPAIN:              { name: 'Iberian Sierra',           bg: '#b45309' },
+  PORTUGAL:           { name: 'Atlantic Douro',           bg: '#0369a1' },
+  NETHERLANDS:        { name: 'Tulip Polder',             bg: '#047857' },
+  BELGIUM:            { name: 'Atomium Plaza',            bg: '#334155' },
+  NORTH_KOREA:        { name: 'Granite Monolith',         bg: '#334155' },
+  AUSTRALIA:          { name: 'Outback Reef Hub',         bg: '#c2410c' },
+  NEW_ZEALAND:        { name: 'Rotorua Kiwi Fjord',       bg: '#065f46' },
+  TUVALU:             { name: 'Funafuti Atoll Strip',     bg: '#0284c7' },
+  SAMOA:              { name: 'Upolu Fale Lagoon',        bg: '#0d9488' },
+  FIJI:               { name: 'Nadi Sleeping Giant',      bg: '#0369a1' },
+  TONGA:              { name: 'Haapai Whale Trench',      bg: '#1e3a8a' },
+  VANUATU:            { name: 'Yasur Ash Caldera',        bg: '#7f1d1d' },
+  SOLOMON_ISLANDS:    { name: 'Marovo Blue Lagoon',       bg: '#047857' },
+  ECUADOR:            { name: 'Equatorial Galapagos Hub', bg: '#065f46' },
+  PERU:               { name: 'Andean Machu Sanctuary',   bg: '#57534e' },
+  BOLIVIA:            { name: 'Uyuni Mirror Salt Flats',  bg: '#0284c7' },
+  PARAGUAY:           { name: 'Gran Chaco Wetlands',      bg: '#14532d' },
+  CHILE:              { name: 'Atacama Starlight Desert', bg: '#7c2d12' },
+  ARGENTINA:          { name: 'Patagonia Pampas',         bg: '#0284c7' },
+  URUGUAY:            { name: 'Rambla Plata Coast',       bg: '#0369a1' },
+  PARADISE_BAY:       { name: 'Paradise Bay Hub',         bg: '#0284c7' },
+  DRAKE_ICEBERG:      { name: 'Drake Passage Icebergs',   bg: '#0369a1' },
+  WEDDELL_PACK:       { name: 'Weddell Pack Ice',         bg: '#0284c7' },
+  ROSS_SHELF:         { name: 'Ross Ice Shelf',           bg: '#0369a1' },
+  VOSTOK_DOME:        { name: 'Subglacial Vostok Dome',   bg: '#0f172a' }
+};
+
+const REGION_PORTAL_TIERS = [
+  { id: 'EAST_ASIA',       name: 'EAST ASIA REGION',       hubMap: 'HONG_KONG',    requiredDex: 50 },
+  { id: 'WEST_EUROPE',     name: 'WEST EUROPE REGION',     hubMap: 'UK',           requiredDex: 60 },
+  { id: 'NORTH_AMERICA',   name: 'NORTH AMERICA REGION',   hubMap: 'CANADA',       requiredDex: 70 },
+  { id: 'SOUTHERN_AFRICA', name: 'SOUTHERN AFRICA REGION', hubMap: 'SOUTH_AFRICA', requiredDex: 80 },
+  { id: 'OCEANIA',         name: 'OCEANIA REGION',         hubMap: 'AUSTRALIA',    requiredDex: 90 },
+  { id: 'SOUTH_AMERICA',   name: 'SOUTH AMERICA REGION',   hubMap: 'ECUADOR',      requiredDex: 100 },
+  { id: 'ANTARCTICA',      name: 'ANTARCTICA REGION',      hubMap: 'PARADISE_BAY', requiredDex: 110 }
+];
+
+const LEGENDARY_MONSTER_IDS = new Set([
+  'articuno', 'zapdos', 'moltres', 'mewtwo', 'mew', 'deoxys',
+  'raikou', 'entei', 'suicune', 'lugia', 'ho_oh', 'celebi',
+  'regirock', 'regice', 'registeel', 'latias', 'latios',
+  'kyogre', 'groudon', 'rayquaza', 'jirachi',
+  'uxie', 'mesprit', 'azelf', 'dialga', 'palkia', 'heatran',
+  'regigigas', 'giratina', 'cresselia', 'phione', 'manaphy',
+  'darkrai', 'shaymin', 'arceus',
+  'victini', 'cobalion', 'terrakion', 'virizion', 'tornadus',
+  'thundurus', 'reshiram', 'zekrom', 'landorus', 'kyurem',
+  'keldeo', 'meloetta', 'genesect', 'xerneas', 'yveltal',
+  'zygarde', 'diancie', 'hoopa', 'volcanion',
+  'tapu_koko', 'tapu_lele', 'tapu_bulu', 'tapu_fini',
+  'cosmog', 'cosmoem', 'solgaleo', 'lunala', 'necrozma',
+  'magearna', 'marshadow', 'zeraora', 'meltan', 'melmetal',
+  'zacian', 'zamazenta', 'eternatus', 'kubfu', 'urshifu',
+  'zarude', 'regieleki', 'regidrago', 'glastrier', 'spectrier',
+  'calyrex', 'enamorus', 'wo_chien', 'chien_pao', 'ting_lu',
+  'chi_yu', 'koraidon', 'miraidon', 'okidogi', 'munkidori',
+  'fezandipiti', 'ogerpon', 'terapagos', 'pecharunt',
+  'nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana', 'guzzlord'
+]);
+
 const WORLD_MAPS = {
   // ====================================================================
   // ROW 0: ['AURORA_RIDGE', 'WIND_TEMPLE', 'GLACIER', 'METEOR_CRATER', 'CYBER_NEXUS']
@@ -103,7 +316,7 @@ const WORLD_MAPS = {
     name: 'Cyan Cliff',
     subtitle: 'W: Azure Taiga • E: Indigo Lake • S: Slate Mountain',
     theme: { groundA: '#bae6fd', groundB: '#7dd3fc', path: '#f0f9ff', grass: '#0284c7', grassTip: '#e0f2fe', tree: '#0f172a', treeTop: '#38bdf8' },
-    encounters: ['seel', 'shellder', 'jynx'],
+    encounters: ['seel','shellder','jynx'],
     rows: [
       "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
       "I..IIII....PPPPPP....IIII..I",
@@ -241,7 +454,7 @@ const WORLD_MAPS = {
     name: 'Magenta Cave',
     subtitle: 'E: Cobalt Boreal • S: Magenta Shrubland',
     theme: { groundA: '#311042', groundB: '#4a1d66', path: '#fbcfe8', grass: '#701a75', grassTip: '#f472b6', tree: '#1e1b4b', treeTop: '#e879f9' },
-    encounters: ['drowzee', 'mr_mime'],
+    encounters: ['drowzee', 'mr_mime', 'aerodactyl'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       "T..AA..GGGG..PP..GGGG..AA..T",
@@ -313,7 +526,7 @@ const WORLD_MAPS = {
     name: 'Cobalt Boreal',
     subtitle: 'N: Azure Taiga • S: Teal Forest • W: Magenta Cave • E: Slate Mountain',
     theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#15803d', grassTip: '#86efac', tree: '#1e293b', treeTop: '#38bdf8', rock: '#64748b', rockLight: '#cbd5e1', rockDark: '#334155' },
-    encounters: ['spearow', 'farfetchd', 'scyther', 'pinsir'],
+    encounters: ['spearow', 'magikarp','goldeen'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..TTTT....PPPPPP....TTTT..R",
@@ -1294,7 +1507,7 @@ const WORLD_MAPS = {
         fact: "DR. INDIANA: Sedimentary rock layers preserve marine fossils over millions of years! Ancient Helix and Dome fossils rest in this subtidal reef!"
       },
        {
-        id: 'overworld_kyogre', name: 'KYOGRE', topic: 'LEGENDARY POKéMON • HYDROSPHERE', x: 16, y: 7,
+        id: 'overworld_kyogre', name: 'KYOGRE', topic: 'LEGENDARY POKéMON • HYDROSPHERE', x: 14, y: 7,
         isMonster: true, monsterId: 'kyogre', isLegendary: true,
         fact: "KYOGRE: Vwooooh! (Kyogre expanded the seas! The hydrosphere covers 71% of Earth's surface and regulates global climate!)"
       }
@@ -1307,7 +1520,7 @@ const WORLD_MAPS = {
     name: 'Purple Woods',
     subtitle: 'N: Emerald Swamp • E: Navy Abyss',
     theme: { groundA: '#2e1065', groundB: '#14532d', path: '#a855f7', grass: '#15803d', grassTip: '#c084fc', tree: '#1e1b4b', treeTop: '#22c55e' },
-    encounters: ['oddish', 'bellsprout', 'weedle', 'ekans', 'zubat', 'koffing'],
+    encounters: ['oddish', 'bellsprout', 'ekans', 'zubat', 'koffing'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..UU..GGGG..PP..GGGG..UU..T",
@@ -1359,7 +1572,7 @@ const WORLD_MAPS = {
     name: 'Navy Abyss',
     subtitle: 'N: Golden Coast • W: Purple Woods • E: Charcoal Urban',
     theme: { groundA: '#0f172a', groundB: '#1e3a8a', path: '#38bdf8', grass: '#0369a1', grassTip: '#2dd4bf', tree: '#020617', treeTop: '#0284c7', rock: '#1e293b', rockLight: '#64748b', rockDark: '#020617' },
-    encounters: ['horsea', 'goldeen', 'magikarp', 'slowpoke', 'dratini'],
+    encounters: ['horsea', 'slowpoke', 'dratini'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..K........PPPP........K..R",
@@ -1552,7 +1765,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Crimson Walls • E: Green Island • W: Bronze Casino • PORTAL: Beige Village',
     region: 'EAST_ASIA',
     theme: { groundA: '#1e293b', groundB: '#334155', path: '#f43f5e', grass: '#0d9488', grassTip: '#2dd4bf', tree: '#0f172a', treeTop: '#fb7185', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#0f172a' },
-    encounters: ['persian', 'gyarados'],
+    encounters: ['mienfoo', 'stufful', 'greavard', 'patrat', 'pidove', 'trubbish'],
     rows: [
       "HHHHHHHHHHHHHEEHHHHHHHHHHHHH",
       "H..YYYY..PPPPPPPPPP..YYYY..H",
@@ -1626,7 +1839,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Ivory City • SLOT MACHINES & NEON LIGHTS',
     region: 'EAST_ASIA',
     theme: { groundA: '#064e3b', groundB: '#047857', path: '#fde047', grass: '#0f766e', grassTip: '#5eead4', tree: '#022c22', treeTop: '#fbbf24', rock: '#1e293b', rockLight: '#fef08a', rockDark: '#0f172a' },
-    encounters: ['flareon', 'jolteon'],
+    encounters: ['nickit', 'gimmighoul', 'purrloin', 'klefki', 'tandemaus', 'minccino'],
     rows: [
       "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
       "H..XX..GGGG......GGGG..XX..H",
@@ -1678,7 +1891,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Ivory City • N: Khaki Plains • E: Monster Island',
     region: 'EAST_ASIA',
     theme: { groundA: '#7f1d1d', groundB: '#991b1b', path: '#facc15', grass: '#b91c1c', grassTip: '#fde047', tree: '#450a0a', treeTop: '#ef4444', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#1c1917' },
-    encounters: ['arcanine', 'dragonair'],
+    encounters: ['pancham', 'axew', 'drampa', 'falinks', 'darumaka', 'charcadet', 'sawk'],
     rows: [
       "ZZZZZZZZZZZZZEEZZZZZZZZZZZZZ",
       "Z............PP............Z",
@@ -1732,7 +1945,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Ivory City • N: Monster Island • PLUM BLOSSOMS',
     region: 'EAST_ASIA',
     theme: { groundA: '#065f46', groundB: '#047857', path: '#fcd34d', grass: '#15803d', grassTip: '#86efac', tree: '#064e3b', treeTop: '#34d399', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['ivysaur', 'gloom'],
+    encounters: ['pansage', 'applin', 'poltchageist', 'sewaddle', 'petilil', 'fomantis', 'ledyba','spinarak'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..OO..GGGG..PP..GGGG..OO..T",
@@ -1785,7 +1998,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Crimson Walls • S: Green Island • N: Neon Plaza',
     region: 'EAST_ASIA',
     theme: { groundA: '#4c1d95', groundB: '#5b21b6', path: '#fbcfe8', grass: '#be185d', grassTip: '#f9a8d4', tree: '#3b0764', treeTop: '#f472b6', rock: '#64748b', rockLight: '#f8fafc', rockDark: '#1e293b' },
-    encounters: ['charmeleon', 'wartortle'],
+    encounters: ['panpour', 'tatsugiri', 'dondozo', 'zorua', 'throh', 'cherubi'],
     rows: [
       "JJJJJJJJJJJJJEEJJJJJJJJJJJJJ",
       "J..JJ..GGGG..PP..GGGG..SS..J",
@@ -1839,7 +2052,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Monster Island • KIMCHI ONGGI JARS & ESPORTS ARENA',
     region: 'EAST_ASIA',
     theme: { groundA: '#1e1b4b', groundB: '#312e81', path: '#93c5fd', grass: '#1d4ed8', grassTip: '#60a5fa', tree: '#0f172a', treeTop: '#ec4899', rock: '#334155', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['vaporeon', 'raichu'],
+    encounters: ['joltik', 'emolga', 'dedenne', 'togedemaru', 'morpeko', 'pawmi', 'klink', 'tynamo'],
     rows: [
       "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
       "H..kk..GGGG......GGGG..YY..H",
@@ -1891,7 +2104,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Crimson Walls • MONGOLIAN YURTS & STEPPE',
     region: 'EAST_ASIA',
     theme: { groundA: '#ca8a04', groundB: '#a16207', path: '#fef08a', grass: '#4d7c0f', grassTip: '#a3e635', tree: '#365314', treeTop: '#84cc16', rock: '#78350f', rockLight: '#fde68a', rockDark: '#451a03' },
-    encounters: ['tauros', 'rapidash'],
+    encounters: ['blitzle', 'bouffalant', 'vullaby','maschiff'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..gg..GGGG......GGGG..gg..R",
@@ -1942,7 +2155,7 @@ const WORLD_MAPS = {
     subtitle: 'LANDLOCKED FORTRESS - ACCESSIBLE BY FLY ONLY',
     region: 'EAST_ASIA',
     theme: { groundA: '#334155', groundB: '#1e293b', path: '#94a3b8', grass: '#475569', grassTip: '#ef4444', tree: '#0f172a', treeTop: '#dc2626', rock: '#1e293b', rockLight: '#cbd5e1', rockDark: '#020617' },
-    encounters: ['poochyena', 'mightyena', 'gulpin', 'swalot', 'baltoy', 'claydol', 'registeel'],
+    encounters: ['rolycoly','ferroseed', 'durant', 'duraludon', 'pawniard', 'varoom', 'orthworm'],
     rows: [
       "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
       "Z..uu..GGGG......GGGG..uu..Z",
@@ -1988,7 +2201,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Emerald Cliffs (Ireland) - S: Lumiere Champs (France) - PORTAL: Beige Village',
     region: 'WEST_EUROPE',
     theme: { groundA: '#1e293b', groundB: '#334155', path: '#cbd5e1', grass: '#15803d', grassTip: '#4ade80', tree: '#0f172a', treeTop: '#16a34a', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['sentret', 'hoothoot', 'snubbull', 'porygon2', 'togepi', 'cleffa', 'igglybuff'],
+    encounters: ['hoothoot', 'togepi', 'grookey', 'scorbunny', 'sobble','stonjourner', 'sinistea'],
     rows: [
       "HHHHHHHHHHHHHHHHHHHHHHHHHHHH",
       "H..NNNN..PPPPPPPPPP..NNNN..H",
@@ -2036,7 +2249,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Royal Thames Hub (UK) - BASALT COLUMNS & LUSH MEADOWS',
     region: 'WEST_EUROPE',
     theme: { groundA: '#14532d', groundB: '#166534', path: '#d6d3d1', grass: '#15803d', grassTip: '#86efac', tree: '#052e16', treeTop: '#22c55e', rock: '#334155', rockLight: '#94a3b8', rockDark: '#0f172a' },
-    encounters: ['mareep', 'hoppip', 'marill', 'stantler', 'miltank', 'noctowl', 'azumarill', 'jumpluff'],
+    encounters: ['deerling', 'skiddo', 'skwovet'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..FF..GGGG......GGGG..FF..R",
@@ -2083,7 +2296,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Royal Thames Hub (UK) - E: Black Forest (Germany) - S: Iberian Sun (Spain)',
     region: 'WEST_EUROPE',
     theme: { groundA: '#4c1d95', groundB: '#5b21b6', path: '#fef08a', grass: '#6d28d9', grassTip: '#d8b4fe', tree: '#2e1065', treeTop: '#a855f7', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#1e293b' },
-    encounters: ['smeargle', 'AIPOM'.toLowerCase(), 'girafarig', 'ledyba', 'furret', 'togetic', 'espeon', 'sylveon', 'bellossom'],
+    encounters: ['flabebe', 'furfrou', 'indeedee'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..FF..GGGG..PP..GGGG..FF..T",
@@ -2132,7 +2345,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Lumiere Lavender (France) - ALPINE WOODS & PRECISION ENGINEERING',
     region: 'WEST_EUROPE',
     theme: { groundA: '#1e293b', groundB: '#0f172a', path: '#fde047', grass: '#14532d', grassTip: '#22c55e', tree: '#052e16', treeTop: '#15803d', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#0f172a' },
-    encounters: ['pineco', 'forretress', 'scizor', 'steelix', 'skarmory', 'heracross', 'ursaring', 'houndour', 'piloswine', 'delibird', 'sneasel'],
+    encounters: ['karrablast', 'shelmet', 'blipbug', 'nymble'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       "T..VV..GGGG......GGGG..TT..T",
@@ -2174,7 +2387,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Lumiere Lavender (France) - W: Atlantic Douro (Portugal)',
     region: 'WEST_EUROPE',
     theme: { groundA: '#b45309', groundB: '#d97706', path: '#fef08a', grass: '#15803d', grassTip: '#fde047', tree: '#78350f', treeTop: '#22c55e', rock: '#92400e', rockLight: '#fcd34d', rockDark: '#451a03' },
-    encounters: ['sunkern', 'sunflora', 'yanma', 'gligar', 'teddiursa', 'slugma', 'magcargo', 'phanpy', 'donphan', 'larvitar', 'pupitar', 'tyranitar', 'hitmontop'],
+    encounters: ['sprigatito', 'fuecoco', 'quaxly', 'lechonk', 'smoliv'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..FF..GGGG..PP..GGGG..FF..R",
@@ -2222,7 +2435,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Iberian Sierra (Spain) - AZULEJO COAST & GRANITE VALLEYS',
     region: 'WEST_EUROPE',
     theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#fef3c7', grass: '#15803d', grassTip: '#38bdf8', tree: '#14532d', treeTop: '#4ade80', rock: '#475569', rockLight: '#bae6fd', rockDark: '#0f172a' },
-    encounters: ['psyduck','chinchou', 'lanturn', 'corsola', 'remoraid', 'mantine', 'qwilfish', 'wooper', 'shuckle'],
+    encounters: ['psyduck','alomomola', 'finizen', 'arrokuda', 'cramorant', 'shuckle'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "RWWWWWWGGGG......GGGG..KK..R",
@@ -2282,7 +2495,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Royal Thames Hub (UK) - S: Atomium Plaza (Belgium)',
     region: 'WEST_EUROPE',
     theme: { groundA: '#047857', groundB: '#065f46', path: '#fde047', grass: '#16a34a', grassTip: '#f97316', tree: '#064e3b', treeTop: '#fb923c', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['roselia', 'surskit', 'wingull', 'lotad'],
+    encounters: ['roselia', 'surskit', 'wingull', 'gossifleur', 'comfey', 'scatterbug', 'tarountula'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..nn..GGGG......GGGG..nn..W",
@@ -2320,7 +2533,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Tulip Polder (Netherlands) - W: Lumiere Lavender (France) - S: Bavarian Forest (Germany)',
     region: 'WEST_EUROPE',
     theme: { groundA: '#334155', groundB: '#1e293b', path: '#fde68a', grass: '#15803d', grassTip: '#facc15', tree: '#0f172a', treeTop: '#ef4444', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['aron', 'beldum', 'mawile', 'plusle', 'minun'],
+    encounters: ['carbink', 'cufant', 'mawile', 'plusle', 'minun','spritzee', 'swirlix', 'milcery', 'espurr', 'hatenna'],
     rows: [
       "HHHHHHHHHHHHHEEHHHHHHHHHHHHH",
       "H..bb..GGGG..PP..GGGG..bb..H",
@@ -2360,7 +2573,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Liberty Canyon (USA) - 2x2 PORTAL: Beige Village',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#7f1d1d', groundB: '#991b1b', path: '#fef3c7', grass: '#14532d', grassTip: '#4ade80', tree: '#450a0a', treeTop: '#ef4444', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#0f172a' },
-    encounters: ['spheal', 'snorunt', 'absol', 'zangoose', 'glaceon'],
+    encounters: ['spheal', 'cubchoo', 'basculin', 'ursaring'],
     rows: [
       "mmmmmmmmmmmmmmmmmmmmmmmmmmmm",
       "m..mmmm..PPPPPPPPPP..mmmm..m",
@@ -2399,7 +2612,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Maple Boreal (Canada) - W: Sun Pyramid (Mexico) - E: Coral Cay (Bahamas) - S: Malecón (Cuba)',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#f8fafc', grass: '#15803d', grassTip: '#86efac', tree: '#0f172a', treeTop: '#38bdf8', rock: '#78350f', rockLight: '#fca5a5', rockDark: '#451a03' },
-    encounters: ['taillow', 'electrike', 'solrock', 'lunatone', 'bagon'],
+    encounters: ['taillow', 'tyrunt', 'rockruff', 'yungoos','rufflet'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..ss..GGGG..PP..GGGG..ss..R",
@@ -2440,7 +2653,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Liberty Canyon (USA) - AGAVE HIGHLANDS & CENOTES',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#b45309', groundB: '#92400e', path: '#fde047', grass: '#15803d', grassTip: '#4ade80', tree: '#451a03', treeTop: '#22c55e', rock: '#78350f', rockLight: '#fcd34d', rockDark: '#451a03' },
-    encounters: ['ludicolo', 'cacnea', 'trapinch', 'numel', 'torkoal'],
+    encounters: ['ludicolo', 'maractus', 'hawlucha', 'capsakid'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..ff..GGGG......GGGG..CC..R",
@@ -2478,7 +2691,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Liberty Canyon (USA) - CONCH SALAD & FESTIVAL MUSEUM',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#14532d', treeTop: '#4ade80', rock: '#f472b6', rockLight: '#fce7f3', rockDark: '#be185d' },
-    encounters: ['wingull', 'pelipper', 'carvanha', 'sharpedo', 'wailmer', 'wailord', 'clamperl', 'huntail', 'gorebyss', 'luvdisc', 'relicanth'],
+    encounters: ['pyukumuku', 'bruxish', 'brionne'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..qq..GGGG......GGGG..qq..W",
@@ -2515,7 +2728,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Liberty Canyon (USA) - W: Blue Mountain (Jamaica) - E: Citadelle Peak (Haiti)',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#0f766e', groundB: '#115e59', path: '#fde68a', grass: '#15803d', grassTip: '#86efac', tree: '#064e3b', treeTop: '#22c55e', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['treecko', 'grovyle', 'sceptile', 'ralts', 'kirlia', 'gardevoir', 'slakoth', 'vigoroth', 'slaking', 'tropius'],
+    encounters: ['oricorio', 'squawkabilly', 'flamigo'],
     rows: [
       "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
       "W..aa..GGGG..PP..GGGG..aa..W",
@@ -2554,7 +2767,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Havana Malecon (Cuba) - REGGAE ACOUSTICS & CLOUD FORESTS',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#14532d', groundB: '#166534', path: '#facc15', grass: '#15803d', grassTip: '#fde047', tree: '#052e16', treeTop: '#22c55e', rock: '#1e293b', rockLight: '#facc15', rockDark: '#0f172a' },
-    encounters: ['torchic', 'combusken', 'blaziken', 'whismur', 'loudred', 'exploud', 'makuhita', 'hariyama', 'meditite', 'medicham', 'chimecho'],
+    encounters: ['noibat', 'grubbin', 'venipede', 'foongus', 'morelull','gloom','ivysaur'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..jj..GGGG......GGGG..ll..W",
@@ -2591,7 +2804,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Havana Malecon (Cuba) - S: Amber Quisqueya (Dominican Republic)',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#1e3a8a', groundB: '#7f1d1d', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#334155', rockLight: '#94a3b8', rockDark: '#0f172a' },
-    encounters: ['mudkip', 'marshtomp', 'swampert', 'shuppet', 'banette', 'duskull', 'dusclops', 'sableye', 'mawile', 'kecleon'],
+    encounters: ['yamask', 'mimikyu', 'phantump', 'pumpkaboo', 'woobat'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..hh..GGGG......GGGG..hh..R",
@@ -2629,7 +2842,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Citadelle Peak (Haiti) - FOSSIL AMBER MINES & CORAL LIMESTONE',
     region: 'NORTH_AMERICA',
     theme: { groundA: '#0369a1', groundB: '#b45309', path: '#fef3c7', grass: '#15803d', grassTip: '#fde047', tree: '#14532d', treeTop: '#4ade80', rock: '#d97706', rockLight: '#fef08a', rockDark: '#78350f' },
-    encounters: ['lileep', 'cradily', 'anorith', 'armaldo', 'feebas', 'milotic', 'swablu', 'altaria', 'castform', 'jirachi'],
+    encounters: ['archen', 'wimpod', 'dwebble', 'sandygast', 'crabrawler'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..dd..GGGG..PP..GGGG..ll..R",
@@ -2669,7 +2882,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Okavango Delta (Botswana) - W: Maloti Kingdom (Lesotho) - E: Ezulwini Valley (Eswatini) - PORTAL',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#065f46', groundB: '#047857', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['girafarig', 'phanpy', 'tauros', 'rhyhorn', 'doduo'],
+    encounters: ['girafarig', 'phanpy', 'tauros', 'rhyhorn', 'doduo', 'litleo', 'flittle'],
     rows: [
       "vvvvvvvvvvvvvEEvvvvvvvvvvvvv",
       "v..vvvv..PPPPPPPPPP..vvvv..v",
@@ -2710,7 +2923,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Table Mesa Hub (South Africa) - HIGHLAND PLATEAU ABOVE 1,400M',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#e2e8f0', grass: '#15803d', grassTip: '#86efac', tree: '#0f172a', treeTop: '#38bdf8', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['mareep', 'flaaffy', 'ponyta', 'swablu'],
+    encounters: ['minior', 'wattrel', 'swablu','cutiefly', 'scatterbug', 'tarountula'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..tt..GGGG......GGGG..tt..R",
@@ -2748,7 +2961,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Table Mesa Hub (South Africa) - SIBEBE GRANITE MONOLITH',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#3f6212', groundB: '#365314', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['scyther', 'pinsir', 'heracross', 'beautifly', 'nuzleaf'],
+    encounters: ['oranguru', 'passimian', 'roggenrola'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..tt..GGGG......GGGG..RR..R",
@@ -2786,7 +2999,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Table Mesa (South Africa) - W: Sossusvlei (Namibia) - E: Great Ruins (Zimbabwe) - N: Victoria Falls (Zambia)',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#0284c7', groundB: '#ca8a04', path: '#fef08a', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78350f', rockLight: '#fde68a', rockDark: '#451a03' },
-    encounters: [' 'wooper', 'quagsire', 'psyduck', 'golduck', 'farfetchd'],
+    encounters: ['basculin', 'stunfisk', 'tympole', 'dewpider', 'farfetchd'],
     rows: [
       "pppppppppppppEEppppppppppppp",
       "p..pppp..GGGG..PP..GGGG..pp..p".slice(0,28),
@@ -2827,7 +3040,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Okavango Baobab (Botswana) - IRON-OXIDE STAR DUNES & SKELETON COAST',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#c2410c', groundB: '#9a3412', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#431407', treeTop: '#f97316', rock: '#7c2d12', rockLight: '#fdba74', rockDark: '#431407' },
-    encounters: ['trapinch', 'vibrava', 'flygon', 'sandshrew', 'sandslash', 'cacnea', 'cacturne'],
+    encounters: ['trapinch', 'cacnea', 'drizzile','helioptile', 'sandile', 'silicobra', 'rellor'],
     rows: [
       "yyyyyyyyyyyyyyyyyyyyyyyyyyyy",
       "y..yy..GGGG......GGGG..yy..y",
@@ -2865,7 +3078,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Okavango (Botswana) - N: Victoria Falls (Zambia) - E: Bazaruto Coast (Mozambique)',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#57534e', groundB: '#44403c', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['baltoy', 'claydol', 'nosepass', 'aron', 'lairon', 'solrock', 'lunatone'],
+    encounters: ['golett', 'timburr', 'drilbur', 'nosepass', 'aron'],
     rows: [
       "rrrrrrrrrrrrrEErrrrrrrrrrrrr",
       "r..rr..GGGG..PP..GGGG..pp..r",
@@ -2905,7 +3118,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Okavango (Botswana) / Great Ruins (Zimbabwe) - E: Bazaruto Coast (Mozambique)',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#0f766e', groundB: '#115e59', path: '#fed7aa', grass: '#15803d', grassTip: '#5eead4', tree: '#042f2e', treeTop: '#14b8a6', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['electrike', 'manectric', 'volbeat', 'illumise', 'yanma', 'tropius'],
+    encounters: ['tadbulb', 'volbeat', 'illumise', 'yanma', 'tropius'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..SS..GGGG......GGGG..SS..W",
@@ -2944,7 +3157,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Mosi-oa-Tunya (Zambia) / Great Ruins (Zimbabwe) - INDIAN OCEAN DHOWS',
     region: 'SOUTHERN_AFRICA',
     theme: { groundA: '#0284c7', groundB: '#eab308', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80', rock: '#0369a1', rockLight: '#7dd3fc', rockDark: '#0c4a6e' },
-    encounters: ['corphish', 'crawdaunt', 'clamperl', 'corsola', 'mantine'],
+    encounters: ['corphish', 'corsola', 'mantine', 'skrelp', 'clobbopus'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..oo..GGGG......GGGG..KK..W",
@@ -2989,7 +3202,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: N-Tuvalu, S-New Zealand, W-Vanuatu, E-Fiji - 2x2 PORTAL',
     region: 'OCEANIA',
     theme: { groundA: '#c2410c', groundB: '#9a3412', path: '#fde68a', grass: '#15803d', grassTip: '#84cc16', tree: '#431407', treeTop: '#22c55e', rock: '#7c2d12', rockLight: '#fdba74', rockDark: '#431407' },
-    encounters: ['kangaskhan', 'grotle', 'hippopotas', 'skorupi', 'gible', 'gabite'],
+    encounters: ['kangaskhan', 'grotle', 'skorupi', 'gible', 'komala', 'cyclizar', 'heatmor'],
     rows: [
       "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3031,7 +3244,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: N-Australia, E-Tonga - GEOTHERMAL GEYSERS & MAORI POU',
     region: 'OCEANIA',
     theme: { groundA: '#065f46', groundB: '#047857', path: '#d6d3d1', grass: '#15803d', grassTip: '#4ade80', tree: '#064e3b', treeTop: '#34d399', rock: '#334155', rockLight: '#cbd5e1', rockDark: '#0f172a' },
-    encounters: ['piplup', 'prinplup', 'empoleon', 'starly', 'staravia', 'staraptor', 'buizel', 'floatzel', 'mareep', 'snover', 'abomasnow'],
+    encounters: ['piplup', 'starly', 'mareep', 'snover', 'abomasnow','cetoddle', 'frigibax'],
     rows: [
       "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3070,7 +3283,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: S-Australia, W-Solomon Islands, E-Samoa - NARROW CORAL ATOLL',
     region: 'OCEANIA',
     theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#fef08a', grass: '#0d9488', grassTip: '#5eead4', tree: '#15803d', treeTop: '#4ade80', rock: '#38bdf8', rockLight: '#e0f2fe', rockDark: '#0369a1' },
-    encounters: ['finneon', 'lumineon', 'mantyke', 'shellos', 'wingull', 'phione'],
+    encounters: ['finneon', 'mantyke', 'shellos', 'wingull', 'phione', 'wishiwashi', 'pincurchin'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3111,7 +3324,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: W-Tuvalu, S-Fiji - OPEN-AIR FALES & OCEAN TRENCH',
     region: 'OCEANIA',
     theme: { groundA: '#0d9488', groundB: '#0f766e', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['chimchar', 'chatot', 'cherubi','marill']
+    encounters: ['mareanie', 'frillish', 'veluza','pansear', 'munchax'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3150,7 +3363,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: N-Samoa, W-Australia, S-Tonga - SLEEPING GIANT ORCHIDS & KUATA REEF',
     region: 'OCEANIA',
     theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#fef08a', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#4ade80', rock: '#d946ef', rockLight: '#f5d0fe', rockDark: '#701a75' },
-    encounters: ['carnivine', 'roserade', 'combee', 'vespiquen', 'burmy', 'mothim', 'wormadam', 'carvanha', 'sharpedo'],
+    encounters: ['carnivine', 'pikipek', 'bounsweet', 'sharpedo', 'jangmo_o'],
     rows: [
       "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3191,7 +3404,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: N-Fiji, W-New Zealand - HUMPBACK WHALES & FIRE DANCES',
     region: 'OCEANIA',
     theme: { groundA: '#1e3a8a', groundB: '#1d4ed8', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#d6d3d1', rockLight: '#f5f5f4', rockDark: '#57534e' },
-    encounters: ['wailmer', 'wailord', 'finneon', 'lumineon', 'clamperl', 'chatot', 'drifloon', 'drifblim'],
+    encounters: ['wailmer', 'finneon', 'inkay', 'dhelmise', 'bombirdier', 'drifloon'],
     rows: [
       "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3230,7 +3443,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: N-Solomon Islands, E-Australia - TANNA ACTIVE VOLCANO & PENTECOST',
     region: 'OCEANIA',
     theme: { groundA: '#450a0a', groundB: '#7f1d1d', path: '#fca5a5', grass: '#15803d', grassTip: '#f97316', tree: '#1c1917', treeTop: '#dc2626', rock: '#44403c', rockLight: '#f97316', rockDark: '#1c1917' },
-    encounters: ['magby', 'magmar', 'magmortar', 'slugma', 'magcargo', 'cranidos', 'rampardos', 'shieldon', 'bastiodon'],
+    encounters: ['magby', 'slugma', 'crabrawler', 'larvesta', 'salandit', 'turtonator'],
     rows: [
       "WWWWWWWWWWWWWEWWWWWWWWWWWWWW".replace(/WEW/,'WEE'),
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3269,7 +3482,7 @@ const WORLD_MAPS = {
     subtitle: 'SWIM EXITS: E-Tuvalu, S-Vanuatu - DOUBLE-BARRIER REEF LAGOON',
     region: 'OCEANIA',
     theme: { groundA: '#047857', groundB: '#0284c7', path: '#fef08a', grass: '#15803d', grassTip: '#4ade80', tree: '#064e3b', treeTop: '#34d399', rock: '#0369a1', rockLight: '#67e8f9', rockDark: '#0c4a6e' },
-    encounters: ['chatot', 'bonsly', 'sudowoodo', 'mime_jr', 'mr_mime', 'croagunk', 'toxicroak', 'remoraid', 'octillery'],
+    encounters: ['tirtouga', 'binacle', 'wiglett', 'klawf', 'combusken'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -3310,7 +3523,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Andean Machu (Peru) - S: Atacama Observatory (Chile) - 2x2 PORTAL',
     region: 'SOUTH_AMERICA',
     theme: { groundA: '#065f46', groundB: '#047857', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#475569', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['turtwig', 'grotle', 'torterra', 'torkoal', 'wingull', 'pelipper', 'chatot', 'carnivine'],
+    encounters: ['turtwig', 'torkoal', 'wingull', 'pelipper', 'chatot', 'carnivine', 'chewtle'],
     rows: [
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       "T..KKKK..PPPPPPPPPP..KKKK..T",
@@ -3350,15 +3563,15 @@ const WORLD_MAPS = {
     subtitle: 'W: Equatorial Hub (Ecuador) - E: Uyuni Salt Flats (Bolivia) - S: Gran Chaco (Paraguay)',
     region: 'SOUTH_AMERICA',
     theme: { groundA: '#57534e', groundB: '#44403c', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#14532d', treeTop: '#22c55e', rock: '#78716c', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['natu', 'xatu', 'sigilyph' in DEFAULT_MONSTER_PIXELS ? 'sigilyph' : 'baltoy', 'claydol', 'bronzor', 'bronzong', 'aerodactyl'],
+    encounters: ['natu', 'sigilyph', 'glimmet', 'carvanha','elgyem', 'tinkatink'],
     rows: [
       "RRRRRRRRRRRRRRRRRRRRRRRRRRRR",
       "R..ff..GGGG......GGGG..ff..R",
       "R......GGGG.PPPP.GGGG......R",
       "R..ff.......P..P.......ff..R",
       "R......PPPPPP..PPPPPP......R",
-      "R..GGGGP....f..f....PGGGG..R",
-      "R..GGGGP............PGGGG..R",
+      "R..WWWWP....f..f....PGGGG..R",
+      "R..WWWWP............PGGGG..R",
       "R......P..ff....ff..P......R",
       "R......PPPPPPPPPPPPPP......R",
       "EPPPPPPPPPPPPPPPPPPPPPPPPPPE",
@@ -3368,8 +3581,8 @@ const WORLD_MAPS = {
       "R..GGGGP............PGGGG..R",
       "R......PPPPPPPPPPPPPP......R",
       "R..ff.......P..P.......ff..R",
-      "R......GGGG.PPPP.GGGG......R",
-      "R..ff..GGGG..PP..GGGG..ff..R",
+      "R......GGGG.PPPP.WWWW......R",
+      "R..ff..GGGG..PP..WWWW..ff..R",
       "R............PP............R",
       "RRRRRRRRRRRRREERRRRRRRRRRRRR"
     ],
@@ -3390,7 +3603,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Andean Machu (Peru) - S: Gran Chaco (Paraguay) - LITHIUM BRINE MIRROR',
     region: 'SOUTH_AMERICA',
     theme: { groundA: '#e0f2fe', groundB: '#bae6fd', path: '#f8fafc', grass: '#0284c7', grassTip: '#7dd3fc', tree: '#0f172a', treeTop: '#38bdf8', rock: '#94a3b8', rockLight: '#ffffff', rockDark: '#475569' },
-    encounters: ['magnemite', 'magneton', 'magnezone', 'carbink' in DEFAULT_MONSTER_PIXELS ? 'carbink' : 'sableye', 'cranidos', 'shieldon', 'shuckle'],
+    encounters: ['magnemite', 'carbink', 'nacli', 'solrock', 'lunatone' ],
     rows: [
       "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
       "I..AA..GGGG......GGGG..AA..I",
@@ -3429,7 +3642,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Andean Machu (Peru) - W: Atacama (Chile) - E: Rambla Coast (Uruguay) - S: Pampas (Argentina)',
     region: 'SOUTH_AMERICA',
     theme: { groundA: '#14532d', groundB: '#166534', path: '#fde68a', grass: '#15803d', grassTip: '#4ade80', tree: '#052e16', treeTop: '#22c55e', rock: '#57534e', rockLight: '#d6d3d1', rockDark: '#292524' },
-    encounters: ['wooper', 'quagsire', 'barboach', 'whiscash', 'croagunk', 'toxicroak', 'yanma', 'yanmega'],
+    encounters: ['toedscool'],
     rows: [
       "TTTTTTTTTTTTTEETTTTTTTTTTTTT",
       "T..MM..GGGG..PP..GGGG..MM..T",
@@ -3470,7 +3683,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Equatorial Hub (Ecuador) - E: Gran Chaco (Paraguay) - S: Pampas (Argentina)',
     region: 'SOUTH_AMERICA',
     theme: { groundA: '#7c2d12', groundB: '#9a3412', path: '#fde68a', grass: '#b45309', grassTip: '#facc15', tree: '#431407', treeTop: '#f97316', rock: '#57534e', rockLight: '#cbd5e1', rockDark: '#1e293b' },
-    encounters: ['solrock', 'lunatone', 'clefairy', 'clefable', 'trapinch', 'vibrava', 'flygon', 'gible', 'gabite'],
+    encounters: ['sandygast'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..~~..GGGG..PP..GGGG..~~..R",
@@ -3510,7 +3723,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Gran Chaco (Paraguay) / Atacama (Chile) - E: Rambla Coast (Uruguay)',
     region: 'SOUTH_AMERICA',
     theme: { groundA: '#0284c7', groundB: '#15803d', path: '#fef08a', grass: '#16a34a', grassTip: '#86efac', tree: '#14532d', treeTop: '#4ade80', rock: '#475569', rockLight: '#e2e8f0', rockDark: '#1e293b' },
-    encounters: ['tauros', 'miltank', 'ponyta', 'rapidash', 'starly', 'staravia', 'staraptor', 'absol'],
+    encounters: ['mudbray','dracozolt', 'arctozolt', 'dracovish', 'arctovish'],
     rows: [
       "RRRRRRRRRRRRREERRRRRRRRRRRRR",
       "R..FF..GGGG..PP..GGGG..FF..R",
@@ -3549,7 +3762,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Gran Chaco (Paraguay) / Patagonia Pampas (Argentina) - RIO DE LA PLATA ESTUARY',
     region: 'SOUTH_AMERICA',
     theme: { groundA: '#0369a1', groundB: '#0284c7', path: '#fde047', grass: '#15803d', grassTip: '#86efac', tree: '#14532d', treeTop: '#22c55e', rock: '#64748b', rockLight: '#e2e8f0', rockDark: '#1e293b' },
-    encounters: ['mareep', 'flaaffy', 'ampharos', 'wingull', 'pelipper', 'buizel', 'floatzel', 'finneon'],
+    encounters: ['ducklett'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..FF..GGGG......GGGG..FF..W",
@@ -3594,7 +3807,7 @@ const WORLD_MAPS = {
     subtitle: 'CENTER HUB - N: Drake Iceberg - S: Vostok Dome - W: Weddell Pack - E: Ross Shelf - 2x2 PORTAL',
     region: 'ANTARCTICA',
     theme: { groundA: '#bae6fd', groundB: '#7dd3fc', path: '#f0f9ff', grass: '#0284c7', grassTip: '#e0f2fe', tree: '#0f172a', treeTop: '#38bdf8', rock: '#0369a1', rockLight: '#e0f2fe', rockDark: '#0c4a6e' },
-    encounters: ['piplup', 'prinplup', 'empoleon', 'spheal', 'sealeo', 'walrein', 'seel', 'dewgong', 'delibird'],
+    encounters: ['prinplup', 'spheal', 'delibird'],
     rows: [
       "IIIIIIIIIIIIIEEIIIIIIIIIIIII",
       "I..IIII..PPPPPPPPPP..IIII..I",
@@ -3637,7 +3850,7 @@ const WORLD_MAPS = {
     subtitle: 'S: Paradise Bay Hub - CIRCUMPOLAR CURRENT & ULTRA BEAST PHEROMOSA',
     region: 'ANTARCTICA',
     theme: { groundA: '#0284c7', groundB: '#0369a1', path: '#e0f2fe', grass: '#075985', grassTip: '#7dd3fc', tree: '#0f172a', treeTop: '#38bdf8', rock: '#bae6fd', rockLight: '#ffffff', rockDark: '#0284c7' },
-    encounters: ['lapras', 'sealeo', 'walrein', 'shellder', 'cloyster', 'mantine'],
+    encounters: ['lapras', 'sealeo', 'cloyster','vanillite'],
     rows: [
       "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
       "W..II..GGGG......GGGG..II..W",
@@ -3674,7 +3887,7 @@ const WORLD_MAPS = {
     subtitle: 'E: Paradise Bay Hub - ABYSSAL BOTTOM WATER & ULTRA BEAST BUZZWOLE',
     region: 'ANTARCTICA',
     theme: { groundA: '#7dd3fc', groundB: '#38bdf8', path: '#f8fafc', grass: '#0369a1', grassTip: '#bae6fd', tree: '#0f172a', treeTop: '#7dd3fc', rock: '#0284c7', rockLight: '#e0f2fe', rockDark: '#0c4a6e' },
-    encounters: ['snorunt', 'glalie', 'froslass', 'swinub', 'piloswine', 'mamoswine'],
+    encounters: ['snorunt', 'swinub','snom'],
     rows: [
       "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
       "I..II..GGGG......GGGG..II..I",
@@ -3711,7 +3924,7 @@ const WORLD_MAPS = {
     subtitle: 'W: Paradise Bay Hub - TABULAR GLACIER & ULTRA BEASTS XURKITREE & KARTANA',
     region: 'ANTARCTICA',
     theme: { groundA: '#e0f2fe', groundB: '#bae6fd', path: '#ffffff', grass: '#0284c7', grassTip: '#7dd3fc', tree: '#0f172a', treeTop: '#38bdf8', rock: '#0369a1', rockLight: '#f0f9ff', rockDark: '#0c4a6e' },
-    encounters: ['sneasel', 'weavile', 'snover', 'abomasnow', 'jynx', 'glaceon'],
+    encounters: ['sneasel', 'snover', 'jynx', 'glaceon','eiscue'],
     rows: [
       "IIIIIIIIIIIIIIIIIIIIIIIIIIII",
       "I..II..GGGG......GGGG..II..I",
@@ -3749,7 +3962,7 @@ const WORLD_MAPS = {
     subtitle: 'N: Paradise Bay Hub - ICE CORE ARCHIVE & ULTRA BEAST GUZZLORD',
     region: 'ANTARCTICA',
     theme: { groundA: '#0f172a', groundB: '#1e293b', path: '#7dd3fc', grass: '#0369a1', grassTip: '#38bdf8', tree: '#020617', treeTop: '#a855f7', rock: '#334155', rockLight: '#bae6fd', rockDark: '#0f172a' },
-    encounters: ['beldum', 'metang', 'metagross', 'piloswine', 'mamoswine', 'glalie'],
+    encounters: ['bergmite', 'glalie', 'cryogonal', 'amaura'],
     rows: [
       "IIIIIIIIIIIIIEEIIIIIIIIIIIII",
       "I..AA..GGGG..PP..GGGG..AA..I",

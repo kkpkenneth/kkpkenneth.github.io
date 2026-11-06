@@ -1180,3 +1180,139 @@ const TILE_BITMAPS = new Proxy({}, {
     return undefined;
   }
 });
+
+/********************************************************************
+ * EXTRACTED OBSTACLE CONSTANTS, FLOOR ITEMS & INTERACTION FACTS
+ ********************************************************************/
+const BLOCKED_TILE_FALLBACK_SET = new Set([
+  'T','W','H','R','I','C','K','L','S','V','U','A','N','Q','Y','J','O','Z','X',
+  'g','k','c','i','e','x','w','z','u','n','b','m','s','f','a','h','j','q','d','l','v','p','r','t','y','o',
+  '1','2','3','4','5','6','7','8'
+]);
+
+const FLOOR_ITEM_TYPES = [
+  // --- BERRIES ---
+  { id: 'oran_berry',       name: 'ORAN BERRY',       category: 'BERRY', tileKey: 'BERRY', color: '#3b82f6', highlight: '#93c5fd', desc: 'Restored +50 HP to your active partner!' },
+  { id: 'sitrus_berry',     name: 'SITRUS BERRY',     category: 'BERRY', tileKey: 'BERRY', color: '#facc15', highlight: '#fef08a', desc: 'Fully restored your active partner\'s HP!' },
+
+  // --- ELEMENTAL EVOLUTION STONES ---
+  { id: 'fire_stone',       name: 'FIRE STONE',       category: 'STONE', tileKey: 'STONE', stoneType: 'FIRE',        stoneLabel: 'FIRE STONE',       color: '#f97316', highlight: '#fde047', desc: 'Evolves Vulpix, Growlithe, Eevee (into Flareon), Pansear, or Capsakid!' },
+  { id: 'water_stone',      name: 'WATER STONE',      category: 'STONE', tileKey: 'STONE', stoneType: 'WATER',       stoneLabel: 'WATER STONE',      color: '#0284c7', highlight: '#7dd3fc', desc: 'Evolves Poliwhirl, Shellder, Staryu, Eevee (into Vaporeon), Lombre, or Panpour!' },
+  { id: 'thunder_stone',    name: 'THUNDER STONE',    category: 'STONE', tileKey: 'STONE', stoneType: 'THUNDER',     stoneLabel: 'THUNDER STONE',    color: '#eab308', highlight: '#fef08a', desc: 'Evolves Pikachu, Eevee (into Jolteon), Magneton, Nosepass, Eelektrik, Charjabug, or Tadbulb!' },
+  { id: 'leaf_stone',       name: 'LEAF STONE',       category: 'STONE', tileKey: 'STONE', stoneType: 'LEAF',        stoneLabel: 'LEAF STONE',       color: '#16a34a', highlight: '#86efac', desc: 'Evolves Gloom, Weepinbell, Exeggcute, Eevee (into Leafeon), Nuzleaf, or Pansage!' },
+  { id: 'moon_stone',       name: 'MOON STONE',       category: 'STONE', tileKey: 'STONE', stoneType: 'MOON',        stoneLabel: 'MOON STONE',       color: '#a855f7', highlight: '#e9d5ff', desc: 'Evolves Nidorina, Nidorino, Clefairy, Jigglypuff, Eevee (into Umbreon), Skitty, or Munna!' },
+  { id: 'sun_stone',        name: 'SUN STONE',        category: 'STONE', tileKey: 'STONE', stoneType: 'SUN',         stoneLabel: 'SUN STONE',        color: '#dc2626', highlight: '#fde047', desc: 'Evolves Gloom (into Bellossom), Eevee (into Espeon), Sunkern, Cottonee, Petilil, or Helioptile!' },
+  { id: 'ice_stone',        name: 'ICE STONE',        category: 'STONE', tileKey: 'STONE', stoneType: 'ICE',         stoneLabel: 'ICE STONE',        color: '#38bdf8', highlight: '#e0f2fe', desc: 'Evolves Eevee (into Glaceon), Crabrawler, or Cetoddle!' },
+  { id: 'shiny_stone',      name: 'SHINY STONE',      category: 'STONE', tileKey: 'STONE', stoneType: 'SHINY',       stoneLabel: 'SHINY STONE',      color: '#f472b6', highlight: '#fce7f3', desc: 'Evolves Eevee (into Sylveon), Togetic, Roselia, Minccino, or Floette!' },
+  { id: 'dusk_stone',       name: 'DUSK STONE',       category: 'STONE', tileKey: 'STONE', stoneType: 'DUSK',        stoneLabel: 'DUSK STONE',       color: '#4c1d95', highlight: '#c084fc', desc: 'Evolves Murkrow, Misdreavus, Lampent, or Doublade!' },
+  { id: 'dawn_stone',       name: 'DAWN STONE',       category: 'STONE', tileKey: 'STONE', stoneType: 'DAWN',        stoneLabel: 'DAWN STONE',       color: '#06b6d4', highlight: '#a5f3fc', desc: 'Evolves Kirlia (into Gallade) or Snorunt (into Froslass)!' },
+  { id: 'oval_stone',       name: 'OVAL STONE',       category: 'STONE', tileKey: 'STONE', stoneType: 'OVAL',        stoneLabel: 'OVAL STONE',       color: '#fbcfe8', highlight: '#ffffff', desc: 'Evolves Happiny into Chansey!' },
+
+  // --- HELD & TRADE EVOLUTION ITEMS (GENS 2 - 6) ---
+  { id: 'linking_cord',     name: 'LINKING CORD',     category: 'STONE', tileKey: 'STONE', stoneType: 'LINK',        stoneLabel: 'LINKING CORD',     color: '#334155', highlight: '#38bdf8', desc: 'Evolves Kadabra, Machoke, Graveler, Haunter, Boldore, Gurdurr, Phantump, or Pumpkaboo!' },
+  { id: 'kings_rock',       name: 'KINGS ROCK',       category: 'STONE', tileKey: 'STONE', stoneType: 'KINGS',       stoneLabel: 'KINGS ROCK',       color: '#eab308', highlight: '#ffffff', desc: 'Evolves Poliwhirl (into Politoed) or Slowpoke (into Slowking)!' },
+  { id: 'metal_coat',       name: 'METAL COAT',       category: 'STONE', tileKey: 'STONE', stoneType: 'METAL',       stoneLabel: 'METAL COAT',       color: '#94a3b8', highlight: '#f8fafc', desc: 'Evolves Onix (into Steelix), Scyther (into Scizor), or Meltan (into Melmetal)!' },
+  { id: 'dragon_scale',     name: 'DRAGON SCALE',     category: 'STONE', tileKey: 'STONE', stoneType: 'DRAGON',      stoneLabel: 'DRAGON SCALE',     color: '#2563eb', highlight: '#93c5fd', desc: 'Evolves Seadra into Kingdra!' },
+  { id: 'up_grade',         name: 'UP-GRADE',         category: 'STONE', tileKey: 'STONE', stoneType: 'UPGRADE',     stoneLabel: 'UP-GRADE',         color: '#f43f5e', highlight: '#38bdf8', desc: 'Evolves Porygon into Porygon2!' },
+  { id: 'dubious_disc',     name: 'DUBIOUS DISC',     category: 'STONE', tileKey: 'STONE', stoneType: 'DUBIOUS',     stoneLabel: 'DUBIOUS DISC',     color: '#ec4899', highlight: '#38bdf8', desc: 'Evolves Porygon2 into Porygon-Z!' },
+  { id: 'deep_sea_tooth',   name: 'DEEP SEA TOOTH',   category: 'STONE', tileKey: 'STONE', stoneType: 'TOOTH',       stoneLabel: 'DEEP SEA TOOTH',   color: '#0284c7', highlight: '#e0f2fe', desc: 'Evolves Clamperl into Huntail!' },
+  { id: 'deep_sea_scale',   name: 'DEEP SEA SCALE',   category: 'STONE', tileKey: 'STONE', stoneType: 'SCALE',       stoneLabel: 'DEEP SEA SCALE',   color: '#ec4899', highlight: '#fbcfe8', desc: 'Evolves Clamperl into Gorebyss!' },
+  { id: 'prism_scale',      name: 'PRISM SCALE',      category: 'STONE', tileKey: 'STONE', stoneType: 'PRISM',       stoneLabel: 'PRISM SCALE',      color: '#f472b6', highlight: '#67e8f9', desc: 'Evolves Feebas into Milotic!' },
+  { id: 'protector',        name: 'PROTECTOR',        category: 'STONE', tileKey: 'STONE', stoneType: 'PROTECTOR',   stoneLabel: 'PROTECTOR',        color: '#ea580c', highlight: '#fdba74', desc: 'Evolves Rhydon into Rhyperior!' },
+  { id: 'electirizer',      name: 'ELECTIRIZER',      category: 'STONE', tileKey: 'STONE', stoneType: 'ELECTIRIZER', stoneLabel: 'ELECTIRIZER',      color: '#facc15', highlight: '#0f172a', desc: 'Evolves Electabuzz into Electivire!' },
+  { id: 'magmarizer',       name: 'MAGMARIZER',       category: 'STONE', tileKey: 'STONE', stoneType: 'MAGMARIZER',  stoneLabel: 'MAGMARIZER',       color: '#dc2626', highlight: '#fde047', desc: 'Evolves Magmar into Magmortar!' },
+  { id: 'reaper_cloth',     name: 'REAPER CLOTH',     category: 'STONE', tileKey: 'STONE', stoneType: 'REAPER',      stoneLabel: 'REAPER CLOTH',     color: '#475569', highlight: '#e2e8f0', desc: 'Evolves Dusclops into Dusknoir!' },
+  { id: 'razor_claw',       name: 'RAZOR CLAW',       category: 'STONE', tileKey: 'STONE', stoneType: 'RAZOR_CLAW',  stoneLabel: 'RAZOR CLAW',       color: '#cbd5e1', highlight: '#ef4444', desc: 'Evolves Sneasel into Weavile or Sneasler!' },
+  { id: 'razor_fang',       name: 'RAZOR FANG',       category: 'STONE', tileKey: 'STONE', stoneType: 'RAZOR_FANG',  stoneLabel: 'RAZOR FANG',       color: '#e2e8f0', highlight: '#a855f7', desc: 'Evolves Gligar into Gliscor!' },
+  { id: 'whipped_dream',    name: 'WHIPPED DREAM',    category: 'STONE', tileKey: 'STONE', stoneType: 'WHIPPED',     stoneLabel: 'WHIPPED DREAM',    color: '#fdf2f8', highlight: '#f43f5e', desc: 'Evolves Swirlix into Slurpuff!' },
+  { id: 'sachet',           name: 'SACHET',           category: 'STONE', tileKey: 'STONE', stoneType: 'SACHET',      stoneLabel: 'SACHET',           color: '#ec4899', highlight: '#fbcfe8', desc: 'Evolves Spritzee into Aromatisse!' },
+
+  // --- REGIONAL & MODERN EVOLUTION ITEMS (GENS 8 - 9 & HISUI) ---
+  { id: 'tart_apple',       name: 'TART APPLE',       category: 'STONE', tileKey: 'STONE', stoneType: 'TART_APPLE',  stoneLabel: 'TART APPLE',       color: '#22c55e', highlight: '#ef4444', desc: 'Evolves Applin into Flapple!' },
+  { id: 'sweet_apple',      name: 'SWEET APPLE',      category: 'STONE', tileKey: 'STONE', stoneType: 'SWEET_APPLE', stoneLabel: 'SWEET APPLE',      color: '#ef4444', highlight: '#fde047', desc: 'Evolves Applin into Appletun!' },
+  { id: 'syrupy_apple',     name: 'SYRUPY APPLE',     category: 'STONE', tileKey: 'STONE', stoneType: 'SYRUP_APPLE', stoneLabel: 'SYRUPY APPLE',     color: '#dc2626', highlight: '#84cc16', desc: 'Evolves Applin into Dipplin!' },
+  { id: 'cracked_pot',      name: 'CRACKED POT',      category: 'STONE', tileKey: 'STONE', stoneType: 'CRACKED_POT', stoneLabel: 'CRACKED POT',      color: '#a855f7', highlight: '#f3e8ff', desc: 'Evolves Sinistea into Polteageist!' },
+  { id: 'unremarkable_cup', name: 'UNREMARKABLE CUP', category: 'STONE', tileKey: 'STONE', stoneType: 'MATCHA_CUP',  stoneLabel: 'UNREMARKABLE CUP', color: '#84cc16', highlight: '#fef08a', desc: 'Evolves Poltchageist into Sinistcha!' },
+  { id: 'strawberry_sweet', name: 'STRAWBERRY SWEET', category: 'STONE', tileKey: 'STONE', stoneType: 'SWEET',       stoneLabel: 'STRAWBERRY SWEET', color: '#f43f5e', highlight: '#fce7f3', desc: 'Evolves Milcery into Alcremie!' },
+  { id: 'scroll_of_waters', name: 'SCROLL OF WATERS', category: 'STONE', tileKey: 'STONE', stoneType: 'SCROLL',      stoneLabel: 'SCROLL OF WATERS', color: '#38bdf8', highlight: '#fef3c7', desc: 'Evolves Kubfu into Urshifu!' },
+  { id: 'black_augurite',   name: 'BLACK AUGURITE',   category: 'STONE', tileKey: 'STONE', stoneType: 'AUGURITE',    stoneLabel: 'BLACK AUGURITE',   color: '#1c1917', highlight: '#a16207', desc: 'Evolves Scyther into Kleavor!' },
+  { id: 'peat_block',       name: 'PEAT BLOCK',       category: 'STONE', tileKey: 'STONE', stoneType: 'PEAT_BLOCK',  stoneLabel: 'PEAT BLOCK',       color: '#78350f', highlight: '#facc15', desc: 'Evolves Ursaring into Ursaluna!' },
+  { id: 'auspicious_armor', name: 'AUSPICIOUS ARMOR', category: 'STONE', tileKey: 'STONE', stoneType: 'AUSPICIOUS',  stoneLabel: 'AUSPICIOUS ARMOR', color: '#dc2626', highlight: '#facc15', desc: 'Evolves Charcadet into Armarouge!' },
+  { id: 'malicious_armor',  name: 'MALICIOUS ARMOR',  category: 'STONE', tileKey: 'STONE', stoneType: 'MALICIOUS',   stoneLabel: 'MALICIOUS ARMOR',  color: '#4c1d95', highlight: '#38bdf8', desc: 'Evolves Charcadet into Ceruledge!' },
+  { id: 'leaders_crest',    name: 'LEADERS CREST',    category: 'STONE', tileKey: 'STONE', stoneType: 'CREST',       stoneLabel: 'LEADERS CREST',    color: '#991b1b', highlight: '#fde047', desc: 'Evolves Bisharp into Kingambit!' },
+  { id: 'gimmighoul_coin',  name: 'GIMMIGHOUL COIN',  category: 'STONE', tileKey: 'STONE', stoneType: 'COIN',        stoneLabel: 'GIMMIGHOUL COIN',  color: '#facc15', highlight: '#fef9c3', desc: 'Evolves Gimmighoul into Gholdengo!' },
+  { id: 'metal_alloy',      name: 'METAL ALLOY',      category: 'STONE', tileKey: 'STONE', stoneType: 'ALLOY',       stoneLabel: 'METAL ALLOY',      color: '#64748b', highlight: '#38bdf8', desc: 'Evolves Duraludon into Archaludon!' }
+];
+
+const OBSTACLE_FACTS_MAP = {
+  G: ["Tall wild grass! Step inside to encounter wild monsters native to this area!", "TALL GRASS", "HABITAT"],
+  M: ["Nutrient-rich swamp mud! Step inside the mud to encounter wild wetland monsters!", "SWAMP MUD", "WETLANDS HABITAT"],
+  '~': ["Wind-swept desert sand! Step across the loose sand dunes to encounter burrowing desert monsters!", "DESERT SAND", "ARID HABITAT"],
+  T: ["Canopy tree! Trees absorb Carbon Dioxide through leaf Stomata and use Chlorophyll to produce Oxygen and glucose!", "CANOPY TREE", "BOTANY"],
+  R: ["Solid crag boulder! The Rock Cycle transitions rocks between Igneous, Sedimentary, and Metamorphic states!", "CRAG BOULDER", "GEOLOGY"],
+  I: ["Crystalline glacier ice block! Ordinary water ice forms a Hexagonal crystal lattice at 0C!", "GLACIER ICE", "GLACIOLOGY"],
+  C: ["Desert saguaro cactus! Succulents store water in thick stems and use spines to minimize transpiration!", "SAGUARO CACTUS", "XEROPHYTE"],
+  K: ["Marine reef coral! Coral reefs are built by calcium-carbonate-secreting polyps in symbiosis with algae!", "REEF CORAL", "MARINE ECOLOGY"],
+  L: ["Molten lava pool! Underground molten rock is Magma, and once it erupts onto the surface it is Lava!", "MOLTEN LAVA", "VOLCANOLOGY"],
+  F: ["Blooming wildflower patch! Angiosperm flowers attract pollinators to produce seeds enclosed within fruit!", "WILDFLOWERS", "BOTANY"],
+  B: ["Timber suspension bridge! Structural beams distribute compressive and tensile forces across supports!", "WOODEN BRIDGE", "ENGINEERING"],
+  S: ["Geothermal steam geyser! Superheated groundwater rises through volcanic fissures to form hot springs!", "STEAM GEYSER", "GEOTHERMAL"],
+  V: ["High-voltage Tesla coil! Alternating magnetic fields induce currents across conductive windings!", "TESLA PYLON", "ELECTROMAGNETISM"],
+  U: ["Bioluminescent spore toadstool! Fungi have cell walls made of Chitin and reproduce via spores!", "SPORE TOADSTOOL", "MYCOLOGY"],
+  A: ["Astral crystal obelisk! Birefringent crystals split incoming light beams into polarized spectra!", "ASTRAL OBELISK", "OPTICS"],
+  N: ["Flickering shadow streetlamp! Dark Matter accounts for ~85% of the universe's mass!", "SHADOW LAMP", "COSMOLOGY"],
+  Q: ["Miradouro da Lua cliff spire! Wind and rain erosion carved red clay into lunar hoodoo pinnacles!", "MOON CLIFF SPIRE", "GEOMORPHOLOGY"],
+  Y: ["Glowing neon sign! Noble gases ionize and emit vibrant photons when high voltage is applied!", "NEON SIGN", "ATOMIC PHYSICS"],
+  J: ["Sakura cherry blossom tree! Cherry trees bloom synchronously in spring in response to temperature!", "CHERRY BLOSSOM", "BOTANY"],
+  O: ["Fragrant plum blossom shrub! Plum blossoms bloom in late winter even through frost!", "PLUM BLOSSOM", "BOTANY"],
+  Z: ["Great Wall battlement! Ancient builders mixed sticky rice amylopectin mortar with slaked lime!", "GREAT WALL", "ENGINEERING"],
+  X: ["Cotai slot machine! Governed by a Pseudo-Random Number Generator (PRNG) and probability laws!", "SLOT MACHINE", "PROBABILITY"],
+  g: ["Mongolian Yurt (Ger)! Its circular lattice wall resists fierce steppe winds while retaining heat!", "MONGOLIAN YURT", "ARCHITECTURE"],
+  k: ["Breathable clay Onggi jars of Kimchi! Micropores allow CO2 from Lactobacillus fermentation to escape!", "KIMCHI ONGGI JARS", "MICROBIOLOGY"],
+  c: ["Royal Clock Tower! Pendulum clocks keep time using simple harmonic motion!", "CLOCK TOWER", "MECHANICS"],
+  i: ["Celtic Stone Cross! Carved from sandstone and granite with geometric knotwork and solar rings!", "CELTIC CROSS", "ARCHAEOLOGY"],
+  e: ["Eiffel Puddled-Iron Spire! Curved lattice trusses convert horizontal wind shear into compression!", "EIFFEL SPIRE", "ENGINEERING"],
+  x: ["Alpine Timber-Frame Chalet! Steeply pitched roofs prevent heavy winter snow accumulation!", "TIMBER CHALET", "ARCHITECTURE"],
+  w: ["La Mancha Windmill! Sails convert kinetic wind energy into rotational mechanical torque!", "WINDMILL", "PHYSICS"],
+  z: ["Portuguese Azulejo Tile Arch! Tin-glazed ceramic tiles reflect solar radiation and resist humidity!", "AZULEJO ARCH", "MATERIALS"],
+  u: ["Juche Monolith Tower! Carved from stacked granite blocks, monumental obelisks rely on a wide base to lower their center of gravity!", "MONOLITH TOWER", "STATICS"],
+  n: ["Dutch Polder Tulip Bed & Canal Mill! Polders reclaim low-lying land from the sea using dikes and wind-powered Archimedes screw pumps!", "POLDER TULIPS", "HYDROLOGY"],
+  b: ["Brussels Atomium Sphere! Modeled after an Iron (Fe) unit crystal cell magnified 165 billion times in a body-centered cubic lattice!", "ATOMIUM SPHERE", "CRYSTALLOGRAPHY"],
+  m: ["Canadian Sugar Maple Tree! During spring thaws, positive sap pressure pushes sucrose-rich xylem sap upward to be boiled into maple syrup!", "SUGAR MAPLE", "BOTANY"],
+  s: ["Copper Liberty Torch Statue! Exposed copper oxidizes over decades with atmospheric carbon dioxide and water to form a protective green patina!", "COPPER STATUE", "CHEMISTRY"],
+  f: ["Mesoamerican Stepped Pyramid! Built in alignment with the vernal and autumnal equinoxes to cast serpent-like solar shadows!", "STEPPED PYRAMID", "ARCHAEOASTRONOMY"],
+  a: ["Havana Classic Chrome Cruiser! 1950s internal combustion engines kept running for decades through resourceful mechanical fabrication!", "CLASSIC CRUISER", "THERMODYNAMICS"],
+  h: ["Citadelle Laferriere Cannon! Mounted atop northern Haiti's mountain peak, bronze cannons use rapid gunpowder combustion to launch iron spheres!", "CITADELLE CANNON", "BALLISTICS"],
+  j: ["Kingston Reggae Sound System Stack! Massive bass reflex speaker cabinets amplify low-frequency acoustic wavelengths!", "SOUND SYSTEM", "ACOUSTICS"],
+  q: ["Nassau Pink Conch Shell Monument! Queen conchs precipitate calcium carbonate in a logarithmic spiral shell for marine protection!", "CONCH MONUMENT", "MARINE BIOLOGY"],
+  d: ["Santo Domingo Colonial Coral-Limestone Arch! Built from fossilized Pleistocene reef limestone, the oldest cathedral stone in the Americas!", "COLONIAL ARCH", "GEOLOGY"],
+  l: ["Caribbean Coconut Palm! Buoyant fibrous husks allow coconut seeds (drupes) to float across ocean currents and colonize tropical islands!", "COCONUT PALM", "ECOLOGY"],
+  v: ["Table Mountain Sandstone Bluff! Flat-topped quartzitic sandstone mesas resist wind and water erosion over hundreds of millions of years!", "TABLE MOUNTAIN BLUFF", "GEOLOGY"],
+  p: ["African Baobab Tree (Adansonia digitata)! Its spongy, fibrous trunk can store over 100,000 liters of water to survive severe dry seasons!", "BAOBAB TREE", "BOTANY"],
+  r: ["Great Zimbabwe Conical Tower! Built from heat-fractured granite blocks stacked in dry-stone courses without a single drop of mortar!", "CONICAL TOWER", "ARCHAEOLOGY"],
+  t: ["Basotho Mokorotlo Conical Hut! Thick stone walls and thatched grass roofs provide high thermal mass, keeping interiors cool in summer and warm in winter!", "MOKOROTLO HUT", "THERMODYNAMICS"],
+  y: ["Sossusvlei Red Star Dune! Namib desert quartz sands owe their deep red-orange hue to a coating of oxidized iron (hematite) aged over millions of years!", "RED STAR DUNE", "MINERALOGY"],
+  o: ["Indian Ocean Dhow Sail! Triangular lateen sails allow traditional wooden vessels to tack upwind using aerodynamic lift across monsoon trade winds!", "DHOW SAIL", "AERODYNAMICS"],
+  '1': ["Uluru Arkose Sandstone Monolith (Australia)! Its iron-bearing feldspar minerals oxidize into a glowing rust-red surface!", "ULURU MONOLITH", "GEOLOGY"],
+  '2': ["Maori Carved Totem Pou (New Zealand)! Carved from native Totara heartwood rich in natural rot-resistant oils!", "MAORI TOTEM POU", "BOTANY & CULTURE"],
+  '3': ["Funafuti Coral Atoll Beacon (Tuvalu)! Ring-shaped coral atolls form as fringing reefs grow upward while volcanic islands subside!", "ATOLL BEACON", "MARINE GEOLOGY"],
+  '4': ["Samoan Open-Air Fale (Samoa)! Domed timber roofs lashed with braided coconut sennit rope flex safely during tropical cyclones!", "SAMOAN FALE", "STRUCTURAL ENGINEERING"],
+  '5': ["Sleeping Giant Orchid Arch (Fiji)! Tropical epiphytic orchids absorb moisture and nutrients directly from humid air using aerial velamen roots!", "ORCHID ARCH", "BOTANY"],
+  '6': ["Ha'amonga 'a Maui Trilithon (Tonga)! Built in the 13th century from three 40-ton coral limestone slabs mortised into upright lintels!", "TONGAN TRILITHON", "ARCHAEOLOGY"],
+  '7': ["Mount Yasur Strombolian Crater (Vanuatu)! Regular gas-slug bursts eject incandescent magma bombs along the New Hebrides subduction zone!", "YASUR VOLCANO", "VOLCANOLOGY"],
+  '8': ["Solomon Melanesian Prow Canoe (Solomon Islands)! Inlaid with mother-of-pearl nacre, which diffracts light into iridescent colors!", "PROW CANOE", "OPTICS & NAVIGATION"]
+};
+
+function getObstacleFact(tile) {
+  if (tile === 'W') {
+    const unlocked = (typeof isSurfUnlocked === 'function') && isSurfUnlocked();
+    return [
+      unlocked
+        ? "Crystal-clear water! SURF is unlocked—step directly onto the water to ride your surfboard!"
+        : "Crystal-clear water! Catch 70 Pokemon to unlock North America and the SURF surfboard ability!",
+      "WATER'S EDGE",
+      "HYDROLOGY"
+    ];
+  }
+  return OBSTACLE_FACTS_MAP[tile] || null;
+}

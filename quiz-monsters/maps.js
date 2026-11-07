@@ -4138,3 +4138,303 @@ const COUNTRY_CHEF_NPCS = {
     }
   });
 })();
+
+/********************************************************************
+ * OVERWORLD DISTRIBUTION FOR ALL REMAINING LEGENDARIES, MYTHICALS,
+ * ULTRA BEASTS & PARADOX POKEMON (GEN 4 - GEN 9)
+ * Placed on verified walkable tiles with zero coordinate collisions.
+ ********************************************************************/
+const REMAINING_OVERWORLD_LEGENDARIES_BY_MAP = {
+  // --- CHROMA ARCHIPELAGO ---
+  AURORA_RIDGE:       [
+    { monsterId: 'uxie',         name: 'KNOWLEDGE UXIE',     x: 10, y: 8,  fact: "(Uxie embodies knowledge and memory formation in the brain's cortex!)" },
+    { monsterId: 'arceus',       name: 'ALPHA ARCEUS',       x: 13, y: 11, fact: "(Arceus shaped the cosmos with 1,000 arms at the dawn of spacetime!)" }
+  ],
+  WIND_TEMPLE:        [
+    { monsterId: 'tornadus',     name: 'CYCLONE TORNADUS',   x: 10, y: 8,  fact: "(Tornadus whips up 200 mph jet-stream gales across the upper troposphere!)" },
+    { monsterId: 'enamorus',     name: 'HERALD ENAMORUS',    x: 17, y: 8,  fact: "(Enamorus brings the spring thaw across the northern taiga!)" }
+  ],
+  GLACIER:            [
+    { monsterId: 'kyurem',       name: 'BOUNDARY KYUREM',    x: 10, y: 11, fact: "(Kyurem generates ultracold cryo-energy near Absolute Zero!)" }
+  ],
+  METEOR_CRATER:      [
+    { monsterId: 'azelf',        name: 'WILLPOWER AZELF',    x: 10, y: 8,  fact: "(Azelf sleeps at the bottom of Indigo Lake to maintain the world's willpower!)" },
+    { monsterId: 'jirachi',      name: 'WISH JIRACHI',       x: 17, y: 8,  fact: "(Jirachi awakens for seven days every thousand years when a comet passes!)" }
+  ],
+  CYBER_NEXUS:        [
+    { monsterId: 'genesect',     name: 'PALEO GENESECT',     x: 10, y: 8,  fact: "(Genesect is a 300-million-year-old Paleozoic insect upgraded with a cybernetic cannon!)" },
+    { monsterId: 'miraidon',     name: 'IRON SERPENT MIRAIDON', x: 17, y: 8, fact: "(Miraidon propels itself with quark-drive plasma thrusters from the future!)" }
+  ],
+  SPIRE:              [
+    { monsterId: 'giratina',     name: 'RENEGADE GIRATINA',  x: 13, y: 14, fact: "(Giratina gazes from the Distortion World where antimatter and gravity invert!)" },
+    { monsterId: 'lunala',       name: 'MOONE LUNALA',       x: 15, y: 8,  fact: "(Lunala absorbs ambient photons like a nocturnal solar sail!)" }
+  ],
+  NORTHWEST:          [
+    { monsterId: 'thundurus',    name: 'BOLT THUNDURUS',     x: 13, y: 5,  fact: "(Thundurus discharges megavolt lightning bolts from cumulonimbus storm clouds!)" }
+  ],
+  MOUNTAIN:           [
+    { monsterId: 'regigigas',    name: 'COLOSSAL REGIGIGAS', x: 9,  y: 9,  fact: "(Regigigas towed the continents into place using immense tectonic force!)" },
+    { monsterId: 'terrakion',    name: 'CAVERN TERRAKION',   x: 18, y: 9,  fact: "(Terrakion's charge can shatter the thickest reinforced castle ramparts!)" }
+  ],
+  NORTHEAST:          [
+    { monsterId: 'landorus',     name: 'ABUNDANCE LANDORUS', x: 13, y: 11, fact: "(Landorus enriches arid desert soil with nitrogen and phosphorus nutrients!)" }
+  ],
+  FOUNDRY:            [
+    { monsterId: 'cobalion',     name: 'IRON WILL COBALION', x: 13, y: 8,  fact: "(Cobalion has a body and heart of tempered cobalt-steel alloy!)" },
+    { monsterId: 'magearna',     name: 'CLOCKWORK MAGEARNA', x: 13, y: 11, fact: "(Magearna's Soul-Heart is an artificial mechanical life-core built 500 years ago!)" }
+  ],
+  SANCTUARY:          [
+    { monsterId: 'cresselia',    name: 'LUNAR CRESSELIA',    x: 13, y: 4,  fact: "(Cresselia's veil releases glowing particles that dispel nightmares!)" },
+    { monsterId: 'mesprit',      name: 'EMOTION MESPRIT',    x: 13, y: 8,  fact: "(Mesprit taught humankind the nobility of sorrow, pain, and joy!)" }
+  ],
+  FOREST:             [
+    { monsterId: 'virizion',     name: 'MEADOW VIRIZION',    x: 13, y: 4,  fact: "(Virizion darts through dense canopy forests faster than the eye can follow!)" },
+    { monsterId: 'zarude',       name: 'JUNGLE ZARUDE',      x: 9,  y: 9,  fact: "(Zarude swings from liana vines and heals wounded trees with its bark!)" }
+  ],
+  DESERT:             [
+    { monsterId: 'solgaleo',     name: 'SUNNE SOLGALEO',     x: 13, y: 4,  fact: "(Solgaleo's body shines like a miniature main-sequence star undergoing nuclear fusion!)" }
+  ],
+  ONSEN:              [
+    { monsterId: 'volcanion',    name: 'STEAM VOLCANION',    x: 13, y: 8,  fact: "(Volcanion flash-vaporizes water into superheated high-pressure steam jets!)" }
+  ],
+  KALOS_GROVE:        [
+    { monsterId: 'xerneas',      name: 'LIFE XERNEAS',       x: 13, y: 11, fact: "(When Xerneas's horns shine in seven colors, it shares eternal life energy!)" }
+  ],
+  SOUTHWEST:          [
+    { monsterId: 'wo_chien',     name: 'RUIN WO-CHIEN',      x: 13, y: 8,  fact: "(Wo-Chien's ancient wooden tablets drain surrounding vegetation to sprout dark moss!)" }
+  ],
+  BEACH:              [
+    { monsterId: 'keldeo',       name: 'COLT KELDEO',        x: 13, y: 9,  fact: "(Keldeo jets water from its hooves to gallop across ocean waves via hydro-propulsion!)" },
+    { monsterId: 'phione',       name: 'SEA DRIFT PHIONE',   x: 16, y: 14, fact: "(Phione inflates the flotation sac on its head to drift along warm ocean currents!)" }
+  ],
+  SOUTHEAST:          [
+    { monsterId: 'tapu_fini',    name: 'GUARDIAN TAPU FINI', x: 13, y: 9,  fact: "(Tapu Fini cloaks Bronze Reef in purifying sea mist and ocean currents!)" }
+  ],
+  VOLCANO:            [
+    { monsterId: 'reshiram',     name: 'VAST WHITE RESHIRAM',x: 13, y: 10, fact: "(Reshiram's turbo-jet tail flares with thermal energy that shifts global weather!)" },
+    { monsterId: 'chi_yu',       name: 'RUIN CHI-YU',        x: 11, y: 11, fact: "(Chi-Yu swims through pools of 3,000°F molten basaltic lava!)" }
+  ],
+  SUNKEN_RUINS:       [
+    { monsterId: 'walking_wake', name: 'PARADOX WALKING WAKE', x: 13, y: 11, fact: "(Walking Wake Bipedal hydro-strider from a prehistoric aquatic era!)" }
+  ],
+  BRAMBLE:            [
+    { monsterId: 'pecharunt',    name: 'SUBJUGATION PECHARUNT', x: 13, y: 11, fact: "(Pecharunt's toxic purple shell conceals a mythical binding power!)" }
+  ],
+  ABYSS:              [
+    { monsterId: 'darkrai',      name: 'PITCH-BLACK DARKRAI',x: 16, y: 7,  fact: "(Darkrai Casts protective shadows on moonless nights above the abyss!)" }
+  ],
+  SHADOW_ALLEY:       [
+    { monsterId: 'yveltal',      name: 'DESTRUCTION YVELTAL',x: 13, y: 8,  fact: "(Yveltal spreads its crimson wings in the dark urban night!)" },
+    { monsterId: 'marshadow',    name: 'GLOOMDWEL MARSHADOW',x: 13, y: 11, fact: "(Marshadow slips into shadows to copy the martial arts of any challenger!)" }
+  ],
+  MOON:               [
+    { monsterId: 'necrozma',     name: 'PRISM NECROZMA',     x: 13, y: 11, fact: "(Necrozma refracts laser light through its crystalline prism armor!)" },
+    { monsterId: 'cosmog',       name: 'NEBULA COSMOG',      x: 11, y: 8,  fact: "(Cosmog's gaseous body collects interstellar dust to grow like a protostar!)" }
+  ],
+
+  // --- EAST ASIA REGION ---
+  HONG_KONG:          [
+    { monsterId: 'zeraora',      name: 'THUNDERCLAP ZERAORA',x: 13, y: 6,  fact: "(Zeraora rides electromagnetic fields at the speed of lightning!)" }
+  ],
+  MACAU:              [
+    { monsterId: 'victini',      name: 'VICTORY VICTINI',    x: 13, y: 8,  fact: "(Victini generates infinite energy and brings victory to any trainer it befriends!)" }
+  ],
+  CHINA:              [
+    { monsterId: 'kubfu',        name: 'WUSHU KUBFU',        x: 10, y: 8,  fact: "(Kubfu trains rigorously in martial arts high in the misty mountain temples!)" },
+    { monsterId: 'urshifu',      name: 'WUSHU URSHIFU',      x: 16, y: 8,  fact: "(Urshifu masters both the single-strike and rapid-strike kung fu styles!)" },
+    { monsterId: 'ting_lu',      name: 'RUIN TING-LU',       x: 13, y: 11, fact: "(Ting-Lu's ancient bronze vessel can cleave 150-foot fissures into the earth!)" }
+  ],
+  TAIWAN:             [
+    { monsterId: 'ogerpon',      name: 'MASK OGERPON',       x: 10, y: 8,  fact: "(Ogerpon dances among the mountain blossoms wearing its sparkling Teal Mask!)" }
+  ],
+  JAPAN:              [
+    { monsterId: 'okidogi',      name: 'RETAINER OKIDOGI',   x: 10, y: 11, fact: "(Okidogi gained immense muscular strength from its toxic chain!)" },
+    { monsterId: 'munkidori',    name: 'RETAINER MUNKIDORI', x: 13, y: 8,  fact: "(Munkidori's psychic foresight lets it predict every move from a safe distance!)" },
+    { monsterId: 'fezandipiti',  name: 'RETAINER FEZANDIPITI',x: 16, y: 11,fact: "(Fezandipiti flaps its glossy wings to scatter enchanting pheromones!)" }
+  ],
+  SOUTH_KOREA:        [
+    { monsterId: 'meloetta',     name: 'MELODY MELOETTA',    x: 10, y: 8,  fact: "(Meloetta's soprano aria controls the emotions of everyone who hears its song!)" },
+    { monsterId: 'regieleki',    name: 'ELECTRON REGIELEKI', x: 16, y: 8,  fact: "(Regieleki is a living cluster of pure electrical energy bound by insulating rings!)" }
+  ],
+  MONGOLIA:           [
+    { monsterId: 'zekrom',       name: 'DEEP BLACK ZEKROM',  x: 16, y: 8,  fact: "(Zekrom's tail functions as a giant electromagnetic turbine generator!)" }
+  ],
+  NORTH_KOREA:        [
+    { monsterId: 'stakataka',    name: 'UB ASSEMBLY STAKATAKA',x: 13, y: 11,fact: "(Stakataka is an Ultra Beast formed from 150 stone-like lifeforms stacked into a fortress!)" }
+  ],
+
+  // --- WEST EUROPE REGION ---
+  UK:                 [
+    { monsterId: 'zacian',       name: 'CROWNED ZACIAN',     x: 11, y: 11, fact: "(Zacian's gleaming fairy blade can cleave through any dragon's armor in a single flash!)" },
+    { monsterId: 'zamazenta',    name: 'CROWNED ZAMAZENTA',  x: 16, y: 11, fact: "(Zamazenta's golden aegis shield deflects even the most powerful attacks!)" },
+    { monsterId: 'eternatus',    name: 'DYNAMAX ETERNATUS',  x: 13, y: 6,  fact: "(Eternatus fell to Galar inside a meteor 20,000 years ago, radiating Dynamax energy!)" }
+  ],
+  IRELAND:            [
+    { monsterId: 'calyrex',      name: 'HIGH KING CALYREX',  x: 10, y: 8,  fact: "(Calyrex ruled the ancient emerald isles and can make entire forests bloom overnight!)" },
+    { monsterId: 'spectrier',    name: 'SWIFT SPECTRIER',    x: 16, y: 11, fact: "(Spectrier gallops through the midnight mist, probing surroundings with its sixth sense!)" }
+  ],
+  FRANCE:             [
+    { monsterId: 'diancie',      name: 'JEWEL DIANCIE',      x: 13, y: 11, fact: "(Diancie compresses airborne carbon atoms between its hands to create pure diamonds!)" },
+    { monsterId: 'zygarde',      name: 'ORDER ZYGARDE',      x: 16, y: 8,  fact: "(Zygarde monitors the balance of the regional ecosystem from deep within caves!)" }
+  ],
+  GERMANY:            [
+    { monsterId: 'iron_valiant', name: 'PARADOX IRON VALIANT',x: 10, y: 8,  fact: "(Iron Valiant is a futuristic cybernetic knight combining Gardevoir and Gallade!)" },
+    { monsterId: 'iron_crown',   name: 'PARADOX IRON CROWN', x: 16, y: 11, fact: "(Iron Crown launches glowing tachyon blades from its metallic horns!)" }
+  ],
+  SPAIN:              [
+    { monsterId: 'koraidon',     name: 'WINGED KING KORAIDON',x: 13, y: 11, fact: "(Koraidon's ancient pulse powers its feathered crest with prehistoric strength!)" },
+    { monsterId: 'terapagos',    name: 'TERA TERAPAGOS',     x: 16, y: 8,  fact: "(Terapagos crystallizes Terastal energy into a prism shell of all 18 elemental types!)" }
+  ],
+  PORTUGAL:           [
+    { monsterId: 'roaring_moon', name: 'PARADOX ROARING MOON',x: 13, y: 11, fact: "(Roaring Moon soars on crescent wings reminiscent of a primordial mega-dragon!)" }
+  ],
+  NETHERLANDS:        [
+    { monsterId: 'iron_leaves',  name: 'PARADOX IRON LEAVES', x: 10, y: 8,  fact: "(Iron Leaves wields photonic psi-blades atop its polished metallic frame!)" }
+  ],
+  BELGIUM:            [
+    { monsterId: 'meltan',       name: 'HEX NUT MELTAN',     x: 10, y: 8,  fact: "(Meltan's liquid gallium-steel body dissolves and absorbs raw metal ore!)" },
+    { monsterId: 'melmetal',     name: 'TITAN MELMETAL',     x: 16, y: 11, fact: "(Melmetal was worshipped 3,000 years ago for its ability to forge iron from nothing!)" }
+  ],
+
+  // --- NORTH AMERICA & CARIBBEAN ---
+  CANADA:             [
+    { monsterId: 'glastrier',    name: 'FIERCE GLASTRIER',   x: 13, y: 6,  fact: "(Glastrier's hooves freeze the ground solid with belligerent sub-zero power!)" },
+    { monsterId: 'chien_pao',    name: 'RUIN CHIEN-PAO',     x: 18, y: 8,  fact: "(Chien-Pao's broken sword fangs whip up avalanches of powdery snow!)" }
+  ],
+  USA:                [
+    { monsterId: 'iron_hands',   name: 'PARADOX IRON HANDS', x: 10, y: 8,  fact: "(Iron Hands can hurl a giant truck with a single plasma-charged palm thrust!)" },
+    { monsterId: 'iron_thorns',  name: 'PARADOX IRON THORNS',x: 10, y: 12, fact: "(Iron Thorns is a futuristic mecha-titan armed with high-voltage dorsal spines!)" }
+  ],
+  MEXICO:             [
+    { monsterId: 'gouging_fire', name: 'PARADOX GOUGING FIRE',x: 16, y: 12,fact: "(Gouging Fire's crowned horns erupt with primordial volcanic magma!)" }
+  ],
+  BAHAMAS:            [
+    { monsterId: 'scream_tail',  name: 'PARADOX SCREAM TAIL',x: 10, y: 8,  fact: "(Scream Tail is an ancient ancestor of Jigglypuff from a billion years ago!)" }
+  ],
+  CUBA:               [
+    { monsterId: 'slither_wing', name: 'PARADOX SLITHER WING',x: 10, y: 8, fact: "(Slither Wing is a primordial bipedal Volcarona covered in warm fiery scales!)" }
+  ],
+  JAMAICA:            [
+    { monsterId: 'blacephalon',  name: 'UB BURST BLACEPHALON',x: 10, y: 8, fact: "(Blacephalon dazzles foes with neon fireworks before detonating its own sparkling head!)" }
+  ],
+  HAITI:              [
+    { monsterId: 'flutter_mane', name: 'PARADOX FLUTTER MANE',x: 10, y: 8, fact: "(Flutter Mane's ghostly pterosaur ribbons drift through ancient mountain fortresses!)" }
+  ],
+  DOMINICAN_REPUBLIC: [
+    { monsterId: 'regidrago',    name: 'DRAGON ORB REGIDRAGO',x: 10, y: 8, fact: "(Regidrago's arms are forged from crystallized ancient dragon-energy!)" }
+  ],
+
+  // --- SOUTHERN AFRICA ---
+  SOUTH_AFRICA:       [
+    { monsterId: 'great_tusk',   name: 'PARADOX GREAT TUSK', x: 20, y: 8,  fact: "(Great Tusk is a prehistoric mammoth-donphan with colossal armored tusks!)" }
+  ],
+  LESOTHO:            [
+    { monsterId: 'raging_bolt',  name: 'PARADOX RAGING BOLT',x: 10, y: 8,  fact: "(Raging Bolt stretches its towering neck into the thunderclouds of the sky kingdom!)" }
+  ],
+  ESWATINI:           [
+    { monsterId: 'brute_bonnet', name: 'PARADOX BRUTE BONNET',x: 10, y: 8, fact: "(Brute Bonnet combines dinosaurian ferocity with ancient spore caps!)" }
+  ],
+  NAMIBIA:            [
+    { monsterId: 'hoopa',        name: 'DJINN HOOPA',        x: 10, y: 8,  fact: "(Hoopa's golden rings warp spacetime to teleport objects across desert dunes!)" },
+    { monsterId: 'sandy_shocks', name: 'PARADOX SANDY SHOCKS',x: 16, y: 12,fact: "(Sandy Shocks walks on magnetic iron-filings legs across the ancient red dunes!)" }
+  ],
+  ZIMBABWE:           [
+    { monsterId: 'iron_boulder', name: 'PARADOX IRON BOULDER',x: 10, y: 8, fact: "(Iron Boulder charges with solar-charged chrome horns through granite ruins!)" }
+  ],
+
+  // --- OCEANIA ---
+  NEW_ZEALAND:        [
+    { monsterId: 'iron_treads',  name: 'PARADOX IRON TREADS',x: 13, y: 11, fact: "(Iron Treads curls into a motorized cyber-wheel that carves trails across fjords!)" }
+  ],
+  SAMOA:              [
+    { monsterId: 'tapu_koko',    name: 'GUARDIAN TAPU KOKO', x: 13, y: 8,  fact: "(Tapu Koko stores lightning inside its twin wooden shell shields!)" }
+  ],
+  FIJI:               [
+    { monsterId: 'tapu_lele',    name: 'GUARDIAN TAPU LELE', x: 13, y: 11, fact: "(Tapu Lele scatters glowing scales that revitalize tired travelers across the islands!)" }
+  ],
+  VANUATU:            [
+    { monsterId: 'tapu_bulu',    name: 'GUARDIAN TAPU BULU', x: 13, y: 11, fact: "(Tapu Bulu rings its tail bell and commands lush island vegetation to grow!)" },
+    { monsterId: 'iron_moth',    name: 'PARADOX IRON MOTH',  x: 10, y: 8,  fact: "(Iron Moth hovers above volcanic calderas using solar-panel wings!)" }
+  ],
+  SOLOMON_ISLANDS:    [
+    { monsterId: 'poipole',      name: 'UB ADHESIVE POIPOLE',x: 13, y: 11, fact: "(Poipole cackles cheerfully while spraying glowing adhesive venom from its head!)" },
+    { monsterId: 'naganadel',    name: 'UB STINGER NAGANADEL',x: 10, y: 11,fact: "(Naganadel stores hundreds of liters of luminous venom inside its dragon abdomen!)" }
+  ],
+
+  // --- SOUTH AMERICA & ANTARCTICA ---
+  ECUADOR:            [
+    { monsterId: 'iron_jugulis', name: 'PARADOX IRON JUGULIS',x: 20, y: 8, fact: "(Iron Jugulis is a futuristic three-headed cyber-dragon that rules the skies!)" }
+  ],
+  VOSTOK_DOME:        [
+    { monsterId: 'iron_bundle',  name: 'PARADOX IRON BUNDLE',x: 10, y: 8,  fact: "(Iron Bundle skis across subglacial ice domes on cryogenic hydro-jets!)" }
+  ]
+};
+
+const PARADOX_MONSTER_IDS = new Set([
+  'great_tusk', 'scream_tail', 'brute_bonnet', 'flutter_mane',
+  'slither_wing', 'sandy_shocks', 'roaring_moon', 'walking_wake',
+  'gouging_fire', 'raging_bolt', 'iron_treads', 'iron_bundle',
+  'iron_hands', 'iron_jugulis', 'iron_moth', 'iron_thorns',
+  'iron_valiant', 'iron_leaves', 'iron_boulder', 'iron_crown'
+]);
+
+['poipole', 'naganadel', 'stakataka', 'blacephalon'].forEach(id => ULTRA_BEAST_IDS.add(id));
+PARADOX_MONSTER_IDS.forEach(id => LEGENDARY_MONSTER_IDS.add(id));
+ULTRA_BEAST_IDS.forEach(id => LEGENDARY_MONSTER_IDS.add(id));
+
+(function registerRemainingOverworldLegendaries() {
+  if (typeof WORLD_MAPS === 'undefined') return;
+  Object.keys(REMAINING_OVERWORLD_LEGENDARIES_BY_MAP).forEach(mapKey => {
+    const mapObj = WORLD_MAPS[mapKey];
+    if (!mapObj) return;
+    if (!Array.isArray(mapObj.npcs)) mapObj.npcs = [];
+
+    REMAINING_OVERWORLD_LEGENDARIES_BY_MAP[mapKey].forEach(leg => {
+      const cleanMonId = leg.monsterId.toLowerCase();
+      const npcId = 'overworld_' + cleanMonId;
+      if (mapObj.npcs.some(n => n.id === npcId || (n.monsterId && n.monsterId.toLowerCase() === cleanMonId))) {
+        return;
+      }
+
+      let tx = leg.x;
+      let ty = leg.y;
+      const rowStr = (mapObj.rows && mapObj.rows[ty]) ? mapObj.rows[ty] : '';
+      const chAtSpot = rowStr.charAt(tx);
+      const isSpotWalkable = (chAtSpot === 'P' || chAtSpot === '.' || chAtSpot === 'G' || chAtSpot === '~');
+
+      if (!isSpotWalkable || mapObj.npcs.some(n => n.x === tx && n.y === ty)) {
+        const offsets = [[1,0],[-1,0],[0,1],[0,-1],[2,0],[-2,0],[0,2],[0,-2],[1,1],[-1,1],[1,-1],[-1,-1]];
+        for (const [dx, dy] of offsets) {
+          const nx = tx + dx, ny = ty + dy;
+          if (ny <= 1 || ny >= MAP_ROWS - 2 || nx <= 1 || nx >= MAP_COLS - 2) continue;
+          const rStr = mapObj.rows && mapObj.rows[ny] ? mapObj.rows[ny] : '';
+          const ch = rStr.charAt(nx);
+          if ((ch === 'P' || ch === '.' || ch === 'G' || ch === '~') && !mapObj.npcs.some(n => n.x === nx && n.y === ny)) {
+            tx = nx;
+            ty = ny;
+            break;
+          }
+        }
+      }
+
+      const isUB = ULTRA_BEAST_IDS.has(cleanMonId);
+      const isParadox = PARADOX_MONSTER_IDS.has(cleanMonId);
+
+      mapObj.npcs.push({
+        id: npcId,
+        name: leg.name,
+        topic: isUB
+          ? 'ULTRA BEAST • RESPAWNS ON RE-ENTRY'
+          : (isParadox ? 'PARADOX POKéMON • RESPAWNS ON RE-ENTRY' : 'LEGENDARY POKéMON • PRESS SPACE TO CHALLENGE'),
+        x: tx,
+        y: ty,
+        isMonster: true,
+        monsterId: cleanMonId,
+        isLegendary: true,
+        isUltraBeast: isUB,
+        isParadox: isParadox,
+        fact: `${leg.name}: ${leg.fact}`
+      });
+    });
+  });
+})();

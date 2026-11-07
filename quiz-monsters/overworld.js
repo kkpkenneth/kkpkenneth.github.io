@@ -2,10 +2,10 @@
  * overworld.js
  * 8-Region Overworld Engine, Tiered +10 Dex Portal Unlocks,
  * Yellow Asterisk (*) on Completed Areas, Water/Flying Surf Filter,
- * Deep-Sea Freshwater Exclusion, Respawning Antarctica Ultra Beasts,
+ * Deep-Sea Freshwater Exclusion, Respawning Ultra Beasts & Paradox
+ * Pokemon at Random Walkable Coordinates on Every Map Entry,
  * Letter-Based Pokemon Calls (1st, 3rd, 4th-last, 2nd-last),
  * Chef + Nurse Party Healing & 60 FPS Optimized Render Loop
- * (Map grid constants in maps.js; Obstacle & Floor Item defs in obstacle.js)
  ********************************************************************/
 
 const HUMAN_SKIN_PALETTE = [
@@ -16,13 +16,74 @@ const _mapThumbnailCache = {};
 let _originalAreaNamesApplied = false;
 
 function getPokemonCallText(nameOrId) {
-  const clean = String(nameOrId || 'PIKACHU').replace(/[^a-zA-Z]/g, '').toUpperCase() || 'PIKA';
+  let raw = String(nameOrId || 'PIKACHU').trim();
+
+  if (typeof MONSTER_SPECIES !== 'undefined') {
+    const cleanId = raw.toLowerCase().replace(/^overworld_/, '');
+    const sp = MONSTER_SPECIES.find(m =>
+      m.id.toLowerCase() === cleanId ||
+      m.name.toLowerCase() === cleanId ||
+      cleanId.includes(m.name.toLowerCase()) ||
+      cleanId.includes(m.id.toLowerCase())
+    );
+    if (sp && sp.name) raw = sp.name;
+  }
+
+  const clean = raw.replace(/[^a-zA-Z]/g, '').toUpperCase() || 'PIKA';
   const len = clean.length;
-  const l1 = clean.charAt(0);
-  const l3 = clean.charAt(Math.min(2, len - 1)).toLowerCase();
+  const l1     = clean.charAt(0);
+  const l3     = clean.charAt(Math.min(2, len - 1)).toLowerCase();
   const l4Last = clean.charAt(Math.max(0, len - 4)).toLowerCase();
   const l2Last = clean.charAt(Math.max(0, len - 2)).toLowerCase();
   return `${l1}${l3}-${l4Last}${l2Last}! ${l1}${l3}${l4Last}${l2Last}~`;
+}
+
+function isParadoxOrUltraBeastId(rawId) {
+  if (!rawId) return false;
+  const clean = rawId.toLowerCase().replace(/^overworld_/, '');
+  if (typeof ULTRA_BEAST_IDS !== 'undefined' && ULTRA_BEAST_IDS.has(clean)) return true;
+  if (typeof PARADOX_MONSTER_IDS !== 'undefined' && PARADOX_MONSTER_IDS.has(clean)) return true;
+  return false;
+}
+
+function isRespawningBossNPC(npc) {
+  if (!npc) return false;
+  const rawId = getCanonicalLegendaryId(npc);
+  return Boolean(npc.isUltraBeast || npc.isParadox || isParadoxOrUltraBeastId(rawId));
+}
+
+// Moves every Ultra Beast & Paradox Pokemon in the current map to a fresh random walkable tile on entry
+function randomizeRespawningBossLocationsForCurrentMap() {
+  const mapObj = getCurrentMap();
+  if (!mapObj || !Array.isArray(mapObj.npcs)) return;
+
+  const bossNpcs = mapObj.npcs.filter(npc => isRespawningBossNPC(npc));
+  if (bossNpcs.length === 0) return;
+
+  const validCoords = [];
+  for (let r = 2; r < MAP_ROWS - 2; r++) {
+    for (let c = 2; c < MAP_COLS - 2; c++) {
+      if ((c === 13 || c === 14) && (r === 9 || r === 10)) continue;
+      if (state.playerWorld && Math.abs(state.playerWorld.gridX - c) <= 1 && Math.abs(state.playerWorld.gridY - r) <= 1) continue;
+
+      const tile = getTileAt(c, r);
+      if (tile !== '.' && tile !== 'P' && tile !== 'G' && tile !== 'M' && tile !== '~') continue;
+
+      const occupiedByStaticNpc = mapObj.npcs.some(n => !isRespawningBossNPC(n) && n.x === c && n.y === r);
+      const occupiedByPokeNpc = Array.isArray(mapObj.pokeNpcs) && mapObj.pokeNpcs.some(p => p.x === c && p.y === r);
+      if (!occupiedByStaticNpc && !occupiedByPokeNpc) {
+        validCoords.push({ x: c, y: r });
+      }
+    }
+  }
+
+  bossNpcs.forEach(boss => {
+    if (validCoords.length === 0) return;
+    const randIdx = Math.floor(Math.random() * validCoords.length);
+    const chosen = validCoords.splice(randIdx, 1)[0];
+    boss.x = chosen.x;
+    boss.y = chosen.y;
+  });
 }
 
 function isAreaPokedexComplete(mapObj) {
@@ -78,10 +139,10 @@ function isSurfUnlocked() {
 }
 
 function getRegionOfMapId(mapId) {
-  if (EAST_ASIA_MAP_IDS.has(mapId)) return 'ASIA';
-  if (WEST_EUROPE_MAP_IDS.has(mapId)) return 'EUROPE';
+  if (EAST_ASIA_MAP_IDS.has(mapId)) return 'EAST_ASIA';
+  if (WEST_EUROPE_MAP_IDS.has(mapId)) return 'WEST_EUROPE';
   if (NORTH_AMERICA_MAP_IDS.has(mapId)) return 'NORTH_AMERICA';
-  if (SOUTHERN_AFRICA_MAP_IDS.has(mapId)) return 'AFRICA';
+  if (SOUTHERN_AFRICA_MAP_IDS.has(mapId)) return 'SOUTHERN_AFRICA';
   if (OCEANIA_MAP_IDS.has(mapId)) return 'OCEANIA';
   if (SOUTH_AMERICA_MAP_IDS.has(mapId)) return 'SOUTH_AMERICA';
   if (ANTARCTICA_MAP_IDS.has(mapId)) return 'ANTARCTICA';
@@ -131,20 +192,23 @@ function getCanonicalLegendaryId(npcOrMon) {
 
 function isLegendarySpeciesId(idStr) {
   if (!idStr) return false;
-  return LEGENDARY_MONSTER_IDS.has(idStr.toLowerCase().replace(/^overworld_/, ''));
+  const clean = idStr.toLowerCase().replace(/^overworld_/, '');
+  return LEGENDARY_MONSTER_IDS.has(clean) || isParadoxOrUltraBeastId(clean);
 }
 
 function isNPCActiveOnMap(npc) {
   if (!npc) return false;
   const rawId = getCanonicalLegendaryId(npc);
 
-  if (npc.isUltraBeast || ULTRA_BEAST_IDS.has(rawId)) {
+  // Ultra Beasts and Paradox Pokemon ALWAYS respawn on map re-entry (even if already caught in Dex)
+  if (isRespawningBossNPC(npc)) {
     if (Array.isArray(state.defeatedLegendariesInArea) && state.defeatedLegendariesInArea.includes(rawId)) {
       return false;
     }
     return true;
   }
 
+  // Standard Legendaries hide once caught in Dex or defeated during the current visit
   const isLeg = Boolean(npc.isLegendary || isLegendarySpeciesId(rawId));
   if (isLeg) {
     if (state.dex && state.dex.some(p => p.id.toLowerCase() === rawId)) {
@@ -353,7 +417,7 @@ function checkMilestoneUnlocks() {
     showFeatureUnlockPopup(
       'ANTARCTICA & ULTRA BEASTS UNLOCKED!',
       '110 POKEMON REGISTERED IN DEX (+10 TIER)',
-      'Your Dimensional Portal now links to Paradise Bay in Antarctica! Challenge overworld Ultra Beasts that respawn every time you enter an area!'
+      'Your Dimensional Portal now links to Paradise Bay in Antarctica! Challenge overworld Ultra Beasts and Paradox Pokemon that respawn at random locations every time you enter an area!'
     );
   }
 }
@@ -447,6 +511,9 @@ function spawnFloorItemsForCurrentMap() {
   state.floorItems = [];
   const mapObj = getCurrentMap();
   if (!mapObj || typeof FLOOR_ITEM_TYPES === 'undefined') return;
+
+  // Relocate any Ultra Beast or Paradox Pokemon in this map to a fresh random walkable spot first
+  randomizeRespawningBossLocationsForCurrentMap();
 
   const numItems = 3 + Math.floor(Math.random() * 3);
   const preferredCoords = [];
@@ -885,9 +952,15 @@ function handleTwoStepLegendaryInteraction(npcObj, rawMonId) {
   const callStr = getPokemonCallText(displayName);
   sfx.pokemonCry(displayName);
   state.pendingLegendaryChallengeId = rawMonId;
-  const baseText = npcObj.fact || `${npcObj.name}: "${callStr}"`;
+
+  let loreNote = '';
+  if (npcObj.fact) {
+    const parenIdx = npcObj.fact.indexOf('(');
+    loreNote = parenIdx !== -1 ? ' ' + npcObj.fact.slice(parenIdx) : ` (${npcObj.fact})`;
+  }
+
   setOverworldDialogue(
-    `${baseText} [Press SPACE or A - TALK again to challenge ${npcObj.name}!]`,
+    `${displayName}: "${callStr}"${loreNote} [Press SPACE or A - TALK again to challenge ${npcObj.name}!]`,
     npcObj.name,
     'PRESS SPACE / TALK TO BATTLE'
   );
@@ -909,7 +982,7 @@ function interactWithFacingNPC() {
   const pokeNpc = getFacingPokeNPC();
   if (pokeNpc) {
     const rawPokeId = getCanonicalLegendaryId(pokeNpc);
-    const isLeg = Boolean(pokeNpc.isLegendary || pokeNpc.isUltraBeast || isLegendarySpeciesId(rawPokeId));
+    const isLeg = Boolean(pokeNpc.isLegendary || pokeNpc.isUltraBeast || pokeNpc.isParadox || isLegendarySpeciesId(rawPokeId));
     if (isLeg) {
       handleTwoStepLegendaryInteraction(pokeNpc, rawPokeId);
       return;
@@ -926,7 +999,7 @@ function interactWithFacingNPC() {
   const npc = getFacingNPC();
   if (npc) {
     const rawMonId = getCanonicalLegendaryId(npc);
-    const isLeg = Boolean(npc.isLegendary || npc.isUltraBeast || isLegendarySpeciesId(rawMonId));
+    const isLeg = Boolean(npc.isLegendary || npc.isUltraBeast || npc.isParadox || isLegendarySpeciesId(rawMonId));
     const upperName = (npc.name || '').toUpperCase();
     const upperTopic = (npc.topic || '').toUpperCase();
 
@@ -954,7 +1027,13 @@ function interactWithFacingNPC() {
       const displayName = species ? species.name : (npc.name || rawMonId);
       const callStr = getPokemonCallText(displayName);
       sfx.pokemonCry(displayName);
-      setOverworldDialogue(`${displayName}: "${callStr}" ${npc.fact ? `(${npc.fact})` : ''}`, npc.name, npc.topic);
+
+      let loreNote = '';
+      if (npc.fact) {
+        const parenIdx = npc.fact.indexOf('(');
+        loreNote = parenIdx !== -1 ? ' ' + npc.fact.slice(parenIdx) : ` (${npc.fact})`;
+      }
+      setOverworldDialogue(`${displayName}: "${callStr}"${loreNote}`, npc.name, 'POKEMON CALL');
     } else {
       sfx.npcChime();
       setOverworldDialogue(npc.fact, npc.name, npc.topic);
@@ -1056,14 +1135,14 @@ function updateOverworldHUD() {
       promptEl.classList.remove('hidden');
     } else if (facingPoke) {
       const rawPokeId = getCanonicalLegendaryId(facingPoke);
-      const isLeg = Boolean(facingPoke.isLegendary || facingPoke.isUltraBeast || isLegendarySpeciesId(rawPokeId));
+      const isLeg = Boolean(facingPoke.isLegendary || facingPoke.isUltraBeast || facingPoke.isParadox || isLegendarySpeciesId(rawPokeId));
       promptEl.textContent = isLeg && state.pendingLegendaryChallengeId === rawPokeId
         ? `PRESS [SPACE] OR [A] AGAIN TO BATTLE ${facingPoke.name}!`
         : `PRESS [SPACE] OR [A] TO GREET ${facingPoke.name}`;
       promptEl.classList.remove('hidden');
     } else if (facingNpc) {
       const monId = getCanonicalLegendaryId(facingNpc);
-      const isLeg = Boolean(facingNpc.isLegendary || facingNpc.isUltraBeast || isLegendarySpeciesId(monId));
+      const isLeg = Boolean(facingNpc.isLegendary || facingNpc.isUltraBeast || facingNpc.isParadox || isLegendarySpeciesId(monId));
       if (isLeg) {
         promptEl.textContent = state.pendingLegendaryChallengeId === monId
           ? `PRESS [SPACE] OR [A] AGAIN TO START BATTLE!`
@@ -1189,7 +1268,7 @@ function onSingleBlockStepLanded() {
         sfx.startBGM(state.currentMapId);
         updateOverworldHUD();
         if (typeof saveGameProgress === 'function') saveGameProgress();
-        setOverworldDialogue(`Entered ${targetMapObj.name}! Localized Berries, Evolutionary Stones, and Ultra Beasts have refreshed!`, targetMapObj.name, 'AREA TRANSIT');
+        setOverworldDialogue(`Entered ${targetMapObj.name}! Localized Berries, Evolutionary Stones, Ultra Beasts, and Paradox Pokemon have refreshed!`, targetMapObj.name, 'AREA TRANSIT');
         state.busy = false;
       });
       return;
@@ -1252,9 +1331,8 @@ function enterOverworldFromTitle() {
   sfx.blip();
   applyOriginalRegionAreaNames();
   clearAreaLegendaryStateOnTransit();
-  if (!state.floorItems || state.floorItems.length === 0) {
-    spawnFloorItemsForCurrentMap();
-  }
+  spawnFloorItemsForCurrentMap();
+
   runShutterTransition('ENTERING OVERWORLD...', () => {
     state.screen = 'OVERWORLD';
     document.getElementById('titleScreenView').classList.add('hidden');
@@ -1331,8 +1409,10 @@ function triggerWildBattleFromOverworld(forcedSpecies = null, isLegendaryEncount
     chosenSpecies = pickWildEncounterSpeciesForCurrentTile();
   }
 
-  const isUB = ULTRA_BEAST_IDS.has((chosenSpecies.id || '').toLowerCase());
-  const isLeg = Boolean(isLegendaryEncounter || isUB || isLegendarySpeciesId(chosenSpecies.id));
+  const cleanId = (chosenSpecies.id || '').toLowerCase();
+  const isUB = ULTRA_BEAST_IDS.has(cleanId);
+  const isParadox = (typeof PARADOX_MONSTER_IDS !== 'undefined') && PARADOX_MONSTER_IDS.has(cleanId);
+  const isLeg = Boolean(isLegendaryEncounter || isUB || isParadox || isLegendarySpeciesId(cleanId));
   state.inLegendaryBattle = isLeg;
 
   sfx.stopBGM();
@@ -1348,7 +1428,9 @@ function triggerWildBattleFromOverworld(forcedSpecies = null, isLegendaryEncount
   flash.classList.add('strobe-active');
   banner.querySelector('div').textContent = isUB
     ? `ULTRA BEAST ${chosenSpecies.name} APPEARED!`
-    : (isLeg ? `LEGENDARY ${chosenSpecies.name} BATTLE!` : `WILD ${chosenSpecies.name} APPEARED!`);
+    : (isParadox
+      ? `PARADOX ${chosenSpecies.name} APPEARED!`
+      : (isLeg ? `LEGENDARY ${chosenSpecies.name} BATTLE!` : `WILD ${chosenSpecies.name} APPEARED!`));
 
   setTimeout(() => {
     shutterTop.classList.remove('-translate-y-full');
@@ -1388,10 +1470,11 @@ function returnToOverworldFromBattle(statusMessage = null) {
 
   if (state.enemy) {
     const legId = state.enemy.id.toLowerCase();
-    const isUB = ULTRA_BEAST_IDS.has(legId);
+    const isRespawning = isParadoxOrUltraBeastId(legId);
     const isLeg = isLegendarySpeciesId(legId);
 
-    if (isUB || (isLeg && state.enemy.hp <= 0)) {
+    // Hide defeated/caught Ultra Beast, Paradox, or Legendary for the remainder of the current map visit
+    if ((isRespawning || isLeg) && (state.enemy.hp <= 0 || state.dex.some(p => p.id.toLowerCase() === legId))) {
       if (!Array.isArray(state.defeatedLegendariesInArea)) {
         state.defeatedLegendariesInArea = [];
       }
@@ -1455,9 +1538,5 @@ function runShutterTransition(bannerLabel, midCallback) {
 
 const _canonicalInteractWithFacingNPC = interactWithFacingNPC;
 try {
-  Object.defineProperty(window, 'interactWithFacingNPC', {
-    get() { return _canonicalInteractWithFacingNPC; },
-    set() {},
-    configurable: true
-  });
+  window.interactWithFacingNPC = interactWithFacingNPC;
 } catch (e) {}

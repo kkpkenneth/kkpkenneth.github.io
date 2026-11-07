@@ -41,7 +41,7 @@
       <button id="menuMuteToggleBtn" type="button" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-[8px] sm:text-[9px] px-2.5 py-1.5 font-bold">
         SFX: ON
       </button>
-      <button id="openSettingsModalBtn" type="button" class="pixel-btn bg-slate-700 hover:bg-slate-600 text-amber-300 text-[8px] sm:text-[9px] px-3 py-1.5 font-bold">
+      <button id="openSettingsModalBtn" type="button" class="pixel-btn bg-blue-600 hover:bg-blue-500 text-white text-[8px] sm:text-[9px] px-3 py-1.5 font-bold">
         SETTINGS
       </button>
       <button id="btnReturnTitle" type="button" class="pixel-btn bg-slate-700/90 hover:bg-slate-600 text-white text-[8px] sm:text-[9px] px-2 py-1.5">
@@ -81,7 +81,7 @@
           Quiz Monsters
         </h2>
         <p class="text-[10px] sm:text-xs text-sky-200 leading-relaxed mb-6">
-          Travel with your Partner - Explore 8 World Regions - Heal at Country Chefs &amp; Challenge Respawning Ultra Beasts in Antarctica!
+          Travel with your Partner - Explore 8 World Regions - Heal at Country Chefs &amp; Challenge Respawning Ultra Beasts &amp; Paradox Bosses!
         </p>
 
         <!-- TITLE MASCOTS -->
@@ -353,12 +353,13 @@
     <div class="w-full max-w-4xl retro-box p-3 sm:p-4 max-h-[85vh] flex flex-col gap-2.5 overflow-hidden">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2 shrink-0">
         <div>
-          <h2 class="text-xs sm:text-sm font-bold text-slate-900">PIXEL SPRITE &amp; OBSTACLE STUDIO</h2>
-          <p class="text-[8px] text-slate-600 mt-0.5">Edit Monsters or Overworld Obstacles - Walkable Toggle - Unified Palette</p>
+          <h2 class="text-xs sm:text-sm font-bold text-slate-900">PIXEL SPRITE, OBSTACLE &amp; QUIZ PIC STUDIO</h2>
+          <p class="text-[8px] text-slate-600 mt-0.5">Edit Monsters, Overworld Obstacles, or 16x16 Visual Quiz Clues</p>
         </div>
         <div class="flex items-center gap-1.5">
           <button id="studioModeMonsterBtn" type="button" class="pixel-btn bg-pink-600 text-white text-[8px] px-2.5 py-1 font-bold">MONSTERS</button>
           <button id="studioModeObstacleBtn" type="button" class="pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1">OBSTACLES</button>
+          <button id="studioModeQuizBtn" type="button" class="pixel-btn bg-slate-700 text-slate-200 text-[8px] px-2.5 py-1">QUIZ PICS</button>
           <button id="closeSpriteStudioBtn" type="button" class="pixel-btn bg-red-600 text-white text-[10px] px-2.5 py-1 shrink-0">X</button>
         </div>
       </div>
@@ -549,7 +550,7 @@
     </div>
   </div>
 
-  <!-- MODAL 4: WHAT'S NEW POP-UP -->
+  <!-- MODAL 4: WHAT'S NEW POP-UP (FULL VERSION HISTORY RESTORED) -->
   <div id="whatsNewModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-3">
     <div class="w-full max-w-lg retro-box p-4 sm:p-5 flex flex-col gap-3 max-h-[85vh]">
       <div class="flex items-center justify-between border-b-2 border-slate-300 pb-2">
@@ -564,9 +565,9 @@
         <div class="bg-sky-50 border-l-4 border-sky-600 p-2 rounded">
           <strong class="text-sky-900 block mb-1">Version 10.0 (Latest Update)</strong>
           - Complete 1,025 National Dex (Gen 1 through Gen 9 Paldea) with 60 FPS offscreen canvas caching &amp; O(1) lookup optimization.<br>
-          - 16x16 Visual Vocabulary Clue Pop-up Window for the 4th move slot (Wild Move).<br>
-          - South America Region (100 Dex) &amp; Antarctica Region (110 Dex) with Paradise Bay and respawning Ultra Beasts.<br>
-          - Ultra-Compact Save Codes (QM9:...) &amp; Country Chef / Nurse full party healing.
+          - 16x16 Visual Vocabulary Clue Pop-up Window (VISUAL_QUESTIONS) for the 4th move slot (Wild Move) + 3rd Studio tab.<br>
+          - South America Region (100 Dex) &amp; Antarctica Region (110 Dex) with Paradise Bay and respawning Ultra Beasts &amp; Paradox Bosses.<br>
+          - Custom 4-Letter Pokémon Call System (1st, 3rd, 4th-last, and 2nd-last letters), Yellow Area Completion Asterisk (*), Ultra-Compact Save Codes (QM9:...) &amp; Country Chef / Nurse full party healing.
         </div>
 
         <div class="bg-amber-50 border-l-4 border-amber-600 p-2 rounded">
@@ -795,12 +796,13 @@
           mirrorX: false,
           isPainting: false,
           editTarget: 'MONSTER',
-          selectedObstacleId: 'T'
+          selectedObstacleId: 'T',
+          selectedQuizPicIndex: 0
         }
       };
     }
 
-    // O(1) Species Lookup Maps (Replaces linear MONSTER_SPECIES.find scans)
+    // O(1) Species Lookup Maps
     let _speciesByIdMap = null;
     let _speciesByNameMap = null;
 
@@ -820,13 +822,124 @@
       if (typeof MONSTER_SPECIES === 'undefined' || !speciesOrId) return null;
       ensureSpeciesLookupMaps();
       if (typeof speciesOrId === 'string') {
-        const clean = speciesOrId.toLowerCase();
+        const clean = speciesOrId.toLowerCase().replace(/^overworld_/, '');
         return _speciesByIdMap.get(clean) || _speciesByNameMap.get(clean) || MONSTER_SPECIES[0];
       }
       return _speciesByIdMap.get((speciesOrId.id || '').toLowerCase()) || speciesOrId;
     }
 
-    // Lazy 16x16 Offscreen Canvas Cache (Zero SVG regex parsing or eager startup lag)
+    // Canonical 4-Letter Pokemon Call (1st, 3rd, 4th-last, and 2nd-last letters of species name)
+    window.getPokemonCallText = function(nameOrId) {
+      let raw = String(nameOrId || 'PIKACHU').trim();
+      if (typeof MONSTER_SPECIES !== 'undefined') {
+        const cleanId = raw.toLowerCase().replace(/^overworld_/, '');
+        const sp = MONSTER_SPECIES.find(m =>
+          m.id.toLowerCase() === cleanId ||
+          m.name.toLowerCase() === cleanId ||
+          cleanId.includes(m.name.toLowerCase()) ||
+          cleanId.includes(m.id.toLowerCase())
+        );
+        if (sp && sp.name) raw = sp.name;
+      }
+      const clean = raw.replace(/[^a-zA-Z]/g, '').toUpperCase() || 'PIKA';
+      const len = clean.length;
+      const l1     = clean.charAt(0);
+      const l3     = clean.charAt(Math.min(2, len - 1)).toLowerCase();
+      const l4Last = clean.charAt(Math.max(0, len - 4)).toLowerCase();
+      const l2Last = clean.charAt(Math.max(0, len - 2)).toLowerCase();
+      return `${l1}${l3}-${l4Last}${l2Last}! ${l1}${l3}${l4Last}${l2Last}~`;
+    };
+
+    // Guaranteed Startup Registration for All Overworld Legendaries, Mythicals, Paradox & Ultra Beasts
+    function ensureAllOverworldLegendariesRegistered() {
+      if (typeof WORLD_MAPS === 'undefined') return;
+
+      const paradoxSet = new Set([
+        'great_tusk', 'scream_tail', 'brute_bonnet', 'flutter_mane',
+        'slither_wing', 'sandy_shocks', 'roaring_moon', 'walking_wake',
+        'gouging_fire', 'raging_bolt', 'iron_treads', 'iron_bundle',
+        'iron_hands', 'iron_jugulis', 'iron_moth', 'iron_thorns',
+        'iron_valiant', 'iron_leaves', 'iron_boulder', 'iron_crown'
+      ]);
+      const ubSet = new Set([
+        'nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela',
+        'kartana', 'guzzlord', 'poipole', 'naganadel', 'stakataka', 'blacephalon'
+      ]);
+
+      window.PARADOX_MONSTER_IDS = paradoxSet;
+      if (typeof ULTRA_BEAST_IDS !== 'undefined') {
+        ubSet.forEach(id => ULTRA_BEAST_IDS.add(id));
+      }
+      if (typeof LEGENDARY_MONSTER_IDS !== 'undefined') {
+        paradoxSet.forEach(id => LEGENDARY_MONSTER_IDS.add(id));
+        ubSet.forEach(id => LEGENDARY_MONSTER_IDS.add(id));
+      }
+
+      if (typeof REMAINING_OVERWORLD_LEGENDARIES_BY_MAP === 'undefined') return;
+
+      Object.keys(REMAINING_OVERWORLD_LEGENDARIES_BY_MAP).forEach(mapKey => {
+        const mapObj = WORLD_MAPS[mapKey];
+        if (!mapObj) return;
+        if (!Array.isArray(mapObj.npcs)) mapObj.npcs = [];
+
+        REMAINING_OVERWORLD_LEGENDARIES_BY_MAP[mapKey].forEach(leg => {
+          const cleanMonId = leg.monsterId.toLowerCase();
+          const npcId = 'overworld_' + cleanMonId;
+          const existing = mapObj.npcs.find(n => n.id === npcId || (n.monsterId && n.monsterId.toLowerCase() === cleanMonId));
+
+          const isUB = ubSet.has(cleanMonId);
+          const isParadox = paradoxSet.has(cleanMonId);
+
+          if (existing) {
+            existing.isMonster = true;
+            existing.monsterId = cleanMonId;
+            existing.isLegendary = true;
+            existing.isUltraBeast = isUB;
+            existing.isParadox = isParadox;
+            return;
+          }
+
+          let tx = leg.x;
+          let ty = leg.y;
+          const rowStr = (mapObj.rows && mapObj.rows[ty]) ? mapObj.rows[ty] : '';
+          const chAtSpot = rowStr.charAt(tx);
+          const isSpotWalkable = (chAtSpot === 'P' || chAtSpot === '.' || chAtSpot === 'G' || chAtSpot === '~');
+
+          if (!isSpotWalkable || mapObj.npcs.some(n => n.x === tx && n.y === ty)) {
+            const offsets = [[1,0],[-1,0],[0,1],[0,-1],[2,0],[-2,0],[0,2],[0,-2],[1,1],[-1,1],[1,-1],[-1,-1]];
+            for (const [dx, dy] of offsets) {
+              const nx = tx + dx, ny = ty + dy;
+              if (ny <= 1 || ny >= MAP_ROWS - 2 || nx <= 1 || nx >= MAP_COLS - 2) continue;
+              const rStr = mapObj.rows && mapObj.rows[ny] ? mapObj.rows[ny] : '';
+              const ch = rStr.charAt(nx);
+              if ((ch === 'P' || ch === '.' || ch === 'G' || ch === '~') && !mapObj.npcs.some(n => n.x === nx && n.y === ny)) {
+                tx = nx;
+                ty = ny;
+                break;
+              }
+            }
+          }
+
+          mapObj.npcs.push({
+            id: npcId,
+            name: leg.name,
+            topic: isUB
+              ? 'ULTRA BEAST • RESPAWNS ON RE-ENTRY'
+              : (isParadox ? 'PARADOX POKEMON • RESPAWNS ON RE-ENTRY' : 'LEGENDARY POKEMON • PRESS SPACE TO CHALLENGE'),
+            x: tx,
+            y: ty,
+            isMonster: true,
+            monsterId: cleanMonId,
+            isLegendary: true,
+            isUltraBeast: isUB,
+            isParadox: isParadox,
+            fact: `${leg.name}: ${leg.fact}`
+          });
+        });
+      });
+    }
+
+    // Lazy 16x16 Offscreen Canvas Cache
     const _monsterOffscreenCanvasCache = {};
 
     function getMonsterCanvasImage(speciesOrId) {
@@ -865,37 +978,6 @@
       return offCvs;
     }
 
-    function drawMonsterOnCanvas(ctx, speciesOrId, screenX, screenY, flipX = false) {
-      const offCvs = getMonsterCanvasImage(speciesOrId);
-      if (!offCvs) return;
-
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.38)';
-      ctx.beginPath();
-      ctx.ellipse(
-        screenX + SAFE_TILE_SIZE / 2,
-        screenY + SAFE_TILE_SIZE - 3,
-        SAFE_TILE_SIZE * 0.34,
-        SAFE_TILE_SIZE * 0.15,
-        0, 0, Math.PI * 2
-      );
-      ctx.fill();
-
-      const size = Math.round(SAFE_TILE_SIZE * 0.88);
-      const dx = Math.round(screenX + (SAFE_TILE_SIZE - size) / 2);
-      const dy = Math.round(screenY + (SAFE_TILE_SIZE - size) - 2);
-
-      ctx.save();
-      ctx.imageSmoothingEnabled = false;
-      if (flipX) {
-        ctx.translate(dx + size, dy);
-        ctx.scale(-1, 1);
-        ctx.drawImage(offCvs, 0, 0, size, size);
-      } else {
-        ctx.drawImage(offCvs, dx, dy, size, size);
-      }
-      ctx.restore();
-    }
-
     function setupAudioExtensions() {
       if (typeof sfx === 'undefined') return;
 
@@ -915,58 +997,6 @@
           }
         }, 1250);
       };
-    }
-
-    function setupOverworldHooks() {
-      if (typeof window.drawOverworldCanvas === 'function') {
-        const _origDrawOverworld = window.drawOverworldCanvas;
-        window.drawOverworldCanvas = function() {
-          _origDrawOverworld();
-
-          const canvas = document.getElementById('overworldCanvas');
-          if (!canvas) return;
-          const ctx = canvas.getContext('2d');
-          const p = window.state.playerWorld;
-          const mapObj = getCurrentMap();
-          const mapWidthPx = MAP_COLS * SAFE_TILE_SIZE;
-          const mapHeightPx = MAP_ROWS * SAFE_TILE_SIZE;
-
-          let camX = p.pixelX + SAFE_TILE_SIZE / 2 - canvas.width / 2;
-          let camY = p.pixelY + SAFE_TILE_SIZE / 2 - canvas.height / 2;
-          camX = Math.max(0, Math.min(camX, mapWidthPx - canvas.width));
-          camY = Math.max(0, Math.min(camY, mapHeightPx - canvas.height));
-
-          if (mapObj && Array.isArray(mapObj.npcs)) {
-            const bob = Math.sin(performance.now() / 200) * 2;
-            const facing = (typeof getFacingNPC === 'function') ? getFacingNPC() : null;
-            for (let i = 0; i < mapObj.npcs.length; i++) {
-              const npc = mapObj.npcs[i];
-              if (typeof isNPCActiveOnMap === 'function' && !isNPCActiveOnMap(npc)) continue;
-              if (npc.isMonster || npc.monsterId) {
-                const tileX = Math.round(npc.x * SAFE_TILE_SIZE - camX);
-                const tileY = Math.round(npc.y * SAFE_TILE_SIZE - camY);
-                if (tileX < -SAFE_TILE_SIZE || tileX > canvas.width || tileY < -SAFE_TILE_SIZE || tileY > canvas.height) continue;
-
-                const tile = getTileAt(npc.x, npc.y);
-                ctx.fillStyle = (tile === 'P' || tile === 'E') ? mapObj.theme.path : (tile === 'W' ? '#0284c7' : mapObj.theme.groundA);
-                ctx.fillRect(tileX, tileY, SAFE_TILE_SIZE, SAFE_TILE_SIZE);
-
-                drawMonsterOnCanvas(ctx, npc.monsterId || npc.id, tileX, Math.round(tileY + bob), false);
-
-                if (facing && facing.id === npc.id) {
-                  ctx.fillStyle = '#f59e0b';
-                  ctx.beginPath();
-                  ctx.arc(tileX + 16, tileY - 6, 6, 0, Math.PI * 2);
-                  ctx.fill();
-                  ctx.fillStyle = '#0f172a';
-                  ctx.font = 'bold 9px monospace';
-                  ctx.fillText('!', tileX + 14, tileY - 3);
-                }
-              }
-            }
-          }
-        };
-      }
     }
 
     /********************************************************************
@@ -1155,10 +1185,6 @@
       }
     }
 
-    function autoSaveGameProgress() {
-      saveGameProgress(false);
-    }
-
     function loadSavedGameProgress() {
       try {
         const raw = localStorage.getItem(window.SAVE_STORAGE_KEY);
@@ -1178,6 +1204,7 @@
       window.state.activeDexIndex = 0;
       window.state.streak = 0;
       window.state.currentMapId = 'CENTER';
+      window.state.defeatedLegendariesInArea = [];
       window.state.unlockedMilestones = {
         map20: false, fly30: false, portal50: false, portal60: false,
         portal70: false, portal80: false, portal90: false, portal100: false, portal110: false
@@ -1228,7 +1255,6 @@
     }
 
     function initGame() {
-      // Ensure studio.js cannot override our compact QM9 save function
       window.saveGameProgress = saveGameProgress;
 
       if (!window.state.questions || window.state.questions.length === 0) {
@@ -1236,8 +1262,8 @@
       }
 
       ensureSpeciesLookupMaps();
+      ensureAllOverworldLegendariesRegistered();
       setupAudioExtensions();
-      setupOverworldHooks();
       refreshTitleScreenSprites();
 
       const pikachuSpecies = findSpeciesObject('pikachu') || MONSTER_SPECIES[0];
